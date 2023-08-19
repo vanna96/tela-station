@@ -1,0 +1,59 @@
+/* @media screen and (max-width: 1440px) {
+
+  table.MuiTable-root>tbody>tr>td,
+  table.MuiTable-root>thead>tr>th {
+    font-size: 13px;
+  }
+} */
+
+/* @media screen and (max-width: 1280px) {
+
+  table.MuiTable-root>tbody>tr>td,
+  table.MuiTable-root>thead>tr>th {
+    font-size: 12px;
+  }
+
+  table.MuiTable-root>thead>tr>th > .css-pwcg7p-MuiCollapse-root >div >div >div >div{
+    font-size: 13px;
+  }
+
+  div.data-table .css-80pr5n-MuiPaper-root>.MuiToolbar-dense>.css-sq9qdz {
+    margin-bottom: 0px;
+    height: 3.5rem;
+  }
+
+  div.data-table .css-80pr5n-MuiPaper-root {
+    padding: 0rem 1.5rem;
+  }
+
+  div.text-field>div,
+  div.text-field {
+    height: 24px;
+  }
+
+  div.text-field>input,
+  div.text-field>div>input {
+    font-size: 12px;
+  }
+
+  div.text-field>label {
+    font-size: 10px;
+    margin-top: -2px;
+  }
+
+  .mui-select>div {
+    height: 24px;
+  }
+
+  .date-picker>div>div {
+    height: 24px;
+  }
+
+  .date-picker>div>div>input {
+    font-size: 14px;
+  }
+
+  .date-picker>div>div>div>button>svg {
+    font-size: 16px;
+  }
+} */

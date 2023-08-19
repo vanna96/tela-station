@@ -1,0 +1,226 @@
+hr {
+  margin: 10px 0px;
+}
+
+.MuiLoadingButton-loadingIndicator {
+  color: white !important;
+}
+
+div.data-table .css-80pr5n-MuiPaper-root {
+  padding: 0rem 1.5rem;
+  border-radius: 0px;
+  box-shadow: none;
+  /* border: 1px solid rgb(233, 233, 233); */
+}
+
+div.data-table > div {
+  padding: 0 !important;
+  /* background-color: inherit !important; */
+  color: inherit !important;
+}
+
+div.border-none .css-80pr5n-MuiPaper-root {
+  border: none !important;
+}
+
+div.p-0.css-80pr5n-MuiPaper-root {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+div.data-grid .css-80pr5n-MuiPaper-root {
+  /* padding: 0rem 1.5rem; */
+  /* border-radius: 10px; */
+  box-shadow: none;
+  /* border: 1px solid rgb(233, 233, 233); */
+}
+
+div.data-grid > div > div:nth-child(1) {
+  display: none;
+}
+
+div.data-grid > div {
+  background-color: inherit;
+}
+
+div.data-grid > div > div > table,
+div.data-grid > div > div > table > thead > tr,
+div.data-grid > div > div > table > tbody > tr {
+  background-color: inherit;
+  color: inherit;
+}
+
+div.data-table > div > div > table,
+div.data-table > div > div > table > thead > tr,
+div.data-table > div > div > table > tbody > tr {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+div.data-grid > div > div > table > thead > tr > th,
+div.data-grid > div > div > table > tbody > tr > td {
+  color: inherit;
+}
+
+div.data-table > div > div:nth-child(1) > div:nth-child(3) {
+  align-items: center;
+}
+
+div.data-table > div > div > table {
+  margin-bottom: 14px;
+}
+
+div.data-table > div > div:nth-child(2) {
+  z-index: 0;
+  /* display: none; */
+}
+
+div.data-table > div > div {
+  z-index: 0;
+}
+
+div.data-table > div > div > table > thead {
+  z-index: 0;
+}
+
+div.data-table > div > div > table > thead {
+  z-index: 0;
+}
+
+div.data-table > div > div > table > thead > tr {
+  border-radius: 2px;
+}
+
+div.data-table > div > div > table > thead > tr {
+  box-shadow: none;
+}
+/* 
+div.data-table > div > div > table > thead > tr > th {
+  border: 1px solid #e8e8e8;
+} */
+
+div.data-table > div > div > table > thead > tr > th > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* div.data-table > div > div > table > tbody > tr > td:first-child {
+  border-left: 1px solid #e8e8e8;
+} */
+
+/* div.data-table > div > div > table > tbody > tr > td:last-child {
+  border-right: 1px solid #e8e8e8;
+} */
+
+div.p-0 > .css-80pr5n-MuiPaper-root {
+  padding: 0px !important;
+}
+
+div.data-table .css-80pr5n-MuiPaper-root > .MuiToolbar-dense > .css-sq9qdz {
+  /* border-bottom: 1px solid #eeeeee; */
+  margin-bottom: 24px;
+}
+
+div.text-field > div,
+div.text-field {
+  height: 30px;
+}
+
+div.text-field > label {
+  font-size: 14px;
+  margin-top: -2px;
+}
+
+.text-field > div {
+  padding-right: 1px;
+  position: relative;
+  padding-left: 0px;
+}
+
+.text-field > div > input {
+  /* padding: 0px 12px; */
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+span.MuiLinearProgress-root {
+  display: none;
+}
+
+.date-picker > div {
+  width: 100%;
+}
+
+.date-picker > div > div {
+  height: 30px;
+}
+
+.date-picker > div > div > input {
+  font-size: 15px;
+}
+
+/* .date-picker-error > div > div {
+  border: 0.8px solid red;
+} */
+
+button >svg {
+  color: rgba(43, 43, 43, 0.815) !important;
+}
+
+.date-picker > div > div > div > button > svg {
+  font-size: 20px;
+}
+
+.mui-select > div {
+  height: 30px;
+}
+
+.mui-select > div > div {
+  font-size: 13px;
+}
+
+input[type="number"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+#basic-menu > div:nth-child(3) {
+  margin-top: 10px;
+  border: 1px solid #dedededa;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  font-size: 14px !important;
+}
+#basic-menu > div:nth-child(3) > ul > li {
+  font-size: 14px;
+  /* transition: background 0.1s; */
+}
+
+#basic-menu > div:nth-child(3) > ul > li:hover {
+  background-color: #60a5fa;
+  color: white;
+}
+
+.css-g2tram-MuiToolbar-root {
+  background-color: inherit !important;
+}
+
+.css-19wwevd-MuiTypography-root-MuiDayPicker-weekDayLabel,
+.MuiTypography-body1,
+.MuiTableCell-root {
+  color: inherit !important;
+}
+
+.MuiTypography-root,
+.MuiTypography-body1,
+.css-qmj7ks-MuiTypography-root {
+  font-style: normal !important;
+  margin: 0 auto !important;
+}
+
+
+.text-system-color {
+  color:  #111749;
+}
