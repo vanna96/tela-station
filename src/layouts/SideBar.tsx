@@ -1,13 +1,12 @@
 import React from "react"
-import { FiGrid, FiShoppingBag } from "react-icons/fi"
-import { GiFactory } from "react-icons/gi"
-import { MdOutlineDirectionsTransitFilled } from "react-icons/md"
-import { HiOutlineDocumentPlus } from "react-icons/hi2"
+import { FiBarChart2, FiGrid, FiShoppingBag } from "react-icons/fi"
+import { HiOutlineShoppingBag } from "react-icons/hi2"
 import { useLocation, useNavigate } from "react-router-dom"
-import { BsClipboardData } from "react-icons/bs"
+import { BsCollection, BsFuelPumpDiesel } from "react-icons/bs"
 import BigLogo from "@/assets/img/big-logo.png"
 import SmallLogo from "@/assets/img/mini-logo.jpg"
 import { Divider } from "@mui/material"
+import { AiOutlineStock } from "react-icons/ai"
 
 export default function SideBar(props: any) {
   const navigate = useNavigate()
@@ -36,46 +35,45 @@ export default function SideBar(props: any) {
           title="System Initialize"
         />
         <NavButton
-          onClick={() => goTo("/master-data")}
-          route="master-data"
-          collapse={props?.collapse}
-          icon={<BsClipboardData />}
-          title="Master Data"
-        />
-        <NavButton
-          onClick={() => goTo("/procument")}
-          route="procument"
-          collapse={props?.collapse}
-          icon={<HiOutlineDocumentPlus />}
-          title="Procument"
-        />
-        <NavButton
           onClick={() => goTo("/sale")}
           route="sale"
           collapse={props?.collapse}
-          icon={<FiShoppingBag />}
-          title="Sale"
-        />
-        <NavButton
-          onClick={() => goTo("/inventory")}
-          route="inventory"
-          collapse={props?.collapse}
-          icon={<GiFactory />}
-          title="Inventory"
-        />
-        <NavButton
-          onClick={() => goTo("/logistic")}
-          route="logistic"
-          collapse={props?.collapse}
-          icon={<MdOutlineDirectionsTransitFilled />}
-          title="Logistic"
+          icon={<HiOutlineShoppingBag />}
+          title="Ordering System"
         />
         <NavButton
           onClick={() => goTo("/banking")}
           route="banking"
           collapse={props?.collapse}
-          icon={<FiShoppingBag />}
-          title="Banking"
+          icon={<BsCollection />}
+          title="Collection"
+        />
+        <NavButton
+          onClick={() => {
+            return
+          }}
+          route="Expense"
+          collapse={props?.collapse}
+          icon={<FiBarChart2 />}
+          title="Expense Log"
+        />
+        <NavButton
+          onClick={() => {
+            return
+          }}
+          route="Stock"
+          collapse={props?.collapse}
+          icon={<AiOutlineStock />}
+          title="Stock Control"
+        />
+        <NavButton
+          onClick={() => {
+            return
+          }}
+          route="Fuel"
+          collapse={props?.collapse}
+          icon={<BsFuelPumpDiesel />}
+          title="Fuel Dispenser"
         />
       </div>
     </aside>
