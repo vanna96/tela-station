@@ -13,6 +13,13 @@ import ReturnRequestDetail from "@/presentations/sale/return_request/detail"
 import ReturnLists from "@/presentations/sale/return"
 import ReturnForm from "@/presentations/sale/return/form"
 import ReturnDetail from "@/presentations/sale/return/detail"
+import DeliveryLists from "@/presentations/sale/sale_delivery"
+import DeliveryForm from "@/presentations/sale/sale_delivery/form"
+import DeliveryDetail from "@/presentations/sale/sale_delivery/detail"
+import InvoiceLists from "@/presentations/sale/sale_invoice"
+import InvoiceForm from "@/presentations/sale/sale_invoice/form"
+import InvoiceDetails from "@/presentations/sale/sale_invoice/detail"
+
 
 export default function SaleRoute() {
   return (
@@ -48,6 +55,18 @@ export default function SaleRoute() {
         <Route path="create" element={<ReturnForm />} />
         <Route path=":id/edit" element={<ReturnForm edit={true} />} />
         <Route path=":id" element={<ReturnDetail edit={true} />} />
+      </Route>
+      <Route path="/delivery">
+        <Route index element={<DeliveryLists />} />
+        <Route path="create" element={<DeliveryForm />} />
+        <Route path=":id/edit" element={<DeliveryForm edit={true} />} />
+        <Route path=":id" element={<DeliveryDetail edit={true} />} />
+      </Route>
+      <Route path="/invoice">
+        <Route index element={<InvoiceLists />} />
+        <Route path="create" element={<InvoiceForm />} />
+        <Route path=":id/edit" element={<ReturnForm edit={true} />} />
+        <Route path=":id" element={<InvoiceDetails edit={true} />} />
       </Route>
     </Routes>
   )
