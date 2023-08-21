@@ -215,7 +215,7 @@ export default function DeliveryLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Delivery"
+          title="Delivery Lists"
         />
       </div>
     </>

@@ -41,7 +41,7 @@ const BranchModal: FC<BranhModalProps> = ({ open, onClose }) => {
       },
       {
         accessorKey: "Description",
-        header: "Discription",
+        header: "Description",
       },
     ],
     []
@@ -51,7 +51,7 @@ const BranchModal: FC<BranhModalProps> = ({ open, onClose }) => {
     <Modal
       open={open}
       onClose={onClose}
-      widthClass='w-[50rem]'
+      widthClass='w-min-[35rem]'
       title='List Of Projects'
       disableTitle={true}
       disableFooter={true}
@@ -62,7 +62,7 @@ const BranchModal: FC<BranhModalProps> = ({ open, onClose }) => {
           data={data ?? []}
           enableStickyHeader={true}
           enableStickyFooter={true}
-          enablePagination={true}
+          enablePagination={false}
           enableTopToolbar={true}
           enableDensityToggle={false}
           initialState={{ density: "compact" }}
@@ -90,7 +90,8 @@ const BranchModal: FC<BranhModalProps> = ({ open, onClose }) => {
             }
           }
           renderTopToolbarCustomActions={({ table }) => {
-            return <h2 className=" text-lg font-bold">List Of Branch</h2>
+            return <h3 className="mt-2 text-lg font-medium">List of Branches</h3>
+
           }}
         />
       </div>

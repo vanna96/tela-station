@@ -35,42 +35,61 @@ const DocumentSeriesModal: FC<DocumentNumberingModalProps> = (props) => {
       {
         accessorKey: 'Name',
         header: 'Name',
+        size: 5
       },
       {
         accessorKey: 'InitialNumber',
         header: 'First No.',
+        size: 5
+
       },
       {
         accessorKey: 'NextNumber',
         header: ' Next No.',
+        size: 5
+
       },
       {
         accessorKey: 'LastNumber',
         header: 'Last No.',
+        size: 5
+
       },
       {
         accessorKey: 'Prefix',
         header: 'Prefix',
+        size: 5
+
       },
       {
         accessorKey: 'Suffix',
         header: 'Suffix',
+        size: 5
+
       },
       {
         accessorKey: 'Remarks',
         header: 'Remarks',
+        size: 5
+
       },
       {
         accessorKey: 'GroupCode',
         header: 'Group',
+        size: 5
+
       },
       {
         accessorKey: 'PeriodIndicator',
         header: 'Period Ind.',
+        size: 5
+
       },
       {
         accessorKey: 'PeriodIndicator',
         header: 'Period Ind.',
+        size: 5
+
       },
     ],
     []
