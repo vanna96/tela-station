@@ -7,11 +7,18 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import BPAutoComplete from "@/components/input/BPAutoComplete";
-import { Button } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
 import { BiFilterAlt } from "react-icons/bi";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function DeliveryLists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -21,10 +28,10 @@ export default function DeliveryLists() {
     () => [
       {
         accessorKey: "DocNum",
-        header: "Document No.", //uses the default width from defaultColumn prop
+        header: "Doc. No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 50,
+        size: 40,
         visible: true,
         type: "number",
       },
@@ -35,8 +42,7 @@ export default function DeliveryLists() {
         visible: true,
         type: "string",
         align: "center",
-
-        size: 60,
+        size: 65,
       },
       {
         accessorKey: "CardName",
@@ -44,8 +50,7 @@ export default function DeliveryLists() {
         visible: true,
         type: "string",
         align: "center",
-
-        size: 80,
+        size: 90,
       },
       {
         accessorKey: "TaxDate",
@@ -53,7 +58,6 @@ export default function DeliveryLists() {
         visible: true,
         type: "string",
         align: "center",
-
         size: 60,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.value).format("YY.MM.DD");
@@ -66,7 +70,6 @@ export default function DeliveryLists() {
         visible: true,
         type: "string",
         align: "center",
-
         size: 60,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.value).format("YY.MM.DD");
@@ -74,28 +77,34 @@ export default function DeliveryLists() {
         },
       },
       {
+        accessorKey: "DocTotal",
+        header: " DocumentTotal",
+        visible: true,
+        type: "string",
+        size: 70,
+        Cell: ({ cell }: any) => (
+          <>
+            {" "}
+            {"AUD"} {cell.getValue().toFixed(2)}
+          </>
+        ),
+      },
+      {
         accessorKey: "DocumentStatus",
         header: " Status",
         visible: true,
         type: "string",
         size: 60,
-        Cell: (cell: any) => {
-          const status = cell.value?.toString()?.replace("bost_", "");
-          console.log(status);
-          return <span>{status}</span>;
-        },
+        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
       {
         accessorKey: "DocType",
         header: " Document Type",
-        visible: true,
+        visible: false,
         type: "string",
         align: "center",
         size: 60,
-        // Cell: (cell: any) => {
-        //   const status = cell.value?.replace("dDocument_", "");
-        //   return <span>{status}</span>;
-        // },
+        Cell: ({ cell }: any) => <>{cell.getValue()?.split("dDocument_")}</>,
       },
       {
         accessorKey: "DocEntry",
@@ -243,7 +252,8 @@ export default function DeliveryLists() {
     docnum: "",
     cardcode: "",
     cardname: "",
-    deliveryDate:""
+    deliveryDate: "",
+    status: "",
   });
 
   const handleGoClick = () => {
@@ -266,6 +276,11 @@ export default function DeliveryLists() {
       queryFilters += queryFilters
         ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
         : `DocDueDate ge '${searchValues.deliveryDate}'`;
+    } 
+    if (searchValues.status) {
+      queryFilters += queryFilters
+        ? ` and DocumentStatus eq '${searchValues.status}'`
+        : `DocumentStatus eq '${searchValues.status}'`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -299,26 +314,7 @@ export default function DeliveryLists() {
               setSearchValues({ ...searchValues, docnum: e.target.value })
             }
           />
-          {/* <MUITextField
-            label="Customer"
-            placeholder="Customer"
-            className="bg-white"
-            autoComplete="off"
-            value={searchValues.cardcode}
-            onChange={(e) =>
-              setSearchValues({ ...searchValues, cardcode: e.target.value })
-            }
-          /> */}
-          {/* <MUITextField
-            label="Customer Name"
-            placeholder="Customer "
-            className="bg-white"
-            autoComplete="off"
-            value={searchValues.cardname}
-            onChange={(e) =>
-              setSearchValues({ ...searchValues, cardname: e.target.value })
-            }
-          /> */}
+        
           <BPAutoComplete
             label="Customer"
             value={searchValues.cardcode}
@@ -327,7 +323,7 @@ export default function DeliveryLists() {
             }
           />
           <MUITextField
-            label="Delivery Date"   
+            label="Delivery Date"
             placeholder="Delivery Date"
             className="bg-white"
             type="date"
@@ -336,6 +332,28 @@ export default function DeliveryLists() {
               setSearchValues({ ...searchValues, deliveryDate: e.target.value })
             }
           />
+         <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                Status
+              </label>
+              <div className="">
+                <MUISelect
+                  items={[
+                    { label: "None", value: "" },
+                    { label: "Open", value: "bost_Open" },
+                    { label: "Close", value: "bost_Close" },
+                    { label: "Paid", value: "bost_Paid" },
+                    { label: "Delivered", value: "bost_Delivered" },
+
+                  ]}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, status: e.target.value })
+                  }
+                  value={searchValues.status}
+                />
+              </div>
+            </div>
+        
           <div className="flex justify-end items-center align-center space-x-4 mt-4">
             <Button variant="contained" size="small" onClick={handleGoClick}>
               Go

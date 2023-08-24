@@ -72,19 +72,8 @@ export default function DataTable(props: DataTableProps) {
               <HiRefresh />
             </span>
             <span className="capitalize text-sm">Refresh</span>
-          </Button>
-          <MenuCompoment
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BsSortDown />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Sort By</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={props.handlerSortby}
-          /> */}
+          </Button>*/}
+          
           <Button
             size="small"
             variant="text"
@@ -101,6 +90,18 @@ export default function DataTable(props: DataTableProps) {
             </span>
             <span className="capitalize text-sm">Refresh</span>
           </Button>
+          <MenuCompoment
+            title={
+              <div className="flex gap-2">
+                <span className="text-lg">
+                  <BsSortDown />
+                </span>{" "}
+                <span className="text-[13px] capitalize">Sort By</span>
+              </div>
+            }
+            items={props.columns}
+            onClick={props.handlerSortby}
+          /> 
           <DataTableColumnVisibility
             title={
               <div className="flex gap-2">
@@ -127,8 +128,9 @@ export default function DataTable(props: DataTableProps) {
             density: "compact",
             columnVisibility: colVisibility,
           }}
-          enableDensityToggle={false}
-          enableColumnResizing
+          enableDensityToggle={true}
+          // enableColumnResizing
+        
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}

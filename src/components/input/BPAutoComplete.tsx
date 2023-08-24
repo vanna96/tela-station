@@ -17,6 +17,7 @@ export default function BPAutoComplete(props: {
       new BusinessPartnerRepository().get(`&$filter=CardType eq 'c${type}'`),
     staleTime: Infinity,
   });
+  console.log(data)
   const [value, setValue] = React.useState();
   return (
     <div className="block">
@@ -30,26 +31,20 @@ export default function BPAutoComplete(props: {
       <Autocomplete
         options={data}
         autoHighlight
-        // value={value}
-        // onChange={(event, newValue) => setValue(newValue)}
-        value={props.value ? value : null} // Use the passed value prop directly
-        // onChange={(event, newValue) => {
-        //   if (props.onChange) {
-        //     props.onChange(newValue || ''); // Call the handler with newValue or an empty string
-        //   }
-        // }}
+        value={props.value ? value : value} 
         onChange={(event, newValue) => {
           if (props.onChange) {
-            const selectedValue = newValue ? newValue.CardCode : ""; // Get the CardCode property
+            const selectedValue = newValue ? newValue.CardCode : ""; 
             props.onChange(selectedValue);
           }
         }}
         loading={isLoading}
         getOptionLabel={(option: any) => option.CardCode}
         renderOption={(props, option) => (
-          <Box component="li" {...props}>
+          <Box component="li" {...props}
+          >
             <BsDot />
-            {option.CardName} ({option.CardCode})
+            {option.CardCode} - {option.CardName} 
           </Box>
         )}
         renderInput={(params) => (
