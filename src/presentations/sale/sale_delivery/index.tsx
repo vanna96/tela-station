@@ -11,18 +11,20 @@ import { Button } from "@mui/material";
 import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
 import { BiFilterAlt } from "react-icons/bi";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
+import moment from "moment";
 
 export default function DeliveryLists() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
+
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc Num", //uses the default width from defaultColumn prop
+        header: "Document No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 50,
         visible: true,
         type: "number",
       },
@@ -32,12 +34,68 @@ export default function DeliveryLists() {
         enableClickToCopy: true,
         visible: true,
         type: "string",
+        align: "center",
+
+        size: 60,
       },
       {
         accessorKey: "CardName",
         header: "Customer Name",
         visible: true,
         type: "string",
+        align: "center",
+
+        size: 80,
+      },
+      {
+        accessorKey: "TaxDate",
+        header: "Posting Date",
+        visible: true,
+        type: "string",
+        align: "center",
+
+        size: 60,
+        Cell: (cell: any) => {
+          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          return <span>{formattedDate}</span>;
+        },
+      },
+      {
+        accessorKey: "DocDueDate",
+        header: "Delivery Date",
+        visible: true,
+        type: "string",
+        align: "center",
+
+        size: 60,
+        Cell: (cell: any) => {
+          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          return <span>{formattedDate}</span>;
+        },
+      },
+      {
+        accessorKey: "DocumentStatus",
+        header: " Status",
+        visible: true,
+        type: "string",
+        size: 60,
+        Cell: (cell: any) => {
+          const status = cell.value?.toString()?.replace("bost_", "");
+          console.log(status);
+          return <span>{status}</span>;
+        },
+      },
+      {
+        accessorKey: "DocType",
+        header: " Document Type",
+        visible: true,
+        type: "string",
+        align: "center",
+        size: 60,
+        // Cell: (cell: any) => {
+        //   const status = cell.value?.replace("dDocument_", "");
+        //   return <span>{status}</span>;
+        // },
       },
       {
         accessorKey: "DocEntry",
@@ -185,6 +243,7 @@ export default function DeliveryLists() {
     docnum: "",
     cardcode: "",
     cardname: "",
+    deliveryDate:""
   });
 
   const handleGoClick = () => {
@@ -202,6 +261,11 @@ export default function DeliveryLists() {
       queryFilters += queryFilters
         ? ` and startswith(CardName, '${searchValues.cardname}')`
         : `startswith(CardName, '${searchValues.cardname}')`;
+    }
+    if (searchValues.deliveryDate) {
+      queryFilters += queryFilters
+        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
+        : `DocDueDate ge '${searchValues.deliveryDate}'`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -235,7 +299,7 @@ export default function DeliveryLists() {
               setSearchValues({ ...searchValues, docnum: e.target.value })
             }
           />
-          <MUITextField
+          {/* <MUITextField
             label="Customer"
             placeholder="Customer"
             className="bg-white"
@@ -244,8 +308,8 @@ export default function DeliveryLists() {
             onChange={(e) =>
               setSearchValues({ ...searchValues, cardcode: e.target.value })
             }
-          />
-          <MUITextField
+          /> */}
+          {/* <MUITextField
             label="Customer Name"
             placeholder="Customer "
             className="bg-white"
@@ -254,19 +318,23 @@ export default function DeliveryLists() {
             onChange={(e) =>
               setSearchValues({ ...searchValues, cardname: e.target.value })
             }
-          />
-          {/* <BPAutoComplete
+          /> */}
+          <BPAutoComplete
             label="Customer"
             value={searchValues.cardcode}
             onChange={(selectedValue) =>
               setSearchValues({ ...searchValues, cardcode: selectedValue })
             }
-          /> */}
+          />
           <MUITextField
-            label="Delivery Date"
+            label="Delivery Date"   
             placeholder="Delivery Date"
             className="bg-white"
             type="date"
+            value={searchValues.deliveryDate}
+            onChange={(e) =>
+              setSearchValues({ ...searchValues, deliveryDate: e.target.value })
+            }
           />
           <div className="flex justify-end items-center align-center space-x-4 mt-4">
             <Button variant="contained" size="small" onClick={handleGoClick}>
@@ -278,18 +346,18 @@ export default function DeliveryLists() {
           </div>
         </div>
         <div>
-        <DataTable
-          columns={columns}
-          data={data}
-          handlerRefresh={handlerRefresh}
-          handlerSearch={handlerSearch}
-          handlerSortby={handlerSortby}
-          count={Count?.data || 0}
-          loading={isLoading || isFetching}
-          pagination={pagination}
-          paginationChange={setPagination}
-          title="Delivery Lists"
-        />
+          <DataTable
+            columns={columns}
+            data={data}
+            handlerRefresh={handlerRefresh}
+            handlerSearch={handlerSearch}
+            handlerSortby={handlerSortby}
+            count={Count?.data || 0}
+            loading={isLoading || isFetching}
+            pagination={pagination}
+            paginationChange={setPagination}
+            title="Delivery Lists"
+          />
         </div>
       </div>
     </>

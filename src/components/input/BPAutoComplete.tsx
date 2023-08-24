@@ -8,8 +8,7 @@ export default function BPAutoComplete(props: {
   label?: any;
   type?: "Customer" | "Supplier";
   value?: string;
-  onChange?: (value: string) => void
-
+  onChange?: (value: string) => void;
 }) {
   const { type = "Customer" } = props;
   const { data, isLoading }: any = useQuery({
@@ -33,10 +32,16 @@ export default function BPAutoComplete(props: {
         autoHighlight
         // value={value}
         // onChange={(event, newValue) => setValue(newValue)}
-        value={props.value ? value : null}  // Use the passed value prop directly
+        value={props.value ? value : null} // Use the passed value prop directly
+        // onChange={(event, newValue) => {
+        //   if (props.onChange) {
+        //     props.onChange(newValue || ''); // Call the handler with newValue or an empty string
+        //   }
+        // }}
         onChange={(event, newValue) => {
           if (props.onChange) {
-            props.onChange(newValue || ''); // Call the handler with newValue or an empty string
+            const selectedValue = newValue ? newValue.CardCode : ""; // Get the CardCode property
+            props.onChange(selectedValue);
           }
         }}
         loading={isLoading}
