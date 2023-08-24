@@ -17,7 +17,6 @@ export default function BPAutoComplete(props: {
       new BusinessPartnerRepository().get(`&$filter=CardType eq 'c${type}'`),
     staleTime: Infinity,
   });
-  console.log(data)
   const [value, setValue] = React.useState();
   return (
     <div className="block">
@@ -43,7 +42,7 @@ export default function BPAutoComplete(props: {
         renderOption={(props, option) => (
           <Box component="li" {...props}
           >
-            <BsDot />
+            {/* <BsDot /> */}
             {option.CardCode} - {option.CardName} 
           </Box>
         )}

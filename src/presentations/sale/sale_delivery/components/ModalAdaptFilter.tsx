@@ -1,27 +1,30 @@
-import React from "react"
-import Modal from "@/components/modal/Modal"
-import Table from "@mui/material/Table"
-import TableBody from "@mui/material/TableBody"
-import TableCell from "@mui/material/TableCell"
-import TableContainer from "@mui/material/TableContainer"
-import TableHead from "@mui/material/TableHead"
-import TableRow from "@mui/material/TableRow"
-import Paper from "@mui/material/Paper"
-import { FaTimes } from "react-icons/fa"
-import MUITextField from "@/components/input/MUITextField"
-import MenuItem from "@mui/material/MenuItem"
-import FormControl from "@mui/material/FormControl"
-import Select from "@mui/material/Select"
-import { Button, Divider } from "@mui/material"
-import { AiOutlinePlus } from "react-icons/ai"
-import { BiSearch } from "react-icons/bi"
+import React from "react";
+import Modal from "@/components/modal/Modal";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import { FaTimes } from "react-icons/fa";
+import MUITextField from "@/components/input/MUITextField";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import { Button, Divider } from "@mui/material";
+import { AiOutlinePlus } from "react-icons/ai";
+import { BiSearch } from "react-icons/bi";
 
 export const ModalAdaptFilter = ({
   isOpen = false,
   handleClose,
+  columnData: 
 }: {
-  isOpen?: boolean
-  handleClose: () => void
+  isOpen?: boolean;
+  handleClose: () => void;
+  columnData?: any[],
+
 }) => {
   const [rows, setRows] = React.useState<[any]>([
     {
@@ -29,26 +32,34 @@ export const ModalAdaptFilter = ({
       conditionType: "",
       value: "",
     },
-  ])
+  ]);
 
-  const handleChange = (props: { field: string; value: string; index: number }) => {
-    const { field, value, index } = props
+  const handleChange = (props: {
+    field: string;
+    value: string;
+    index: number;
+  }) => {
+    const { field, value, index } = props;
     const newData: any = rows.map((row: any, i: number) => {
-      if (i === index) row[field] = value
-      return row
-    })
-    setRows(newData)
-  }
+      if (i === index) row[field] = value;
+      return row;
+    });
+    setRows(newData);
+  };
 
   const handleAddFilter = () => {
-    const newValues: any = rows.concat({ conditionType: "", field: "", value: "" })
-    setRows(newValues)
-  }
+    const newValues: any = rows.concat({
+      conditionType: "",
+      field: "",
+      value: "",
+    });
+    setRows(newValues);
+  };
 
   const handleRemoveRow = (index: number) => {
-    const update: any = rows.filter((_: any, i: number) => i !== index)
-    setRows(update)
-  }
+    const update: any = rows.filter((_: any, i: number) => i !== index);
+    setRows(update);
+  };
 
   return (
     <Modal
@@ -56,7 +67,7 @@ export const ModalAdaptFilter = ({
       onClose={handleClose}
       title="Adapt Filter"
       widthClass="w-[60vw] sm:w-[90vw] relative"
-      heightClass="h-[70vh]"
+      heightClass="h-[65vh]"
       disableFooter={true}
     >
       <>
@@ -113,10 +124,15 @@ export const ModalAdaptFilter = ({
         </div>
       </>
     </Modal>
-  )
-}
+  );
+};
 
-const FormTable: React.FC<any> = ({ rows, handleChange, handleRemoveRow }: any) => {
+const FormTable: React.FC<any> = ({
+  rows,
+  handleChange,
+  handleRemoveRow,
+  columnData,
+}: any) => {
   const ConditionTypes: any = React.useMemo(() => {
     return [
       {
@@ -133,14 +149,14 @@ const FormTable: React.FC<any> = ({ rows, handleChange, handleRemoveRow }: any) 
       },
       {
         value: "startWith",
-        name: "Stats with",
+        name: "Starts with",
       },
       {
         value: "endsWith",
         name: "Ends with",
       },
-    ]
-  }, [])
+    ];
+  }, []);
 
   const fields: any = React.useMemo(() => {
     return [
@@ -148,19 +164,22 @@ const FormTable: React.FC<any> = ({ rows, handleChange, handleRemoveRow }: any) 
         value: "Journal Remarks",
         name: "Journal Remarks",
       },
-    ]
-  }, [])
+    ];
+  }, []);
+  console.log(columnData);
 
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650, border: "1px solid #80808030" }}>
         <TableHead>
           <TableRow className="bg-gray-300 text-white">
-            {["Field", "Condition Type", "Value"].map((field, index: number) => (
-              <TableCell align="left" key={index}>
-                <b>{field}</b>
-              </TableCell>
-            ))}
+            {["Field", "Condition Type", "Value"].map(
+              (field, index: number) => (
+                <TableCell align="left" key={index}>
+                  <b>{field}</b>
+                </TableCell>
+              )
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -176,7 +195,7 @@ const FormTable: React.FC<any> = ({ rows, handleChange, handleRemoveRow }: any) 
                     onClick={() => handleRemoveRow(index)}
                   />
                   <FormSelect
-                    data={fields}
+                    data={columnData}
                     value={row.field}
                     handleChange={(e: any) =>
                       handleChange({
@@ -221,8 +240,8 @@ const FormTable: React.FC<any> = ({ rows, handleChange, handleRemoveRow }: any) 
         </TableBody>
       </Table>
     </TableContainer>
-  )
-}
+  );
+};
 
 const FormSelect: React.FC<any> = ({ data, handleChange, value }: any) => {
   return (
@@ -240,5 +259,5 @@ const FormSelect: React.FC<any> = ({ data, handleChange, value }: any) => {
         ))}
       </Select>
     </FormControl>
-  )
-}
+  );
+};

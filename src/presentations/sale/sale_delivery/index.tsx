@@ -276,7 +276,7 @@ export default function DeliveryLists() {
       queryFilters += queryFilters
         ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
         : `DocDueDate ge '${searchValues.deliveryDate}'`;
-    } 
+    }
     if (searchValues.status) {
       queryFilters += queryFilters
         ? ` and DocumentStatus eq '${searchValues.status}'`
@@ -287,10 +287,7 @@ export default function DeliveryLists() {
   };
   return (
     <>
-      <ModalAdaptFilter
-        isOpen={open}
-        handleClose={() => setOpen(false)}
-      ></ModalAdaptFilter>
+   
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base mx-2">
@@ -298,12 +295,6 @@ export default function DeliveryLists() {
           </h3>
         </div>
         <div className="grid grid-cols-5 gap-3 mb-5 mt-4 mx-2">
-          {/* <MUITextField
-            label="Search"
-            placeholder="Search"
-            className="bg-white"
-            autoComplete="off"
-          /> */}
           <MUITextField
             label="Document No."
             placeholder="Document No."
@@ -314,7 +305,7 @@ export default function DeliveryLists() {
               setSearchValues({ ...searchValues, docnum: e.target.value })
             }
           />
-        
+
           <BPAutoComplete
             label="Customer"
             value={searchValues.cardcode}
@@ -332,35 +323,49 @@ export default function DeliveryLists() {
               setSearchValues({ ...searchValues, deliveryDate: e.target.value })
             }
           />
-         <div className="flex flex-col gap-1 text-sm">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                Status
-              </label>
-              <div className="">
-                <MUISelect
-                  items={[
-                    { label: "None", value: "" },
-                    { label: "Open", value: "bost_Open" },
-                    { label: "Close", value: "bost_Close" },
-                    { label: "Paid", value: "bost_Paid" },
-                    { label: "Delivered", value: "bost_Delivered" },
-
-                  ]}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, status: e.target.value })
-                  }
-                  value={searchValues.status}
-                />
-              </div>
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Status
+            </label>
+            <div className="">
+              <MUISelect
+                items={[
+                  { label: "None", value: "" },
+                  { label: "Open", value: "bost_Open" },
+                  { label: "Close", value: "bost_Close" },
+                  // { label: "Paid", value: "bost_Paid" },
+                  // { label: "Delivered", value: "bost_Delivered" },
+                ]}
+                onChange={(e) =>
+                  setSearchValues({ ...searchValues, status: e.target.value })
+                }
+                value={searchValues.status}
+              />
             </div>
-        
+          </div>
+
           <div className="flex justify-end items-center align-center space-x-4 mt-4">
             <Button variant="contained" size="small" onClick={handleGoClick}>
               Go
             </Button>
-            <Button variant="outlined" size="small" onClick={handleAdaptFilter}>
-              Adapt Filter
-            </Button>
+           
+            <div>
+              <DataTableColumnFilter
+                handlerClearFilter={handlerRefresh}
+                title={
+                  <div className="flex gap-2">
+                    <span className="text-lg">
+                      <BiFilterAlt />
+                    </span>{" "}
+                    <span className="text-[13px] capitalize">Adapt Filter</span>
+                  </div>
+                }
+                items={columns?.filter(
+                  (e) => e?.accessorKey !== "DocEntry"
+                )}
+                onClick={handlerSearch}
+              />
+            </div>
           </div>
         </div>
         <div>

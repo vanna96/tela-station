@@ -31,18 +31,19 @@ export default function DataTableColumnFilter(props: DataTableColumnFilterProps)
     const handlerClear = () => {
         setAnchorEl(null);
         setFilterList([]);
-        props.handlerClearFilter();
+        // props.handlerClearFilter();
     }
 
     const handlerConfirm = () => {
         setAnchorEl(null);
         let query = '';
         filterList.forEach((row) => {
-            if (row.filter.includes('with') || row.filter.includes('contains')) {
-                query += `${row.filter.replace('value', `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${row.value}'`)} and `;
-            } else {
-                query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${row.filter} ${row.type === 'string' || row.type === 'date' ? "'" + row.value + "'" : row.value} and `;
-            }
+            // if (row.filter.includes('with') || row.filter.includes('contains')) {
+            //     query += `${row.filter.replace('value', `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${row.value}'`)} and `;
+            // } else {
+            //     query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${row.filter} ${row.type === 'string' || row.type === 'date' ? "'" + row.value + "'" : row.value} and `;
+            // }
+            query += `&$filter=${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${row.filter} ${row.type === 'string' || row.type === 'date' ? "'" + row.value + "'" : row.value} and `;
         });
 
         query = query.slice(0, query.length - 4);
