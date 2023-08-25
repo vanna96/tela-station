@@ -24,15 +24,15 @@ export default class FormCard extends React.Component<FormCardProps> {
     public render() {
 
         return (
-            <div className={`flex flex-col rounded-lg shadow-sm bg-white border p-6 pr-6 `}>
+            <div className={`flex flex-col rounded-lg shadow-sm bg-white border p-6 px-8 h-screen `}>
                 <div
-                    className={`font-bold  text-lg flex justify-between items-center border-b  mb-3`}
+                    className={`font-medium  text-xl flex justify-between items-center border-b  mb-4`}
                 >
                     <h2>{this.props.title ?? 'Information'}</h2>
                     {this.props.action}
                 </div>
                 <div
-                    className={`grid grid-cols-2 md:grid-cols-1 gap-x-10 gap-y-8  ${this.state.collapse ? "" : "hidden"
+                    className={`grid grid-cols-2 md:grid-cols-1 gap-x-10 gap-y-10  ${this.state.collapse ? "" : "hidden"
                         } overflow-hidden transition-height duration-300 `}
                 >
                     {this.props.children}

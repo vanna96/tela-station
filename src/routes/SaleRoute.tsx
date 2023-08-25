@@ -4,8 +4,8 @@ import SaleQuotationLists from "@/presentations/sale/sale_quotation"
 import SaleQuotationForm from "@/presentations/sale/sale_quotation/quotation_form"
 import SaleQuotationDetail from "@/presentations/sale/sale_quotation/quotation_detail"
 import SaleOrderLists from "@/presentations/sale/sale_order"
-import SaleOrderForm from "@/presentations/sale/sale_order/order_form"
-import SaleOrderDetail from "@/presentations/sale/sale_order/order_detail"
+import SalesOrderForm from "@/presentations/sale/sale_order/form/index"
+import SaleOrderDetail from "@/presentations/sale/sale_order/detail"
 import { QueryCacheProvider } from "@/utilies/provider"
 import ReturnRequestLists from "@/presentations/sale/return_request"
 import ReturnRequestForm from "@/presentations/sale/return_request/form"
@@ -33,7 +33,7 @@ export default function SaleRoute() {
       </Route>
       <Route path="/sales-order">
         <Route index element={<SaleOrderLists />} />
-        <Route path="create" element={<SaleOrderForm />} />
+        <Route path="create" element={<SalesOrderForm />} />
         <Route
           path=":id"
           element={
@@ -42,7 +42,7 @@ export default function SaleRoute() {
             </QueryCacheProvider>
           }
         />
-        <Route path=":id/edit" element={<SaleOrderForm />} />
+        <Route path=":id/edit" element={<SalesOrderForm />} />
       </Route>
       <Route path="/return-request">
         <Route index element={<ReturnRequestLists />} />

@@ -287,7 +287,6 @@ export default function DeliveryLists() {
   };
   return (
     <>
-   
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base mx-2">
@@ -348,21 +347,26 @@ export default function DeliveryLists() {
             <Button variant="contained" size="small" onClick={handleGoClick}>
               Go
             </Button>
-           
+
             <div>
               <DataTableColumnFilter
                 handlerClearFilter={handlerRefresh}
                 title={
                   <div className="flex gap-2">
-                    <span className="text-lg">
+                    {/* <span className="text-lg">
                       <BiFilterAlt />
-                    </span>{" "}
-                    <span className="text-[13px] capitalize">Adapt Filter</span>
+                    </span>{" "} */}
+                    {/* <span className="text-[13px] capitalize">Adapt Filter</span> */}
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      // onClick={handleGoClick}
+                    >
+                      Adapt Filter
+                    </Button>
                   </div>
                 }
-                items={columns?.filter(
-                  (e) => e?.accessorKey !== "DocEntry"
-                )}
+                items={columns?.filter((e) => e?.accessorKey !== "DocEntry")}
                 onClick={handlerSearch}
               />
             </div>

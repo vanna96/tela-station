@@ -43,7 +43,7 @@ function MUITextField(props: MUITextFieldProps) {
                         autoComplete={'off'}
                         fullWidth
                         className={`w-full text-xs text-field pr-0 ${props.disabled ? 'bg-gray-100' : ''} ${props.className ?? ''}`}
-                        startAdornment={props.startAdornment ? <span className={`text-[14px] px-2 pr-4 mr-3 ${theme === 'light' ? 'bg-gray-100 text-black' : 'bg-slate-600 text-white'}  overflow-hidden border-r `}>{props.startAdornment}</span> : null}
+                        startAdornment={props.startAdornment ? <span className={`text-[14px] px-2 pr-4 mr-3   overflow-hidden border-r `}>{props.startAdornment}</span> : null}
                         sx={{
                             border: '1px solod red',
                             padding: '2px 2px',

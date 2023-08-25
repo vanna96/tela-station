@@ -14,8 +14,8 @@
   }
 
   .dark-theme {
-    --text-color: #ffffff;
-    --fill-color: #161616;
+    --text-color: #1a1a1a;
+    --fill-color: #ffffff;
     --fill-color-indicator: #be4141;
   }
 }
