@@ -1,19 +1,21 @@
-import FormCard from "@/components/card/FormCard"
-import BPAddress from "@/components/selectbox/BPAddress"
-import MUISelect from "@/components/selectbox/MUISelect"
-import Owner from "@/components/selectbox/Owner"
-import PaymentMethod from "@/components/selectbox/PaymentMethod"
-import PaymentTerm from "@/components/selectbox/PaymentTerm"
-import ShippingType from "@/components/selectbox/ShippingType"
-import { agreementMethodLists, documentStatusList } from "@/constants"
-import Checkbox from "@mui/material/Checkbox"
-import TextField from "@mui/material/TextField"
+import FormCard from "@/components/card/FormCard";
+import MUITextField from "@/components/input/MUITextField";
+import BPAddress from "@/components/selectbox/BPAddress";
+import BPProject from "@/components/selectbox/BPProject";
+import MUISelect from "@/components/selectbox/MUISelect";
+import Owner from "@/components/selectbox/Owner";
+import PaymentMethod from "@/components/selectbox/PaymentMethod";
+import PaymentTerm from "@/components/selectbox/PaymentTerm";
+import ShippingType from "@/components/selectbox/ShippingType";
+import { agreementMethodLists, documentStatusList } from "@/constants";
+import Checkbox from "@mui/material/Checkbox";
+import TextField from "@mui/material/TextField";
 
 export interface ILogisticFormProps {
-  data: any
-  handlerChange: (key: string, value: any) => void
-  edit?: boolean
-  ref?: React.RefObject<FormCard>
+  data: any;
+  handlerChange: (key: string, value: any) => void;
+  edit?: boolean;
+  ref?: React.RefObject<FormCard>;
 }
 
 export default function LogisticForm({
@@ -23,40 +25,37 @@ export default function LogisticForm({
   ref,
 }: ILogisticFormProps) {
   return (
-    <FormCard title="Logistic" ref={ref}>
+    <FormCard title="Logistics" ref={ref}>
       <div className="flex flex-col gap-2">
-        {/* <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Agreement Type
+            <label
+              htmlFor="PayTermsGrpCode"
+              className="text-gray-500 text-[14px]"
+            >
+              Ship-To Address
             </label>
             <div className="">
-              <MUISelect
-                items={agreementMethodLists}
-                name="AgreementType"
-                disabled={data?.isApproved}
-                value={data?.AgreementType ?? "G"}
-                onChange={(e) => handlerChange("AgreementType", e.target.value)}
-              />
-            </div>
-          </div>
-        </div> */}
-
-        {/* <div className="grid grid-cols-1 gap-3">
-          <div className="flex items-center gap-1 text-sm">
-            <Checkbox disabled={data?.isApproved} />
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Ignore Price Specified in blanket Agreement
-            </label>
-          </div>
-        </div> */}
-
-        <div className="grid grid-cols-1 gap-3">
-          <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="PayTermsGrpCode" className="text-gray-500 text-[14px]">
-              Ship-to Address
-            </label>
-            <div className="">
+              {/* <MUISelect
+                items={data?.BPAddressList
+                  ?.filter((e: BPAddress) => e.addressType === "bo_ShipTo")
+                  .map((e: BPAddress) => ({
+                    value: e.addressName,
+                    name: e.addressName
+                  }))
+                }
+                aliaslabel="name"
+                aliasvalue="value"
+                value={data?.ShipToCode}
+                // onChange={(event) => handlerChange("ShipToCode", event.target.value)}
+                onChange={(event) => {
+                  handlerChange("ShipToCode", event.target.value);
+                  const selectedShipToAddress = data?.BPAddressList?.find((e: BPAddress) => e.addressName === event.target.value);
+                  if (selectedShipToAddress) {
+                    handlerChange("Address2", selectedShipToAddress.street || '');
+                  }
+                }}
+              /> */}
               <BPAddress
                 name="ShippingTo"
                 type="bo_ShipTo"
@@ -68,23 +67,82 @@ export default function LogisticForm({
             </div>
           </div>
 
-          {/* <div className="flex flex-col gap-1 text-sm">
+          <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Payment Method{" "}
+              Bill-To Address
             </label>
             <div className="">
-              <PaymentMethod
-                type="outgoing"
-                disabled={data?.disable["PaymentMethod"]}
-                name="PaymentMethod"
-                value={data.PaymentMethod}
-                onChange={(e) => handlerChange("PaymentMethod", e.target.value)}
+              {/* <MUISelect
+            items={data?.BPAddressList?.filter(
+              (e: BPAddress) => e.addressType === "bo_BillTo"
+            ).map((e: BPAddress) => ({
+              value: e.addressName,
+              name: e.addressName,
+            }))}
+            aliaslabel="name"
+            aliasvalue="value"
+            value={data?.PayToCode}
+            // onChange={(event) => handlerChange("PayToCode", event.target.value)
+            onChange={(event) => {
+              handlerChange("PayToCode", event.target.value);
+              const selectedShipToAddress = data?.BPAddressList?.find(
+                (e: BPAddress) => e.addressName === event.target.value
+              );
+              if (selectedShipToAddress) {
+                handlerChange("Address", selectedShipToAddress.street || "");
+              }
+            }}
+          /> */}
+              <BPAddress
+                name="BillingTo"
+                type="bo_BillTo"
+                data={data}
+                value={data.BillingTo}
+                disabled={data?.isStatusClose || false}
+                onChange={(e) => handlerChange("BillingTo", e.target.value)}
               />
             </div>
-          </div> */}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
+        {/* <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Ship Address Summary
+            </label>
+
+            <div className="">
+              <TextField
+                size="small"
+                multiline
+                rows={2}
+                fullWidth
+                name="Address2"
+                value={data.Address2}
+                className="w-full "
+                onChange={(e) => handlerChange("Address2", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Bill Address Summary
+            </label>
+            <div className="">
+              <TextField
+                size="small"
+                multiline
+                rows={2}
+                fullWidth
+                name="Address"
+                className="w-full "
+                value={data.Address}
+                onChange={(e) => handlerChange("Address", e.target.value)}
+              />
+            </div>
+          </div>
+        </div> */}
+        <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Shipping Type
@@ -97,160 +155,60 @@ export default function LogisticForm({
               />
             </div>
           </div>
-          {/* <div className="flex flex-col gap-1 text-sm">
-            <label
-              htmlFor="SettlementProbability"
-              className="text-gray-500 text-[14px]"
-            >
-              Bill-to Address
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="StampNumber" className="text-gray-500 text-[14px]">
+              Stamp No.
             </label>
             <div className="">
               <TextField
                 size="small"
-                defaultValue={data?.SettlementProbability ?? ""}
+                defaultValue={data?.StampNumber ?? ""}
                 fullWidth
                 className="w-full text-field"
-                type="number"
-                name="SettlementProbability"
-                onBlur={(e) =>
-                  handlerChange("SettlementProbability", e.target.value)
-                }
-              />
-            </div>
-          </div> */}
-        </div>
-        {/* <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Price Mode
-            </label>
-            <div className="">
-              <MUISelect
-                items={[
-                  { name: "Net", value: "N" },
-                  { name: "Gross", value: "G" },
-                ]}
-                aliaslabel="name"
-                aliasvalue="value"
-                value={data?.PriceMode}
-                onChange={(event) => handlerChange("PriceMode", event.target.value)}
+                name="StampNumber"
+                onBlur={(e) => handlerChange("StampNumber", e.target.value)}
               />
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1 text-sm">
-          <label
-            htmlFor="SettlementProbability"
-            className="text-gray-500 text-[14px]"
-          >
-            Bill-to Address
-          </label>
-          <div className="">
-            <BPAddress
-              name="BillingTo"
-              type="bo_BillTo"
-              data={data}
-              value={data.BillingTo}
-              disabled={data?.isStatusClose || false}
-              onChange={(e) => handlerChange("BillingTo", e.target.value)}
-            />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 gap-3">
-          {/* <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Status
-            </label>
-            <div className="">
-              <MUISelect
-                value={data?.Status}
-                items={documentStatusList(data?.Status, edit)}
-                name="Status"
-                disabled={data?.disable["Status"]}
-                onChange={(e) => handlerChange("Status", e.target.value)}
-              />
-            </div>
-          </div> */}
-
-          {/* <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Owner
-            </label>
-            <div className="">
-              <Owner
-                name="Owner"
-                value={data.Owner}
-                onChange={(e) => handlerChange("Owner", e.target.value)}
-              />
-            </div>
-          </div> */}
-        </div>
-
-        {/* <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center gap-1 text-sm">
-            <label htmlFor="Renewal" className="text-gray-500 text-[14px]">
-              Renewall
-            </label>
-            <Checkbox
-              name="Renewal"
-              checked={data.Renewal}
-              onChange={(e) => handlerChange("Renewal", !data.Renewal)}
-            />
-          </div>
-        </div> */}
-
-        {/* <div className="flex flex-col gap-1 text-sm">
           <label htmlFor="Code" className="text-gray-500 text-[14px]">
-            Reminder
+            Ship Address Summary
           </label>
-          <div className="grid grid-cols-4 gap-3">
+
+          <div className="">
             <TextField
               size="small"
-              type="number"
-              name="RemindTime"
+              multiline
+              rows={2}
               fullWidth
-              disabled={!data.Renewal}
-              className={`w-full text-field ${data.Renewal ? "" : "bg-gray-100"}`}
-              onBlur={(e) => handlerChange("RemindTime", e.target.value)}
-              defaultValue={data?.RemindTime ?? ""}
+              name="Address2"
+              value={data.Address2}
+              className="w-full "
+              onChange={(e) => handlerChange("Address2", e.target.value)}
             />
-            <div className="col-span-2">
-              <MUISelect
-                className={`${!data.Renewal ? "bg-gray-100" : ""}`}
-                name="RemindUnit"
-                disabled={!data.Renewal}
-                onChange={(e) => handlerChange("RemindUnit", e.target.value)}
-                value={data?.RemindUnit ?? "D"}
-                items={[
-                  { label: "Day(s)", value: "D" },
-                  { label: "Month(s)", value: "M" },
-                  { label: "Year(s)", value: "Y" },
-                ]}
-              />
-            </div>
           </div>
-        </div> */}
-
+        </div>
         <div className="flex flex-col gap-1 text-sm">
           <label htmlFor="Code" className="text-gray-500 text-[14px]">
-            Stamp No
+            Bill Address Summary
           </label>
           <div className="">
             <TextField
               size="small"
               multiline
-              rows={4}
+              rows={2}
               fullWidth
-              name="StampNo"
+              name="Address"
               className="w-full "
-              value={data.StampNo}
-              onBlur={(e) => handlerChange("StampNo", e.target.value)}
+              value={data.Address}
+              onChange={(e) => handlerChange("Address", e.target.value)}
             />
           </div>
         </div>
       </div>
     </FormCard>
-  )
+  );
 }
