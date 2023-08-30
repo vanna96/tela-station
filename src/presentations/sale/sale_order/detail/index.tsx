@@ -41,7 +41,7 @@ class DeliveryDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0
-      await request("GET", `ReturnRequest(${id})`)
+      await request("GET", `Orders(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data
           // vendor

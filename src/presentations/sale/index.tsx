@@ -65,6 +65,12 @@ const SaleMasterPage = () => {
           onClick={() => goTo("invoice")}
           amount={count?.order || 0}
         /> */}
+          <ItemCard
+          title="Delivery"
+          icon={<AiOutlineFileAdd />}
+          onClick={() => goTo("delivery")}
+          amount={count?.order || 0}
+        />
       </MainContainer>
     </>
   )

@@ -31,7 +31,7 @@ export default function SaleRoute() {
         <Route path=":id" element={<SaleQuotationDetail />} />
         <Route path=":id/edit" element={<SaleQuotationForm />} />
       </Route>
-      <Route path="/sales-order">
+      {/* <Route path="/sales-order">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route
@@ -43,6 +43,12 @@ export default function SaleRoute() {
           }
         />
         <Route path=":id/edit" element={<SalesOrderForm />} />
+      </Route> */}
+      <Route path="/sales-order">
+        <Route index element={<SaleOrderLists />} />
+        <Route path="create" element={<SalesOrderForm />} />
+        <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
+        <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
       <Route path="/return-request">
         <Route index element={<ReturnRequestLists />} />

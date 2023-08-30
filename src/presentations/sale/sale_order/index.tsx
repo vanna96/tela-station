@@ -291,7 +291,6 @@ export default function SaleOrderLists() {
   const childBreadcrum = (
     <>
       <span className="" onClick={() => route("/sale/sales-order")}>
-        {" "}
         Sales Order
       </span>
       {/* <span className="text-blue-700"> {id ? "Edit" : "Create"}</span> */}
@@ -300,14 +299,14 @@ export default function SaleOrderLists() {
 
   return (
     <>
-      <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative ">
-        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
+      <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
+        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
           {/* <h3 className="text-base 2xl:text-base xl:text-base mx-2">
             Sale / Orders
           </h3> */}
           <Breadcrumb childBreadcrum={childBreadcrum} />
         </div>
-        <div className="grid grid-cols-5 gap-3 mb-5 mt-2 mx-1 rounded-md  ">
+        <div className="grid grid-cols-5 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <MUITextField
             label="Document No."
             placeholder="Document No."
@@ -326,7 +325,7 @@ export default function SaleOrderLists() {
               setSearchValues({ ...searchValues, cardcode: selectedValue })
             }
           />
-          {/* <MUITextField
+          <MUITextField
             label="Delivery Date"
             placeholder="Delivery Date"
             className="bg-white"
@@ -335,8 +334,8 @@ export default function SaleOrderLists() {
             onChange={(e) =>
               setSearchValues({ ...searchValues, deliveryDate: e.target.value })
             }
-          /> */}
-          <div className="flex flex-col gap-1 text-sm">
+          />
+          {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Delivery Date
             </label>
@@ -352,7 +351,7 @@ export default function SaleOrderLists() {
                 }
               />
             </div>
-          </div>
+          </div> */}
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Status

@@ -299,7 +299,7 @@ export default function LogisticForm({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-3 mt-2">
+      <div className="flex flex-col gap-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">

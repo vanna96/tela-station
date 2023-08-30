@@ -55,6 +55,7 @@ export default function ContentForm({
         ),
         header: "Item No", //uses the default width from defaultColumn prop
         visible: true,
+        size: 100,
         Cell: ({ cell }: any) => (
           /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
             value={cell.getValue()}
@@ -85,10 +86,12 @@ export default function ContentForm({
           if (Object.keys(cell.row.original).length === 1) return null;
           return cell.getValue();
         },
+        size: 120,
       },
       {
         accessorKey: "ItemGroup",
         header: "Item Group",
+        size: 80,
         visible: false,
         Cell: ({ cell }: any) => (
           <MUITextField
@@ -108,6 +111,7 @@ export default function ContentForm({
         ),
 
         visible: true,
+        size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
           return cell.getValue();
@@ -117,6 +121,7 @@ export default function ContentForm({
         accessorKey: "UnitPrice",
         header: "Unit Price",
         visible: true,
+        size: 80,
         Header: (header: any) => (
           <label>
             Unit Price <span className="text-red-500">*</span>
@@ -131,8 +136,8 @@ export default function ContentForm({
       {
         accessorKey: "VatGroup",
         header: "Tax Code",
-        visible: false,
-
+        visible: true,
+        size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
           return cell.getValue();
@@ -142,7 +147,6 @@ export default function ContentForm({
         accessorKey: "GrossPrice",
         header: "Gross Price",
         visible: false,
-
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
 
@@ -159,8 +163,8 @@ export default function ContentForm({
       {
         accessorKey: "LineTotal",
         header: "Total",
-        visible: false,
-
+        size: 80,
+        visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
           return currencyFormat(cell.getValue() * data?.ExchangeRate);
