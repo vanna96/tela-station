@@ -48,7 +48,7 @@ const dimensionModal: FC<DimensionModalProps> = ({ open, onClose }) => {
       },
       {
         accessorKey: "DimensionDescription",
-        header: "Discription",
+        header: "Description",
       },
     ],
     []
@@ -57,13 +57,14 @@ const dimensionModal: FC<DimensionModalProps> = ({ open, onClose }) => {
     <Modal
       open={open}
       onClose={onClose}
-      widthClass='w-[60rem]'
+      widthClass='w-min-[35rem]'
       title='List Of Projects'
       disableTitle={true}
       disableFooter={true}
     >
       <div className="data-table text-inherit" >
         <MaterialReactTable
+        
           columns={columns}
           data={data ?? []}
           enableStickyHeader={true}
@@ -96,7 +97,7 @@ const dimensionModal: FC<DimensionModalProps> = ({ open, onClose }) => {
             }
           }
           renderTopToolbarCustomActions={({ table }) => {
-            return <h2 className=" text-lg font-bold">List Of Dimension</h2>
+            return <h3 className="mt-2 text-lg font-medium">List of Dimensions</h3>
           }}
         />
       </div>

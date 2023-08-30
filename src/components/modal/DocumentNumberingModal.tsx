@@ -50,33 +50,52 @@ const DocumentNumberingModal: FC<DocumentNumberingModalProps> = ({ open, onClose
             <AiOutlineExpandAlt />
           </span>
         ),
+        size: 6,
+        minSize: 100,
+        maxSize: 100,
+
+
       },
       {
         accessorKey: "ObjectName",
         header: "Document",
+        size: 12,
+        minSize: 100,
+        maxSize: 100,
 
       },
       {
         accessorKey: "DfltSeries",
         header: "default Series",
+        size: 6,
+
       },
       {
         accessorKey: "UpdCounter",
         header: "Fist No",
+        size: 6,
+        
       },
       {
         accessorKey: "as",
         header: "Next No",
+        size: 6,
+        
+        
 
       },
       {
         accessorKey: "AutoKey",
         header: "Last No",
+        size: 6,
+        
 
       },
       {
         accessorKey: "as",
         header: "Change Menu Name",
+        size: 5,
+        
       },
     ],
     []
@@ -85,7 +104,6 @@ const DocumentNumberingModal: FC<DocumentNumberingModalProps> = ({ open, onClose
 
   const fetchSeries = async (record: any) => {
     setOpenSeries(true)
-    // console.log(record)
     setSeries({ title: record?.row?.original?.ObjectName, isLoading: true, data: [] });
     const payload: any = {
       DocumentTypeParams: {
@@ -109,7 +127,7 @@ const DocumentNumberingModal: FC<DocumentNumberingModalProps> = ({ open, onClose
     <Modal
       open={open}
       onClose={onClose}
-      widthClass='w-[75rem]'
+      widthClass='w-min-[27]'
       title='List Of Projects'
       disableTitle={true}
       disableFooter={true}
@@ -150,7 +168,7 @@ const DocumentNumberingModal: FC<DocumentNumberingModalProps> = ({ open, onClose
               }
             }
             renderTopToolbarCustomActions={({ table }) => {
-              return <h2 className=" text-lg font-bold">List Of Document Numbering</h2>
+              return <h3 className=" mt-2 text-lg font-medium">List of Document Numbering</h3>
             }}
           />
         </div>

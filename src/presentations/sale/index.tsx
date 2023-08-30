@@ -29,19 +29,19 @@ const SaleMasterPage = () => {
   return (
     <>
       <MainContainer title="Sales">
-        <ItemCard
+        {/* <ItemCard
           title="Sales Quotation"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("sales-quotation")}
           amount={count?.quotation || 0}
-        />
+        /> */}
         <ItemCard
           title="Sales Order"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("sales-order")}
           amount={count?.order || 0}
         />
-        <ItemCard
+        {/* <ItemCard
           title="Return Request"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("return-request")}
@@ -63,6 +63,12 @@ const SaleMasterPage = () => {
           title="A/R Invoice"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("invoice")}
+          amount={count?.order || 0}
+        /> */}
+          <ItemCard
+          title="Delivery"
+          icon={<AiOutlineFileAdd />}
+          onClick={() => goTo("delivery")}
           amount={count?.order || 0}
         />
       </MainContainer>

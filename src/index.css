@@ -1,4 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400&display=swap"); */
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -12,16 +14,16 @@
   }
 
   .dark-theme {
-    --text-color: #ffffff;
-    --fill-color: #161616;
+    --text-color: #1a1a1a;
+    --fill-color: #ffffff;
     --fill-color-indicator: #be4141;
   }
 }
 
-@font-face {
+/* @font-face {
   font-family: "Roboto Condensed", sans-serif;
   src: url("https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400&display=swap");
-}
+} */
 
 html,
 body,
@@ -34,13 +36,18 @@ body,
   box-sizing: content-box;
   margin: 0;
   background-color: #f4f6fa;
+  /* font-family: "IBM Plex Sans", sans-serif; */
+
   /* font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif; */
   /* font-family: "Roboto", sans-serif; */
   /* font-family: "IBM Plex Sans", sans-serif, "Hanuman", serif; */
   /* font-family: "calibri", sans-serif, "Hanuman", serif;
-   */
 
-  font-family: "Roboto Condensed", sans-serif;
+   */
+   font-family: 'Inter', sans-serif;
+  /* font-family: "Roboto Condensed", sans-serif; */
+  /* font-family: "IBM Plex Sans", sans-serif; */
+
 }
 
 /* width */
