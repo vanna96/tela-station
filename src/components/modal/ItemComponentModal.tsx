@@ -130,7 +130,7 @@ const ItemModal: FC<ItemModalProps> = ({ open, onClose, type, onOk, CardCode }) 
                 SaleVatGroup: e?.SalesVATGroup,
                 PurchaseVatGroup: e?.PurchaseVATGroup,
                 VatGroup: saleVatGroup || e?.PurchaseVATGroup,
-                VatRate: vatRate,
+                VatRate: e?.vatRate,
                 Quantity: defaultPrice !== undefined ? 1 : 0,
                 UnitPrice: defaultPrice ?? 0,
                 DiscountPercent: 0,

@@ -356,12 +356,12 @@ class SalesOrderForm extends CoreFormDocument {
         >
           Logistic
         </MenuButton>
-        <MenuButton
+        {/* <MenuButton
           active={this.state.tapIndex === 4}
           onClick={() => this.handlerChangeMenu(4)}
         >
           Accounting
-        </MenuButton>
+        </MenuButton> */}
         <MenuButton
           active={this.state.tapIndex === 3}
           onClick={() => this.handlerChangeMenu(3)}
@@ -442,7 +442,7 @@ class SalesOrderForm extends CoreFormDocument {
                       }}
                     />
                   )}
-                  {this.state.tapIndex === 4 && (
+                  {/* {this.state.tapIndex === 4 && (
                     <AccountingForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -450,10 +450,10 @@ class SalesOrderForm extends CoreFormDocument {
                         this.handlerChange(key, value);
                       }}
                     />
-                  )}
+                  )} */}
                 </div>
               </>
-            )}
+             )} 
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">

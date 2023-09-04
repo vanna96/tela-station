@@ -66,13 +66,43 @@ export default function LogisticForm({
               />
             </div>
           </div>
-
           <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Shipping Type
+            </label>
+            <div className="">
+              <ShippingType
+                name="ShippingType"
+                value={data.ShippingType}
+                onChange={(e) => handlerChange("ShippingType", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 text-sm">
+          <label htmlFor="Code" className="text-gray-500 text-[14px]">
+            Ship-From Address
+          </label>
+
+          <div className="">
+            <TextField
+              size="small"
+              multiline
+              rows={2}
+              fullWidth
+              name="Address2"
+              value={data.Address2}
+              className="w-full "
+              onChange={(e) => handlerChange("Address2", e.target.value)}
+            />
+          </div>
+        </div>
+
+          {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Bill-To Address
             </label>
             <div className="">
-              {/* <MUISelect
+              <MUISelect
             items={data?.BPAddressList?.filter(
               (e: BPAddress) => e.addressType === "bo_BillTo"
             ).map((e: BPAddress) => ({
@@ -93,16 +123,16 @@ export default function LogisticForm({
               }
             }}
           /> */}
-              <BPAddress
+          {/* <BPAddress
                 name="BillingTo"
                 type="bo_BillTo"
                 data={data}
                 value={data.BillingTo}
                 disabled={data?.isStatusClose || false}
                 onChange={(e) => handlerChange("BillingTo", e.target.value)}
-              />
-            </div>
-          </div>
+              /> */}
+          {/* </div>
+          </div> */}
         </div>
 
         {/* <div className="grid grid-cols-2 gap-3">
@@ -143,7 +173,7 @@ export default function LogisticForm({
           </div>
         </div> */}
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex flex-col gap-1 text-sm">
+          {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Shipping Type
             </label>
@@ -154,8 +184,8 @@ export default function LogisticForm({
                 onChange={(e) => handlerChange("ShippingType", e.target.value)}
               />
             </div>
-          </div>
-          <div className="flex flex-col gap-1 text-sm">
+          </div> */}
+          {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="StampNumber" className="text-gray-500 text-[14px]">
               Stamp No.
             </label>
@@ -169,7 +199,7 @@ export default function LogisticForm({
                 onBlur={(e) => handlerChange("StampNumber", e.target.value)}
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
