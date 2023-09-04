@@ -291,9 +291,9 @@ function General(props: any) {
           </span>
         </div>
         <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Customer Ref.No</span>
+          <span className="w-4/12 text-gray-500 text-sm">Branch</span>
           <span className="w-8/12 font-medium text-sm">
-            : {props.data?.NumAtCard}
+            : {props.data?.BPLName}
           </span>
         </div>
       </div>

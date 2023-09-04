@@ -1,19 +1,22 @@
-import FormCard from "@/components/card/FormCard"
-import MUIDatePicker from "@/components/input/MUIDatePicker"
-import MUITextField from "@/components/input/MUITextField"
-import VendorTextField from "@/components/input/VendorTextField"
-import MUISelect from "@/components/selectbox/MUISelect"
-import Owner from "@/components/selectbox/Owner"
-import SalePerson from "@/components/selectbox/SalePerson"
-import ShippingType from "@/components/selectbox/ShippingType"
-import { ContactEmployee } from "@/models/BusinessParter"
-import TextField from "@mui/material/TextField"
+import FormCard from "@/components/card/FormCard";
+import DistributionRuleTextField from "@/components/input/DimensionTextField";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
+import MUITextField from "@/components/input/MUITextField";
+import VendorTextField from "@/components/input/VendorTextField";
+import BranchSelect from "@/components/selectbox/Branch";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import MUISelect from "@/components/selectbox/MUISelect";
+import Owner from "@/components/selectbox/Owner";
+import SalePerson from "@/components/selectbox/SalePerson";
+import ShippingType from "@/components/selectbox/ShippingType";
+import { ContactEmployee } from "@/models/BusinessParter";
+import TextField from "@mui/material/TextField";
 
 export interface IGeneralFormProps {
-  handlerChange: (key: string, value: any) => void
-  data: any
-  handlerOpenProject?: () => void
-  edit?: boolean
+  handlerChange: (key: string, value: any) => void;
+  data: any;
+  handlerOpenProject?: () => void;
+  edit?: boolean;
 }
 
 export default function GeneralForm({
@@ -75,12 +78,16 @@ export default function GeneralForm({
             </div>
 
             <div className="flex flex-col gap-1 text-sm">
-              <MUITextField
-                label="Customer Ref.No"
-                value={data?.NumAtCard}
-                name=""
-                onBlur={(e) => handlerChange("NumAtCard", e.target.value)}
-              />
+              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                Branch
+              </label>
+              <div className="">
+                <BPLBranchSelect
+                  onChange={(e) => handlerChange("Branch", e.target.value)}
+                  value={data?.Branch}
+                  name="Branch"
+                />
+              </div>
             </div>
           </div>
 
@@ -190,7 +197,9 @@ export default function GeneralForm({
                 <SalePerson
                   name="SalesPersonCode"
                   value={data.SalesPersonCode}
-                  onChange={(e) => handlerChange("SalesPersonCode", e.target.value)}
+                  onChange={(e) =>
+                    handlerChange("SalesPersonCode", e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -199,13 +208,15 @@ export default function GeneralForm({
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1 text-sm">
               <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                Owner
+                Line of Business
               </label>
               <div className="">
-                <Owner
-                  name="Owner"
-                  value={data.Owner}
-                  onChange={(e) => handlerChange("Owner", e.target.value)}
+                <DistributionRuleTextField
+                  inWhichNum={1}
+                  value={data.LineofBusiness}
+                  onChange={(e) =>
+                    handlerChange("LineofBusiness", e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -213,5 +224,5 @@ export default function GeneralForm({
         </div>
       </FormCard>
     </>
-  )
+  );
 }

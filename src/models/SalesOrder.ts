@@ -45,6 +45,9 @@ export default class SalesOrder extends Model {
   paymentMethods: string;
   Indicator: string;
 
+  //BPL Business 
+  BPLID : string;
+
   constructor(json: any) {
     super();
 
@@ -91,6 +94,7 @@ export default class SalesOrder extends Model {
     this.PaymentGroupCode = json["PaymentGroupCode"];
     this.paymentMethods = json["paymentMethods"];
     this.Indicator = json["Indicator"];
+    this.BPLID = json['BPLID']
   }
 
   toJson(update: boolean) {

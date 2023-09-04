@@ -231,7 +231,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                   )}
               </div>
             </div>
-            <div>
+            {/* <div>
               <div className="col-span-2 grid grid-cols-3 gap-3 ">
                 <label
                   htmlFor="currency"
@@ -273,7 +273,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="col-span-2 data-table border-t">
             <MaterialReactTable
