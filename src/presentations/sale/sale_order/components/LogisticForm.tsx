@@ -33,7 +33,7 @@ export default function LogisticForm({
               htmlFor="PayTermsGrpCode"
               className="text-gray-500 text-[14px]"
             >
-              Ship-To Address
+              Ship-From Address
             </label>
             <div className="">
               {/* <MUISelect
@@ -67,6 +67,22 @@ export default function LogisticForm({
             </div>
           </div>
           <div className="flex flex-col gap-1 text-sm">
+            <label
+              htmlFor="PayTermsGrpCode"
+              className="text-gray-500 text-[14px]"
+            >
+              Ship-To Address
+            </label>
+            <BPAddress
+              name="BillTo"
+              type="bo_BillTo"
+              disabled={data?.isStatusClose || false}
+              data={data}
+              value={data.BillTo}
+              onChange={(e) => handlerChange("BillTo", e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Shipping Type
             </label>
@@ -79,23 +95,23 @@ export default function LogisticForm({
             </div>
           </div>
           <div className="flex flex-col gap-1 text-sm">
-          <label htmlFor="Code" className="text-gray-500 text-[14px]">
-            Ship-From Address
-          </label>
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Ship-From Address
+            </label>
 
-          <div className="">
-            <TextField
-              size="small"
-              multiline
-              rows={2}
-              fullWidth
-              name="Address2"
-              value={data.Address2}
-              className="w-full "
-              onChange={(e) => handlerChange("Address2", e.target.value)}
-            />
+            <div className="">
+              <TextField
+                size="small"
+                multiline
+                rows={2}
+                fullWidth
+                name="Address2"
+                value={data.Address2}
+                className="w-full "
+                onChange={(e) => handlerChange("Address2", e.target.value)}
+              />
+            </div>
           </div>
-        </div>
 
           {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -202,7 +218,7 @@ export default function LogisticForm({
           </div> */}
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      {/* <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1 text-sm">
           <label htmlFor="Code" className="text-gray-500 text-[14px]">
             Ship Address Summary
@@ -238,7 +254,7 @@ export default function LogisticForm({
             />
           </div>
         </div>
-      </div>
+      </div> */}
     </FormCard>
   );
 }
