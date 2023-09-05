@@ -17,7 +17,6 @@ interface BranchProps<T = unknown> {
 function BPLBranchSelect(props: BranchProps) {
 
     const { data, isLoading }: any = useQuery({ queryKey: ['branchBPL'], queryFn: () => new BranchBPLRepository().get(), staleTime: Infinity })
-    console.log(data)
 
     return <MUISelect
         {...props}

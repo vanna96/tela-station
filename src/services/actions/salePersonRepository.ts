@@ -14,7 +14,6 @@ export default class SalePersonRepository extends Repository<SalePerson> {
         const data = localStorage.getItem(this.key);
         if (data) {
             const salePersons = JSON.parse(Encryption.decrypt(this.key, data));
-            console.log(salePersons);
             
             return JSON.parse(salePersons);
         }

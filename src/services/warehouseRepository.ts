@@ -4,8 +4,11 @@ import Encryption from "@/utilies/encryption";
 import request from "@/utilies/request";
 
 export default class WarehouseRepository extends Repository<Warehouse> {
+    static get() {
+      throw new Error("Method not implemented.");
+    }
    
-    url = '/Warehouses?$select=WarehouseCode,WarehouseName';
+    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID';
     
     // specific key
     key = 'warehouse';

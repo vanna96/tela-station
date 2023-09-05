@@ -9,8 +9,14 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import Owner from "@/components/selectbox/Owner";
 import SalePerson from "@/components/selectbox/SalePerson";
 import ShippingType from "@/components/selectbox/ShippingType";
+import WarehouseSelect from "@/components/selectbox/Warehouse";
 import { ContactEmployee } from "@/models/BusinessParter";
+import WarehouseRepository from "@/services/warehouseRepository";
 import TextField from "@mui/material/TextField";
+import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import { WarehouseData } from "./WarehouseData";
+import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -25,6 +31,7 @@ export default function GeneralForm({
   handlerOpenProject,
   edit,
 }: IGeneralFormProps) {
+
   return (
     <>
       <FormCard title="Information">
@@ -217,6 +224,29 @@ export default function GeneralForm({
                   onChange={(e) =>
                     handlerChange("LineofBusiness", e.target.value)
                   }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                Warehouse
+              </label>
+              <div className="">
+                {/* <MUISelect
+                  items={filteredWarehouses?.map((e: any) => ({
+                    id: e.WarehouseCode,
+                    name: e.WarehouseCode,
+                  }))}
+                  onChange={(e) => handlerChange("Warehouse", e.target.value)}
+                  value={data?.Warehouse}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="Warehouse"
+                /> */}
+                <WarehouseByBranch
+                  Branch={data?.Branch}
+                  onChange={(e) => handlerChange("Warehouse", e.target.value)}
+                  value={data?.Warehouse}
                 />
               </div>
             </div>
