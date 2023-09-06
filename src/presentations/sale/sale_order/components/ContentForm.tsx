@@ -173,17 +173,17 @@ export default function ContentForm({
       {
         accessorKey: "UomCode",
         header: "Uom Code",
-        visible: false,
-
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
-        },
+        visible: true,
+        size: 80,
+        // Cell: ({ cell }: any) => {
+        //   if (Object.keys(cell.row.original).length === 1) return null;
+        //   return currencyFormat(cell.getValue());
+        // },
       },
       {
         accessorKey: "UomGroup",
         header: "Uom Group",
-        visible: true,
+        visible: false,
         size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
@@ -197,7 +197,7 @@ export default function ContentForm({
         size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return cell.getValue();
+          return data?.Warehouse;
         },
       },
 

@@ -7,10 +7,12 @@ import Owner from "@/components/selectbox/Owner";
 import PaymentMethod from "@/components/selectbox/PaymentMethod";
 import PaymentTerm from "@/components/selectbox/PaymentTerm";
 import ShippingType from "@/components/selectbox/ShippingType";
+import WarehouseSelect from "@/components/selectbox/Warehouse";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import { agreementMethodLists, documentStatusList } from "@/constants";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
+import { useState } from "react";
 
 export interface ILogisticFormProps {
   data: any;
@@ -25,6 +27,12 @@ export default function LogisticForm({
   edit,
   ref,
 }: ILogisticFormProps) {
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleCheckboxChange = (e: any) => {
+    setIsChecked(e.target.checked);
+  };
+
   return (
     <FormCard title="Logistics" ref={ref}>
       <div className="flex flex-col gap-2">
@@ -90,13 +98,20 @@ export default function LogisticForm({
           </div>
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Shipping Type
+              Attention Terminal
             </label>
-            <div className="">
-              <ShippingType
+            <div className="flex ">
+              <Checkbox
+                sx={{ mb: 3 }}
+                value={data?.U_tl_attn_ter}
+                checked={isChecked}
+                onChange={handleCheckboxChange}
+              />
+              <WarehouseSelect
                 name="ShippingType"
                 value={data.ShippingType}
                 onChange={(e) => handlerChange("ShippingType", e.target.value)}
+                disabled={!isChecked} // Disable if isChecked is false
               />
             </div>
           </div>
