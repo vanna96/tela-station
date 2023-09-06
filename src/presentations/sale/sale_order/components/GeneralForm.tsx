@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { WarehouseData } from "./WarehouseData";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
+import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -31,7 +32,6 @@ export default function GeneralForm({
   handlerOpenProject,
   edit,
 }: IGeneralFormProps) {
-
   return (
     <>
       <FormCard title="Information">
@@ -218,8 +218,8 @@ export default function GeneralForm({
                 Line of Business
               </label>
               <div className="">
-                <DistributionRuleTextField
-                  inWhichNum={1}
+               
+                <DistributionRuleSelect
                   value={data.LineofBusiness}
                   onChange={(e) =>
                     handlerChange("LineofBusiness", e.target.value)

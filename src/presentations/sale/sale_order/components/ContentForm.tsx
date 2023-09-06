@@ -181,15 +181,26 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "UomGrop",
-        header: "Uom Grop",
-        visible: false,
-
+        accessorKey: "UomGroup",
+        header: "Uom Group",
+        visible: true,
+        size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
           return currencyFormat(cell.getValue());
         },
       },
+      {
+        accessorKey: "WarehouseCode",
+        header: "Warehouse",
+        visible: true,
+        size: 80,
+        Cell: ({ cell }: any) => {
+          if (Object.keys(cell.row.original).length === 1) return null;
+          return cell.getValue();
+        },
+      },
+
       {
         accessorKey: "UnitOfMeasure",
         header: "Item Per Group",

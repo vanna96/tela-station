@@ -7,6 +7,7 @@ import Owner from "@/components/selectbox/Owner";
 import PaymentMethod from "@/components/selectbox/PaymentMethod";
 import PaymentTerm from "@/components/selectbox/PaymentTerm";
 import ShippingType from "@/components/selectbox/ShippingType";
+import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import { agreementMethodLists, documentStatusList } from "@/constants";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
@@ -56,11 +57,16 @@ export default function LogisticForm({
                   }
                 }}
               /> */}
-              <BPAddress
+              {/* <BPAddress
                 name="ShippingTo"
                 type="bo_ShipTo"
                 disabled={data?.isStatusClose || false}
                 data={data}
+                value={data.ShippingTo}
+                onChange={(e) => handlerChange("ShippingTo", e.target.value)}
+              /> */}
+              <WarehouseByBranch
+                Branch={data.Branch}
                 value={data.ShippingTo}
                 onChange={(e) => handlerChange("ShippingTo", e.target.value)}
               />
@@ -94,7 +100,7 @@ export default function LogisticForm({
               />
             </div>
           </div>
-          <div className="flex flex-col gap-1 text-sm">
+          {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Ship-From Address
             </label>
@@ -111,7 +117,7 @@ export default function LogisticForm({
                 onChange={(e) => handlerChange("Address2", e.target.value)}
               />
             </div>
-          </div>
+          </div> */}
 
           {/* <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">

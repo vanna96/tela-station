@@ -319,6 +319,7 @@ export default function SaleOrderLists() {
           />
 
           <BPAutoComplete
+            type="Customer"
             label="Customer"
             value={searchValues.cardcode}
             onChange={(selectedValue) =>

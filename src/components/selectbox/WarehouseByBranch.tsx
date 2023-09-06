@@ -27,7 +27,7 @@ function WarehouseByBranch(props: WarehouseProps) {
   return (
     <MUISelect
       {...props}
-      aliaslabel="WarehouseCode"
+      aliaslabel="WarehouseName"
       aliasvalue="WarehouseCode"
       loading={isLoading}
       items={filteredWarehouses}
