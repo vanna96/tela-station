@@ -479,6 +479,7 @@ export default function ContentForm({
         }
         items={data?.Items ?? []}
         data={data}
+        LineOfBusiness = {data?.LineofBusiness}
         onChange={onChange}
         labelType={"Item / Service Type"}
         type={data?.DocType ?? "dDocument_Items"}

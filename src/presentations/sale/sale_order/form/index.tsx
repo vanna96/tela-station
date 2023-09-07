@@ -5,7 +5,6 @@ import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
-
 import GeneralForm from "../components/GeneralForm";
 import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
@@ -19,6 +18,8 @@ import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
 import { CircularProgress } from "@mui/material";
+import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
+import useState from "react";
 
 class SalesOrderForm extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>();
@@ -44,6 +45,8 @@ class SalesOrderForm extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
+      type: "sale", // Initialize type with a default value
+      lineofBusiness: "",
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -52,6 +55,9 @@ class SalesOrderForm extends CoreFormDocument {
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
   }
+  handleLineofBusinessChange = (value: any) => {
+    this.setState({ lineofBusiness: value });
+  };
 
   componentDidMount(): void {
     this.setState({ loading: true });
@@ -65,14 +71,14 @@ class SalesOrderForm extends CoreFormDocument {
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "16",
+        Document: "17",
       });
       this.props?.query?.set("orders-series", seriesList);
     }
 
     if (!defaultSeries) {
       defaultSeries = await DocumentSerieRepository.getDefaultDocumentSerie({
-        Document: "16",
+        Document: "17",
       });
       this.props?.query?.set("orders-default-series", defaultSeries);
     }
@@ -208,7 +214,7 @@ class SalesOrderForm extends CoreFormDocument {
     } else {
       state["SerieLists"] = seriesList;
       state["Series"] = defaultSeries.Series;
-      state["DocNum"] = defaultSeries.NextNumber;
+      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       this.setState(state);
@@ -380,12 +386,49 @@ class SalesOrderForm extends CoreFormDocument {
   }
 
   FormRender = () => {
+    const getGroupByLineofBusiness = (lineofBusiness: any) => {
+      switch (lineofBusiness) {
+        case "201001":
+          return "100";
+        case "201002":
+          return "101";
+        case "201003":
+          return "102";
+        default:
+          return "0";
+      }
+    };
+
+    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+    console.log(itemGroupCode)
+
     return (
       <>
-        <ServiceModalComponent
-          ref={this.serviceRef}
-          onOk={this.handlerConfirmItem}
-        />
+        {itemGroupCode === "100" && (
+          <ItemModalComponent
+            type="sale"
+            group={"100"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}
+
+        {itemGroupCode === "101" && (
+          <ItemModalComponent
+            type="sale"
+            group={"101"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}
+        {itemGroupCode === "102" && (
+          <ItemModalComponent
+            type="sale"
+            group={"102"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}
         <form
           id="formData"
           onSubmit={this.handlerSubmit}
@@ -406,6 +449,8 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChange={(key, value) =>
                         this.handlerChange(key, value)
                       }
+                      lineofBusiness={this.state.lineofBusiness} // Pass lineofBusiness as a prop
+                      onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
 
@@ -453,7 +498,7 @@ class SalesOrderForm extends CoreFormDocument {
                   )} */}
                 </div>
               </>
-             )} 
+            )}
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">

@@ -1,5 +1,4 @@
 import FormCard from "@/components/card/FormCard";
-import DistributionRuleTextField from "@/components/input/DimensionTextField";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import VendorTextField from "@/components/input/VendorTextField";
@@ -15,7 +14,6 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import TextField from "@mui/material/TextField";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
-import { WarehouseData } from "./WarehouseData";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 
@@ -24,6 +22,8 @@ export interface IGeneralFormProps {
   data: any;
   handlerOpenProject?: () => void;
   edit?: boolean;
+  lineofBusiness: string; // Add lineofBusiness as a prop
+  onLineofBusinessChange: (value: string) => void;
 }
 
 export default function GeneralForm({
@@ -31,7 +31,14 @@ export default function GeneralForm({
   handlerChange,
   handlerOpenProject,
   edit,
+  lineofBusiness,
+  onLineofBusinessChange,
 }: IGeneralFormProps) {
+  const filteredSeries = data?.SerieLists?.filter(
+    (serie: any) => serie?.BPLID === data?.Branch
+  );
+
+  console.log(data);
   return (
     <>
       <FormCard title="Information">
@@ -125,12 +132,14 @@ export default function GeneralForm({
             </label>
             <div className="grid grid-cols-2 gap-3 ">
               <MUISelect
-                items={data.SerieLists ?? []}
+                // items={data.SerieLists ?? []}
+                items={filteredSeries ?? data.SerieLists}
                 aliasvalue="Series"
                 aliaslabel="Name"
                 name="Series"
                 loading={data?.isLoadingSerie}
-                value={data?.Series === "" ? "M" : data?.Series}
+                // value={filteredSeries === "" ? "M" : filteredSeries[0]}
+                value={filteredSeries[0]?.Series}
                 disabled={edit}
                 onChange={(e: any) => handlerChange("Series", e.target.value)}
               />
@@ -138,7 +147,8 @@ export default function GeneralForm({
                 <MUITextField
                   size="small"
                   name="DocNum"
-                  value={data?.DocNum}
+                  // value={data?.DocNum}
+                  value={filteredSeries[0]?.NextNumber ?? ""}
                   disabled={edit}
                   placeholder="Document No"
                 />
@@ -218,12 +228,15 @@ export default function GeneralForm({
                 Line of Business
               </label>
               <div className="">
-               
                 <DistributionRuleSelect
                   value={data.LineofBusiness}
-                  onChange={(e) =>
-                    handlerChange("LineofBusiness", e.target.value)
-                  }
+                  // onChange={(e) =>
+                  //   handlerChange("LineofBusiness", e.target.value)
+                  // }
+                  onChange={(e) => {
+                    handlerChange("LineofBusiness", e.target.value);
+                    onLineofBusinessChange(e.target.value); // Call the callback when LineofBusiness changes
+                  }}
                 />
               </div>
             </div>

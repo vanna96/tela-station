@@ -26,11 +26,13 @@ function DistributionRuleSelect(props: Props) {
     () => data?.filter((e: any) => e.InWhichDimension === 1),
     [data, 1]
   );
-
+  const filteredData = items?.filter(
+    (item: any) => item.FactorCode !== "201999"
+  );
   return (
     <MUISelect
       {...props}
-      items={items}
+      items={filteredData}
       aliaslabel="FactorDescription"
       aliasvalue="FactorCode"
       loading={isLoading}

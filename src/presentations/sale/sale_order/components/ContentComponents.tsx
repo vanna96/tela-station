@@ -26,12 +26,14 @@ interface ContentComponentProps {
   readOnly?: boolean;
   viewOnly?: boolean;
   data: any;
+  LineOfBusiness?: string;
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
   const checked = props?.data?.Rounding == "true";
   const { id }: any = useParams();
   if (!(id > 0)) useExchangeRate(props?.data?.Currency, props.onChange);
+
 
   const { theme } = React.useContext(ThemeContext);
   const columnRef = React.createRef<ContentTableSelectColumn>();
@@ -55,6 +57,8 @@ export default function ContentComponent(props: ContentComponentProps) {
     setRowSelection({});
     props.onRemoveChange(temps);
   };
+
+
 
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.items ?? [],
@@ -113,6 +117,8 @@ export default function ContentComponent(props: ContentComponentProps) {
   useEffect(() => {
     if (!checked) onChange("RoundingValue", 0);
   }, [checked]);
+
+
 
   return (
     <div className="">
