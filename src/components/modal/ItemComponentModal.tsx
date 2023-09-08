@@ -77,6 +77,7 @@ const ItemModal: FC<ItemModalProps> = ({
     []
   );
 
+
   const items = useMemo(() => {
     switch (type) {
       case "purchase":
@@ -93,15 +94,15 @@ const ItemModal: FC<ItemModalProps> = ({
   const itemFilter = useMemo(() => {
     switch (group) {
       case "100":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 100);
+        return items?.filter((e: any) => e?.ItemsGroupCode === 100 );
       case "101":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 101);
+        return items?.filter((e: any) => e?.ItemsGroupCode === 101 );
       case "102":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 102);
-      case "0":
-        return items;
+        return items?.filter((e: any) => e?.ItemsGroupCode === 102 );
+        case "0":
+          return items
       default:
-        return [];
+        return items;
     }
   }, [items]);
 

@@ -38,7 +38,6 @@ export default function GeneralForm({
     (serie: any) => serie?.BPLID === data?.Branch
   );
 
-  console.log(data);
   return (
     <>
       <FormCard title="Information">

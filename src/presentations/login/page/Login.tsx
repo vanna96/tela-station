@@ -23,11 +23,12 @@ import ManufacturerRepository from "@/services/actions/manufacturerRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import GetCurrentUserRepository from "../repository/getCurrencyUserRepository";
 import MUITextField from "@/components/input/MUITextField";
-import TelaCover from "../../../assets/img/tela-cover.jpeg";
+import TelaCover from "../../../assets/img/tela-cover.jpg";
 import BizLogo from "../../../assets/img/big-logo.png";
 import { BASE_BG_COLOR } from "@/configs";
 import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
 import ProjectRepository from "@/services/actions/projectRepository";
+import { Alert, AlertTitle } from "@mui/material";
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -42,17 +43,22 @@ export default function Login() {
   const onSubmit = async () => {
     try {
       setLoading(true);
-      const auth = new AuthLogin(company.current, username.current, password.current);
+      const auth = new AuthLogin(
+        company.current,
+        username.current,
+        password.current
+      );
       // const auth = new AuthLogin("SBODemoAU", "manager", "manager");
       const response: any = await request("POST", "/Login", auth.toJson());
       setCookie("sessionId", response?.data?.SessionId, { maxAge: 2000 });
       const user = await GetCurrentUserRepository.post();
       setCookie("user", user, { maxAge: 2000 });
       await fetchAllDate();
-      navigate("/");  
+      navigate("/");
     } catch (e: any) {
       console.log(e);
-      setMessage(e?.message);
+      setMessage(e?.message );
+      // setMessage("Incorrect username or password");
     } finally {
       setLoading(false);
     }
@@ -103,10 +109,10 @@ export default function Login() {
     <>
       <div className="flex flex-col items-center justify-center h-[90vh] bg-gray-100">
         <div className="w-full">
-          <div className="ml-24 mt-6 mb-4 sticky">
+          <div className="ml-20 mt-0 mb-12 sticky">
             <img
               src={BizLogo}
-              className="w-[18%] h-[18%]"
+              className="w-[16%] h-[16%]"
               alt="Business Logo"
             />
           </div>
@@ -114,14 +120,12 @@ export default function Login() {
 
         <div className="flex items-center justify-center w-full mt-4">
           <div className="w-4/6 h-[60vh] bg-white border border-gray-300 shadow-xl flex rounded-xl p-2">
-            <div
-              className="w-8/12 lg:w-6/12 md:hidden sm:hidden bg-cover p-4 rounded-xl"
-            >
+            <div className="w-8/12 lg:w-6/12 md:hidden sm:hidden bg-cover p-4 rounded-xl">
               <img
                 className="rounded-l-lg rounded-r-sm"
                 src={TelaCover}
                 style={{
-                  display: "block", 
+                  display: "block",
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
@@ -131,7 +135,7 @@ export default function Login() {
             </div>
             <div className="w-4/12 lg:w-6/12 md:w-full sm:w-full p-6 flex flex-col justify-center ">
               <div className="flex flex-col space-y-4">
-                <h1 className="text-xl font-semibold">Sign In</h1>
+                <h1 className="text-xl font-semibold">Sign In</h1>{" "}
                 <MUITextField
                   label="Company"
                   id="outlined-size-small"
@@ -154,7 +158,15 @@ export default function Login() {
                   defaultValue={password.current}
                   onChange={(event) => onChange(event, "password")}
                 />
-                <div className="pt-4 w-full">
+                {message ? (
+                  <Alert severity="error">
+                    <strong>{message}</strong> {' '}
+                    Incorrect username or password
+                  </Alert>
+                ) : (
+                  ""
+                )}
+                <div className="pt-0 w-full">
                   <LoadingButton
                     fullWidth
                     sx={{ backgroundColor: `${BASE_BG_COLOR} !important` }}

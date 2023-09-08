@@ -23,6 +23,11 @@ export default class itemRepository extends Repository<Item> {
         "ItemUnitOfMeasurementCollection",
         "Mainsupplier",
         "ItemPrices",
+        "ItemType",
+        "U_t_re",
+        "U_tl_dim1",
+        "U_tl_dim2",
+        "U_Type"
     ];
 
     private static url1 = '/Items';
@@ -48,7 +53,9 @@ export default class itemRepository extends Repository<Item> {
     ];
 
     async get<Item>(query?: string | undefined): Promise<Item[]> {
-        const response = await request('GET', this.url + '?$select=' + this.select.join(','))
+        // const response = await request('GET', this.url + + '?$select=' + this.select.join(','))
+        const response = await request('GET', this.url  + '?$select=' + this.select.join(',')+`&$filter=ItemType eq 'itItems'`)
+
             .then((res: any) => res?.data?.value)
             .catch((e: Error) => {
                 throw new Error(e.message);
@@ -62,7 +69,7 @@ export default class itemRepository extends Repository<Item> {
 
 
     public static async getAll<Item>(query?: string | undefined): Promise<Item[]> {
-        const response = await request('GET', this.url1 + '?$select=' + this.select1.join(','))
+        const response = await request('GET', this.url1 + '?$select=' + this.select1.join(',')+ `&$filter=ItemType eq 'itItems'`)
             .then((res: any) => res?.data?.value)
             .catch((e: Error) => {
                 throw new Error(e.message);

@@ -400,8 +400,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-    console.log(itemGroupCode)
-
+console.log(itemGroupCode)
     return (
       <>
         {itemGroupCode === "100" && (
@@ -425,6 +424,13 @@ class SalesOrderForm extends CoreFormDocument {
           <ItemModalComponent
             type="sale"
             group={"102"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )} {itemGroupCode === "0" && (
+          <ItemModalComponent
+            type="sale"
+            group={"0"}
             onOk={this.handlerConfirmItem}
             ref={this.itemModalRef}
           />

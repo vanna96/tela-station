@@ -42,7 +42,7 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (props: MUIDatePickerProps) 
     },
     palette: {
       background: {
-        paper: theme === 'light' ? '#FFFFFF' : '#475569'
+        paper: theme === 'light' ? '#FFFFFF' : '#FFFFFF'
       }
     },
   }), [theme]);
