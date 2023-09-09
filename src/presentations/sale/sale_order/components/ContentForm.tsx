@@ -119,12 +119,12 @@ export default function ContentForm({
       },
       {
         accessorKey: "UnitPrice",
-        header: "Unit Price",
+        header: "Gross Price",
         visible: true,
         size: 80,
         Header: (header: any) => (
           <label>
-            Unit Price <span className="text-red-500">*</span>
+            Gross Price <span className="text-red-500">*</span>
           </label>
         ),
 
@@ -479,7 +479,7 @@ export default function ContentForm({
         }
         items={data?.Items ?? []}
         data={data}
-        LineOfBusiness = {data?.LineofBusiness}
+        LineOfBusiness={data?.LineofBusiness}
         onChange={onChange}
         labelType={"Item / Service Type"}
         type={data?.DocType ?? "dDocument_Items"}

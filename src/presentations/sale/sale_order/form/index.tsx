@@ -400,7 +400,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-console.log(itemGroupCode)
+    console.log(itemGroupCode)
     return (
       <>
         {itemGroupCode === "100" && (
