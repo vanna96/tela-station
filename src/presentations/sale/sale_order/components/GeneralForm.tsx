@@ -24,23 +24,18 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
-
-
   const filteredSeries = data?.SerieLists?.filter(
     (serie: any) => serie?.BPLID === data?.Branch
   );
-
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
-
-
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
-      <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
-        <h2>Information</h2>
+    <div className="rounded-lg shadow-sm bg-white border p-8 px-8 h-screen">
+      <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+        <h2>Basic Information</h2>
       </div>
       <div className="grid grid-cols-2">
         <div className="pl-4 pr-20">
@@ -52,7 +47,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <VendorTextField
-                vtype="customer" // Assuming "customer" is a variable here
+                vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
                 error={"CardCode" in data?.error}

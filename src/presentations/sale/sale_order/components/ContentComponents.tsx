@@ -34,7 +34,6 @@ export default function ContentComponent(props: ContentComponentProps) {
   const { id }: any = useParams();
   if (!(id > 0)) useExchangeRate(props?.data?.Currency, props.onChange);
 
-
   const { theme } = React.useContext(ThemeContext);
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
@@ -57,8 +56,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     setRowSelection({});
     props.onRemoveChange(temps);
   };
-
-
 
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.items ?? [],
@@ -117,8 +114,6 @@ export default function ContentComponent(props: ContentComponentProps) {
   useEffect(() => {
     if (!checked) onChange("RoundingValue", 0);
   }, [checked]);
-
-
 
   return (
     <div className="">
@@ -226,60 +221,17 @@ export default function ContentComponent(props: ContentComponentProps) {
                 {props?.data?.CurrencyType === "B" &&
                   (props?.data?.Currency || "AUD") !== "AUD" && (
                     <div className="w-1/2">
-                    <MUITextField
-                      value={props?.data?.ExchangeRate || 0}
-                      name=""
-                      disabled={true}
-                      className="-mt-1"
-                      // helpertext="update exchange rate"
-                    />
+                      <MUITextField
+                        value={props?.data?.ExchangeRate || 0}
+                        name=""
+                        disabled={true}
+                        className="-mt-1"
+                        // helpertext="update exchange rate"
+                      />
                     </div>
                   )}
               </div>
             </div>
-            {/* <div>
-              <div className="col-span-2 grid grid-cols-3 gap-3 ">
-                <label
-                  htmlFor="currency"
-                  className="text-sm col-span-2 md:col-span-1 flex items-center justify-end md:justify-start text-[#656565]"
-                >
-                  Item / Service Type :
-                </label>
-                <div className="md:col-span-2">
-                  <MUISelect
-                    value={props?.data?.DocType}
-                    items={
-                      props.typeLists ?? [
-                        { value: "dDocument_Items", name: "Items" },
-                        { value: "dDocument_Services", name: "Services" },
-                      ]
-                    }
-                    aliaslabel="name"
-                    aliasvalue="value"
-                    onChange={(event) => onChange("DocType", event)}
-                  />
-                </div>
-                <label
-                  htmlFor="currency"
-                  className="text-sm col-span-2 md:col-span-1 flex items-center justify-end md:justify-start text-[#656565] "
-                >
-                  Price Mode :
-                </label>
-                <div className="md:col-span-2">
-                  <MUISelect
-                    value={props?.data?.vendor?.PriceMode}
-                    onChange={(event) => onChange("PriceMode", event)}
-                    items={[
-                      { value: "pmGross", name: "Gross Price" },
-                      { value: "pmNet", name: "Net Price" },
-                    ]}
-                    disabled
-                    aliaslabel="name"
-                    aliasvalue="value"
-                  />
-                </div>
-              </div>
-            </div> */}
           </div>
           <div className="col-span-2 data-table border-t">
             <MaterialReactTable

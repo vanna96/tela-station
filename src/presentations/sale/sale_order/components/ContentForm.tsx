@@ -6,7 +6,6 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { TbEdit } from "react-icons/tb";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { ServiceModal } from "./ServiceModal";
 import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
@@ -29,7 +28,6 @@ export default function ContentForm({
   onChangeItemByCode,
 }: ContentFormProps) {
   const updateRef = React.createRef<ItemModal>();
-  const serviceModalRef = React.createRef<ServiceModal>();
   const itemGroupRepo = new ItemGroupRepository();
   const [collapseError, setCollapseError] = React.useState(false);
 
@@ -266,189 +264,7 @@ export default function ContentForm({
     [updateRef]
   );
 
-  const serviceColumns = React.useMemo(
-    () => [
-      {
-        accessorKey: "ItemCode",
-        header: "G/L Account", //uses the default width from defaultColumn prop
-        visible: true,
-        Header: (header: any) => (
-          <label>
-            G/L Account <span className="text-red-500">*</span>
-          </label>
-        ),
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode)
-            return (
-              <div
-                role="button"
-                className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner"
-                onClick={handlerAddItem}
-              >
-                Add Row
-              </div>
-            );
-
-          return (
-            <MUITextField
-              key={"ItemCode_" + cell.getValue()}
-              value={cell.row.original?.ItemCode ?? ""}
-              type="text"
-              disabled={data.disable["DocumentLine"]}
-              onBlur={(event) =>
-                handlerChangeInput(event, cell?.row?.original, "LineTotal")
-              }
-              endAdornment
-              onClick={() => serviceModalRef.current?.onOpen(cell.row.original)}
-              endIcon={
-                cell.getValue() === "" ? null : <TbEdit className="text-lg" />
-              }
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "ItemName",
-        header: "G/L Account Name", //uses the default width from defaultColumn prop
-        visible: true,
-        Header: (header: any) => (
-          <label>
-            G/L Account Name <span className="text-red-500">*</span>
-          </label>
-        ),
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return;
-
-          return (
-            <MUITextField
-              key={"ItemName_" + cell.getValue()}
-              type="text"
-              value={
-                cell.row.original?.ItemName ??
-                new GLAccountRepository().find(cell.row.original?.ItemCode)
-                  ?.Name
-              }
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "OpenAmountLC",
-        header: "Planned Amount (LC)", //uses the default width from defaultColumn prop
-        visible: true,
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return null;
-
-          return (
-            <MUITextField
-              startAdornment={"USD"}
-              value={cell.row?.original?.UnitPrice || 0}
-              disabled={true}
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "Discount",
-        header: "Line Discount", //uses the default width from defaultColumn prop
-        visible: true,
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return null;
-
-          return (
-            <MUITextField
-              key={"discount_" + cell.getValue()}
-              value={cell.getValue() || 0}
-              startAdornment={"%"}
-              disabled={data.disable["DocumentLine"]}
-              onBlur={(event) =>
-                handlerChangeInput(event, cell?.row?.original, "Discount")
-              }
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "VatGroup",
-        header: "Tax Code", //uses the default width from defaultColumn prop
-        visible: true,
-        Header: (header: any) => (
-          <label>
-            Tax Code <span className="text-red-500">*</span>
-          </label>
-        ),
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return;
-          return (
-            <MUITextField
-              key={"unitPrice_" + cell.getValue()}
-              value={cell.getValue()}
-              type="text"
-              disabled={data.disable["DocumentLine"]}
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "FreeText",
-        header: "Free Text", //uses the default width from defaultColumn prop
-        visible: false,
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return null;
-
-          return (
-            <MUITextField
-              key={"freeText_" + cell.getValue()}
-              defaultValue={cell.getValue()}
-              disabled={data.disable["DocumentLine"]}
-              onBlur={(event: any) =>
-                handlerChangeInput(event, cell?.row?.original, "FreeText")
-              }
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "PortionOfReturns",
-        visible: false,
-        header: "Portion Of Returns %", //uses the default width from defaultColumn prop
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return null;
-
-          return (
-            <MUITextField
-              type="number"
-              value={cell.getValue()}
-              onChange={(value) =>
-                handlerChangeInput(
-                  value,
-                  cell?.row?.original,
-                  "PortionOfReturns"
-                )
-              }
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "EndOfWarranty",
-        visible: false,
-        header: "End Of Warranty", //uses the default width from defaultColumn prop
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.ItemCode) return null;
-          return (
-            <MUIDatePicker
-              value={cell.getValue() ?? null}
-              onChange={(value) =>
-                handlerChangeInput(value, cell?.row?.original, "EndOfWarranty")
-              }
-            />
-          );
-        },
-      },
-    ],
-    [serviceModalRef]
-  );
+  
 
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const onClose = React.useCallback(() => setCollapseError(false), []);
@@ -475,7 +291,7 @@ export default function ContentForm({
       </Collapse>
       <ContentComponent
         columns={
-          data?.DocType === "dDocument_Items" ? itemColumns : serviceColumns
+          data?.DocType === "dDocument_Items" ? itemColumns : itemColumns
         }
         items={data?.Items ?? []}
         data={data}
@@ -485,7 +301,7 @@ export default function ContentForm({
         type={data?.DocType ?? "dDocument_Items"}
         typeLists={[
           { name: "Item", value: "dDocument_Items" },
-          { name: "Service", value: "dDocument_Service" },
+          { name: "Service", value: "dDocument_Items" },
         ]}
         onRemoveChange={handlerRemoveItem}
       />
@@ -494,7 +310,6 @@ export default function ContentForm({
         onSave={onUpdateByItem}
         columns={itemColumns}
       />
-      <ServiceModal ref={serviceModalRef} onSave={onUpdateByItem} />
     </>
   );
 }
