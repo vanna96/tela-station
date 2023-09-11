@@ -43,7 +43,7 @@ export default function LogisticForm({
           <div className="pl-4 pr-20">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                <label htmlFor="Code" className="text-gray-500 ">
                   Ship-From Address
                 </label>
               </div>
@@ -59,7 +59,7 @@ export default function LogisticForm({
           <div className="pl-20">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                <label htmlFor="Code" className="text-gray-500 ">
                   Ship-To Address
                 </label>
               </div>
@@ -81,7 +81,7 @@ export default function LogisticForm({
           <div className="pl-4 pr-20">
             <div className="grid grid-cols-7 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                <label htmlFor="Code" className="text-gray-500 ">
                   Attention Terminal
                 </label>
               </div>
