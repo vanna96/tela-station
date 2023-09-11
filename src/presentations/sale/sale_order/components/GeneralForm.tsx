@@ -46,7 +46,7 @@ export default function GeneralForm({
         <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Customer <span className="text-red-500">*</span>
               </label>
             </div>
@@ -68,7 +68,7 @@ export default function GeneralForm({
         <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Series
               </label>
             </div>
@@ -105,7 +105,7 @@ export default function GeneralForm({
         <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Name
               </label>
             </div>
@@ -121,7 +121,7 @@ export default function GeneralForm({
         <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Posting Date
               </label>
             </div>
@@ -141,7 +141,7 @@ export default function GeneralForm({
         <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Contact Person
               </label>
             </div>
@@ -171,7 +171,7 @@ export default function GeneralForm({
                 htmlFor="Code"
                 className={`${
                   !("DueDate" in data?.error) ? "text-gray-500" : "text-red-500"
-                } text-[14px]`}
+                } `}
               >
                 Delivery Date <span className="text-red-500">*</span>
               </label>
@@ -195,7 +195,7 @@ export default function GeneralForm({
         <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Branch
               </label>
             </div>
@@ -211,7 +211,7 @@ export default function GeneralForm({
         <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Document Date
               </label>
             </div>
@@ -230,7 +230,7 @@ export default function GeneralForm({
         <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Warehouse
               </label>
             </div>
@@ -246,7 +246,7 @@ export default function GeneralForm({
         <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Sale Employee
               </label>
             </div>
@@ -267,7 +267,7 @@ export default function GeneralForm({
         <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Remark
               </label>
             </div>
@@ -289,7 +289,7 @@ export default function GeneralForm({
         <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              <label htmlFor="Code" className="text-gray-500 ">
                 Line of Business
               </label>
             </div>
