@@ -28,7 +28,7 @@ import BizLogo from "../../../assets/img/big-logo.png";
 import { BASE_BG_COLOR } from "@/configs";
 import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
 import ProjectRepository from "@/services/actions/projectRepository";
-import { Alert, AlertTitle } from "@mui/material";
+import { Alert, AlertTitle, TextField } from "@mui/material";
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -57,7 +57,7 @@ export default function Login() {
       navigate("/");
     } catch (e: any) {
       console.log(e);
-      setMessage(e?.message );
+      setMessage(e?.message);
       // setMessage("Incorrect username or password");
     } finally {
       setLoading(false);
@@ -108,7 +108,7 @@ export default function Login() {
   return (
     <>
       <div className="flex flex-col items-center justify-center h-[90vh] bg-gray-100">
-        <div className="w-full">
+        {/* <div className="w-full">
           <div className="ml-20 mt-0 mb-12 sticky">
             <img
               src={BizLogo}
@@ -116,7 +116,7 @@ export default function Login() {
               alt="Business Logo"
             />
           </div>
-        </div>
+        </div> */}
 
         <div className="flex items-center justify-center w-full mt-4">
           <div className="w-4/6 h-[60vh] bg-white border border-gray-300 shadow-xl flex rounded-xl p-2">
@@ -135,11 +135,17 @@ export default function Login() {
             </div>
             <div className="w-4/12 lg:w-6/12 md:w-full sm:w-full p-6 flex flex-col justify-center ">
               <div className="flex flex-col space-y-4">
-                <h1 className="text-xl font-semibold">Sign In</h1>{" "}
-                <MUITextField
+                <h1 className="text-xl font-semibold">Sign In</h1>
+                {/* <MUITextField
                   label="Company"
                   id="outlined-size-small"
                   size="small"
+                  hidden
+                  defaultValue={company.current}
+                  onChange={(event) => onChange(event, "company")}
+                /> */}
+                <input
+                  hidden
                   defaultValue={company.current}
                   onChange={(event) => onChange(event, "company")}
                 />
@@ -160,8 +166,7 @@ export default function Login() {
                 />
                 {message ? (
                   <Alert severity="error">
-                    <strong>{message}</strong> {' '}
-                    Incorrect username or password
+                    <strong>{message}</strong> Incorrect username or password
                   </Alert>
                 ) : (
                   ""
@@ -181,6 +186,10 @@ export default function Login() {
                 <div className="mt-2 text-xs text-center text-[#656565]">
                   <p> If you forgot your Username, please call</p>
                   <p className="font-medium "> +855 (0) 23 925 333</p>
+                </div>
+
+                <div className="mt-2 text-xs text-center text-[#656565]">
+                <p>© 2023 BIZDIMENSION Co., LTD. All rights reserved.</p>
                 </div>
               </div>
             </div>

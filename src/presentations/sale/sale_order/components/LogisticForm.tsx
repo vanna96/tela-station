@@ -1,17 +1,8 @@
 import FormCard from "@/components/card/FormCard";
-import MUITextField from "@/components/input/MUITextField";
 import BPAddress from "@/components/selectbox/BPAddress";
-import BPProject from "@/components/selectbox/BPProject";
-import MUISelect from "@/components/selectbox/MUISelect";
-import Owner from "@/components/selectbox/Owner";
-import PaymentMethod from "@/components/selectbox/PaymentMethod";
-import PaymentTerm from "@/components/selectbox/PaymentTerm";
-import ShippingType from "@/components/selectbox/ShippingType";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import { agreementMethodLists, documentStatusList } from "@/constants";
 import Checkbox from "@mui/material/Checkbox";
-import TextField from "@mui/material/TextField";
 import { useState } from "react";
 
 export interface ILogisticFormProps {
