@@ -128,7 +128,7 @@ export default function SaleOrderLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/sales-order/" + cell.row.original.DocEntry, {
+                route("/sale/sales-order/" + cell.row.original.DocEntry +'/edit', {
                   state: cell.row.original,
                   replace: true,
                 });

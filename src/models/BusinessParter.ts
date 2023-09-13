@@ -43,6 +43,7 @@ export default class BusinessPartner extends Model {
     owner?: number | null;
     defaultCurrency?: string;
     currenciesCollection?: any[];
+    bpBranchAssignment?: any[];
     PriceMode?: string | null | undefined;
 
     constructor(json: any, index: number) {
@@ -88,6 +89,7 @@ export default class BusinessPartner extends Model {
         this.defaultCurrency = json?.DefaultCurrency;
         this.currenciesCollection = json?.BPCurrenciesCollection;
         this.PriceMode = json?.PriceMode;
+        this.bpBranchAssignment = json?.BPBranchAssignment
     }
 
 

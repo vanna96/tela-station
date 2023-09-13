@@ -412,9 +412,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                   disabled={props?.data?.isStatusClose || false}
                   readonly
                 />
-                <span className="flex items-center pt-1 text-sm">
-                  Total Payment Due
-                </span>
+                <span className="flex items-center pt-1 text-sm">Total</span>
                 <MUITextField
                   placeholder="0.00"
                   type="text"

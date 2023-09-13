@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -9,6 +9,8 @@ import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import SalePerson from "@/components/selectbox/SalePerson";
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
+import Branch from '../../../../models/BranchBPL';
+import BPLBranchName from "@/components/selectbox/BranchBPLName";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -25,12 +27,13 @@ export default function GeneralForm({
   edit,
 }: IGeneralFormProps) {
   const filteredSeries = data?.SerieLists?.filter(
-    (serie: any) => serie?.BPLID === data?.Branch
+    (serie: any) => serie?.BPLID === data?.BPL_IDAssignedToInvoice
   );
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
+  console.log(data?.U_ti_revenue)
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-8 h-screen">
@@ -75,7 +78,7 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={filteredSeries[0]?.Series}
+                  value={edit ? data?.Series : filteredSeries[0]?.Series}
                   disabled={edit}
                   onChange={(e: any) => handlerChange("Series", e.target.value)}
                 />
@@ -83,7 +86,9 @@ export default function GeneralForm({
                   <MUITextField
                     size="small"
                     name="DocNum"
-                    value={filteredSeries[0]?.NextNumber ?? ""}
+                    value={
+                      edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
+                    }
                     // value={data?.DocNum}
                     disabled={edit}
                     placeholder="Document No"
@@ -195,10 +200,12 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BPLBranchSelect
-                onChange={(e) => handlerChange("Branch", e.target.value)}
-                value={data?.Branch}
-                name="Branch"
+          
+               <BPLBranchSelect
+                BPdata={data?.vendor?.bpBranchAssignment}
+                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e.target.value)}
+                value={data?.BPL_IDAssignedToInvoice}
+                name="BPL_IDAssignedToInvoice"
               />
             </div>
           </div>
@@ -231,9 +238,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseByBranch
-                Branch={data?.Branch}
-                onChange={(e) => handlerChange("Warehouse", e.target.value)}
-                value={data?.Warehouse}
+                Branch={data?.BPL_IDAssignedToInvoice}
+                onChange={(e) => handlerChange("U_tl_whsdesc", e.target.value)}
+                value={data?.U_tl_whsdesc}
               />
             </div>
           </div>
@@ -290,9 +297,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <DistributionRuleSelect
-                value={data.LineofBusiness}
+                value={data?.U_tl_arbusi}
                 onChange={(e) => {
-                  handlerChange("LineofBusiness", e.target.value);
+                  handlerChange("U_tl_arbusi", e.target.value);
                   onLineofBusinessChange(e.target.value);
                 }}
               />

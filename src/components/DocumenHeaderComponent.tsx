@@ -1,5 +1,5 @@
-import React from "react"
-import BackButton from "./button/BackButton"
+import React from "react";
+import BackButton from "./button/BackButton";
 import {
   HiOutlineEye,
   HiChevronDoubleLeft,
@@ -8,53 +8,56 @@ import {
   HiChevronRight,
   HiOutlineDocumentAdd,
   HiOutlineChevronDown,
-} from "react-icons/hi"
-import { useLocation, useNavigate, useParams } from "react-router-dom"
-import { Button, IconButton } from "@mui/material"
-import { AiOutlinePushpin } from "react-icons/ai"
-import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io"
-import { ThemeContext } from "@/contexts"
-import { FiEdit } from "react-icons/fi"
+} from "react-icons/hi";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Button, IconButton } from "@mui/material";
+import { AiOutlinePushpin } from "react-icons/ai";
+import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+import { ThemeContext } from "@/contexts";
+import { FiEdit } from "react-icons/fi";
+import { BsArrowDownShort, BsArrowUp } from "react-icons/bs";
+import { TbArrowLeftBar } from "react-icons/tb";
+import { BiRightArrow } from "react-icons/bi";
 
 interface DocumentHeaderComponentProps {
-  data: any
-  onCopyTo?: (data?: any) => void
-  onFirstPage?: () => void
-  onLastPage?: () => void
-  onPreviousPage?: () => void
-  onNextPage?: () => void
-  menuTabs: JSX.Element | React.ReactNode
+  data: any;
+  onCopyTo?: (data?: any) => void;
+  onFirstPage?: () => void;
+  onLastPage?: () => void;
+  onPreviousPage?: () => void;
+  onNextPage?: () => void;
+  menuTabs: JSX.Element | React.ReactNode;
 }
 
 const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   props: DocumentHeaderComponentProps
 ) => {
-  const [collapse, setCollapse] = React.useState<boolean>(true)
-  const { theme } = React.useContext(ThemeContext)
+  const [collapse, setCollapse] = React.useState<boolean>(true);
+  const { theme } = React.useContext(ThemeContext);
 
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { id } = useParams()
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   const handlerGoToEdit = () => {
-    navigate(location.pathname + "/edit", { state: props.data, replace: true })
-  }
+    navigate(location.pathname + "/edit", { state: props.data, replace: true });
+  };
 
   const handlerGoToCreate = () => {
-    navigate(location.pathname.replace(`${id}/edit`, "create"))
-  }
+    navigate(location.pathname.replace(`${id}/edit`, "create"));
+  };
 
   const handlerCopyTo = () => {
     if (props.onCopyTo) {
-      props.onCopyTo(props.data ?? {})
+      props.onCopyTo(props.data ?? {});
     }
-  }
+  };
 
   const handlerCollapse = () => {
-    setCollapse(!collapse)
-  }
+    setCollapse(!collapse);
+  };
 
-  const navigateToEdit = () => navigate(location.pathname + "/edit")
+  const navigateToEdit = () => navigate(location.pathname + "/edit");
 
   return (
     <div
@@ -89,23 +92,66 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           !collapse ? "h-[6rem]" : "h-0"
         }`}
       >
-        <div className="w-full text-sm flex gap-8">
-          <div className="flex flex-col gap-2">
-            <span className="text-[#ACACAC] text-sm font-bold">
-              Vendor / Customer
-            </span>
-            <span className="font-bold text-blue-500">{props?.data?.CardCode}</span>
-            <span className="font-bold text-blue-500">{props?.data?.CardName}</span>
+        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">
+                Customer Code
+              </span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.CardCode}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[#ACACAC] text-sm font-bold">
-              Total Payment Due
-            </span>
-            <span className="font-bold text-blue-500">AUD {2000}</span>
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">Name</span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.CardName}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[#ACACAC] text-sm font-bold">Status</span>
-            <span className="font-bold text-green-500 uppercase">Open</span>
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">
+                Status
+              </span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.DocumentStatus?.split("bost_")}
+              </span>
+            </div>
+          </div>
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">Total</span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.DocTotal}
+                {""} {props?.data?.DocCurrency}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+          <div className="col-span-3"></div>
+          <div className="col-span-3"></div>
+          <div className="col-span-4">
+            <div className="grid grid-cols-4">
+              <div className="col-span-1">
+                <TbArrowLeftBar />
+              </div>
+              <div className="col-span-2">
+                <span className="font-medium text-blue-600">
+                  {props?.data?.DocNum ?? props?.data?.NextNum}
+                </span>
+              </div>
+              <div className="col-span-1">
+                <BiRightArrow />
+              </div>
+            </div>
+          </div>
+          <div className="col-span-2">
+            <Button variant="contained"> + New</Button>
           </div>
         </div>
       </div>
@@ -119,15 +165,17 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           <div
             title="btn-collapse"
             role="button"
-            className={`flex items-center justify-center w-8 h-8 shadow-md drop-shadow-sm rounded-md p-2 bg-white border `}
+            className={`flex items-center justify-center w-6 h-6 shadow-md drop-shadow-sm rounded-md p-2 bg-slate-200 border `}
             onClick={handlerCollapse}
           >
-            {!collapse ? <IoIosArrowUp /> : <IoIosArrowDown />}
+            <div className="opacity-20">
+              {!collapse ? <IoIosArrowUp /> : <BsArrowDownShort />}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DocumentHeaderComponent
+export default DocumentHeaderComponent;

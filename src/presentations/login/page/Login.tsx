@@ -183,10 +183,10 @@ export default function Login() {
                     Login
                   </LoadingButton>
                 </div>
-                <div className="mt-2 text-xs text-center text-[#656565]">
+                {/* <div className="mt-2 text-xs text-center text-[#656565]">
                   <p> If you forgot your Username, please call</p>
                   <p className="font-medium "> +855 (0) 23 925 333</p>
-                </div>
+                </div> */}
 
                 <div className="mt-2 text-xs text-center text-[#656565]">
                 <p>© 2023 BIZDIMENSION Co., LTD. All rights reserved.</p>

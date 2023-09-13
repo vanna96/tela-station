@@ -13,11 +13,9 @@ const SaleMasterPage = () => {
   const goTo = (route: string) => navigate("/sale/" + route)
 
   const getCount = async () => {
-    const quotation = await new SalesQuotationRepository().getCount({})
     const order = await new SalesOrderRepository().getCount({})
     setCount({
       ...count,
-      quotation,
       order,
     })
   }
@@ -26,6 +24,8 @@ const SaleMasterPage = () => {
     getCount()
   }, [])
 
+
+  console.log(count)
   return (
     <>
       <MainContainer title="Sales">
@@ -69,7 +69,7 @@ const SaleMasterPage = () => {
           title="Delivery"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("delivery")}
-          amount={count?.order || 0}
+          amount={count?.delivery || 0}
         />
       </MainContainer>
     </>

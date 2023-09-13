@@ -39,10 +39,10 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseByBranch
-                  Branch={data.Branch}
-                  value={data.ShippingTo}
-                  onChange={(e) => handlerChange("ShippingTo", e.target.value)}
+                <WarehouseSelect
+                  // Branch={data?.BPL_IDAssignedToInvoice}
+                  value={data.U_tl_dnsuppo}
+                  onChange={(e) => handlerChange("U_tl_dnsuppo", e.target.value)}
                 />
               </div>
             </div>
@@ -88,10 +88,10 @@ export default function LogisticForm({
                 <div className="grid grid-cols-1 ">
                   <div className="-mt-1">
                     <WarehouseSelect
-                      name="ShippingType"
-                      value={data.ShippingType}
+                      name="AttenTerminal"
+                      value={data.U_tl_grsuppo}
                       onChange={(e) =>
-                        handlerChange("ShippingType", e.target.value)
+                        handlerChange("U_tl_grsuppo", e.target.value)
                       }
                       disabled={!isChecked}
                     />

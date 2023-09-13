@@ -179,9 +179,9 @@ class SalesOrderForm extends CoreFormDocument {
             ExchangeRate: data?.DocRate || 1,
             ShippingTo: data?.ShipToCode || null,
             BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
+            // JournalRemark: data?.JournalMemo,
+            // PaymentTermType: data?.PaymentGroupCode,
+            // ShippingType: data?.TransportationCode,
             FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
             vendor,
@@ -271,11 +271,15 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        NumAtCard: data?.NumAtCard || null,
-        DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
-        DocRate: data?.ExchangeRate || 0,
+        // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
+        // DocRate: data?.ExchangeRate || 0,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
+        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice,
+        U_tl_whsdesc: data?.U_tl_whsdesc,
+        SalesPersonCode: data?.SalesPersonCode,
+        User_Text: data?.User_Text,
+        U_tl_arbusi: data?.U_tl_arbusi,
 
         // content
         DocType: data?.DocType,
@@ -289,18 +293,20 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentLines,
 
         // logistic
-        ShipToCode: data?.ShippingTo || null,
+        // ShipToCode: data?.ShippingTo || null,
         PayToCode: data?.BillingTo || null,
-        TransportationCode: data?.ShippingType,
+        // TransportationCode: data?.ShippingType,
+        U_tl_grsuppo: data?.U_tl_grsuppo,
+        U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
         // accounting
-        FederalTaxID: data?.FederalTax || null,
-        PaymentMethod: data?.PaymentMethod || null,
-        CashDiscountDateOffset: data?.CashDiscount || 0,
-        CreateQRCodeFrom: data?.QRCode || null,
-        PaymentGroupCode: data?.PaymentTermType || null,
-        JournalMemo: data?.JournalRemark,
-        Project: data?.BPProject || null,
+        // FederalTaxID: data?.FederalTax || null,
+        // PaymentMethod: data?.PaymentMethod || null,
+        // CashDiscountDateOffset: data?.CashDiscount || 0,
+        // CreateQRCodeFrom: data?.QRCode || null,
+        // PaymentGroupCode: data?.PaymentTermType || null,
+        // JournalMemo: data?.JournalRemark,
+        // Project: data?.BPProject || null,
         // attachment
         AttachmentEntry,
       };
@@ -400,7 +406,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-    console.log(itemGroupCode)
+    console.log(itemGroupCode);
     return (
       <>
         {itemGroupCode === "100" && (
@@ -411,7 +417,6 @@ class SalesOrderForm extends CoreFormDocument {
             ref={this.itemModalRef}
           />
         )}
-
         {itemGroupCode === "101" && (
           <ItemModalComponent
             type="sale"
@@ -427,7 +432,8 @@ class SalesOrderForm extends CoreFormDocument {
             onOk={this.handlerConfirmItem}
             ref={this.itemModalRef}
           />
-        )} {itemGroupCode === "0" && (
+        )}{" "}
+        {itemGroupCode === "0" && (
           <ItemModalComponent
             type="sale"
             group={"0"}
