@@ -35,14 +35,7 @@ export default function Login() {
   const [loading, setLoading] = React.useState(false);
   const [message, setMessage] = React.useState("");
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
-  const [loading, setLoading] = React.useState(false);
-  const [message, setMessage] = React.useState("");
-  const navigate = useNavigate();
 
-  const company = React.useRef("TLTELA_LIVE");
-  const username = React.useRef("manager");
-  const password = React.useRef("Admin@tela");
   const company = React.useRef("TLTELA_LIVE");
   const username = React.useRef("manager");
   const password = React.useRef("Admin@tela");
@@ -68,9 +61,7 @@ export default function Login() {
       // setMessage("Incorrect username or password");
     } finally {
       setLoading(false);
-      setLoading(false);
     }
-  };
   };
 
   const onChange = (event: any, field: string) => {
@@ -111,7 +102,6 @@ export default function Login() {
       // vanna new modified
       await new ChartOfAccountsRepository().get(),
       await new ProjectRepository().get(),
-    ]);
     ]);
   }
 
@@ -206,8 +196,6 @@ export default function Login() {
           </div>
         </div>
       </div>
-    </>
-  );
     </>
   );
 }
