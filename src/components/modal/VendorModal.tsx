@@ -33,11 +33,11 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
     queryKey: ["venders_" + type],
     queryFn: () =>
       new BusinessPartnerRepository().get(
-        `&$filter=CardType eq 'c${type?.charAt(0).toUpperCase()}${type?.slice(
+        `&$top=10&$filter=CardType eq 'c${type?.charAt(0).toUpperCase()}${type?.slice(
           1
         )}'`
       ),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const [rowSelection, setRowSelection] = React.useState({});

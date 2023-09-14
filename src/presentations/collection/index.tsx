@@ -25,11 +25,23 @@ const SaleMasterPage = () => {
   return (
     <>
       <MainContainer title="Banking">
-        <ItemCard
+        {/* <ItemCard
           title="Incoming Payments"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("incoming-payments")}
-          count={count?.incomingPayment || 0}
+          amount={count?.incomingPayment || 0}
+        />
+        <ItemCard
+          title="Outgoing Payments"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("outgoing-payment")}
+          amount={count?.incomingPayment || 0}
+        /> */}
+         <ItemCard
+          title="Settle Receipt"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("settle-receipt")}
+          amount={count?.incomingPayment || 0}
         />
       </MainContainer>
     </>
