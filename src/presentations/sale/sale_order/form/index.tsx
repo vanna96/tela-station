@@ -11,7 +11,6 @@ import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
 import AccountingForm from "../components/AccountingForm";
 import React from "react";
-import { ServiceModalComponent } from "../components/ServiceModalComponent";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
@@ -378,11 +377,11 @@ class SalesOrderForm extends CoreFormDocument {
   FormRender = () => {
     const getGroupByLineofBusiness = (lineofBusiness: any) => {
       switch (lineofBusiness) {
-        case "201001":
+        case "Oil":
           return "100";
-        case "201002":
+        case "Lube":
           return "101";
-        case "201003":
+        case "LPG":
           return "102";
         default:
           return "0";
@@ -546,6 +545,7 @@ const getItem = (items: any, type: any) =>
       VatGroup: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
+      WarehouseCode: item?.WarehouseCode || null,
       // Currency: "AUD",
     };
   });

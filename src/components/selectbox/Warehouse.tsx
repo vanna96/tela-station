@@ -11,6 +11,7 @@ interface WarehouseProps<T = unknown> {
     value?: any,
     onChange?: SelectInputProps<T>['onChange'],
     disabled?: boolean,
+    label?:string
 
 }
 
@@ -26,6 +27,7 @@ function WarehouseSelect(props: WarehouseProps) {
         aliasvalue="WarehouseCode"
         loading={isLoading}
         items={data}
+        label={props?.label}
     />
 }
 

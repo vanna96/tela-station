@@ -165,7 +165,7 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue() * data?.ExchangeRate);
+          return (cell.getValue() );
         },
       },
       {
@@ -192,10 +192,9 @@ export default function ContentForm({
         accessorKey: "WarehouseCode",
         header: "Warehouse",
         visible: true,
-        size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return data?.Warehouse;
+          return (cell.getValue());
         },
       },
 

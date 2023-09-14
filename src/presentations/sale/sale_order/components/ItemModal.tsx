@@ -5,6 +5,7 @@ import VatGroupTextField from "@/components/input/VatGroupTextField";
 import { currencyFormat } from "@/utilies";
 import UOMTextField from "@/components/input/UOMTextField";
 import { getUOMGroupByCode } from "@/helpers";
+import WarehouseSelect from "@/components/selectbox/Warehouse";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -140,15 +141,21 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
               <MUITextField label="Item Group" value={this.state?.ItemGroup} />
-              <UOMTextField
+              {/* <UOMTextField
                 data={getUOMGroupByCode(this.state?.ItemCode)?.Code}
-                value={this.state?.UomGroup}
-              />
+                value={this.state?.UomAbsEntry}
+              /> */}
               <MUITextField label="UOM Code" value={this.state?.UomCode} />
-              <MUITextField
+              <WarehouseSelect
+                label="Warehouse Code"
+                value={this.state?.WarehouseCode}
+                onChange={(event) => this.handChange(event, "WarehouseCode")}
+              />
+              {/* <MUITextField
                 label="Item Per Unit"
                 value={this.state?.UnitOfMeasuremnt}
-              />
+              /> */}
+
               <MUITextField label="Business Line" endAdornment />
               <MUITextField label="Product Line" endAdornment />
               <MUITextField label="Revenue Line" endAdornment />

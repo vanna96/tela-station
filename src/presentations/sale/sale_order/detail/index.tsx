@@ -183,9 +183,15 @@ class DeliveryDetail extends Component<any, any> {
     return (
       <>
         <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-          <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
+          {/* <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
             <Breadcrumb childBreadcrum={childBreadcrum} />
-          </div>
+          </div> */}
+          {/* <div className="grid grid-cols-12  py-2 bg-white">
+            <div></div>
+            <Breadcrumb childBreadcrum={childBreadcrum} />
+          </div> */}
+          <DocumentHeaderComponent data={this.state} menuTabs/>
+
           <div className="w-full h-full flex flex-col gap-4">
             {this.state.loading ? (
               <div className="grow flex justify-center items-center pb-6">
@@ -425,7 +431,6 @@ function Content(props: any) {
               border: "1px solid rgba(81, 81, 81, 1)",
             },
           }}
-          
         />
         <div className="grid grid-cols-12 ">
           <div className="col-span-5"></div>

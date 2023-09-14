@@ -20,7 +20,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
-import { bgColor } from '../../../../assets/index';
+import { bgColor } from "../../../../assets/index";
 
 interface ContentComponentProps {
   items: any[];
@@ -66,8 +66,12 @@ export default function ContentComponent(props: ContentComponentProps) {
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.items ?? [],
     discount,
-    props?.data?.ExchangeRate
+    // props?.data?.ExchangeRate
+    1
   );
+
+  console.log(props.items);
+  console.log(props.data.ExchangeRate);
 
   React.useEffect(() => {
     const cols: any = {};
@@ -342,11 +346,11 @@ export default function ContentComponent(props: ContentComponentProps) {
                   // border: "1px solid rgba(81, 81, 81, 1)",
                 },
               }}
-             
             />
 
             <div className="grid grid-cols-12 mt-2">
               <div className="col-span-5"></div>
+
               <div className="col-span-2"></div>
               <div className="col-span-5 ">
                 <div className="grid grid-cols-2 py-2">

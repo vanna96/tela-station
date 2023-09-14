@@ -18,6 +18,7 @@ export default class itemRepository extends Repository<Item> {
         "InventoryItem",
         "InventoryUoMEntry",
         "InventoryUOM",
+        "DefaultWarehouse",
         "DefaultSalesUoMEntry",
         "DefaultPurchasingUoMEntry",
         "ItemUnitOfMeasurementCollection",
