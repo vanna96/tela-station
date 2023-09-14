@@ -5,20 +5,20 @@ import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
-
 import GeneralForm from "../components/GeneralForm";
 import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
 import AccountingForm from "../components/AccountingForm";
 import React from "react";
-import { ServiceModalComponent } from "../components/ServiceModalComponent";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
 import { CircularProgress } from "@mui/material";
+import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
+import useState from "react";
 
 class SalesOrderForm extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>();
@@ -34,7 +34,7 @@ class SalesOrderForm extends CoreFormDocument {
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
-      Currency: "AUD",
+      Currency: "USD",
       DocType: "dDocument_Items",
       ExchangeRate: 1,
       JournalRemark: "",
@@ -44,6 +44,8 @@ class SalesOrderForm extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
+      type: "sale", // Initialize type with a default value
+      lineofBusiness: "",
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -52,6 +54,9 @@ class SalesOrderForm extends CoreFormDocument {
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
   }
+  handleLineofBusinessChange = (value: any) => {
+    this.setState({ lineofBusiness: value });
+  };
 
   componentDidMount(): void {
     this.setState({ loading: true });
@@ -65,14 +70,14 @@ class SalesOrderForm extends CoreFormDocument {
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "16",
+        Document: "17",
       });
       this.props?.query?.set("orders-series", seriesList);
     }
 
     if (!defaultSeries) {
       defaultSeries = await DocumentSerieRepository.getDefaultDocumentSerie({
-        Document: "16",
+        Document: "17",
       });
       this.props?.query?.set("orders-default-series", defaultSeries);
     }
@@ -133,29 +138,10 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
-            Description: data?.Comments,
-            Owner: data?.DocumentsOwner,
-            Currency: data?.DocCurrency,
+            // Description: data?.Comments,
+            // Owner: data?.DocumentsOwner,
+            // Currency: data?.DocCurrency,
             Items: data?.DocumentLines?.map((item: any) => {
-              if (data?.type !== "dDocument_Items") {
-                let plannedAmount = parseFloat(item.UnitPrice || 0);
-                if (item.DiscountPercent > 0)
-                  plannedAmount =
-                    (parseFloat(item.DiscountPercent || 0) *
-                      parseFloat(item.UnitPrice || 0)) /
-                      (100 - parseFloat(item.DiscountPercent || 0)) +
-                    item.UnitPrice;
-
-                return {
-                  ItemCode: item.AccountCode,
-                  VatGroup: item.VatGroup || null,
-                  Discount: parseFloat(item.DiscountPercent),
-                  LineTotal: item.UnitPrice,
-                  UnitPrice: plannedAmount,
-                  VatRate: item.TaxPercentagePerRow,
-                };
-              }
-
               return {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
@@ -163,20 +149,23 @@ class SalesOrderForm extends CoreFormDocument {
                 UnitPrice: item.UnitPrice || item.total,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
-                UomGroupCode: item.UoMCode || null,
-                UomEntry: item.UoMEntry || null,
-                Currency: "AUD",
+                // UomCode: item.UomCode,
+                // UomGroupCode: item.UoMCode || null,
+                // UomEntry: item.UoMGroupEntry || null,
+                UomEntry: item.UomCode || null,
+                
+                // Currency: "AUD",
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
               };
             }),
             ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
+            // ShippingTo: data?.ShipToCode || null,
+            // BillingTo: data?.PayToCode || null,
+            // JournalRemark: data?.JournalMemo,
+            // PaymentTermType: data?.PaymentGroupCode,
+            // ShippingType: data?.TransportationCode,
+            // FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
             vendor,
             DocDiscount: data?.DiscountPercent,
@@ -208,7 +197,7 @@ class SalesOrderForm extends CoreFormDocument {
     } else {
       state["SerieLists"] = seriesList;
       state["Series"] = defaultSeries.Series;
-      state["DocNum"] = defaultSeries.NextNumber;
+      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       this.setState(state);
@@ -255,7 +244,7 @@ class SalesOrderForm extends CoreFormDocument {
 
       // items
       const DocumentLines = getItem(data?.Items || [], data?.DocType);
-      const isAUD = (data?.Currency || "AUD") === "AUD";
+      const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
 
       const payloads = {
@@ -265,36 +254,42 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        NumAtCard: data?.NumAtCard || null,
-        DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
-        DocRate: data?.ExchangeRate || 0,
+        // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
+        // DocRate: data?.ExchangeRate || 0,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
+        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice,
+        U_tl_whsdesc: data?.U_tl_whsdesc,
+        SalesPersonCode: data?.SalesPersonCode,
+        User_Text: data?.User_Text,
+        U_tl_arbusi: data?.U_tl_arbusi,
 
         // content
         DocType: data?.DocType,
         Comments: data?.Description || null,
-        RoundingDiffAmount: isAUD ? roundingValue : 0,
-        RoundingDiffAmountFC: isAUD ? 0 : roundingValue,
-        // RoundingDiffAmountSC: isAUD ? roundingValue : 0,
+        RoundingDiffAmount: isUSD ? roundingValue : 0,
+        RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
+        // RoundingDiffAmountSC: isUSD ? roundingValue : 0,
         Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
         DocumentsOwner: data?.Owner || null,
         DiscountPercent: data?.DocDiscount,
         DocumentLines,
 
         // logistic
-        ShipToCode: data?.ShippingTo || null,
+        // ShipToCode: data?.ShippingTo || null,
         PayToCode: data?.BillingTo || null,
-        TransportationCode: data?.ShippingType,
+        // TransportationCode: data?.ShippingType,
+        U_tl_grsuppo: data?.U_tl_grsuppo,
+        U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
         // accounting
-        FederalTaxID: data?.FederalTax || null,
-        PaymentMethod: data?.PaymentMethod || null,
-        CashDiscountDateOffset: data?.CashDiscount || 0,
-        CreateQRCodeFrom: data?.QRCode || null,
-        PaymentGroupCode: data?.PaymentTermType || null,
-        JournalMemo: data?.JournalRemark,
-        Project: data?.BPProject || null,
+        // FederalTaxID: data?.FederalTax || null,
+        // PaymentMethod: data?.PaymentMethod || null,
+        // CashDiscountDateOffset: data?.CashDiscount || 0,
+        // CreateQRCodeFrom: data?.QRCode || null,
+        // PaymentGroupCode: data?.PaymentTermType || null,
+        // JournalMemo: data?.JournalRemark,
+        // Project: data?.BPProject || null,
         // attachment
         AttachmentEntry,
       };
@@ -380,12 +375,55 @@ class SalesOrderForm extends CoreFormDocument {
   }
 
   FormRender = () => {
+    const getGroupByLineofBusiness = (lineofBusiness: any) => {
+      switch (lineofBusiness) {
+        case "Oil":
+          return "100";
+        case "Lube":
+          return "101";
+        case "LPG":
+          return "102";
+        default:
+          return "0";
+      }
+    };
+
+    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+
     return (
       <>
-        <ServiceModalComponent
-          ref={this.serviceRef}
-          onOk={this.handlerConfirmItem}
-        />
+        {itemGroupCode === "100" && (
+          <ItemModalComponent
+            type="sale"
+            group={"100"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}
+        {itemGroupCode === "101" && (
+          <ItemModalComponent
+            type="sale"
+            group={"101"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}
+        {itemGroupCode === "102" && (
+          <ItemModalComponent
+            type="sale"
+            group={"102"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}{" "}
+        {itemGroupCode === "0" && (
+          <ItemModalComponent
+            type="sale"
+            group={"0"}
+            onOk={this.handlerConfirmItem}
+            ref={this.itemModalRef}
+          />
+        )}
         <form
           id="formData"
           onSubmit={this.handlerSubmit}
@@ -406,6 +444,8 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChange={(key, value) =>
                         this.handlerChange(key, value)
                       }
+                      lineofBusiness={this.state.lineofBusiness} // Pass lineofBusiness as a prop
+                      onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
 
@@ -495,15 +535,7 @@ export default withRouter(SalesOrderForm);
 
 const getItem = (items: any, type: any) =>
   items?.map((item: any) => {
-    if (type !== "dDocument_Items")
-      return {
-        AccountCode: item.ItemCode,
-        VatGroup: item.VatGroup || null,
-        DiscountPercent: parseFloat(item.Discount),
-        Currency: "AUD",
-        UnitPrice: item.LineTotal,
-      };
-
+   
     return {
       ItemCode: item.ItemCode || null,
       ItemDescription: item.ItemName || item.Name || null,
@@ -511,8 +543,9 @@ const getItem = (items: any, type: any) =>
       UnitPrice: item.UnitPrice || item.total,
       DiscountPercent: item.Discount || 0,
       VatGroup: item.VatGroup || item.taxCode || null,
-      UoMCode: item.UomGroupCode || null,
-      UoMEntry: item.UomEntry || null,
-      Currency: "AUD",
+      // UoMCode: item.UomGroupCode || null,
+      UoMEntry: item.UomAbsEntry || null,
+      WarehouseCode: item?.WarehouseCode || null,
+      // Currency: "AUD",
     };
   });

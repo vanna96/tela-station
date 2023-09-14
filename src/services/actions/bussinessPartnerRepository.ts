@@ -32,11 +32,13 @@ export default class BusinessPartnerRepository extends Repository<BusinessPartne
         "PriceListNum",
         "DefaultCurrency",
         "BPCurrenciesCollection",
-        "PriceMode"
+        "PriceMode",
+        "BPBranchAssignment"
     ];
 
     async get<BusinessPartner>(query?: string | undefined): Promise<BusinessPartner[]> {
-        return await request('GET', this.url + "?$select=" + this.queryList.join(',') + query ?? '').then((res: any) => res?.data?.value).catch((e) => {
+        // return await request('GET', this.url + "?$select=" + this.queryList.join(',') + query ?? '').then((res: any) => res?.data?.value).catch((e) => {
+            return await request('GET', this.url + "?$top=100" +  "&$select=" + this.queryList.join(',') + query ?? '').then((res: any) => res?.data?.value).catch((e) => {
             throw new Error(e);
         });
     }

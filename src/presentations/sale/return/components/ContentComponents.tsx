@@ -215,7 +215,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               {props?.data?.CurrencyType === "B" &&
                 (props?.data?.Currency || "AUD") !== "AUD" && (
                   <MUITextField
-                    value={props?.data?.ExchangeRate || 0}
+                    value={props?.data?.ExchangeRate ?? 1}
                     name=""
                     disabled={true}
                     className="-mt-1"

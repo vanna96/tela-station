@@ -1,6 +1,12 @@
 import React, { useEffect, useMemo } from "react";
 import MaterialReactTable from "material-react-table";
-import { Button, Checkbox, FormControlLabel, IconButton } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  IconButton,
+  darken,
+} from "@mui/material";
 import { AiOutlineSetting } from "react-icons/ai";
 import { currencyFormat } from "@/utilies";
 import FormCard from "@/components/card/FormCard";
@@ -14,6 +20,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
+import { bgColor } from "../../../../assets/index";
 
 interface ContentComponentProps {
   items: any[];
@@ -26,6 +33,7 @@ interface ContentComponentProps {
   readOnly?: boolean;
   viewOnly?: boolean;
   data: any;
+  LineOfBusiness?: string;
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
@@ -33,7 +41,6 @@ export default function ContentComponent(props: ContentComponentProps) {
   const { id }: any = useParams();
   if (!(id > 0)) useExchangeRate(props?.data?.Currency, props.onChange);
 
-  const { theme } = React.useContext(ThemeContext);
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [colVisibility, setColVisibility] = React.useState<
@@ -59,8 +66,12 @@ export default function ContentComponent(props: ContentComponentProps) {
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.items ?? [],
     discount,
-    props?.data?.ExchangeRate
+    // props?.data?.ExchangeRate
+    1
   );
+
+  console.log(props.items);
+  console.log(props.data.ExchangeRate);
 
   React.useEffect(() => {
     const cols: any = {};
@@ -140,7 +151,7 @@ export default function ContentComponent(props: ContentComponentProps) {
         <>
           <div
             className={`col-span-2 grid grid-cols-2 md:grid-cols-1  gap-4 ${
-              !props.viewOnly && "my-6"
+              !props.viewOnly && ""
             }`}
           >
             <div className="grid grid-cols-12 ">
@@ -148,7 +159,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="flex gap-4 items-start">
                   <label
                     htmlFor="currency"
-                    className=" flex pt-1 text-[#656565] text-sm"
+                    className=" flex pt-1 text-gray-700"
                   >
                     Currency
                   </label>
@@ -168,7 +179,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               <div className="col-span-3 px-5">
                 {props?.data?.CurrencyType === "B" && (
                   <MUISelect
-                    value={props?.data?.Currency || "AUD"}
+                    value={props?.data?.Currency || "USD"}
                     disabled={
                       props?.data?.disabledFields?.CurrencyType || false
                     }
@@ -177,7 +188,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         ? dataCurrency
                         : [
                             {
-                              value: "AUD",
+                              value: "USD",
                               name: "Australian Dollar",
                             },
                             {
@@ -218,64 +229,21 @@ export default function ContentComponent(props: ContentComponentProps) {
               </div>
               <div className="col-span-4">
                 {props?.data?.CurrencyType === "B" &&
-                  (props?.data?.Currency || "AUD") !== "AUD" && (
+                  (props?.data?.Currency || "USD") !== "USD" && (
                     <div className="w-1/2">
-                    <MUITextField
-                      value={props?.data?.ExchangeRate || 0}
-                      name=""
-                      disabled={true}
-                      className="-mt-1"
-                      // helpertext="update exchange rate"
-                    />
+                      <MUITextField
+                        value={props?.data?.ExchangeRate || 0}
+                        name=""
+                        disabled={true}
+                        className="-mt-1"
+                        // helpertext="update exchange rate"
+                      />
                     </div>
                   )}
               </div>
             </div>
-            {/* <div>
-              <div className="col-span-2 grid grid-cols-3 gap-3 ">
-                <label
-                  htmlFor="currency"
-                  className="text-sm col-span-2 md:col-span-1 flex items-center justify-end md:justify-start text-[#656565]"
-                >
-                  Item / Service Type :
-                </label>
-                <div className="md:col-span-2">
-                  <MUISelect
-                    value={props?.data?.DocType}
-                    items={
-                      props.typeLists ?? [
-                        { value: "dDocument_Items", name: "Items" },
-                        { value: "dDocument_Services", name: "Services" },
-                      ]
-                    }
-                    aliaslabel="name"
-                    aliasvalue="value"
-                    onChange={(event) => onChange("DocType", event)}
-                  />
-                </div>
-                <label
-                  htmlFor="currency"
-                  className="text-sm col-span-2 md:col-span-1 flex items-center justify-end md:justify-start text-[#656565] "
-                >
-                  Price Mode :
-                </label>
-                <div className="md:col-span-2">
-                  <MUISelect
-                    value={props?.data?.vendor?.PriceMode}
-                    onChange={(event) => onChange("PriceMode", event)}
-                    items={[
-                      { value: "pmGross", name: "Gross Price" },
-                      { value: "pmNet", name: "Net Price" },
-                    ]}
-                    disabled
-                    aliaslabel="name"
-                    aliasvalue="value"
-                  />
-                </div>
-              </div>
-            </div> */}
           </div>
-          <div className="col-span-2 data-table border-t">
+          <div className="col-span-2 ">
             <MaterialReactTable
               columns={
                 props.viewOnly
@@ -301,22 +269,46 @@ export default function ContentComponent(props: ContentComponentProps) {
                     ]
               }
               data={[...props?.items, blankItem] ?? []}
-              enableStickyHeader={true}
-              enableColumnActions={false}
-              enableColumnFilters={false}
-              enablePagination={false}
-              enableSorting={false}
-              enableTopToolbar={false}
-              enableColumnResizing={true}
-              enableColumnFilterModes={false}
-              enableDensityToggle={false}
-              enableFilters={false}
-              enableFullScreenToggle={false}
-              enableGlobalFilter={false}
-              enableHiding={true}
+              // enableStickyHeader={true}
+              // enableColumnActions={false}
+              // enableColumnFilters={false}
+              // enablePagination={false}
+              // enableSorting={false}
+              // enableTopToolbar={false}
+              // enableColumnResizing={false}
+              // enableColumnFilterModes={false}
+              // enableDensityToggle={false}
+              // enableFilters={false}
+              // enableFullScreenToggle={false}
+              // enableGlobalFilter={false}
+              // enableHiding={true}
+              // enablePinning={true}
+              // onColumnVisibilityChange={setColVisibility}
+              // enableStickyFooter={false}
+              // enableMultiRowSelection={true}
+              // initialState={{
+              //   density: "compact",
+              //   columnVisibility: colVisibility,
+              //   rowSelection,
+              // }}
+              // state={{
+              //   columnVisibility: colVisibility,
+              //   rowSelection,
+              // }}
+              // muiTableBodyRowProps={({ row }) => ({
+              //   sx: { cursor: "pointer" },
+              // })}
+              // icons={{
+              //   ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
+              // }}
+              // muiTablePaginationProps={{
+              //   rowsPerPageOptions: [5, 10],
+              //   showFirstButton: false,
+              //   showLastButton: false,
+              // }}
+              // enableTableFooter={false}
+
               enablePinning={true}
-              onColumnVisibilityChange={setColVisibility}
-              enableStickyFooter={false}
               enableMultiRowSelection={true}
               initialState={{
                 density: "compact",
@@ -327,146 +319,177 @@ export default function ContentComponent(props: ContentComponentProps) {
                 columnVisibility: colVisibility,
                 rowSelection,
               }}
-              muiTableBodyRowProps={({ row }) => ({
-                sx: { cursor: "pointer" },
-              })}
-              icons={{
-                ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
+              enableColumnActions={false}
+              enableHiding={true}
+              enableStickyHeader={true}
+              enableColumnFilters={false}
+              enablePagination={false}
+              enableSorting={false}
+              enableBottomToolbar={false}
+              enableTopToolbar={false}
+              muiTableBodyRowProps={{ hover: false }}
+              muiTableProps={{
+                sx: {
+                  boxShadow: 1,
+                  bgcolor: "background.paper",
+                  borderRadius: "2",
+                  border: "1px solid rgb(209 213 219)",
+                },
               }}
-              // muiTableHeadCellProps={{
-              //   sx: {
-              //     backgroundColor: theme === "light" ? "" : "#334155",
-              //   },
-              // }}
-              // muiTableBodyCellProps={{
-              //   sx: {
-              //     backgroundColor: theme === "light" ? "" : "#364455 !important",
-              //   },
-              // }}
-              // muiTableContainerProps={{
-              //   sx: {
-              //     backgroundColor: theme === "light" ? "" : "#334155",
-              //   },
-              // }}
-              // muiTableBodyProps={{
-              //   sx: {
-              //     "& tr:nth-of-type(odd)": {
-              //       backgroundColor: theme === "light" ? "" : "#2C3847 !important",
-              //     },
-              //     ":hover": {
-              //       backgroundColor: theme === "light" ? "" : "#334155",
-              //     },
-              //   },
-              // }}
-              // muiBottomToolbarProps={{
-              //   sx: {
-              //     display: "none",
-              //     backgroundColor: theme === "light" ? "" : "#334155 !important",
-              //   },
-              // }}
-              enableTableFooter={false}
+              muiTableHeadCellProps={{
+                sx: {
+                  // border: "1px solid rgba(81, 81, 81, 1)",
+                },
+              }}
+              muiTableBodyCellProps={{
+                sx: {
+                  // border: "1px solid rgba(81, 81, 81, 1)",
+                },
+              }}
             />
 
-            <div className="w-full flex justify-between">
-              <div className="text-right"></div>
-              <div className="grid grid-cols-2 gap-0  w-[26rem] text-gray-600">
-                <p className="text-base text-gray-800 font-semibold">
-                  Total Summary
-                </p>
-                <span></span>
-                <div className="col-span-2 my-1 border-b"></div>
-                <span className="flex items-center pt-1 text-sm">
-                  Total Before Discount {}
-                </span>
-                <MUITextField
-                  disabled={props?.data?.isStatusClose || false}
-                  placeholder="0.00"
-                  type="text"
-                  value={currencyFormat(docTotal)}
-                  readonly
-                  startAdornment={props?.data?.Currency}
-                />
-                <span className="flex items-center pt-1 text-sm">Discount</span>
-                <div className="grid grid-cols-2 gap-2">
-                  <MUITextField
-                    disabled={props?.data?.isStatusClose || false}
-                    placeholder="0.00"
-                    type="number"
-                    startAdornment={"%"}
-                    value={props?.data?.DocDiscount}
-                    onChange={(event: any) => {
-                      if (
-                        !(event.target.value <= 100 && event.target.value >= 0)
-                      ) {
-                        event.target.value = 0;
+            <div className="grid grid-cols-12 mt-2">
+              <div className="col-span-5"></div>
+
+              <div className="col-span-2"></div>
+              <div className="col-span-5 ">
+                <div className="grid grid-cols-2 py-2">
+                  <div className="col-span-1 text-lg font-medium">
+                    Total Summary
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 py-1">
+                  <div className="col-span-6 text-gray-700">
+                    Total Before Discount
+                  </div>
+                  <div className="col-span-6 text-gray-900">
+                    <MUITextField
+                      disabled={props?.data?.isStatusClose || false}
+                      placeholder="0.00"
+                      type="text"
+                      value={currencyFormat(docTotal)}
+                      readonly
+                      startAdornment={props?.data?.Currency}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 py-1">
+                  <div className="col-span-6 text-gray-700">
+                    <div className="grid grid-cols-12 gap-2">
+                      <div className="col-span-8 text-gray-700">Discount</div>
+                      <div className="col-span-4 text-gray-900 ">
+                        <MUITextField
+                          disabled={props?.data?.isStatusClose || false}
+                          placeholder="0.00"
+                          type="number"
+                          startAdornment={"%"}
+                          value={props?.data?.DocDiscount}
+                          onChange={(event: any) => {
+                            if (
+                              !(
+                                event.target.value <= 100 &&
+                                event.target.value >= 0
+                              )
+                            ) {
+                              event.target.value = 0;
+                            }
+                            onChange("DocDiscount", event);
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-6 text-gray-900 ">
+                    <div className="grid grid-cols-4">
+                      {/* <div className="col-span-2">
+                        
+                      </div> */}
+                      <div className="col-span-4">
+                        <MUITextField
+                          disabled={props?.data?.isStatusClose || false}
+                          placeholder="0.00"
+                          type="number"
+                          startAdornment={props?.data?.Currency}
+                          // value={parseFloat(discountAmount.toString()).toFixed(
+                          //   2
+                          // )}
+                          value={discountAmount.toFixed(2)}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* <div className="grid grid-cols-12">
+              <div className="col-span-6 text-gray-700">Freight</div>
+              <div className="col-span-6 text-gray-900">
+                {(data?.Currency)}
+              </div>
+            </div> */}
+                <div className="grid grid-cols-12 ">
+                  <div className="col-span-6 text-gray-700">
+                    <FormControlLabel
+                      label="Rounding"
+                      control={
+                        <Checkbox
+                          checked={checked}
+                          disabled={
+                            props?.data?.Edit ||
+                            props?.data?.isStatusClose ||
+                            false
+                          }
+                          onChange={(e: any) => {
+                            e.target.value = e.target.checked;
+                            onChange("Rounding", e);
+                          }}
+                        />
                       }
-                      onChange("DocDiscount", event);
-                    }}
-                  />
-                  <span className="w-full  flex items-center pt-1 justify-end text-sm">
-                    {props?.data?.Currency}{" "}
-                    {parseFloat(discountAmount.toString()).toFixed(2)}
-                  </span>
+                    />
+                  </div>
+                  <div className="col-span-6 text-gray-900">
+                    <MUITextField
+                      disabled={
+                        props?.data?.Edit ||
+                        props?.data?.isStatusClose ||
+                        !checked
+                      }
+                      placeholder="0.00"
+                      type="number"
+                      value={props?.data?.RoundingValue || 0}
+                      startAdornment={props?.data?.Currency}
+                      onChange={(e) => onChange("RoundingValue", e)}
+                    />
+                  </div>
                 </div>
-                <span className="flex items-center pt-1 text-sm">Freight</span>
-                <span className="text-right pt-1 text-sm">
-                  {props?.data?.Currency} 0.00
-                </span>
-                <span className="flex items-center pt-1 text-sm">
-                  <FormControlLabel
-                    label="Rounding"
-                    control={
-                      <Checkbox
-                        checked={checked}
-                        disabled={
-                          props?.data?.Edit ||
-                          props?.data?.isStatusClose ||
-                          false
-                        }
-                        onChange={(e: any) => {
-                          e.target.value = e.target.checked;
-                          onChange("Rounding", e);
-                        }}
-                      />
-                    }
-                  />
-                </span>
-                <div className="grid grid-cols-1 gap-1">
-                  <MUITextField
-                    disabled={
-                      props?.data?.Edit ||
-                      props?.data?.isStatusClose ||
-                      !checked
-                    }
-                    placeholder="0.00"
-                    type="number"
-                    value={props?.data?.RoundingValue || 0}
-                    startAdornment={props?.data?.Currency}
-                    onChange={(e) => onChange("RoundingValue", e)}
-                  />
+                <div className="grid grid-cols-12 py-1">
+                  <div className="col-span-6 text-gray-700">Tax</div>
+                  <div className="col-span-6 text-gray-900">
+                    <MUITextField
+                      placeholder="0.00"
+                      type="text"
+                      value={currencyFormat(docTaxTotal)}
+                      startAdornment={props?.data?.Currency}
+                      disabled={props?.data?.isStatusClose || false}
+                      readonly
+                    />
+                  </div>
                 </div>
-                <span className="flex items-center pt-1 text-sm">Tax</span>
-                <MUITextField
-                  placeholder="0.00"
-                  type="text"
-                  value={currencyFormat(docTaxTotal)}
-                  startAdornment={props?.data?.Currency}
-                  disabled={props?.data?.isStatusClose || false}
-                  readonly
-                />
-                <span className="flex items-center pt-1 text-sm">
-                  Total Payment Due
-                </span>
-                <MUITextField
-                  placeholder="0.00"
-                  type="text"
-                  startAdornment={props?.data?.Currency}
-                  disabled={props?.data?.isStatusClose || false}
-                  key={TotalPaymentDue.toString()}
-                  defaultValue={parseFloat(TotalPaymentDue.toString()).toFixed(
-                    2
-                  )}
-                />
+                <div className="grid grid-cols-12 py-1">
+                  <div className="col-span-6 text-gray-700">Total</div>
+                  <div className="col-span-6 text-gray-900">
+                    <MUITextField
+                      placeholder="0.00"
+                      type="text"
+                      startAdornment={props?.data?.Currency}
+                      disabled={props?.data?.isStatusClose || false}
+                      key={TotalPaymentDue.toString()}
+                      defaultValue={parseFloat(
+                        TotalPaymentDue.toString()
+                      ).toFixed(2)}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

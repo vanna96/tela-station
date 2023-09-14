@@ -1,61 +1,89 @@
-import React from "react"
-import BackButton from "./button/BackButton"
-import {
-  HiOutlineEye,
-  HiChevronDoubleLeft,
-  HiChevronDoubleRight,
-  HiChevronLeft,
-  HiChevronRight,
-  HiOutlineDocumentAdd,
-  HiOutlineChevronDown,
-} from "react-icons/hi"
-import { useLocation, useNavigate, useParams } from "react-router-dom"
-import { Button, IconButton } from "@mui/material"
-import { AiOutlinePushpin } from "react-icons/ai"
-import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io"
-import { ThemeContext } from "@/contexts"
-import { FiEdit } from "react-icons/fi"
+import React from "react";
+import BackButton from "./button/BackButton";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Button, IconButton } from "@mui/material";
+import { AiOutlinePushpin } from "react-icons/ai";
+import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+import { ThemeContext } from "@/contexts";
+import { BsArrowDownShort, BsArrowUp } from "react-icons/bs";
+import { TbArrowLeftBar, TbEditCircle } from "react-icons/tb";
+import { BiEdit, BiLeftArrow, BiRightArrow } from "react-icons/bi";
+import { MdEdit } from "react-icons/md";
+import { IoCreate } from "react-icons/io5";
 
 interface DocumentHeaderComponentProps {
-  data: any
-  onCopyTo?: (data?: any) => void
-  onFirstPage?: () => void
-  onLastPage?: () => void
-  onPreviousPage?: () => void
-  onNextPage?: () => void
-  menuTabs: JSX.Element | React.ReactNode
+  data: any;
+  onCopyTo?: (data?: any) => void;
+  onFirstPage?: () => void;
+  onLastPage?: () => void;
+  onPreviousPage?: () => void;
+  onNextPage?: () => void;
+  menuTabs: JSX.Element | React.ReactNode;
 }
 
 const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   props: DocumentHeaderComponentProps
 ) => {
-  const [collapse, setCollapse] = React.useState<boolean>(true)
-  const { theme } = React.useContext(ThemeContext)
+  const [collapse, setCollapse] = React.useState<boolean>(true);
+  const { theme } = React.useContext(ThemeContext);
 
-  const location = useLocation()
-  const navigate = useNavigate()
-  const { id } = useParams()
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { id } = useParams();
 
   const handlerGoToEdit = () => {
-    navigate(location.pathname + "/edit", { state: props.data, replace: true })
-  }
+    navigate(location.pathname + "/edit", { state: props.data, replace: true });
+  };
+
+  // const handlerGoToCreate = () => {
+
+  //   const url = location.pathname.replace(`${id}/edit`, "create");
+  //   window.location.href = url;
+  // };
 
   const handlerGoToCreate = () => {
-    navigate(location.pathname.replace(`${id}/edit`, "create"))
-  }
+    if (location.pathname.includes("/edit")) {
+      const url = location.pathname.replace(`${id}/edit`, "create");
+      window.location.href = url;
+    } else if (location.pathname.includes("/")) {
+      const url = location.pathname.replace(`${id}`, "create");
+      window.location.href = url;
+    } else {
+      window.location.href = "/"; // Replace with your desired "create" route
+    }
+  };
 
   const handlerCopyTo = () => {
     if (props.onCopyTo) {
-      props.onCopyTo(props.data ?? {})
+      props.onCopyTo(props.data ?? {});
     }
-  }
+  };
 
   const handlerCollapse = () => {
-    setCollapse(!collapse)
-  }
+    setCollapse(!collapse);
+  };
 
-  const navigateToEdit = () => navigate(location.pathname + "/edit")
-
+  const navigateToEdit = () => navigate(location.pathname + "/edit");
+  const navigateToNextPage = () => {
+    if (id !== undefined) {
+      const nextID = Number(id) + 1;
+      const nextURL = location.pathname.replace(`${id}`, `${nextID}`);
+      window.location.href = nextURL;
+    } else {
+      // Handle the case where id is undefined
+      // Maybe log an error or show a message to the user
+    }
+  };
+  const navigateToPrevPage = () => {
+    if (id !== undefined) {
+      const prevID = Number(id) - 1;
+      const prevURL = location.pathname.replace(`${id}`, `${prevID}`);
+      window.location.href = prevURL;
+    } else {
+      // Handle the case where id is undefined
+      // Maybe log an error or show a message to the user
+    }
+  };
   return (
     <div
       className={`w-full flex flex-col rounded ${
@@ -73,13 +101,28 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             {props?.data?.DocNum}
           </h1>
           {!(location.pathname.includes("edit") || !id) && (
-            <IconButton
+            <div className="">
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
+                onClick={navigateToEdit}
+                endIcon={<MdEdit />}
+              >
+                Edit
+              </Button>
+            </div>
+          )}
+          {(location.pathname.includes("edit") || id) && (
+            <Button
+              variant="outlined"
               size="small"
               sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
-              onClick={navigateToEdit}
+              onClick={handlerGoToCreate}
+              endIcon={<IoCreate />}
             >
-              <FiEdit className="text-red-200" />
-            </IconButton>
+              Create
+            </Button>
           )}
         </div>
         <div className=" flex gap-3 pr-3"></div>
@@ -89,25 +132,82 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           !collapse ? "h-[6rem]" : "h-0"
         }`}
       >
-        <div className="w-full text-sm flex gap-8">
-          <div className="flex flex-col gap-2">
-            <span className="text-[#ACACAC] text-sm font-bold">
-              Vendor / Customer
-            </span>
-            <span className="font-bold text-blue-500">{props?.data?.CardCode}</span>
-            <span className="font-bold text-blue-500">{props?.data?.CardName}</span>
+        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">
+                Customer Code
+              </span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.CardCode}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[#ACACAC] text-sm font-bold">
-              Total Payment Due
-            </span>
-            <span className="font-bold text-blue-500">AUD {2000}</span>
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">Name</span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.CardName}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col gap-2">
-            <span className="text-[#ACACAC] text-sm font-bold">Status</span>
-            <span className="font-bold text-green-500 uppercase">Open</span>
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">
+                Status
+              </span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.DocumentStatus?.split("bost_")}
+              </span>
+            </div>
+          </div>
+          <div className="col-span-3">
+            <div className="flex flex-col gap-2">
+              <span className="text-gray-600 text-base font-medium">Total</span>
+              <span className="font-medium text-blue-600">
+                {props?.data?.DocTotal}
+                {props?.data?.DocCurrency}
+              </span>
+            </div>
           </div>
         </div>
+
+        {!location.pathname.includes("create") && (
+          <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+            <div className="col-span-5"></div>
+            <div className="col-span-7">
+              <div className="grid grid-cols-7">
+                <div className="col-span-2  mt-3">
+                  <Button variant="outlined" className="text-blue">
+                    <BiLeftArrow />
+                    Prev
+                  </Button>
+                </div>
+                <div className="col-span-3 text-center ">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-gray-600 text-base font-medium">
+                      Doc. Number
+                    </span>
+                    <span className="font-medium text-blue-600">
+                      {props?.data?.DocNum ??
+                        props?.data?.NextNum ??
+                        "Document Number"}
+                    </span>
+                  </div>
+                </div>
+                <div className="col-span-2 mt-3">
+                  <Button variant="outlined" onClick={navigateToNextPage}>
+                    Next
+                    <BiRightArrow />
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* <div className="col-span-2">
+              <Button variant="contained"> + New</Button>
+            </div> */}
+          </div>
+        )}
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
@@ -119,15 +219,17 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           <div
             title="btn-collapse"
             role="button"
-            className={`flex items-center justify-center w-8 h-8 shadow-md drop-shadow-sm rounded-md p-2 bg-white border `}
+            className={`flex items-center justify-center w-6 h-6 shadow-md drop-shadow-sm rounded-md p-2 bg-slate-200 border `}
             onClick={handlerCollapse}
           >
-            {!collapse ? <IoIosArrowUp /> : <IoIosArrowDown />}
+            <div className="opacity-20">
+              {!collapse ? <IoIosArrowUp /> : <BsArrowDownShort />}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default DocumentHeaderComponent
+export default DocumentHeaderComponent;

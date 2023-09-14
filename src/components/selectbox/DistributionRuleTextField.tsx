@@ -17,23 +17,23 @@ interface Props<T = unknown> {
   label?: string;
 }
 
-function DistributionRuleSelect(props: Props) {
+function DistributionRuleText(props: Props) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["distribution-rule"],
     queryFn: () => new DistributionRuleRepository().get(),
     staleTime: Infinity,
   });
   const items = useMemo(
-    () => data?.filter((e: any) => e.InWhichDimension === 1),
-    [data, 1]
+    () => data?.filter((e: any) => e.InWhichDimension === props?.inWhichNum),
+    [data, props?.inWhichNum]
   );
-  const filteredData = items?.filter(
-    (item: any) => item.FactorCode !== "201999"
-  );
+
+  
+
   return (
     <MUISelect
       {...props}
-      items={filteredData}
+      items={items}
       aliaslabel="FactorDescription"
       aliasvalue="FactorDescription"
       loading={isLoading}
@@ -42,4 +42,4 @@ function DistributionRuleSelect(props: Props) {
   );
 }
 
-export default DistributionRuleSelect;
+export default DistributionRuleText;

@@ -98,15 +98,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-      {
-        accessorKey: "DocType",
-        header: " Document Type",
-        visible: false,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("dDocument_")}</>,
-      },
+      
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -136,7 +128,7 @@ export default function SaleOrderLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/sales-order/" + cell.row.original.DocEntry, {
+                route("/sale/sales-order/" + cell.row.original.DocEntry +'/edit', {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -253,12 +245,11 @@ export default function SaleOrderLists() {
     docnum: "",
     cardcode: "",
     cardname: "",
-    deliveryDate: "",
+    deliveryDate: null,
     status: "",
   });
 
   const handleGoClick = () => {
-    // Construct the query filters based on search values
     let queryFilters = "";
     if (searchValues.docnum) {
       queryFilters += `DocNum eq ${searchValues.docnum}`;
@@ -293,7 +284,6 @@ export default function SaleOrderLists() {
       <span className="" onClick={() => route("/sale/sales-order")}>
         Sales Order
       </span>
-      {/* <span className="text-blue-700"> {id ? "Edit" : "Create"}</span> */}
     </>
   );
 
@@ -301,104 +291,112 @@ export default function SaleOrderLists() {
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
-          {/* <h3 className="text-base 2xl:text-base xl:text-base mx-2">
-            Sale / Orders
-          </h3> */}
           <Breadcrumb childBreadcrum={childBreadcrum} />
         </div>
-        <div className="grid grid-cols-5 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <MUITextField
-            label="Document No."
-            placeholder="Document No."
-            className="bg-white"
-            autoComplete="off"
-            value={searchValues.docnum}
-            onChange={(e) =>
-              setSearchValues({ ...searchValues, docnum: e.target.value })
-            }
-          />
-
-          <BPAutoComplete
-            label="Customer"
-            value={searchValues.cardcode}
-            onChange={(selectedValue) =>
-              setSearchValues({ ...searchValues, cardcode: selectedValue })
-            }
-          />
-          <MUITextField
-            label="Delivery Date"
-            placeholder="Delivery Date"
-            className="bg-white"
-            type="date"
-            value={searchValues.deliveryDate}
-            onChange={(e) =>
-              setSearchValues({ ...searchValues, deliveryDate: e.target.value })
-            }
-          />
-          {/* <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Delivery Date
-            </label>
-            <div className="">
-              <MUIDatePicker
-                disabled={data?.isStatusClose || false}
-                value={searchValues.deliveryDate}
-                onChange={(e:any) =>
-                  setSearchValues({
-                    ...searchValues,
-                    deliveryDate: e.target.value,
-                  })
-                }
-              />
-            </div>
-          </div> */}
-          <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Status
-            </label>
-            <div className="">
-              <MUISelect
-                items={[
-                  { label: "None", value: "" },
-                  { label: "Open", value: "bost_Open" },
-                  { label: "Close", value: "bost_Close" },
-                  // { label: "Paid", value: "bost_Paid" },
-                  // { label: "Delivered", value: "bost_Delivered" },
-                ]}
-                onChange={(e) =>
-                  setSearchValues({ ...searchValues, status: e.target.value })
-                }
-                value={searchValues.status}
-              />
+        <div className="grid grid-cols-10 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+          <div className="col-span-2">
+            <MUITextField
+              label="Document No."
+              placeholder="Document No."
+              className="bg-white"
+              autoComplete="off"
+              value={searchValues.docnum}
+              onChange={(e) =>
+                setSearchValues({ ...searchValues, docnum: e.target.value })
+              }
+            />
+          </div>
+          <div className="col-span-2">
+            <BPAutoComplete
+              type="Customer"
+              label="Customer"
+              value={searchValues.cardcode}
+              onChange={(selectedValue) =>
+                setSearchValues({ ...searchValues, cardcode: selectedValue })
+              }
+            />
+          </div>
+          <div className="col-span-2">
+            <MUIDatePicker
+              label="Delivery Date"
+              value={searchValues.deliveryDate}
+              // onChange={(e: any) => handlerChange("PostingDate", e)}
+              onChange={(e) => {
+                setSearchValues({
+                  ...searchValues,
+                  deliveryDate: e,
+                });
+              }}
+            />
+          </div>
+          <div className="col-span-2">
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                Status
+              </label>
+              <div className="">
+                <MUISelect
+                  items={[
+                    { label: "None", value: "" },
+                    { label: "Open", value: "bost_Open" },
+                    { label: "Close", value: "bost_Close" },
+                    // { label: "Paid", value: "bost_Paid" },
+                    // { label: "Delivered", value: "bost_Delivered" },
+                  ]}
+                  // onChange={(e) =>
+                  //   setSearchValues({ ...searchValues, status: e.target.value })
+                  // }
+                  onChange={(e) => {
+                    if (e) {
+                      setSearchValues({
+                        ...searchValues,
+                        status: e.target.value as string, // Ensure e.target.value is treated as a string
+                      });
+                    }
+                  }}
+                  value={searchValues.status}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex justify-end items-center align-center space-x-4 mt-4">
-            <Button variant="contained" size="small" onClick={handleGoClick}>
-              Go
-            </Button>
-
-            <div>
-              <DataTableColumnFilter
-                handlerClearFilter={handlerRefresh}
-                title={
-                  <div className="flex gap-2">
-                    {/* <span className="text-lg">
-                      <BiFilterAlt />
-                    </span>{" "} */}
-                    {/* <span className="text-[13px] capitalize">Adapt Filter</span> */}
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      // onClick={handleGoClick}
-                    >
-                      Filter
-                    </Button>
-                  </div>
-                }
-                items={columns?.filter((e) => e?.accessorKey !== "DocEntry")}
-                onClick={handlerSearch}
-              />
+          <div className="col-span-2">
+            <div className="flex justify-end items-center align-center space-x-2 mt-4">
+              <div className="">
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleGoClick}
+                >
+                  Go
+                </Button>
+              </div>
+              <div className="">
+                <DataTableColumnFilter
+                  handlerClearFilter={handlerRefresh}
+                  title={
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        // onClick={handleGoClick}
+                      >
+                        Adapt Filter
+                      </Button>
+                    </div>
+                  }
+                  items={columns?.filter(
+                    (e) =>
+                      e?.accessorKey !== "DocEntry" &&
+                      e?.accessorKey !== "DocNum" &&
+                      e?.accessorKey !== "CardCode" &&
+                      e?.accessorKey !== "CardName" &&
+                      e?.accessorKey !== "DocDueDate" &&
+                      e?.accessorKey !== "DocumentStatus" 
+                  )}
+                  onClick={handlerSearch}
+                />
+              </div>
             </div>
           </div>
         </div>
