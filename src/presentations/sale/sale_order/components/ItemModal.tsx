@@ -6,6 +6,8 @@ import { currencyFormat } from "@/utilies";
 import UOMTextField from "@/components/input/UOMTextField";
 import { getUOMGroupByCode } from "@/helpers";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
+import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -156,9 +158,13 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 value={this.state?.UnitOfMeasuremnt}
               /> */}
 
-              <MUITextField label="Business Line" endAdornment />
-              <MUITextField label="Product Line" endAdornment />
-              <MUITextField label="Revenue Line" endAdornment />
+              <DistributionRuleText
+                inWhichNum={2}
+                onChange={(event) => this.handChange(event, "WarehouseCode")}
+                label="Business Line"
+              />
+              <DistributionRuleText label="Product Line"  />
+              <DistributionRuleText label="Revenue Line"  />
             </div>
           </div>
         </>
