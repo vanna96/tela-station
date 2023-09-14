@@ -7,6 +7,10 @@ import UOMTextField from "@/components/input/UOMTextField";
 import { getUOMGroupByCode } from "@/helpers";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5cc08076ca76bab547573aed2a4404403417b657
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
