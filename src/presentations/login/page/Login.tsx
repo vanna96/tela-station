@@ -102,22 +102,20 @@ export default function Login() {
 
   return (
     <>
-      <div className="flex flex-col h-[100vh] bg-gray-100">
-        <div className="w-full">
-          <div className="ml-24 mt-6 mb-4 sticky">
+      <div className="flex flex-col items-center justify-center h-[90vh] bg-gray-100">
+        {/* <div className="w-full">
+          <div className="ml-20 mt-0 mb-12 sticky">
             <img
               src={BizLogo}
-              className="h-[60px]"
+              className="w-[16%] h-[16%]"
               alt="Business Logo"
             />
           </div>
         </div> */}
 
-        <div className="flex items-center justify-center w-full h-[100vh]">
-          <div className="w-[50%] 2xl:w-[60%] h-[60vh] bg-white border-gray-300 shadow-2xl flex rounded-xl p-2">
-            <div
-              className="w-8/12 lg:w-6/12 md:hidden sm:hidden bg-cover p-4 rounded-xl"
-            >
+        <div className="flex items-center justify-center w-full mt-4">
+          <div className="w-4/6 h-[60vh] bg-white border border-gray-300 shadow-xl flex rounded-xl p-2">
+            <div className="w-8/12 lg:w-6/12 md:hidden sm:hidden bg-cover p-4 rounded-xl">
               <img
                 className="rounded-l-lg rounded-r-sm"
                 src={TelaCover}

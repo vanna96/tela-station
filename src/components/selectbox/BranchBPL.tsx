@@ -21,7 +21,7 @@ function BPLBranchSelect(props: BranchProps) {
     staleTime: Infinity,
   });
 
-    const { data, isLoading }: any = useQuery({ queryKey: ['branchBPL'], queryFn: () => new BranchBPLRepository().get(), staleTime: Infinity })
+const uniqueBPLIDs = [...new Set(props?.BPdata?.map((e: any) => e.BPLID))];
 
 const filteredBranch = data?.filter((e : any) => uniqueBPLIDs.includes(e.BPLID));
 

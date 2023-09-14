@@ -76,7 +76,8 @@ export interface CoreFormDocumentState {
     disable: any,
     error: any,
     tapIndex: number;
-    ContentLoading?: any
+    ContentLoading?: any,
+    lineofBusiness?:any
 }
 
 export default abstract class CoreFormDocument extends React.Component<
