@@ -493,7 +493,7 @@ class SalesOrderForm extends CoreFormDocument {
                   )} */}
                 </div>
               </>
-            )}
+             )} 
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
