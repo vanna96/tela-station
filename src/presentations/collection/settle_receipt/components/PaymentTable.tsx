@@ -43,89 +43,86 @@ export default function PaymentTable(props: any) {
     setData(newData)
   }
 
-  const columns = useMemo<MRT_ColumnDef<any>[]>(
-    () => [
-      {
-        accessorKey: "due_date", //access nested data with dot notation
-        header: "Due Date",
-        Cell: ({ cell }: any) => (
-          <MUIDatePicker
-            key={"due_date" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.due_date || new Date()}
-            onChange={(e: any) =>
-              handlerChangeItem(cell?.row?.id || 0, {
-                due_date: e,
-              })
-            }
-          />
-        ),
-      },
-      {
-        accessorKey: "amount",
-        header: "Amount",
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            key={"amount" + cell.getValue() + cell?.row?.id}
-            type="number"
-            value={cell.row.original?.amount || 0}
-            onChange={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                amount: e.target.value,
-              })
-            }}
-          />
-        ),
-      },
-      {
-        accessorKey: "bank",
-        header: "Bank",
-        Cell: ({ cell }: any) => (
-          <BankSelect
-            key={"bank" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.bank || 0}
-            onChange={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                bank: e.target.value,
-              })
-            }}
-          />
-        ),
-      },
-      {
-        accessorKey: "account",
-        header: "Account",
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            key={"account" + cell.getValue() + cell?.row?.id}
-            type="number"
-            value={cell.row.original?.account || 0}
-            onChange={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                account: e.target.value,
-              })
-            }}
-          />
-        ),
-      },
-      {
-        accessorKey: "check_no",
-        header: "Check No.",
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            key={"check_no" + cell.getValue() + cell?.row?.id}
-            type="number"
-            value={cell.row.original?.check_no || 0}
-            onChange={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                check_no: e.target.value,
-              })
-            }}
-          />
-        ),
-      },
-    ],
-    []
-  )
+  const columns = [
+    {
+      accessorKey: "due_date",
+      header: "Due Date",
+      Cell: ({ cell }: any) => (
+        <MUIDatePicker
+          key={"due_date" + cell.getValue() + cell?.row?.id}
+          value={cell.row.original?.due_date || new Date()}
+          onChange={(e: any) =>
+            handlerChangeItem(cell?.row?.id || 0, {
+              due_date: e,
+            })
+          }
+        />
+      ),
+    },
+    {
+      accessorKey: "amount",
+      header: "Amount",
+      Cell: ({ cell }: any) => (
+        <MUITextField
+          key={"amount" + cell.getValue() + cell?.row?.id}
+          type="number"
+          defaultValue={cell.row.original?.amount || 0}
+          onBlur={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              amount: e.target.value,
+            })
+          }}
+        />
+      ),
+    },
+    {
+      accessorKey: "bank",
+      header: "Bank",
+      Cell: ({ cell }: any) => (
+        <BankSelect
+          key={"bank" + cell.getValue() + cell?.row?.id}
+          value={cell.row.original?.bank || 0}
+          onChange={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              bank: e.target.value,
+            })
+          }}
+        />
+      ),
+    },
+    {
+      accessorKey: "account",
+      header: "Account",
+      Cell: ({ cell }: any) => (
+        <MUITextField
+          key={"account" + cell.getValue() + cell?.row?.id}
+          type="number"
+          defaultValue={cell.row.original?.account || 0}
+          onBlur={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              account: e.target.value,
+            })
+          }}
+        />
+      ),
+    },
+    {
+      accessorKey: "check_no",
+      header: "Check No.",
+      Cell: ({ cell }: any) => (
+        <MUITextField
+          key={"check_no" + cell.getValue() + cell?.row?.id}
+          type="number"
+          defaultValue={cell.row.original?.check_no || 0}
+          onBlur={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              check_no: e.target.value,
+            })
+          }}
+        />
+      ),
+    },
+  ]
 
   return (
     <>

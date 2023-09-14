@@ -1,20 +1,11 @@
-import FormCard from "@/components/card/FormCard"
-import DistributionRuleTextField from "@/components/input/DimensionTextField"
 import MUIDatePicker from "@/components/input/MUIDatePicker"
 import MUITextField from "@/components/input/MUITextField"
-import VendorTextField from "@/components/input/VendorTextField"
-import BPAddress from "@/components/selectbox/BPAddress"
-import BPProject from "@/components/selectbox/BPProject"
 import BPLBranchSelect from "@/components/selectbox/BranchBPL"
-import DistributionRuleSelect from "@/components/selectbox/DistributionRule"
 import MUISelect from "@/components/selectbox/MUISelect"
 import SalePerson from "@/components/selectbox/SalePerson"
-import { ContactEmployee } from "@/models/BusinessParter"
-import DistributionRuleRepository from "@/services/actions/distributionRulesRepository"
-import TextField from "@mui/material/TextField"
-import React, { useContext } from "react"
-import { useQuery } from "react-query"
+import { useContext } from "react"
 import { APIContext } from "../context/APIContext"
+import { VendorTextField } from "./VendorTextField"
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void
@@ -51,7 +42,7 @@ export default function GeneralForm({
                 <div className="col-span-3">
                   <VendorTextField
                     vtype={`customer`}
-                    onChange={(vendor) => handlerChange("vendor", vendor)}
+                    onChange={(vendor: any) => handlerChange("vendor", vendor)}
                     key={data?.CardCode}
                     error={"CardCode" in data?.error}
                     helpertext={data?.error?.CardCode}
