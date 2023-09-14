@@ -21,7 +21,7 @@ import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
 import { Breadcrumb } from "../../components/Breadcrumn";
 import { useNavigate } from "react-router-dom";
-import { Checkbox, CircularProgress } from "@mui/material";
+import { Checkbox, CircularProgress, darken } from "@mui/material";
 import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
 
@@ -425,6 +425,7 @@ function Content(props: any) {
               border: "1px solid rgba(81, 81, 81, 1)",
             },
           }}
+          
         />
         <div className="grid grid-cols-12 ">
           <div className="col-span-5"></div>

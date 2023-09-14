@@ -34,7 +34,7 @@ function DistributionRuleSelect(props: Props) {
       {...props}
       items={filteredData}
       aliaslabel="FactorDescription"
-      aliasvalue="FactorCode"
+      aliasvalue="FactorDescription"
       loading={isLoading}
     />
   );

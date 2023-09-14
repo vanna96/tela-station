@@ -35,7 +35,7 @@ class SalesOrderForm extends CoreFormDocument {
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
-      Currency: "AUD",
+      Currency: "USD",
       DocType: "dDocument_Items",
       ExchangeRate: 1,
       JournalRemark: "",
@@ -139,29 +139,10 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
-            Description: data?.Comments,
-            Owner: data?.DocumentsOwner,
-            Currency: data?.DocCurrency,
+            // Description: data?.Comments,
+            // Owner: data?.DocumentsOwner,
+            // Currency: data?.DocCurrency,
             Items: data?.DocumentLines?.map((item: any) => {
-              if (data?.type !== "dDocument_Items") {
-                let plannedAmount = parseFloat(item.UnitPrice || 0);
-                if (item.DiscountPercent > 0)
-                  plannedAmount =
-                    (parseFloat(item.DiscountPercent || 0) *
-                      parseFloat(item.UnitPrice || 0)) /
-                      (100 - parseFloat(item.DiscountPercent || 0)) +
-                    item.UnitPrice;
-
-                return {
-                  ItemCode: item.AccountCode,
-                  VatGroup: item.VatGroup || null,
-                  Discount: parseFloat(item.DiscountPercent),
-                  LineTotal: item.UnitPrice,
-                  UnitPrice: plannedAmount,
-                  VatRate: item.TaxPercentagePerRow,
-                };
-              }
-
               return {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
@@ -169,20 +150,23 @@ class SalesOrderForm extends CoreFormDocument {
                 UnitPrice: item.UnitPrice || item.total,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
-                UomGroupCode: item.UoMCode || null,
-                UomEntry: item.UoMEntry || null,
-                Currency: "AUD",
+                // UomCode: item.UomCode,
+                // UomGroupCode: item.UoMCode || null,
+                // UomEntry: item.UoMGroupEntry || null,
+                UomEntry: item.UomCode || null,
+                
+                // Currency: "AUD",
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
               };
             }),
             ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
+            // ShippingTo: data?.ShipToCode || null,
+            // BillingTo: data?.PayToCode || null,
             // JournalRemark: data?.JournalMemo,
             // PaymentTermType: data?.PaymentGroupCode,
             // ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
+            // FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
             vendor,
             DocDiscount: data?.DiscountPercent,
@@ -261,7 +245,7 @@ class SalesOrderForm extends CoreFormDocument {
 
       // items
       const DocumentLines = getItem(data?.Items || [], data?.DocType);
-      const isAUD = (data?.Currency || "AUD") === "AUD";
+      const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
 
       const payloads = {
@@ -284,9 +268,9 @@ class SalesOrderForm extends CoreFormDocument {
         // content
         DocType: data?.DocType,
         Comments: data?.Description || null,
-        RoundingDiffAmount: isAUD ? roundingValue : 0,
-        RoundingDiffAmountFC: isAUD ? 0 : roundingValue,
-        // RoundingDiffAmountSC: isAUD ? roundingValue : 0,
+        RoundingDiffAmount: isUSD ? roundingValue : 0,
+        RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
+        // RoundingDiffAmountSC: isUSD ? roundingValue : 0,
         Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
         DocumentsOwner: data?.Owner || null,
         DiscountPercent: data?.DocDiscount,
@@ -406,7 +390,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-    console.log(itemGroupCode);
+
     return (
       <>
         {itemGroupCode === "100" && (
@@ -552,15 +536,7 @@ export default withRouter(SalesOrderForm);
 
 const getItem = (items: any, type: any) =>
   items?.map((item: any) => {
-    if (type !== "dDocument_Items")
-      return {
-        AccountCode: item.ItemCode,
-        VatGroup: item.VatGroup || null,
-        DiscountPercent: parseFloat(item.Discount),
-        Currency: "AUD",
-        UnitPrice: item.LineTotal,
-      };
-
+   
     return {
       ItemCode: item.ItemCode || null,
       ItemDescription: item.ItemName || item.Name || null,
@@ -568,8 +544,8 @@ const getItem = (items: any, type: any) =>
       UnitPrice: item.UnitPrice || item.total,
       DiscountPercent: item.Discount || 0,
       VatGroup: item.VatGroup || item.taxCode || null,
-      UoMCode: item.UomGroupCode || null,
-      UoMEntry: item.UomEntry || null,
-      Currency: "AUD",
+      // UoMCode: item.UomGroupCode || null,
+      UoMEntry: item.UomAbsEntry || null,
+      // Currency: "AUD",
     };
   });

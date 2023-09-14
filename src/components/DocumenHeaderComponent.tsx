@@ -126,7 +126,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
               <span className="text-gray-600 text-base font-medium">Total</span>
               <span className="font-medium text-blue-600">
                 {props?.data?.DocTotal}
-                {""} {props?.data?.DocCurrency}
+                 {props?.data?.DocCurrency}
               </span>
             </div>
           </div>

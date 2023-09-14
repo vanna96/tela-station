@@ -150,7 +150,7 @@ export default function ContentForm({
 
           const total = parseFloat(cell.row.original?.VatRate ?? "0");
           return (
-            "AUD " +
+            "USD " +
             currencyFormat(
               cell.row.original?.UnitPrice +
                 (total * cell.row.original?.UnitPrice) / 100
@@ -263,8 +263,6 @@ export default function ContentForm({
     ],
     [updateRef]
   );
-
-  
 
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const onClose = React.useCallback(() => setCollapseError(false), []);

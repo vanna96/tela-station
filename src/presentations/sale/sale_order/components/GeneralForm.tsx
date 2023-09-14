@@ -9,8 +9,6 @@ import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import SalePerson from "@/components/selectbox/SalePerson";
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
-import Branch from '../../../../models/BranchBPL';
-import BPLBranchName from "@/components/selectbox/BranchBPLName";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -33,7 +31,7 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-  console.log(data?.U_ti_revenue)
+
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-8 h-screen">
