@@ -9,6 +9,7 @@ import { ItemModal } from "./ItemModal";
 import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import WarehouseRepository from "@/services/warehouseRepository";
 
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -53,7 +54,7 @@ export default function ContentForm({
         ),
         header: "Item No", //uses the default width from defaultColumn prop
         visible: true,
-        size: 100,
+        size: 120,
         Cell: ({ cell }: any) => (
           /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
             value={cell.getValue()}
@@ -165,7 +166,7 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return (cell.getValue() );
+          return cell.getValue();
         },
       },
       {
@@ -192,9 +193,21 @@ export default function ContentForm({
         accessorKey: "WarehouseCode",
         header: "Warehouse",
         visible: true,
+        size: 80,
+        Cell: ({ cell }: any) => {
+          // if (Object.keys(cell.row.original).length === 1) return null;
+          // return new WarehouseRepository()?.find(cell.getValue())?.name;
+          return cell.getValue();
+        },
+      },
+      {
+        accessorKey: "AbsEntry",
+        header: "Bin Location",
+        visible: true,
+        size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return (cell.getValue());
+          return cell.getValue();
         },
       },
 

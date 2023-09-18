@@ -15,12 +15,15 @@ export interface IGeneralFormProps {
   data: any;
   edit?: boolean;
   lineofBusiness: string;
+  warehouseCode: string;
   onLineofBusinessChange: (value: any) => void;
+  onWarehouseChange: (value: any) => void;
 }
 
 export default function GeneralForm({
   data,
   onLineofBusinessChange,
+  onWarehouseChange,
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -32,21 +35,18 @@ export default function GeneralForm({
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
-
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-8 h-screen">
+    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
-      <div className="grid grid-cols-2">
-        <div className="pl-4 pr-20">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Customer <span className="text-red-500">*</span>
-              </label>
+      <div className="grid grid-cols-12 ">
+        <div className="col-span-5 ">
+          <div className="grid grid-cols-5 py-1">
+            <div className="col-span-2 text-gray-600 ">
+              Customer <span className="text-red-500">*</span>
             </div>
-            <div className="col-span-3">
+            <div className="col-span-3 text-gray-900">
               <VendorTextField
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
@@ -60,11 +60,105 @@ export default function GeneralForm({
               />
             </div>
           </div>
-        </div>
-        <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Name
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={data?.CardName}
+                disabled={edit}
+                name="BPName"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Contact Person
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={data?.vendor?.contactEmployee?.map(
+                  (e: ContactEmployee) => ({
+                    id: e.id,
+                    name: e.name,
+                  })
+                )}
+                onChange={(e) =>
+                  handlerChange("ContactPersonCode", e.target.value)
+                }
+                value={data?.ContactPersonCode}
+                aliasvalue="id"
+                aliaslabel="name"
+                name="ContactPersonCode"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Branch
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BPLBranchSelect
+                BPdata={data?.vendor?.bpBranchAssignment}
+                onChange={(e) =>
+                  handlerChange("BPL_IDAssignedToInvoice", e.target.value)
+                }
+                value={data?.BPL_IDAssignedToInvoice}
+                name="BPL_IDAssignedToInvoice"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Warehouse
+              </label>
+            </div>
+            <div className="col-span-3">
+              <WarehouseByBranch
+                Branch={data?.BPL_IDAssignedToInvoice}
+                // onChange={(e) => handlerChange("U_tl_whsdesc", e.target.value)}
+                value={data?.U_tl_whsdesc}
+                onChange={(e) => {
+                  handlerChange("U_tl_whsdesc", e.target.value);
+                  onWarehouseChange(e.target.value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Remark
+              </label>
+            </div>
+            <div className="col-span-3">
+              <TextField
+                size="small"
+                fullWidth
+                multiline
+                rows={2}
+                name="User_Text"
+                value={data?.User_Text}
+                onChange={(e: any) =>
+                  handlerChange("User_Text", e.target.value)
+                }
+              />
+            </div>
+          </div>
+        </div>
+        <div className="col-span-2 md:col-span-1"></div>
+        <div className="col-span-5 ">
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Series
               </label>
             </div>
@@ -95,31 +189,9 @@ export default function GeneralForm({
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/*  */}
-      <div className="grid grid-cols-2">
-        <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Name
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="pl-20">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Posting Date
               </label>
             </div>
@@ -131,44 +203,12 @@ export default function GeneralForm({
               />
             </div>
           </div>
-        </div>
-      </div>
-      {/*  */}
-
-      <div className="grid grid-cols-2">
-        <div className="pl-4 pr-20">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Contact Person
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUISelect
-                items={data?.vendor?.contactEmployee?.map(
-                  (e: ContactEmployee) => ({
-                    id: e.id,
-                    name: e.name,
-                  })
-                )}
-                onChange={(e) =>
-                  handlerChange("ContactPersonCode", e.target.value)
-                }
-                value={data?.ContactPersonCode}
-                aliasvalue="id"
-                aliaslabel="name"
-                name="ContactPersonCode"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="pl-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label
                 htmlFor="Code"
                 className={`${
-                  !("DueDate" in data?.error) ? "text-gray-500" : "text-red-500"
+                  !("DueDate" in data?.error) ? "text-gray-600" : "text-red-500"
                 } `}
               >
                 Delivery Date <span className="text-red-500">*</span>
@@ -185,33 +225,9 @@ export default function GeneralForm({
               />
             </div>
           </div>
-        </div>
-      </div>
-      {/*  */}
-
-      <div className="grid grid-cols-2">
-        <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Branch
-              </label>
-            </div>
-            <div className="col-span-3">
-          
-               <BPLBranchSelect
-                BPdata={data?.vendor?.bpBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e.target.value)}
-                value={data?.BPL_IDAssignedToInvoice}
-                name="BPL_IDAssignedToInvoice"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="pl-20">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Document Date
               </label>
             </div>
@@ -223,30 +239,9 @@ export default function GeneralForm({
               />
             </div>
           </div>
-        </div>
-      </div>
-      {/*  */}
-      <div className="grid grid-cols-2">
-        <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Warehouse
-              </label>
-            </div>
-            <div className="col-span-3">
-              <WarehouseByBranch
-                Branch={data?.BPL_IDAssignedToInvoice}
-                onChange={(e) => handlerChange("U_tl_whsdesc", e.target.value)}
-                value={data?.U_tl_whsdesc}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="pl-20">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Sale Employee
               </label>
             </div>
@@ -260,36 +255,9 @@ export default function GeneralForm({
               />
             </div>
           </div>
-        </div>
-      </div>
-      {/*  */}
-      <div className="grid grid-cols-2">
-        <div className="pl-4 pr-20">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Remark
-              </label>
-            </div>
-            <div className="col-span-3">
-              <TextField
-                size="small"
-                fullWidth
-                multiline
-                rows={2}
-                name="User_Text"
-                value={data?.User_Text}
-                onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
-                }
-              />
-            </div>
-          </div>
-        </div>
-        <div className="pl-20">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Line of Business
               </label>
             </div>
@@ -305,7 +273,6 @@ export default function GeneralForm({
           </div>
         </div>
       </div>
-      {/*  */}
     </div>
   );
 }

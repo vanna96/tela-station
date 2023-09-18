@@ -10,6 +10,7 @@ import { IconButton, OutlinedInput } from "@mui/material";
 import { HiSearch, HiX } from "react-icons/hi";
 import { Transition, Dialog } from "@headlessui/react";
 import shortid from "shortid";
+import SalePersonRepository from "../../services/actions/salePersonRepository";
 
 export type VendorModalType = "supplier" | "customer" | null;
 
@@ -46,22 +47,23 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
       {
         accessorKey: "CardCode",
         header: "Card Code",
-        size: 50
+        size: 50,
       },
       {
         accessorKey: "CardName",
         header: "Card Name",
-        size: 60
+        size: 60,
       },
       {
         accessorKey: "Currency",
         header: "Currency",
-        size: 50
+        size: 50,
       },
+      
       {
         accessorKey: "CurrentAccountBalance",
         header: "Balance",
-        size : 100,
+        size: 100,
         Cell: ({ cell }: any) => {
           return (
             <div
@@ -74,6 +76,14 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
               {currencyFormat(cell.getValue())}
             </div>
           );
+        },
+      },
+      {
+        accessorKey: "SalesPersonCode",
+        header: "Sales Person Code",
+        size: 50,
+        Cell: ({ cell }: any) => {
+          return new SalePersonRepository()?.find(cell.getValue()).name;
         },
       },
     ],
@@ -150,7 +160,7 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
                       />
                     </div>
                     <hr />
-                    
+
                     <MaterialReactTable
                       columns={columns}
                       data={items ?? []}

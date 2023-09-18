@@ -21,8 +21,6 @@ import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 
 class SalesOrderForm extends CoreFormDocument {
-  serviceRef = React.createRef<ServiceModalComponent>();
-
   constructor(props: any) {
     super(props);
     this.state = {
@@ -46,8 +44,10 @@ class SalesOrderForm extends CoreFormDocument {
       VatGroup: "S1",
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
+      warehouseCode: "",
     } as any;
 
+   
     this.onInit = this.onInit.bind(this);
     this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
     this.handlerSubmit = this.handlerSubmit.bind(this);
@@ -58,6 +58,9 @@ class SalesOrderForm extends CoreFormDocument {
     this.setState({ lineofBusiness: value });
   };
 
+  handleWarehouseChange = (value: any) => {
+    this.setState({ warehouseCode: value });
+  };
   componentDidMount(): void {
     this.setState({ loading: true });
     this.onInit();
@@ -153,7 +156,7 @@ class SalesOrderForm extends CoreFormDocument {
                 // UomGroupCode: item.UoMCode || null,
                 // UomEntry: item.UoMGroupEntry || null,
                 UomEntry: item.UomCode || null,
-                
+                WarehouseCode: this.state.warehouseCode,
                 // Currency: "AUD",
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
@@ -216,7 +219,7 @@ class SalesOrderForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     try {
-      this.setState({ ...this.state, isSubmitting: false });
+      this.setState({ ...this.state, isSubmitting: false , warehouseCode: 'test' });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
@@ -243,10 +246,19 @@ class SalesOrderForm extends CoreFormDocument {
       if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // items
-      const DocumentLines = getItem(data?.Items || [], data?.DocType);
+
+      const warehouseCodeGet =  this.state.warehouseCode
+      console.log(warehouseCodeGet)
+      const DocumentLines = getItem(
+        data?.Items || [],
+        data?.DocType,
+        warehouseCodeGet
+      );
+      
+
+    
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
-
       const payloads = {
         // general
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
@@ -370,8 +382,19 @@ class SalesOrderForm extends CoreFormDocument {
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
-      return this.itemModalRef.current?.onOpen(this.state?.CardCode, "sale");
-    this.serviceRef.current?.onOpen(this.state?.CardCode);
+      return this.itemModalRef.current?.onOpen(this.state?.CardCode, "sale", this.state.warehouseCode);
+  }
+
+  componentDidUpdate(prevProps : any, prevState : any) {
+    if (prevState.warehouseCode !== this.state.warehouseCode) {
+      const DocumentLines = getItem(
+        this.state?.Items || [],
+        this.state?.DocType,
+        this.state.warehouseCode
+      );
+
+      console.log(this.state.warehouseCode);
+    }
   }
 
   FormRender = () => {
@@ -389,6 +412,8 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+      console.log(this.state.warehouseCode);
+
 
     return (
       <>
@@ -444,7 +469,9 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChange={(key, value) =>
                         this.handlerChange(key, value)
                       }
-                      lineofBusiness={this.state.lineofBusiness} // Pass lineofBusiness as a prop
+                      lineofBusiness={this.state.lineofBusiness}
+                      warehouseCode={this.state.warehouseCode}
+                      onWarehouseChange={this.handleWarehouseChange}
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
@@ -493,7 +520,7 @@ class SalesOrderForm extends CoreFormDocument {
                   )} */}
                 </div>
               </>
-             )} 
+            )}
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
@@ -533,9 +560,8 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any) =>
+const getItem = (items: any, type: any, warehouseCode: any) =>
   items?.map((item: any) => {
-   
     return {
       ItemCode: item.ItemCode || null,
       ItemDescription: item.ItemName || item.Name || null,
@@ -545,7 +571,8 @@ const getItem = (items: any, type: any) =>
       VatGroup: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
-      WarehouseCode: item?.WarehouseCode || null,
+      WarehouseCode: warehouseCode || null,
+
       // Currency: "AUD",
     };
   });

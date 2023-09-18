@@ -30,6 +30,7 @@ import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsReposit
 import ProjectRepository from "@/services/actions/projectRepository";
 import { Alert, AlertTitle, TextField } from "@mui/material";
 import CurrencyRepository from "@/services/actions/currencyRepository";
+import WareBinLocationRepository from '../../../services/whBinLocationRepository';
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -99,6 +100,7 @@ export default function Login() {
       await new ChartOfAccountsRepository().get(),
       await new ProjectRepository().get(),
       await new CurrencyRepository().get(),
+      await new WareBinLocationRepository().get()
     ]);
   }
 
