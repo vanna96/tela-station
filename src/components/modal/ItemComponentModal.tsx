@@ -24,6 +24,7 @@ interface ItemModalProps {
   type: ItemType;
   group?: ItemGroup;
   CardCode?: any;
+  WarehouseCode?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -33,6 +34,7 @@ const ItemModal: FC<ItemModalProps> = ({
   group,
   onOk,
   CardCode,
+  WarehouseCode
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -170,6 +172,8 @@ const ItemModal: FC<ItemModalProps> = ({
 
       const total = (defaultPrice ?? 0) * 1;
 
+      // const warehouseCode = WarehouseCode;
+
       return {
         ItemCode: e?.ItemCode,
         LineVendor: vendor?.CardCode,
@@ -187,7 +191,7 @@ const ItemModal: FC<ItemModalProps> = ({
         DiscountPercent: 0,
         LineTotal: total,
         Total: total,
-        WarehouseCode: e?.DefaultWarehouse ,
+        WarehouseCode: WarehouseCode ,
         // GrossPrice: total + ((total * vatRate) / 100),
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
@@ -363,8 +367,8 @@ export class ItemModalComponent extends React.Component<
     this.setState({ isOpen: false });
   }
 
-  onOpen(CardCode?: any, type?: any) {
-    this.setState({ isOpen: true, CardCode: CardCode, type: type });
+  onOpen(CardCode?: any, type?: any, WarehouseCode?: any) {
+    this.setState({ isOpen: true, CardCode: CardCode, type: type , WarehouseCode: WarehouseCode});
   }
 
   handlerOk(items: any[]) {
@@ -381,6 +385,7 @@ export class ItemModalComponent extends React.Component<
         group={this.state.group || this.props.group}
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
+        WarehouseCode = {this.state.WarehouseCode}
       />
     );
   }

@@ -7,6 +7,8 @@ import UOMTextField from "@/components/input/UOMTextField";
 import { getUOMGroupByCode } from "@/helpers";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+import WareBinSelect from "@/components/selectbox/WareBinSelect";
+import WareBinLocation from "@/components/selectbox/WareBinLocation";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -156,17 +158,31 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Item Per Unit"
                 value={this.state?.UnitOfMeasuremnt}
               /> */}
-
+              <WareBinLocation
+                itemCode={this.state.ItemCode}
+                Whse={this.state.WarehouseCode}
+                value={this.state.AbsEntry}
+                label="Bin Location"
+                onChange={(event) => this.handChange(event, "AbsEntry")}
+              />
               <DistributionRuleText
                 inWhichNum={2}
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
+                onChange={(event) => this.handChange(event, "COGSCostingCode")}
+                value={this.state?.COGSCostingCode}
                 label="Business Line"
               />
               <DistributionRuleText
                 label="Product Line"
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
+                inWhichNum={3}
+                value={this.state?.COGSCostingCode2}
+                onChange={(event) => this.handChange(event, "COGSCostingCode2")}
               />
-              <DistributionRuleText label="Revenue Line" />
+              <DistributionRuleText
+                label="Revenue Line"
+                inWhichNum={5}
+                value={this.state?.COGSCostingCode3}
+                onChange={(event) => this.handChange(event, "COGSCostingCode3")}
+              />
             </div>
           </div>
         </>
