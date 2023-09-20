@@ -3,6 +3,7 @@ import BPAddress from "@/components/selectbox/BPAddress";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
+import { TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
 
@@ -63,6 +64,23 @@ export default function LogisticForm({
                   data={data}
                   value={data.BillTo}
                   onChange={(e) => handlerChange("BillTo", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Ship To Address
+                </label>
+              </div>
+              <div className="col-span-3">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  name="Address1"
+                  value={data?.Address}
                 />
               </div>
             </div>
