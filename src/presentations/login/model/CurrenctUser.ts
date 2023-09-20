@@ -7,6 +7,7 @@ export default class CurrentUser {
     Email: string;
     Branch: string;
     Department: string;
+    UserBranchAssignment: any[];
 
     constructor(json: any) {
         this.UserCode = json['UserCode'];
@@ -14,5 +15,6 @@ export default class CurrentUser {
         this.Email = json['eMail'];
         this.Branch = json['Branch'];
         this.Department = json['Department'];
+        this.UserBranchAssignment = json['UserBranchAssignment']
     }
 }

@@ -40,8 +40,13 @@ export default function GeneralForm({
 
   // Access the user data from cookies.user
   const userData = cookies.user;
+  console.log(userData?.UserBranchAssignment)
+  const bplidValues = userData?.UserBranchAssignment?.map((item: any) => item.BPLID);
+  console.log(bplidValues)
 
-  console.log(data?.BPL_IDAssignedToInvoice)
+  const BPL = data?.BPL_IDAssignedToInvoice || cookies.user?.Branch <= 0 && 1
+  
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -90,6 +95,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3 text-gray-900">
               <VendorByBranch
+                branch={data?.BPL_IDAssignedToInvoice}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
@@ -100,6 +106,17 @@ export default function GeneralForm({
                 name="BPCode"
                 endAdornment={!edit}
               />
+              {/* <VendorTextField
+                vtype="customer"
+                onChange={(vendor) => handlerChange("vendor", vendor)}
+                key={data?.CardCode}
+                error={"CardCode" in data?.error}
+                helpertext={data?.error?.CardCode}
+                autoComplete="off"
+                defaultValue={data?.CardCode}
+                name="BPCode"
+                endAdornment={!edit}
+              /> */}
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">

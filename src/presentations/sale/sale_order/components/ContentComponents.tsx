@@ -70,8 +70,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     1
   );
 
-  console.log(props.items);
-  console.log(props.data.ExchangeRate);
 
   React.useEffect(() => {
     const cols: any = {};

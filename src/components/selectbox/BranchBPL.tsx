@@ -24,7 +24,7 @@ function CookieBranchSelect(props: BranchProps) {
   let filteredBranch = data;
   if (props.CookieBranch === -2) {
     // When CookieBranch is -2, select the first value from data
-    filteredBranch = data.slice(0, 1); // Slice the first item
+    filteredBranch = data?.slice(0, 1); // Slice the first item
   } else if (props.CookieBranch !== 1) {
     // When CookieBranch is not -2 or 1, filter based on CookieBranch
     filteredBranch = data?.filter((e: any) => props?.CookieBranch === e?.BPLID);

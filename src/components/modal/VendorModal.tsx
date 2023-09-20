@@ -38,7 +38,7 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
           1
         )}'`
       ),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const [rowSelection, setRowSelection] = React.useState({});
