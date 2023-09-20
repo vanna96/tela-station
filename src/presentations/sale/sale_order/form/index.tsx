@@ -248,7 +248,6 @@ class SalesOrderForm extends CoreFormDocument {
       // items
 
       const warehouseCodeGet =  this.state.warehouseCode
-      console.log(warehouseCodeGet)
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
@@ -393,7 +392,6 @@ class SalesOrderForm extends CoreFormDocument {
         this.state.warehouseCode
       );
 
-      console.log(this.state.warehouseCode);
     }
   }
 

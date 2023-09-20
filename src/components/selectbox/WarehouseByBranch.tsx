@@ -24,11 +24,6 @@ function WarehouseByBranch(props: WarehouseProps) {
     (warehouse: any) => warehouse.BusinessPlaceID === props?.Branch
   );
 
-  console.log(data)
-  const filter = data?.filter((e: any) => e?.BusinessPlaceID === 1 )
-
-  console.log(filter)
-
   return (
     <MUISelect
       {...props}
