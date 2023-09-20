@@ -42,6 +42,41 @@ export default function GeneralForm({
       </div>
       <div className="grid grid-cols-12 ">
         <div className="col-span-5 ">
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Branch
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BPLBranchSelect
+                BPdata={data?.vendor?.bpBranchAssignment}
+                onChange={(e) =>
+                  handlerChange("BPL_IDAssignedToInvoice", e.target.value)
+                }
+                value={data?.BPL_IDAssignedToInvoice}
+                name="BPL_IDAssignedToInvoice"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Warehouse
+              </label>
+            </div>
+            <div className="col-span-3">
+              <WarehouseByBranch
+                Branch={data?.BPL_IDAssignedToInvoice}
+                // onChange={(e) => handlerChange("U_tl_whsdesc", e.target.value)}
+                value={data?.U_tl_whsdesc}
+                onChange={(e) => {
+                  handlerChange("U_tl_whsdesc", e.target.value);
+                  onWarehouseChange(e.target.value);
+                }}
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
               Customer <span className="text-red-500">*</span>
@@ -98,41 +133,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Branch
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BPLBranchSelect
-                BPdata={data?.vendor?.bpBranchAssignment}
-                onChange={(e) =>
-                  handlerChange("BPL_IDAssignedToInvoice", e.target.value)
-                }
-                value={data?.BPL_IDAssignedToInvoice}
-                name="BPL_IDAssignedToInvoice"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Warehouse
-              </label>
-            </div>
-            <div className="col-span-3">
-              <WarehouseByBranch
-                Branch={data?.BPL_IDAssignedToInvoice}
-                // onChange={(e) => handlerChange("U_tl_whsdesc", e.target.value)}
-                value={data?.U_tl_whsdesc}
-                onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e.target.value);
-                  onWarehouseChange(e.target.value);
-                }}
-              />
-            </div>
-          </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
