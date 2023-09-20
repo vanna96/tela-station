@@ -10,6 +10,7 @@ import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import CookieBranchSelect from "@/components/selectbox/BranchBPL";
+import VendorByBranch from "@/components/input/VendorByBranch";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -88,7 +89,7 @@ export default function GeneralForm({
               Customer <span className="text-red-500">*</span>
             </div>
             <div className="col-span-3 text-gray-900">
-              <VendorTextField
+              <VendorByBranch
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
