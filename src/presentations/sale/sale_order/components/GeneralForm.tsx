@@ -9,8 +9,8 @@ import SalePerson from "@/components/selectbox/SalePerson";
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
-import CookieBranchSelect from "@/components/selectbox/BranchBPL";
 import VendorByBranch from "@/components/input/VendorByBranch";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -38,14 +38,9 @@ export default function GeneralForm({
   }
   const [cookies] = useCookies(["user"]);
 
-  // Access the user data from cookies.user
   const userData = cookies.user;
-  console.log(userData?.UserBranchAssignment)
-  const bplidValues = userData?.UserBranchAssignment?.map((item: any) => item.BPLID);
-  console.log(bplidValues)
 
-  const BPL = data?.BPL_IDAssignedToInvoice || cookies.user?.Branch <= 0 && 1
-  
+  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -61,12 +56,12 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <CookieBranchSelect
-                CookieBranch={userData?.Branch}
+              <BPLBranchSelect
+                BPdata={userData?.UserBranchAssignment}
                 onChange={(e) =>
                   handlerChange("BPL_IDAssignedToInvoice", e.target.value)
                 }
-                value={data?.BPL_IDAssignedToInvoice}
+                value={BPL}
                 name="BPL_IDAssignedToInvoice"
               />
             </div>
@@ -79,8 +74,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseByBranch
-                Branch={data?.BPL_IDAssignedToInvoice}
-                // onChange={(e) => handlerChange("U_tl_whsdesc", e.target.value)}
+                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
                   handlerChange("U_tl_whsdesc", e.target.value);
