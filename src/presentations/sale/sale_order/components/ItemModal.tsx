@@ -143,7 +143,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <MUITextField label="Item Group" value={this.state?.ItemGroup} />
               {/* <UOMTextField
                 data={getUOMGroupByCode(this.state?.ItemCode)?.Code}
                 value={this.state?.UomAbsEntry}
