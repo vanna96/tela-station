@@ -4,11 +4,12 @@ import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import VendorTextField from "@/components/input/VendorTextField"; // Assuming you have this component imported
 import { ContactEmployee } from "@/models/BusinessParter";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import SalePerson from "@/components/selectbox/SalePerson";
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
+import { useCookies } from "react-cookie";
+import CookieBranchSelect from "@/components/selectbox/BranchBPL";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -34,7 +35,12 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
+  const [cookies] = useCookies(["user"]);
 
+  // Access the user data from cookies.user
+  const userData = cookies.user;
+
+  console.log(data?.BPL_IDAssignedToInvoice)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -49,8 +55,8 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BPLBranchSelect
-                BPdata={data?.vendor?.bpBranchAssignment}
+              <CookieBranchSelect
+                CookieBranch={userData?.Branch}
                 onChange={(e) =>
                   handlerChange("BPL_IDAssignedToInvoice", e.target.value)
                 }

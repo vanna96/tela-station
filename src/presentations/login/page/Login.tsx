@@ -49,6 +49,8 @@ export default function Login() {
       const response: any = await request("POST", "/Login", auth.toJson());
       setCookie("sessionId", response?.data?.SessionId, { maxAge: 2000 });
       const user = await GetCurrentUserRepository.post();
+      // console.log(user)
+      
       setCookie("user", user, { maxAge: 2000 });
       await fetchAllDate();
       navigate("/");

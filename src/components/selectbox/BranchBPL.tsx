@@ -11,21 +11,24 @@ interface BranchProps<T = unknown> {
   value?: any;
   onChange?: SelectInputProps<T>["onChange"];
   disabled?: boolean;
-  BPdata?:any;
+  CookieBranch?: any;
 }
 
-function BPLBranchSelect(props: BranchProps) {
+function CookieBranchSelect(props: BranchProps) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
     queryFn: () => new BranchBPLRepository().get(),
     staleTime: Infinity,
   });
 
-const uniqueBPLIDs = [...new Set(props?.BPdata?.map((e: any) => e.BPLID))];
-
-const filteredBranch = data?.filter((e : any) => uniqueBPLIDs.includes(e.BPLID));
-
-
+  let filteredBranch = data;
+  if (props.CookieBranch === -2) {
+    // When CookieBranch is -2, select the first value from data
+    filteredBranch = data.slice(0, 1); // Slice the first item
+  } else if (props.CookieBranch !== 1) {
+    // When CookieBranch is not -2 or 1, filter based on CookieBranch
+    filteredBranch = data?.filter((e: any) => props?.CookieBranch === e?.BPLID);
+  }
   return (
     <MUISelect
       {...props}
@@ -38,4 +41,8 @@ const filteredBranch = data?.filter((e : any) => uniqueBPLIDs.includes(e.BPLID))
   );
 }
 
-export default BPLBranchSelect;
+export default CookieBranchSelect;
+
+// const uniqueBPLIDs = [...new Set(props?.BPdata?.map((e: any) => e.BPLID))];
+
+// const filteredBranch = data?.filter((e : any) => uniqueBPLIDs.includes(e.BPLID));
