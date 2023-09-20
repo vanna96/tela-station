@@ -80,7 +80,7 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
       },
       {
         accessorKey: "SalesPersonCode",
-        header: "Sales Person Code",
+        header: "Sales Person",
         size: 50,
         Cell: ({ cell }: any) => {
           return new SalePersonRepository()?.find(cell.getValue()).name;
