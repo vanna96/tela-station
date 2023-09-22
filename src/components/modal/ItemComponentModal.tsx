@@ -182,7 +182,7 @@ const ItemModal: FC<ItemModalProps> = ({
       // const warehouseCode = WarehouseCode;
       const LineOfBussiness = e?.U_tl_dim1;
       const RevenueLine = e?.U_tl_dim2;
-      
+
       return {
         ItemCode: e?.ItemCode,
         LineVendor: vendor?.CardCode,
@@ -262,7 +262,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      {/* <h2 className="font-bold text-xl capitalize">{type}</h2> */}
+                      <h2 className="font-bold text-xl capitalize">{type}</h2>
                       <OutlinedInput
                         size="small"
                         key={filterKey}
