@@ -13,9 +13,10 @@ import { Button, IconButton, OutlinedInput } from "@mui/material";
 import { HiSearch, HiX } from "react-icons/hi";
 import shortid from "shortid";
 import WarehouseRepository from "@/services/warehouseRepository";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 export type ItemType = "purchase" | "sale" | "inventory";
-export type ItemGroup = "100" | "101" | "102" | "0" ;
+export type ItemGroup = "100" | "101" | "102" | "0";
 
 interface ItemModalProps {
   open: boolean;
@@ -25,6 +26,7 @@ interface ItemModalProps {
   group?: ItemGroup;
   CardCode?: any;
   WarehouseCode?: any;
+  AbsEntry?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -34,7 +36,7 @@ const ItemModal: FC<ItemModalProps> = ({
   group,
   onOk,
   CardCode,
-  WarehouseCode
+  WarehouseCode,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -82,7 +84,6 @@ const ItemModal: FC<ItemModalProps> = ({
     []
   );
 
-
   const items = useMemo(() => {
     switch (type) {
       case "purchase":
@@ -99,13 +100,13 @@ const ItemModal: FC<ItemModalProps> = ({
   const itemFilter = useMemo(() => {
     switch (group) {
       case "100":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 100 );
+        return items?.filter((e: any) => e?.ItemsGroupCode === 100);
       case "101":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 101 );
+        return items?.filter((e: any) => e?.ItemsGroupCode === 101);
       case "102":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 102 );
-        case "0":
-          return items
+        return items?.filter((e: any) => e?.ItemsGroupCode === 102);
+      case "0":
+        return items;
       default:
         return items;
     }
@@ -121,7 +122,8 @@ const ItemModal: FC<ItemModalProps> = ({
     // console.log(selectItems)
     const uomGroups: any = await new UnitOfMeasurementGroupRepository().get();
     const uoms = await new UnitOfMeasurementRepository().get();
-    const warehouse = await new WarehouseRepository().get()
+    const warehouse = await new WarehouseRepository().get();
+    const wareBinLocation = await new WareBinLocationRepository().get();
 
     selectItems = selectItems.map((e: any) => {
       const vendor = vendors.data?.find(
@@ -152,6 +154,10 @@ const ItemModal: FC<ItemModalProps> = ({
           break;
       }
 
+      const warebinList: any[] = wareBinLocation?.filter(
+        (entry: any) =>
+          WarehouseCode === entry?.WhsCode && entry.ItemCode === e?.ItemCode
+      );
 
       const uomGroup: any = uomGroups.find(
         (row: any) => row.AbsEntry === e?.UoMGroupEntry
@@ -168,19 +174,21 @@ const ItemModal: FC<ItemModalProps> = ({
       const baseUOM: any = uoms.find(
         (row: any) => row.AbsEntry === uomGroup?.BaseUoM
       );
-      
 
       const total = (defaultPrice ?? 0) * 1;
-
+      const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
+        (item: any) => item.UoMType === "iutSales"
+      )?.map((item: any) => item.UoMEntry);
       // const warehouseCode = WarehouseCode;
-
+      const LineOfBussiness = e?.U_tl_dim1;
+      const RevenueLine = e?.U_tl_dim2;
+      
       return {
         ItemCode: e?.ItemCode,
         LineVendor: vendor?.CardCode,
         ItemName: e?.ItemName,
         ItemDescription: e?.ItemName,
         UomEntry: e?.UoMGroupEntry,
-        AbsEntry: e?.AbsEntry,
         ItemGroup: e?.ItemsGroupCode,
         SaleVatGroup: e?.SalesVATGroup,
         PurchaseVatGroup: e?.PurchaseVATGroup,
@@ -191,7 +199,12 @@ const ItemModal: FC<ItemModalProps> = ({
         DiscountPercent: 0,
         LineTotal: total,
         Total: total,
-        WarehouseCode: WarehouseCode ,
+        WarehouseCode: WarehouseCode,
+        BinAbsEntry:
+          warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
+        LineOfBussiness: LineOfBussiness,
+        RevenueLine: RevenueLine,
+        // ProductLine: item.ProductLine ?? "203004",
         // GrossPrice: total + ((total * vatRate) / 100),
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
@@ -199,6 +212,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UomCode: baseUOM?.Code,
         UomName: baseUOM?.Name,
         UomLists: uomLists,
+        SaleUOMLists: UoMEntryValues,
         DocCurrency: e?.DocCurrency,
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
@@ -248,7 +262,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      <h2 className="font-bold text-xl capitalize">{type}</h2>
+                      {/* <h2 className="font-bold text-xl capitalize">{type}</h2> */}
                       <OutlinedInput
                         size="small"
                         key={filterKey}
@@ -368,7 +382,12 @@ export class ItemModalComponent extends React.Component<
   }
 
   onOpen(CardCode?: any, type?: any, WarehouseCode?: any) {
-    this.setState({ isOpen: true, CardCode: CardCode, type: type , WarehouseCode: WarehouseCode});
+    this.setState({
+      isOpen: true,
+      CardCode: CardCode,
+      type: type,
+      WarehouseCode: WarehouseCode,
+    });
   }
 
   handlerOk(items: any[]) {
@@ -385,7 +404,7 @@ export class ItemModalComponent extends React.Component<
         group={this.state.group || this.props.group}
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
-        WarehouseCode = {this.state.WarehouseCode}
+        WarehouseCode={this.state.WarehouseCode}
       />
     );
   }

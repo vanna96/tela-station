@@ -29,19 +29,55 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
-  const filteredSeries = data?.SerieLists?.filter(
-    (serie: any) => serie?.BPLID === data?.BPL_IDAssignedToInvoice
-  );
-
-  if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0].NextNumber;
-  }
   const [cookies] = useCookies(["user"]);
-
+  const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
 
+  //Filtering SO series
+  const filteredSeries = data?.SerieLists?.filter(
+    (series: any) => series?.BPLID === BPL
+  );
+
+  const seriesSO =
+    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+
+  if (filteredSeries[0]?.NextNumber && data) {
+    data.DocNum = filteredSeries[0].NextNumber;
+  }
+
+  // Finding date and to filter DN and INVOICE series Name
+  const currentDate = new Date();
+  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
+  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateA = `23A${formattedMonth}`;
+  const formattedDateB = `23B${formattedMonth}`;
+
+  const seriesDN = (
+    data?.dnSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
+  const seriesIN = (
+    data?.invoiceSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
+  if (data) {
+    data.DNSeries = seriesDN;
+    data.INSeries = seriesIN;
+    data.Series = seriesSO;
+  }
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -52,7 +88,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch
+                Branch <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -82,6 +118,20 @@ export default function GeneralForm({
                 }}
               />
             </div>
+          </div>
+          <div>
+            <input
+              hidden
+              name="DNSeries"
+              value={data.DNSeries}
+              onChange={(e) => handlerChange("DNSeries", e.target.value)}
+            />
+            <input
+              hidden
+              name="INSeries"
+              value={data.INSeries}
+              onChange={(e) => handlerChange("INSeries", e.target.value)}
+            />
           </div>
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
@@ -191,7 +241,8 @@ export default function GeneralForm({
                   loading={data?.isLoadingSerie}
                   value={edit ? data?.Series : filteredSeries[0]?.Series}
                   disabled={edit}
-                  onChange={(e: any) => handlerChange("Series", e.target.value)}
+                  // onChange={(e: any) => handlerChange("Series", e.target.value)}
+                  // onChange={handleSeriesChange}
                 />
                 <div className="-mt-1">
                   <MUITextField
@@ -287,6 +338,21 @@ export default function GeneralForm({
                   handlerChange("U_tl_arbusi", e.target.value);
                   onLineofBusinessChange(e.target.value);
                 }}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                SA Number<span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={data?.U_tl_sarn}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_sarn", e.target.value)
+                }
               />
             </div>
           </div>

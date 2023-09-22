@@ -15,6 +15,7 @@ interface Props<T = unknown> {
   disabled?: boolean;
   inWhichNum?: number;
   label?: string;
+  aliasvalue?: string;
 }
 
 function DistributionRuleText(props: Props) {
@@ -28,14 +29,12 @@ function DistributionRuleText(props: Props) {
     [data, props?.inWhichNum]
   );
 
-  
-
   return (
     <MUISelect
       {...props}
       items={items}
       aliaslabel="FactorDescription"
-      aliasvalue="FactorDescription"
+      aliasvalue={props?.aliasvalue ? "FactorDescription" : "FactorCode"}
       loading={isLoading}
       label={props?.label}
     />

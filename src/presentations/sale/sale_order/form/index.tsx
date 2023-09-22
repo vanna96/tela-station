@@ -19,6 +19,7 @@ import shortid from "shortid";
 import { CircularProgress } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
+import requestHeader from "@/utilies/requestheader";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -47,7 +48,6 @@ class SalesOrderForm extends CoreFormDocument {
       warehouseCode: "",
     } as any;
 
-   
     this.onInit = this.onInit.bind(this);
     this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
     this.handlerSubmit = this.handlerSubmit.bind(this);
@@ -69,7 +69,6 @@ class SalesOrderForm extends CoreFormDocument {
   async onInit() {
     let state: any = { ...this.state };
     let seriesList: any = this.props?.query?.find("orders-series");
-    let defaultSeries: any = this.props?.query?.find("orders-default-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
@@ -78,11 +77,21 @@ class SalesOrderForm extends CoreFormDocument {
       this.props?.query?.set("orders-series", seriesList);
     }
 
-    if (!defaultSeries) {
-      defaultSeries = await DocumentSerieRepository.getDefaultDocumentSerie({
-        Document: "17",
+    let dnSeries: any = this.props?.query?.find("dn-series");
+
+    if (!dnSeries) {
+      dnSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "15",
       });
-      this.props?.query?.set("orders-default-series", defaultSeries);
+      this.props?.query?.set("dn-series", dnSeries);
+    }
+    let invoiceSeries: any = this.props?.query?.find("invoice-series");
+
+    if (!invoiceSeries) {
+      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "13",
+      });
+      this.props?.query?.set("invoice-series", invoiceSeries);
     }
 
     if (this.props.edit) {
@@ -105,7 +114,7 @@ class SalesOrderForm extends CoreFormDocument {
           };
 
           if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
+            AttachmentList = await requestHeader(
               "GET",
               `/Attachments2(${data?.AttachmentEntry})`
             )
@@ -192,14 +201,16 @@ class SalesOrderForm extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["Series"] = defaultSeries.Series;
+          state["dnSeries"] = dnSeries;
+          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["Series"] = defaultSeries.Series;
+      state["dnSeries"] = dnSeries;
+      state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -219,14 +230,26 @@ class SalesOrderForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     try {
-      this.setState({ ...this.state, isSubmitting: false , warehouseCode: 'test' });
+      this.setState({
+        ...this.state,
+        isSubmitting: false,
+        warehouseCode: "",
+      });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
+      // if (!data.BPL_IDAssignedToInvoice) {
+      //   data["error"] = { BPL_IDAssignedToInvoice: "Branch is Required!" };
+      //   throw new FormValidateException("Branch is Required!", 0);
+      // }
       if (!data.CardCode) {
         data["error"] = { CardCode: "Vendor is Required!" };
         throw new FormValidateException("Vendor is Required!", 0);
       }
+      // if (!data.WarehouseCode) {
+      //   data["error"] = { WarehouseCode: "Warehouse is Required!" };
+      //   throw new FormValidateException("Warehouse is Required!", 0);
+      // }
 
       if (!data?.DueDate) {
         data["error"] = { DueDate: "End date is Required!" };
@@ -247,43 +270,47 @@ class SalesOrderForm extends CoreFormDocument {
 
       // items
 
-      const warehouseCodeGet =  this.state.warehouseCode
+      const warehouseCodeGet = this.state.warehouseCode;
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
-        warehouseCodeGet
+        warehouseCodeGet,
+        this.state.lineofBusiness
       );
-      
-
-    
+      // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
+        SOSeries: data?.Series,
+        DNSeries: data?.DNSeries,
+        INSeries: data?.INSeries,
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
         DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
+        Comments: data?.User_Text || null,
+
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
-        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice,
+        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         User_Text: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
+        U_tl_sarn: data?.U_tl_sarn || null,
 
         // content
-        DocType: data?.DocType,
-        Comments: data?.Description || null,
-        RoundingDiffAmount: isUSD ? roundingValue : 0,
-        RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
+        // DocType: data?.DocType,
+        // RoundingDiffAmount: isUSD ? roundingValue : 0,
+        // RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
         // RoundingDiffAmountSC: isUSD ? roundingValue : 0,
-        Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
-        DocumentsOwner: data?.Owner || null,
-        DiscountPercent: data?.DocDiscount,
+        // Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
+        // DocumentsOwner: data?.Owner || null,
+        // DiscountPercent: data?.DocDiscount,
         DocumentLines,
 
         // logistic
@@ -292,6 +319,7 @@ class SalesOrderForm extends CoreFormDocument {
         // TransportationCode: data?.ShippingType,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
+        Address: data?.Address2,
 
         // accounting
         // FederalTaxID: data?.FederalTax || null,
@@ -315,7 +343,7 @@ class SalesOrderForm extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/Orders", payloads)
+      await request("POST", "/script/test/SOSync", payloads)
         .then(
           (res: any) =>
             this.dialog.current?.success(
@@ -381,19 +409,22 @@ class SalesOrderForm extends CoreFormDocument {
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
-      return this.itemModalRef.current?.onOpen(this.state?.CardCode, "sale", this.state.warehouseCode);
-  }
-
-  componentDidUpdate(prevProps : any, prevState : any) {
-    if (prevState.warehouseCode !== this.state.warehouseCode) {
-      const DocumentLines = getItem(
-        this.state?.Items || [],
-        this.state?.DocType,
+      return this.itemModalRef.current?.onOpen(
+        this.state?.CardCode,
+        "sale",
         this.state.warehouseCode
       );
-
-    }
   }
+
+  // componentDidUpdate(prevProps: any, prevState: any) {
+  //   if (prevState.warehouseCode !== this.state.warehouseCode) {
+  //     const DocumentLines = getItem(
+  //       this.state?.Items || [],
+  //       this.state?.DocType,
+  //       this.state.warehouseCode,
+  //     );
+  //   }
+  // }
 
   FormRender = () => {
     const getGroupByLineofBusiness = (lineofBusiness: any) => {
@@ -410,7 +441,6 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-      console.log(this.state.warehouseCode);
 
 
     return (
@@ -526,11 +556,11 @@ class SalesOrderForm extends CoreFormDocument {
               <div className="flex ">
                 <LoadingButton
                   size="small"
-                  sx={{ height: "25px" }}
+                  sx={{ height: "28px" }}
                   variant="contained"
                   disableElevation
                 >
-                  <span className="px-3 text-[11px] py-1 text-white">
+                  <span className="px-3 text-[12px] py-1 text-white">
                     Copy To
                   </span>
                 </LoadingButton>
@@ -538,14 +568,14 @@ class SalesOrderForm extends CoreFormDocument {
               <div className="flex items-center">
                 <LoadingButton
                   type="submit"
-                  sx={{ height: "25px" }}
+                  sx={{ height: "28px" }}
                   className="bg-white"
                   loading={false}
                   size="small"
                   variant="contained"
                   disableElevation
                 >
-                  <span className="px-6 text-[11px] py-4 text-white">Save</span>
+                  <span className="px-6 text-[12px] py-4 text-white">Save</span>
                 </LoadingButton>
               </div>
             </div>
@@ -558,8 +588,14 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any) =>
+const getItem = (
+  items: any,
+  type: any,
+  warehouseCode: any,
+
+) =>
   items?.map((item: any) => {
+
     return {
       ItemCode: item.ItemCode || null,
       ItemDescription: item.ItemName || item.Name || null,
@@ -569,7 +605,11 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       VatGroup: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
-      WarehouseCode: warehouseCode || null,
+      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002" ,
+      RevenueLine: item.RevenueLine ?"203004" : ,
+      ProductLine: item.ProductLine ?? "203004",
+      BinAbsEntry: item.BinAbsEntry ?? 65,
+      WarehouseCode: item?.WarehouseCode || null,
 
       // Currency: "AUD",
     };

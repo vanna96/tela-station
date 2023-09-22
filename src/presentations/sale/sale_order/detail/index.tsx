@@ -476,7 +476,7 @@ function Content(props: any) {
                 {(data?.Currency)}
               </div>
             </div> */}
-            <div className="grid grid-cols-12 py-1">
+            {/* <div className="grid grid-cols-12 py-1">
               <div className="col-span-6 text-gray-700">Rounding</div>
               <div className="col-span-6 text-gray-900">
                 {data?.Currency}
@@ -484,7 +484,7 @@ function Content(props: any) {
                   data?.RoundingDiffAmountFC || data?.RoundingDiffAmount
                 )}
               </div>
-            </div>
+            </div> */}
             <div className="grid grid-cols-12 py-1">
               <div className="col-span-6 text-gray-700">Tax</div>
               <div className="col-span-6 text-gray-900">

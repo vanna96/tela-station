@@ -25,6 +25,11 @@ export default function LogisticForm({
   const handleCheckboxChange = (e: any) => {
     setIsChecked(e.target.checked);
   };
+  console.log(
+    data?.BPAddresses?.filter(
+      ({ addressType }: any) => addressType === "bo_ShipTo"
+    ).concat({ addressName: "" })
+  );
 
   return (
     <>
@@ -50,40 +55,7 @@ export default function LogisticForm({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Ship-To Address
-                </label>
-              </div>
-              <div className="col-span-3">
-                <BPAddress
-                  name="BillTo"
-                  type="bo_BillTo"
-                  disabled={data?.isStatusClose || false}
-                  data={data}
-                  value={data.BillTo}
-                  onChange={(e) => handlerChange("BillTo", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Ship To Address
-                </label>
-              </div>
-              <div className="col-span-3">
-                <TextField
-                  size="small"
-                  fullWidth
-                  multiline
-                  rows={2}
-                  name="Address1"
-                  value={data?.Address}
-                />
-              </div>
-            </div>
+
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <div className="grid grid-cols-5">
@@ -118,6 +90,44 @@ export default function LogisticForm({
                     />
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-2"></div>
+          <div className="col-span-5">
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Ship-To Address
+                </label>
+              </div>
+              <div className="col-span-3">
+                <BPAddress
+                  name="BillTo"
+                  type="bo_BillTo"
+                  // disabled={data?.isStatusClose || false}
+                  data={data?.BPAddresses}
+                  value={data.BillTo}
+                  onChange={(e) => handlerChange("BillTo", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Ship To Address
+                </label>
+              </div>
+              <div className="col-span-3">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  name="Address2"
+                  value={data?.Address2}
+                />
               </div>
             </div>
           </div>

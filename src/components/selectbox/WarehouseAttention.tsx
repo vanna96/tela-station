@@ -17,16 +17,14 @@ function WarehouseAttendTo(props: WarehouseProps) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
     queryFn: () => new WarehouseRepository().get(),
-    // staleTime: Infinity,
+    staleTime: Infinity,
   });
 
-  console.log(data)
 
   const filteredWarehouses = data?.filter(
     (warehouse: any) => warehouse.U_tl_attn_ter === 'Y'
   );
 
-  console.log(filteredWarehouses)
   return (
     <MUISelect
       {...props}

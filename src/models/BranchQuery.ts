@@ -52,7 +52,7 @@ export default class BranchQuery extends Model {
 
         if (!shipAddress) return '';
 
-        return `${shipAddress.street}, ${shipAddress.city}, ${shipAddress.country}.`;
+        return ` ${shipAddress.addressName},${shipAddress.street}, ${shipAddress.city}, ${shipAddress.country}.`;
     }
 
     public getBillToAddress(): string {
@@ -80,6 +80,7 @@ export class BPAddress extends Model {
 
     addressName?: string;
     street?: string;
+    StreetNo?: string;
     city?: string;
     country?: string;
     federalTaxId?: string;
@@ -90,6 +91,7 @@ export class BPAddress extends Model {
 
         this.addressName = json['AddressName'];
         this.street = json['Street'];
+        this.StreetNo = json['StreetNo']
         this.city = json['City'];
         this.country = json['Country'];
         this.federalTaxId = json['FederalTaxID'];
