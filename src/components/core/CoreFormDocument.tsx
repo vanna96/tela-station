@@ -150,7 +150,7 @@ export default abstract class CoreFormDocument extends React.Component<
       tapIndex: 0,
       error: {},
       lineofBusiness: "",
-      warehouseCode: ""
+      warehouseCode: "",
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);

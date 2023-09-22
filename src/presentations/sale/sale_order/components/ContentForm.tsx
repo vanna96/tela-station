@@ -8,8 +8,9 @@ import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
 import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import WarehouseRepository from "@/services/warehouseRepository";
+import UnitOfMeasurementGroupRepository from '../../../../services/actions/unitOfMeasurementGroupRepository';
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+
 
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -170,14 +171,15 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "UomCode",
+        accessorKey: "UomAbsEntry",
         header: "Uom Code",
         visible: true,
         size: 80,
-        // Cell: ({ cell }: any) => {
-        //   if (Object.keys(cell.row.original).length === 1) return null;
-        //   return currencyFormat(cell.getValue());
-        // },
+        Cell: ({ cell }: any) => {
+          return (new UnitOfMeasurementRepository().find(cell.getValue())?.Name);
+          // return new WarehouseRepository()?.find(cell.getValue())?.name;
+
+        },
       },
       {
         accessorKey: "UomGroup",
@@ -201,12 +203,12 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "AbsEntry",
+        accessorKey: "BinAbsEntry",
         header: "Bin Location",
         visible: true,
         size: 80,
         Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
+          // if (Object.keys(cell.row.original).length === 1) return null;
           return cell.getValue();
         },
       },
