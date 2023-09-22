@@ -5,7 +5,7 @@ import request from "@/utilies/request";
 
 export default class VatGroupRepository extends Repository<VatGroup> {
    
-    url = '/VatGroups?$select=Code, Name, Category,VatGroups_Lines';
+    url = '/VatGroups?$select=Code, Name, Category,VatGroups_Lines, Inactive';
     
     // specific key
     key = 'vatGroup';

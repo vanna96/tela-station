@@ -29,6 +29,7 @@ import { BASE_BG_COLOR } from "@/configs";
 import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
 import ProjectRepository from "@/services/actions/projectRepository";
 import { Alert, AlertTitle, TextField } from "@mui/material";
+import CurrencyRepository from "@/services/actions/currencyRepository";
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -43,12 +44,7 @@ export default function Login() {
   const onSubmit = async () => {
     try {
       setLoading(true);
-      const auth = new AuthLogin(
-        company.current,
-        username.current,
-        password.current
-      );
-      // const auth = new AuthLogin("SBODemoAU", "manager", "manager");
+      const auth = new AuthLogin(company.current, username.current, password.current);
       const response: any = await request("POST", "/Login", auth.toJson());
       setCookie("sessionId", response?.data?.SessionId, { maxAge: 2000 });
       const user = await GetCurrentUserRepository.post();
@@ -102,6 +98,7 @@ export default function Login() {
       // vanna new modified
       await new ChartOfAccountsRepository().get(),
       await new ProjectRepository().get(),
+      await new CurrencyRepository().get(),
     ]);
   }
 

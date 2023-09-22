@@ -33,6 +33,8 @@ export default class IncomingPaymentRepository extends Repository<IncomingPaymen
 
   async getCount(query?: any): Promise<number> {
     const { params } = query;
+    console.log(params);
+    
     return await axiosInstance
       .get(`${this.url}/$count`, { params })
       .then((res: any) => res?.data)
