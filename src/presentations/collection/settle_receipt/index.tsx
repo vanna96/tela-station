@@ -65,7 +65,34 @@ export default function ReturnRequestLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/banking/settle-receipt/" + cell.row.original.DocEntry, {
+                let url = "direct-account"
+
+                if (cell.row.original.DocTypte === "rCustomer") {
+                  const paymentInvoices =
+                    cell.row.original?.PaymentInvoices?.reduce(
+                      (prev: number, item: any) => {
+                        return prev + parseFloat(item?.AppliedSys || 0)
+                      },
+                      0,
+                    ) || 0
+
+                  const totalPaymentDue =
+                    (cell.row.original?.PaymentChecks?.reduce(
+                      (prev: number, item: any) => {
+                        return prev + parseFloat(item?.CheckSum || 0)
+                      },
+                      0,
+                    ) || 0) /
+                      (cell.row.original?.DocRate || 1) +
+                    (cell.row.original?.CashSum || 0) +
+                    (cell.row.original?.TransferSum || 0)
+
+                  url =
+                    parseFloat(totalPaymentDue).toFixed(2) === parseFloat(paymentInvoices).toFixed(2)
+                      ? "settle-receipt"
+                      : "payment-account"
+                }
+                route(`/banking/${url}/${cell.row.original.DocEntry}/Edit`, {
                   state: cell.row.original,
                   replace: true,
                 })
@@ -81,7 +108,7 @@ export default function ReturnRequestLists() {
         ),
       },
     ],
-    []
+    [],
   )
 
   const [filter, setFilter] = React.useState("")
@@ -92,29 +119,28 @@ export default function ReturnRequestLists() {
   })
 
   const Count: any = useQuery({
-    queryKey: ["OutgoingPayment"],
+    queryKey: ["IncomingPayments_SettleReceipt"],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/VendorPayments/$count?$select=DocNum${filter}`
-      )
+      const response: any = await request("GET", `${url}/IncomingPayments/$count?$filter=DocType eq 'rCustomer'`)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message)
         })
       return response
     },
-    // staleTime: Infinity,
   })
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: ["pa", `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`],
+    queryKey: [
+      "IncomingPayments_SettleReceipt",
+      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+    ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/VendorPayments?$top=${pagination.pageSize}&$skip=${
+        `${url}/IncomingPayments?$filter=DocType eq 'rCustomer'&$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`,
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -122,8 +148,6 @@ export default function ReturnRequestLists() {
         })
       return response
     },
-    staleTime: Infinity,
-    retry: 1,
   })
 
   const handlerRefresh = React.useCallback(() => {

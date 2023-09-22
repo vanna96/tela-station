@@ -50,7 +50,6 @@ export default function PaymentTable(props: any) {
         <MUIDatePicker
           key={"due_date" + cell.getValue() + cell?.row?.id}
           value={cell.row.original?.due_date || new Date()}
-          disabled={data?.edit}
           onChange={(e: any) =>
             handlerChangeItem(cell?.row?.id || 0, {
               due_date: e,
@@ -66,7 +65,6 @@ export default function PaymentTable(props: any) {
         <MUITextField
           key={"amount" + cell.getValue() + cell?.row?.id}
           type="number"
-          disabled={data?.edit}
           defaultValue={cell.row.original?.amount || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -82,8 +80,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <BankSelect
           key={"bank" + cell.getValue() + cell?.row?.id}
-          value={cell.row.original?.bank || ""}
-          disabled={data?.edit}
+          value={cell.row.original?.bank || 0}
           onChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               bank: e.target.value,
@@ -99,8 +96,7 @@ export default function PaymentTable(props: any) {
         <MUITextField
           key={"check_no" + cell.getValue() + cell?.row?.id}
           type="number"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.check_no || ""}
+          defaultValue={cell.row.original?.check_no || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               check_no: e.target.value,

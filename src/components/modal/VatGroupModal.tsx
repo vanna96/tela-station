@@ -12,10 +12,11 @@ interface VatGroupProps {
   onClose: () => void,
   type: VatCategory,
   onOk: (account: VatGroup) => void,
+  status?: any
 }
 
 
-const VatGroupModal: FC<VatGroupProps> = ({ open, onClose, onOk, type }) => {
+const VatGroupModal: FC<VatGroupProps> = ({ open, onClose, onOk, type, status }) => {
   const { data, isLoading }: any = useQuery({
     queryKey: ["vat-groups"],
     queryFn: () => new VatGroupRepository().get(),
@@ -44,7 +45,11 @@ const VatGroupModal: FC<VatGroupProps> = ({ open, onClose, onOk, type }) => {
 
 
 
-  const items = React.useMemo(() => data?.filter((e: any) => e?.category === type), [data, type]);
+  let items = React.useMemo(() => data?.filter((e: any) => {
+    if(status) return e?.category === type && e?.inActive === status
+    return e?.category === type
+  }), [data, type, status]);
+  
 
   return (
     <Modal

@@ -101,8 +101,8 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                     </div>
                     <div className="col-span-3">
                       <MUITextField
-                        onChange={(e: any) => onChange("GLBankAmount", e.target.value)}
-                        value={data?.GLBankAmount}
+                        onBlur={(e: any) => onChange("GLBankAmount", e.target.value)}
+                        defaultValue={parseFloat(data?.GLBankAmount || 0).toFixed(2)}
                         type="number"
                         disabled={data?.edit}
                       />
@@ -139,8 +139,8 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                     </div>
                     <div className="col-span-3">
                       <MUITextField
-                        onChange={(e: any) => onChange("GLCashAmount", e.target.value)}
-                        value={data?.GLCashAmount}
+                        onBlur={(e: any) => onChange("GLCashAmount", e.target.value)}
+                        defaultValue={parseFloat(data?.GLCashAmount || 0).toFixed(2)}
                         type="number"
                         disabled={data?.edit}
                       />

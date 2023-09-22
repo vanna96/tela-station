@@ -41,7 +41,7 @@ class FormDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0
-      await request("GET", `ReturnRequest(${id})`)
+      await request("GET", `IncomingPayments(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data
           // vendor
@@ -107,7 +107,7 @@ class FormDetail extends Component<any, any> {
                 VatGroup: item.VatGroup || "",
                 UomGroupCode: item.UoMCode || null,
                 UomEntry: item.UoMEntry || null,
-                Currency: "AUD",
+                Currency: sysInfo()?.data?.SystemCurrency,
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
               }
@@ -159,9 +159,7 @@ class FormDetail extends Component<any, any> {
           data={this.state}
           menuTabs={[
             "General",
-            "Logistic",
             "Content",
-            "Accounting",
             "Attachment",
           ].map((e, index) => (
             <MenuButton
@@ -182,10 +180,10 @@ class FormDetail extends Component<any, any> {
             <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
               <div className="grow flex flex-col gap-3 ">
                 <General data={this.state} />
-                <Logistic data={this.state} />
-                <Accounting data={this.state} />
+                {/* <Logistic data={this.state} /> */}
+                {/* <Accounting data={this.state} /> */}
                 <Content data={this.state} />
-                <PreviewAttachment attachmentEntry={this.state.AttachmentEntry} />
+                {/* <PreviewAttachment attachmentEntry={this.state.AttachmentEntry} /> */}
                 <div className="mb-5"></div>
               </div>
             </div>
@@ -281,7 +279,7 @@ function General(props: any) {
           <span className="w-4/12 text-gray-500 text-sm">Customer Name</span>
           <span className="w-8/12 font-medium text-sm">: {props.data.CardName}</span>
         </div>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <span className="w-4/12 text-gray-500 text-sm">Contact Person Code</span>
           <span className="w-8/12 font-medium text-sm">
             :{" "}
@@ -289,13 +287,13 @@ function General(props: any) {
               (e: any) => e.id == props.data.ContactPersonCode
             )?.name ?? "N/A"}
           </span>
-        </div>
-        <div className="flex gap-2">
+        </div> */}
+        {/* <div className="flex gap-2">
           <span className="w-4/12 text-gray-500 text-sm">Customer Ref.No</span>
           <span className="w-8/12 font-medium text-sm">
             : {props.data?.NumAtCard}
           </span>
-        </div>
+        </div> */}
       </div>
       <div className="flex flex-col gap-1">
         <div className="flex gap-2">
@@ -308,12 +306,12 @@ function General(props: any) {
             : {dateFormat(props.data.PostingDate)}
           </span>
         </div>
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <span className="w-4/12 text-gray-500 text-sm">Return Date</span>
           <span className="w-8/12 font-medium text-sm">
             : {dateFormat(props.data.DueDate)}
           </span>
-        </div>
+        </div> */}
         <div className="flex gap-2">
           <span className="w-4/12 text-gray-500 text-sm">Document Date</span>
           <span className="w-8/12 font-medium text-sm">
@@ -325,87 +323,52 @@ function General(props: any) {
   )
 }
 
-function Logistic(props: any) {
-  const { data }: any = props
-  return (
-    <div className="w-full bg-white shadow-lg border px-8 py-6 rounded-lg grid grid-cols-2 sm:grid-cols-1 gap-2 text-[15px] ">
-      <h2 className="col-span-2 border-b pb-2 mb-2 font-bold text-lg  ">
-        Logisitic
-      </h2>
-      <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Ship-to Address</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            : {data.ShippingTo}
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Shipping Type</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            : {new ShippingTypeRepository().find(data?.ShippingType)?.Name ?? "N/A"}
-          </span>
-        </div>
-      </div>
-      <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Bill-to Address</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">: {data.BillingTo}</span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Stamp No</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">: N/A</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function Content(props: any) {
   const { data } = props
-  const itemGroupRepo = new ItemGroupRepository()
+  // const itemGroupRepo = new ItemGroupRepository()
 
-  const itemColumn: any = useMemo(
-    () => [
-      {
-        accessorKey: "ItemCode",
-        header: "Item NO.", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-      },
-      {
-        accessorKey: "ItemName",
-        header: "Item Description",
-        enableClickToCopy: true,
-      },
-      {
-        accessorKey: "Quantity",
-        header: "Quantity",
-        Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
-      },
-      {
-        accessorKey: "UnitPrice",
-        header: "Unit Price",
-        Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
-      },
-      {
-        accessorKey: "ItemGroup",
-        header: "Item Group",
-        Cell: ({ cell }: any) => itemGroupRepo.find(cell.getValue())?.GroupName,
-      },
-      {
-        accessorKey: "UomCode",
-        header: "UoM Group",
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "UnitsOfMeasurement",
-        header: "Item Per Units",
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-    ],
-    [data]
-  )
+  // const itemColumn: any = useMemo(
+  //   () => [
+  //     {
+  //       accessorKey: "ItemCode",
+  //       header: "Item NO.", //uses the default width from defaultColumn prop
+  //       enableClickToCopy: true,
+  //       enableFilterMatchHighlighting: true,
+  //       size: 88,
+  //     },
+  //     {
+  //       accessorKey: "ItemName",
+  //       header: "Item Description",
+  //       enableClickToCopy: true,
+  //     },
+  //     {
+  //       accessorKey: "Quantity",
+  //       header: "Quantity",
+  //       Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
+  //     },
+  //     {
+  //       accessorKey: "UnitPrice",
+  //       header: "Unit Price",
+  //       Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
+  //     },
+  //     {
+  //       accessorKey: "ItemGroup",
+  //       header: "Item Group",
+  //       Cell: ({ cell }: any) => itemGroupRepo.find(cell.getValue())?.GroupName,
+  //     },
+  //     {
+  //       accessorKey: "UomCode",
+  //       header: "UoM Group",
+  //       Cell: ({ cell }: any) => cell.getValue(),
+  //     },
+  //     {
+  //       accessorKey: "UnitsOfMeasurement",
+  //       header: "Item Per Units",
+  //       Cell: ({ cell }: any) => cell.getValue(),
+  //     },
+  //   ],
+  //   [data]
+  // )
 
   return (
     <>
@@ -442,7 +405,7 @@ function Content(props: any) {
             </div>
           </div>
         </div>
-        <MaterialReactTable
+        {/* <MaterialReactTable
           enableColumnActions={false}
           enableColumnFilters={false}
           enablePagination={false}
@@ -493,7 +456,7 @@ function Content(props: any) {
               : {data?.Currency} {(data?.DocTotalFc || data?.DocTotalSys).toFixed(2)}
             </span>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   )

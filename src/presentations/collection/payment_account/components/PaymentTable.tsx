@@ -67,7 +67,7 @@ export default function PaymentTable(props: any) {
           key={"amount" + cell.getValue() + cell?.row?.id}
           type="number"
           disabled={data?.edit}
-          defaultValue={cell.row.original?.amount || 0}
+          defaultValue={parseFloat(cell.row.original?.amount || 0).toFixed(2)}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               amount: e.target.value,
@@ -82,7 +82,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <BankSelect
           key={"bank" + cell.getValue() + cell?.row?.id}
-          value={cell.row.original?.bank || ""}
+          value={cell.row.original?.bank || 0}
           disabled={data?.edit}
           onChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {

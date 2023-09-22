@@ -1,6 +1,5 @@
 import { diffDays, formatDate, getLocalCacheData } from "@/helper/helper"
 import BranchBPLRepository from "@/services/actions/branchBPLRepository"
-import CurrencyRepository from "@/services/actions/currencyRepository"
 import DistributionRuleRepository from "@/services/actions/distributionRulesRepository"
 import request from "@/utilies/request"
 import { createContext, useEffect, useState } from "react"
@@ -23,15 +22,9 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     staleTime: Infinity,
   });
 
-  const { data:CurrencyAPI }: any = useQuery({
-    queryKey: ["Currency"],
-    queryFn: () => new CurrencyRepository().get(),
-    staleTime: Infinity,
-  });
-
   return (
     <>
-      <APIContext.Provider value={{ LineOfBussiness, loadingLineOfBussiness, branchBPL, CurrencyAPI }}>
+      <APIContext.Provider value={{ LineOfBussiness, loadingLineOfBussiness, branchBPL }}>
         {children}
       </APIContext.Provider>
     </>

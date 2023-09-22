@@ -30,15 +30,8 @@ const GLModal: FC<GLModalProps> = ({ open, onClose, type, onOk, CardCode }) => {
   const { data, isLoading }: any = useQuery({
     queryKey: ["accounts"],
     queryFn: () => new GLAccountRepository().get(),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   })
-
-  //   const vendors: any = useQuery({
-  //     queryKey: ["venders_supplier"],
-  //     queryFn: () =>
-  //       new BusinessPartnerRepository().get(`&$filter=CardType eq 'cSupplier'`),
-  //     staleTime: Infinity,
-  //   })
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -61,15 +54,13 @@ const GLModal: FC<GLModalProps> = ({ open, onClose, type, onOk, CardCode }) => {
         header: "Account Name", //uses the default width from defaultColumn prop
       },
     ],
-    []
+    [],
   )
-
-  //   console.log(data)
 
   const handlerConfirm = async () => {
     let selectItems = data
       .filter((i: any, index: any) =>
-        Object.keys(rowSelection).includes(index.toString())
+        Object.keys(rowSelection).includes(index.toString()),
       )
       ?.map((e: any) => {
         return {
@@ -79,76 +70,6 @@ const GLModal: FC<GLModalProps> = ({ open, onClose, type, onOk, CardCode }) => {
         }
       })
     onOk(selectItems)
-
-    // const uomGroups: any = await new UnitOfMeasurementGroupRepository().get()
-    // const uoms = await new UnitOfMeasurementRepository().get()
-    // selectItems = selectItems.map((e: any) => {
-    //   const vendor = vendors.data?.find(
-    //     (bp: any) => bp?.CardCode === CardCode || e?.Mainsupplier
-    //   )
-    //   const defaultPrice = e?.ItemPrices?.find(
-    //     (row: any) => row?.PriceList === vendor?.PriceListNum
-    //   )?.Price
-    //   let vatRate: any = 0
-    //   switch (type) {
-    //     case "purchase":
-    //       vatRate = (new VatGroupRepository().find(e?.PurchaseVATGroup) as VatGroup)
-    //         .vatRate
-    //       break
-    //     case "sale":
-    //       vatRate = (new VatGroupRepository().find(e?.SalesVATGroup) as VatGroup)
-    //         .vatRate
-    //       break
-    //     default:
-    //       vatRate = 0
-    //       break
-    //   }
-    //   const uomGroup: any = uomGroups.find(
-    //     (row: any) => row.AbsEntry === e?.UoMGroupEntry
-    //   )
-    //   let uomLists: any[] = []
-    //   uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-    //     const itemUOM = uoms.find(
-    //       (record: any) => record?.AbsEntry === row?.AlternateUoM
-    //     )
-    //     if (itemUOM) {
-    //       uomLists.push(itemUOM)
-    //     }
-    //   })
-    //   const baseUOM: any = uoms.find(
-    //     (row: any) => row.AbsEntry === uomGroup?.BaseUoM
-    //   )
-    //   const total = (defaultPrice ?? 0) * 1
-    //   return {
-    //     ItemCode: e?.ItemCode,
-    //     LineVendor: vendor?.CardCode,
-    //     ItemName: e?.ItemName,
-    //     ItemDescription: e?.ItemName,
-    //     UomEntry: e?.UoMGroupEntry,
-    //     ItemGroup: e?.ItemsGroupCode,
-    //     SaleVatGroup: e?.SalesVATGroup,
-    //     PurchaseVatGroup: e?.PurchaseVATGroup,
-    //     VatGroup: e?.PurchaseVATGroup,
-    //     VatRate: vatRate,
-    //     Quantity: defaultPrice !== undefined ? 1 : 0,
-    //     UnitPrice: defaultPrice ?? 0,
-    //     DiscountPercent: 0,
-    //     LineTotal: total,
-    //     Total: total,
-    //     // GrossPrice: total + ((total * vatRate) / 100),
-    //     UomGroupAbsEntry: e?.UoMGroupEntry,
-    //     UomGroupCode: uomGroup?.Code,
-    //     UomAbsEntry: baseUOM?.AbsEntry,
-    //     UomCode: baseUOM?.Code,
-    //     UomName: baseUOM?.Name,
-    //     UomLists: uomLists,
-    //     DocCurrency: e?.DocCurrency,
-    //     UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
-    //       (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
-    //     )?.BaseQuantity,
-    //   }
-    // })
-    // onOk(selectItems)
   }
 
   const handlerSearch = (event: any) => setGlobalFilter(event.target.value)
@@ -314,11 +235,11 @@ export class ServiceModalComponent extends React.Component<any> {
         Discount: 0,
         GrossPrice: 0,
         LineTotal: 0,
-        SaleVatGroup: "S1",
+        SaleVatGroup: "",
         Total: 0,
         UnitPrice: 0,
-        VatGroup: "S1",
-        VatRate: 10,
+        VatGroup: "",
+        VatRate: 0,
       }
     })
     this.props.onOk(data)

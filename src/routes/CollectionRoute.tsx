@@ -11,6 +11,13 @@ import SettleReceiptLists from "@/presentations/collection/settle_receipt"
 import SettleReceiptForm from "@/presentations/collection/settle_receipt/form"
 import SettleReceiptDetail from "@/presentations/collection/settle_receipt/detail"
 import { APIContextProvider } from "@/presentations/collection/settle_receipt/context/APIContext"
+import PaymentAccountLists from "@/presentations/collection/payment_account"
+import PaymentAccountForm from "@/presentations/collection/payment_account/form"
+import PaymentAccountDetail from "@/presentations/collection/payment_account/detail"
+import DirectAccountLists from "@/presentations/collection/direct_account"
+import DirectAccountForm from "@/presentations/collection/direct_account/form"
+import DirectAccountDetail from "@/presentations/collection/direct_account/detail"
+
 export default function CollectionRoute() {
   return (
     <Routes>
@@ -48,6 +55,76 @@ export default function CollectionRoute() {
           element={
             <APIContextProvider>
               <SettleReceiptForm />
+            </APIContextProvider>
+          }
+        />
+        <Route
+          path=":id"
+          element={
+            <APIContextProvider>
+              <SettleReceiptDetail />
+            </APIContextProvider>
+          }
+        />
+        <Route
+          path=":id/edit"
+          element={
+            <APIContextProvider>
+              <SettleReceiptForm edit={true} />
+            </APIContextProvider>
+          }
+        />
+      </Route>
+      <Route path="/payment-account">
+        <Route index element={<PaymentAccountLists />} />
+        <Route
+          path="create"
+          element={
+            <APIContextProvider>
+              <PaymentAccountForm />
+            </APIContextProvider>
+          }
+        />
+        <Route
+          path=":id"
+          element={
+            <APIContextProvider>
+              <PaymentAccountDetail />
+            </APIContextProvider>
+          }
+        />
+        <Route
+          path=":id/edit"
+          element={
+            <APIContextProvider>
+              <PaymentAccountForm edit={true} />
+            </APIContextProvider>
+          }
+        />
+      </Route>
+      <Route path="/direct-account">
+        <Route index element={<DirectAccountLists />} />
+        <Route
+          path="create"
+          element={
+            <APIContextProvider>
+              <DirectAccountForm />
+            </APIContextProvider>
+          }
+        />
+        <Route
+          path=":id"
+          element={
+            <APIContextProvider>
+              <DirectAccountDetail />
+            </APIContextProvider>
+          }
+        />
+        <Route
+          path=":id/edit"
+          element={
+            <APIContextProvider>
+              <DirectAccountForm edit={true} />
             </APIContextProvider>
           }
         />

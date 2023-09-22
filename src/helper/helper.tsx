@@ -1,6 +1,7 @@
 import Encryption from "@/utilies/encryption"
 import moment from "moment"
 import request, { axiosInstance, url } from "@/utilies/request"
+import { useQuery } from "react-query"
 
 export const numberWithCommas = (value: any) => {
   value = value.toString()
@@ -27,7 +28,7 @@ export const diffDays = (startDate: any, endDate?: any) => {
   return Math.floor(
     (Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) -
       Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate())) /
-      (1000 * 60 * 60 * 24)
+      (1000 * 60 * 60 * 24),
   )
 }
 
@@ -81,3 +82,10 @@ export const fetchSAPFile = async (uri: any) => {
     })
   return response
 }
+
+export const sysInfo = () =>
+  useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () => request("POST", "CompanyService_GetAdminInfo").then((res:any) => res?.data).catch((err:any)=> console.log(err)),
+    staleTime: Infinity,
+  })

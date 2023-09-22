@@ -80,28 +80,30 @@ export class ServiceModal extends React.Component<ServiceModalProps, any> {
           >
             <div className="grid grid-cols-3 lg:grid-cols-2 sm:grid-cols-1 gap-3">
               <MUITextField
-                label="Planned Amount (LC)"
+                type="number"
+                label="Amount"
                 startAdornment={"USD"}
-                value={currencyFormat(this.state?.UnitPrice)}
+                value={this.state?.UnitPrice}
                 onChange={(event) => this.handChange(event, "UnitPrice")}
               />
-              <MUITextField
+              {/* <MUITextField
                 label="Line Discount"
                 startAdornment={"%"}
                 value={this.state?.Discount}
                 onChange={(event) => this.handChange(event, "Discount")}
-              />
-              <MUITextField
-                label="Open Amount (LC)"
+              /> */}
+              {/* <MUITextField
+                label="Total Amount"
                 startAdornment={"USD"}
                 disabled
                 value={this.state?.LineTotal || this.state?.UnitPrice || 0}
-              />
+              /> */}
               <VatGroupTextField
                 label="Tax Code"
                 value={this.state?.VatGroup}
                 onChange={(event: any) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
+                status={'tNO'}
               />
               {/* <MUITextField
                 label="Cumulative Ordered Amount (LC)"

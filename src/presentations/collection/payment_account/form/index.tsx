@@ -7,17 +7,18 @@ import { FormValidateException } from "@/utilies/error"
 import LoadingProgress from "@/components/LoadingProgress"
 
 import GeneralForm from "./../components/GeneralForm"
-import LogisticForm from "./../components/LogisticForm"
 import ContentForm from "./../components/ContentForm"
 import AttachmentForm from "../components/AttachmentForm"
-import AccountingForm from "../components/AccountingForm"
-import React from "react"
+import React, { useContext } from "react"
 import { ServiceModalComponent } from "../components/ServiceModalComponent"
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper"
 import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
 import { arrayBufferToBlob } from "@/utilies"
 import shortid from "shortid"
+import { APIContext } from "../context/APIContext"
+import PaymentForm from "../components/PaymentForm"
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
 
 class Form extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>()
@@ -31,6 +32,9 @@ class Form extends CoreFormDocument {
       DocContentType: "dDocument_Items",
       ContentLoading: false,
       ExchangeRate: 1,
+      LineofBusiness: "",
+      SalesPersonCode: "",
+      Branch: 1,
     } as any
 
     this.onInit = this.onInit.bind(this)
@@ -39,7 +43,7 @@ class Form extends CoreFormDocument {
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this)
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this)
     this.hanndResetState = this.hanndResetState.bind(this)
-    this.outGoing = this.outGoing.bind(this)
+    this.incoming = this.incoming.bind(this)
   }
 
   componentDidMount(): void {
@@ -54,41 +58,51 @@ class Form extends CoreFormDocument {
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "16",
+        Document: "24",
       })
       this.props?.query?.set("return-series", seriesList)
     }
 
     if (!defaultSeries) {
       defaultSeries = await DocumentSerieRepository.getDefaultDocumentSerie({
-        Document: "16",
+        Document: "24",
       })
       this.props?.query?.set("return-default-series", defaultSeries)
     }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0
-      await request("GET", `Returns(${id})`)
+      await request("GET", `IncomingPayments(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data
           // vendor
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`
+            `/BusinessPartners('${data?.CardCode}')`,
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err))
 
+          // invoice
+          const invoice = await request(
+            "GET",
+            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
+          )
+            .then((res: any) => {
+              return res.data?.value?.sort(
+                (a: any, b: any) =>
+                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
+              )
+            })
+            .catch((err: any) => {})
+
           // attachment
           let AttachmentList: any = []
-          let disabledFields: any = {
-            CurrencyType: true,
-          }
 
           if (data?.AttachmentEntry > 0) {
             AttachmentList = await request(
               "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
+              `/Attachments2(${data?.AttachmentEntry})`,
             )
               .then(async (res: any) => {
                 const attachments: any = res?.data?.Attachments2_Lines
@@ -96,12 +110,12 @@ class Form extends CoreFormDocument {
 
                 const files: any = attachments.map(async (e: any) => {
                   const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
+                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`,
                   )
                   const blob: any = await arrayBufferToBlob(
                     req.data,
                     req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
+                    `${e?.FileName}.${e?.FileExtension}`,
                   )
 
                   return {
@@ -119,69 +133,61 @@ class Form extends CoreFormDocument {
               })
               .catch((error) => console.log(error))
           }
+          // console.log(data);
+          // DocCurrency: data?.Currency,
+          // CashAccount: data?.GLCash || "",
+          // CashSum: data?.GLCashAmount || 0,
+
+          // TransferAccount: data?.GLBank || "",
+          // TransferSum: data?.GLBankAmount || 0,
+
+          // CheckAccount: data?.GLCheck || "",
 
           state = {
             ...data,
-            Description: data?.Comments,
-            Owner: data?.DocumentsOwner,
+            GLCheck: data?.CheckAccount,
+
+            GLCash: data?.CashAccount,
+            GLCashAmount: data?.CashSumFC || data?.CashSum,
+
+            GLBank: data?.TransferAccount,
+            GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
             Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              if (data?.type !== "dDocument_Items") {
-                let plannedAmount = parseFloat(item.UnitPrice || 0)
-                if (item.DiscountPercent > 0)
-                  plannedAmount =
-                    (parseFloat(item.DiscountPercent || 0) *
-                      parseFloat(item.UnitPrice || 0)) /
-                      (100 - parseFloat(item.DiscountPercent || 0)) +
-                    item.UnitPrice
-
+            Items: data?.PaymentInvoices?.map((inv: any) => {
+              // DocumentNo === i.DocEntry || DocEntry === i.DocEntry
+              const find = invoice?.find(
+                ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
+              )
+              if (find) {
                 return {
-                  ItemCode: item.AccountCode,
-                  VatGroup: item.VatGroup || null,
-                  Discount: parseFloat(item.DiscountPercent),
-                  LineTotal: item.UnitPrice,
-                  UnitPrice: plannedAmount,
-                  VatRate: item.TaxPercentagePerRow,
+                  ...find,
+                  ...inv,
+                  TotalPayment: inv?.AppliedFC || inv?.AppliedSys,
                 }
-              }
-
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                UomGroupCode: item.UoMCode || null,
-                UomEntry: item.UoMEntry || null,
-                Currency: "AUD",
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
               }
             }),
             ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
             vendor,
-            DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType }
-              }
-            ),
+            paymentMeanCheckData:
+              data?.PaymentChecks?.map((check: any) => {
+                return {
+                  due_date: check?.DueDate || new Date(),
+                  amount: check?.CheckSum || 0,
+                  bank: check?.BankCode || "",
+                  check_no: check?.CheckNumber,
+                }
+              }) || [],
+            // DocDiscount: data?.DiscountPercent,
+            // BPAddresses: vendor?.bpAddress?.map(
+            //   ({ addressName, addressType }: any) => {
+            //     return { addressName: addressName, addressType: addressType }
+            //   },
+            // ),
+            // disabledFields,
             AttachmentList,
-            disabledFields,
             isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue: data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
-            Edit: true,
+            edit: true,
             PostingDate: data?.DocDate,
-            DueDate: data?.DocDueDate,
             DocumentDate: data?.TaxDate,
           }
         })
@@ -220,18 +226,8 @@ class Form extends CoreFormDocument {
       const { id } = this.props?.match?.params || 0
 
       if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" }
-        throw new FormValidateException("Vendor is Required!", 0)
-      }
-
-      if (!data?.DueDate) {
-        data["error"] = { DueDate: "End date is Required!" }
-        throw new FormValidateException("End date is Required!", 0)
-      }
-
-      if (!data?.Items || data?.Items?.length === 0) {
-        data["error"] = { Items: "Items is missing and must at least one record!" }
-        throw new FormValidateException("Items is missing", 2)
+        data["error"] = { CardCode: "Customer is Required!" }
+        throw new FormValidateException("Customer is Required!", 0)
       }
 
       // attachment
@@ -239,64 +235,88 @@ class Form extends CoreFormDocument {
       const files = data?.AttachmentList?.map((item: any) => item)
       if (files?.length > 0) AttachmentEntry = await getAttachment(files)
 
-      // items
-      const DocumentLines = getItem(data?.Items || [], data?.DocType)
-      const isAUD = (data?.Currency || "AUD") === "AUD"
-      const roundingValue = data?.RoundingValue || 0
-
-      const payloads = {
-        // general
-        DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
-        DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
-        NumAtCard: data?.NumAtCard || null,
-        DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
-        DocRate: data?.ExchangeRate || 0,
-        ContactPersonCode: data?.ContactPersonCode || null,
-        DocumentStatus: data?.DocumentStatus,
-
-        // content
-        DocType: data?.DocType,
-        Comments: data?.Description || null,
-        RoundingDiffAmount: isAUD ? roundingValue : 0,
-        RoundingDiffAmountFC: isAUD ? 0 : roundingValue,
-        // RoundingDiffAmountSC: isAUD ? roundingValue : 0,
-        Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
-        DocumentsOwner: data?.Owner || null,
-        DiscountPercent: data?.DocDiscount,
-        DocumentLines,
-
-        // logistic
-        ShipToCode: data?.ShippingTo || null,
-        PayToCode: data?.BillingTo || null,
-        TransportationCode: data?.ShippingType,
-
-        // accounting
-        FederalTaxID: data?.FederalTax || null,
-        PaymentMethod: data?.PaymentMethod || null,
-        CashDiscountDateOffset: data?.CashDiscount || 0,
-        CreateQRCodeFrom: data?.QRCode || null,
-        PaymentGroupCode: data?.PaymentTermType || null,
-        JournalMemo: data?.JournalRemark,
-        Project: data?.BPProject || null,
-        // attachment
-        AttachmentEntry,
-      }
+      // on Edit
 
       if (id) {
-        return await request("PATCH", `/Returns(${id})`, payloads)
-          .then((res: any) =>
-            this.dialog.current?.success("Update Successfully.", id)
+        return await request("PATCH", `/IncomingPayments(${id})`, {
+          TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
+        })
+          .then(
+            (res: any) => this.dialog.current?.success("Update Successfully.", id),
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }))
       }
 
-      await request("POST", "/Returns", payloads)
-        .then((res: any) =>
-          this.dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
+      // PaymentChecks
+      const PaymentChecks = data?.paymentMeanCheckData?.map((check: any) => {
+        return {
+          DueDate: check?.due_date || new Date(),
+          CheckSum: check?.amount || 0,
+          BankCode: check?.bank || "",
+          CheckNumber: check?.check_no || "",
+        }
+      })
+
+      // items
+      const PaymentInvoices =
+        data?.Items?.filter(
+          ({ TotalPayment, DocTotal }: any) =>
+            parseFloat(TotalPayment || 0) > 0 ||
+            (DocTotal < 0 && parseFloat(TotalPayment || 0) !== 0),
+        )?.map((item: any) => {
+          return {
+            DocEntry: item.DocEntry,
+            DocNum: item.DocumentNo,
+            SumApplied:
+              item?.FCCurrency === sysInfo()?.data?.SystemCurrency
+                ? parseFloat(item.TotalPayment).toFixed(2) || 0
+                : 0,
+            AppliedSys:
+              item?.FCCurrency === sysInfo()?.data?.SystemCurrency
+                ? parseFloat(item.TotalPayment).toFixed(2) || 0
+                : 0,
+            AppliedFC:
+              item?.FCCurrency !== sysInfo()?.data?.SystemCurrency
+                ? parseFloat(Math.abs(item.TotalPayment).toString()).toFixed(2)
+                : 0,
+            DiscountPercent: item?.Discount || 0,
+            InvoiceType: item?.InvoiceType,
+          }
+        }) || []
+
+      const payload = {
+        // general
+        Series: data?.Series || null,
+        DocTypte: `rCustomer`,
+        DocDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
+        TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
+        CardCode: data?.CardCode,
+        CardName: data?.CardName,
+        BPLID: data?.Branch,
+
+        DocCurrency: data?.Currency,
+        CashAccount: data?.GLCash || "",
+        CashSum: data?.GLCashAmount || 0,
+
+        TransferAccount: data?.GLBank || "",
+        TransferSum: data?.GLBankAmount || 0,
+
+        CheckAccount: data?.GLCheck || "",
+        PaymentChecks: PaymentChecks,
+        ControlAccount: data?.ControlAccount,
+
+        PaymentInvoices,
+        AttachmentEntry,
+      }
+
+      await request("POST", "/IncomingPayments", payload)
+        .then(
+          (res: any) =>
+            this.dialog.current?.success(
+              "Create Successfully.",
+              res?.data?.DocEntry,
+            ),
         )
         .catch((err: any) => this.dialog.current?.error(err.message))
         .finally(() => this.setState({ ...this.state, isSubmitting: false }))
@@ -392,23 +412,17 @@ class Form extends CoreFormDocument {
           General
         </MenuButton>
         <MenuButton
+          active={this.state.tapIndex === 1}
+          onClick={() => this.handlerChangeMenu(1)}
+        >
+          Payment Means
+        </MenuButton>
+        <MenuButton
           active={this.state.tapIndex === 2}
           onClick={() => this.handlerChangeMenu(2)}
         >
           Content
         </MenuButton>
-        {/* <MenuButton
-          active={this.state.tapIndex === 1}
-          onClick={() => this.handlerChangeMenu(1)}
-        >
-          Logistic
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 4}
-          onClick={() => this.handlerChangeMenu(4)}
-        >
-          Accounting
-        </MenuButton> */}
         <MenuButton
           active={this.state.tapIndex === 3}
           onClick={() => this.handlerChangeMenu(3)}
@@ -423,34 +437,82 @@ class Form extends CoreFormDocument {
     this.serviceRef.current?.onOpen(this.state?.CardCode)
   }
 
-  outGoing: any = async (data: any) =>
+  incoming: any = async (data: any, LineOfBussiness: any) => {
+    let filter: any = []
+    if (!this.state?.CardCode) return
+    //
+    if (this.state?.CardCode) filter.push(`BPCode eq '${this.state?.CardCode}'`)
+    if (this.state?.Branch) filter.push(`BPLId eq ${this.state?.Branch}`)
+    if (
+      !(
+        (this.state?.SalesPersonCode || "") == "" ||
+        this.state?.SalesPersonCode == "-1"
+      )
+    )
+      filter.push(` SlpCode eq ${this.state?.SalesPersonCode}`)
+    if (this.state?.Lob) {
+      const FactorDescription = LineOfBussiness?.find(
+        ({ FactorCode }: any) => FactorCode === this.state?.Lob,
+      )?.FactorDescription
+      filter.push(` NumAtCard eq '${FactorDescription}'`)
+    }
+
     await request(
       "GET",
-      `/view.svc/${
-        data?.DocType === "rSupplier"
-          ? "Biz_OutGoing_A_P_B1SLQuery"
-          : "Biz_OutGoing_A_R_B1SLQuery"
-      }?$filter=DocStatus eq 'O'  and BPCode eq '${data?.CardCode}'`
+      `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and ${filter.join(
+        " and ",
+      )}`,
     )
       .then((res: any) => {
-        const results = res.data?.value?.sort(
-          (a: any, b: any) => parseInt(b.OverDueDays) - parseInt(a.OverDueDays)
-        )
+        const results = res.data?.value
+          ?.sort(
+            (a: any, b: any) => parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
+          )
+          .filter(({ DocStatus }: any) => DocStatus === "O")
         this.setState({ ...this.state, Items: results, ContentLoading: false })
       })
       .catch((err: any) => this.setState({ ...this.state, ContentLoading: false }))
+  }
 
   FormRender = () => {
+    let { LineOfBussiness }: any = useContext(APIContext)
+    let CardCode: any = this.state?.CardCode || ""
+    let BranchIDD: any = this.state?.Branch || ""
+    let Lob: any = this.state?.Lob || ""
+    let SalesPersonCode: any = this.state?.SalesPersonCode || ""
+    let SerieListsData: any = this.state?.SerieLists || []
+
+    let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode })
+
     React.useEffect(() => {
-      if (this.state?.CardCode) {
-        this.setState({
-          ...this.state,
-          ContentLoading: true,
-          JournalMemo: `Outgoing Payments - ${this.state?.CardCode}`,
-        })
-        this.outGoing(this.state)
+      if (!this.props.edit) {
+        if (
+          CardCode &&
+          (prevData?.CardCode !== CardCode ||
+            prevData?.Lob !== Lob ||
+            prevData?.SalesPersonCode !== SalesPersonCode)
+        ) {
+          this.setState({
+            ...this.state,
+            ContentLoading: true,
+          })
+          this.incoming(this.state, LineOfBussiness)
+        }
+
+        if (SerieListsData.length > 0 && prevData?.BranchIDD !== BranchIDD) {
+          const serie = this.state?.SerieLists?.find(
+            ({ BPLID }: any) => BPLID === BranchIDD,
+          )
+          this.setState({
+            ...this.state,
+            Series: serie?.Series,
+            DocNum: serie?.NextNumber,
+            ContentLoading: true,
+          })
+          this.incoming(this.state, LineOfBussiness)
+        }
       }
-    }, [this.state?.CardCode])
+    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
 
     return (
       <>
@@ -480,12 +542,18 @@ class Form extends CoreFormDocument {
                 )}
 
                 {this.state.tapIndex === 1 && (
-                  <LogisticForm
+                  <PaymentForm
                     data={this.state}
-                    edit={this.props?.edit}
-                    handlerChange={(key, value) => {
-                      this.handlerChange(key, value)
+                    handlerAddItem={() => {
+                      this.hanndAddNewItem()
                     }}
+                    handlerRemoveItem={(items: any[]) =>
+                      this.setState({ ...this.state, Items: items })
+                    }
+                    handlerChangeItem={this.handlerChangeItems}
+                    onChangeItemByCode={this.handlerChangeItemByCode}
+                    onChange={this.handlerChange}
+                    ContentLoading={this.state.ContentLoading}
                   />
                 )}
 
@@ -513,15 +581,6 @@ class Form extends CoreFormDocument {
                     }}
                   />
                 )}
-                {this.state.tapIndex === 4 && (
-                  <AccountingForm
-                    data={this.state}
-                    edit={this.props?.edit}
-                    handlerChange={(key, value) => {
-                      this.handlerChange(key, value)
-                    }}
-                  />
-                )}
               </div>
             </>
           )}
@@ -535,10 +594,10 @@ class Form extends CoreFormDocument {
                   variant="contained"
                   disableElevation
                 >
-                  <span className="px-3 text-[11px] py-1 text-white">Copy To</span>
+                  <span className="px-3 text-[11px] py-1 text-white">Cancel</span>
                 </LoadingButton>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center space-x-4">
                 <LoadingButton
                   type="submit"
                   sx={{ height: "25px" }}
@@ -548,7 +607,9 @@ class Form extends CoreFormDocument {
                   variant="contained"
                   disableElevation
                 >
-                  <span className="px-6 text-[11px] py-4 text-white">Save</span>
+                  <span className="px-6 text-[11px] py-4 text-white">
+                    {this.props.edit ? "Update" : "Save"}
+                  </span>
                 </LoadingButton>
               </div>
             </div>
@@ -561,26 +622,10 @@ class Form extends CoreFormDocument {
 
 export default withRouter(Form)
 
-const getItem = (items: any, type: any) =>
-  items?.map((item: any) => {
-    if (type !== "dDocument_Items")
-      return {
-        AccountCode: item.ItemCode,
-        VatGroup: item.VatGroup || null,
-        DiscountPercent: parseFloat(item.Discount),
-        Currency: "AUD",
-        UnitPrice: item.LineTotal,
-      }
-
-    return {
-      ItemCode: item.ItemCode || null,
-      ItemDescription: item.ItemName || item.Name || null,
-      Quantity: item.Quantity || null,
-      UnitPrice: item.UnitPrice || item.total,
-      DiscountPercent: item.Discount || 0,
-      VatGroup: item.VatGroup || item.taxCode || null,
-      UoMCode: item.UomGroupCode || null,
-      UoMEntry: item.UomEntry || null,
-      Currency: "AUD",
-    }
+function usePrevious(value: any) {
+  const ref: any = React.useRef()
+  React.useEffect(() => {
+    ref.current = value
   })
+  return ref.current
+}

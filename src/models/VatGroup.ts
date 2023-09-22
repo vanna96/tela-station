@@ -6,6 +6,7 @@ export default class VatGroup extends Model {
     name: string;
     vatRate: number;
     category: string;
+    inActive: string;
 
     constructor(json: any) {
         super();
@@ -13,6 +14,7 @@ export default class VatGroup extends Model {
         this.name = json['Name'];
         this.vatRate = json['VatGroups_Lines'][0]?.Rate;
         this.category = json['Category']?.replace('bovc', "");
+        this.inActive = json['Inactive'];
     }
     
     
