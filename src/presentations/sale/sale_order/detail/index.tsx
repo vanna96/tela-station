@@ -190,7 +190,7 @@ class DeliveryDetail extends Component<any, any> {
             <div></div>
             <Breadcrumb childBreadcrum={childBreadcrum} />
           </div> */}
-          <DocumentHeaderComponent data={this.state} menuTabs/>
+          <DocumentHeaderComponent data={this.state} menuTabs />
 
           <div className="w-full h-full flex flex-col gap-4">
             {this.state.loading ? (
@@ -457,7 +457,7 @@ function Content(props: any) {
                 <div className="grid grid-cols-12">
                   <div className="col-span-8 text-gray-700">Discount</div>
                   <div className="col-span-4 text-gray-900 ">
-                   % {(data?.DocDiscount) || 0.0}
+                    % {data?.DocDiscount || 0.0}
                   </div>
                 </div>
               </div>
@@ -522,32 +522,48 @@ function Logistic(props: any) {
                   ?.WarehouseName ?? "N/A"}
               </div>
             </div>
+
             <div className="grid grid-cols-12 py-2">
-              <div className="col-span-4">
-                <label htmlFor="Code" className="text-gray-700 ">
-                  Attention Terminal
-                </label>
+              <div className="col-span-6">
+                <div className="grid grid-cols-12">
+                  <div className="col-span-9">
+                    <label htmlFor="Code" className="text-gray-700 ">
+                      Attention Terminal
+                    </label>
+                  </div>
+                  <div className="col-span-3">
+                    <Checkbox
+                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
+                      checked={props?.data?.U_tl_grsuppo ? true : false}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="col-span-1">
-                <Checkbox
-                  sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
-                  checked={props?.data?.U_tl_grsuppo ? true : false}
-                />
-              </div>
-              <div className="col-span-7">
-                <div className="grid grid-cols-1 text-gray-900">
-                  {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                    ?.WarehouseName ?? "N/A"}
+              {/* <div className="col-span-1">
+               
+              </div> */}
+              <div className="col-span-6">
+                <div className="grid grid-cols-1 ">
+                  <div className="-mt-1">
+                    {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
+                      ?.WarehouseName ?? "N/A"}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5 ">
+            {/* <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Ship To Address</div>
+              <div className="col-span-1 text-gray-900">
+                {props?.data?.BilliAddressngTo ?? "N/A"}
+              </div>
+            </div> */}
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Ship To Address</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.BillingTo ?? "N/A"}
+                {props?.data?.Address ?? "N/A"}
               </div>
             </div>
           </div>
