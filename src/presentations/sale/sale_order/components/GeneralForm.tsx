@@ -11,6 +11,7 @@ import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -92,13 +93,18 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BPLBranchSelect
+              {/* <BPLBranchSelect
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) =>
                   handlerChange("BPL_IDAssignedToInvoice", e.target.value)
                 }
                 value={BPL}
                 name="BPL_IDAssignedToInvoice"
+              /> */}
+              <BranchAutoComplete
+                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                value={BPL}
+                // name="BPL_IDAssignedToInvoice"
               />
             </div>
           </div>

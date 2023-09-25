@@ -606,7 +606,7 @@ const getItem = (
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002" ,
-      RevenueLine: item.RevenueLine ?"203004" : ,
+      RevenueLine: item.RevenueLine ??"203004"  ,
       ProductLine: item.ProductLine ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || null,
