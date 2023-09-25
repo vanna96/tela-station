@@ -38,17 +38,33 @@ export default class BusinessPartnerRepository extends Repository<BusinessPartne
 
     async get<BusinessPartner>(query?: string | undefined): Promise<BusinessPartner[]> {
         // return await request('GET', this.url + "?$select=" + this.queryList.join(',') + query ?? '').then((res: any) => res?.data?.value).catch((e) => {
-            return await request('GET', this.url + "?$top=100" +  "&$select=" + this.queryList.join(',') + query ?? '').then((res: any) => res?.data?.value).catch((e) => {
+        return await request('GET', this.url + "?$top=100" + "&$select=" + this.queryList.join(',') + query ?? '').then((res: any) => res?.data?.value).catch((e) => {
             throw new Error(e);
         });
     }
 
-    async find<T>(id: string, query?: string[]): Promise<any> {
-        return await request('GET', `${this.url}('${id}')?$select=${query?.join(',')}`).then((res: any) => new BusinessPartner(res.data))
-            .catch((e: Error) => {
-                throw new Error(e.message);
+    async find<T>(cardCode: string): Promise<any> {
+        const filter = `$filter=CardCode eq '${cardCode}'`;
+        const selectFields = this.queryList.join(',');
+
+        return await request('GET', `${this.url}?${filter}&$select=${selectFields}`)
+            .then((res: any) => {
+                const data = res?.data?.value;
+                if (Array.isArray(data) && data.length > 0) {
+                    // If there are results, return the first item as an object
+                    return data[0];
+                } else {
+                    // If there are no results, return null or handle it as needed
+                    return null;
+                }
             })
+            .catch((e) => {
+                throw new Error(e);
+            });
     }
+
+
+
 
     async findContactEmployee<T>(id: string): Promise<any> {
         return await request('GET', `${this.url}('${id}')?$select=${['EmailAddress', 'Phone1', 'ContactEmployees', 'BPAddresses', 'ShipToDefault'].join(',')}`).then((res: any) => new BusinessPartner(res.data))

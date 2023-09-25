@@ -1,7 +1,9 @@
 import FormCard from "@/components/card/FormCard";
 import BPAddress from "@/components/selectbox/BPAddress";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
+import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
+import { TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
 
@@ -23,6 +25,11 @@ export default function LogisticForm({
   const handleCheckboxChange = (e: any) => {
     setIsChecked(e.target.checked);
   };
+  console.log(
+    data?.BPAddresses?.filter(
+      ({ addressType }: any) => addressType === "bo_ShipTo"
+    ).concat({ addressName: "" })
+  );
 
   return (
     <>
@@ -30,8 +37,8 @@ export default function LogisticForm({
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>Information</h2>
         </div>
-        <div className="grid grid-cols-2">
-          <div className="pl-4 pr-20">
+        <div className="grid grid-cols-12 ">
+          <div className="col-span-5">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -42,12 +49,53 @@ export default function LogisticForm({
                 <WarehouseSelect
                   // Branch={data?.BPL_IDAssignedToInvoice}
                   value={data.U_tl_dnsuppo}
-                  onChange={(e) => handlerChange("U_tl_dnsuppo", e.target.value)}
+                  onChange={(e) =>
+                    handlerChange("U_tl_dnsuppo", e.target.value)
+                  }
                 />
               </div>
             </div>
+
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <div className="grid grid-cols-5">
+                  <div className="col-span-4">
+                    <label htmlFor="Code" className="text-gray-500 ">
+                      Attention Terminal
+                    </label>
+                  </div>
+                  <div className="col-span-1">
+                    <Checkbox
+                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
+                      value={data?.U_tl_attn_ter}
+                      checked={isChecked}
+                      onChange={handleCheckboxChange}
+                    />
+                  </div>
+                </div>
+              </div>
+              {/* <div className="col-span-1">
+               
+              </div> */}
+              <div className="col-span-3">
+                <div className="grid grid-cols-1 ">
+                  <div className="-mt-1">
+                    <WarehouseAttendTo
+                      name="AttenTerminal"
+                      value={data.U_tl_grsuppo}
+                      onChange={(e) =>
+                        handlerChange("U_tl_grsuppo", e.target.value)
+                      }
+                      disabled={!isChecked}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="pl-20">
+
+          <div className="col-span-2"></div>
+          <div className="col-span-5">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -58,45 +106,28 @@ export default function LogisticForm({
                 <BPAddress
                   name="BillTo"
                   type="bo_BillTo"
-                  disabled={data?.isStatusClose || false}
-                  data={data}
+                  // disabled={data?.isStatusClose || false}
+                  data={data?.BPAddresses}
                   value={data.BillTo}
                   onChange={(e) => handlerChange("BillTo", e.target.value)}
                 />
               </div>
             </div>
-          </div>
-        </div>
-        {/*  */}
-        <div className="grid grid-cols-2">
-          <div className="pl-4 pr-20">
-            <div className="grid grid-cols-12 py-2">
-              <div className="col-span-4">
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Attention Terminal
+                  Ship To Address
                 </label>
               </div>
-              <div className="col-span-1">
-                <Checkbox
-                  sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
-                  value={data?.U_tl_attn_ter}
-                  checked={isChecked}
-                  onChange={handleCheckboxChange}
+              <div className="col-span-3">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  rows={2}
+                  name="Address2"
+                  value={data?.Address2}
                 />
-              </div>
-              <div className="col-span-7">
-                <div className="grid grid-cols-1 ">
-                  <div className="-mt-1">
-                    <WarehouseSelect
-                      name="AttenTerminal"
-                      value={data.U_tl_grsuppo}
-                      onChange={(e) =>
-                        handlerChange("U_tl_grsuppo", e.target.value)
-                      }
-                      disabled={!isChecked}
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>

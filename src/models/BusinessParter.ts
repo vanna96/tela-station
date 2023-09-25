@@ -119,7 +119,7 @@ export default class BusinessPartner extends Model {
 
         if (!shipAddress) return '';
 
-        return `${shipAddress.street}, ${shipAddress.city}, ${shipAddress.country}.`;
+        return ` ${shipAddress.StreetNo} ${shipAddress.BuildingFloorRoom}.`;
     }
 
     public getBillToAddress(): string {
@@ -151,16 +151,20 @@ export class BPAddress extends Model {
     country?: string;
     federalTaxId?: string;
     addressType?: string;
+    StreetNo?: string;
+    BuildingFloorRoom?: string;
 
     constructor(json: any) {
         super();
 
         this.addressName = json['AddressName'];
+        this.BuildingFloorRoom = json['BuildingFloorRoom']
         this.street = json['Street'];
         this.city = json['City'];
         this.country = json['Country'];
         this.federalTaxId = json['FederalTaxID'];
         this.addressType = json['AddressType'];
+        this.StreetNo = json['StreetNo']
     }
 
 

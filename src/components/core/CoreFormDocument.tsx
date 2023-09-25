@@ -77,7 +77,8 @@ export interface CoreFormDocumentState {
     error: any,
     tapIndex: number;
     ContentLoading?: any,
-    lineofBusiness?:any
+    lineofBusiness?:any,
+    warehouseCode : string;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -149,7 +150,8 @@ export default abstract class CoreFormDocument extends React.Component<
       disable: {},
       tapIndex: 0,
       error: {},
-      lineofBusiness: ""
+      lineofBusiness: "",
+      warehouseCode: "",
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);

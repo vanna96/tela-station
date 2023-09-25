@@ -14,7 +14,7 @@ interface BranchProps<T = unknown> {
   BPdata?:any;
 }
 
-function BPLBranchSelect(props: BranchProps) {
+function  BPLBranchSelect(props: BranchProps) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
     queryFn: () => new BranchBPLRepository().get(),

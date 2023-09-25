@@ -1,19 +1,19 @@
 import Repository from "@/astractions/repository";
-import Warehouse from "@/models/Warehouse";
+import WareBinLocation from "@/models/WareBinLocation";
 import Encryption from "@/utilies/encryption";
 import request from "@/utilies/request";
 
-export default class WarehouseRepository extends Repository<Warehouse> {
+export default class WareBinLocationRepository extends Repository<WareBinLocation> {
     static get() {
-      throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
-   
-    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter';
-    
-    // specific key
-    key = 'warehouse';
 
-    async get<Warehouse>(query?: string | undefined): Promise<Warehouse[]> {
+    url = '/sml.svc/BIZ_GET_BIN_QUERY';
+
+    // specific key
+    key = 'WareBinLocation';
+
+    async get<WareBinLocation>(query?: string | undefined): Promise<WareBinLocation[]> {
         const data = localStorage.getItem(this.key);
         if (data) {
             const warehouse = JSON.parse(Encryption.decrypt(this.key, data));
@@ -27,7 +27,7 @@ export default class WarehouseRepository extends Repository<Warehouse> {
     }
 
 
-    find<Warehouse>(code: number | undefined | null): any {
+    find<WareBinLocation>(code: number | undefined | null): any {
         const data = localStorage.getItem(this.key);
         if (!data) return {};
         const warehouse: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
@@ -35,14 +35,14 @@ export default class WarehouseRepository extends Repository<Warehouse> {
     }
 
 
-    post(payload: any, isUpdate?: boolean | undefined, id?: any): Promise<Warehouse> {
+    post(payload: any, isUpdate?: boolean | undefined, id?: any): Promise<WareBinLocation> {
         throw new Error("Method not implemented.");
     }
-    patch(id: any, payload: any): Promise<Warehouse> {
+    patch(id: any, payload: any): Promise<WareBinLocation> {
         throw new Error("Method not implemented.");
     }
 
-    delete(id: any): Promise<Warehouse> {
+    delete(id: any): Promise<WareBinLocation> {
         throw new Error("Method not implemented.");
     }
 }

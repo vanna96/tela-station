@@ -14,7 +14,7 @@ import { HiSearch, HiX } from "react-icons/hi";
 import shortid from "shortid";
 
 export type ItemType = "purchase" | "sale" | "inventory";
-export type ItemGroup = "100" | "101" | "102" | "0" ;
+export type ItemGroup = "100" | "101" | "102" | "0";
 
 interface ItemModalProps {
   open: boolean;
@@ -41,7 +41,7 @@ const ItemModal: FC<ItemModalProps> = ({
     queryFn: () => new itemRepository().get(),
     staleTime: Infinity,
   });
-  console.log(data)
+  console.log(data);
 
   const vendors: any = useQuery({
     queryKey: ["venders_supplier"],
@@ -78,7 +78,6 @@ const ItemModal: FC<ItemModalProps> = ({
     []
   );
 
-
   const items = useMemo(() => {
     switch (type) {
       case "purchase":
@@ -95,13 +94,13 @@ const ItemModal: FC<ItemModalProps> = ({
   const itemFilter = useMemo(() => {
     switch (group) {
       case "100":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 100 );
+        return items?.filter((e: any) => e?.ItemsGroupCode === 100);
       case "101":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 101 );
+        return items?.filter((e: any) => e?.ItemsGroupCode === 101);
       case "102":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 102 );
-        case "0":
-          return items
+        return items?.filter((e: any) => e?.ItemsGroupCode === 102);
+      case "0":
+        return items;
       default:
         return items;
     }
@@ -161,6 +160,14 @@ const ItemModal: FC<ItemModalProps> = ({
 
       const total = (defaultPrice ?? 0) * 1;
 
+      const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
+        (item: any) => item.UoMType === "iutSales"
+      )?.map((item: any) => item.UoMEntry);
+
+      // const saleUOM: any[] = [];
+
+      // e?.ItemUnitOfMeasurementCollection?.find;
+
       return {
         ItemCode: e?.ItemCode,
         LineVendor: vendor?.CardCode,
@@ -184,6 +191,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UomCode: baseUOM?.Code,
         UomName: baseUOM?.Name,
         UomLists: uomLists,
+        SaleUOMLists: UoMEntryValues,
         DocCurrency: e?.DocCurrency,
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM

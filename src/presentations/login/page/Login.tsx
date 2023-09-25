@@ -30,6 +30,7 @@ import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsReposit
 import ProjectRepository from "@/services/actions/projectRepository";
 import { Alert, AlertTitle, TextField } from "@mui/material";
 import CurrencyRepository from "@/services/actions/currencyRepository";
+import WareBinLocationRepository from '../../../services/whBinLocationRepository';
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -48,6 +49,8 @@ export default function Login() {
       const response: any = await request("POST", "/Login", auth.toJson());
       setCookie("sessionId", response?.data?.SessionId, { maxAge: 2000 });
       const user = await GetCurrentUserRepository.post();
+      // console.log(user)
+      
       setCookie("user", user, { maxAge: 2000 });
       await fetchAllDate();
       navigate("/");
@@ -99,6 +102,7 @@ export default function Login() {
       await new ChartOfAccountsRepository().get(),
       await new ProjectRepository().get(),
       await new CurrencyRepository().get(),
+      await new WareBinLocationRepository().get()
     ]);
   }
 

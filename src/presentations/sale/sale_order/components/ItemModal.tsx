@@ -7,6 +7,11 @@ import UOMTextField from "@/components/input/UOMTextField";
 import { getUOMGroupByCode } from "@/helpers";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+import WareBinSelect from "@/components/selectbox/WareBinSelect";
+import WareBinLocation from "@/components/selectbox/WareBinLocation";
+import { useQuery } from "react-query";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -77,6 +82,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
+
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -141,12 +147,17 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <MUITextField label="Item Group" value={this.state?.ItemGroup} />
               {/* <UOMTextField
                 data={getUOMGroupByCode(this.state?.ItemCode)?.Code}
                 value={this.state?.UomAbsEntry}
               /> */}
-              <MUITextField label="UOM Code" value={this.state?.UomCode} />
+              {/* <MUITextField label="UOM Code" value={this.state?.UomLists} /> */}
+              <UOMSelect
+                label="UOM Code"
+                value={this.state?.UomAbsEntry}
+                filterAbsEntry={this.state.SaleUOMLists}
+                onChange={(event) => this.handChange(event, "UomAbsEntry")}
+              />
               <WarehouseSelect
                 label="Warehouse Code"
                 value={this.state?.WarehouseCode}
@@ -156,17 +167,36 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Item Per Unit"
                 value={this.state?.UnitOfMeasuremnt}
               /> */}
+              <WareBinLocation
+                itemCode={this.state.ItemCode}
+                Whse={this.state.WarehouseCode}
+                value={this.state.BinAbsEntry}
+                label="Bin Location"
+                onChange={(event) => this.handChange(event, "BinAbsEntry")}
+              />
 
               <DistributionRuleText
+                label="Revenue Line"
+                inWhichNum={1}
+                aliasvalue="FactorCode"
+                value={this.state.LineOfBussiness}
+                onChange={(event) => this.handChange(event, "LineOfBussiness")}
+              />
+
+              <DistributionRuleText
+                label="Revenue Line"
                 inWhichNum={2}
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
-                label="Business Line"
+                aliasvalue="FactorCode"
+                value={this.state?.RevenueLine}
+                onChange={(event) => this.handChange(event, "RevenueLine")}
               />
               <DistributionRuleText
                 label="Product Line"
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
+                inWhichNum={3}
+                aliasvalue="FactorCode"
+                value={this.state?.ProductLine}
+                onChange={(event) => this.handChange(event, "ProductLine")}
               />
-              <DistributionRuleText label="Revenue Line" />
             </div>
           </div>
         </>

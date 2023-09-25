@@ -8,7 +8,9 @@ import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
 import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import UnitOfMeasurementGroupRepository from '../../../../services/actions/unitOfMeasurementGroupRepository';
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+
 
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -53,7 +55,7 @@ export default function ContentForm({
         ),
         header: "Item No", //uses the default width from defaultColumn prop
         visible: true,
-        size: 100,
+        size: 120,
         Cell: ({ cell }: any) => (
           /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
             value={cell.getValue()}
@@ -165,18 +167,19 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return (cell.getValue() );
+          return cell.getValue();
         },
       },
       {
-        accessorKey: "UomCode",
+        accessorKey: "UomAbsEntry",
         header: "Uom Code",
         visible: true,
         size: 80,
-        // Cell: ({ cell }: any) => {
-        //   if (Object.keys(cell.row.original).length === 1) return null;
-        //   return currencyFormat(cell.getValue());
-        // },
+        Cell: ({ cell }: any) => {
+          return (new UnitOfMeasurementRepository().find(cell.getValue())?.Name);
+          // return new WarehouseRepository()?.find(cell.getValue())?.name;
+
+        },
       },
       {
         accessorKey: "UomGroup",
@@ -192,9 +195,21 @@ export default function ContentForm({
         accessorKey: "WarehouseCode",
         header: "Warehouse",
         visible: true,
+        size: 80,
         Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return (cell.getValue());
+          // if (Object.keys(cell.row.original).length === 1) return null;
+          // return new WarehouseRepository()?.find(cell.getValue())?.name;
+          return cell.getValue();
+        },
+      },
+      {
+        accessorKey: "BinAbsEntry",
+        header: "Bin Location",
+        visible: true,
+        size: 80,
+        Cell: ({ cell }: any) => {
+          // if (Object.keys(cell.row.original).length === 1) return null;
+          return cell.getValue();
         },
       },
 

@@ -1,4 +1,5 @@
-import React, { FC, Fragment } from "react";
+
+import React, { FC, Fragment, useEffect, useState } from "react";
 import MaterialReactTable from "material-react-table";
 import { useQuery } from "react-query";
 import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
@@ -10,7 +11,8 @@ import { IconButton, OutlinedInput } from "@mui/material";
 import { HiSearch, HiX } from "react-icons/hi";
 import { Transition, Dialog } from "@headlessui/react";
 import shortid from "shortid";
-import SalePersonRepository from "../../services/actions/salePersonRepository";
+import BranchQuery from "@/models/BranchQuery";
+import BranchQueryRepository from "@/services/actions/BranchQueryRepository";
 
 export type VendorModalType = "supplier" | "customer" | null;
 
@@ -19,9 +21,16 @@ interface VendorModalProps {
   onClose: () => void;
   onOk: (vendor: BusinessPartner) => void;
   type: VendorModalType;
+  branch: string;
 }
 
-const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
+const VendorModalBranch: FC<VendorModalProps> = ({
+  open,
+  onClose,
+  onOk,
+  type,
+  branch,
+}) => {
   const { theme } = React.useContext(ThemeContext);
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -29,17 +38,37 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
     pageIndex: 0,
     pageSize: 10,
   });
+  const [selectedCardCode, setSelectedCardCode] = useState<string | null>(null);
+  const [businessPartnerData, setBusinessPartnerData] = useState<any | null>(
+    null
+  );
 
   const { data, isLoading }: any = useQuery({
-    queryKey: ["venders_" + type],
+    queryKey: ["venders_branch", branch],
     queryFn: () =>
-      new BusinessPartnerRepository().get(
-        `&$top=10&$filter=CardType eq 'c${type?.charAt(0).toUpperCase()}${type?.slice(
-          1
-        )}'`
-      ),
-    // staleTime: Infinity,
+      new BranchQueryRepository().get(`?$filter=BPLId eq ${branch}`),
+    staleTime: 10000,
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (selectedCardCode && !businessPartnerData) {
+          const data = await new BusinessPartnerRepository().find(
+            selectedCardCode
+          );
+
+          if (data) {
+            setBusinessPartnerData(data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error); // Debugging line
+      }
+    };
+
+    fetchData();
+  }, [selectedCardCode, businessPartnerData]);
 
   const [rowSelection, setRowSelection] = React.useState({});
   const columns = React.useMemo(
@@ -59,7 +88,7 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
         header: "Currency",
         size: 50,
       },
-      
+
       {
         accessorKey: "CurrentAccountBalance",
         header: "Balance",
@@ -78,23 +107,10 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
           );
         },
       },
-      {
-        accessorKey: "SalesPersonCode",
-        header: "Sales Person",
-        size: 50,
-        Cell: ({ cell }: any) => {
-          return new SalePersonRepository()?.find(cell.getValue()).name;
-        },
-      },
     ],
     []
   );
 
-  const items = useMemo(
-    () =>
-      data?.filter((e: any) => e?.CardType?.slice(1)?.toLowerCase() === type),
-    [data, type]
-  );
   const handlerSearch = (event: any) => setGlobalFilter(event.target.value);
 
   const clearFilter = React.useCallback(() => {
@@ -102,6 +118,13 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
     setGlobalFilter("");
     setFilterKey(shortid.generate());
   }, [globalFilter]);
+
+  useEffect(() => {
+    if (businessPartnerData) {
+      const businessPartner = new BusinessPartner(businessPartnerData, 0);
+      onOk(businessPartner);
+    }
+  }, [businessPartnerData]);
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -163,7 +186,7 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
 
                     <MaterialReactTable
                       columns={columns}
-                      data={items ?? []}
+                      data={data ?? []}
                       enableStickyHeader={true}
                       enableStickyFooter={true}
                       enablePagination={true}
@@ -184,10 +207,13 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
                         showLastButton: false,
                       }}
                       muiTableBodyRowProps={({ row }) => ({
+                        // onClick: () => {
+                        //   onOk(new BusinessPartner(row.original, 0));
+                        // },
+                        // sx: { cursor: "pointer" },
                         onClick: () => {
-                          onOk(new BusinessPartner(row.original, 0));
+                          setSelectedCardCode(row.original.CardCode);
                         },
-                        sx: { cursor: "pointer" },
                       })}
                       state={{
                         globalFilter,
@@ -207,4 +233,4 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type }) => {
   );
 };
 
-export default VendorModal;
+export default VendorModalBranch;

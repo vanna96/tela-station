@@ -70,8 +70,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     1
   );
 
-  console.log(props.items);
-  console.log(props.data.ExchangeRate);
 
   React.useEffect(() => {
     const cols: any = {};
@@ -427,7 +425,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 {(data?.Currency)}
               </div>
             </div> */}
-                <div className="grid grid-cols-12 ">
+                {/* <div className="grid grid-cols-12 ">
                   <div className="col-span-6 text-gray-700">
                     <FormControlLabel
                       label="Rounding"
@@ -461,7 +459,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                       onChange={(e) => onChange("RoundingValue", e)}
                     />
                   </div>
-                </div>
+                </div> */}
                 <div className="grid grid-cols-12 py-1">
                   <div className="col-span-6 text-gray-700">Tax</div>
                   <div className="col-span-6 text-gray-900">
