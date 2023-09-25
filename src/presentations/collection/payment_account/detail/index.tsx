@@ -107,7 +107,7 @@ class FormDetail extends Component<any, any> {
                 VatGroup: item.VatGroup || "",
                 UomGroupCode: item.UoMCode || null,
                 UomEntry: item.UoMEntry || null,
-                Currency: sysInfo()?.data?.SystemCurrency,
+                // Currency: sysInfo()?.data?.SystemCurrency,
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
               }

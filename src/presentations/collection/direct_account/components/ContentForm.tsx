@@ -172,7 +172,7 @@ export default function ContentForm({
         data={data}
         onChange={onChange}
         onRemoveChange={handlerRemoveItem}
-        loading={ContentLoading}
+        loading={false}
       />
       <ServiceModal ref={serviceModalRef} onSave={onUpdateByItem} />
     </>
