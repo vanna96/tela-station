@@ -83,6 +83,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
+
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -160,7 +161,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 value={this.state?.WarehouseCode}
                 onChange={(event) => this.handChange(event, "WarehouseCode")}
               />
-
               <WareBinLocation
                 itemCode={this.state.ItemCode}
                 Whse={this.state.WarehouseCode}

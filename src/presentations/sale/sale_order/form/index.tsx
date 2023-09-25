@@ -19,6 +19,7 @@ import shortid from "shortid";
 import { CircularProgress } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
+import requestHeader from "@/utilies/requestheader";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -113,7 +114,7 @@ class SalesOrderForm extends CoreFormDocument {
           };
 
           if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
+            AttachmentList = await requestHeader(
               "GET",
               `/Attachments2(${data?.AttachmentEntry})`
             )
@@ -441,6 +442,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+
 
     return (
       <>
