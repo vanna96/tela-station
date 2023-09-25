@@ -9,6 +9,7 @@ export default class itemRepository extends Repository<Item> {
     select = [
         'ItemName',
         'ItemCode',
+        'ForeignName',
         "PurchaseVATGroup",
         "SalesVATGroup",
         "UoMGroupEntry",

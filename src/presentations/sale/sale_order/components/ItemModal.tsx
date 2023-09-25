@@ -72,7 +72,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     if (field === "VatGroup") {
       temps["VatGroup"] = event.target.value.code;
-      temps["VatRate"] = event.target.value.vatRate;
+      temps["VatRate"] = event.target.value.vatRate ?? 10;
+      console.log(temps["VatRate"]);
       temps["GrossPrice"] =
         temps["LineTotal"] +
         (temps["LineTotal"] * (event.target.value?.vatRate ?? 1)) / 100;
@@ -108,7 +109,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
               <MUITextField
-                label="Unit Price"
+                label="Gross Price"
                 startAdornment={"USD"}
                 defaultValue={currencyFormat(this.state?.UnitPrice)}
                 onChange={(event) => this.handChange(event, "UnitPrice")}
@@ -121,21 +122,18 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="Discount"
                 startAdornment={"%"}
-                defaultValue={this.state?.Discount}
-                onChange={(event) => this.handChange(event, "Discount")}
+                defaultValue={this.state?.DiscountPercent}
+                onChange={(event) => this.handChange(event, "DiscountPercent")}
               />
               {/* <MUITextField label="Tax Code" value={this.state?.VatGroup} endAdornment onChange={(event) => this.handChange(event, 'UnitPrice')} /> */}
               <VatGroupTextField
                 label="Tax Code"
+                status={"tNO"}
                 value={this.state?.VatGroup}
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
               />
-              <MUITextField
-                label="Gross Price"
-                startAdornment={"USD"}
-                value={currencyFormat(this.state?.GrossPrice)}
-              />
+
               <MUITextField
                 label="Total"
                 startAdornment={"USD"}
@@ -163,10 +161,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 value={this.state?.WarehouseCode}
                 onChange={(event) => this.handChange(event, "WarehouseCode")}
               />
-              {/* <MUITextField
-                label="Item Per Unit"
-                value={this.state?.UnitOfMeasuremnt}
-              /> */}
               <WareBinLocation
                 itemCode={this.state.ItemCode}
                 Whse={this.state.WarehouseCode}
@@ -176,7 +170,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               />
 
               <DistributionRuleText
-                label="Revenue Line"
+                label="Line Of Business"
                 inWhichNum={1}
                 aliasvalue="FactorCode"
                 value={this.state.LineOfBussiness}
@@ -187,15 +181,15 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Revenue Line"
                 inWhichNum={2}
                 aliasvalue="FactorCode"
-                value={this.state?.RevenueLine}
-                onChange={(event) => this.handChange(event, "RevenueLine")}
+                value={this.state?.revenueLine ?? "202001"}
+                onChange={(event) => this.handChange(event, "revenueLine")}
               />
               <DistributionRuleText
                 label="Product Line"
                 inWhichNum={3}
                 aliasvalue="FactorCode"
-                value={this.state?.ProductLine}
-                onChange={(event) => this.handChange(event, "ProductLine")}
+                value={this.state?.REV}
+                onChange={(event) => this.handChange(event, "REV")}
               />
             </div>
           </div>

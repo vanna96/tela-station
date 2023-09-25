@@ -1,4 +1,4 @@
-import Repository from "@/astractions/repository";
+  import Repository from "@/astractions/repository";
 import FactoringIndicator from "@/models/FactoringIndicator";
 import WareBin from "@/models/WareBin";
 import Encryption from "@/utilies/encryption";

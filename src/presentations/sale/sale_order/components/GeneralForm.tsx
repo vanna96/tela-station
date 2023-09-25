@@ -93,19 +93,20 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              {/* <BPLBranchSelect
+              <BPLBranchSelect
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) =>
                   handlerChange("BPL_IDAssignedToInvoice", e.target.value)
                 }
                 value={BPL}
                 name="BPL_IDAssignedToInvoice"
-              /> */}
-              <BranchAutoComplete
+              />
+              {/* <BranchAutoComplete
+                BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
                 // name="BPL_IDAssignedToInvoice"
-              />
+              /> */}
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">

@@ -294,6 +294,7 @@ class SalesOrderForm extends CoreFormDocument {
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
+        DiscountPercent: data?.DocDiscount,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
         BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
@@ -588,26 +589,19 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (
-  items: any,
-  type: any,
-  warehouseCode: any,
-
-) =>
+const getItem = (items: any, type: any, warehouseCode: any) =>
   items?.map((item: any) => {
-
     return {
       ItemCode: item.ItemCode || null,
-      ItemDescription: item.ItemName || item.Name || null,
       Quantity: item.Quantity || null,
       UnitPrice: item.UnitPrice || item.total,
-      DiscountPercent: item.Discount || 0,
-      VatGroup: item.VatGroup || item.taxCode || null,
+      DiscountPercent: item.DiscountPercent || 0,
+      TaxCode: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
-      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002" ,
-      RevenueLine: item.RevenueLine ??"203004"  ,
-      ProductLine: item.ProductLine ?? "203004",
+      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
+      RevenueLine: item.revenueLine ?? "202001",
+      ProductLine: item.REV ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || null,
 

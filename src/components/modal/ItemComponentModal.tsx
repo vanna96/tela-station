@@ -74,12 +74,16 @@ const ItemModal: FC<ItemModalProps> = ({
       },
       {
         accessorKey: "ItemName",
-        header: "Name", //uses the default width from defaultColumn prop
+        header: "Name", 
       },
       {
-        accessorKey: "Description",
-        header: "Description",
+        accessorKey: "ForeignName",
+        header: "Foreign Name", 
       },
+      // {
+      //   accessorKey: "Description",
+      //   header: "Description",
+      // },
     ],
     []
   );
@@ -180,9 +184,6 @@ const ItemModal: FC<ItemModalProps> = ({
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
       // const warehouseCode = WarehouseCode;
-      const LineOfBussiness = e?.U_tl_dim1;
-      const RevenueLine = e?.U_tl_dim2;
-
       return {
         ItemCode: e?.ItemCode,
         LineVendor: vendor?.CardCode,
@@ -192,8 +193,8 @@ const ItemModal: FC<ItemModalProps> = ({
         ItemGroup: e?.ItemsGroupCode,
         SaleVatGroup: e?.SalesVATGroup,
         PurchaseVatGroup: e?.PurchaseVATGroup,
-        VatGroup: saleVatGroup || e?.PurchaseVATGroup,
-        VatRate: e?.vatRate,
+        VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
+        VatRate: e?.SalesVATGroup === 'VO10' ? 10 : 0,
         Quantity: defaultPrice !== null ? 1 : 0,
         UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
@@ -202,8 +203,11 @@ const ItemModal: FC<ItemModalProps> = ({
         WarehouseCode: WarehouseCode,
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
-        LineOfBussiness: LineOfBussiness,
-        RevenueLine: RevenueLine,
+        BinCode:
+          warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
+        LineOfBussiness: e?.U_tl_dim1,
+        revenueLine: "202001",
+        REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
         // GrossPrice: total + ((total * vatRate) / 100),
         UomGroupAbsEntry: e?.UoMGroupEntry,
@@ -262,7 +266,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      <h2 className="font-bold text-xl capitalize">{type}</h2>
+                      {/* <h2 className="font-bold text-xl capitalize">{type}</h2> */}
                       <OutlinedInput
                         size="small"
                         key={filterKey}

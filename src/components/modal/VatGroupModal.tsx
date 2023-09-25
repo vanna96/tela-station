@@ -50,12 +50,11 @@ const VatGroupModal: FC<VatGroupProps> = ({ open, onClose, onOk, type, status })
     return e?.category === type
   }), [data, type, status]);
   
-
   return (
     <Modal
       open={open}
       onClose={onClose}
-      widthClass='w-[70%]'
+      widthClass='w-[45%]'
       title='List Of Accounts'
       disableTitle={true}
       disableFooter={true}
@@ -86,6 +85,7 @@ const VatGroupModal: FC<VatGroupProps> = ({ open, onClose, onOk, type, status })
           muiTableBodyRowProps={({ row }) => ({
             onClick: () => {
               onOk(row.original);
+              // console.log(row.original)
               onClose()
             },
             sx: { cursor: 'pointer' },
@@ -98,7 +98,7 @@ const VatGroupModal: FC<VatGroupProps> = ({ open, onClose, onOk, type, status })
             }
           }
           renderTopToolbarCustomActions={({ table }) => {
-            return <h2 className=" text-lg font-bold">List Of Taxes</h2>
+            return <h2 className="mt-2 text-lg font-bold">List Of Taxes</h2>
           }}
         />
       </div>
