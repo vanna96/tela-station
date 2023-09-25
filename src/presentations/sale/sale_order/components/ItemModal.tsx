@@ -82,7 +82,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
-
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -163,10 +162,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 value={this.state?.WarehouseCode}
                 onChange={(event) => this.handChange(event, "WarehouseCode")}
               />
-              {/* <MUITextField
-                label="Item Per Unit"
-                value={this.state?.UnitOfMeasuremnt}
-              /> */}
+
               <WareBinLocation
                 itemCode={this.state.ItemCode}
                 Whse={this.state.WarehouseCode}
@@ -176,7 +172,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               />
 
               <DistributionRuleText
-                label="Revenue Line"
+                label="Line Of Business"
                 inWhichNum={1}
                 aliasvalue="FactorCode"
                 value={this.state.LineOfBussiness}
@@ -187,15 +183,15 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Revenue Line"
                 inWhichNum={2}
                 aliasvalue="FactorCode"
-                value={this.state?.RevenueLine}
-                onChange={(event) => this.handChange(event, "RevenueLine")}
+                value={this.state?.revenueLine  ?? "202001"}
+                onChange={(event) => this.handChange(event, "revenueLine")}
               />
               <DistributionRuleText
                 label="Product Line"
                 inWhichNum={3}
                 aliasvalue="FactorCode"
-                value={this.state?.ProductLine}
-                onChange={(event) => this.handChange(event, "ProductLine")}
+                value={this.state?.REV}
+                onChange={(event) => this.handChange(event, "REV")}
               />
             </div>
           </div>

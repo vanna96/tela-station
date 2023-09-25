@@ -79,6 +79,8 @@ export default function GeneralForm({
     data.INSeries = seriesIN;
     data.Series = seriesSO;
   }
+  console.log(userData?.UserBranchAssignment)
+  console.log(userData?.Branch)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -102,6 +104,7 @@ export default function GeneralForm({
                 name="BPL_IDAssignedToInvoice"
               /> */}
               <BranchAutoComplete
+                BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
                 // name="BPL_IDAssignedToInvoice"

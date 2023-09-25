@@ -182,6 +182,8 @@ const ItemModal: FC<ItemModalProps> = ({
       // const warehouseCode = WarehouseCode;
       const LineOfBussiness = e?.U_tl_dim1;
       const RevenueLine = e?.U_tl_dim2;
+      console.log(LineOfBussiness)
+      console.log(RevenueLine)
 
       return {
         ItemCode: e?.ItemCode,
@@ -203,7 +205,8 @@ const ItemModal: FC<ItemModalProps> = ({
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
         LineOfBussiness: LineOfBussiness,
-        RevenueLine: RevenueLine,
+        revenueLine: "202001",
+        REV: RevenueLine,
         // ProductLine: item.ProductLine ?? "203004",
         // GrossPrice: total + ((total * vatRate) / 100),
         UomGroupAbsEntry: e?.UoMGroupEntry,
@@ -262,7 +265,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      <h2 className="font-bold text-xl capitalize">{type}</h2>
+                      {/* <h2 className="font-bold text-xl capitalize">{type}</h2> */}
                       <OutlinedInput
                         size="small"
                         key={filterKey}

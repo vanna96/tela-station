@@ -8,10 +8,9 @@ import { useQuery } from "react-query";
 
 export default function BranchAutoComplete(props: {
   label?: any;
-  value?: string;
-  onChange?: (value: string) => void;
-  BPdata?:any;
-
+  value?: any;
+  onChange?: (value: any) => void;
+  BPdata?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
@@ -25,18 +24,19 @@ export default function BranchAutoComplete(props: {
     uniqueBPLIDs.includes(e.BPLID)
   );
   return (
-    <div className="block">
+    <div className="block text-[14px] xl:text-[13px] ">
       <label
         htmlFor=""
-        // className={` text-[14px] xl:text-[13px] text-[#656565] mt-1`}
+        className={` text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
 
       <Autocomplete
-        options={data}
+        options={filteredBranch ?? data}
         autoHighlight
         value={props.value ? value : value}
+        defaultValue={filteredBranch[0]}
         onChange={(event, newValue) => {
           if (props.onChange) {
             const selectedValue = newValue ? newValue.BPLID : "";
@@ -47,9 +47,8 @@ export default function BranchAutoComplete(props: {
         getOptionLabel={(option: any) => option.BPLName}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
-            {/* <BsDot /> */}
+            <BsDot />
             {option.BPLName}
-            {/* - {option.CardName}  */}
           </Box>
         )}
         renderInput={(params) => (
