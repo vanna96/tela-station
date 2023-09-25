@@ -17,7 +17,7 @@ function WarehouseAttendTo(props: WarehouseProps) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
     queryFn: () => new WarehouseRepository().get(),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
 

@@ -10,6 +10,9 @@ import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import UnitOfMeasurementGroupRepository from '../../../../services/actions/unitOfMeasurementGroupRepository';
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import wareBinRepository from "@/services/actions/WareBinRepository";
+import WarehouseRepository from "@/services/warehouseRepository";
 
 
 interface ContentFormProps {
@@ -29,6 +32,7 @@ export default function ContentForm({
   onChange,
   onChangeItemByCode,
 }: ContentFormProps) {
+  
   const updateRef = React.createRef<ItemModal>();
   const itemGroupRepo = new ItemGroupRepository();
   const [collapseError, setCollapseError] = React.useState(false);
@@ -181,8 +185,8 @@ export default function ContentForm({
         visible: true,
         size: 80,
         Cell: ({ cell }: any) => {
-          // if (Object.keys(cell.row.original).length === 1) return null;
-          // return new WarehouseRepository()?.find(cell.getValue())?.name;
+          if (Object.keys(cell.row.original).length === 1) return null;
+          // return new WarehouseRepository()?.find(cell.getValue())?.WarehouseName;
           return cell.getValue();
         },
       },
@@ -192,8 +196,10 @@ export default function ContentForm({
         visible: true,
         size: 80,
         Cell: ({ cell }: any) => {
-          // if (Object.keys(cell.row.original).length === 1) return null;
-          return cell.getValue();
+          if (Object.keys(cell.row.original).length === 1) return null;
+          return new WareBinLocationRepository().find(cell.getValue())?.BinCode ?? "N/A"
+
+
         },
       },
 

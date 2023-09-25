@@ -403,7 +403,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         <MUITextField
                           disabled={props?.data?.isStatusClose || false}
                           placeholder="0.00"
-                          type="number"
+                          type="text"
                           startAdornment={props?.data?.Currency}
                           value={currencyFormat(discountAmount)}
                         />

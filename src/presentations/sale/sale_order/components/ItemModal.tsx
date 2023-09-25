@@ -72,7 +72,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     if (field === "VatGroup") {
       temps["VatGroup"] = event.target.value.code;
-      temps["VatRate"] = event.target.value.vatRate;
+      temps["VatRate"] = event.target.value.vatRate ?? 10;
+      console.log(temps["VatRate"]);
       temps["GrossPrice"] =
         temps["LineTotal"] +
         (temps["LineTotal"] * (event.target.value?.vatRate ?? 1)) / 100;
@@ -120,8 +121,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="Discount"
                 startAdornment={"%"}
-                defaultValue={this.state?.Discount}
-                onChange={(event) => this.handChange(event, "Discount")}
+                defaultValue={this.state?.DiscountPercent}
+                onChange={(event) => this.handChange(event, "DiscountPercent")}
               />
               {/* <MUITextField label="Tax Code" value={this.state?.VatGroup} endAdornment onChange={(event) => this.handChange(event, 'UnitPrice')} /> */}
               <VatGroupTextField
@@ -131,7 +132,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
               />
-             
+
               <MUITextField
                 label="Total"
                 startAdornment={"USD"}
@@ -180,7 +181,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Revenue Line"
                 inWhichNum={2}
                 aliasvalue="FactorCode"
-                value={this.state?.revenueLine  ?? "202001"}
+                value={this.state?.revenueLine ?? "202001"}
                 onChange={(event) => this.handChange(event, "revenueLine")}
               />
               <DistributionRuleText

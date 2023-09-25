@@ -31,7 +31,7 @@ export default class WareBinLocationRepository extends Repository<WareBinLocatio
         const data = localStorage.getItem(this.key);
         if (!data) return {};
         const warehouse: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
-        return warehouse.find((e: any) => e?.WarehouseCode == code);
+        return warehouse.find((e: any) => e?.BinAbsEntry == code);
     }
 
 
