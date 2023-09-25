@@ -46,12 +46,19 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseSelect
-                  // Branch={data?.BPL_IDAssignedToInvoice}
+                {/* <WarehouseSelect
+                  Branch={data?.BPL_IDAssignedToInvoice}
                   value={data.U_tl_dnsuppo}
                   onChange={(e) =>
                     handlerChange("U_tl_dnsuppo", e.target.value)
                   }
+                /> */}
+                <WarehouseByBranch
+                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                  value={data?.U_tl_whsdesc}
+                  onChange={(e) => {
+                    handlerChange("U_tl_whsdesc", e.target.value);
+                  }}
                 />
               </div>
             </div>

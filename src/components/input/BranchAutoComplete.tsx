@@ -36,7 +36,7 @@ export default function BranchAutoComplete(props: {
         options={filteredBranch ?? data}
         autoHighlight
         value={props.value ? value : value}
-        defaultValue={filteredBranch[0]}
+        defaultValue={filteredBranch ? filteredBranch[0] : 1}
         onChange={(event, newValue) => {
           if (props.onChange) {
             const selectedValue = newValue ? newValue.BPLID : "";

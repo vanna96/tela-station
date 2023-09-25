@@ -70,7 +70,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     1
   );
 
-
   React.useEffect(() => {
     const cols: any = {};
     props.columns.forEach((e: any) => {
@@ -374,14 +373,14 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="grid grid-cols-12 py-1">
                   <div className="col-span-6 text-gray-700">
                     <div className="grid grid-cols-12 gap-2">
-                      <div className="col-span-8 text-gray-700">Discount</div>
-                      <div className="col-span-4 text-gray-900 ">
+                      <div className="col-span-7 text-gray-700">Discount</div>
+                      <div className="col-span-5 text-gray-900 mr-2">
                         <MUITextField
                           disabled={props?.data?.isStatusClose || false}
                           placeholder="0.00"
                           type="number"
                           startAdornment={"%"}
-                          value={props?.data?.DocDiscount}
+                          value={discount}
                           onChange={(event: any) => {
                             if (
                               !(
@@ -400,66 +399,19 @@ export default function ContentComponent(props: ContentComponentProps) {
 
                   <div className="col-span-6 text-gray-900 ">
                     <div className="grid grid-cols-4">
-                      {/* <div className="col-span-2">
-                        
-                      </div> */}
                       <div className="col-span-4">
                         <MUITextField
                           disabled={props?.data?.isStatusClose || false}
                           placeholder="0.00"
                           type="number"
                           startAdornment={props?.data?.Currency}
-                          // value={parseFloat(discountAmount.toString()).toFixed(
-                          //   2
-                          // )}
-                          value={discountAmount.toFixed(2)}
+                          value={currencyFormat(discountAmount)}
                         />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* <div className="grid grid-cols-12">
-              <div className="col-span-6 text-gray-700">Freight</div>
-              <div className="col-span-6 text-gray-900">
-                {(data?.Currency)}
-              </div>
-            </div> */}
-                {/* <div className="grid grid-cols-12 ">
-                  <div className="col-span-6 text-gray-700">
-                    <FormControlLabel
-                      label="Rounding"
-                      control={
-                        <Checkbox
-                          checked={checked}
-                          disabled={
-                            props?.data?.Edit ||
-                            props?.data?.isStatusClose ||
-                            false
-                          }
-                          onChange={(e: any) => {
-                            e.target.value = e.target.checked;
-                            onChange("Rounding", e);
-                          }}
-                        />
-                      }
-                    />
-                  </div>
-                  <div className="col-span-6 text-gray-900">
-                    <MUITextField
-                      disabled={
-                        props?.data?.Edit ||
-                        props?.data?.isStatusClose ||
-                        !checked
-                      }
-                      placeholder="0.00"
-                      type="number"
-                      value={props?.data?.RoundingValue || 0}
-                      startAdornment={props?.data?.Currency}
-                      onChange={(e) => onChange("RoundingValue", e)}
-                    />
-                  </div>
-                </div> */}
                 <div className="grid grid-cols-12 py-1">
                   <div className="col-span-6 text-gray-700">Tax</div>
                   <div className="col-span-6 text-gray-900">

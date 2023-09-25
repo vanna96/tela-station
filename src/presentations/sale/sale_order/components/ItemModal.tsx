@@ -107,7 +107,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
               <MUITextField
-                label="Unit Price"
+                label="Gross Price"
                 startAdornment={"USD"}
                 defaultValue={currencyFormat(this.state?.UnitPrice)}
                 onChange={(event) => this.handChange(event, "UnitPrice")}
@@ -126,15 +126,12 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               {/* <MUITextField label="Tax Code" value={this.state?.VatGroup} endAdornment onChange={(event) => this.handChange(event, 'UnitPrice')} /> */}
               <VatGroupTextField
                 label="Tax Code"
+                status={"tNO"}
                 value={this.state?.VatGroup}
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
               />
-              <MUITextField
-                label="Gross Price"
-                startAdornment={"USD"}
-                value={currencyFormat(this.state?.GrossPrice)}
-              />
+             
               <MUITextField
                 label="Total"
                 startAdornment={"USD"}

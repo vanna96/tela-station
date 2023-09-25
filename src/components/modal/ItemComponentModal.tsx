@@ -180,11 +180,6 @@ const ItemModal: FC<ItemModalProps> = ({
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
       // const warehouseCode = WarehouseCode;
-      const LineOfBussiness = e?.U_tl_dim1;
-      const RevenueLine = e?.U_tl_dim2;
-      console.log(LineOfBussiness)
-      console.log(RevenueLine)
-
       return {
         ItemCode: e?.ItemCode,
         LineVendor: vendor?.CardCode,
@@ -204,9 +199,9 @@ const ItemModal: FC<ItemModalProps> = ({
         WarehouseCode: WarehouseCode,
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
-        LineOfBussiness: LineOfBussiness,
+        LineOfBussiness: e?.U_tl_dim1,
         revenueLine: "202001",
-        REV: RevenueLine,
+        REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
         // GrossPrice: total + ((total * vatRate) / 100),
         UomGroupAbsEntry: e?.UoMGroupEntry,

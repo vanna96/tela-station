@@ -143,23 +143,7 @@ export default function ContentForm({
           return cell.getValue();
         },
       },
-      {
-        accessorKey: "GrossPrice",
-        header: "Gross Price",
-        visible: false,
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-
-          const total = parseFloat(cell.row.original?.VatRate ?? "0");
-          return (
-            "USD " +
-            currencyFormat(
-              cell.row.original?.UnitPrice +
-                (total * cell.row.original?.UnitPrice) / 100
-            )
-          );
-        },
-      },
+    
       {
         accessorKey: "LineTotal",
         header: "Total",
