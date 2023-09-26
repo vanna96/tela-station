@@ -357,7 +357,7 @@ class SalesOrderForm extends CoreFormDocument {
 
       await request("POST", "/script/test/SO", payloads)
         .then(async (res: any) => {
-          if (res && res.status === 200 || 201) {
+          if ((res && res.status === 200) || 201) {
             const docComments = res.data.Comments;
             const match = docComments.match(/\d+/);
             const docNum = match ? match[0] : null;
@@ -626,7 +626,7 @@ class SalesOrderForm extends CoreFormDocument {
 export default withRouter(SalesOrderForm);
 
 const getItem = (items: any, type: any, warehouseCode: any) =>
-  items?.map((item: any) => {
+  items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
       Quantity: item.Quantity || null,
@@ -640,7 +640,14 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       ProductLine: item.REV ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || null,
-
-      // Currency: "AUD",
+      DocumentLinesBinAllocations: [
+        {
+          BinAbsEntry: item.BinAbsEntry,
+          Quantity: item.Quantity,
+          AllowNegativeQuantity: "tNO",
+          SerialAndBatchNumbersBaseLine: -1,
+          BaseLineNumber: index,
+        },
+      ],
     };
   });
