@@ -68,3 +68,25 @@ export const fileToBase64 = (file: any) => new Promise((resolve, reject) => {
   reader.onload = () => resolve(reader.result);
   reader.onerror = error => reject(error);
 });
+
+
+//add new util
+export const fractionDigits = (value: number, digit?: number) => {
+  const formater = new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: digit ?? 4,
+    maximumFractionDigits: digit ?? 4,
+  });
+
+  return formater.format(value).replace(/,/g, "");
+};
+
+export const calculateUOM = (
+  baseQty: number,
+  alternativeQty: number,
+  qty: number
+): any => {
+  let totalQty: any = fractionDigits(baseQty / alternativeQty, 6);
+
+  totalQty = fractionDigits(qty * totalQty, 4);
+  return totalQty;
+};

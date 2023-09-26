@@ -644,8 +644,8 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
         {
           BinAbsEntry: item.BinAbsEntry,
           Quantity: item.Quantity,
-          AllowNegativeQuantity: "tNO",
-          SerialAndBatchNumbersBaseLine: -1,
+          // AllowNegativeQuantity: "tNO",
+          // SerialAndBatchNumbersBaseLine: -1,
           BaseLineNumber: index,
         },
       ],
