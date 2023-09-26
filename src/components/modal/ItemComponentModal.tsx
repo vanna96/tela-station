@@ -208,7 +208,9 @@ const ItemModal: FC<ItemModalProps> = ({
         revenueLine: "202001",
         REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
-        // GrossPrice: total + ((total * vatRate) / 100),
+        GrossPrice:
+          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+          0,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,
@@ -220,7 +222,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
         )?.BaseQuantity,
-        UnitsOfMeasurements :uomGroup,
+        UnitsOfMeasurements: uomGroup,
       };
     });
     onOk(selectItems);

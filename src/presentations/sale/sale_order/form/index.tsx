@@ -386,6 +386,7 @@ class SalesOrderForm extends CoreFormDocument {
           }
         })
         .catch((err: any) => {
+          this.dialog.current?.error(err.message);
           console.error("Error in POST request:", err.message);
         })
         .finally(() => {

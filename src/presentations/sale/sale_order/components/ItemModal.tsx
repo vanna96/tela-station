@@ -57,10 +57,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     if (field === "GrossPrice") {
       const value = event.target.value;
+      temps["GrossPrice"] = value
       const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
       const unitPrice = parseFloat(value) / (1 + vatRate / 100);
       temps["GrossPrice"] = value;
-      console.log(value);
+      // console.log(value);
       temps["UnitPrice"] = unitPrice;
     }
     if (
@@ -89,9 +90,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     if (field === "VatGroup") {
       temps["VatGroup"] = event.target.value.code;
       temps["VatRate"] = event.target.value.vatRate ?? 10;
-      temps["GrossPrice"] =
-        temps["LineTotal"] +
-        (temps["LineTotal"] * (event.target.value?.vatRate ?? 1)) / 100;
     }
     if (field === "Quantity" || "UomAbsEntry") {
       const qty = temps["Quantity"];
@@ -175,8 +173,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              
-              <MUITextField label="UOM Code" disabled value={this.state?.UomGroupCode} />
+              <MUITextField
+                label="UOM Code"
+                disabled
+                value={this.state?.UomGroupCode}
+              />
               <UOMSelect
                 label="UOM Code"
                 value={this.state?.UomAbsEntry}
