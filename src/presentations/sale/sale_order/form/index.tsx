@@ -343,16 +343,54 @@ class SalesOrderForm extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/script/test/SOSync", payloads)
-        .then(
-          (res: any) =>
-            this.dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.DocEntry
-            )
-        )
-        .catch((err: any) => this.dialog.current?.error(err.message))
-        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+      // await request("POST", "/script/test/SO", payloads)
+
+      //   .then(
+      //     (res: any) =>
+      //       this.dialog.current?.success(
+      //         "Create Successfully.",
+      //         res?.data?.DocEntry
+      //       )
+      //   )
+      //   .catch((err: any) => this.dialog.current?.error(err.message))
+      //   .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+
+      await request("POST", "/script/test/SO", payloads)
+        .then(async (res: any) => {
+          if (res && res.status === 200 || 201) {
+            const docComments = res.data.Comments;
+            const match = docComments.match(/\d+/);
+            const docNum = match ? match[0] : null;
+
+            if (docNum) {
+              const response = await request(
+                "GET",
+                `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
+              );
+
+              const orders = response?.data?.value;
+              if (orders.length > 0) {
+                const docEntry = orders[0]?.DocEntry;
+
+                console.log(`DocEntry: ${docEntry}`);
+
+                this.dialog.current?.success("Create Successfully.", docEntry);
+              } else {
+                console.log(`No matching order found for DocNum ${docNum}`);
+              }
+            } else {
+              console.log("No DocNum found in Comments");
+            }
+          } else {
+            console.error("Error in POST request:", res.statusText);
+          }
+        })
+        .catch((err: any) => {
+          console.error("Error in POST request:", err.message);
+        })
+        .finally(() => {
+          this.setState({ ...this.state, isSubmitting: false });
+        });
     } catch (error: any) {
       if (error instanceof FormValidateException) {
         this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
@@ -441,7 +479,6 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-
 
     return (
       <>
