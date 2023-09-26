@@ -599,7 +599,7 @@ function Logistic(props: any) {
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Shipping Address</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.BillToDescription ?? "N/A"}
+                {props?.data?.ShipToDescription ?? "N/A"}
               </div>
             </div>
           </div>
