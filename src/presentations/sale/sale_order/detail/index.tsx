@@ -554,16 +554,16 @@ function Logistic(props: any) {
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5 ">
-            {/* <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship To Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.BilliAddressngTo ?? "N/A"}
-              </div>
-            </div> */}
             <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship To Address</div>
+              <div className="col-span-1 text-gray-700 ">Ship-To Address</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.Address ?? "N/A"}
+                {props?.data?.BillToCode ?? "N/A"}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
+              <div className="col-span-1 text-gray-900">
+                {props?.data?.BillToDescription ?? "N/A"}
               </div>
             </div>
           </div>
