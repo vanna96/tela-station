@@ -372,7 +372,7 @@ class SalesOrderForm extends CoreFormDocument {
               if (orders.length > 0) {
                 const docEntry = orders[0]?.DocEntry;
 
-                console.log(`DocEntry: ${docEntry}`);
+                // console.log(`DocEntry: ${docEntry}`);
 
                 this.dialog.current?.success("Create Successfully.", docEntry);
               } else {
@@ -643,7 +643,7 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       DocumentLinesBinAllocations: [
         {
           BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.Quantity,
+          Quantity: item.UnitsOfMeasurement,
           // AllowNegativeQuantity: "tNO",
           // SerialAndBatchNumbersBaseLine: -1,
           BaseLineNumber: index,

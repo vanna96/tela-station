@@ -74,11 +74,11 @@ const ItemModal: FC<ItemModalProps> = ({
       },
       {
         accessorKey: "ItemName",
-        header: "Name", 
+        header: "Name",
       },
       {
         accessorKey: "ForeignName",
-        header: "Foreign Name", 
+        header: "Foreign Name",
       },
       // {
       //   accessorKey: "Description",
@@ -194,7 +194,7 @@ const ItemModal: FC<ItemModalProps> = ({
         SaleVatGroup: e?.SalesVATGroup,
         PurchaseVatGroup: e?.PurchaseVATGroup,
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
-        VatRate: e?.SalesVATGroup === 'VO10' ? 10 : 0,
+        VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
         Quantity: defaultPrice !== null ? 1 : 0,
         UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
@@ -203,8 +203,7 @@ const ItemModal: FC<ItemModalProps> = ({
         WarehouseCode: WarehouseCode,
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
-        BinCode:
-          warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
+        BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
         revenueLine: "202001",
         REV: e?.U_tl_dim2,
@@ -221,6 +220,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
         )?.BaseQuantity,
+        UnitsOfMeasurements :uomGroup,
       };
     });
     onOk(selectItems);

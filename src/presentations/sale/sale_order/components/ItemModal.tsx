@@ -2,7 +2,7 @@ import React from "react";
 import Modal from "@/components/modal/Modal";
 import MUITextField from "@/components/input/MUITextField";
 import VatGroupTextField from "@/components/input/VatGroupTextField";
-import { currencyFormat } from "@/utilies";
+import { calculateUOM, currencyFormat } from "@/utilies";
 import UOMTextField from "@/components/input/UOMTextField";
 import { getUOMGroupByCode } from "@/helpers";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
@@ -89,10 +89,21 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     if (field === "VatGroup") {
       temps["VatGroup"] = event.target.value.code;
       temps["VatRate"] = event.target.value.vatRate ?? 10;
-      // console.log(temps["VatRate"]);
       temps["GrossPrice"] =
         temps["LineTotal"] +
         (temps["LineTotal"] * (event.target.value?.vatRate ?? 1)) / 100;
+    }
+    if (field === "Quantity" || "UomAbsEntry") {
+      const qty = temps["Quantity"];
+      const Entry = temps["UomAbsEntry"];
+      const CurrentUOM =
+        this.state.UnitsOfMeasurements?.UoMGroupDefinitionCollection?.find(
+          (e: any) => e.AlternateUoM === Entry
+        );
+      const baseQty = CurrentUOM?.BaseQuantity;
+      const alternativeQty = CurrentUOM?.AlternateQuantity;
+      const result = calculateUOM(baseQty, alternativeQty, qty);
+      temps["UnitsOfMeasurement"] = result;
     }
 
     this.setState({ ...temps });
@@ -140,7 +151,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 value={this.state?.DiscountPercent}
                 onChange={(event) => this.handChange(event, "DiscountPercent")}
               />
-              {/* <MUITextField label="Tax Code" value={this.state?.VatGroup} endAdornment onChange={(event) => this.handChange(event, 'UnitPrice')} /> */}
               <VatGroupTextField
                 label="Tax Code"
                 status={"tNO"}
@@ -153,8 +163,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 disabled
                 startAdornment={"USD"}
                 value={currencyFormat(this.state?.UnitPrice)}
-                // defaultValue={currencyFormat(this.state?.UnitPrice)}
-                // onChange={(event) => this.handChange(event, "UnitPrice")}
               />
               <MUITextField
                 label="Total"
@@ -167,11 +175,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              {/* <UOMTextField
-                data={getUOMGroupByCode(this.state?.ItemCode)?.Code}
-                value={this.state?.UomAbsEntry}
-              /> */}
-              {/* <MUITextField label="UOM Code" value={this.state?.UomLists} /> */}
+              
+              <MUITextField label="UOM Code" disabled value={this.state?.UomGroupCode} />
               <UOMSelect
                 label="UOM Code"
                 value={this.state?.UomAbsEntry}
