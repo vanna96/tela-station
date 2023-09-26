@@ -55,25 +55,41 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     const temps = { ...this.state };
     temps[field] = event.target.value;
 
+    if (field === "GrossPrice") {
+      const value = event.target.value;
+      const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
+      const unitPrice = parseFloat(value) / (1 + vatRate / 100);
+      temps["GrossPrice"] = value;
+      console.log(value);
+      temps["UnitPrice"] = unitPrice;
+    }
     if (
       field.includes("Quantity") ||
       field.includes("UnitPrice") ||
-      field.includes("Discount")
+      field.includes("GrossPrice") ||
+      field.includes("DiscountPercent")
     ) {
       let total =
-        parseFloat(temps["Quantity"] ?? 0) *
-        (parseFloat(temps["UnitPrice"]) ?? 0);
-      total = total - (total * parseFloat(temps["Discount"] ?? 0)) / 100;
+        parseFloat(temps["Quantity"] ?? 1) *
+        (parseFloat(temps["UnitPrice"]) ?? 1);
+      total = total - (total * parseFloat(temps["DiscountPercent"] ?? 0)) / 100;
+
       temps["LineTotal"] = total;
-      temps["GrossPrice"] =
-        temps["LineTotal"] +
-        (temps["LineTotal"] * (temps["VatRate"] ?? 1)) / 100;
+
+      let totalGross =
+        parseInt(temps["Quantity"] ?? 1) *
+        (parseFloat(temps["GrossPrice"]) ?? 1);
+      totalGross =
+        totalGross -
+        (totalGross * parseFloat(temps["DiscountPercent"] ?? 0)) / 100;
+
+      temps["TotalGross"] = totalGross;
     }
 
     if (field === "VatGroup") {
       temps["VatGroup"] = event.target.value.code;
       temps["VatRate"] = event.target.value.vatRate ?? 10;
-      console.log(temps["VatRate"]);
+      // console.log(temps["VatRate"]);
       temps["GrossPrice"] =
         temps["LineTotal"] +
         (temps["LineTotal"] * (event.target.value?.vatRate ?? 1)) / 100;
@@ -83,7 +99,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
-
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -111,8 +126,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="Gross Price"
                 startAdornment={"USD"}
-                defaultValue={currencyFormat(this.state?.UnitPrice)}
-                onChange={(event) => this.handChange(event, "UnitPrice")}
+                defaultValue={currencyFormat(this.state?.GrossPrice)}
+                onChange={(event) => this.handChange(event, "GrossPrice")}
               />
               <MUITextField
                 label="Quantity"
@@ -122,7 +137,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="Discount"
                 startAdornment={"%"}
-                defaultValue={this.state?.DiscountPercent}
+                value={this.state?.DiscountPercent}
                 onChange={(event) => this.handChange(event, "DiscountPercent")}
               />
               {/* <MUITextField label="Tax Code" value={this.state?.VatGroup} endAdornment onChange={(event) => this.handChange(event, 'UnitPrice')} /> */}
@@ -133,11 +148,18 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
               />
-
+              <MUITextField
+                label="Unit Price"
+                disabled
+                startAdornment={"USD"}
+                value={currencyFormat(this.state?.UnitPrice)}
+                // defaultValue={currencyFormat(this.state?.UnitPrice)}
+                // onChange={(event) => this.handChange(event, "UnitPrice")}
+              />
               <MUITextField
                 label="Total"
                 startAdornment={"USD"}
-                value={currencyFormat(this.state?.LineTotal)}
+                value={currencyFormat(this.state?.TotalGross)}
               />
             </div>
 

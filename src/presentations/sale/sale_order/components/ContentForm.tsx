@@ -122,7 +122,7 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "UnitPrice",
+        accessorKey: "GrossPrice",
         header: "Gross Price",
         visible: true,
         size: 80,
@@ -149,13 +149,13 @@ export default function ContentForm({
       },
     
       {
-        accessorKey: "LineTotal",
+        accessorKey: "TotalGross",
         header: "Total",
         size: 80,
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return cell.getValue();
+          return currencyFormat(cell.getValue());
         },
       },
       {
