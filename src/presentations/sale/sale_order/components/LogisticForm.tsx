@@ -27,12 +27,6 @@ export default function LogisticForm({
   const handleCheckboxChange = (e: any) => {
     setIsChecked(e.target.checked);
   };
-  console.log(
-    data?.BPAddresses?.filter(
-      ({ addressType }: any) => addressType === "bo_BillTo"
-    )
-  );
-  console.log(data?.BPAddresses);
 
   return (
     <>
@@ -58,9 +52,9 @@ export default function LogisticForm({
                 /> */}
                 <WarehouseByBranch
                   Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                  value={data?.U_tl_whsdesc}
+                  value={data?.U_tl_dnsuppo}
                   onChange={(e) => {
-                    handlerChange("U_tl_whsdesc", e.target.value);
+                    handlerChange("U_tl_dnsuppo", e.target.value);
                   }}
                 />
               </div>
