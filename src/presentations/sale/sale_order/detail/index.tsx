@@ -518,7 +518,7 @@ function Logistic(props: any) {
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Ship From Address</div>
               <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_arbusi)
+                {new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
                   ?.WarehouseName ?? "N/A"}
               </div>
             </div>
