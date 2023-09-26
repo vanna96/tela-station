@@ -1,8 +1,10 @@
 import FormCard from "@/components/card/FormCard";
 import BPAddress from "@/components/selectbox/BPAddress";
+import MUISelect from "@/components/selectbox/MUISelect";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
+import { getShippingAddress } from "@/models/BusinessParter";
 import { TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
@@ -27,9 +29,10 @@ export default function LogisticForm({
   };
   console.log(
     data?.BPAddresses?.filter(
-      ({ addressType }: any) => addressType === "bo_ShipTo"
-    ).concat({ addressName: "" })
+      ({ addressType }: any) => addressType === "bo_BillTo"
+    )
   );
+  console.log(data?.BPAddresses);
 
   return (
     <>
@@ -110,20 +113,21 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <BPAddress
-                  name="BillTo"
-                  type="bo_BillTo"
-                  // disabled={data?.isStatusClose || false}
-                  data={data?.BPAddresses}
-                  value={data.BillTo}
-                  onChange={(e) => handlerChange("BillTo", e.target.value)}
+                <MUISelect
+                  value={data?.ShipToCode}
+                  aliaslabel="addressName"
+                  aliasvalue="addressName"
+                  items={data?.BPAddresses?.filter(
+                    ({ addressType }: any) => addressType === "bo_BillTo"
+                  )}
+                  onChange={(e) => handlerChange("ShipToCode", e.target.value)}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Ship To Address
+                  Shipping Address
                 </label>
               </div>
               <div className="col-span-3">
@@ -132,8 +136,12 @@ export default function LogisticForm({
                   fullWidth
                   multiline
                   rows={2}
-                  name="Address2"
-                  value={data?.Address2}
+                  value={getShippingAddress(
+                    data?.ShipToCode,
+                    data?.BPAddresses?.filter(
+                      ({ addressType }: any) => addressType === "bo_BillTo"
+                    )
+                  )}
                 />
               </div>
             </div>

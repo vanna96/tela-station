@@ -302,7 +302,6 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         User_Text: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
-        U_tl_sarn: data?.U_tl_sarn || null,
 
         // content
         // DocType: data?.DocType,
