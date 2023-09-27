@@ -90,8 +90,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     }, 0) ?? 0) *
       props?.data?.ExchangeRate
 
-  console.log(props?.data)
-
   return (
     <FormCard
       title="Content"

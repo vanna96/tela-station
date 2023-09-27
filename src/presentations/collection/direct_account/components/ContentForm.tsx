@@ -10,6 +10,7 @@ import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
 import shortid from "shortid"
 import GLAccountRepository from "@/services/actions/GLAccountRepository"
 import { TbEdit } from "react-icons/tb"
+import DistributionRuleRepository from "@/services/actions/distributionRulesRepository"
 interface ContentFormProps {
   handlerAddItem: () => void
   handlerChangeItem: (record: any) => void
@@ -106,7 +107,7 @@ export default function ContentForm({
         visible: true,
         Header: (header: any) => (
           <label>
-            Tax Code <span className="text-red-500">*</span>
+            Tax Code
           </label>
         ),
         Cell: ({ cell }: any) => {
@@ -115,6 +116,38 @@ export default function ContentForm({
             <MUITextField
               key={"unitPrice_" + cell.getValue()}
               value={cell.getValue()}
+              type="text"
+              readOnly={true}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "revenueLine",
+        header: "Revenue Line", //uses the default width from defaultColumn prop
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return
+          return (
+            <MUITextField
+              key={"revenueLine_" + cell.getValue()}
+              value={new DistributionRuleRepository().find(cell.row.original?.revenueLine)?.FactorDescription}
+              type="text"
+              readOnly={true}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "REV",
+        header: "Product Line", //uses the default width from defaultColumn prop
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return
+          return (
+            <MUITextField
+              key={"REV_" + cell.getValue()}
+              value={ new DistributionRuleRepository().find(cell.row.original?.REV)?.FactorDescription}
               type="text"
               readOnly={true}
             />
@@ -172,7 +205,7 @@ export default function ContentForm({
         data={data}
         onChange={onChange}
         onRemoveChange={handlerRemoveItem}
-        loading={ContentLoading}
+        loading={false}
       />
       <ServiceModal ref={serviceModalRef} onSave={onUpdateByItem} />
     </>

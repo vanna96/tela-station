@@ -25,7 +25,7 @@ export default function GeneralForm({
   edit,
   hanndResetState,
 }: IGeneralFormProps) {
-  let { LineOfBussiness, loadingLineOfBussiness, CurrencyAPI }: any =
+  let { LineOfBussiness, loadingLineOfBussiness, CurrencyAPI, sysInfo }: any =
     useContext(APIContext)
   const [cookies, setCookie] = useCookies(["user"])
   const dataCurrency = data?.vendor?.currenciesCollection
@@ -150,7 +150,7 @@ export default function GeneralForm({
                     <div className="col-span-6">
                       <div className="flex gap-4 items-start">
                         <MUISelect
-                          value={data?.Currency || sysInfo()?.data?.SystemCurrency}
+                          value={data?.Currency || sysInfo?.SystemCurrency}
                           disabled={data?.edit}
                           items={
                             dataCurrency?.length > 0
@@ -171,8 +171,8 @@ export default function GeneralForm({
                       </div>
                     </div>
                     <div className="col-span-6 pl-5">
-                      {(data?.Currency || sysInfo()?.data?.SystemCurrency) !==
-                        sysInfo()?.data?.SystemCurrency && (
+                      {(data?.Currency || sysInfo?.SystemCurrency) !==
+                        sysInfo?.SystemCurrency && (
                         <MUITextField
                           value={data?.ExchangeRate || 0}
                           name=""

@@ -16,9 +16,9 @@ import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
 import { arrayBufferToBlob } from "@/utilies"
 import shortid from "shortid"
-import { APIContext } from "../context/APIContext"
 import PaymentForm from "../components/PaymentForm"
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
+import { APIContext } from "../../settle_receipt/context/APIContext"
 
 class Form extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>()
@@ -148,10 +148,11 @@ class Form extends CoreFormDocument {
             GLCheck: data?.CheckAccount,
 
             GLCash: data?.CashAccount,
-            GLCashAmount: data?.CashSumFC || data?.CashSum,
+            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(2),
 
             GLBank: data?.TransferAccount,
-            GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
+            GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
+
             Currency: data?.DocCurrency,
             Items: data?.PaymentInvoices?.map((inv: any) => {
               // DocumentNo === i.DocEntry || DocEntry === i.DocEntry
@@ -216,7 +217,7 @@ class Form extends CoreFormDocument {
     this.setState({ ...this.state, Items: items })
   }
 
-  async handlerSubmit(event: any) {
+  async handlerSubmit(event: any, sysInfo:any) {
     event.preventDefault()
     const data: any = { ...this.state }
 
@@ -269,15 +270,15 @@ class Form extends CoreFormDocument {
             DocEntry: item.DocEntry,
             DocNum: item.DocumentNo,
             SumApplied:
-              item?.FCCurrency === sysInfo()?.data?.SystemCurrency
+              item?.FCCurrency === sysInfo?.SystemCurrency
                 ? parseFloat(item.TotalPayment).toFixed(2) || 0
                 : 0,
             AppliedSys:
-              item?.FCCurrency === sysInfo()?.data?.SystemCurrency
+              item?.FCCurrency === sysInfo?.SystemCurrency
                 ? parseFloat(item.TotalPayment).toFixed(2) || 0
                 : 0,
             AppliedFC:
-              item?.FCCurrency !== sysInfo()?.data?.SystemCurrency
+              item?.FCCurrency !== sysInfo?.SystemCurrency
                 ? parseFloat(Math.abs(item.TotalPayment).toString()).toFixed(2)
                 : 0,
             DiscountPercent: item?.Discount || 0,
@@ -417,12 +418,12 @@ class Form extends CoreFormDocument {
         >
           Payment Means
         </MenuButton>
-        <MenuButton
+        {/* <MenuButton
           active={this.state.tapIndex === 2}
           onClick={() => this.handlerChangeMenu(2)}
         >
           Content
-        </MenuButton>
+        </MenuButton> */}
         <MenuButton
           active={this.state.tapIndex === 3}
           onClick={() => this.handlerChangeMenu(3)}
@@ -513,6 +514,8 @@ class Form extends CoreFormDocument {
         }
       }
     }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
+    
+    const { sysInfo }:any = useContext(APIContext) 
 
     return (
       <>
@@ -522,7 +525,7 @@ class Form extends CoreFormDocument {
         />
         <form
           id="formData"
-          onSubmit={this.handlerSubmit}
+          onSubmit={ (e:any) => this.handlerSubmit (e, sysInfo)}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           {this.state.loading ? (
@@ -557,7 +560,7 @@ class Form extends CoreFormDocument {
                   />
                 )}
 
-                {this.state.tapIndex === 2 && (
+                {/* {this.state.tapIndex === 2 && (
                   <ContentForm
                     data={this.state}
                     handlerAddItem={() => {
@@ -571,7 +574,7 @@ class Form extends CoreFormDocument {
                     onChange={this.handlerChange}
                     ContentLoading={this.state.ContentLoading}
                   />
-                )}
+                )} */}
 
                 {this.state.tapIndex === 3 && (
                   <AttachmentForm

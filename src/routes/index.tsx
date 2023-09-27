@@ -13,6 +13,7 @@ import LogisticRoute from "./LogisticRoute"
 import { useCookies } from "react-cookie"
 import SystemInitializeMasterPage from "@/presentations/systemInitialize/SystemInitialize"
 import CollectionRoute from "./CollectionRoute"
+import ExpenseRoute from "./ExpenseRoute"
 
 const Router = () => {
   return (
@@ -38,6 +39,11 @@ const Router = () => {
             <Route
               path="/banking/*"
               element={<CollectionRoute />}
+              errorElement={<span>Error</span>}
+            />
+            <Route
+              path="/expense/*"
+              element={<ExpenseRoute />}
               errorElement={<span>Error</span>}
             />
           </Route>

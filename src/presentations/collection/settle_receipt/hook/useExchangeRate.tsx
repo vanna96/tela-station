@@ -1,10 +1,12 @@
-import { formatDate, sysInfo } from "@/helper/helper"
+import { formatDate } from "@/helper/helper"
 import request from "@/utilies/request"
-import { useMemo } from "react"
+import { useContext, useMemo } from "react"
 import { useQuery } from "react-query"
+import { APIContext } from "../context/APIContext"
 
 export const useExchangeRate = (Currency: any, handleChange: any) => {
   const date = useMemo(() => formatDate(new Date(), ""), [new Date()])
+  const {  sysInfo }: any = useContext(APIContext)
 
   const { data } = useQuery({
     queryKey: [`date_${date}`, Currency],
@@ -18,7 +20,7 @@ export const useExchangeRate = (Currency: any, handleChange: any) => {
           return res?.data
         })
         .catch((err: any) => {
-          if (Currency === sysInfo()?.data?.SystemCurrency) return handleChange("ExchangeRate", 1)
+          if (Currency === sysInfo?.SystemCurrency) return handleChange("ExchangeRate", 1)
           return handleChange("ExchangeRate", 0)
         })
 

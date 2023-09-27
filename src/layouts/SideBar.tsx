@@ -78,15 +78,13 @@ export default function SideBar(props: any) {
           title="Collection"
         />
         <NavButton
-          onClick={() => {
-            return;
-          }}
-          route="Expense"
+          onClick={() => goTo("/expense")}
+          route="expense"
           collapse={props?.collapse}
           icon={<FiBarChart2 />}
           title="Expense Log"
         />
-        <NavButton
+        {/* <NavButton
           onClick={() => {
             return;
           }}
@@ -103,7 +101,7 @@ export default function SideBar(props: any) {
           collapse={props?.collapse}
           icon={<BsFuelPumpDiesel />}
           title="Fuel Dispenser"
-        />
+        /> */}
       </div>
     </aside>
   );

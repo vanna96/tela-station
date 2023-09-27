@@ -29,9 +29,15 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     staleTime: Infinity,
   });
 
+  const { data:sysInfo }: any = useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () => request("POST", "CompanyService_GetAdminInfo").then((res:any) => res?.data).catch((err:any)=> console.log(err)),
+    staleTime: Infinity,
+  })
+
   return (
     <>
-      <APIContext.Provider value={{ LineOfBussiness, loadingLineOfBussiness, branchBPL, CurrencyAPI }}>
+      <APIContext.Provider value={{ LineOfBussiness, loadingLineOfBussiness, branchBPL, CurrencyAPI, sysInfo}}>
         {children}
       </APIContext.Provider>
     </>

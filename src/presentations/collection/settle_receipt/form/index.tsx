@@ -11,7 +11,7 @@ import ContentForm from "./../components/ContentForm"
 import AttachmentForm from "../components/AttachmentForm"
 import React, { useContext } from "react"
 import { ServiceModalComponent } from "../components/ServiceModalComponent"
-import { fetchSAPFile, formatDate, getAttachment, sysInfo } from "@/helper/helper"
+import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper"
 import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
 import { arrayBufferToBlob } from "@/utilies"
@@ -143,18 +143,20 @@ class Form extends CoreFormDocument {
 
           // CheckAccount: data?.GLCheck || "",
 
+          console.log(data?.DocRate);
+          
+
           state = {
             ...data,
             GLCheck: data?.CheckAccount,
 
             GLCash: data?.CashAccount,
-            GLCashAmount: data?.CashSumFC || data?.CashSum,
+            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(2),
 
             GLBank: data?.TransferAccount,
-            GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
+            GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
             Currency: data?.DocCurrency,
             Items: data?.PaymentInvoices?.map((inv: any) => {
-              // DocumentNo === i.DocEntry || DocEntry === i.DocEntry
               const find = invoice?.find(
                 ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
               )
@@ -177,13 +179,6 @@ class Form extends CoreFormDocument {
                   check_no: check?.CheckNumber,
                 }
               }) || [],
-            // DocDiscount: data?.DiscountPercent,
-            // BPAddresses: vendor?.bpAddress?.map(
-            //   ({ addressName, addressType }: any) => {
-            //     return { addressName: addressName, addressType: addressType }
-            //   },
-            // ),
-            // disabledFields,
             AttachmentList,
             isStatusClose: data?.DocumentStatus === "bost_Close",
             edit: true,
@@ -216,10 +211,11 @@ class Form extends CoreFormDocument {
     this.setState({ ...this.state, Items: items })
   }
 
-  async handlerSubmit(event: any) {
+  async handlerSubmit(event: any, sysInfo:any) {
+
     event.preventDefault()
     const data: any = { ...this.state }
-
+    
     try {
       this.setState({ ...this.state, isSubmitting: false })
       await new Promise((resolve) => setTimeout(() => resolve(""), 800))
@@ -269,15 +265,15 @@ class Form extends CoreFormDocument {
             DocEntry: item.DocEntry,
             DocNum: item.DocumentNo,
             SumApplied:
-              item?.FCCurrency === sysInfo()?.data?.SystemCurrency
+              item?.FCCurrency === sysInfo?.SystemCurrency
                 ? parseFloat(item.TotalPayment).toFixed(2) || 0
                 : 0,
             AppliedSys:
-              item?.FCCurrency === sysInfo()?.data?.SystemCurrency
+              item?.FCCurrency === sysInfo?.SystemCurrency
                 ? parseFloat(item.TotalPayment).toFixed(2) || 0
                 : 0,
             AppliedFC:
-              item?.FCCurrency !== sysInfo()?.data?.SystemCurrency
+              item?.FCCurrency !== sysInfo?.SystemCurrency
                 ? parseFloat(Math.abs(item.TotalPayment).toString()).toFixed(2)
                 : 0,
             DiscountPercent: item?.Discount || 0,
@@ -513,6 +509,8 @@ class Form extends CoreFormDocument {
       }
     }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
 
+    const { sysInfo }:any = useContext(APIContext)
+    
     return (
       <>
         <ServiceModalComponent
@@ -521,7 +519,7 @@ class Form extends CoreFormDocument {
         />
         <form
           id="formData"
-          onSubmit={this.handlerSubmit}
+          onSubmit={(e:any) => this.handlerSubmit(e, sysInfo)}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           {this.state.loading ? (
