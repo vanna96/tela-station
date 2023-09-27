@@ -1,20 +1,24 @@
-import React, { FC } from 'react'
-import Modal from './Modal';
-import MaterialReactTable from 'material-react-table';
-import { useQuery } from 'react-query';
-import InitializeData from '@/services/actions';
-import GLAccount from '../../models/GLAccount';
-import GLAccountRepository from '@/services/actions/GLAccountRepository';
-
+import React, { FC, useState } from "react";
+import Modal from "./Modal";
+import MaterialReactTable from "material-react-table";
+import { useQuery } from "react-query";
+import InitializeData from "@/services/actions";
+import GLAccount from "../../models/GLAccount";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import shortid from "shortid";
+import { IconButton, OutlinedInput } from "@mui/material";
+import { HiSearch, HiX } from "react-icons/hi";
 
 interface GLAccountProps {
-  open: boolean,
-  onClose: () => void,
-  onOk: (account: GLAccount) => void
+  open: boolean;
+  onClose: () => void;
+  onOk: (account: GLAccount) => void;
 }
 
-
 const GLAccountModal: FC<GLAccountProps> = ({ open, onClose, onOk }) => {
+  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [filterKey, setFilterKey] = React.useState("key-id");
+
   const { data, isLoading }: any = useQuery({
     queryKey: ["accounts"],
     queryFn: () => new GLAccountRepository().get(),
@@ -32,35 +36,75 @@ const GLAccountModal: FC<GLAccountProps> = ({ open, onClose, onOk }) => {
       {
         accessorKey: "Code",
         header: "Account Number",
+        minSize: 100, //min size enforced during resizing
+        maxSize: 300, //max size enforced during resizing
+        size: 100,
       },
       {
         accessorKey: "Name",
         header: "Account Name",
+        minSize: 100, //min size enforced during resizing
+        maxSize: 400, //max size enforced during resizing
+        size: 180,
       },
     ],
     []
   );
+  const handlerSearch = (event: any) => setGlobalFilter(event.target.value);
+
+  const clearFilter = React.useCallback(() => {
+    if (globalFilter === "") return;
+    setGlobalFilter("");
+    setFilterKey(shortid.generate());
+  }, [globalFilter]);
 
   return (
     <Modal
       open={open}
       onClose={onClose}
-      widthClass='w-[70%]'
-      title='List Of Accounts'
+      widthClass="w-[55%]"
+      title="Account Lists"
       disableTitle={true}
       disableFooter={true}
     >
-      <div className="data-table text-inherit" >
+      <div className="data-table text-inherit">
+        <div className="w-full flex justify-between items-center p-2 pt-6">
+          <h2 className="mt-4 font-bold text-lg ">List of Accounts</h2>
+
+          <div className="mt-4">
+            <OutlinedInput
+              size="small"
+              key={filterKey}
+              onChange={handlerSearch}
+              className="text-sm"
+              sx={{ fontSize: "14px" }}
+              placeholder="Search..."
+              endAdornment={
+                <IconButton size="small" onClick={clearFilter}>
+                  {globalFilter !== "" ? (
+                    <HiX className="text-xl" />
+                  ) : (
+                    <HiSearch className="text-xl" />
+                  )}
+                </IconButton>
+              }
+            />
+          </div>
+        </div>
+        <hr />
         <MaterialReactTable
+          layoutMode="grid"
           columns={columns}
           data={data ?? []}
           enableStickyHeader={true}
           enableStickyFooter={true}
+          enableColumnResizing={false}
           enablePagination={true}
-          enableTopToolbar={true}
+          enableTopToolbar={false}
           enableDensityToggle={false}
           initialState={{ density: "compact" }}
           // enableRowSelection={true}
+          onGlobalFilterChange={setGlobalFilter}
           onPaginationChange={setPagination}
           onRowSelectionChange={setRowSelection}
           getRowId={(row: any) => row.ItemCode}
@@ -76,27 +120,25 @@ const GLAccountModal: FC<GLAccountProps> = ({ open, onClose, onOk }) => {
           muiTableBodyRowProps={({ row }) => ({
             onClick: () => {
               onOk(new GLAccount(row.original));
-              onClose()
+              onClose();
             },
-            sx: { cursor: 'pointer' },
+            sx: { cursor: "pointer" },
           })}
-          state={
-            {
-              isLoading,
-              pagination: pagination,
-              rowSelection
-            }
-          }
+          state={{
+            globalFilter,
+            isLoading,
+            pagination: pagination,
+            rowSelection,
+          }}
           renderTopToolbarCustomActions={({ table }) => {
-            return <h2 className=" text-lg font-bold">List Of Accounts</h2>
+            return (
+              <h2 className=" text-lg font-bold mt-4">List Of Accounts</h2>
+            );
           }}
         />
       </div>
     </Modal>
-  )
-}
+  );
+};
 
 export default GLAccountModal;
-
-
-

@@ -12,6 +12,7 @@ import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import AccountTextField from "@/components/input/AccountTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -348,7 +349,22 @@ export default function GeneralForm({
               />
             </div>
           </div>
-         
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Cash Account
+              </label>
+            </div>
+            <div className="col-span-3">
+              <AccountTextField
+                name="accountCode"
+                value={data?.CashAccount ?? ""}
+                onChange={(e) =>
+                  handlerChange("CashAccount", e.target.value?.code)
+                }
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

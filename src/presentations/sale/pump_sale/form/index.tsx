@@ -290,7 +290,7 @@ class PumpSaleForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        CashAccount: "110361",
+        CashAccount: data?.CashAccount,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
