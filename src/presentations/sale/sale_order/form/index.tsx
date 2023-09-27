@@ -16,7 +16,7 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Backdrop } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
@@ -234,6 +234,7 @@ class SalesOrderForm extends CoreFormDocument {
         ...this.state,
         isSubmitting: false,
         warehouseCode: "",
+        loading: true,
       });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
@@ -389,7 +390,7 @@ class SalesOrderForm extends CoreFormDocument {
           console.error("Error in POST request:", err.message);
         })
         .finally(() => {
-          this.setState({ ...this.state, isSubmitting: false });
+          this.setState({ ...this.state, isSubmitting: false, loading: false });
         });
     } catch (error: any) {
       if (error instanceof FormValidateException) {
@@ -482,6 +483,12 @@ class SalesOrderForm extends CoreFormDocument {
 
     return (
       <>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={this.state.loading} // Show backdrop when isLoading is true
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
         {itemGroupCode === "100" && (
           <ItemModalComponent
             type="sale"
@@ -520,61 +527,61 @@ class SalesOrderForm extends CoreFormDocument {
           className="h-full w-full flex flex-col gap-4 relative"
         >
           <div className="w-full h-full flex items-center justify-center">
-            {this.state.loading ? (
+            {/* {this.state.loading ? (
               <div className="flex items-center justify-center">
                 <CircularProgress />
               </div>
-            ) : (
-              <>
-                <div className="grow">
-                  {this.state.tapIndex === 0 && (
-                    <GeneralForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
-                      lineofBusiness={this.state.lineofBusiness}
-                      warehouseCode={this.state.warehouseCode}
-                      onWarehouseChange={this.handleWarehouseChange}
-                      onLineofBusinessChange={this.handleLineofBusinessChange}
-                    />
-                  )}
+            ) : ( */}
+            <>
+              <div className="grow">
+                {this.state.tapIndex === 0 && (
+                  <GeneralForm
+                    data={this.state}
+                    edit={this.props?.edit}
+                    handlerChange={(key, value) =>
+                      this.handlerChange(key, value)
+                    }
+                    lineofBusiness={this.state.lineofBusiness}
+                    warehouseCode={this.state.warehouseCode}
+                    onWarehouseChange={this.handleWarehouseChange}
+                    onLineofBusinessChange={this.handleLineofBusinessChange}
+                  />
+                )}
 
-                  {this.state.tapIndex === 1 && (
-                    <LogisticForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
+                {this.state.tapIndex === 1 && (
+                  <LogisticForm
+                    data={this.state}
+                    edit={this.props?.edit}
+                    handlerChange={(key, value) => {
+                      this.handlerChange(key, value);
+                    }}
+                  />
+                )}
 
-                  {this.state.tapIndex === 2 && (
-                    <ContentForm
-                      data={this.state}
-                      handlerAddItem={() => {
-                        this.hanndAddNewItem();
-                      }}
-                      handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Items: items })
-                      }
-                      handlerChangeItem={this.handlerChangeItems}
-                      onChangeItemByCode={this.handlerChangeItemByCode}
-                      onChange={this.handlerChange}
-                    />
-                  )}
+                {this.state.tapIndex === 2 && (
+                  <ContentForm
+                    data={this.state}
+                    handlerAddItem={() => {
+                      this.hanndAddNewItem();
+                    }}
+                    handlerRemoveItem={(items: any[]) =>
+                      this.setState({ ...this.state, Items: items })
+                    }
+                    handlerChangeItem={this.handlerChangeItems}
+                    onChangeItemByCode={this.handlerChangeItemByCode}
+                    onChange={this.handlerChange}
+                  />
+                )}
 
-                  {this.state.tapIndex === 3 && (
-                    <AttachmentForm
-                      data={this.state}
-                      handlerChange={(key: any, value: any) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-                  {/* {this.state.tapIndex === 4 && (
+                {this.state.tapIndex === 3 && (
+                  <AttachmentForm
+                    data={this.state}
+                    handlerChange={(key: any, value: any) => {
+                      this.handlerChange(key, value);
+                    }}
+                  />
+                )}
+                {/* {this.state.tapIndex === 4 && (
                     <AccountingForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -583,9 +590,9 @@ class SalesOrderForm extends CoreFormDocument {
                       }}
                     />
                   )} */}
-                </div>
-              </>
-            )}
+              </div>
+            </>
+            {/* )} */}
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
