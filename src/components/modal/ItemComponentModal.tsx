@@ -41,13 +41,20 @@ const ItemModal: FC<ItemModalProps> = ({
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
 
+  const itemsGroupCodes = [100, 101, 102];
   const { data, isLoading }: any = useQuery({
-    queryKey: ["items"],
-    queryFn: () => new itemRepository().get(),
+    queryKey: ["items", group],
+    queryFn: () =>
+      // new itemRepository().getSaleItem(
+      //   `&$filter=ItemType eq 'itItems' and ItemsGroupCode eq ${userSelectedItemsGroupCode} &$orderby=ItemCode asc`
+      // ),
+      new itemRepository().getSaleItem(
+        `&$filter=ItemType eq 'itItems' and (ItemsGroupCode eq ${itemsGroupCodes.join(
+          " or ItemsGroupCode eq "
+        )}) &$orderby=ItemCode asc`
+      ),
     staleTime: Infinity,
   });
-
-  // console.log(data)
 
   const vendors: any = useQuery({
     queryKey: ["venders_supplier"],
@@ -74,11 +81,11 @@ const ItemModal: FC<ItemModalProps> = ({
       },
       {
         accessorKey: "ItemName",
-        header: "Name", 
+        header: "Name",
       },
       {
         accessorKey: "ForeignName",
-        header: "Foreign Name", 
+        header: "Foreign Name",
       },
       // {
       //   accessorKey: "Description",
@@ -194,7 +201,7 @@ const ItemModal: FC<ItemModalProps> = ({
         SaleVatGroup: e?.SalesVATGroup,
         PurchaseVatGroup: e?.PurchaseVATGroup,
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
-        VatRate: e?.SalesVATGroup === 'VO10' ? 10 : 0,
+        VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
         Quantity: defaultPrice !== null ? 1 : 0,
         UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
@@ -203,13 +210,14 @@ const ItemModal: FC<ItemModalProps> = ({
         WarehouseCode: WarehouseCode,
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
-        BinCode:
-          warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
+        BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
         revenueLine: "202001",
         REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
-        // GrossPrice: total + ((total * vatRate) / 100),
+        GrossPrice:
+          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+          0,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,
@@ -221,6 +229,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
         )?.BaseQuantity,
+        UnitsOfMeasurements: uomGroup,
       };
     });
     onOk(selectItems);
@@ -266,7 +275,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      {/* <h2 className="font-bold text-xl capitalize">{type}</h2> */}
+                      <h2 className="font-bold text-xl capitalize">{}</h2>
                       <OutlinedInput
                         size="small"
                         key={filterKey}

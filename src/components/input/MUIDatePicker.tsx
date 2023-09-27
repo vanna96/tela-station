@@ -65,7 +65,7 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (props: MUIDatePickerProps) 
   return (
     <div className="flex flex-col gap-1">
       {
-        label && <label htmlFor={label} className={`text-inherit text-[14px] xl:text-[13px] ${error ? 'text-red-500' : 'text-[#656565]'} `}>
+        label && <label htmlFor={label} className={`text-inherit text-[14px] xl:text-[13px] text-[#656565] ${error ? 'text-red-500' : 'text-[#656565]'} `}>
           {label} {props.required ? <span className="text-red-500">*</span> : null}
         </label>
       }

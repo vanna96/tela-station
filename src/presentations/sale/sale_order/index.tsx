@@ -85,8 +85,7 @@ export default function SaleOrderLists() {
         size: 70,
         Cell: ({ cell }: any) => (
           <>
-            {" "}
-            {"AUD"} {cell.getValue().toFixed(2)}
+            {"$"} {cell.getValue().toFixed(2)}
           </>
         ),
       },
@@ -98,7 +97,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-      
+
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -128,10 +127,13 @@ export default function SaleOrderLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/sales-order/" + cell.row.original.DocEntry +'/edit', {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  "/sale/sales-order/" + cell.row.original.DocEntry + "/edit",
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <DriveFileRenameOutlineIcon
@@ -392,7 +394,7 @@ export default function SaleOrderLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" 
+                      e?.accessorKey !== "DocumentStatus"
                   )}
                   onClick={handlerSearch}
                 />

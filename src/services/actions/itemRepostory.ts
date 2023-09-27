@@ -29,34 +29,31 @@ export default class itemRepository extends Repository<Item> {
         "U_t_re",
         "U_tl_dim1",
         "U_tl_dim2",
-        "U_Type"
     ];
 
     private static url1 = '/Items';
 
-    private static select1 = [
+    selectSale= [
         'ItemName',
         'ItemCode',
-        "PurchaseVATGroup",
+        'ForeignName',
         "SalesVATGroup",
         "UoMGroupEntry",
-        "ItemsGroupCode",
-        "PurchaseItem",
         "SalesItem",
-        "InventoryItem",
-        "InventoryUoMEntry",
-        "InventoryUOM",
         "DefaultSalesUoMEntry",
-        "DefaultPurchasingUoMEntry",
         "ItemUnitOfMeasurementCollection",
-        "Mainsupplier",
         "ItemPrices",
+        "ItemsGroupCode",
+        "ItemType",
+        "U_tl_dim1",
+        "U_tl_dim2"
 
     ];
+    static select: any;
 
     async get<Item>(query?: string | undefined): Promise<Item[]> {
         // const response = await request('GET', this.url + + '?$select=' + this.select.join(','))
-        const response = await request('GET', this.url  + '?$select=' + this.select.join(',')+`&$filter=ItemType eq 'itItems'`)
+        const response = await request('GET', this.url + '?$select=' + this.select.join(',') + `&$filter=ItemType eq 'itItems'`)
 
             .then((res: any) => res?.data?.value)
             .catch((e: Error) => {
@@ -70,8 +67,16 @@ export default class itemRepository extends Repository<Item> {
     }
 
 
-    public static async getAll<Item>(query?: string | undefined): Promise<Item[]> {
-        const response = await request('GET', this.url1 + '?$select=' + this.select1.join(',')+ `&$filter=ItemType eq 'itItems'`)
+    async getSaleItem<Item>(saleQuery?: string | undefined): Promise<Item[]> {
+        return await request('GET', this.url + "?$select=" + this.selectSale.join(',') + saleQuery ?? '').then((res: any) => res?.data?.value).catch((e) => {
+            throw new Error(e);
+        });
+    }
+        
+
+
+    public static async getAll<Item>(saleQuery?: string | undefined): Promise<Item[]> {
+        const response = await request('GET', this.url1 + '?$select=' + this.select.join(',') + `&$filter=ItemType eq 'itItems'`)
             .then((res: any) => res?.data?.value)
             .catch((e: Error) => {
                 throw new Error(e.message);

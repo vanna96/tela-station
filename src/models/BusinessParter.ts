@@ -139,7 +139,7 @@ export const getShippingAddress = (shipToDefault: string, bpAddress: BPAddress[]
 
     if (!shipAddress) return '';
 
-    return `${shipAddress?.street ?? ""}, ${shipAddress?.city ?? ""}, ${shipAddress?.country ?? ""}.`;
+    return `${shipAddress?.StreetNo ?? ""}`;
 };
 
 

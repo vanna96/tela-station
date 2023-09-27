@@ -38,7 +38,7 @@ export default class DimensionRepository extends Repository<Dimension> {
     const data = localStorage.getItem(this.key);
     if (!data) return {};
     const dimension: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
-    return dimension.find((e: any) => e?.Code == code);
+    return dimension.find((e: any) => e?.FactorCode == code);
   }
 
   post(payload: any, isUpdate?: boolean | undefined, id?: any): Promise<Dimension> {

@@ -348,21 +348,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                SA Number<span className="text-red-500">*</span>
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={data?.U_tl_sarn}
-                onChange={(e: any) =>
-                  handlerChange("U_tl_sarn", e.target.value)
-                }
-              />
-            </div>
-          </div>
+         
         </div>
       </div>
     </div>
