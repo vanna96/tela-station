@@ -148,10 +148,11 @@ class Form extends CoreFormDocument {
             GLCheck: data?.CheckAccount,
 
             GLCash: data?.CashAccount,
-            GLCashAmount: data?.CashSumFC || data?.CashSum,
+            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(2),
 
             GLBank: data?.TransferAccount,
-            GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
+            GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
+
             Currency: data?.DocCurrency,
             Items: data?.PaymentInvoices?.map((inv: any) => {
               // DocumentNo === i.DocEntry || DocEntry === i.DocEntry

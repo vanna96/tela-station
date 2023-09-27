@@ -153,6 +153,8 @@ class Form extends CoreFormDocument {
             GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
             Currency: data?.DocCurrency,
             Items: data?.PaymentAccounts?.map((inv: any) => {
+              console.log(inv);
+              
               return {
                 ItemCode: inv.AccountCode,
                 VatGroup: inv.VatGroup || null,
@@ -162,6 +164,9 @@ class Form extends CoreFormDocument {
                 VatRate:
                   (parseFloat(inv?.VatAmount || 0) * parseFloat(inv.SumPaid || 0)) /
                   100,
+                LineOfBussiness: inv?.ProfitCenter || "",
+                revenueLine: inv?.ProfitCenter2 || "",
+                REV: inv?.ProfitCenter3 || "",
               }
             }),
             ExchangeRate: data?.DocRate || 1,
@@ -259,6 +264,9 @@ class Form extends CoreFormDocument {
             VatGroup: item.VatGroup || null,
             AccountName: item.ItemName || null,
             SumPaid: item.LineTotal || 0,
+            ProfitCenter: item?.LineOfBussiness || "",
+            ProfitCenter2: item.revenueLine || "",
+            ProfitCenter3: item.REV || "",
           }
         }) || []
 
@@ -489,7 +497,7 @@ class Form extends CoreFormDocument {
         }
       }
     }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
-
+    
     return (
       <>
         <ServiceModalComponent

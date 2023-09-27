@@ -143,18 +143,20 @@ class Form extends CoreFormDocument {
 
           // CheckAccount: data?.GLCheck || "",
 
+          console.log(data?.DocRate);
+          
+
           state = {
             ...data,
             GLCheck: data?.CheckAccount,
 
             GLCash: data?.CashAccount,
-            GLCashAmount: data?.CashSumFC || data?.CashSum,
+            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(2),
 
             GLBank: data?.TransferAccount,
-            GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
+            GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
             Currency: data?.DocCurrency,
             Items: data?.PaymentInvoices?.map((inv: any) => {
-              // DocumentNo === i.DocEntry || DocEntry === i.DocEntry
               const find = invoice?.find(
                 ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
               )
@@ -177,13 +179,6 @@ class Form extends CoreFormDocument {
                   check_no: check?.CheckNumber,
                 }
               }) || [],
-            // DocDiscount: data?.DiscountPercent,
-            // BPAddresses: vendor?.bpAddress?.map(
-            //   ({ addressName, addressType }: any) => {
-            //     return { addressName: addressName, addressType: addressType }
-            //   },
-            // ),
-            // disabledFields,
             AttachmentList,
             isStatusClose: data?.DocumentStatus === "bost_Close",
             edit: true,
@@ -515,7 +510,7 @@ class Form extends CoreFormDocument {
     }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
 
     const { sysInfo }:any = useContext(APIContext)
-
+    
     return (
       <>
         <ServiceModalComponent

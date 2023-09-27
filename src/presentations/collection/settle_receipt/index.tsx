@@ -117,7 +117,7 @@ export default function ReturnRequestLists() {
                       ? "settle-receipt"
                       : "payment-account"
                 }
-                route(`/banking/${url}/${cell.row.original.DocEntry}/Edit`, {
+                route(`/banking/${url}/${cell.row.original.DocEntry}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 })
@@ -271,7 +271,7 @@ export default function ReturnRequestLists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Customer Name / Code"
-                  placeholder="Document No."
+                  placeholder="Customer Name / Code"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.cardcode}

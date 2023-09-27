@@ -115,43 +115,6 @@ class FormDetail extends Component<any, any> {
             ...data,
             Currency: data?.DocCurrency,
 
-            // Description: data?.Comments,
-            // Owner: data?.DocumentsOwner,
-            // Currency: data?.DocCurrency,
-            // Items: data?.DocumentLines?.map((item: any) => {
-            //   return {
-            //     ItemCode: item.ItemCode || null,
-            //     ItemName: item.ItemDescription || item.Name || null,
-            //     Quantity: item.Quantity || null,
-            //     UnitPrice: item.UnitPrice || item.total,
-            //     Discount: item.DiscountPercent || 0,
-            //     VatGroup: item.VatGroup || "",
-            //     UomGroupCode: item.UoMCode || null,
-            //     UomEntry: item.UoMEntry || null,
-            //     // Currency: sysInfo()?.data?.SystemCurrency,
-            //     LineTotal: item.LineTotal,
-            //     VatRate: item.TaxPercentagePerRow,
-            //   }
-            // }),
-            // ShippingTo: data?.ShipToCode || null,
-            // BillingTo: data?.PayToCode || null,
-            // JournalRemark: data?.JournalMemo,
-            // PaymentTermType: data?.PaymentGroupCode,
-            // ShippingType: data?.TransportationCode,
-            // FederalTax: data?.FederalTaxID || null,
-            // CurrencyType: "B",
-            // vendor,
-            // DocDiscount: data?.DiscountPercent,
-            // BPAddresses: vendor?.bpAddress?.map(
-            //   ({ addressName, addressType }: any) => {
-            //     return { addressName: addressName, addressType: addressType }
-            //   },
-            // ),
-
-            // disabledFields,
-            // isStatusClose: data?.DocumentStatus === "bost_Close",
-            // RoundingValue: data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            // Rounding: (data?.Rounding == "tYES").toString(),
             ExchangeRate: data?.DocRate || 1,
             Edit: true,
             PostingDate: data?.DocDate,
@@ -160,9 +123,13 @@ class FormDetail extends Component<any, any> {
             loading: false,
 
             GLCash: data?.CashAccount || "",
-            GLCashAmount: data?.CashSum || 0,
-            GLBank: data?.TransferAccount || "",
-            GLBankAmount: data?.TransferSum || 0,
+            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(
+              2,
+            ),
+            GLBank: data?.TransferAccount,
+            GLBankAmount: parseFloat(
+              (data?.TransferSum || 0) * (data?.DocRate || 1),
+            ).toFixed(2),
             CheckAccount: data?.GLCheck || "",
 
             paymentMeanCheckData:
@@ -204,7 +171,7 @@ class FormDetail extends Component<any, any> {
   render() {
     return (
       <>
-        <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
+        <div className="w-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
           <DocumentHeaderComponent data={this.state} menuTabs />
 
           <div className="w-full h-full flex flex-col gap-4">
@@ -215,7 +182,7 @@ class FormDetail extends Component<any, any> {
             ) : (
               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
                 <div className="grow flex flex-col gap-3 ">
-                  <div className="bg-white shadow-md border  w-full rounded-md px-8 py-4  ">
+                  <div className="bg-white  w-full px-8 py-4  ">
                     <General data={this.state} />
                     <PaymentMean data={this.state} />
                     <Content data={this.state} />
@@ -241,8 +208,10 @@ function General(props: any) {
   const { data }: any = props
   return (
     <>
-      <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-        <legend className="text-md px-2 font-bold">General Information</legend>
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          General
+        </h2>
         <div className="py-4 px-8">
           <div className="grid grid-cols-12 ">
             <div className="col-span-5">
@@ -289,7 +258,7 @@ function General(props: any) {
             </div>
           </div>
         </div>
-      </fieldset>
+      </div>
     </>
   )
 }
@@ -301,7 +270,7 @@ function PaymentMean(props: any) {
 
   return (
     <>
-      <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
+      {/* <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
         <h2>
           Payment Means -{" "}
           <b>
@@ -309,16 +278,24 @@ function PaymentMean(props: any) {
             {parseFloat(totalUsd).toFixed(2) || "0.00"}
           </b>
         </h2>
-      </div>
-      <div className="mt-6">
-        <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-          <legend className="text-md px-2 font-bold">Payment Means - Check</legend>
+      </div> */}
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          Payment Means -{" "}
+          <b>
+            {data?.Currency || sysInfo?.SystemCurrency}{" "}
+            {parseFloat(totalUsd).toFixed(2) || "0.00"}
+          </b>
+        </h2>
+        <div className="mt-6">
+          {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          <legend className="text-md px-2 font-bold">Payment Means - Check</legend> */}
           <div className="grid grid-cols-2 my-4">
             <div className="pl-4 pr-20">
               <div className="grid grid-cols-5">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    GL Account (Transfer)
+                    GL Check Account
                   </label>
                 </div>
                 <div className="col-span-3">
@@ -333,17 +310,17 @@ function PaymentMean(props: any) {
             <div className="pl-20"></div>
           </div>
           <PaymentTable data={data} onChange={() => console.log()} />
-        </fieldset>
+          {/* </fieldset>
         <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
           <legend className="text-md px-2 font-bold">
             Payment Means - Bank Transfer
-          </legend>
+          </legend> */}
           <div className="grid grid-cols-2 my-4">
             <div className="pl-4 pr-20">
               <div className="grid grid-cols-5">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    GL Account (Transfer)
+                    GL Bank Account
                   </label>
                 </div>
                 <div className="col-span-3">
@@ -373,15 +350,15 @@ function PaymentMean(props: any) {
               </div>
             </div>
           </div>
-        </fieldset>
+          {/* </fieldset>
         <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-          <legend className="text-md px-2 font-bold">Payment Means - Cash</legend>
+          <legend className="text-md px-2 font-bold">Payment Means - Cash</legend> */}
           <div className="grid grid-cols-2 my-4">
             <div className="pl-4 pr-20">
               <div className="grid grid-cols-5">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    GL Account (Transfer)
+                    GL Cash Account
                   </label>
                 </div>
                 <div className="col-span-3">
@@ -411,7 +388,8 @@ function PaymentMean(props: any) {
               </div>
             </div>
           </div>
-        </fieldset>
+          {/* </fieldset> */}
+        </div>
       </div>
     </>
   )
@@ -495,8 +473,10 @@ function Content(props: any) {
 
   return (
     <>
-      <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-        <legend className="text-md px-2 font-bold">Content Information</legend>
+      {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+        <legend className="text-md px-2 font-bold">Content Information</legend> */}
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">Content</h2>
         <MaterialReactTable
           columns={itemColumns}
           data={data?.Items ?? []}
@@ -547,7 +527,9 @@ function Content(props: any) {
             </div>
           </div>
         </div>
-      </fieldset>
+      </div>
+
+      {/* </fieldset> */}
     </>
   )
 }

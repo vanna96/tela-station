@@ -57,7 +57,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                   <div className="grid grid-cols-5">
                     <div className="col-span-2">
                       <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                        GL Account (Transfer)
+                        GL Check Account
                       </label>
                     </div>
                     <div className="col-span-3">
@@ -80,7 +80,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                   <div className="grid grid-cols-5">
                     <div className="col-span-2">
                       <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                        GL Account (Transfer)
+                        GL Bank Account
                       </label>
                     </div>
                     <div className="col-span-3">
@@ -118,7 +118,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                   <div className="grid grid-cols-5">
                     <div className="col-span-2">
                       <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                        GL Account (Transfer)
+                        GL Cash Account
                       </label>
                     </div>
                     <div className="col-span-3">

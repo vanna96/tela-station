@@ -5,6 +5,7 @@ import { currencyFormat } from "@/utilies"
 import MUIDatePicker from "@/components/input/MUIDatePicker"
 import ShippingType from "@/components/selectbox/ShippingType"
 import VatGroupTextField from "@/components/input/VatGroupTextField"
+import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField"
 
 interface ServiceModalProps {
   ref?: React.RefObject<ServiceModal | undefined>
@@ -104,6 +105,27 @@ export class ServiceModal extends React.Component<ServiceModalProps, any> {
                 onChange={(event: any) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
                 status={'tNO'}
+              />
+              <DistributionRuleText
+                label="Line Of Business"
+                inWhichNum={1}
+                aliasvalue="FactorCode"
+                value={this.state.LineOfBussiness}
+                onChange={(event) => this.handChange(event, "LineOfBussiness")}
+              />
+              <DistributionRuleText
+                label="Revenue Line"
+                inWhichNum={2}
+                aliasvalue="FactorCode"
+                value={this.state?.revenueLine ?? "202001"}
+                onChange={(event) => this.handChange(event, "revenueLine")}
+              />
+              <DistributionRuleText
+                label="Product Line"
+                inWhichNum={3}
+                aliasvalue="FactorCode"
+                value={this.state?.REV}
+                onChange={(event) => this.handChange(event, "REV")}
               />
               {/* <MUITextField
                 label="Cumulative Ordered Amount (LC)"
