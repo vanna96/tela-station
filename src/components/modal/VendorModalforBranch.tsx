@@ -1,4 +1,3 @@
-
 import React, { FC, Fragment, useEffect, useState } from "react";
 import MaterialReactTable from "material-react-table";
 import { useQuery } from "react-query";
@@ -76,23 +75,23 @@ const VendorModalBranch: FC<VendorModalProps> = ({
       {
         accessorKey: "CardCode",
         header: "Card Code",
-        size: 50,
+        size: 150,
       },
       {
         accessorKey: "CardName",
         header: "Card Name",
-        size: 60,
+        size: 160,
       },
       {
         accessorKey: "Currency",
         header: "Currency",
-        size: 50,
+        size: 100,
       },
 
       {
-        accessorKey: "CurrentAccountBalance",
+        accessorKey: "Balance",
         header: "Balance",
-        size: 100,
+        size: 140,
         Cell: ({ cell }: any) => {
           return (
             <div
@@ -221,6 +220,8 @@ const VendorModalBranch: FC<VendorModalProps> = ({
                         pagination: pagination,
                         rowSelection,
                       }}
+                      layoutMode="grid" //instead of the default "semantic" layout mode
+                     
                     />
                   </div>
                 </div>

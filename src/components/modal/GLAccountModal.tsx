@@ -108,9 +108,10 @@ const GLAccountModal: FC<GLAccountProps> = ({ open, onClose, onOk }) => {
           onPaginationChange={setPagination}
           onRowSelectionChange={setRowSelection}
           getRowId={(row: any) => row.ItemCode}
-          enableSelectAll={true}
+          enableSelectAll={false}
           enableFullScreenToggle={false}
           enableColumnVirtualization={false}
+          enableMultiRowSelection={false}
           positionToolbarAlertBanner="bottom"
           muiTablePaginationProps={{
             rowsPerPageOptions: [5, 8, 15],
@@ -124,16 +125,12 @@ const GLAccountModal: FC<GLAccountProps> = ({ open, onClose, onOk }) => {
             },
             sx: { cursor: "pointer" },
           })}
+          
           state={{
             globalFilter,
             isLoading,
             pagination: pagination,
             rowSelection,
-          }}
-          renderTopToolbarCustomActions={({ table }) => {
-            return (
-              <h2 className=" text-lg font-bold mt-4">List Of Accounts</h2>
-            );
           }}
         />
       </div>
