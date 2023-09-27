@@ -302,7 +302,6 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         User_Text: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
-        U_tl_sarn: data?.U_tl_sarn || null,
 
         // content
         // DocType: data?.DocType,
@@ -316,11 +315,11 @@ class SalesOrderForm extends CoreFormDocument {
 
         // logistic
         // ShipToCode: data?.ShippingTo || null,
-        PayToCode: data?.BillingTo || null,
+        PayToCode: data?.PayToCode || null,
         // TransportationCode: data?.ShippingType,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-        Address: data?.Address2,
+        // Address: data?.Address2,
 
         // accounting
         // FederalTaxID: data?.FederalTax || null,
@@ -344,16 +343,55 @@ class SalesOrderForm extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/script/test/SOSync", payloads)
-        .then(
-          (res: any) =>
-            this.dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.DocEntry
-            )
-        )
-        .catch((err: any) => this.dialog.current?.error(err.message))
-        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+      // await request("POST", "/script/test/SO", payloads)
+
+      //   .then(
+      //     (res: any) =>
+      //       this.dialog.current?.success(
+      //         "Create Successfully.",
+      //         res?.data?.DocEntry
+      //       )
+      //   )
+      //   .catch((err: any) => this.dialog.current?.error(err.message))
+      //   .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+
+      await request("POST", "/script/test/SO", payloads)
+        .then(async (res: any) => {
+          if ((res && res.status === 200) || 201) {
+            const docComments = res.data.Comments;
+            const match = docComments.match(/\d+/);
+            const docNum = match ? match[0] : null;
+
+            if (docNum) {
+              const response = await request(
+                "GET",
+                `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
+              );
+
+              const orders = response?.data?.value;
+              if (orders.length > 0) {
+                const docEntry = orders[0]?.DocEntry;
+
+                // console.log(`DocEntry: ${docEntry}`);
+
+                this.dialog.current?.success("Create Successfully.", docEntry);
+              } else {
+                console.log(`No matching order found for DocNum ${docNum}`);
+              }
+            } else {
+              console.log("No DocNum found in Comments");
+            }
+          } else {
+            console.error("Error in POST request:", res.statusText);
+          }
+        })
+        .catch((err: any) => {
+          this.dialog.current?.error(err.message);
+          console.error("Error in POST request:", err.message);
+        })
+        .finally(() => {
+          this.setState({ ...this.state, isSubmitting: false });
+        });
     } catch (error: any) {
       if (error instanceof FormValidateException) {
         this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
@@ -442,7 +480,6 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-
 
     return (
       <>
@@ -590,7 +627,7 @@ class SalesOrderForm extends CoreFormDocument {
 export default withRouter(SalesOrderForm);
 
 const getItem = (items: any, type: any, warehouseCode: any) =>
-  items?.map((item: any) => {
+  items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
       Quantity: item.Quantity || null,
@@ -604,7 +641,14 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       ProductLine: item.REV ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || null,
-
-      // Currency: "AUD",
+      DocumentLinesBinAllocations: [
+        {
+          BinAbsEntry: item.BinAbsEntry,
+          Quantity: item.UnitsOfMeasurement,
+          // AllowNegativeQuantity: "tNO",
+          // SerialAndBatchNumbersBaseLine: -1,
+          BaseLineNumber: index,
+        },
+      ],
     };
   });
