@@ -29,7 +29,6 @@ const SaleMasterPage = () => {
     getCount();
   }, []);
 
-  console.log(count);
   return (
     <>
       <MainContainer title="Sales">

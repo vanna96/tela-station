@@ -121,7 +121,7 @@ const ItemModal: FC<ItemModalProps> = ({
       default:
         return items;
     }
-  }, [items]);
+  }, [group]);
 
   // const itemFilter = items?.filter((e: any) => e?.ItemsGroupCode === 101);
 
