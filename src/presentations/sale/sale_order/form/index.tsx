@@ -315,11 +315,11 @@ class SalesOrderForm extends CoreFormDocument {
 
         // logistic
         // ShipToCode: data?.ShippingTo || null,
-        PayToCode: data?.BillingTo || null,
+        PayToCode: data?.PayToCode || null,
         // TransportationCode: data?.ShippingType,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-        Address: data?.Address2,
+        // Address: data?.Address2,
 
         // accounting
         // FederalTaxID: data?.FederalTax || null,

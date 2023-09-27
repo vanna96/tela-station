@@ -108,13 +108,13 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <MUISelect
-                  value={data?.ShipToCode}
+                  value={data?.PayToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"
                   items={data?.BPAddresses?.filter(
                     ({ addressType }: any) => addressType === "bo_BillTo"
                   )}
-                  onChange={(e) => handlerChange("ShipToCode", e.target.value)}
+                  onChange={(e) => handlerChange("PayToCode", e.target.value)}
                 />
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function LogisticForm({
                   multiline
                   rows={2}
                   value={getShippingAddress(
-                    data?.ShipToCode,
+                    data?.PayToCode,
                     data?.BPAddresses?.filter(
                       ({ addressType }: any) => addressType === "bo_BillTo"
                     )

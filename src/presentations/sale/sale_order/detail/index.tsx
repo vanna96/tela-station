@@ -24,6 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { Checkbox, CircularProgress, darken } from "@mui/material";
 import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -113,15 +114,19 @@ class DeliveryDetail extends Component<any, any> {
                 ItemName: item.ItemDescription || item.Name || null,
                 Quantity: item.Quantity || null,
                 UnitPrice: item.UnitPrice || item.total,
+                GrossPrice: item.GrossPrice || item.total,
+                GrossTotal: item.GrossTotal,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
                 UomGroupCode: item.UoMCode || null,
                 UomEntry: item.UoMEntry || null,
-                Currency: "AUD",
+                Currency: item.Currency,
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
                 WarehouseCode: item.WarehouseCode,
                 DiscountPercent: item.DiscountPercent,
+                MeasureUnit: item.MeasureUnit,
+                ItemsGroupCode: item.CostingCode,
               };
             }),
             ExchangeRate: data?.DocRate || 1,
@@ -201,10 +206,18 @@ class DeliveryDetail extends Component<any, any> {
             ) : (
               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
                 <div className="grow flex flex-col gap-3 ">
-                  <div className="bg-white shadow-md border  w-full rounded-md px-8 py-4  ">
-                    <General data={this.state} />
-                    <Content data={this.state} />
-                    <Logistic data={this.state} />
+                  <div className="bg-white w-full rounded-md px-8 py-4  ">
+                    <div className="border-2 shadow-md rounded-lg  p-4">
+                      <General data={this.state} />
+                    </div>
+                    <div className="border-2 shadow-md rounded-lg   p-4">
+                      <Content data={this.state} />
+                    </div>
+                    <div className="border-2 shadow-md rounded-lg   p-4">
+                      <Logistic data={this.state} />
+                    </div>
+                    {/* <div className="border-2 shadow-lg rounded-lg mt-1  p-4"></div> */}
+
                     <PreviewAttachment
                       attachmentEntry={this.state.AttachmentEntry}
                     />
@@ -347,7 +360,7 @@ function Content(props: any) {
         Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
       },
       {
-        accessorKey: "UnitPrice",
+        accessorKey: "GrossPrice",
         header: "Gross Price",
         size: 60,
         Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
@@ -365,16 +378,35 @@ function Content(props: any) {
         Cell: ({ cell }: any) => cell.getValue(),
       },
       {
-        accessorKey: "ItemGroup",
+        accessorKey: "ItemsGroupCode",
         header: "Item Group",
         size: 60,
-        Cell: ({ cell }: any) => itemGroupRepo.find(cell.getValue())?.GroupName,
+        Cell: ({ cell }: any) => {
+          const value = cell.getValue();
+          switch (value) {
+            case "201001":
+              return "Fuel";
+            case "201002":
+              return "Lube";
+            case "201003":
+              return "LPG";
+            default:
+              return value;
+          }
+        },
       },
       {
-        accessorKey: "UomCode",
+        accessorKey: "MeasureUnit",
         header: "UoM Group",
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
+      },
+      {
+        accessorKey: "UomEntry",
+        header: "UoM Name",
+        size: 60,
+        Cell: ({ cell }: any) =>
+          new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
       },
       // {
       //   accessorKey: "UnitsOfMeasurement",
@@ -383,7 +415,7 @@ function Content(props: any) {
       //   Cell: ({ cell }: any) => cell.getValue(),
       // },
       {
-        accessorKey: "LineTotal",
+        accessorKey: "GrossTotal",
         header: "Total(LC)",
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
@@ -402,10 +434,10 @@ function Content(props: any) {
 
   return (
     <>
-      <h2 className="col-span-2 border-b py-4 font-medium text-lg underline-offset-1 ml-8">
+      <h2 className="col-span-2 py-4 font-medium text-lg underline-offset-1 ml-8">
         Content
       </h2>
-      <div className="bg-white shadow-md  w-full rounded-md p-4  ">
+      <div className="bg-white   w-full  p-4  ">
         <MaterialReactTable
           enableColumnActions={false}
           enableColumnFilters={false}
@@ -418,19 +450,19 @@ function Content(props: any) {
           data={data?.Items || []}
           muiTableProps={{
             sx: {
-              border: "1px solid rgba(81, 81, 81, 1)",
+              border: "1px solid rgba(211,211,211)",
             },
           }}
-          muiTableHeadCellProps={{
-            sx: {
-              border: "1px solid rgba(81, 81, 81, 1)",
-            },
-          }}
-          muiTableBodyCellProps={{
-            sx: {
-              border: "1px solid rgba(81, 81, 81, 1)",
-            },
-          }}
+          // muiTableHeadCellProps={{
+          //   sx: {
+          //     border: "1px solid rgba(211,211,211)",
+          //   },
+          // }}
+          // muiTableBodyCellProps={{
+          //   sx: {
+          //     border: "1px solid rgba(211,211,211)",
+          //   },
+          // }}
         />
         <div className="grid grid-cols-12 ">
           <div className="col-span-5"></div>
@@ -446,8 +478,8 @@ function Content(props: any) {
                 Total Before Discount
               </div>
               <div className="col-span-6 text-gray-900">
-                {data?.Currency}
-                {currencyDetailFormat(
+                {data?.Currency}{" "}
+                {currencyFormat(
                   (data?.DocTotalSys - data?.VatSumSys) * (data?.DocRate || 1)
                 )}
               </div>
@@ -463,10 +495,8 @@ function Content(props: any) {
               </div>
 
               <div className="col-span-6 text-gray-900 ">
-                {data?.Currency}
-                {currencyDetailFormat(
-                  data?.TotalDiscountFC || data?.TotalDiscountSC
-                )}
+                {data?.Currency}{" "}
+                {currencyFormat(data?.TotalDiscountFC || data?.TotalDiscountSC)}
               </div>
             </div>
 
@@ -488,15 +518,15 @@ function Content(props: any) {
             <div className="grid grid-cols-12 py-1">
               <div className="col-span-6 text-gray-700">Tax</div>
               <div className="col-span-6 text-gray-900">
-                {data?.Currency}
-                {currencyDetailFormat(data?.VatSumFc || data?.VatSum)}
+                {data?.Currency}{" "}
+                {currencyFormat(data?.VatSumFc || data?.VatSum)}
               </div>
             </div>
             <div className="grid grid-cols-12 py-1">
               <div className="col-span-6 text-gray-700">Total</div>
               <div className="col-span-6 text-gray-900">
-                {data?.Currency}
-                {currencyDetailFormat(data?.DocTotalFc || data?.DocTotalSys)}
+                {data?.Currency}{" "}
+                {currencyFormat(data?.DocTotalFc || data?.DocTotalSys)}
               </div>
             </div>
           </div>
@@ -563,7 +593,7 @@ function Logistic(props: any) {
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Shipping Address</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToDescription ?? "N/A"}
+                {props?.data?.Address ?? "N/A"}
               </div>
             </div>
           </div>
