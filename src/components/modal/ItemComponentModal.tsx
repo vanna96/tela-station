@@ -275,7 +275,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      {/* <h2 className="font-bold text-xl capitalize">{type}</h2> */}
+                      <h2 className="font-bold text-xl capitalize">{}</h2>
                       <OutlinedInput
                         size="small"
                         key={filterKey}
