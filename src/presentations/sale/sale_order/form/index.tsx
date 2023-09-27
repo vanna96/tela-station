@@ -290,7 +290,6 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        Comments: data?.User_Text || null,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
@@ -300,7 +299,7 @@ class SalesOrderForm extends CoreFormDocument {
         BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
-        User_Text: data?.User_Text,
+        Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
 
         // content

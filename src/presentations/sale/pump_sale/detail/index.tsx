@@ -281,7 +281,7 @@ function General(props: any) {
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Remark</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.User_Text ?? "N/A"}
+                {props?.data?.Comments ?? "N/A"}
               </div>
             </div>
           </div>

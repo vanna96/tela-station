@@ -246,7 +246,7 @@ const ItemModal: FC<ItemModalProps> = ({
   return (
     <Transition appear show={open} as={Fragment}>
       <Dialog as="div" className="relative z-[100]" onClose={onClose}>
-        <Transition.Child
+        {/* <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -256,9 +256,9 @@ const ItemModal: FC<ItemModalProps> = ({
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-black bg-opacity-25" />
-        </Transition.Child>
+        </Transition.Child> */}
 
-        <div className="fixed inset-0 overflow-y-auto w-full ">
+        <div className="fixed inset-0 overflow-y-auto w-full bg-black bg-opacity-30">
           <div className="flex min-h-full items-center justify-center  text-center ">
             <Transition.Child
               as={Fragment}
@@ -275,7 +275,7 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center p-0 pt-6">
-                      <h2 className="font-bold text-xl capitalize">{}</h2>
+                      <h2 className="font-bold text-xl capitalize">{type}</h2>
                       <OutlinedInput
                         size="small"
                         key={filterKey}
@@ -398,7 +398,7 @@ export class ItemModalComponent extends React.Component<
     this.setState({
       isOpen: true,
       CardCode: CardCode,
-      type: type,
+      type: type ?? "sale",
       WarehouseCode: WarehouseCode,
     });
   }
@@ -413,8 +413,8 @@ export class ItemModalComponent extends React.Component<
       <ItemModal
         open={this.state.isOpen}
         onClose={this.onClose}
-        type={this.state.type || this.props.type}
-        group={this.state.group || this.props.group}
+        type={this.state.type || this.props.type || "sale"}
+        group={this.state.group || this.props.group || 100}
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}

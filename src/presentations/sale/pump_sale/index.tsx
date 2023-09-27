@@ -115,7 +115,7 @@ export default function PumpSaleLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/sales-order/" + cell.row.original.DocEntry, {
+                route("/sale/pump-sale/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -128,7 +128,7 @@ export default function PumpSaleLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  "/sale/sales-order/" + cell.row.original.DocEntry + "/edit",
+                  "/sale/pump-sale/" + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -283,8 +283,8 @@ export default function PumpSaleLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route("/sale/sales-order")}>
-        Sales Order
+      <span className="" onClick={() => route("/sale/pump-sale")}>
+       Pump Sale
       </span>
     </>
   );
@@ -413,8 +413,8 @@ export default function PumpSaleLists() {
             loading={isLoading || isFetching}
             pagination={pagination}
             paginationChange={setPagination}
-            title="Order Lists"
-            createRoute="/sale/sales-order/create"
+            title="Pump Sale Lists"
+            createRoute="/sale/pump-sale/create"
           />
         </div>
       </div>

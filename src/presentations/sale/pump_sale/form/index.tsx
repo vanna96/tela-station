@@ -290,7 +290,7 @@ class PumpSaleForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        Comments: data?.User_Text || null,
+        CashAccount: "110361",
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
@@ -300,7 +300,7 @@ class PumpSaleForm extends CoreFormDocument {
         BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
-        User_Text: data?.User_Text,
+        Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
 
         // content
@@ -343,19 +343,7 @@ class PumpSaleForm extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      // await request("POST", "/script/test/SO", payloads)
-
-      //   .then(
-      //     (res: any) =>
-      //       this.dialog.current?.success(
-      //         "Create Successfully.",
-      //         res?.data?.DocEntry
-      //       )
-      //   )
-      //   .catch((err: any) => this.dialog.current?.error(err.message))
-      //   .finally(() => this.setState({ ...this.state, isSubmitting: false }));
-
-      await request("POST", "/script/test/SO", payloads)
+      await request("POST", "/script/test/PumpSale", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docComments = res.data.Comments;

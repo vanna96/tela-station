@@ -135,6 +135,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="Gross Price"
                 startAdornment={"USD"}
+                disabled
                 defaultValue={currencyFormat(this.state?.GrossPrice)}
                 onChange={(event) => this.handChange(event, "GrossPrice")}
               />
