@@ -16,9 +16,9 @@ import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
 import { arrayBufferToBlob } from "@/utilies"
 import shortid from "shortid"
-import { APIContext } from "../context/APIContext"
 import PaymentForm from "../components/PaymentForm"
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
+import { APIContext } from "../../settle_receipt/context/APIContext"
 
 class Form extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>()
@@ -152,8 +152,10 @@ class Form extends CoreFormDocument {
 
             GLBank: data?.TransferAccount,
             GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
+
             Currency: data?.DocCurrency,
             Items: data?.PaymentInvoices?.map((inv: any) => {
+              // DocumentNo === i.DocEntry || DocEntry === i.DocEntry
               const find = invoice?.find(
                 ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
               )
@@ -176,6 +178,13 @@ class Form extends CoreFormDocument {
                   check_no: check?.CheckNumber,
                 }
               }) || [],
+            // DocDiscount: data?.DiscountPercent,
+            // BPAddresses: vendor?.bpAddress?.map(
+            //   ({ addressName, addressType }: any) => {
+            //     return { addressName: addressName, addressType: addressType }
+            //   },
+            // ),
+            // disabledFields,
             AttachmentList,
             isStatusClose: data?.DocumentStatus === "bost_Close",
             edit: true,
@@ -209,10 +218,9 @@ class Form extends CoreFormDocument {
   }
 
   async handlerSubmit(event: any, sysInfo:any) {
-
     event.preventDefault()
     const data: any = { ...this.state }
-    
+
     try {
       this.setState({ ...this.state, isSubmitting: false })
       await new Promise((resolve) => setTimeout(() => resolve(""), 800))
@@ -281,7 +289,7 @@ class Form extends CoreFormDocument {
       const payload = {
         // general
         Series: data?.Series || null,
-        DocType: `rCustomer`,
+        DocTypte: `rCustomer`,
         DocDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
         CardCode: data?.CardCode,
@@ -297,6 +305,7 @@ class Form extends CoreFormDocument {
 
         CheckAccount: data?.GLCheck || "",
         PaymentChecks: PaymentChecks,
+        ControlAccount: data?.ControlAccount,
 
         PaymentInvoices,
         AttachmentEntry,
@@ -409,12 +418,12 @@ class Form extends CoreFormDocument {
         >
           Payment Means
         </MenuButton>
-        <MenuButton
+        {/* <MenuButton
           active={this.state.tapIndex === 2}
           onClick={() => this.handlerChangeMenu(2)}
         >
           Content
-        </MenuButton>
+        </MenuButton> */}
         <MenuButton
           active={this.state.tapIndex === 3}
           onClick={() => this.handlerChangeMenu(3)}
@@ -467,7 +476,7 @@ class Form extends CoreFormDocument {
   }
 
   FormRender = () => {
-    let { LineOfBussiness, sysInfo, getPeriod }: any = useContext(APIContext)
+    let { LineOfBussiness, getPeriod }: any = useContext(APIContext)
     let CardCode: any = this.state?.CardCode || ""
     let BranchIDD: any = this.state?.Branch || ""
     let Lob: any = this.state?.Lob || ""
@@ -476,7 +485,7 @@ class Form extends CoreFormDocument {
 
     let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode })
     let serie = this.state?.SerieLists?.find(({ BPLID }: any) => BPLID === BranchIDD)
-
+    
     React.useEffect(() => {
       if (!this.props.edit) {
         if (
@@ -513,6 +522,8 @@ class Form extends CoreFormDocument {
 
     }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists, getPeriod])
     
+    const { sysInfo }:any = useContext(APIContext) 
+
     return (
       <>
         <ServiceModalComponent
@@ -521,7 +532,7 @@ class Form extends CoreFormDocument {
         />
         <form
           id="formData"
-          onSubmit={(e:any) => this.handlerSubmit(e, sysInfo)}
+          onSubmit={ (e:any) => this.handlerSubmit (e, sysInfo)}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           {this.state.loading ? (
@@ -556,7 +567,7 @@ class Form extends CoreFormDocument {
                   />
                 )}
 
-                {this.state.tapIndex === 2 && (
+                {/* {this.state.tapIndex === 2 && (
                   <ContentForm
                     data={this.state}
                     handlerAddItem={() => {
@@ -570,7 +581,7 @@ class Form extends CoreFormDocument {
                     onChange={this.handlerChange}
                     ContentLoading={this.state.ContentLoading}
                   />
-                )}
+                )} */}
 
                 {this.state.tapIndex === 3 && (
                   <AttachmentForm

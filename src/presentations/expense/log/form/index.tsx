@@ -16,9 +16,9 @@ import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
 import { arrayBufferToBlob } from "@/utilies"
 import shortid from "shortid"
-import { APIContext } from "../context/APIContext"
 import PaymentForm from "../components/PaymentForm"
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
+import { APIContext } from "../../context/APIContext"
 
 class Form extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>()
@@ -72,7 +72,7 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0
-      await request("GET", `IncomingPayments(${id})`)
+      await request("GET", `TL_ExpLog(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data
           // vendor
@@ -82,19 +82,6 @@ class Form extends CoreFormDocument {
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err))
-
-          // invoice
-          const invoice = await request(
-            "GET",
-            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
-          )
-            .then((res: any) => {
-              return res.data?.value?.sort(
-                (a: any, b: any) =>
-                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
-              )
-            })
-            .catch((err: any) => {})
 
           // attachment
           let AttachmentList: any = []
@@ -133,54 +120,20 @@ class Form extends CoreFormDocument {
               })
               .catch((error) => console.log(error))
           }
-          // console.log(data);
-          // DocCurrency: data?.Currency,
-          // CashAccount: data?.GLCash || "",
-          // CashSum: data?.GLCashAmount || 0,
-
-          // TransferAccount: data?.GLBank || "",
-          // TransferSum: data?.GLBankAmount || 0,
-
-          // CheckAccount: data?.GLCheck || "",
 
           state = {
             ...data,
-            GLCheck: data?.CheckAccount,
-
-            GLCash: data?.CashAccount,
-            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(2),
-
-            GLBank: data?.TransferAccount,
-            GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
-            Currency: data?.DocCurrency,
-            Items: data?.PaymentInvoices?.map((inv: any) => {
-              const find = invoice?.find(
-                ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
-              )
-              if (find) {
+            GLCash: data?.U_tl_cashacct,
+            Branch: data?.U_tl_bplid,
+            Items:
+              data?.TL_EXPEN_LOG_LINESCollection?.map((item: any) => {
                 return {
-                  ...find,
-                  ...inv,
-                  TotalPayment: inv?.AppliedFC || inv?.AppliedSys,
-                }
-              }
-            }),
-            ExchangeRate: data?.DocRate || 1,
-            vendor,
-            paymentMeanCheckData:
-              data?.PaymentChecks?.map((check: any) => {
-                return {
-                  due_date: check?.DueDate || new Date(),
-                  amount: check?.CheckSum || 0,
-                  bank: check?.BankCode || "",
-                  check_no: check?.CheckNumber,
+                  ExpenseCode: item?.U_tl_expcode,
+                  ExpenseName: item?.U_tl_expdesc,
+                  Amount: item?.U_tl_linetotal,
+                  Remark: item?.U_tl_remark,
                 }
               }) || [],
-            AttachmentList,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            edit: true,
-            PostingDate: data?.DocDate,
-            DocumentDate: data?.TaxDate,
           }
         })
         .catch((err: any) => console.log(err))
@@ -208,32 +161,50 @@ class Form extends CoreFormDocument {
     this.setState({ ...this.state, Items: items })
   }
 
-  async handlerSubmit(event: any, sysInfo:any) {
-
+  async handlerSubmit(event: any, sysInfo: any) {
     event.preventDefault()
     const data: any = { ...this.state }
-    
+
     try {
       this.setState({ ...this.state, isSubmitting: false })
       await new Promise((resolve) => setTimeout(() => resolve(""), 800))
       const { id } = this.props?.match?.params || 0
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Customer is Required!" }
-        throw new FormValidateException("Customer is Required!", 0)
-      }
+      // if (!data.CardCode) {
+      //   data["error"] = { CardCode: "Customer is Required!" }
+      //   throw new FormValidateException("Customer is Required!", 0)
+      // }
 
       // attachment
-      let AttachmentEntry = null
+      let TL_ATTECHCollection = null
       const files = data?.AttachmentList?.map((item: any) => item)
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files)
+      if (files?.length > 0) TL_ATTECHCollection = await getAttachment(files)
 
       // on Edit
+      const payload = {
+        // Series: data?.Series || null,
+        CreateDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
+        U_tl_cashacct: data?.GLCash,
+        U_tl_bplid: data?.Branch,
+        TL_EXPEN_LOG_LINESCollection:
+          data?.Items?.map((item: any) => {
+            return {
+              U_tl_currency: data?.Currency,
+              U_tl_expcode: item?.ExpenseCode,
+              U_tl_expdesc: item?.ExpenseName,
+              U_tl_linetotal: item?.Amount,
+              U_tl_remark: item?.Remark,
+            }
+          }) || [],
+        U_tl_doctotal:
+          data?.Items?.reduce((prev: number, item: any) => {
+            return prev + parseFloat(item?.Amount || 0)
+          }, 0) || 0,
+        // TL_ATTECHCollection,
+      }
 
       if (id) {
-        return await request("PATCH", `/IncomingPayments(${id})`, {
-          TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
-        })
+        return await request("PATCH", `/TL_ExpLog(${id})`, payload)
           .then(
             (res: any) => this.dialog.current?.success("Update Successfully.", id),
           )
@@ -241,68 +212,7 @@ class Form extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }))
       }
 
-      // PaymentChecks
-      const PaymentChecks = data?.paymentMeanCheckData?.map((check: any) => {
-        return {
-          DueDate: check?.due_date || new Date(),
-          CheckSum: check?.amount || 0,
-          BankCode: check?.bank || "",
-          CheckNumber: check?.check_no || "",
-        }
-      })
-
-      // items
-      const PaymentInvoices =
-        data?.Items?.filter(
-          ({ TotalPayment, DocTotal }: any) =>
-            parseFloat(TotalPayment || 0) > 0 ||
-            (DocTotal < 0 && parseFloat(TotalPayment || 0) !== 0),
-        )?.map((item: any) => {
-          return {
-            DocEntry: item.DocEntry,
-            DocNum: item.DocumentNo,
-            SumApplied:
-              item?.FCCurrency === sysInfo?.SystemCurrency
-                ? parseFloat(item.TotalPayment).toFixed(2) || 0
-                : 0,
-            AppliedSys:
-              item?.FCCurrency === sysInfo?.SystemCurrency
-                ? parseFloat(item.TotalPayment).toFixed(2) || 0
-                : 0,
-            AppliedFC:
-              item?.FCCurrency !== sysInfo?.SystemCurrency
-                ? parseFloat(Math.abs(item.TotalPayment).toString()).toFixed(2)
-                : 0,
-            DiscountPercent: item?.Discount || 0,
-            InvoiceType: item?.InvoiceType,
-          }
-        }) || []
-
-      const payload = {
-        // general
-        Series: data?.Series || null,
-        DocType: `rCustomer`,
-        DocDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
-        BPLID: data?.Branch,
-
-        DocCurrency: data?.Currency,
-        CashAccount: data?.GLCash || "",
-        CashSum: data?.GLCashAmount || 0,
-
-        TransferAccount: data?.GLBank || "",
-        TransferSum: data?.GLBankAmount || 0,
-
-        CheckAccount: data?.GLCheck || "",
-        PaymentChecks: PaymentChecks,
-
-        PaymentInvoices,
-        AttachmentEntry,
-      }
-
-      await request("POST", "/IncomingPayments", payload)
+      await request("POST", "/TL_ExpLog", payload)
         .then(
           (res: any) =>
             this.dialog.current?.success(
@@ -403,12 +313,12 @@ class Form extends CoreFormDocument {
         >
           General
         </MenuButton>
-        <MenuButton
+        {/* <MenuButton
           active={this.state.tapIndex === 1}
           onClick={() => this.handlerChangeMenu(1)}
         >
           Payment Means
-        </MenuButton>
+        </MenuButton> */}
         <MenuButton
           active={this.state.tapIndex === 2}
           onClick={() => this.handlerChangeMenu(2)}
@@ -467,52 +377,34 @@ class Form extends CoreFormDocument {
   }
 
   FormRender = () => {
-    let { LineOfBussiness, sysInfo, getPeriod }: any = useContext(APIContext)
-    let CardCode: any = this.state?.CardCode || ""
+    let { sysInfo, getPeriod }: any = useContext(APIContext)
     let BranchIDD: any = this.state?.Branch || ""
-    let Lob: any = this.state?.Lob || ""
-    let SalesPersonCode: any = this.state?.SalesPersonCode || ""
     let SerieListsData: any = this.state?.SerieLists || []
 
-    let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode })
+    let prevData = usePrevious({ BranchIDD })
     let serie = this.state?.SerieLists?.find(({ BPLID }: any) => BPLID === BranchIDD)
 
     React.useEffect(() => {
       if (!this.props.edit) {
-        if (
-          CardCode &&
-          (prevData?.CardCode !== CardCode ||
-            prevData?.Lob !== Lob ||
-            prevData?.SalesPersonCode !== SalesPersonCode)
-        ) {
-          this.setState({
-            ...this.state,
-            ContentLoading: true,
-          })
-          this.incoming(this.state, LineOfBussiness)
-        }
-
         if (SerieListsData.length > 0 && prevData?.BranchIDD !== BranchIDD) {
           this.setState({
             ...this.state,
             Series: serie?.Series,
             DocNum: serie?.NextNumber,
-            ContentLoading: true,
+            loading: false,
           })
-          this.incoming(this.state, LineOfBussiness)
         }
       }
 
-      if(getPeriod && serie?.Series && (!this.state.GLCheck || !this.state.GLCash)){
+      if (getPeriod && serie && !this.state?.GLCash) {
         this.setState({
           ...this.state,
           GLCash: getPeriod?.AccountforCashReceipt,
-          GLCheck: getPeriod?.AccountforOutgoingChecks,
+          loading: false,
         })
       }
+    }, [getPeriod, BranchIDD, serie])
 
-    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists, getPeriod])
-    
     return (
       <>
         <ServiceModalComponent
@@ -521,7 +413,7 @@ class Form extends CoreFormDocument {
         />
         <form
           id="formData"
-          onSubmit={(e:any) => this.handlerSubmit(e, sysInfo)}
+          onSubmit={(e: any) => this.handlerSubmit(e, sysInfo)}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           {this.state.loading ? (
@@ -537,22 +429,6 @@ class Form extends CoreFormDocument {
                     data={this.state}
                     edit={this.props?.edit}
                     handlerChange={(key, value) => this.handlerChange(key, value)}
-                  />
-                )}
-
-                {this.state.tapIndex === 1 && (
-                  <PaymentForm
-                    data={this.state}
-                    handlerAddItem={() => {
-                      this.hanndAddNewItem()
-                    }}
-                    handlerRemoveItem={(items: any[]) =>
-                      this.setState({ ...this.state, Items: items })
-                    }
-                    handlerChangeItem={this.handlerChangeItems}
-                    onChangeItemByCode={this.handlerChangeItemByCode}
-                    onChange={this.handlerChange}
-                    ContentLoading={this.state.ContentLoading}
                   />
                 )}
 

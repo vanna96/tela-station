@@ -2,9 +2,13 @@ import MUIDatePicker from "@/components/input/MUIDatePicker"
 import MUITextField from "@/components/input/MUITextField"
 import BPLBranchSelect from "@/components/selectbox/BranchBPL"
 import MUISelect from "@/components/selectbox/MUISelect"
+import SalePerson from "@/components/selectbox/SalePerson"
 import { useContext } from "react"
+// import { APIContext } from "../context/APIContext"
+import { VendorTextField } from "./VendorTextField"
 import { useExchangeRate } from "../hook/useExchangeRate"
 import { useCookies } from "react-cookie"
+import { sysInfo } from "@/helper/helper"
 import { APIContext } from "../../settle_receipt/context/APIContext"
 
 export interface IGeneralFormProps {
@@ -21,7 +25,8 @@ export default function GeneralForm({
   edit,
   hanndResetState,
 }: IGeneralFormProps) {
-  let { CurrencyAPI, sysInfo }: any = useContext(APIContext)
+  let { LineOfBussiness, loadingLineOfBussiness, CurrencyAPI, sysInfo }: any =
+    useContext(APIContext)
   const [cookies, setCookie] = useCookies(["user"])
   const dataCurrency = data?.vendor?.currenciesCollection
     ?.filter(({ Include }: any) => Include === "tYES")
@@ -64,6 +69,79 @@ export default function GeneralForm({
               <div className="grid grid-cols-5 py-2">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Customer <span className="text-red-500">*</span>
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <VendorTextField
+                    vtype={`customer`}
+                    onChange={(vendor: any) => handlerChange("vendor", vendor)}
+                    key={data?.CardCode}
+                    error={"CardCode" in data?.error}
+                    helpertext={data?.error?.CardCode}
+                    autoComplete="off"
+                    defaultValue={data?.CardCode}
+                    name="BPCode"
+                    endAdornment={!edit}
+                    branchId={branchId || 0}
+                    disabled={data?.edit}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-5">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Name
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <MUITextField value={data?.CardName} disabled={true} />
+                </div>
+              </div>
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Line of Business
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <MUISelect
+                    items={
+                      LineOfBussiness?.filter(
+                        ({ InWhichDimension, FactorDescription }: any) =>
+                          InWhichDimension === 1 &&
+                          FactorDescription !== "Unclassified",
+                      ) ?? []
+                    }
+                    aliaslabel="FactorDescription"
+                    aliasvalue="FactorCode"
+                    loading={loadingLineOfBussiness}
+                    value={data?.Lob}
+                    onChange={(e) => handlerChange("Lob", e.target.value)}
+                    disabled={data?.edit}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Sale Employees
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <SalePerson
+                    name="SalesPersonCode"
+                    value={data?.SalesPersonCode}
+                    onChange={(e) =>
+                      handlerChange("SalesPersonCode", e.target.value)
+                    }
+                    disabled={data?.edit}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Currency
                   </label>
                 </div>
@@ -71,31 +149,30 @@ export default function GeneralForm({
                   <div className="grid grid-cols-12">
                     <div className="col-span-6">
                       <div className="flex gap-4 items-start">
-                        {
-                          <MUISelect
-                            value={data?.Currency || sysInfo?.SystemCurrency}
-                            disabled={data?.edit}
-                            items={
-                              dataCurrency?.length > 0
-                                ? dataCurrency
-                                : CurrencyAPI?.map((c: any) => {
-                                    return {
-                                      value: c.Code,
-                                      name: c.Name,
-                                    }
-                                  })
-                            }
-                            aliaslabel="name"
-                            aliasvalue="value"
-                            onChange={(e: any) =>
-                              handlerChange("Currency", e.target.value)
-                            }
-                          />
-                        }
+                        <MUISelect
+                          value={data?.Currency || sysInfo?.SystemCurrency}
+                          disabled={data?.edit}
+                          items={
+                            dataCurrency?.length > 0
+                              ? dataCurrency
+                              : CurrencyAPI?.map((c: any) => {
+                                  return {
+                                    value: c.Code,
+                                    name: c.Name,
+                                  }
+                                })
+                          }
+                          aliaslabel="name"
+                          aliasvalue="value"
+                          onChange={(e: any) =>
+                            handlerChange("Currency", e.target.value)
+                          }
+                        />
                       </div>
                     </div>
                     <div className="col-span-6 pl-5">
-                      {(data?.Currency || sysInfo?.SystemCurrency) !== sysInfo?.SystemCurrency && (
+                      {(data?.Currency || sysInfo?.SystemCurrency) !==
+                        sysInfo?.SystemCurrency && (
                         <MUITextField
                           value={data?.ExchangeRate || 0}
                           name=""
@@ -153,6 +230,23 @@ export default function GeneralForm({
                   />
                 </div>
               </div>
+              {/* <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Due Date <span className="text-red-500">*</span>
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <MUIDatePicker
+                    required
+                    error={"DueDate" in data?.error}
+                    helpertext={data?.error["DueDate"]}
+                    disabled={data?.isStatusClose || false}
+                    value={data.DueDate ?? null}
+                    onChange={(e: any) => handlerChange("DueDate", e)}
+                  />
+                </div>
+              </div> */}
               <div className="grid grid-cols-5 py-2">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">

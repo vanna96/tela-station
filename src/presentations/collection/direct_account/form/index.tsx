@@ -16,8 +16,8 @@ import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
 import { arrayBufferToBlob } from "@/utilies"
 import shortid from "shortid"
-import { APIContext } from "../context/APIContext"
 import PaymentForm from "../components/PaymentForm"
+import { APIContext } from "../../settle_receipt/context/APIContext"
 
 class Form extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>()
@@ -276,11 +276,9 @@ class Form extends CoreFormDocument {
         DocType: `rAccount`,
         DocDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
-        // CardCode: data?.CardCode,
-        // CardName: data?.CardName,
         BPLID: data?.Branch,
 
-        DocCurrency: "USD",
+        DocCurrency: data?.Currency,
         CashAccount: data?.GLCash || "",
         CashSum: data?.GLCashAmount || 0,
 
@@ -459,7 +457,7 @@ class Form extends CoreFormDocument {
   }
 
   FormRender = () => {
-    let { LineOfBussiness }: any = useContext(APIContext)
+    let { LineOfBussiness, getPeriod  }: any = useContext(APIContext)
     let CardCode: any = this.state?.CardCode || ""
     let BranchIDD: any = this.state?.Branch || ""
     let Lob: any = this.state?.Lob || ""
@@ -467,6 +465,7 @@ class Form extends CoreFormDocument {
     let SerieListsData: any = this.state?.SerieLists || []
 
     let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode })
+    let serie = this.state?.SerieLists?.find(({ BPLID }: any) => BPLID === BranchIDD)
 
     React.useEffect(() => {
       if (!this.props.edit) {
@@ -484,9 +483,6 @@ class Form extends CoreFormDocument {
         }
 
         if (SerieListsData.length > 0 && prevData?.BranchIDD !== BranchIDD) {
-          const serie = this.state?.SerieLists?.find(
-            ({ BPLID }: any) => BPLID === BranchIDD,
-          )
           this.setState({
             ...this.state,
             Series: serie?.Series,
@@ -496,7 +492,15 @@ class Form extends CoreFormDocument {
           this.incoming(this.state, LineOfBussiness)
         }
       }
-    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
+      
+      if(getPeriod && (!this.state.GLCheck || !this.state.GLCash)){
+        this.setState({
+          ...this.state,
+          GLCash: getPeriod?.AccountforCashReceipt,
+          GLCheck: getPeriod?.AccountforOutgoingChecks,
+        })
+      }
+    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists, getPeriod]) 
     
     return (
       <>
