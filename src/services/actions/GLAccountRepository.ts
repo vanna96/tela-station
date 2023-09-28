@@ -5,7 +5,7 @@ import request from "@/utilies/request";
 
 export default class GLAccountRepository extends Repository<GLAccount> {
    
-    url = `/ChartOfAccounts?$filter=ActiveAccount eq 'tYES' & $select=Code,Name`;
+    url = `/ChartOfAccounts?$filter=ActiveAccount eq 'tYES' & $select=Code,Name&$orderby=Code asc`;
     
     // specific key
     key = 'gl_accounts';

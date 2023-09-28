@@ -103,18 +103,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       const result = calculateUOM(baseQty, alternativeQty, qty);
       temps["UnitsOfMeasurement"] = result;
     }
-    if (field === "Quantity" || "UomAbsEntry") {
-      const qty = temps["Quantity"];
-      const Entry = temps["UomAbsEntry"];
-      const CurrentUOM =
-        this.state.UnitsOfMeasurements?.UoMGroupDefinitionCollection?.find(
-          (e: any) => e.AlternateUoM === Entry
-        );
-      const baseQty = CurrentUOM?.BaseQuantity;
-      const alternativeQty = CurrentUOM?.AlternateQuantity;
-      const result = calculateUOM(baseQty, alternativeQty, qty);
-      temps["UnitsOfMeasurement"] = result;
-    }
 
     this.setState({ ...temps });
   }
@@ -147,6 +135,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="Gross Price"
                 startAdornment={"USD"}
+                disabled
                 defaultValue={currencyFormat(this.state?.GrossPrice)}
                 onChange={(event) => this.handChange(event, "GrossPrice")}
               />

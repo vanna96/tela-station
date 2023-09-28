@@ -16,12 +16,12 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
-import { CircularProgress, Backdrop } from "@mui/material";
+import { Backdrop, CircularProgress } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 
-class SalesOrderForm extends CoreFormDocument {
+class MorphPriceForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -234,7 +234,7 @@ class SalesOrderForm extends CoreFormDocument {
         ...this.state,
         isSubmitting: false,
         warehouseCode: "",
-        loading: true,
+        loading: true
       });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
@@ -291,6 +291,7 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
+        PriceListNum: 7,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
@@ -527,11 +528,6 @@ class SalesOrderForm extends CoreFormDocument {
           className="h-full w-full flex flex-col gap-4 relative"
         >
           <div className="w-full h-full flex items-center justify-center">
-            {/* {this.state.loading ? (
-              <div className="flex items-center justify-center">
-                <CircularProgress />
-              </div>
-            ) : ( */}
             <>
               <div className="grow">
                 {this.state.tapIndex === 0 && (
@@ -592,7 +588,6 @@ class SalesOrderForm extends CoreFormDocument {
                   )} */}
               </div>
             </>
-            {/* )} */}
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
@@ -630,7 +625,7 @@ class SalesOrderForm extends CoreFormDocument {
   };
 }
 
-export default withRouter(SalesOrderForm);
+export default withRouter(MorphPriceForm);
 
 const getItem = (items: any, type: any, warehouseCode: any) =>
   items?.map((item: any, index: number) => {

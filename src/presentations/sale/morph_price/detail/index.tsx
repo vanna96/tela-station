@@ -26,7 +26,7 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 
-class DeliveryDetail extends Component<any, any> {
+class MorphPriceDetails extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -234,7 +234,7 @@ class DeliveryDetail extends Component<any, any> {
   }
 }
 
-export default withRouter(DeliveryDetail);
+export default withRouter(MorphPriceDetails);
 
 function General(props: any) {
   return (
@@ -385,7 +385,7 @@ function Content(props: any) {
           const value = cell.getValue();
           switch (value) {
             case "201001":
-              return "Oil";
+              return "Fuel";
             case "201002":
               return "Lube";
             case "201003":
@@ -593,13 +593,7 @@ function Logistic(props: any) {
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Shipping Address</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.BillToCode ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToDescription ?? "N/A"}
+                {props?.data?.Address ?? "N/A"}
               </div>
             </div>
           </div>
