@@ -22,9 +22,20 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     staleTime: Infinity,
   });
 
+  const { data:getPeriod }: any = useQuery({
+    queryKey: ["CompanyService_GetPeriod"],
+    queryFn: () => request("POST", "CompanyService_GetPeriod", {
+      "PeriodCategoryParams": {
+        "AbsoluteEntry": 2
+      }
+    }).then((res:any) => res?.data).catch((err:any)=> console.log(err)),
+    // staleTime: Infinity,
+  })
+  
+
   return (
     <>
-      <APIContext.Provider value={{ LineOfBussiness, loadingLineOfBussiness, branchBPL }}>
+      <APIContext.Provider value={{ LineOfBussiness, loadingLineOfBussiness, branchBPL, getPeriod }}>
         {children}
       </APIContext.Provider>
     </>

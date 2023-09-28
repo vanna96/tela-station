@@ -44,13 +44,13 @@ const ExpensePage = () => {
         <ItemCard
           title="Expense Log"
           icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("expense-log")}
+          onClick={() => goTo("log")}
           amount={0}
         />
         <ItemCard
           title="Expense Clearence"
           icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("expense-clearence")}
+          onClick={() => goTo("clearence")}
           amount={0}
         />
       </MainContainer>

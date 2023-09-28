@@ -476,7 +476,7 @@ class Form extends CoreFormDocument {
   }
 
   FormRender = () => {
-    let { LineOfBussiness }: any = useContext(APIContext)
+    let { LineOfBussiness, getPeriod, sysInfo }: any = useContext(APIContext)
     let CardCode: any = this.state?.CardCode || ""
     let BranchIDD: any = this.state?.Branch || ""
     let Lob: any = this.state?.Lob || ""
@@ -484,7 +484,8 @@ class Form extends CoreFormDocument {
     let SerieListsData: any = this.state?.SerieLists || []
 
     let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode })
-
+    let serie = this.state?.SerieLists?.find(({ BPLID }: any) => BPLID === BranchIDD)
+    
     React.useEffect(() => {
       if (!this.props.edit) {
         if (
@@ -501,9 +502,6 @@ class Form extends CoreFormDocument {
         }
 
         if (SerieListsData.length > 0 && prevData?.BranchIDD !== BranchIDD) {
-          const serie = this.state?.SerieLists?.find(
-            ({ BPLID }: any) => BPLID === BranchIDD,
-          )
           this.setState({
             ...this.state,
             Series: serie?.Series,
@@ -513,9 +511,16 @@ class Form extends CoreFormDocument {
           this.incoming(this.state, LineOfBussiness)
         }
       }
-    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists])
-    
-    const { sysInfo }:any = useContext(APIContext) 
+
+      if(getPeriod && serie?.Series && (!this.state.GLCheck || !this.state.GLCash)){
+        this.setState({
+          ...this.state,
+          GLCash: getPeriod?.AccountforCashReceipt,
+          GLCheck: getPeriod?.AccountforOutgoingChecks,
+        })
+      }
+
+    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists, getPeriod])
 
     return (
       <>
