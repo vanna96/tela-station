@@ -111,7 +111,6 @@ const ItemModal: FC<ItemModalProps> = ({
   }, [data]);
 
   const itemFilter = useMemo(() => {
-    console.log(group);
     switch (Number(group)) {
       case 100:
         return data?.filter((e: any) => e?.ItemsGroupCode === 100);
@@ -124,7 +123,7 @@ const ItemModal: FC<ItemModalProps> = ({
       default:
         return data;
     }
-  }, [group]);
+  }, [Number(group)]);
 
   // const itemFilter = items?.filter((e: any) => e?.ItemsGroupCode === 101);
 
