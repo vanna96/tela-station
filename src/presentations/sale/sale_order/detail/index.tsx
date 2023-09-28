@@ -207,15 +207,20 @@ class DeliveryDetail extends Component<any, any> {
               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
                 <div className="grow flex flex-col gap-3 ">
                   <div className="bg-white w-full rounded-md px-8 py-4  ">
-                    <div className="border-2 shadow-md rounded-lg  p-4">
+                    <div className="border-2  shadow-md rounded-lg  p-4">
                       <General data={this.state} />
                     </div>
-                    <div className="border-2 shadow-md rounded-lg   p-4">
+                    <div className="my-2"/>
+                    <div className="border-2  shadow-md rounded-lg   p-4">
                       <Content data={this.state} />
                     </div>
-                    <div className="border-2 shadow-md rounded-lg   p-4">
+                    <div className="my-2"/>
+
+                    <div className="border-2  shadow-md rounded-lg   p-4">
                       <Logistic data={this.state} />
                     </div>
+                    <div className="my-2"/>
+
                     {/* <div className="border-2 shadow-lg rounded-lg mt-1  p-4"></div> */}
 
                     <PreviewAttachment
@@ -590,16 +595,11 @@ function Logistic(props: any) {
                 {props?.data?.ShipToCode ?? "N/A"}
               </div>
             </div>
+          
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Shipping Address</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.BillToCode ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToDescription ?? "N/A"}
+                {props?.data?.Address2 ?? "N/A"}
               </div>
             </div>
           </div>
