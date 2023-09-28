@@ -10,7 +10,7 @@ import { useExchangeRate } from "../hook/useExchangeRate"
 import { useCookies } from "react-cookie"
 import CurrencyRepository from "@/services/actions/currencyRepository"
 import { APIContext } from "../../settle_receipt/context/APIContext"
-import { sysInfo } from "@/helper/helper"
+// import { sysInfo } from "@/helper/helper"
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void
@@ -26,7 +26,7 @@ export default function GeneralForm({
   edit,
   hanndResetState,
 }: IGeneralFormProps) {
-  let { CurrencyAPI }: any = useContext(APIContext)
+  let { CurrencyAPI, sysInfo }: any = useContext(APIContext)
   const [cookies, setCookie] = useCookies(["user"])
   const dataCurrency = data?.vendor?.currenciesCollection
     ?.filter(({ Include }: any) => Include === "tYES")
@@ -78,7 +78,7 @@ export default function GeneralForm({
                       <div className="flex gap-4 items-start">
                         {
                           <MUISelect
-                            value={data?.Currency || sysInfo()?.data?.SystemCurrency}
+                            value={data?.Currency || sysInfo?.SystemCurrency}
                             disabled={data?.edit}
                             items={
                               dataCurrency?.length > 0
@@ -100,7 +100,7 @@ export default function GeneralForm({
                       </div>
                     </div>
                     <div className="col-span-6 pl-5">
-                      {(data?.Currency || sysInfo()?.data?.SystemCurrency) !== sysInfo()?.data?.SystemCurrency && (
+                      {(data?.Currency || sysInfo?.SystemCurrency) !== sysInfo?.SystemCurrency && (
                         <MUITextField
                           value={data?.ExchangeRate || 0}
                           name=""

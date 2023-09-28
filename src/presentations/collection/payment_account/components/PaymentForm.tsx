@@ -5,6 +5,7 @@ import PaymentTable from "./PaymentTable"
 import CashAccount from "@/components/selectbox/CashAccount"
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
 import { sysInfo } from "@/helper/helper"
+import { APIContext } from "../../settle_receipt/context/APIContext"
 
 interface PaymentFormProps {
   handlerAddItem: () => void
@@ -18,7 +19,7 @@ interface PaymentFormProps {
 
 export default function PaymentForm({ data, onChange }: PaymentFormProps) {
   const [collapseError, setCollapseError] = React.useState(false)
-
+  const { sysInfo }: any = React.useContext(APIContext)
   React.useEffect(() => {
     setCollapseError("Items" in data?.error)
   }, [data?.error])
@@ -47,7 +48,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
       </Collapse>
       <div className=" rounded-lg shadow-sm bg-white border p-6 px-8">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
-          <h2>Payment Means - <b>{data?.Currency || sysInfo()?.data?.SystemCurrency} { parseFloat(totalUsd).toFixed(2) || "0.00"}</b></h2>
+          <h2>Payment Means - <b>{data?.Currency || sysInfo?.SystemCurrency} { parseFloat(totalUsd).toFixed(2) || "0.00"}</b></h2>
         </div>
         <div className="mt-6">
           <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
@@ -57,7 +58,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                   <div className="grid grid-cols-5">
                     <div className="col-span-2">
                       <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                        GL Account (Transfer)
+                        GL Check Account
                       </label>
                     </div>
                     <div className="col-span-3">
@@ -80,7 +81,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                   <div className="grid grid-cols-5">
                     <div className="col-span-2">
                       <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                        GL Account (Transfer)
+                        GL Bank Account
                       </label>
                     </div>
                     <div className="col-span-3">
@@ -118,7 +119,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                   <div className="grid grid-cols-5">
                     <div className="col-span-2">
                       <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                        GL Account (Transfer)
+                        GL Cash Account
                       </label>
                     </div>
                     <div className="col-span-3">

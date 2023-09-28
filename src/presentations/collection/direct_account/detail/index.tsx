@@ -1,19 +1,25 @@
 import { withRouter } from "@/routes/withRouter"
-import { Component } from "react"
-import { useMemo } from "react"
-import { arrayBufferToBlob, currencyFormat, dateFormat } from "@/utilies"
-import PreviewAttachment from "@/components/attachment/PreviewAttachment"
+import { Component, useContext } from "react"
+import { arrayBufferToBlob, dateFormat } from "@/utilies"
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent"
 import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository"
-import ShippingTypeRepository from "@/services/actions/shippingTypeRepository"
-import ItemGroupRepository from "@/services/actions/itemGroupRepository"
 import MenuButton from "@/components/button/MenuButton"
 import LoadingProgress from "@/components/LoadingProgress"
 import shortid from "shortid"
 import request from "@/utilies/request"
 import BusinessPartner from "@/models/BusinessParter"
-import { fetchSAPFile } from "@/helper/helper"
+import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper"
+import { CircularProgress } from "@mui/material"
+import CashAccount from "@/components/selectbox/CashAccount"
+import MUITextField from "@/components/input/MUITextField"
+import PaymentTable from "../components/PaymentTable"
+import { APIContext } from "../context/APIContext"
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
+import PreviewAttachment from "@/components/attachment/PreviewAttachment"
+import React from "react"
+import ContentComponent from "../components/ContentComponents"
 import MaterialReactTable from "material-react-table"
+import DistributionRuleRepository from "@/services/actions/distributionRulesRepository"
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -44,10 +50,24 @@ class FormDetail extends Component<any, any> {
       await request("GET", `IncomingPayments(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data
+
+          // invoice
+          const invoice = await request(
+            "GET",
+            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
+          )
+            .then((res: any) => {
+              return res.data?.value?.sort(
+                (a: any, b: any) =>
+                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
+              )
+            })
+            .catch((err: any) => {})
+
           // vendor
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`
+            `/BusinessPartners('${data?.CardCode}')`,
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err))
@@ -61,7 +81,7 @@ class FormDetail extends Component<any, any> {
           if (data?.AttachmentEntry > 0) {
             AttachmentList = await request(
               "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
+              `/Attachments2(${data?.AttachmentEntry})`,
             )
               .then(async (res: any) => {
                 const attachments: any = res?.data?.Attachments2_Lines
@@ -69,12 +89,12 @@ class FormDetail extends Component<any, any> {
 
                 const files: any = attachments.map(async (e: any) => {
                   const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
+                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`,
                   )
                   const blob: any = await arrayBufferToBlob(
                     req.data,
                     req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
+                    `${e?.FileName}.${e?.FileExtension}`,
                   )
 
                   return {
@@ -92,54 +112,56 @@ class FormDetail extends Component<any, any> {
               })
               .catch((error) => console.log(error))
           }
+
+          console.log(data?.PaymentAccounts)
+
           this.setState({
             ...data,
-            Description: data?.Comments,
-            Owner: data?.DocumentsOwner,
             Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                UomGroupCode: item.UoMCode || null,
-                UomEntry: item.UoMEntry || null,
-                Currency: sysInfo()?.data?.SystemCurrency,
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
-              }
-            }),
             ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
-            vendor,
-            DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType }
-              }
-            ),
-            AttachmentList,
-            disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue: data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
             Edit: true,
             PostingDate: data?.DocDate,
             DueDate: data?.DocDueDate,
             DocumentDate: data?.TaxDate,
             loading: false,
-            BPProject: data?.Project,
-            QRCode: data?.CreateQRCodeFrom,
-            CashDiscount: data?.CashDiscountDateOffset,
+
+            GLCash: data?.CashAccount || "",
+            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(
+              2,
+            ),
+            GLBank: data?.TransferAccount,
+            GLBankAmount: parseFloat(
+              (data?.TransferSum || 0) * (data?.DocRate || 1),
+            ).toFixed(2),
+            CheckAccount: data?.GLCheck || "",
+
+            paymentMeanCheckData:
+              data?.PaymentChecks?.map((check: any) => {
+                return {
+                  due_date: check?.DueDate || new Date(),
+                  amount: check?.CheckSum || 0,
+                  bank: check?.BankCode || "",
+                  check_no: check?.CheckNumber,
+                }
+              }) || [],
+
+            AttachmentList,
+
+            Items: data?.PaymentAccounts?.map((inv: any) => {
+              return {
+                ItemCode: inv.AccountCode,
+                VatGroup: inv.VatGroup || null,
+                ItemName: inv.AccountName || null,
+                LineTotal: inv.SumPaid || 0,
+                UnitPrice: inv.SumPaid || 0,
+                VatRate:
+                  (parseFloat(inv?.VatAmount || 0) * parseFloat(inv.SumPaid || 0)) /
+                  100,
+                LineOfBussiness: inv?.ProfitCenter || "",
+                revenueLine: inv?.ProfitCenter2 || "",
+                REV: inv?.ProfitCenter3 || "",
+              }
+            }),
           })
         })
         .catch((err: any) => this.setState({ isError: true, message: err.message }))
@@ -155,39 +177,31 @@ class FormDetail extends Component<any, any> {
   render() {
     return (
       <>
-        <DocumentHeaderComponent
-          data={this.state}
-          menuTabs={[
-            "General",
-            "Content",
-            "Attachment",
-          ].map((e, index) => (
-            <MenuButton
-              key={shortid.generate()}
-              active={this.state.tapIndex === index}
-              onClick={() => this.onTap(index)}
-            >
-              {e}
-            </MenuButton>
-          ))}
-        />
-        <div className="w-full h-full flex flex-col gap-4">
-          {this.state.loading ? (
-            <div className="grow flex justify-center items-center pb-6">
-              <LoadingProgress />
-            </div>
-          ) : (
-            <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
-              <div className="grow flex flex-col gap-3 ">
-                <General data={this.state} />
-                {/* <Logistic data={this.state} /> */}
-                {/* <Accounting data={this.state} /> */}
-                <Content data={this.state} />
-                {/* <PreviewAttachment attachmentEntry={this.state.AttachmentEntry} /> */}
-                <div className="mb-5"></div>
+        <div className="w-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
+          <DocumentHeaderComponent data={this.state} menuTabs />
+
+          <div className="w-full h-full flex flex-col gap-4">
+            {this.state.loading ? (
+              <div className="grow flex justify-center items-center pb-6">
+                <CircularProgress />
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
+                <div className="grow flex flex-col gap-3 ">
+                  <div className="bg-white  w-full px-8 py-4  ">
+                    <General data={this.state} />
+                    <PaymentMean data={this.state} />
+                    <Content data={this.state} />
+                    <PreviewAttachment
+                      attachmentEntry={this.state.AttachmentEntry}
+                    />
+                  </div>
+
+                  <div className="mb-5"></div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </>
     )
@@ -196,268 +210,414 @@ class FormDetail extends Component<any, any> {
 
 export default withRouter(FormDetail)
 
-const Accounting = (props: any) => {
+function General(props: any) {
   const { data }: any = props
   return (
-    <div className="w-full bg-white shadow-lg border px-8 py-6 rounded-lg grid grid-cols-2 sm:grid-cols-1 gap-2 text-[15px] ">
-      <h2 className="col-span-2 border-b pb-2 mb-2 font-bold text-lg  ">
-        Accounting
-      </h2>
-      <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Journal Remark</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            : {data.JournalRemark}
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Payment Method</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            :{" "}
-            {
-              data?.vendor?.bpPaymentMethod?.find(
-                (e: any) => e.PaymentMethodCode === data?.PaymentMethod
-              )?.PaymentMethodCode
-            }
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">BP Project</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            {/* : {new ProjectRepository().find(data.BPProject)} */}
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Federal Tax ID</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            : {data?.FederalTax ?? "N/A"}
-          </span>
+    <>
+      {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+        <legend className="text-md px-2 font-bold">General Information</legend> */}
+
+      {/* <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          Payment Means -{" "}
+          <b>
+            {data?.Currency || sysInfo?.SystemCurrency}{" "}
+            {parseFloat(totalUsd).toFixed(2) || "0.00"}
+          </b>
+        </h2> */}
+
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6 py-4 px-8">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">General</h2>
+        <div className="grid grid-cols-12 ">
+          <div className="col-span-5">
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Customer</div>
+              <div className="col-span-1 text-gray-900">{props.data.CardCode}</div>
+            </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Name</div>
+              <div className="col-span-1 text-gray-900">{props.data.CardName}</div>
+            </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Branch</div>
+              <div className="col-span-1 text-gray-900">
+                {data?.BPLName ?? "N/A"}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Currency</div>
+              <div className="col-span-1 text-gray-900">
+                {data?.Currency ?? "N/A"}{" "}
+                {data?.ExchangeRate > 1 && ` - ${data?.ExchangeRate}`}
+              </div>
+            </div>
+          </div>
+          <div className="col-span-2"></div>
+          <div className="col-span-5 ">
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700">DocNum</div>
+              <div className="col-span-1  text-gray-900">{props.data.DocNum}</div>
+            </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Posting Date</div>
+              <div className="col-span-1 text-gray-900">
+                {dateFormat(props.data.TaxDate)}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Document Date</div>
+              <div className="col-span-1 text-gray-900">
+                {dateFormat(props.data.DocDate)}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">Payment Terms</span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            :{" "}
-            {new PaymentTermTypeRepository().find(data?.PaymentTermType)
-              ?.PaymentTermsGroupName ?? "N/A"}
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">
-            Cash Discount Date Offset
-          </span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            : {data?.CashDiscount ?? "N/A"}{" "}
-          </span>
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          <span className="text-gray-500 font-medium text-sm">
-            Create QR Code From
-          </span>{" "}
-          <span className="col-span-2 font-medium text-sm ">
-            : {data?.QRCode ?? "N/A"}
-          </span>
-        </div>
-      </div>
-    </div>
+      {/* </fieldset> */}
+    </>
   )
 }
 
-function General(props: any) {
-  console.log([props.data.ContactPersonCode, props?.data?.vendor?.contactEmployee])
+function PaymentMean(props: any) {
+  const { data } = props
+  const { sysInfo }: any = useContext(APIContext)
+  const [totalUsd] = useDocumentTotalHook(data)
 
   return (
-    <div className="bg-white shadow-lg border grid grid-cols-2 sm:grid-cols-1 gap-2 w-full rounded-lg  text-[15px] px-8 py-6">
-      <h2 className="col-span-2 border-b pb-2 mb-2 font-bold text-lg">General</h2>
-      <div className="flex flex-col gap-1 ">
-        <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Customer Code</span>
-          <span className="w-8/12 font-medium text-sm">: {props.data.CardCode}</span>
+    <>
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6 py-4 px-8">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          Payment Means -{" "}
+          <b>
+            {data?.Currency || sysInfo?.SystemCurrency}{" "}
+            {parseFloat(totalUsd).toFixed(2) || "0.00"}
+          </b>
+        </h2>
+        <div className="mt-6">
+          {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          <legend className="text-md px-2 font-bold">Payment Means - Check</legend> */}
+          <div className="grid grid-cols-2 my-4">
+            <div className="pl-4 pr-20">
+              <div className="grid grid-cols-5">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    GL Check Account
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <CashAccount
+                    // onChange={(e: any) => onChange("GLCheck", e.target.value)}
+                    value={data?.GLCheck}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="pl-20"></div>
+          </div>
+          <PaymentTable data={data} onChange={() => console.log()} />
+          {/* </fieldset>
+        <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          <legend className="text-md px-2 font-bold">
+            Payment Means - Bank Transfer
+          </legend> */}
+          <div className="grid grid-cols-2 my-4">
+            <div className="pl-4 pr-20">
+              <div className="grid grid-cols-5">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    GL Bank Account
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <CashAccount
+                    // onChange={(e: any) => onChange("GLBank", e.target.value)}
+                    value={data?.GLBank}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="pl-20">
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Total
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <MUITextField
+                    // onChange={(e: any) => onChange("GLBankAmount", e.target.value)}
+                    value={data?.GLBankAmount}
+                    type="number"
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* </fieldset>
+        <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          <legend className="text-md px-2 font-bold">Payment Means - Cash</legend> */}
+          <div className="grid grid-cols-2 my-4">
+            <div className="pl-4 pr-20">
+              <div className="grid grid-cols-5">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    GL Cash Account
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <CashAccount
+                    // onChange={(e: any) => onChange("GLCash", e.target.value)}
+                    value={data?.GLCash}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="pl-20">
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Total
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <MUITextField
+                    // onChange={(e: any) => onChange("GLCashAmount", e.target.value)}
+                    value={data?.GLCashAmount}
+                    type="number"
+                    disabled={true}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* </fieldset> */}
         </div>
-        <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Customer Name</span>
-          <span className="w-8/12 font-medium text-sm">: {props.data.CardName}</span>
-        </div>
-        {/* <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Contact Person Code</span>
-          <span className="w-8/12 font-medium text-sm">
-            :{" "}
-            {props?.data?.vendor?.contactEmployee?.find(
-              (e: any) => e.id == props.data.ContactPersonCode
-            )?.name ?? "N/A"}
-          </span>
-        </div> */}
-        {/* <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Customer Ref.No</span>
-          <span className="w-8/12 font-medium text-sm">
-            : {props.data?.NumAtCard}
-          </span>
-        </div> */}
       </div>
-      <div className="flex flex-col gap-1">
-        <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm ">Document Numbering</span>
-          <span className="w-8/12 font-medium text-sm">: {props.data.DocNum}</span>
-        </div>
-        <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Posting Date</span>
-          <span className="w-8/12 font-medium text-sm">
-            : {dateFormat(props.data.PostingDate)}
-          </span>
-        </div>
-        {/* <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Return Date</span>
-          <span className="w-8/12 font-medium text-sm">
-            : {dateFormat(props.data.DueDate)}
-          </span>
-        </div> */}
-        <div className="flex gap-2">
-          <span className="w-4/12 text-gray-500 text-sm">Document Date</span>
-          <span className="w-8/12 font-medium text-sm">
-            : {dateFormat(props.data.DocumentDate)}
-          </span>
-        </div>
-      </div>
-    </div>
+    </>
   )
 }
 
 function Content(props: any) {
-  const { data } = props
-  // const itemGroupRepo = new ItemGroupRepository()
+  const { data }: any = props
 
-  // const itemColumn: any = useMemo(
-  //   () => [
-  //     {
-  //       accessorKey: "ItemCode",
-  //       header: "Item NO.", //uses the default width from defaultColumn prop
-  //       enableClickToCopy: true,
-  //       enableFilterMatchHighlighting: true,
-  //       size: 88,
-  //     },
-  //     {
-  //       accessorKey: "ItemName",
-  //       header: "Item Description",
-  //       enableClickToCopy: true,
-  //     },
-  //     {
-  //       accessorKey: "Quantity",
-  //       header: "Quantity",
-  //       Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
-  //     },
-  //     {
-  //       accessorKey: "UnitPrice",
-  //       header: "Unit Price",
-  //       Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
-  //     },
-  //     {
-  //       accessorKey: "ItemGroup",
-  //       header: "Item Group",
-  //       Cell: ({ cell }: any) => itemGroupRepo.find(cell.getValue())?.GroupName,
-  //     },
-  //     {
-  //       accessorKey: "UomCode",
-  //       header: "UoM Group",
-  //       Cell: ({ cell }: any) => cell.getValue(),
-  //     },
-  //     {
-  //       accessorKey: "UnitsOfMeasurement",
-  //       header: "Item Per Units",
-  //       Cell: ({ cell }: any) => cell.getValue(),
-  //     },
-  //   ],
-  //   [data]
-  // )
+  const serviceColumns = React.useMemo(
+    () => [
+      {
+        accessorKey: "ItemCode",
+        header: "G/L Account", //uses the default width from defaultColumn prop
+        visible: true,
+        Header: (header: any) => <label>G/L Account</label>,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode)
+            return (
+              <div
+                role="button"
+                className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner"
+                // onClick={handlerAddItem}
+              >
+                Add Row
+              </div>
+            )
+
+          return (
+            <MUITextField
+              key={"ItemCode_" + cell.getValue()}
+              value={cell.row.original?.ItemCode ?? ""}
+              type="text"
+              readOnly={true}
+              endAdornment
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "ItemName",
+        header: "G/L Account Name", //uses the default width from defaultColumn prop
+        visible: true,
+        Header: (header: any) => <label>G/L Account Name</label>,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return
+
+          return (
+            <MUITextField
+              key={"ItemName_" + cell.getValue()}
+              type="text"
+              value={cell.row.original?.ItemName}
+              readOnly={true}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "VatGroup",
+        header: "Tax Code", //uses the default width from defaultColumn prop
+        visible: true,
+        Header: (header: any) => <label>Tax Code</label>,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return
+          return (
+            <MUITextField
+              key={"unitPrice_" + cell.getValue()}
+              value={cell.getValue()}
+              type="text"
+              readOnly={true}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "revenueLine",
+        header: "Revenue Line", //uses the default width from defaultColumn prop
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return
+          return (
+            <MUITextField
+              key={"revenueLine_" + cell.getValue()}
+              value={
+                new DistributionRuleRepository().find(cell.row.original?.revenueLine)
+                  ?.FactorDescription
+              }
+              type="text"
+              readOnly={true}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "REV",
+        header: "Product Line", //uses the default width from defaultColumn prop
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return
+          console.log(cell.row.original)
+
+          return (
+            <MUITextField
+              key={"REV_" + cell.getValue()}
+              value={
+                new DistributionRuleRepository().find(cell.row.original?.REV)
+                  ?.FactorDescription
+              }
+              type="text"
+              readOnly={true}
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "OpenAmountLC",
+        header: "Amount", //uses the default width from defaultColumn prop
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return null
+          return (
+            <MUITextField
+              startAdornment={data?.Currency}
+              value={cell.row?.original?.UnitPrice || 0}
+              readOnly={true}
+            />
+          )
+        },
+      },
+    ],
+    [],
+  )
+
+  const [paymentMeans, netTotal, rate] = useDocumentTotalHook(props?.data)
 
   return (
-    <>
-      <div className="bg-white shadow-lg border grid grid-cols-1 sm:grid-cols-1 gap-2 w-full rounded-lg  text-[15px] px-8 py-6">
-        <div
-          className={`col-span-2 grid grid-cols-3 md:grid-cols-1  gap-4 ${
-            !props.viewOnly && "my-6"
-          }`}
-        >
-          <div className="flex gap-4 items-start">
-            <label htmlFor="currency" className=" flex pt-1 text-[#656565] text-sm">
-              Currency
-            </label>
-            <span className="text-sm pt-1 ">
-              : {data?.Currency} - {data?.DocRate}
-            </span>
-          </div>
-          <div className="col-span-2 grid grid-cols-3 gap-3">
-            <label
-              htmlFor="currency"
-              className="text-sm col-span-2 md:col-span-1 flex items-center justify-end md:justify-start text-[#656565]"
-            >
-              Item / Service Type :
-            </label>
-            <div className="md:col-span-2">Items</div>
-            <label
-              htmlFor="currency"
-              className="text-sm col-span-2 md:col-span-1 flex items-center justify-end md:justify-start text-[#656565] "
-            >
-              Price Mode :
-            </label>
-            <div className="md:col-span-2">
-              {data?.PriceMode?.replace("pmd", "")}
+    <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6 py-4 px-8">
+      <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">Content</h2>
+      {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+        <legend className="text-md px-2 font-bold">Content Information</legend> */}
+      <MaterialReactTable
+        columns={serviceColumns}
+        data={data?.Items ?? []}
+        enableRowNumbers={true}
+        enableStickyHeader={true}
+        enableColumnActions={false}
+        enableColumnFilters={false}
+        enablePagination={false}
+        enableSorting={false}
+        enableTopToolbar={false}
+        enableColumnResizing={true}
+        enableColumnFilterModes={false}
+        enableDensityToggle={false}
+        enableFilters={false}
+        enableFullScreenToggle={false}
+        enableGlobalFilter={false}
+        enableHiding={true}
+        enablePinning={true}
+        enableStickyFooter={false}
+        enableMultiRowSelection={true}
+        state={{}}
+        muiTableBodyRowProps={() => ({
+          sx: { cursor: "pointer" },
+        })}
+        enableTableFooter={false}
+      />
+      <div className="col-span-2">
+        <div className="grid grid-cols-2">
+          <div className="w-full grid grid-cols-2 mt-4"></div>
+          <div className="pl-20">
+            <div className="grid grid-cols-5 mb-4"></div>
+            <div className="grid grid-cols-5">
+              <div className="col-span-2">
+                <span className="flex items-center pt-1 text-sm">
+                  <b>Net Total:</b>
+                </span>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  placeholder="0.00"
+                  type="text"
+                  startAdornment={props?.data?.Currency}
+                  readOnly={true}
+                  value={netTotal.toFixed(2)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5">
+              <div className="col-span-2">
+                <span className="flex items-center pt-1 text-sm">
+                  <b>Total Tax:</b>
+                </span>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  placeholder="0.00"
+                  type="text"
+                  startAdornment={props?.data?.Currency}
+                  readOnly={true}
+                  value={rate.toFixed(2)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5">
+              <div className="col-span-2">
+                <span className="flex items-center pt-1 text-sm">
+                  <b>Total Amount Due:</b>
+                </span>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  placeholder="0.00"
+                  type="text"
+                  startAdornment={props?.data?.Currency}
+                  readOnly={true}
+                  value={(netTotal + rate).toFixed(2)}
+                />
+              </div>
             </div>
           </div>
         </div>
-        {/* <MaterialReactTable
-          enableColumnActions={false}
-          enableColumnFilters={false}
-          enablePagination={false}
-          enableSorting={false}
-          enableBottomToolbar={false}
-          enableTopToolbar={false}
-          muiTableBodyRowProps={{ hover: false }}
-          columns={itemColumn}
-          data={data?.Items || []}
-        />
-        <div className="clearfix"></div>
-        <div className="w-full flex justify-between">
-          <div className="text-right"></div>
-          <div className="grid grid-cols-2 gap-0  w-[26rem] text-gray-600">
-            <p className="text-base text-gray-800 font-semibold">Total Summary</p>
-            <span></span>
-            <div className="col-span-2 my-1 border-b"></div>
-            <span className="flex items-center pt-1 text-sm">
-              Total Before Discount {}
-            </span>
-            {data?.Currency}{" "}
-            {((data?.DocTotalSys - data?.VatSumSys) * (data?.DocRate || 1)).toFixed(
-              2
-            )}
-            <span className="flex items-center pt-1 text-sm">Discount</span>
-            <div className="grid grid-cols-2 gap-2">
-              {parseFloat(data?.DocDiscount) || 0.0}
-              <span className="w-full  flex items-center pt-1 justify-end text-sm">
-                {data?.Currency}{" "}
-                {(data?.TotalDiscountFC || data?.TotalDiscountSC).toFixed(2)}
-              </span>
-            </div>
-            <span className="flex items-center pt-1 text-sm">Freight</span>
-            <span className="pt-1 text-sm">: {data?.Currency} 0.00</span>
-            <span className="flex items-center pt-1 text-sm">Rounding</span>
-            <div className="grid grid-cols-1 gap-1">
-              : {data?.Currency}{" "}
-              {parseFloat(
-                data?.RoundingDiffAmountFC || data?.RoundingDiffAmount
-              ).toFixed(2)}
-            </div>
-            <span className="flex items-center pt-1 text-sm">Tax</span>
-            <span className="flex items-center pt-1 text-sm">
-              : {data?.Currency} {(data?.VatSumFc || data?.VatSum).toFixed(2)}
-            </span>
-            <span className="flex items-center pt-1 text-sm">Total Payment Due</span>
-            <span className="flex items-center pt-1 text-sm">
-              : {data?.Currency} {(data?.DocTotalFc || data?.DocTotalSys).toFixed(2)}
-            </span>
-          </div>
-        </div> */}
       </div>
-    </>
+      {/* </fieldset> */}
+    </div>
   )
 }

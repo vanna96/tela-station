@@ -117,6 +117,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
+          enableRowNumbers={true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />
