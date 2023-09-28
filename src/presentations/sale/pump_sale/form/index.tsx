@@ -16,12 +16,12 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
-import { CircularProgress, Backdrop } from "@mui/material";
+import { Backdrop, CircularProgress } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 
-class SalesOrderForm extends CoreFormDocument {
+class PumpSaleForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -234,7 +234,7 @@ class SalesOrderForm extends CoreFormDocument {
         ...this.state,
         isSubmitting: false,
         warehouseCode: "",
-        loading: true,
+        loading: true
       });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
@@ -291,13 +291,14 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
+        CashAccount: data?.CashAccount,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
         DiscountPercent: data?.DocDiscount,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
-        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
+        BPLID: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
@@ -343,19 +344,7 @@ class SalesOrderForm extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      // await request("POST", "/script/test/SO", payloads)
-
-      //   .then(
-      //     (res: any) =>
-      //       this.dialog.current?.success(
-      //         "Create Successfully.",
-      //         res?.data?.DocEntry
-      //       )
-      //   )
-      //   .catch((err: any) => this.dialog.current?.error(err.message))
-      //   .finally(() => this.setState({ ...this.state, isSubmitting: false }));
-
-      await request("POST", "/script/test/SO", payloads)
+      await request("POST", "/script/test/PumpSale", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docComments = res.data.Comments;
@@ -483,7 +472,7 @@ class SalesOrderForm extends CoreFormDocument {
 
     return (
       <>
-        <Backdrop
+       <Backdrop
           sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
           open={this.state.loading} // Show backdrop when isLoading is true
         >
@@ -527,61 +516,56 @@ class SalesOrderForm extends CoreFormDocument {
           className="h-full w-full flex flex-col gap-4 relative"
         >
           <div className="w-full h-full flex items-center justify-center">
-            {/* {this.state.loading ? (
-              <div className="flex items-center justify-center">
-                <CircularProgress />
-              </div>
-            ) : ( */}
-            <>
-              <div className="grow">
-                {this.state.tapIndex === 0 && (
-                  <GeneralForm
-                    data={this.state}
-                    edit={this.props?.edit}
-                    handlerChange={(key, value) =>
-                      this.handlerChange(key, value)
-                    }
-                    lineofBusiness={this.state.lineofBusiness}
-                    warehouseCode={this.state.warehouseCode}
-                    onWarehouseChange={this.handleWarehouseChange}
-                    onLineofBusinessChange={this.handleLineofBusinessChange}
-                  />
-                )}
+              <>
+                <div className="grow">
+                  {this.state.tapIndex === 0 && (
+                    <GeneralForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) =>
+                        this.handlerChange(key, value)
+                      }
+                      lineofBusiness={this.state.lineofBusiness}
+                      warehouseCode={this.state.warehouseCode}
+                      onWarehouseChange={this.handleWarehouseChange}
+                      onLineofBusinessChange={this.handleLineofBusinessChange}
+                    />
+                  )}
 
-                {this.state.tapIndex === 1 && (
-                  <LogisticForm
-                    data={this.state}
-                    edit={this.props?.edit}
-                    handlerChange={(key, value) => {
-                      this.handlerChange(key, value);
-                    }}
-                  />
-                )}
+                  {this.state.tapIndex === 1 && (
+                    <LogisticForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
 
-                {this.state.tapIndex === 2 && (
-                  <ContentForm
-                    data={this.state}
-                    handlerAddItem={() => {
-                      this.hanndAddNewItem();
-                    }}
-                    handlerRemoveItem={(items: any[]) =>
-                      this.setState({ ...this.state, Items: items })
-                    }
-                    handlerChangeItem={this.handlerChangeItems}
-                    onChangeItemByCode={this.handlerChangeItemByCode}
-                    onChange={this.handlerChange}
-                  />
-                )}
+                  {this.state.tapIndex === 2 && (
+                    <ContentForm
+                      data={this.state}
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
+                      }}
+                      handlerRemoveItem={(items: any[]) =>
+                        this.setState({ ...this.state, Items: items })
+                      }
+                      handlerChangeItem={this.handlerChangeItems}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                    />
+                  )}
 
-                {this.state.tapIndex === 3 && (
-                  <AttachmentForm
-                    data={this.state}
-                    handlerChange={(key: any, value: any) => {
-                      this.handlerChange(key, value);
-                    }}
-                  />
-                )}
-                {/* {this.state.tapIndex === 4 && (
+                  {this.state.tapIndex === 3 && (
+                    <AttachmentForm
+                      data={this.state}
+                      handlerChange={(key: any, value: any) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {/* {this.state.tapIndex === 4 && (
                     <AccountingForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -590,9 +574,8 @@ class SalesOrderForm extends CoreFormDocument {
                       }}
                     />
                   )} */}
-              </div>
-            </>
-            {/* )} */}
+                </div>
+              </>
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
@@ -630,7 +613,7 @@ class SalesOrderForm extends CoreFormDocument {
   };
 }
 
-export default withRouter(SalesOrderForm);
+export default withRouter(PumpSaleForm);
 
 const getItem = (items: any, type: any, warehouseCode: any) =>
   items?.map((item: any, index: number) => {
