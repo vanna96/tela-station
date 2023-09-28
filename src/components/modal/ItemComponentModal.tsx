@@ -78,6 +78,7 @@ const ItemModal: FC<ItemModalProps> = ({
       {
         accessorKey: "ItemCode",
         header: "Code",
+        size: 80,
       },
       {
         accessorKey: "ItemName",
@@ -86,6 +87,7 @@ const ItemModal: FC<ItemModalProps> = ({
       {
         accessorKey: "ForeignName",
         header: "Foreign Name",
+        size: 90,
       },
       // {
       //   accessorKey: "Description",
@@ -109,17 +111,18 @@ const ItemModal: FC<ItemModalProps> = ({
   }, [data]);
 
   const itemFilter = useMemo(() => {
-    switch (group) {
-      case "100":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 100);
-      case "101":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 101);
-      case "102":
-        return items?.filter((e: any) => e?.ItemsGroupCode === 102);
-      case "0":
-        return items;
+    console.log(group);
+    switch (Number(group)) {
+      case 100:
+        return data?.filter((e: any) => e?.ItemsGroupCode === 100);
+      case 101:
+        return data?.filter((e: any) => e?.ItemsGroupCode === 101);
+      case 102:
+        return data?.filter((e: any) => e?.ItemsGroupCode === 102);
+      case 0:
+        return data;
       default:
-        return items;
+        return data;
     }
   }, [group]);
 
@@ -333,6 +336,7 @@ const ItemModal: FC<ItemModalProps> = ({
                         pagination: pagination,
                         rowSelection,
                       }}
+                      layoutMode="grid"
                     />
 
                     <div className="w-full flex justify-end items-center border-t pt-3 gap-3">
