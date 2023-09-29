@@ -3,7 +3,7 @@ import request from "@/utilies/request"
 import React from "react"
 import { useMemo } from "react"
 import { useQuery } from "react-query"
-import { APIContext } from "../../settle_receipt/context/APIContext"
+import { APIContext } from "../../clearence/context/APIContext"
 
 export const useExchangeRate = (Currency: any, handleChange: any) => {
   const date = useMemo(() => formatDate(new Date(), ""), [new Date()])
