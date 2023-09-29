@@ -8,10 +8,7 @@ import Modal from "@/components/modal/Modal"
 import { BiSearch } from "react-icons/bi"
 import MUITextField from "@/components/input/MUITextField"
 import shortid from "shortid"
-import { LoadingButton } from "@mui/lab"
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
-import MUISelect from "@/components/selectbox/MUISelect"
-import ControlAccount from "@/components/selectbox/ControlAccount"
+import { numberWithCommas } from "@/helper/helper"
 
 interface ContentComponentProps {
   items: any[]
@@ -31,7 +28,6 @@ interface ContentComponentProps {
 
 export default function ContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>()
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0)
   const [colVisibility, setColVisibility] = React.useState<Record<string, boolean>>(
     {},
   )
@@ -61,34 +57,10 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   const columns = useMemo(() => props.columns, [colVisibility])
 
-  const onChange = (key: string, value: any) => {
-    if (key === "DocDiscount") {
-      setDiscount(value.target.value)
-    }
-
-    if (props.onChange) props.onChange(key, value?.target?.value)
-  }
-
-  const onCheckRow = (event: any, index: number) => {
-    const rowSelects: any = { ...rowSelection }
-    rowSelects[index] = true
-
-    if (!event.target.checked) {
-      delete rowSelects[index]
-    }
-
-    setRowSelection(rowSelects)
-  }
-
-  const [total, TotalFc] = useDocumentTotalHook(props?.data)
   const itemInvoicePrices =
-    total -
-    (props?.items?.reduce((prev: number, item: any) => {
-      return (
-        prev + parseFloat((item?.TotalPayment || 0) / parseFloat(item?.DocRate || 1))
-      )
-    }, 0) ?? 0) *
-      props?.data?.ExchangeRate
+    props?.items?.reduce((prev: number, item: any) => {
+      return prev + parseFloat(item?.U_tl_linetotal || 0)
+    }, 0) || 0
 
   return (
     <FormCard
@@ -109,32 +81,8 @@ export default function ContentComponent(props: ContentComponentProps) {
       <>
         <div className="col-span-2 data-table">
           <MaterialReactTable
-            columns={
-              props?.data?.DocType === "rAccount"
-                ? [
-                    {
-                      accessorKey: "id",
-                      size: 30,
-                      minSize: 30,
-                      maxSize: 30,
-                      enableResizing: false,
-                      Cell: (cell) => (
-                        <Checkbox
-                          checked={cell.row.index in rowSelection}
-                          size="small"
-                          onChange={(event) => onCheckRow(event, cell.row.index)}
-                        />
-                      ),
-                    },
-                    ...columns,
-                  ]
-                : columns
-            }
-            data={
-              props?.isNotAccount
-                ? [...props?.data?.Items]
-                : [...props?.data?.Items, { ItemCode: "" }]
-            }
+            columns={columns}
+            data={[...props?.data?.Items]}
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
             enableStickyHeader={true}
             enableColumnActions={false}
@@ -174,78 +122,13 @@ export default function ContentComponent(props: ContentComponentProps) {
             enableTableFooter={false}
           />
         </div>
-        <div className="col-span-2 mt-[-60px]">
+        <div className="col-span-2 mt-[-40px]">
           <div className="grid grid-cols-2">
-            <div className="w-full grid grid-cols-2 mt-4">
-              <div className="grid grid-cols-1 space-y-4">
-                <div className="grid grid-cols-2 pt-1">
-                  <span className=" text-sm">Payment on Account:</span>
-                  <MUISelect
-                    items={[
-                      {
-                        id: "tYes",
-                        name: "Yes",
-                      },
-                      {
-                        id: "tNo",
-                        name: "No",
-                      },
-                    ]}
-                    onChange={(e) => onChange("PaymentonAccount", e)}
-                    value="tYes"
-                    aliasvalue="id"
-                    aliaslabel="name"
-                    disabled={true}
-                  />
-                </div>
-                <div className="grid grid-cols-2">
-                  <>
-                    <span className="pt-1 text-sm">Control Account:</span>
-                    <ControlAccount
-                      value={props?.data?.ControlAccount}
-                      onChange={(e) => onChange("ControlAccount", e)}
-                      disabled={props?.data?.edit}
-                    />
-                  </>
-                </div>
-                <div className="grid grid-cols-2">
-                  <>
-                    <span className="pt-1 text-sm text-right pr-40">Amount:</span>
-                    <MUITextField
-                      value={parseFloat(
-                        props.data?.OnAccountAmount || itemInvoicePrices || 0,
-                      ).toFixed(2)}
-                      type="number"
-                      onChange={(e) => onChange("OnAccountAmount", e)}
-                      disabled={props?.data?.edit}
-                    />
-                  </>
-                </div>
-              </div>
-              <div className="grid grid-cols-2"></div>
-            </div>
+            <div className="w-full grid grid-cols-2 mt-4"></div>
             <div className="pl-20">
-              <div className="grid grid-cols-5 mb-4">
-                <div className="col-span-2"></div>
-                <div className="col-span-3 text-right">
-                  {!props?.data?.edit && (
-                    <LoadingButton
-                      sx={{ height: "25px" }}
-                      className="bg-white"
-                      size="small"
-                      variant="contained"
-                      onClick={props?.handlerAddSequence}
-                    >
-                      <span className="px-6 text-[11px] py-4 text-white">
-                        Add In Sequence
-                      </span>
-                    </LoadingButton>
-                  )}
-                </div>
-              </div>
               <div className="grid grid-cols-5">
                 <div className="col-span-2">
-                  <span className="flex items-center pt-1 text-sm">
+                  <span className="flex items-center pt-2 text-sm">
                     <b>Total Payment Due</b>
                   </span>
                 </div>
@@ -255,7 +138,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     type="text"
                     startAdornment={props?.data?.Currency}
                     readOnly={true}
-                    value={total.toFixed(2)}
+                    value={numberWithCommas((itemInvoicePrices || 0).toFixed(2))}
                   />
                 </div>
               </div>

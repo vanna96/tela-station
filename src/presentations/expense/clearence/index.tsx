@@ -6,7 +6,6 @@ import DataTable from "./components/DataTable"
 import VisibilityIcon from "@mui/icons-material/Visibility"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import MUITextField from "@/components/input/MUITextField"
-import BPAutoComplete from "@/components/input/BPAutoComplete"
 import { Button } from "@mui/material"
 import { ModalAdaptFilter } from "./components/ModalAdaptFilter"
 import MUIDatePicker from "@/components/input/MUIDatePicker"
@@ -14,7 +13,7 @@ import BPLBranchSelect from "@/components/selectbox/BranchBPL"
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
 import { useCookies } from "react-cookie"
 
-export default function ReturnRequestLists() {
+export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false)
   const [cookies] = useCookies(["user"])
   const [searchValues, setSearchValues] = React.useState({
@@ -37,30 +36,30 @@ export default function ReturnRequestLists() {
         type: "number",
       },
       {
-        accessorKey: "DocDate",
+        accessorKey: "CreateDate",
         header: "Document Date", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          if (!cell.row.original?.DocDate) return
-          return cell.row.original?.DocDate.toString().replace("T00:00:00Z", "")
+          if (!cell.row.original?.CreateDate) return
+          return cell.row.original?.CreateDate.toString().replace("T00:00:00Z", "")
         },
       },
-      {
-        accessorKey: "CardCode",
-        header: "Customer Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-      },
-      {
-        accessorKey: "CardName",
-        header: "Customer Name",
-        visible: true,
-        type: "string",
-      },
+      // {
+      //   accessorKey: "CardCode",
+      //   header: "Customer Code",
+      //   enableClickToCopy: true,
+      //   visible: true,
+      //   type: "string",
+      // },
+      // {
+      //   accessorKey: "CardName",
+      //   header: "Customer Name",
+      //   visible: true,
+      //   type: "string",
+      // },
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -78,7 +77,7 @@ export default function ReturnRequestLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/banking/payment-account/" + cell.row.original.DocEntry, {
+                route("/expense/clearance/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 })
@@ -89,35 +88,7 @@ export default function ReturnRequestLists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                let url = "direct-account"
-
-                if (cell.row.original.DocTypte === "rCustomer") {
-                  const paymentInvoices =
-                    cell.row.original?.PaymentInvoices?.reduce(
-                      (prev: number, item: any) => {
-                        return prev + parseFloat(item?.AppliedSys || 0)
-                      },
-                      0,
-                    ) || 0
-
-                  const totalPaymentDue =
-                    (cell.row.original?.PaymentChecks?.reduce(
-                      (prev: number, item: any) => {
-                        return prev + parseFloat(item?.CheckSum || 0)
-                      },
-                      0,
-                    ) || 0) /
-                      (cell.row.original?.DocRate || 1) +
-                    (cell.row.original?.CashSum || 0) +
-                    (cell.row.original?.TransferSum || 0)
-
-                  url =
-                    parseFloat(totalPaymentDue).toFixed(2) ===
-                    parseFloat(paymentInvoices).toFixed(2)
-                      ? "settle-receipt"
-                      : "payment-account"
-                }
-                route(`/banking/${url}/${cell.row.original.DocEntry}/edit`, {
+                route(`/expense/clearance/${cell.row.original.DocEntry}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 })
@@ -144,12 +115,9 @@ export default function ReturnRequestLists() {
   })
 
   const Count: any = useQuery({
-    queryKey: [`IncomingPayments_SettleReceipt`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_ExpClear`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/IncomingPayments/$count?${filter}`,
-      )
+      const response: any = await request("GET", `${url}/TL_ExpClear/$count?${filter}`)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message)
@@ -162,13 +130,13 @@ export default function ReturnRequestLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "IncomingPayments_SettleReceipt",
+      "TL_ExpClear",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/IncomingPayments?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_ExpClear?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&${filter}`,
       )
@@ -225,15 +193,16 @@ export default function ReturnRequestLists() {
   }
 
   const handleGoClick = () => {
-    let queryFilters: any = [`DocType eq 'rCustomer'`]
+    let queryFilters: any = []
     if (searchValues.docnum) queryFilters.push(`DocNum eq ${searchValues.docnum}`)
     if (searchValues.cardcode)
       queryFilters.push(
         `(CardCode eq '${searchValues.cardcode}' or CardName eq '${searchValues.cardcode}')`,
       )
     if (searchValues.docdate)
-      queryFilters.push(`DocDate eq '${searchValues.docdate}T00:00:00Z'`)
-    if (searchValues.bplid > 0) queryFilters.push(`BPLID eq ${searchValues.bplid}`)
+      queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`)
+    if (searchValues.bplid > 0)
+      queryFilters.push(`U_tl_bplid eq ${searchValues.bplid}`)
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`)
@@ -249,7 +218,7 @@ export default function ReturnRequestLists() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Collection / Payment on Account
+            Expense Log / Clearance
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -268,7 +237,7 @@ export default function ReturnRequestLists() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Customer Name / Code"
                   placeholder="Customer Name / Code"
@@ -279,10 +248,10 @@ export default function ReturnRequestLists() {
                     setSearchValues({ ...searchValues, cardcode: e.target.value })
                   }
                 />
-              </div>
+              </div> */}
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
-                  label="Posting Date"
+                  label="Date"
                   value={searchValues?.docdate}
                   onChange={(e) => {
                     setSearchValues({
@@ -361,7 +330,7 @@ export default function ReturnRequestLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Payment on Account"
+          title="Log"
         />
       </div>
     </>

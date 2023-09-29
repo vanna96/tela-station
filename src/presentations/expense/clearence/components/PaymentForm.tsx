@@ -5,7 +5,7 @@ import PaymentTable from "./PaymentTable"
 import CashAccount from "@/components/selectbox/CashAccount"
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
 import { sysInfo } from "@/helper/helper"
-import { APIContext } from "../../settle_receipt/context/APIContext"
+import { APIContext } from "../../clearence/context/APIContext"
 
 interface PaymentFormProps {
   handlerAddItem: () => void
