@@ -34,18 +34,7 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (props: MUIDatePickerProps) 
     return value;
   }, [value, addOnDay]);
 
-  const theme1 = React.useMemo(() => createTheme({
-    typography: {
-      allVariants: {
-        color: theme === 'light' ? '' : 'white'
-      },
-    },
-    palette: {
-      background: {
-        paper: theme === 'light' ? '#FFFFFF' : '#FFFFFF'
-      }
-    },
-  }), [theme]);
+  
 
 
   const onChangeInput = (event: any) => {
@@ -70,7 +59,6 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (props: MUIDatePickerProps) 
         </label>
       }
       <div className={`date-picker ${error ? 'date-picker-error' : ''} `}>
-        <ThemeProvider theme={theme1}>
           <LocalizationProvider dateAdapter={AdapterDayjs} >
             <DesktopDatePicker
               PopperProps={{
@@ -92,7 +80,6 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (props: MUIDatePickerProps) 
               }} {...params} name={name} autoComplete="off" onBlur={onChangeInput} error={(!dayjs(value).isValid() && value === '') || props.error} helperText={props.helpertext ?? (!dayjs(value).isValid() && (value || value === '') ? "invalid date format" : "")} />}
             />
           </LocalizationProvider>
-        </ThemeProvider>
       </div>
     </div>
   );

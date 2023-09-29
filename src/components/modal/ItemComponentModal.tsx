@@ -1,4 +1,4 @@
-import React, { FC, Fragment } from "react";
+import React, { FC, Fragment, useEffect } from "react";
 import MaterialReactTable from "material-react-table";
 import { useQuery } from "react-query";
 import itemRepository from "@/services/actions/itemRepostory";
@@ -16,7 +16,7 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 export type ItemType = "purchase" | "sale" | "inventory";
-export type ItemGroup = "100" | "101" | "102" | "0";
+export type ItemGroup = 100 | 101 | 102 | 0;
 
 interface ItemModalProps {
   open: boolean;
@@ -43,23 +43,13 @@ const ItemModal: FC<ItemModalProps> = ({
 
   const itemsGroupCodes = [100, 101, 102];
   const { data, isLoading }: any = useQuery({
-    queryKey: ["items", group],
+    queryKey: ["items"],
     queryFn: () =>
-      // new itemRepository().getSaleItem(
-      //   `&$filter=ItemType eq 'itItems' and ItemsGroupCode eq ${userSelectedItemsGroupCode} &$orderby=ItemCode asc`
-      // ),
       new itemRepository().getSaleItem(
         `&$filter=ItemType eq 'itItems' and (ItemsGroupCode eq ${itemsGroupCodes.join(
           " or ItemsGroupCode eq "
         )}) &$orderby=ItemCode asc`
       ),
-    staleTime: Infinity,
-  });
-
-  const vendors: any = useQuery({
-    queryKey: ["venders_supplier"],
-    queryFn: () =>
-      new BusinessPartnerRepository().get(`&$filter=CardType eq 'cSupplier'`),
     staleTime: Infinity,
   });
 
@@ -109,7 +99,6 @@ const ItemModal: FC<ItemModalProps> = ({
         return [];
     }
   }, [data]);
-
   const itemFilter = useMemo(() => {
     switch (Number(group)) {
       case 100:
@@ -125,29 +114,31 @@ const ItemModal: FC<ItemModalProps> = ({
     }
   }, [Number(group)]);
 
-  // const itemFilter = items?.filter((e: any) => e?.ItemsGroupCode === 101);
-
   const handlerConfirm = async () => {
     const keys = Object.keys(rowSelection);
     let selectItems = keys.map((e: any) =>
       items.find((ele: any) => ele?.ItemCode === e)
     );
-    // console.log(selectItems)
     const uomGroups: any = await new UnitOfMeasurementGroupRepository().get();
     const uoms = await new UnitOfMeasurementRepository().get();
     const warehouse = await new WarehouseRepository().get();
     const wareBinLocation = await new WareBinLocationRepository().get();
-
+    async function getPriceListNum(CardCode: any) {
+      try {
+        const result = await new BusinessPartnerRepository().find(CardCode);
+        return result?.PriceListNum;
+      } catch (error) {
+        console.error(error);
+        return null;
+      }
+    }
+    const globalPriceListNum = await getPriceListNum(CardCode);
+    console.log(globalPriceListNum);
     selectItems = selectItems.map((e: any) => {
-      const vendor = vendors.data?.find(
-        (bp: any) => bp?.CardCode === CardCode || e?.Mainsupplier
-      );
-      // console.log(vendor)
       const defaultPrice = e?.ItemPrices?.find(
-        (row: any) => row?.PriceList === vendor?.PriceListNum
+        (row: any) => row?.PriceList === globalPriceListNum
       )?.Price;
 
-      // const defaultItemPrice = e?.ItemPrices?.
       let vatRate: any = 0;
       let saleVatGroup: any = "";
       switch (type) {
@@ -195,7 +186,7 @@ const ItemModal: FC<ItemModalProps> = ({
       // const warehouseCode = WarehouseCode;
       return {
         ItemCode: e?.ItemCode,
-        LineVendor: vendor?.CardCode,
+        LineVendor: CardCode,
         ItemName: e?.ItemName,
         ItemDescription: e?.ItemName,
         UomEntry: e?.UoMGroupEntry,
@@ -228,7 +219,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UomLists: uomLists,
         SaleUOMLists: UoMEntryValues,
         DocCurrency: e?.DocCurrency,
-        UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection.find(
+        UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection?.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
         )?.BaseQuantity,
         UnitsOfMeasurements: uomGroup,
@@ -277,9 +268,9 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center  ">
-                      <h2 className="font-bold text-xl mt-12">
+                      {/* <h2 className="font-bold text-xl mt-12">
                         {"List of Items"}
-                      </h2>
+                      </h2> */}
                       <OutlinedInput
                         size="small"
                         key={filterKey}
@@ -419,7 +410,7 @@ export class ItemModalComponent extends React.Component<
         open={this.state.isOpen}
         onClose={this.onClose}
         type={this.state.type || this.props.type || "sale"}
-        group={this.state.group || this.props.group || 100}
+        group={this.props.group || 0}
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}

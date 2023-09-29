@@ -234,7 +234,7 @@ class PumpSaleForm extends CoreFormDocument {
         ...this.state,
         isSubmitting: false,
         warehouseCode: "",
-        loading: true
+        loading: true,
       });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
@@ -347,29 +347,26 @@ class PumpSaleForm extends CoreFormDocument {
       await request("POST", "/script/test/PumpSale", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
-            const docComments = res.data.Comments;
-            const match = docComments.match(/\d+/);
-            const docNum = match ? match[0] : null;
+            // const docComments = res.data.Comments;
+            // const match = docComments.match(/\d+/);
+            // const docNum = match ? match[0] : null;
 
-            if (docNum) {
-              const response = await request(
-                "GET",
-                `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
-              );
+            // if (docNum) {
+            //   const response = await request(
+            //     "GET",
+            //     `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
+            //   );
 
-              const orders = response?.data?.value;
-              if (orders.length > 0) {
-                const docEntry = orders[0]?.DocEntry;
+            //   const orders = response?.data?.value;
+            //   if (orders.length > 0) {
+            //     const docEntry = orders[0]?.DocEntry;
 
-                // console.log(`DocEntry: ${docEntry}`);
+            //     // console.log(`DocEntry: ${docEntry}`);
 
-                this.dialog.current?.success("Create Successfully.", docEntry);
-              } else {
-                console.log(`No matching order found for DocNum ${docNum}`);
-              }
-            } else {
-              console.log("No DocNum found in Comments");
-            }
+            //     this.dialog.current?.success("Create Successfully.", docEntry);
+            //   } else {
+            //     console.log(`No matching order found for DocNum ${docNum}`);
+            this.dialog.current?.success("Create Successfully.");
           } else {
             console.error("Error in POST request:", res.statusText);
           }
@@ -444,27 +441,17 @@ class PumpSaleForm extends CoreFormDocument {
       );
   }
 
-  // componentDidUpdate(prevProps: any, prevState: any) {
-  //   if (prevState.warehouseCode !== this.state.warehouseCode) {
-  //     const DocumentLines = getItem(
-  //       this.state?.Items || [],
-  //       this.state?.DocType,
-  //       this.state.warehouseCode,
-  //     );
-  //   }
-  // }
-
   FormRender = () => {
     const getGroupByLineofBusiness = (lineofBusiness: any) => {
       switch (lineofBusiness) {
         case "Oil":
-          return "100";
+          return 100;
         case "Lube":
-          return "101";
+          return 101;
         case "LPG":
-          return "102";
+          return 102;
         default:
-          return "0";
+          return 0;
       }
     };
 
@@ -472,50 +459,23 @@ class PumpSaleForm extends CoreFormDocument {
 
     return (
       <>
-       <Backdrop
-          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={this.state.loading} // Show backdrop when isLoading is true
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-        {itemGroupCode === "100" && (
-          <ItemModalComponent
-            type="sale"
-            group={"100"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}
-        {itemGroupCode === "101" && (
-          <ItemModalComponent
-            type="sale"
-            group={"101"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}
-        {itemGroupCode === "102" && (
-          <ItemModalComponent
-            type="sale"
-            group={"102"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}{" "}
-        {itemGroupCode === "0" && (
-          <ItemModalComponent
-            type="sale"
-            group={"0"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}
+        <ItemModalComponent
+          type="sale"
+          group={itemGroupCode}
+          onOk={this.handlerConfirmItem}
+          ref={this.itemModalRef}
+        />
         <form
           id="formData"
           onSubmit={this.handlerSubmit}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           <div className="w-full h-full flex items-center justify-center">
+            {this.state.loading ? (
+              <div className="flex items-center justify-center">
+                <CircularProgress />
+              </div>
+            ) : (
               <>
                 <div className="grow">
                   {this.state.tapIndex === 0 && (
@@ -565,18 +525,10 @@ class PumpSaleForm extends CoreFormDocument {
                       }}
                     />
                   )}
-                  {/* {this.state.tapIndex === 4 && (
-                    <AccountingForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
                 </div>
               </>
-          </div>
+            )}
+          </div>  
 
           <div className="sticky w-full bottom-4  mt-2 ">
             <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">

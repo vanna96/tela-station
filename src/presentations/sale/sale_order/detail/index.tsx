@@ -200,7 +200,6 @@ class DeliveryDetail extends Component<any, any> {
           <div className="w-full h-full flex flex-col gap-4">
             {this.state.loading ? (
               <div className="grow flex justify-center items-center pb-6">
-                {/* <LoadingProgress /> */}
                 <CircularProgress />
               </div>
             ) : (

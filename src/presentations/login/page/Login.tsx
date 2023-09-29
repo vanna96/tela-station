@@ -30,7 +30,8 @@ import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsReposit
 import ProjectRepository from "@/services/actions/projectRepository";
 import { Alert, AlertTitle, TextField } from "@mui/material";
 import CurrencyRepository from "@/services/actions/currencyRepository";
-import WareBinLocationRepository from '../../../services/whBinLocationRepository';
+import WareBinLocationRepository from "../../../services/whBinLocationRepository";
+import { GridSaveAltIcon } from "@mui/x-data-grid";
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -45,12 +46,16 @@ export default function Login() {
   const onSubmit = async () => {
     try {
       setLoading(true);
-      const auth = new AuthLogin(company.current, username.current, password.current);
+      const auth = new AuthLogin(
+        company.current,
+        username.current,
+        password.current
+      );
       const response: any = await request("POST", "/Login", auth.toJson());
       setCookie("sessionId", response?.data?.SessionId, { maxAge: 2000 });
       const user = await GetCurrentUserRepository.post();
       // console.log(user)
-      
+
       setCookie("user", user, { maxAge: 2000 });
       await fetchAllDate();
       navigate("/");
@@ -102,7 +107,7 @@ export default function Login() {
       await new ChartOfAccountsRepository().get(),
       await new ProjectRepository().get(),
       await new CurrencyRepository().get(),
-      await new WareBinLocationRepository().get()
+      await new WareBinLocationRepository().get(),
     ]);
   }
 
@@ -172,16 +177,16 @@ export default function Login() {
                 ) : (
                   ""
                 )}
-                <div className="pt-0 w-full">
+                <div className="pt-0 w-full text-green-700">
                   <LoadingButton
+                    sx={{ "& > button": { m: 1 } }}
                     fullWidth
-                    sx={{ backgroundColor: `${BASE_BG_COLOR} !important` }}
-                    className="text-white"
-                    variant="contained"
-                    loading={loading}
                     onClick={onSubmit}
+                    loading={loading}
+                    // loadingIndicator="Logging In..."
+                    variant="contained"
                   >
-                    Login
+                    <span>Log In</span>
                   </LoadingButton>
                 </div>
                 {/* <div className="mt-2 text-xs text-center text-[#656565]">
@@ -190,7 +195,7 @@ export default function Login() {
                 </div> */}
 
                 <div className="mt-2 text-xs text-center text-[#656565]">
-                <p>© 2023 BIZDIMENSION Co., LTD. All rights reserved.</p>
+                  <p>© 2023 BIZDIMENSION Co., LTD. All rights reserved.</p>
                 </div>
               </div>
             </div>

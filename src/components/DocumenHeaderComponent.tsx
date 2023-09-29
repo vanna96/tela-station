@@ -105,7 +105,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
               <Button
                 variant="outlined"
                 size="small"
-                sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
+                // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
                 onClick={navigateToEdit}
                 endIcon={<MdEdit />}
               >
@@ -117,7 +117,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             <Button
               variant="outlined"
               size="small"
-              sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
+              // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
               onClick={handlerGoToCreate}
               endIcon={<IoCreate />}
             >
@@ -138,7 +138,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
               <span className="text-gray-600 text-base font-medium">
                 Customer Code
               </span>
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-green-700">
                 {props?.data?.CardCode}
               </span>
             </div>
@@ -146,7 +146,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           <div className="col-span-3">
             <div className="flex flex-col gap-2">
               <span className="text-gray-600 text-base font-medium">Name</span>
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-green-700">
                 {props?.data?.CardName}
               </span>
             </div>
@@ -156,7 +156,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
               <span className="text-gray-600 text-base font-medium">
                 Status
               </span>
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-green-700">
                 {props?.data?.DocumentStatus?.split("bost_")}
               </span>
             </div>
@@ -164,7 +164,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           <div className="col-span-3">
             <div className="flex flex-col gap-2">
               <span className="text-gray-600 text-base font-medium">Total</span>
-              <span className="font-medium text-blue-600">
+              <span className="font-medium text-green-700">
                 {props?.data?.DocTotal}
                 {props?.data?.DocCurrency}
               </span>
@@ -178,8 +178,10 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             <div className="col-span-7">
               <div className="grid grid-cols-7">
                 <div className="col-span-2  mt-3">
-                  <Button variant="outlined" className="text-blue">
-                    <BiLeftArrow />
+                  <Button variant="outlined" className="text-green">
+                    <span className="text-green-600 mr-1">
+                      <BiLeftArrow />
+                    </span>
                     Prev
                   </Button>
                 </div>
@@ -188,7 +190,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
                     <span className="text-gray-600 text-base font-medium">
                       Doc. Number
                     </span>
-                    <span className="font-medium text-blue-600">
+                    <span className="font-medium text-green-700">
                       {props?.data?.DocNum ??
                         props?.data?.NextNum ??
                         "Document Number"}
@@ -198,7 +200,9 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
                 <div className="col-span-2 mt-3">
                   <Button variant="outlined" onClick={navigateToNextPage}>
                     Next
-                    <BiRightArrow />
+                    <div>
+                      <BiRightArrow className="text-green-600 ml-1  " />
+                    </div>
                   </Button>
                 </div>
               </div>
