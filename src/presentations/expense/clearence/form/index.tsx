@@ -70,17 +70,9 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0
-      await request("GET", `TL_ExpLog(${id})`)
+      await request("GET", `TL_ExpClear(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data
-          // vendor
-          const vendor: any = await request(
-            "GET",
-            `/BusinessPartners('${data?.CardCode}')`,
-          )
-            .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err))
-
           // attachment
           let AttachmentList: any = []
 
@@ -118,20 +110,29 @@ class Form extends CoreFormDocument {
               })
               .catch((error) => console.log(error))
           }
+          let result: any = []
+          data?.TL_EXP_CLEAR_LINESCollection?.reduce(function (
+            res: any,
+            value: any,
+          ) {
+            if (!res[value.U_tl_expcode]) {
+              res[value.U_tl_expcode] = {
+                ...value,
+                U_tl_expcode: value.U_tl_expcode,
+                U_tl_linetotal: 0,
+              }
+              result.push(res[value.U_tl_expcode])
+            }
+            res[value.U_tl_expcode].U_tl_linetotal += value.U_tl_linetotal
+            return res
+          }, {})
 
           state = {
             ...data,
             GLCash: data?.U_tl_cashacct,
             Branch: data?.U_tl_bplid,
-            Items:
-              data?.TL_EXPEN_LOG_LINESCollection?.map((item: any) => {
-                return {
-                  ExpenseCode: item?.U_tl_expcode,
-                  ExpenseName: item?.U_tl_expdesc,
-                  Amount: item?.U_tl_linetotal,
-                  Remark: item?.U_tl_remark,
-                }
-              }) || [],
+            Items: result || [],
+            Logs: data?.TL_EXP_CLEAR_LINESCollection || [],
           }
         })
         .catch((err: any) => console.log(err))
