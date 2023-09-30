@@ -13,10 +13,10 @@ export default function BPAutoComplete(props: {
   const { type = "Customer" } = props;
   const { data, isLoading }: any = useQuery({
     queryKey: [`venders_${type}`],
-    queryFn: () =>
-      new BusinessPartnerRepository().get(`&$filter=CardType eq 'c${type}'`),
+    queryFn: () => new BusinessPartnerRepository().getCustomerCode(),
     staleTime: Infinity,
   });
+  console.log(data)
   const [value, setValue] = React.useState();
   return (
     <div className="block">
@@ -30,20 +30,19 @@ export default function BPAutoComplete(props: {
       <Autocomplete
         options={data}
         autoHighlight
-        value={props.value ? value : value} 
+        value={props.value ? value : value}
         onChange={(event, newValue) => {
           if (props.onChange) {
-            const selectedValue = newValue ? newValue.CardCode : ""; 
+            const selectedValue = newValue ? newValue.CardCode : "";
             props.onChange(selectedValue);
           }
         }}
         loading={isLoading}
         getOptionLabel={(option: any) => option.CardCode}
         renderOption={(props, option) => (
-          <Box component="li" {...props}
-          >
+          <Box component="li" {...props}>
             {/* <BsDot /> */}
-            {option.CardCode} - {option.CardName} 
+            {option.CardCode} - {option.CardName}
           </Box>
         )}
         renderInput={(params) => (

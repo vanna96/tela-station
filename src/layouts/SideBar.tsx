@@ -1,5 +1,5 @@
-import BigLogo from "@/assets/img/big-logo.png";
-import SmallLogo from "@/assets/img/mini-logo.jpg";
+import telaLogoBig from "@/assets/img/tela-logo-big.png";
+import telaLogo from "@/assets/img/tela-logo.png";
 import React, { useContext, useState } from "react";
 import { FiBarChart2, FiGrid, FiShoppingBag } from "react-icons/fi";
 import { GiFactory } from "react-icons/gi";
@@ -30,32 +30,24 @@ export default function SideBar(props: any) {
 
   const img = React.useMemo(
     () => (
-      <img
-        src={props?.collapse ? BigLogo : SmallLogo}
-        alt=""
-        className="h-[47px] h-[47px]"
-      />
+      <img src={props?.collapse ? telaLogoBig : telaLogo} alt="" className="" />
     ),
     [props.collapse]
   );
 
   return (
-    <aside
-      className={`border-r  px-2 transition-all duration-300 flex flex-col py-8 relative z-20  ${
-        theme === "light"
-          ? "bg-white text-[#a8a6a6]"
-          : "bg-white text-[#a8a6a6]"
-      }  `}
-    >
-      {/* <h1 className="text-2xl 2xl:text-xl xl:text-lg font-bold uppercase text-center whitespace-nowrap overflow-hidden text-inherit  ">
-      </h1> */}
+    <aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-500 to-green-600 ">
       {props?.collapse ? (
-        <div className="h-min-14 w-34">{img}</div>
+        <div className="h-15 w-40 transition-all duration-600 scale-100 mr-8 ml-4 ">
+          {img}
+        </div>
       ) : (
-        <div className="h-12 w-12">{img}</div>
+        <div className="h-14 w-14 transition-all duration-500  scale-75 ">
+          {img}
+        </div>
       )}
 
-      <div className="mt-8 grow flex flex-col gap-2 whitespace-nowrap overflow-hidden text-base 2xl:text-sm xl:text-[12px]">
+      <div className="mt-8 grow flex flex-col transition-all duration-600 gap-2 whitespace-nowrap overflow-hidden text-base  bg-gradient-to-tr from-green-500 to-green-600 ">
         <NavButton
           onClick={() => goTo("/system-initialize")}
           route="system-initialize"
@@ -121,35 +113,37 @@ export function NavButton(props: NavButtonProps) {
   const { theme } = useContext(ThemeContext);
 
   return (
-    <div
-      role="button"
-      onClick={props.onClick}
-      className={`flex text-sm ${
-        props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
-      } ${
-        location.pathname?.split("/")[1] === props.route
-          ? `bg-[#11174910] text-system-color`
-          : ""
-      }  transition-all duration-300  py-[0.6rem]  text-[#a8a6a6] rounded-lg items-center gap-4 `}
-    >
-      <span
-        className={`${
-          location.pathname?.split("/")[1] === props.route ? "" : ""
-        }  text-xl `}
+    <>
+      <div
+        role="button"
+        onClick={props.onClick}
+        className={`flex text-sm ${
+          props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
+        } ${
+          location.pathname?.split("/")[1] === props.route
+            ? "bg-[#11174910] text-white bg-green-700"
+            : ""
+        } transition-transform duration-100 ease-in text-white hover:scale-105 active:scale-95  py-[0.6rem] ml-1 mr-1 rounded-md items-center gap-4`}
       >
-        {props.icon}
-      </span>
-      {props.collapse ? (
         <span
-          className={
-            location.pathname?.split("/")[1] === props.route
-              ? "text-system-color"
-              : ""
-          }
+          className={`${
+            location.pathname?.split("/")[1] === props.route ? "" : ""
+          }  text-xl `}
         >
-          {props.title}
+          {props.icon}
         </span>
-      ) : null}
-    </div>
+        {props.collapse ? (
+          <span
+            className={
+              location.pathname?.split("/")[1] === props.route
+                ? "text-white"
+                : ""
+            }
+          >
+            {props.title}
+          </span>
+        ) : null}
+      </div>
+    </>
   );
 }

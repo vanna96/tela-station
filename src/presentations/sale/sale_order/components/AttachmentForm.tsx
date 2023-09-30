@@ -171,12 +171,13 @@ export default function AttachmentForm({ data, handlerChange }: any) {
               return (
                 <div className="flex gap-2 mb-6 pt-2 justify-center items-center">
                   <div className="flex items-center justify-center w-full">
-                    <label
-                      className="text-xs  border text-blue-500 rounded border-blue-500 p-1 px-2"
-                      role="button"
+                  <Button
                       onChange={handlerAttachment}
+                      size="small"
+                      variant="outlined"
                     >
-                      <span>Add Attachment</span>
+                      Add Attachment
+                    </Button>
                       <input
                         id="dropzone-file"
                         type="file"
@@ -184,7 +185,6 @@ export default function AttachmentForm({ data, handlerChange }: any) {
                         multiple={true}
                         accept="application/msword,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain,application/pdf,image/*"
                       />
-                    </label>
                   </div>
                 </div>
               )

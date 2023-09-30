@@ -2,9 +2,6 @@ hr {
   margin: 10px 0px;
 }
 
-.MuiLoadingButton-loadingIndicator {
-  color: white !important;
-}
 
 div.data-table .css-80pr5n-MuiPaper-root {
   padding: 0rem 1.5rem;
@@ -163,7 +160,7 @@ span.MuiLinearProgress-root {
   border: 0.8px solid red;
 } */
 
-button >svg {
+button > svg {
   color: rgba(43, 43, 43, 0.815) !important;
 }
 
@@ -190,7 +187,9 @@ input[type="number"] {
 #basic-menu > div:nth-child(3) {
   margin-top: 10px;
   border: 1px solid #dedededa;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
   font-size: 14px !important;
 }
 #basic-menu > div:nth-child(3) > ul > li {
@@ -220,7 +219,10 @@ input[type="number"] {
   margin: 0 auto !important;
 }
 
+MuiButton-contained {
+  text-transform: lowercase !important;
+}
 
 .text-system-color {
-  color:  #111749;
+  color: #111749;
 }

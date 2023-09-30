@@ -11,10 +11,10 @@ const MenuButton = (props: MenuButtonProps) => {
     return <Button
         onClick={props?.onClick}
         sx={{
-            borderBottom: props?.active ? 'solid 3px #3b82f6' : 'solid 0px #0ea5e9',
+            borderBottom: props?.active ? 'solid 3px #16a34a' : 'solid 0px #16a34a',
             borderRadius: '0',
         }}>
-        <span className={`capitalize text-[14px]  ${props.active ? 'text-blue-500' : 'text-gray-400'}`}>{props?.children}</span>
+        <span className={`capitalize text-[14px]  ${props.active ? 'text-green-500' : 'text-gray-400'}`}>{props?.children}</span>
     </Button>
 }
 

@@ -1,14 +1,18 @@
-import React from "react"
-import { IoChevronForwardSharp } from "react-icons/io5"
-import MaterialReactTable from "material-react-table"
-import moment from "moment"
-import { AiOutlineDelete, AiOutlineEye, AiOutlineDownload } from "react-icons/ai"
+import React from "react";
+import { IoChevronForwardSharp } from "react-icons/io5";
+import MaterialReactTable from "material-react-table";
+import moment from "moment";
+import {
+  AiOutlineDelete,
+  AiOutlineEye,
+  AiOutlineDownload,
+} from "react-icons/ai";
 
-import Box from "@mui/material/Box"
-import Modal from "@mui/material/Modal"
-import FormCard from "@/components/card/FormCard"
-import { Button } from "@mui/material"
-import { fileToBase64 } from "../../../../utilies/index"
+import Box from "@mui/material/Box";
+import Modal from "@mui/material/Modal";
+import FormCard from "@/components/card/FormCard";
+import { Button } from "@mui/material";
+import { fileToBase64 } from "../../../../utilies/index";
 
 const style = {
   position: "absolute",
@@ -20,7 +24,7 @@ const style = {
   boxShadow: 24,
   borderRadius: "6px",
   p: 1,
-}
+};
 
 export function PreviewImage({ open, close, base64Image }: any) {
   return (
@@ -46,14 +50,14 @@ export function PreviewImage({ open, close, base64Image }: any) {
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default function AttachmentForm({ data, handlerChange }: any) {
-  const [file, setFile] = React.useState<any>(data?.AttachmentList || [])
-  const [preview, setPreview] = React.useState(false)
-  const [image, setImage] = React.useState("")
-  
+  const [file, setFile] = React.useState<any>(data?.AttachmentList || []);
+  const [preview, setPreview] = React.useState(false);
+  const [image, setImage] = React.useState("");
+
   const columns = React.useMemo(
     () => [
       {
@@ -80,7 +84,7 @@ export default function AttachmentForm({ data, handlerChange }: any) {
               </div>
               {/* <div size="small" className="p-1 border-[1.5px] rounded " onClick={() => handlerRemoveRow(cell.row.original, data)}><AiOutlineDownload /></div> */}
             </div>
-          )
+          );
         },
       },
       {
@@ -106,13 +110,13 @@ export default function AttachmentForm({ data, handlerChange }: any) {
       },
     ],
     [file]
-  )
+  );
 
   const handlerRemoveRow = (row: any) => {
-    const temps = [...file]
-    const newArr = temps.filter((e) => e.key != row.key)
-    setFile([...newArr])
-  }
+    const temps = [...file];
+    const newArr = temps.filter((e) => e.key != row.key);
+    setFile([...newArr]);
+  };
 
   const handlerAttachment = (event: any) => {
     let temps = Object.values(event.target.files).map((e: any, index) => ({
@@ -123,19 +127,19 @@ export default function AttachmentForm({ data, handlerChange }: any) {
       Extension: "." + e.name.split(".")[1]?.toUpperCase(),
       FreeText: "",
       AttachmentDate: moment(new Date().toISOString()).format("DD/MM/YYYY"),
-    }))
+    }));
 
-    let files = [...file, ...temps]
-    setFile(files)
-    handlerChange("AttachmentList", files)
-  }
+    let files = [...file, ...temps];
+    setFile(files);
+    handlerChange("AttachmentList", files);
+  };
 
   const handlerPreviewImage = async (row: any) => {
-    setImage("")
-    setPreview(true)
-    const file: any = await fileToBase64(row.file)
-    setImage(file)
-  }
+    setImage("");
+    setPreview(true);
+    const file: any = await fileToBase64(row.file);
+    setImage(file);
+  };
 
   return (
     <>
@@ -171,27 +175,28 @@ export default function AttachmentForm({ data, handlerChange }: any) {
               return (
                 <div className="flex gap-2 mb-6 pt-2 justify-center items-center">
                   <div className="flex items-center justify-center w-full">
-                    <label
-                      className="text-xs  border text-blue-500 rounded border-blue-500 p-1 px-2"
-                      role="button"
+                    <Button
                       onChange={handlerAttachment}
+                      size="small"
+                      variant="outlined"
                     >
-                      <span>Add Attachment</span>
-                      <input
-                        id="dropzone-file"
-                        type="file"
-                        className="hidden"
-                        multiple={true}
-                        accept="application/msword,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain,application/pdf,image/*"
-                      />
-                    </label>
+                      Add Attachment
+                    </Button>
+                    <input
+                      id="dropzone-file"
+                      type="file"
+                      className="hidden"
+                      multiple={true}
+                      accept="application/msword,application/vnd.ms-excel,application/vnd.ms-powerpoint,text/plain,application/pdf,image/*"
+                    />
+                    {/* </label> */}
                   </div>
                 </div>
-              )
+              );
             }}
           />
         </div>
       </FormCard>
     </>
-  )
+  );
 }

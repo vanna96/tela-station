@@ -57,7 +57,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     if (field === "GrossPrice") {
       const value = event.target.value;
-      temps["GrossPrice"] = value
+      temps["GrossPrice"] = value;
       const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
       const unitPrice = parseFloat(value) / (1 + vatRate / 100);
       temps["GrossPrice"] = value;
@@ -168,12 +168,13 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
               />
-              <MUITextField
+              {/* <MUITextField
                 label="Unit Price"
                 disabled
                 startAdornment={"USD"}
                 value={currencyFormat(this.state?.UnitPrice)}
-              />
+              /> */}
+              <input hidden value={(this.state?.UnitPrice)} />
               <MUITextField
                 label="Total"
                 startAdornment={"USD"}

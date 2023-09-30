@@ -1,45 +1,45 @@
-import React from "react"
-import { Navigate, Outlet, useNavigate } from "react-router-dom"
-import SideBar from "./SideBar"
-import { useCookies } from "react-cookie"
-import { Backdrop, CircularProgress } from "@mui/material"
-import IconButton from "@mui/material/IconButton"
-import { HiMenu } from "react-icons/hi"
-import Avatar from "@mui/material/Avatar"
-import LogoutIcon from "@mui/icons-material/Logout"
+import React from "react";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import SideBar from "./SideBar";
+import { useCookies } from "react-cookie";
+import { Backdrop, Button, Chip, CircularProgress } from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import { HiMenu } from "react-icons/hi";
+import Avatar from "@mui/material/Avatar";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 export default function App() {
-  const [cookies]: any = useCookies(["sessionId"])
-  const navigate = useNavigate()
+  const [cookies]: any = useCookies(["sessionId"]);
+  const navigate = useNavigate();
 
-  if (!cookies.sessionId) return <Navigate to={"/login"} />
+  if (!cookies.sessionId) return <Navigate to={"/login"} />;
 
   const [collapse, setCollapse] = React.useState(
     localStorage.getItem("menu_collapse") === "true"
-  )
-  const [loading, setLoading] = React.useState(false)
+  );
+  const [loading, setLoading] = React.useState(false);
 
   const signOut = () => {
-    setLoading(true)
-    localStorage.clear()
-    sessionStorage.removeItem("REACT_QUERY_OFFLINE_CACHE")
+    setLoading(true);
+    localStorage.clear();
+    sessionStorage.removeItem("REACT_QUERY_OFFLINE_CACHE");
     setTimeout(() => {
-      setLoading(true)
+      setLoading(true);
 
-      navigate("/login")
-    }, 800)
-  }
+      navigate("/login");
+    }, 800);
+  };
 
   const collapseChange = () => {
-    const val = !collapse
-    setCollapse(val)
-    localStorage.setItem("menu_collapse", val.toString())
-  }
+    const val = !collapse;
+    setCollapse(val);
+    localStorage.setItem("menu_collapse", val.toString());
+  };
 
   const userName: string = (cookies?.user?.UserName || "")
     .split(" ")
-    .map((n:any) => n[0])
-    .join(".")
+    .map((n: any) => n[0])
+    .join(".");
 
   return (
     <>
@@ -67,28 +67,42 @@ export default function App() {
               </IconButton>
             </div>
             <div>
-              <b>TELA Station</b>
+              <p className="font-medium text-gray-800">TELA Station</p>
             </div>
             <div className="flex space-x-4">
-              <Avatar
-                className="shadow-md"
-                sx={{ width: 30, height: 30, bgcolor: "white", color: "#666666" }}
+              {/* <Avatar
+                // className="shadow-md"
+                // sx={{ width: 30, height: 30, bgcolor: "white", color: "#666666" }}
               >
                 {userName}
-              </Avatar>
+              </Avatar> */}
+              <Chip label={userName} color="primary" variant="outlined" />
               <Avatar
                 className="shadow-md cursor-pointer"
-                sx={{ width: 30, height: 30, bgcolor: "white", color: "#666666" }}
+                sx={{
+                  width: 30,
+                  height: 30,
+                  bgcolor: "white",
+                  color: "#666666",
+                }}
               >
                 <LogoutIcon onClick={() => signOut()} />
               </Avatar>
+              {/* <Chip
+                icon={<LogoutIcon />}
+                label="Log Out"
+                variant="outlined"
+                color="primary"
+                onClick={() => signOut()}
+              /> */}
             </div>
           </div>
-          <div className="w-full flex flex-col grow overflow-auto ">
+          {/* <div className="w-full flex flex-col grow overflow-auto bg-hero-pattern bg-transparent bg-repeat-round bg-blur-xl backdrop-blur-3xl"> */}
+          <div className="w-full flex flex-col grow overflow-auto bg-white">
             <Outlet />
           </div>
         </div>
       </div>
     </>
-  )
+  );
 }
