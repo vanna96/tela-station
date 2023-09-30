@@ -117,8 +117,9 @@ const ItemModal: FC<ItemModalProps> = ({
   const handlerConfirm = async () => {
     const keys = Object.keys(rowSelection);
     let selectItems = keys.map((e: any) =>
-      items.find((ele: any) => ele?.ItemCode === e)
+      data.find((ele: any) => ele?.ItemCode === e)
     );
+
     const uomGroups: any = await new UnitOfMeasurementGroupRepository().get();
     const uoms = await new UnitOfMeasurementRepository().get();
     const warehouse = await new WarehouseRepository().get();
@@ -133,7 +134,6 @@ const ItemModal: FC<ItemModalProps> = ({
       }
     }
     const globalPriceListNum = await getPriceListNum(CardCode);
-    console.log(globalPriceListNum);
     selectItems = selectItems.map((e: any) => {
       const defaultPrice = e?.ItemPrices?.find(
         (row: any) => row?.PriceList === globalPriceListNum
@@ -268,9 +268,9 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center  ">
-                      {/* <h2 className="font-bold text-xl mt-12">
+                      <h2 className="font-bold text-xl mt-12">
                         {"List of Items"}
-                      </h2> */}
+                      </h2>
                       <OutlinedInput
                         size="small"
                         key={filterKey}
@@ -336,9 +336,7 @@ const ItemModal: FC<ItemModalProps> = ({
                         variant="text"
                         onClick={onClose}
                       >
-                        <span className="capitalize px-6  text-blue-700 text-xs">
-                          Close
-                        </span>
+                        <span className="capitalize px-6   text-xs">Close</span>
                       </Button>
                       <Button
                         size="small"

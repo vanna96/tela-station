@@ -36,15 +36,18 @@ export default function SideBar(props: any) {
   );
 
   return (
-    // <aside className="border-r transition-transform duration-300 ease-in-out flex flex-col py-4 relative z-20 bg-green-500">
-    <aside className="border-r transition-transform duration-300 ease-in-out transition-width flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-500 to-green-600 ">
+    <aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-500 to-green-600 ">
       {props?.collapse ? (
-        <div className="h-15 w-40  scale-100 mr-8 ml-4 ">{img}</div>
+        <div className="h-15 w-40 transition-all duration-600 scale-100 mr-8 ml-4 ">
+          {img}
+        </div>
       ) : (
-        <div className="h-14 w-14  scale-75 ">{img}</div>
+        <div className="h-14 w-14 transition-all duration-500  scale-75 ">
+          {img}
+        </div>
       )}
 
-      <div className="mt-8 grow flex flex-col gap-2 whitespace-nowrap overflow-hidden text-base  bg-gradient-to-tr from-green-500 to-green-600 ">
+      <div className="mt-8 grow flex flex-col transition-all duration-600 gap-2 whitespace-nowrap overflow-hidden text-base  bg-gradient-to-tr from-green-500 to-green-600 ">
         <NavButton
           onClick={() => goTo("/system-initialize")}
           route="system-initialize"
