@@ -10,7 +10,7 @@ export default defineConfig({
   server: {
     port: 8080,
     // host: 'localhost'
-    // host: '192.168.1.120'
+    host: true
   },
   resolve: {
     alias: [

@@ -234,7 +234,7 @@ class MorphPriceForm extends CoreFormDocument {
         ...this.state,
         isSubmitting: false,
         warehouseCode: "",
-        loading: true
+        loading: true,
       });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
@@ -470,13 +470,13 @@ class MorphPriceForm extends CoreFormDocument {
     const getGroupByLineofBusiness = (lineofBusiness: any) => {
       switch (lineofBusiness) {
         case "Oil":
-          return "100";
+          return 100;
         case "Lube":
-          return "101";
+          return 101;
         case "LPG":
-          return "102";
+          return 102;
         default:
-          return "0";
+          return 0;
       }
     };
 
@@ -484,100 +484,74 @@ class MorphPriceForm extends CoreFormDocument {
 
     return (
       <>
-        <Backdrop
-          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          open={this.state.loading} // Show backdrop when isLoading is true
-        >
-          <CircularProgress color="inherit" />
-        </Backdrop>
-        {itemGroupCode === "100" && (
-          <ItemModalComponent
-            type="sale"
-            group={"100"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}
-        {itemGroupCode === "101" && (
-          <ItemModalComponent
-            type="sale"
-            group={"101"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}
-        {itemGroupCode === "102" && (
-          <ItemModalComponent
-            type="sale"
-            group={"102"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}{" "}
-        {itemGroupCode === "0" && (
-          <ItemModalComponent
-            type="sale"
-            group={"0"}
-            onOk={this.handlerConfirmItem}
-            ref={this.itemModalRef}
-          />
-        )}
+        <ItemModalComponent
+          type="sale"
+          group={itemGroupCode}
+          onOk={this.handlerConfirmItem}
+          ref={this.itemModalRef}
+        />
+
         <form
           id="formData"
           onSubmit={this.handlerSubmit}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           <div className="w-full h-full flex items-center justify-center">
-            <>
-              <div className="grow">
-                {this.state.tapIndex === 0 && (
-                  <GeneralForm
-                    data={this.state}
-                    edit={this.props?.edit}
-                    handlerChange={(key, value) =>
-                      this.handlerChange(key, value)
-                    }
-                    lineofBusiness={this.state.lineofBusiness}
-                    warehouseCode={this.state.warehouseCode}
-                    onWarehouseChange={this.handleWarehouseChange}
-                    onLineofBusinessChange={this.handleLineofBusinessChange}
-                  />
-                )}
+            {this.state.loading ? (
+              <div className="flex items-center justify-center">
+                <CircularProgress />
+              </div>
+            ) : (
+              <>
+                <div className="grow">
+                  {this.state.tapIndex === 0 && (
+                    <GeneralForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) =>
+                        this.handlerChange(key, value)
+                      }
+                      lineofBusiness={this.state.lineofBusiness}
+                      warehouseCode={this.state.warehouseCode}
+                      onWarehouseChange={this.handleWarehouseChange}
+                      onLineofBusinessChange={this.handleLineofBusinessChange}
+                    />
+                  )}
 
-                {this.state.tapIndex === 1 && (
-                  <LogisticForm
-                    data={this.state}
-                    edit={this.props?.edit}
-                    handlerChange={(key, value) => {
-                      this.handlerChange(key, value);
-                    }}
-                  />
-                )}
+                  {this.state.tapIndex === 1 && (
+                    <LogisticForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
 
-                {this.state.tapIndex === 2 && (
-                  <ContentForm
-                    data={this.state}
-                    handlerAddItem={() => {
-                      this.hanndAddNewItem();
-                    }}
-                    handlerRemoveItem={(items: any[]) =>
-                      this.setState({ ...this.state, Items: items })
-                    }
-                    handlerChangeItem={this.handlerChangeItems}
-                    onChangeItemByCode={this.handlerChangeItemByCode}
-                    onChange={this.handlerChange}
-                  />
-                )}
+                  {this.state.tapIndex === 2 && (
+                    <ContentForm
+                      data={this.state}
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
+                      }}
+                      handlerRemoveItem={(items: any[]) =>
+                        this.setState({ ...this.state, Items: items })
+                      }
+                      handlerChangeItem={this.handlerChangeItems}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                    />
+                  )}
 
-                {this.state.tapIndex === 3 && (
-                  <AttachmentForm
-                    data={this.state}
-                    handlerChange={(key: any, value: any) => {
-                      this.handlerChange(key, value);
-                    }}
-                  />
-                )}
-                {/* {this.state.tapIndex === 4 && (
+                  {this.state.tapIndex === 3 && (
+                    <AttachmentForm
+                      data={this.state}
+                      handlerChange={(key: any, value: any) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {/* {this.state.tapIndex === 4 && (
                     <AccountingForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -586,8 +560,9 @@ class MorphPriceForm extends CoreFormDocument {
                       }}
                     />
                   )} */}
-              </div>
-            </>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
