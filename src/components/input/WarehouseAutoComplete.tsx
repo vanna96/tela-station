@@ -9,12 +9,12 @@ interface Warehouse {
   WarehouseName: string;
 }
 
-export default function WarehouseAttendTo(props: {
+export default function WarehouseAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
+  Branch?: any;
   Warehouse?: Warehouse[];
-  disabled?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
@@ -22,22 +22,26 @@ export default function WarehouseAttendTo(props: {
     staleTime: Infinity,
   });
 
+  const filteredWarehouses = data?.filter(
+    (warehouse: any) => warehouse.BusinessPlaceID === props?.Branch
+  );
+
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedWarehouse = data.find(
-        (warehouse: any) => warehouse.WarehouseCode === props.value
+      const selectedWarehouse = filteredWarehouses.find(
+        (warehouse:any) => warehouse.WarehouseCode === props.value
       );
       if (selectedWarehouse) {
         setSelectedValue(selectedWarehouse);
       }
     }
-  }, [props.value, data]);
+  }, [props.value, filteredWarehouses]);
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
-  const handleAutocompleteChange = (event: any, newValue: any) => {
+  const handleAutocompleteChange = (event:any, newValue:any) => {
     // Update the local state
     setSelectedValue(newValue);
 
@@ -47,7 +51,6 @@ export default function WarehouseAttendTo(props: {
       props.onChange(selectedCode);
     }
   };
-  const disabled = props.disabled;
 
   return (
     <div className="block text-[14px] xl:text-[13px] ">
@@ -59,8 +62,7 @@ export default function WarehouseAttendTo(props: {
       </label>
 
       <Autocomplete
-        disabled={disabled}
-        options={data}
+        options={filteredWarehouses ?? data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
@@ -75,10 +77,7 @@ export default function WarehouseAttendTo(props: {
         renderInput={(params) => (
           <TextField
             {...params}
-            // className="w-full text-xs text-field bg-white"
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className="w-full text-xs text-field bg-white"
             InputProps={{
               ...params.InputProps,
               endAdornment: (

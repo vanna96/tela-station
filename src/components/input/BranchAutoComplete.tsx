@@ -1,8 +1,6 @@
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BranchRepository from "@/services/actions/branchRepository";
-import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
 
@@ -11,38 +9,63 @@ export default function BranchAutoComplete(props: {
   value?: any;
   onChange?: (value: any) => void;
   BPdata?: any;
+  disabled?: any;
+  name?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
     queryFn: () => new BranchBPLRepository().get(),
     staleTime: Infinity,
   });
-  const [value, setValue] = React.useState();
+
   const uniqueBPLIDs = [...new Set(props?.BPdata?.map((e: any) => e.BPLID))];
 
   const filteredBranch = data?.filter((e: any) =>
     uniqueBPLIDs.includes(e.BPLID)
   );
+
+  useEffect(() => {
+    // Ensure that the selected value is set when the component is mounted
+    if (props.value) {
+      const selectedBranch = filteredBranch?.find(
+        (branch: any) => branch?.BPLID === props.value
+      );
+      if (selectedBranch) {
+        setSelectedValue(selectedBranch);
+      }
+    }
+  }, [props.value, filteredBranch]);
+
+  // Use local state to store the selected value
+  const [selectedValue, setSelectedValue] = useState(null);
+
+  const handleAutocompleteChange = (event: any, newValue: any) => {
+    // Update the local state
+    setSelectedValue(newValue);
+
+    if (props.onChange) {
+      // Notify the parent component with the selected value
+      const selectedId = newValue ? newValue.BPLID : null;
+      props.onChange(selectedId);
+    }
+  };
+  const disabled = props.disabled;
+
   return (
     <div className="block text-[14px] xl:text-[13px] ">
       <label
         htmlFor=""
-        className={` text-[14px] xl:text-[13px] text-[#656565] mt-1`}
+        className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
 
       <Autocomplete
+        disabled={disabled}
         options={filteredBranch ?? data}
         autoHighlight
-        value={props.value ? value : value}
-        defaultValue={filteredBranch ? filteredBranch[0] : 1}
-        onChange={(event, newValue) => {
-          if (props.onChange) {
-            const selectedValue = newValue ? newValue.BPLID : "";
-            props.onChange(selectedValue);
-          }
-        }}
+        value={selectedValue}
+        onChange={handleAutocompleteChange}
         loading={isLoading}
         getOptionLabel={(option: any) => option.BPLName}
         renderOption={(props, option) => (
@@ -54,7 +77,9 @@ export default function BranchAutoComplete(props: {
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={`w-full text-field text-xs ${
+              disabled ? "bg-gray-100" : ""
+            }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

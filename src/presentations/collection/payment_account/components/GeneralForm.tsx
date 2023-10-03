@@ -1,22 +1,24 @@
-import MUIDatePicker from "@/components/input/MUIDatePicker"
-import MUITextField from "@/components/input/MUITextField"
-import BPLBranchSelect from "@/components/selectbox/BranchBPL"
-import MUISelect from "@/components/selectbox/MUISelect"
-import SalePerson from "@/components/selectbox/SalePerson"
-import { useContext } from "react"
+import MUIDatePicker from "@/components/input/MUIDatePicker";
+import MUITextField from "@/components/input/MUITextField";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import MUISelect from "@/components/selectbox/MUISelect";
+import SalePerson from "@/components/selectbox/SalePerson";
+import { useContext } from "react";
 // import { APIContext } from "../context/APIContext"
-import { VendorTextField } from "./VendorTextField"
-import { useExchangeRate } from "../hook/useExchangeRate"
-import { useCookies } from "react-cookie"
-import { sysInfo } from "@/helper/helper"
-import { APIContext } from "../../settle_receipt/context/APIContext"
+import { VendorTextField } from "./VendorTextField";
+import { useExchangeRate } from "../hook/useExchangeRate";
+import { useCookies } from "react-cookie";
+import { sysInfo } from "@/helper/helper";
+import { APIContext } from "../../settle_receipt/context/APIContext";
+import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
 export interface IGeneralFormProps {
-  handlerChange: (key: string, value: any) => void
-  data: any
-  handlerOpenProject?: () => void
-  edit?: boolean
-  hanndResetState?: any
+  handlerChange: (key: string, value: any) => void;
+  data: any;
+  handlerOpenProject?: () => void;
+  edit?: boolean;
+  hanndResetState?: any;
 }
 
 export default function GeneralForm({
@@ -26,22 +28,24 @@ export default function GeneralForm({
   hanndResetState,
 }: IGeneralFormProps) {
   let { LineOfBussiness, loadingLineOfBussiness, CurrencyAPI, sysInfo }: any =
-    useContext(APIContext)
-  const [cookies, setCookie] = useCookies(["user"])
+    useContext(APIContext);
+  const [cookies, setCookie] = useCookies(["user"]);
   const dataCurrency = data?.vendor?.currenciesCollection
     ?.filter(({ Include }: any) => Include === "tYES")
     ?.map(({ CurrencyCode }: any) => {
-      return { value: CurrencyCode, name: CurrencyCode }
-    })
+      return { value: CurrencyCode, name: CurrencyCode };
+    });
 
-  useExchangeRate(data?.Currency, handlerChange)
+  useExchangeRate(data?.Currency, handlerChange);
 
   const branchId =
-    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1)
+    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
 
   return (
     <>
-      <div className={`rounded-lg shadow-sm bg-white border p-6 px-8 h-screen `}>
+      <div
+        className={`rounded-lg shadow-sm bg-white border p-6 px-8 h-screen `}
+      >
         <div
           className={`font-medium  text-xl flex justify-between items-center border-b  mb-4`}
         >
@@ -57,12 +61,12 @@ export default function GeneralForm({
                   </label>
                 </div>
                 <div className="col-span-3">
-                  <BPLBranchSelect
+                  <BranchAutoComplete
                     BPdata={cookies?.user?.UserBranchAssignment}
-                    onChange={(e) => handlerChange("Branch", e.target.value)}
+                    onChange={(e) => handlerChange("Branch", e)}
                     value={branchId || 0}
-                    name="Branch"
                     disabled={data?.edit}
+                    name="Branch"
                   />
                 </div>
               </div>
@@ -110,7 +114,7 @@ export default function GeneralForm({
                       LineOfBussiness?.filter(
                         ({ InWhichDimension, FactorDescription }: any) =>
                           InWhichDimension === 1 &&
-                          FactorDescription !== "Unclassified",
+                          FactorDescription !== "Unclassified"
                       ) ?? []
                     }
                     aliaslabel="FactorDescription"
@@ -129,12 +133,10 @@ export default function GeneralForm({
                   </label>
                 </div>
                 <div className="col-span-3">
-                  <SalePerson
+                  <SalePersonAutoComplete
                     name="SalesPersonCode"
                     value={data?.SalesPersonCode}
-                    onChange={(e) =>
-                      handlerChange("SalesPersonCode", e.target.value)
-                    }
+                    onChange={(e) => handlerChange("SalesPersonCode", e)}
                     disabled={data?.edit}
                   />
                 </div>
@@ -159,7 +161,7 @@ export default function GeneralForm({
                                   return {
                                     value: c.Code,
                                     name: c.Name,
-                                  }
+                                  };
                                 })
                           }
                           aliaslabel="name"
@@ -202,7 +204,9 @@ export default function GeneralForm({
                       loading={data?.isLoadingSerie}
                       value={data?.Series === "" ? "M" : data?.Series}
                       disabled={edit}
-                      onChange={(e: any) => handlerChange("Series", e.target.value)}
+                      onChange={(e: any) =>
+                        handlerChange("Series", e.target.value)
+                      }
                     />
                     <div className="-mt-1">
                       <MUITextField
@@ -266,5 +270,5 @@ export default function GeneralForm({
         </div>
       </div>
     </>
-  )
+  );
 }
