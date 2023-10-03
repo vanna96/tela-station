@@ -25,8 +25,8 @@ export default function BranchAutoComplete(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedBranch = filteredBranch.find(
-        (branch:any) => branch.BPLID === props.value
+      const selectedBranch = filteredBranch?.find(
+        (branch:any) => branch?.BPLID === props.value
       );
       if (selectedBranch) {
         setSelectedValue(selectedBranch);

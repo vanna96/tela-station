@@ -1,4 +1,5 @@
 import FormCard from "@/components/card/FormCard";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import BPAddress from "@/components/selectbox/BPAddress";
 import MUISelect from "@/components/selectbox/MUISelect";
 import WarehouseSelect from "@/components/selectbox/Warehouse";
@@ -50,11 +51,19 @@ export default function LogisticForm({
                     handlerChange("U_tl_dnsuppo", e.target.value)
                   }
                 /> */}
-                <WarehouseByBranch
+                {/* <WarehouseByBranch
                   Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                   value={data?.U_tl_dnsuppo}
                   onChange={(e) => {
                     handlerChange("U_tl_dnsuppo", e.target.value);
+                  }}
+                /> */}
+                <WarehouseAutoComplete
+                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                  value={data?.U_tl_dnsuppo}
+                  onChange={(e) => {
+                    handlerChange("U_tl_dnsuppo", e);
+                    // onWarehouseChange(e);
                   }}
                 />
               </div>
@@ -85,11 +94,8 @@ export default function LogisticForm({
                 <div className="grid grid-cols-1 ">
                   <div className="-mt-1">
                     <WarehouseAttendTo
-                      name="AttenTerminal"
                       value={data.U_tl_grsuppo}
-                      onChange={(e) =>
-                        handlerChange("U_tl_grsuppo", e.target.value)
-                      }
+                      onChange={(e) => handlerChange("U_tl_grsuppo", e)}
                       disabled={!isChecked}
                     />
                   </div>
