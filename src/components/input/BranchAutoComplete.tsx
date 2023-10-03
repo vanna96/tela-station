@@ -9,6 +9,8 @@ export default function BranchAutoComplete(props: {
   value?: any;
   onChange?: (value: any) => void;
   BPdata?: any;
+  disabled?: any;
+  name?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
@@ -26,7 +28,7 @@ export default function BranchAutoComplete(props: {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
       const selectedBranch = filteredBranch?.find(
-        (branch:any) => branch?.BPLID === props.value
+        (branch: any) => branch?.BPLID === props.value
       );
       if (selectedBranch) {
         setSelectedValue(selectedBranch);
@@ -47,6 +49,7 @@ export default function BranchAutoComplete(props: {
       props.onChange(selectedId);
     }
   };
+  const disabled = props.disabled;
 
   return (
     <div className="block text-[14px] xl:text-[13px] ">
@@ -58,6 +61,7 @@ export default function BranchAutoComplete(props: {
       </label>
 
       <Autocomplete
+        disabled={disabled}
         options={filteredBranch ?? data}
         autoHighlight
         value={selectedValue}
@@ -73,7 +77,9 @@ export default function BranchAutoComplete(props: {
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={`w-full text-field text-xs ${
+              disabled ? "bg-gray-100" : ""
+            }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

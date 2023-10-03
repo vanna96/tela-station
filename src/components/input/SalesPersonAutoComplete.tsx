@@ -13,6 +13,8 @@ export default function SalePersonAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
+  name?: any;
+  disabled?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["sale_persons"],
@@ -35,17 +37,17 @@ export default function SalePersonAutoComplete(props: {
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
-  const handleAutocompleteChange = (event:any, newValue:any) => {
+  const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
     setSelectedValue(newValue);
-    
+
     if (props.onChange) {
       // Notify the parent component with the selected value
       const selectedCode = newValue ? newValue.code : null;
       props.onChange(selectedCode);
     }
   };
-
+  const disabled = props.disabled;
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -64,14 +66,15 @@ export default function SalePersonAutoComplete(props: {
         getOptionLabel={(option: SalePerson) => option.name}
         renderOption={(props, option: SalePerson) => (
           <Box component="li" {...props}>
-            <BsDot />
             {option.name}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={`w-full text-field text-xs ${
+              disabled ? "bg-gray-100" : ""
+            }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
