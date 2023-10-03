@@ -1,50 +1,54 @@
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
+import WarehouseRepository from "@/services/warehouseRepository";
 
-export default function BranchAutoComplete(props: {
+interface Warehouse {
+  WarehouseCode: number;
+  WarehouseName: string;
+}
+
+export default function WarehouseAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
-  BPdata?: any;
+  Branch?: any;
+  Warehouse?: Warehouse[];
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["branchBPL"],
-    queryFn: () => new BranchBPLRepository().get(),
+    queryKey: ["warehouse"],
+    queryFn: () => new WarehouseRepository().get(),
     staleTime: Infinity,
   });
 
-  const uniqueBPLIDs = [...new Set(props?.BPdata?.map((e: any) => e.BPLID))];
-
-  const filteredBranch = data?.filter((e: any) =>
-    uniqueBPLIDs.includes(e.BPLID)
+  const filteredWarehouses = data?.filter(
+    (warehouse: any) => warehouse.BusinessPlaceID === props?.Branch
   );
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedBranch = filteredBranch.find(
-        (branch:any) => branch.BPLID === props.value
+      const selectedWarehouse = filteredWarehouses.find(
+        (warehouse:any) => warehouse.WarehouseCode === props.value
       );
-      if (selectedBranch) {
-        setSelectedValue(selectedBranch);
+      if (selectedWarehouse) {
+        setSelectedValue(selectedWarehouse);
       }
     }
-  }, [props.value, filteredBranch]);
+  }, [props.value, filteredWarehouses]);
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
-  const handleAutocompleteChange = (event: any, newValue: any) => {
+  const handleAutocompleteChange = (event:any, newValue:any) => {
     // Update the local state
     setSelectedValue(newValue);
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedId = newValue ? newValue.BPLID : null;
-      props.onChange(selectedId);
+      const selectedCode = newValue ? newValue.WarehouseCode : null;
+      props.onChange(selectedCode);
     }
   };
 
@@ -52,22 +56,22 @@ export default function BranchAutoComplete(props: {
     <div className="block text-[14px] xl:text-[13px] ">
       <label
         htmlFor=""
-        className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
+        className={` text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
 
       <Autocomplete
-        options={filteredBranch ?? data}
+        options={filteredWarehouses ?? data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option.BPLName}
-        renderOption={(props, option) => (
+        getOptionLabel={(option: Warehouse) => option.WarehouseName}
+        renderOption={(props, option: Warehouse) => (
           <Box component="li" {...props}>
             <BsDot />
-            {option.BPLName}
+            {option.WarehouseName}
           </Box>
         )}
         renderInput={(params) => (
