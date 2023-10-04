@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Modal from "@/components/modal/Modal";
 import MUITextField from "@/components/input/MUITextField";
 import VatGroupTextField from "@/components/input/VatGroupTextField";
@@ -12,6 +12,8 @@ import WareBinLocation from "@/components/selectbox/WareBinLocation";
 import { useQuery } from "react-query";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import UOMSelect from "@/components/selectbox/UnitofMeasurment";
+import { TextField } from "@mui/material";
+import FormattedInputs from "@/components/input/NumberFormatField";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -144,11 +146,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Item Pricing
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <MUITextField
+              <FormattedInputs
                 label="Gross Price"
-                startAdornment={"USD"}
-                defaultValue={currencyFormat(this.state?.GrossPrice)}
-                onChange={(event) => this.handChange(event, "GrossPrice")}
+                onBlur={(event: any) => this.handChange(event, "GrossPrice")}
+                name={"Gross Price"}
+                value={this.state?.GrossPrice}
               />
               <MUITextField
                 label="Quantity"
@@ -174,7 +176,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 startAdornment={"USD"}
                 value={currencyFormat(this.state?.UnitPrice)}
               /> */}
-              <input hidden value={(this.state?.UnitPrice)} />
+              <input hidden value={this.state?.UnitPrice} />
               <MUITextField
                 label="Total"
                 startAdornment={"USD"}
