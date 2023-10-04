@@ -101,7 +101,7 @@ const VendorModalBranch: FC<VendorModalProps> = ({
                   : "text-red-500"
               }
             >
-              {currencyFormat(cell.getValue())}
+              {(cell.getValue()?.toFixed(2))}
             </div>
           );
         },
