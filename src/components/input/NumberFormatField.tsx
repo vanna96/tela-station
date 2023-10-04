@@ -29,6 +29,7 @@ export const NumberFormatCustom = React.forwardRef<
         });
       }}
       thousandSeparator
+      // prefix="$"
       decimalScale={2} // Set decimalScale to 2 to allow only two digits after the decimal point
       fixedDecimalScale // Ensures that the decimal point will always have two digits after it
       allowNegative={false} // Optional: To disallow negative numbers
@@ -42,10 +43,11 @@ interface FormattedInputsProps {
   name: string;
   value: string;
   label?: string;
+  startAdornment?: string;
 }
 
 export default function FormattedInputs(props: FormattedInputsProps) {
-  const { value, onChange, name , onBlur} = props;
+  const { value, onChange, name, onBlur, startAdornment } = props;
 
   return (
     <div className="flex flex-col gap-1 text-sm">
@@ -63,6 +65,13 @@ export default function FormattedInputs(props: FormattedInputsProps) {
         id="formatted-numberformat-input"
         InputProps={{
           inputComponent: NumberFormatCustom as any,
+          startAdornment: props.startAdornment ? (
+            <span
+              className={`text-[14px] px-2 pr-4 mr-3   overflow-hidden border-r `}
+            >
+              {props.startAdornment}
+            </span>
+          ) : null,
         }}
         variant="outlined"
       />

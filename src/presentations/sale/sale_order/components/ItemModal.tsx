@@ -151,6 +151,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 onBlur={(event: any) => this.handChange(event, "GrossPrice")}
                 name={"Gross Price"}
                 value={this.state?.GrossPrice}
+                startAdornment={"USD"}
+
               />
               <MUITextField
                 label="Quantity"

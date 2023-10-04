@@ -398,7 +398,7 @@ class SalesOrderForm extends CoreFormDocument {
   handleNextTab = () => {
     const currentTab = this.state.tapIndex;
     const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field) => {
+    const hasErrors = requiredFields.some((field: any) => {
       if (field === "Items") {
         // Check if the "Items" array is empty
         return !this.state[field] || this.state[field].length === 0;

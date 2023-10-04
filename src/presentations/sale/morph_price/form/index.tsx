@@ -16,12 +16,12 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
-import { Backdrop, CircularProgress } from "@mui/material";
+import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 
-class MorphPriceForm extends CoreFormDocument {
+class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -46,6 +46,14 @@ class MorphPriceForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      tabErrors: {
+        // Initialize error flags for each tab
+        general: false,
+        content: false,
+        logistic: false,
+        attachment: false,
+      },
+      isDialogOpen: false,
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -239,18 +247,10 @@ class MorphPriceForm extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      // if (!data.BPL_IDAssignedToInvoice) {
-      //   data["error"] = { BPL_IDAssignedToInvoice: "Branch is Required!" };
-      //   throw new FormValidateException("Branch is Required!", 0);
-      // }
       if (!data.CardCode) {
         data["error"] = { CardCode: "Vendor is Required!" };
         throw new FormValidateException("Vendor is Required!", 0);
       }
-      // if (!data.WarehouseCode) {
-      //   data["error"] = { WarehouseCode: "Warehouse is Required!" };
-      //   throw new FormValidateException("Warehouse is Required!", 0);
-      // }
 
       if (!data?.DueDate) {
         data["error"] = { DueDate: "End date is Required!" };
@@ -275,14 +275,14 @@ class MorphPriceForm extends CoreFormDocument {
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
-        warehouseCodeGet,
-        this.state.lineofBusiness
+        warehouseCodeGet
       );
       // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
+        PriceListNum : 7,
         SOSeries: data?.Series,
         DNSeries: data?.DNSeries,
         INSeries: data?.INSeries,
@@ -291,7 +291,6 @@ class MorphPriceForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        PriceListNum: 7,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
@@ -343,18 +342,6 @@ class MorphPriceForm extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-
-      // await request("POST", "/script/test/SO", payloads)
-
-      //   .then(
-      //     (res: any) =>
-      //       this.dialog.current?.success(
-      //         "Create Successfully.",
-      //         res?.data?.DocEntry
-      //       )
-      //   )
-      //   .catch((err: any) => this.dialog.current?.error(err.message))
-      //   .finally(() => this.setState({ ...this.state, isSubmitting: false }));
 
       await request("POST", "/script/test/SO", payloads)
         .then(async (res: any) => {
@@ -409,39 +396,95 @@ class MorphPriceForm extends CoreFormDocument {
     this.setState({ ...this.state, tapIndex: index });
   }
 
+  handleNextTab = () => {
+    const currentTab = this.state.tapIndex;
+    const requiredFields = this.getRequiredFieldsByTab(currentTab);
+    const hasErrors = requiredFields.some((field: any) => {
+      if (field === "Items") {
+        // Check if the "Items" array is empty
+        return !this.state[field] || this.state[field].length === 0;
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      // Show the dialog if there are errors
+      this.setState({ isDialogOpen: true });
+    } else {
+      // If no errors, allow the user to move to the next tab
+      this.handlerChangeMenu(currentTab + 1);
+    }
+  };
+
+  handleCloseDialog = () => {
+    // Close the dialog
+    this.setState({ isDialogOpen: false });
+  };
+
+  getRequiredFieldsByTab(tabIndex: number): string[] {
+    const requiredFieldsMap: { [key: number]: string[] } = {
+      0: ["CardCode", "U_tl_whsdesc"],
+      1: ["Items"],
+      2: ["U_tl_dnsuppo", "PayToCode"],
+      3: [],
+    };
+    return requiredFieldsMap[tabIndex] || [];
+  }
+
+  handlePreviousTab = () => {
+    if (this.state.tapIndex > 0) {
+      this.handlerChangeMenu(this.state.tapIndex - 1);
+    }
+  };
+
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={this.state.tapIndex === 0}
-          onClick={() => this.handlerChangeMenu(0)}
-        >
-          General
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 2}
-          onClick={() => this.handlerChangeMenu(2)}
-        >
-          Content
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 1}
-          onClick={() => this.handlerChangeMenu(1)}
-        >
-          Logistic
-        </MenuButton>
-        {/* <MenuButton
-          active={this.state.tapIndex === 4}
-          onClick={() => this.handlerChangeMenu(4)}
-        >
-          Accounting
-        </MenuButton> */}
-        <MenuButton
-          active={this.state.tapIndex === 3}
-          onClick={() => this.handlerChangeMenu(3)}
-        >
-          Attachment
-        </MenuButton>
+        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
+        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
+        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
+        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        <div className="sticky w-full bottom-4   ">
+          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
+            <div className="flex ">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={this.handlePreviousTab}
+                disabled={this.state.tapIndex === 0}
+                style={{ textTransform: "none" }}
+              >
+                Previous
+              </Button>
+            </div>
+            <div className="flex items-center">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={this.handleNextTab}
+                disabled={this.state.tapIndex === 3}
+                style={{ textTransform: "none" }}
+              >
+                Next
+              </Button>
+
+              <Snackbar
+                open={this.state.isDialogOpen}
+                autoHideDuration={6000}
+                onClose={this.handleCloseDialog}
+              >
+                <Alert
+                  onClose={this.handleCloseDialog}
+                  severity="error"
+                  sx={{ width: "100%" }}
+                >
+                  Please complete all required fields before proceeding to the
+                  next tab.
+                </Alert>
+              </Snackbar>
+            </div>
+          </div>
+        </div>
       </>
     );
   };
@@ -455,16 +498,6 @@ class MorphPriceForm extends CoreFormDocument {
         this.state.warehouseCode
       );
   }
-
-  // componentDidUpdate(prevProps: any, prevState: any) {
-  //   if (prevState.warehouseCode !== this.state.warehouseCode) {
-  //     const DocumentLines = getItem(
-  //       this.state?.Items || [],
-  //       this.state?.DocType,
-  //       this.state.warehouseCode,
-  //     );
-  //   }
-  // }
 
   FormRender = () => {
     const getGroupByLineofBusiness = (lineofBusiness: any) => {
@@ -490,7 +523,6 @@ class MorphPriceForm extends CoreFormDocument {
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
         />
-
         <form
           id="formData"
           onSubmit={this.handlerSubmit}
@@ -517,18 +549,7 @@ class MorphPriceForm extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
-
                   {this.state.tapIndex === 1 && (
-                    <LogisticForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-
-                  {this.state.tapIndex === 2 && (
                     <ContentForm
                       data={this.state}
                       handlerAddItem={() => {
@@ -543,6 +564,16 @@ class MorphPriceForm extends CoreFormDocument {
                     />
                   )}
 
+                  {this.state.tapIndex === 2 && (
+                    <LogisticForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+
                   {this.state.tapIndex === 3 && (
                     <AttachmentForm
                       data={this.state}
@@ -551,48 +582,34 @@ class MorphPriceForm extends CoreFormDocument {
                       }}
                     />
                   )}
-                  {/* {this.state.tapIndex === 4 && (
-                    <AccountingForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
+
+                  <div className="sticky w-full bottom-4   ">
+                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                      <div className="flex ">
+                        <LoadingButton
+                          size="small"
+                          variant="contained"
+                          style={{ textTransform: "none" }}
+                        >
+                          Copy To
+                        </LoadingButton>
+                      </div>
+                      <div className="flex items-center">
+                        <LoadingButton
+                          type="submit"
+                          size="small"
+                          loading={false}
+                          variant="contained"
+                          style={{ textTransform: "none" }}
+                        >
+                          Save
+                        </LoadingButton>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
-          </div>
-
-          <div className="sticky w-full bottom-4  mt-2 ">
-            <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-              <div className="flex ">
-                <LoadingButton
-                  size="small"
-                  sx={{ height: "28px" }}
-                  variant="contained"
-                  disableElevation
-                >
-                  <span className="px-3 text-[12px] py-1 text-white">
-                    Copy To
-                  </span>
-                </LoadingButton>
-              </div>
-              <div className="flex items-center">
-                <LoadingButton
-                  type="submit"
-                  sx={{ height: "28px" }}
-                  className="bg-white"
-                  loading={false}
-                  size="small"
-                  variant="contained"
-                  disableElevation
-                >
-                  <span className="px-6 text-[12px] py-4 text-white">Save</span>
-                </LoadingButton>
-              </div>
-            </div>
           </div>
         </form>
       </>
@@ -600,7 +617,7 @@ class MorphPriceForm extends CoreFormDocument {
   };
 }
 
-export default withRouter(MorphPriceForm);
+export default withRouter(SalesOrderForm);
 
 const getItem = (items: any, type: any, warehouseCode: any) =>
   items?.map((item: any, index: number) => {
