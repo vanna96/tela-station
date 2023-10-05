@@ -209,8 +209,7 @@ function Content(props: any) {
         header: "Expense Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const i = tlExpDic?.find((e: any) => e.Code === cell.getValue())
-          return `${i?.Code} - ${i?.Name}`
+          return <MUITextField defaultValue={cell.getValue()} readOnly={true}/>
         },
       },
       {
@@ -218,7 +217,8 @@ function Content(props: any) {
         header: "Expense Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField defaultValue={cell.getValue()} />
+          const i = tlExpDic?.find((e: any) => e.Code === cell.row.original.ExpenseCode)
+          return <MUITextField defaultValue={i?.Name} readOnly={true}/>
         },
       },
       {
@@ -226,7 +226,7 @@ function Content(props: any) {
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField type="number" defaultValue={cell.getValue()} />
+          return <MUITextField type="number" defaultValue={numberWithCommas(cell.getValue(0).toFixed(2))} readOnly={true} />
         },
       },
       {
@@ -234,7 +234,7 @@ function Content(props: any) {
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField defaultValue={cell.getValue()} />
+          return <MUITextField defaultValue={cell.getValue()} readOnly={true} />
         },
       },
     ],

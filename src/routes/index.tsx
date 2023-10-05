@@ -23,7 +23,7 @@ const Router = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<App />}>
             <Route
-              path="/system-initialize/*"
+              path="/dashboard/*"
               element={<SystemInitializeMasterPage />}
               errorElement={<span>Error</span>}
             />

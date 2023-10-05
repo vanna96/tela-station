@@ -77,10 +77,10 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-              }
+              value={tlExpDic?.find((e:any) => e.Code === cell.row.original.ExpenseCode)?.Name}
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
+              // }
             />
           )
         },

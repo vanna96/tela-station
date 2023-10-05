@@ -1,45 +1,113 @@
-import MainContainer from '@/components/MainContainer';
-import ItemCard from '@/components/card/ItemCart';
-import BranchModal from '@/components/modal/BranhModal';
-import React from 'react'
-import { AiOutlineFileSync, AiOutlineSolution, AiOutlineFileExclamation, AiOutlineFileText } from "react-icons/ai";
-import DimensionModal from './../../components/modal/DimensionsModal';
-import UsersModal from '@/components/modal/UsersModal';
-import DocumentNumberingModal from '@/components/modal/DocumentNumberingModal';
+import MainContainer from "@/components/MainContainer"
+import ItemCard from "@/components/card/ItemCart"
+import React from "react"
+import { AiOutlineSolution } from "react-icons/ai"
+import request from "@/utilies/request"
+import IncomingPaymentRepository from "@/services/actions/IncomingPaymentRepository"
+import SalesOrderRepository from "@/services/actions/SalesOrderRepository"
+import { useNavigate } from "react-router-dom"
 
 export default function SystemInitializeMasterPage() {
-  const [openBranch, setOpenBranch] = React.useState(false);
-  const [openDimension, setOpenDimension] = React.useState(false);
-  const [openUser, setOpenUser] = React.useState(false);
-  const [openDoc, setOpenDoc] = React.useState(false);
+  const [count, setCount]: any = React.useState()
+  const navigate = useNavigate();
+  
+  const getCount: any = async () => {
+    const logs = await request("GET", "TL_ExpLog/$count").then(
+      (res: any) => res.data,
+    )
+    const clearance = await request("GET", "TL_ExpClear/$count").then(
+      (res: any) => res.data,
+    )
 
+    const incomingAR: any = await new IncomingPaymentRepository().getCount({
+      params: {
+        $filter: `DocType eq 'rCustomer'`,
+      },
+    })
 
-  const previewBranch = React.useCallback(() => setOpenBranch(true), []);
-  const closeBranch = React.useCallback(() => setOpenBranch(false), []);
+    const directAccount = await new IncomingPaymentRepository().getCount({
+      params: {
+        $filter: `DocType eq 'rAccount'`,
+      },
+    })
 
-  const previewDimension = React.useCallback(() => setOpenDimension(true), []);
-  const closeDimension = React.useCallback(() => setOpenDimension(false), []);
+    const order = await new SalesOrderRepository().getCount({})
 
-  const previewUser = React.useCallback(() => setOpenUser(true), []);
-  const closeUser = React.useCallback(() => setOpenUser(false), []);
+    setCount({
+      ...count,
+      logs,
+      order,
+      clearance,
+      incomingAR,
+      directAccount,
+    })
+  }
 
-  const previewDoc = React.useCallback(() => setOpenDoc(true), []);
-  const closeDoc = React.useCallback(() => setOpenDoc(false), []);
+  React.useEffect(() => {
+    getCount()
+  }, [])
 
   return (
     <>
-      <MainContainer title='Inventory'>
-        <ItemCard title='Branch' icon={<AiOutlineSolution />} onClick={previewBranch} />
-        <ItemCard title='Dimension' icon={<AiOutlineFileSync />} onClick={previewDimension} />
-        <ItemCard title='Document Numbering' icon={<AiOutlineFileExclamation />} onClick={previewDoc} />
-        <ItemCard title='User Licensing' icon={<AiOutlineFileText />} />
-        <ItemCard title='User Master Data' icon={<AiOutlineFileText />} onClick={previewUser} />
-        {/* -------------------------------Modal---------------------------------- */}
-        <BranchModal open={openBranch} onClose={closeBranch} />
-        <DimensionModal open={openDimension} onClose={closeDimension} />
-        <UsersModal open={openUser} onClose={closeUser} />
-        <DocumentNumberingModal open={openDoc} onClose={closeDoc} />
-      </MainContainer>
+      <div className="p-4">
+        <h1 className="my-4">Ordering System</h1>
+        <div className="grid grid-cols-6 space-x-4">
+          <ItemCard
+            title="Sales Order"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale/sales-order")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="Pump Sale"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/sale/pump-sale")}
+          />
+          <ItemCard
+            title="Morph Price"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/sale/morph-price")}
+          />
+        </div>
+        <h1 className="mb-4 mt-10">Collection</h1>
+        <div className="grid grid-cols-6 space-x-4">
+          <ItemCard
+            title="Settle Receipt"
+            icon={<AiOutlineSolution />}
+            amount={count?.incomingAR || 0}
+            onClick={() => navigate("/banking/settle-receipt")}
+          />
+          <ItemCard
+            title="Payment on Account"
+            icon={<AiOutlineSolution />}
+            amount={count?.incomingAR || 0}
+            onClick={() => navigate("/banking/payment-account")}
+          />
+          <ItemCard
+            title="Direct to Account"
+            icon={<AiOutlineSolution />}
+            amount={count?.directAccount || 0}
+            onClick={() => navigate("/banking/direct-account")}
+          />
+        </div>
+        <h1 className="mb-4 mt-10">Expense Log</h1>
+        <div className="grid grid-cols-6 space-x-4">
+          <ItemCard
+            title="Expense Log"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/expense/log")}
+          />
+          <ItemCard
+            title="Expense Clearance"
+            icon={<AiOutlineSolution />}
+            amount={count?.clearance || 0}
+            onClick={() => navigate("/expense/clearance")}
+          />
+        </div>
+      </div>
     </>
   )
 }

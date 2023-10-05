@@ -154,8 +154,6 @@ class Form extends CoreFormDocument {
             GLBankAmount: (data?.TransferSum || 0) * (data?.DocRate || 1),
             Currency: data?.DocCurrency,
             Items: data?.PaymentAccounts?.map((inv: any) => {
-              console.log(inv);
-
               return {
                 ItemCode: inv.AccountCode,
                 VatGroup: inv.VatGroup || null,

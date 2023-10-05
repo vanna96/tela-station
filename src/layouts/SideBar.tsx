@@ -48,12 +48,13 @@ export default function SideBar(props: any) {
       )}
 
       <div className="mt-8 grow flex flex-col transition-all duration-600 gap-2 whitespace-nowrap overflow-hidden text-base  bg-gradient-to-tr from-green-500 to-green-600 ">
+        <div className="bg-[#ffffff54] h-[1px] mb-3"></div>
         <NavButton
-          onClick={() => goTo("/system-initialize")}
-          route="system-initialize"
+          onClick={() => goTo("/dashboard")}
+          route="dashboard"
           collapse={props?.collapse}
           icon={<FiGrid />}
-          title="System Initialize"
+          title="Dashboard"
         />
         <NavButton
           onClick={() => goTo("/sale")}
@@ -121,7 +122,7 @@ export function NavButton(props: NavButtonProps) {
           props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
         } ${
           location.pathname?.split("/")[1] === props.route
-            ? "bg-[#11174910] text-white bg-green-700"
+            ? "bg-[#ffffff38] text-white"
             : ""
         } transition-transform duration-100 ease-in text-white hover:scale-105 active:scale-95  py-[0.6rem] ml-1 mr-1 rounded-md items-center gap-4`}
       >

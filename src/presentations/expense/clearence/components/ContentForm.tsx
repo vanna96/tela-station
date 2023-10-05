@@ -52,12 +52,7 @@ export default function ContentForm({
         header: "Expense Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              value={cell.getValue()}
-              readOnly={true}
-            />
-          )
+          return <MUITextField value={cell.getValue()} readOnly={true} />
         },
       },
       {
@@ -67,7 +62,11 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              value={cell.getValue()}
+              value={
+                tlExpDic?.find(
+                  ({ Code }: any) => Code === cell.row.original.U_tl_expcode,
+                )?.Name || "N/A"
+              }
               readOnly={true}
             />
           )
