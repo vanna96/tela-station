@@ -1,30 +1,41 @@
-import CoreFormDocument from "@/components/core/CoreFormDocument"
-import { withRouter } from "@/routes/withRouter"
-import { LoadingButton } from "@mui/lab"
-import DocumentSerieRepository from "@/services/actions/documentSerie"
-import MenuButton from "@/components/button/MenuButton"
-import { FormValidateException } from "@/utilies/error"
-import LoadingProgress from "@/components/LoadingProgress"
+import CoreFormDocument from "@/components/core/CoreFormDocument";
+import { withRouter } from "@/routes/withRouter";
+import { LoadingButton } from "@mui/lab";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
+import MenuButton from "@/components/button/MenuButton";
+import { FormValidateException } from "@/utilies/error";
+import LoadingProgress from "@/components/LoadingProgress";
 
-import GeneralForm from "./../components/GeneralForm"
-import ContentForm from "./../components/ContentForm"
-import AttachmentForm from "../components/AttachmentForm"
-import React, { useContext } from "react"
-import { ServiceModalComponent } from "../components/ServiceModalComponent"
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper"
-import request from "@/utilies/request"
-import BusinessPartner from "@/models/BusinessParter"
-import { arrayBufferToBlob } from "@/utilies"
-import shortid from "shortid"
-import { APIContext } from "../context/APIContext"
-import PaymentForm from "../components/PaymentForm"
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
+import GeneralForm from "./../components/GeneralForm";
+import ContentForm from "./../components/ContentForm";
+import AttachmentForm from "../components/AttachmentForm";
+import React, { useContext } from "react";
+import { ServiceModalComponent } from "../components/ServiceModalComponent";
+import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
+import request from "@/utilies/request";
+import BusinessPartner from "@/models/BusinessParter";
+import { arrayBufferToBlob } from "@/utilies";
+import shortid from "shortid";
+import { APIContext } from "../context/APIContext";
+import PaymentForm from "../components/PaymentForm";
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import { Alert, Button, Snackbar } from "@mui/material";
+
+interface FormState {
+  // ... other state properties ...
+  paymentMeanCheckData: Array<{
+    due_date: string;
+    amount: number | string;
+    bank: string;
+    check_no: string;
+  }>;
+}
 
 class Form extends CoreFormDocument {
-  serviceRef = React.createRef<ServiceModalComponent>()
+  serviceRef = React.createRef<ServiceModalComponent>();
 
   constructor(props: any) {
-    super(props)
+    super(props);
     this.state = {
       ...this.state,
       DocType: "rSupplier",
@@ -35,88 +46,88 @@ class Form extends CoreFormDocument {
       LineofBusiness: "",
       SalesPersonCode: "",
       Branch: 1,
-    } as any
+    } as any;
 
-    this.onInit = this.onInit.bind(this)
-    this.handlerRemoveItem = this.handlerRemoveItem.bind(this)
-    this.handlerSubmit = this.handlerSubmit.bind(this)
-    this.handlerChangeMenu = this.handlerChangeMenu.bind(this)
-    this.hanndAddNewItem = this.hanndAddNewItem.bind(this)
-    this.hanndResetState = this.hanndResetState.bind(this)
-    this.incoming = this.incoming.bind(this)
+    this.onInit = this.onInit.bind(this);
+    this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
+    this.handlerSubmit = this.handlerSubmit.bind(this);
+    this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
+    this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
+    this.hanndResetState = this.hanndResetState.bind(this);
+    this.incoming = this.incoming.bind(this);
   }
 
   componentDidMount(): void {
-    this.setState({ loading: true })
-    this.onInit()
+    this.setState({ loading: true });
+    this.onInit();
   }
 
   async onInit() {
-    let state: any = { ...this.state }
-    let seriesList: any = this.props?.query?.find("return-series")
-    let defaultSeries: any = this.props?.query?.find("return-default-series")
+    let state: any = { ...this.state };
+    let seriesList: any = this.props?.query?.find("return-series");
+    let defaultSeries: any = this.props?.query?.find("return-default-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "24",
-      })
-      this.props?.query?.set("return-series", seriesList)
+      });
+      this.props?.query?.set("return-series", seriesList);
     }
 
     if (!defaultSeries) {
       defaultSeries = await DocumentSerieRepository.getDefaultDocumentSerie({
         Document: "24",
-      })
-      this.props?.query?.set("return-default-series", defaultSeries)
+      });
+      this.props?.query?.set("return-default-series", defaultSeries);
     }
 
     if (this.props.edit) {
-      const { id }: any = this.props?.match?.params || 0
+      const { id }: any = this.props?.match?.params || 0;
       await request("GET", `IncomingPayments(${id})`)
         .then(async (res: any) => {
-          const data: any = res?.data
+          const data: any = res?.data;
           // vendor
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`,
+            `/BusinessPartners('${data?.CardCode}')`
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err))
+            .catch((err: any) => console.log(err));
 
           // invoice
           const invoice = await request(
             "GET",
-            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
+            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`
           )
             .then((res: any) => {
               return res.data?.value?.sort(
                 (a: any, b: any) =>
-                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
-              )
+                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays)
+              );
             })
-            .catch((err: any) => {})
+            .catch((err: any) => {});
 
           // attachment
-          let AttachmentList: any = []
+          let AttachmentList: any = [];
 
           if (data?.AttachmentEntry > 0) {
             AttachmentList = await request(
               "GET",
-              `/Attachments2(${data?.AttachmentEntry})`,
+              `/Attachments2(${data?.AttachmentEntry})`
             )
               .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines
-                if (attachments.length <= 0) return
+                const attachments: any = res?.data?.Attachments2_Lines;
+                if (attachments.length <= 0) return;
 
                 const files: any = attachments.map(async (e: any) => {
                   const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`,
-                  )
+                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
+                  );
                   const blob: any = await arrayBufferToBlob(
                     req.data,
                     req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`,
-                  )
+                    `${e?.FileName}.${e?.FileExtension}`
+                  );
 
                   return {
                     id: shortid.generate(),
@@ -127,11 +138,11 @@ class Form extends CoreFormDocument {
                     Extension: `.${e?.FileExtension}`,
                     FreeText: "",
                     AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  }
-                })
-                return await Promise.all(files)
+                  };
+                });
+                return await Promise.all(files);
               })
-              .catch((error) => console.log(error))
+              .catch((error) => console.log(error));
           }
           // console.log(data);
           // DocCurrency: data?.Currency,
@@ -148,21 +159,25 @@ class Form extends CoreFormDocument {
             GLCheck: data?.CheckAccount,
 
             GLCash: data?.CashAccount,
-            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(2),
+            GLCashAmount: parseFloat(
+              data?.CashSumFC || data?.CashSum || 0
+            ).toFixed(2),
 
             GLBank: data?.TransferAccount,
-            GLBankAmount: parseFloat((data?.TransferSum || 0) * (data?.DocRate || 1)).toFixed(2),
+            GLBankAmount: parseFloat(
+              (data?.TransferSum || 0) * (data?.DocRate || 1)
+            ).toFixed(2),
             Currency: data?.DocCurrency,
             Items: data?.PaymentInvoices?.map((inv: any) => {
               const find = invoice?.find(
-                ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
-              )
+                ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry
+              );
               if (find) {
                 return {
                   ...find,
                   ...inv,
                   TotalPayment: inv?.AppliedFC || inv?.AppliedSys,
-                }
+                };
               }
             }),
             ExchangeRate: data?.DocRate || 1,
@@ -174,71 +189,73 @@ class Form extends CoreFormDocument {
                   amount: check?.CheckSum || 0,
                   bank: check?.BankCode || "",
                   check_no: check?.CheckNumber,
-                }
+                };
               }) || [],
             AttachmentList,
             isStatusClose: data?.DocumentStatus === "bost_Close",
             edit: true,
             PostingDate: data?.DocDate,
             DocumentDate: data?.TaxDate,
-          }
+          };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
-          state["SerieLists"] = seriesList
-          state["Series"] = defaultSeries.Series
-          state["loading"] = false
-          state["isLoadingSerie"] = false
-          this.setState(state)
-        })
+          state["SerieLists"] = seriesList;
+          state["Series"] = defaultSeries.Series;
+          state["loading"] = false;
+          state["isLoadingSerie"] = false;
+          this.setState(state);
+        });
     } else {
-      state["SerieLists"] = seriesList
-      state["Series"] = defaultSeries.Series
-      state["DocNum"] = defaultSeries.NextNumber
-      state["loading"] = false
-      state["isLoadingSerie"] = false
-      this.setState(state)
+      state["SerieLists"] = seriesList;
+      state["Series"] = defaultSeries.Series;
+      state["DocNum"] = defaultSeries.NextNumber;
+      state["loading"] = false;
+      state["isLoadingSerie"] = false;
+      this.setState(state);
     }
   }
 
   handlerRemoveItem(code: string) {
-    let items = [...(this.state.Items ?? [])]
-    const index = items.findIndex((e: any) => e?.ItemCode === code)
-    items.splice(index, 1)
-    this.setState({ ...this.state, Items: items })
+    let items = [...(this.state.Items ?? [])];
+    const index = items.findIndex((e: any) => e?.ItemCode === code);
+    items.splice(index, 1);
+    this.setState({ ...this.state, Items: items });
   }
 
-  async handlerSubmit(event: any, sysInfo:any) {
+  async handlerSubmit(event: any, sysInfo: any) {
+    event.preventDefault();
+    const data: any = { ...this.state };
 
-    event.preventDefault()
-    const data: any = { ...this.state }
-    
     try {
-      this.setState({ ...this.state, isSubmitting: false })
-      await new Promise((resolve) => setTimeout(() => resolve(""), 800))
-      const { id } = this.props?.match?.params || 0
+      this.setState({ ...this.state, isSubmitting: false });
+      await new Promise((resolve) => setTimeout(() => resolve(""), 800));
+      const { id } = this.props?.match?.params || 0;
 
       if (!data.CardCode) {
-        data["error"] = { CardCode: "Customer is Required!" }
-        throw new FormValidateException("Customer is Required!", 0)
+        data["error"] = { CardCode: "Customer is Required!" };
+        throw new FormValidateException("Customer is Required!", 0);
       }
 
       // attachment
-      let AttachmentEntry = null
-      const files = data?.AttachmentList?.map((item: any) => item)
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files)
+      let AttachmentEntry = null;
+      const files = data?.AttachmentList?.map((item: any) => item);
+      if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // on Edit
 
       if (id) {
         return await request("PATCH", `/IncomingPayments(${id})`, {
-          TaxDate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
+          TaxDate: `${formatDate(
+            data?.DocumentDate || new Date()
+          )}"T00:00:00Z"`,
         })
           .then(
-            (res: any) => this.dialog.current?.success("Update Successfully.", id),
+            (res: any) =>
+              this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
-          .finally(() => this.setState({ ...this.state, isSubmitting: false }))
+          .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
       // PaymentChecks
@@ -248,15 +265,15 @@ class Form extends CoreFormDocument {
           CheckSum: check?.amount || 0,
           BankCode: check?.bank || "",
           CheckNumber: check?.check_no || "",
-        }
-      })
+        };
+      });
 
       // items
       const PaymentInvoices =
         data?.Items?.filter(
           ({ TotalPayment, DocTotal }: any) =>
             parseFloat(TotalPayment || 0) > 0 ||
-            (DocTotal < 0 && parseFloat(TotalPayment || 0) !== 0),
+            (DocTotal < 0 && parseFloat(TotalPayment || 0) !== 0)
         )?.map((item: any) => {
           return {
             DocEntry: item.DocEntry,
@@ -275,8 +292,8 @@ class Form extends CoreFormDocument {
                 : 0,
             DiscountPercent: item?.Discount || 0,
             InvoiceType: item?.InvoiceType,
-          }
-        }) || []
+          };
+        }) || [];
 
       const payload = {
         // general
@@ -300,32 +317,32 @@ class Form extends CoreFormDocument {
 
         PaymentInvoices,
         AttachmentEntry,
-      }
+      };
 
       await request("POST", "/IncomingPayments", payload)
         .then(
           (res: any) =>
             this.dialog.current?.success(
               "Create Successfully.",
-              res?.data?.DocEntry,
-            ),
+              res?.data?.DocEntry
+            )
         )
         .catch((err: any) => this.dialog.current?.error(err.message))
-        .finally(() => this.setState({ ...this.state, isSubmitting: false }))
+        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
     } catch (error: any) {
       if (error instanceof FormValidateException) {
-        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap })
-        this.dialog.current?.error(error.message, "Invalid")
-        return
+        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
+        this.dialog.current?.error(error.message, "Invalid");
+        return;
       }
 
-      this.setState({ ...data, isSubmitting: false })
-      this.dialog.current?.error(error.message, "Invalid")
+      this.setState({ ...data, isSubmitting: false });
+      this.dialog.current?.error(error.message, "Invalid");
     }
   }
 
   async handlerChangeMenu(index: number) {
-    this.setState({ ...this.state, tapIndex: index })
+    this.setState({ ...this.state, tapIndex: index });
   }
 
   hanndResetState(props: any) {
@@ -390,92 +407,202 @@ class Form extends CoreFormDocument {
       disable: {},
       tapIndex: 0,
       error: {},
+      tabErrors: {
+        // Initialize error flags for each tab
+        general: false,
+        content: false,
+        logistic: false,
+        attachment: false,
+      },
+      isDialogOpen: false,
       ...props,
-    } as any)
+    } as any);
   }
+
+  handleNextTab = () => {
+    const currentTab = this.state.tapIndex;
+    const requiredFields = this.getRequiredFieldsByTab(currentTab);
+    const hasErrors = requiredFields.every((field) => {
+      // if (field === "Items") {
+      //   // Check if the "Items" array is empty
+      //   return !this.state[field] || this.state[field]?.length === 0;
+      // }
+
+      if (field === "paymentMeanCheckData") {
+        // Check if every object in "paymentMeanCheckData" has non-empty values for "amount", "bank", and "check_no"
+        return (
+          !this?.state[field] ||
+          this.state[field]?.some((payment: any) => {
+            return (
+              payment.amount === "" || // Check if amount is empty
+              payment.bank === "" || // Check if bank is empty
+              payment.check_no === "" // Check if check_no is empty
+            );
+          })
+        );
+      }
+
+      if (field === "GLBankAmount") {
+        // Check if "GLBankAmount" requires "GLBank"
+        return !this.state[field] || !this.state["GLBank"];
+      }
+
+      if (field === "GLCashAmount") {
+        // Check if "GLCashAmount" requires "GLCash"
+        return !this.state[field] || !this.state["GLCash"];
+      }
+
+      // For other fields, check if they are falsy
+      return !this.state[field];
+    });
+    if (hasErrors) {
+      // Show the dialog if there are errors
+      this.setState({ isDialogOpen: true });
+    } else {
+      // If no errors, allow the user to move to the next tab
+      this.handlerChangeMenu(currentTab + 1);
+    }
+  };
+
+  getRequiredFieldsByTab(tabIndex: number): string[] {
+    const requiredFieldsMap: { [key: number]: string[] } = {
+      0: ['CardCode'],
+      // Tabs 2 and 3 have no required fields, so return an empty array for them
+      1: ["paymentMeanCheckData", "GLBankAmount", "GLCashAmount"], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
+      2: ['Currency'],
+      3: [],
+    };
+    return requiredFieldsMap[tabIndex] || [];
+  }
+
+  handlePreviousTab = () => {
+    if (this.state.tapIndex > 0) {
+      this.handlerChangeMenu(this.state.tapIndex - 1);
+    }
+  };
+  handleCloseDialog = () => {
+    // Close the dialog
+    this.setState({ isDialogOpen: false });
+  };
 
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={this.state.tapIndex === 0}
-          onClick={() => this.handlerChangeMenu(0)}
-        >
-          General
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 1}
-          onClick={() => this.handlerChangeMenu(1)}
-        >
-          Payment Means
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 2}
-          onClick={() => this.handlerChangeMenu(2)}
-        >
-          Content
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 3}
-          onClick={() => this.handlerChangeMenu(3)}
-        >
-          Attachment
-        </MenuButton>
+        <div className="w-full flex justify-between">
+          <div className="">
+            <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
+            <MenuButton active={this.state.tapIndex === 1}>
+              <span> Payment Means</span>
+            </MenuButton>
+            <MenuButton active={this.state.tapIndex === 2}>Content</MenuButton>
+            <MenuButton active={this.state.tapIndex === 3}>
+              Attachment
+            </MenuButton>
+          </div>
+
+          <div className="">
+            <div className="  p-1 rounded-lg flex  gap-3  ">
+              <div className="flex ">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={this.handlePreviousTab}
+                  disabled={this.state.tapIndex === 0}
+                  style={{ textTransform: "none" }}
+                >
+                  Previous
+                </Button>
+              </div>
+              <div className="flex items-center">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={this.handleNextTab}
+                  disabled={this.state.tapIndex === 3}
+                  style={{ textTransform: "none" }}
+                >
+                  Next
+                </Button>
+
+                <Snackbar
+                  open={this.state.isDialogOpen}
+                  autoHideDuration={6000}
+                  onClose={this.handleCloseDialog}
+                >
+                  <Alert
+                    onClose={this.handleCloseDialog}
+                    severity="error"
+                    sx={{ width: "100%" }}
+                  >
+                    Please complete all required fields before proceeding to the
+                    next tab.
+                  </Alert>
+                </Snackbar>
+              </div>
+            </div>
+          </div>
+        </div>
       </>
-    )
-  }
+    );
+  };
 
   hanndAddNewItem() {
-    this.serviceRef.current?.onOpen(this.state?.CardCode)
+    this.serviceRef.current?.onOpen(this.state?.CardCode);
   }
 
   incoming: any = async (data: any, LineOfBussiness: any) => {
-    let filter: any = []
-    if (!this.state?.CardCode) return
+    let filter: any = [];
+    if (!this.state?.CardCode) return;
     //
-    if (this.state?.CardCode) filter.push(`BPCode eq '${this.state?.CardCode}'`)
-    if (this.state?.Branch) filter.push(`BPLId eq ${this.state?.Branch}`)
+    if (this.state?.CardCode)
+      filter.push(`BPCode eq '${this.state?.CardCode}'`);
+    if (this.state?.Branch) filter.push(`BPLId eq ${this.state?.Branch}`);
     if (
       !(
         (this.state?.SalesPersonCode || "") == "" ||
         this.state?.SalesPersonCode == "-1"
       )
     )
-      filter.push(` SlpCode eq ${this.state?.SalesPersonCode}`)
+      filter.push(` SlpCode eq ${this.state?.SalesPersonCode}`);
     if (this.state?.Lob) {
       const FactorDescription = LineOfBussiness?.find(
-        ({ FactorCode }: any) => FactorCode === this.state?.Lob,
-      )?.FactorDescription
-      filter.push(` NumAtCard eq '${FactorDescription}'`)
+        ({ FactorCode }: any) => FactorCode === this.state?.Lob
+      )?.FactorDescription;
+      filter.push(` NumAtCard eq '${FactorDescription}'`);
     }
 
     await request(
       "GET",
       `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and ${filter.join(
-        " and ",
-      )}`,
+        " and "
+      )}`
     )
       .then((res: any) => {
         const results = res.data?.value
           ?.sort(
-            (a: any, b: any) => parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
+            (a: any, b: any) =>
+              parseInt(b.OverDueDays) - parseInt(a.OverDueDays)
           )
-          .filter(({ DocStatus }: any) => DocStatus === "O")
-        this.setState({ ...this.state, Items: results, ContentLoading: false })
+          .filter(({ DocStatus }: any) => DocStatus === "O");
+        this.setState({ ...this.state, Items: results, ContentLoading: false });
       })
-      .catch((err: any) => this.setState({ ...this.state, ContentLoading: false }))
-  }
+      .catch((err: any) =>
+        this.setState({ ...this.state, ContentLoading: false })
+      );
+  };
 
   FormRender = () => {
-    let { LineOfBussiness, sysInfo, getPeriod }: any = useContext(APIContext)
-    let CardCode: any = this.state?.CardCode || ""
-    let BranchIDD: any = this.state?.Branch || ""
-    let Lob: any = this.state?.Lob || ""
-    let SalesPersonCode: any = this.state?.SalesPersonCode || ""
-    let SerieListsData: any = this.state?.SerieLists || []
+    let { LineOfBussiness, sysInfo, getPeriod }: any = useContext(APIContext);
+    let CardCode: any = this.state?.CardCode || "";
+    let BranchIDD: any = this.state?.Branch || "";
+    let Lob: any = this.state?.Lob || "";
+    let SalesPersonCode: any = this.state?.SalesPersonCode || "";
+    let SerieListsData: any = this.state?.SerieLists || [];
 
-    let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode })
-    let serie = this.state?.SerieLists?.find(({ BPLID }: any) => BPLID === BranchIDD)
+    let prevData = usePrevious({ CardCode, BranchIDD, Lob, SalesPersonCode });
+    let serie = this.state?.SerieLists?.find(
+      ({ BPLID }: any) => BPLID === BranchIDD
+    );
 
     React.useEffect(() => {
       if (!this.props.edit) {
@@ -488,8 +615,8 @@ class Form extends CoreFormDocument {
           this.setState({
             ...this.state,
             ContentLoading: true,
-          })
-          this.incoming(this.state, LineOfBussiness)
+          });
+          this.incoming(this.state, LineOfBussiness);
         }
 
         if (SerieListsData.length > 0 && prevData?.BranchIDD !== BranchIDD) {
@@ -498,21 +625,31 @@ class Form extends CoreFormDocument {
             Series: serie?.Series,
             DocNum: serie?.NextNumber,
             ContentLoading: true,
-          })
-          this.incoming(this.state, LineOfBussiness)
+          });
+          this.incoming(this.state, LineOfBussiness);
         }
       }
 
-      if(getPeriod && serie?.Series && (!this.state.GLCheck || !this.state.GLCash)){
+      if (
+        getPeriod &&
+        serie?.Series &&
+        (!this.state.GLCheck || !this.state.GLCash)
+      ) {
         this.setState({
           ...this.state,
           GLCash: getPeriod?.AccountforCashReceipt,
           GLCheck: getPeriod?.AccountforOutgoingChecks,
-        })
+        });
       }
+    }, [
+      CardCode,
+      BranchIDD,
+      Lob,
+      SalesPersonCode,
+      this.state?.SerieLists,
+      getPeriod,
+    ]);
 
-    }, [CardCode, BranchIDD, Lob, SalesPersonCode, this.state?.SerieLists, getPeriod])
-    
     return (
       <>
         <ServiceModalComponent
@@ -521,7 +658,7 @@ class Form extends CoreFormDocument {
         />
         <form
           id="formData"
-          onSubmit={(e:any) => this.handlerSubmit(e, sysInfo)}
+          onSubmit={(e: any) => this.handlerSubmit(e, sysInfo)}
           className="h-full w-full flex flex-col gap-4 relative"
         >
           {this.state.loading ? (
@@ -536,7 +673,9 @@ class Form extends CoreFormDocument {
                     hanndResetState={this.hanndResetState}
                     data={this.state}
                     edit={this.props?.edit}
-                    handlerChange={(key, value) => this.handlerChange(key, value)}
+                    handlerChange={(key, value) =>
+                      this.handlerChange(key, value)
+                    }
                   />
                 )}
 
@@ -544,7 +683,7 @@ class Form extends CoreFormDocument {
                   <PaymentForm
                     data={this.state}
                     handlerAddItem={() => {
-                      this.hanndAddNewItem()
+                      this.hanndAddNewItem();
                     }}
                     handlerRemoveItem={(items: any[]) =>
                       this.setState({ ...this.state, Items: items })
@@ -560,7 +699,7 @@ class Form extends CoreFormDocument {
                   <ContentForm
                     data={this.state}
                     handlerAddItem={() => {
-                      this.hanndAddNewItem()
+                      this.hanndAddNewItem();
                     }}
                     handlerRemoveItem={(items: any[]) =>
                       this.setState({ ...this.state, Items: items })
@@ -576,7 +715,7 @@ class Form extends CoreFormDocument {
                   <AttachmentForm
                     data={this.state}
                     handlerChange={(key: any, value: any) => {
-                      this.handlerChange(key, value)
+                      this.handlerChange(key, value);
                     }}
                   />
                 )}
@@ -593,7 +732,9 @@ class Form extends CoreFormDocument {
                   variant="contained"
                   disableElevation
                 >
-                  <span className="px-3 text-[11px] py-1 text-white">Cancel</span>
+                  <span className="px-3 text-[11px] py-1 text-white">
+                    Cancel
+                  </span>
                 </LoadingButton>
               </div>
               <div className="flex items-center space-x-4">
@@ -615,16 +756,16 @@ class Form extends CoreFormDocument {
           </div>
         </form>
       </>
-    )
-  }
+    );
+  };
 }
 
-export default withRouter(Form)
+export default withRouter(Form);
 
 function usePrevious(value: any) {
-  const ref: any = React.useRef()
+  const ref: any = React.useRef();
   React.useEffect(() => {
-    ref.current = value
-  })
-  return ref.current
+    ref.current = value;
+  });
+  return ref.current;
 }

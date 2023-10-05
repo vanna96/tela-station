@@ -295,7 +295,7 @@ export default function ContentForm({
         columns={
           data?.DocType === "dDocument_Items" ? itemColumns : itemColumns
         }
-        items={data?.Items ?? []}
+        items={data?.Items}
         data={data}
         LineOfBusiness={data?.LineofBusiness}
         onChange={onChange}
