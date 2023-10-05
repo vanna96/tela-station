@@ -1,65 +1,68 @@
-import React from "react"
-import Modal from "@/components/modal/Modal"
-import MUITextField from "@/components/input/MUITextField"
-import { currencyFormat } from "@/utilies"
-import MUIDatePicker from "@/components/input/MUIDatePicker"
-import ShippingType from "@/components/selectbox/ShippingType"
-import VatGroupTextField from "@/components/input/VatGroupTextField"
-import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField"
+import React from "react";
+import Modal from "@/components/modal/Modal";
+import MUITextField from "@/components/input/MUITextField";
+import { currencyFormat } from "@/utilies";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
+import ShippingType from "@/components/selectbox/ShippingType";
+import VatGroupTextField from "@/components/input/VatGroupTextField";
+import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+import FormattedInputs from "@/components/input/NumberFormatField";
+import Currency from '../../../../models/Currency';
 
 interface ServiceModalProps {
-  ref?: React.RefObject<ServiceModal | undefined>
-  onSave?: (value: any) => void
+  ref?: React.RefObject<ServiceModal | undefined>;
+  onSave?: (value: any) => void;
 }
 
 export class ServiceModal extends React.Component<ServiceModalProps, any> {
   constructor(props: any) {
-    super(props)
+    super(props);
 
     this.state = {
       open: false,
-    } as any
+    } as any;
 
-    this.onOpen = this.onOpen.bind(this)
-    this.onClose = this.onClose.bind(this)
-    this.onSave = this.onSave.bind(this)
-    this.handChange = this.handChange.bind(this)
+    this.onOpen = this.onOpen.bind(this);
+    this.onClose = this.onClose.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.handChange = this.handChange.bind(this);
   }
 
   onOpen(data?: any) {
-    console.log(data)
+    console.log(data);
 
-    this.setState({ open: true, ...data })
+    this.setState({ open: true, ...data });
   }
 
   onClose() {
-    this.setState({ open: false })
+    this.setState({ open: false });
   }
 
   onSave() {
     if (this.props.onSave) {
-      const temps: any = { ...this.state }
-      delete temps.open
-      this.props.onSave(temps)
+      const temps: any = { ...this.state };
+      delete temps.open;
+      this.props.onSave(temps);
     }
 
-    this.setState({ open: false })
+    this.setState({ open: false });
   }
 
   handChange(event: any, field: string) {
-    const temps = { ...this.state }
-    temps[field] = event.target.value
+    const temps = { ...this.state };
+    temps[field] = event.target.value;
     if (field === "VatGroup") {
-      temps[field] = event.target.value?.code
-      temps["VatRate"] = event.target.value?.vatRate
+      temps[field] = event.target.value?.code;
+      temps["VatRate"] = event.target.value?.vatRate;
     }
 
-    const unitPrice = temps?.UnitPrice || 0
-    const discount = temps?.Discount || 0
+    const unitPrice = temps?.UnitPrice || 0;
+    const discount = temps?.Discount || 0;
     temps["LineTotal"] =
-      parseFloat(unitPrice) - (parseFloat(discount) / 100) * parseFloat(unitPrice)
-    
-      this.setState({ ...temps })
+      parseFloat(unitPrice) -
+      (parseFloat(discount) / 100) * parseFloat(unitPrice);
+
+    this.setState({ ...temps });
   }
 
   render() {
@@ -80,11 +83,18 @@ export class ServiceModal extends React.Component<ServiceModalProps, any> {
             key={this.state.key}
           >
             <div className="grid grid-cols-3 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <MUITextField
+              {/* <MUITextField
                 type="number"
                 label="Amount"
                 startAdornment={"USD"}
                 value={this.state?.UnitPrice}
+                onChange={(event) => this.handChange(event, "UnitPrice")}
+              /> */}
+              <FormattedInputs
+                startAdornment={this.state.Currency ?? "USD"}
+                value={this.state?.UnitPrice}
+                name="Amount"
+                label="Amount"
                 onChange={(event) => this.handChange(event, "UnitPrice")}
               />
               {/* <MUITextField
@@ -104,7 +114,7 @@ export class ServiceModal extends React.Component<ServiceModalProps, any> {
                 value={this.state?.VatGroup}
                 onChange={(event: any) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
-                status={'tNO'}
+                status={"tNO"}
               />
               <DistributionRuleText
                 label="Line Of Business"
@@ -172,6 +182,6 @@ export class ServiceModal extends React.Component<ServiceModalProps, any> {
           </div>
         </>
       </Modal>
-    )
+    );
   }
 }
