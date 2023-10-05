@@ -109,12 +109,13 @@ export class LogsModal extends React.Component<any> {
     this.setState({ isOpen: false })
   }
 
-  onOpen(items: any) {
-    this.setState({ isOpen: true, items })
+  onOpen(items: any, refLogs?: any) {
+    this.setState({ isOpen: true, items, refLogs })
   }
 
   handlerOk(rows: any) {
-    let list: any = []
+    let refLogs: any = this.state.refLogs || []
+    let list: any = [...refLogs]
     let result: any = []
 
     this.state.items
@@ -141,6 +142,11 @@ export class LogsModal extends React.Component<any> {
     this.props?.handlerChange({
       Logs: list,
       Items: result,
+      LogsEntry: this.state.items?.map(({ DocEntry }: any) => {
+        return {
+          DocEntry,
+        }
+      }),
     })
     this.setState({ isOpen: false })
   }

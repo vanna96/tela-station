@@ -12,9 +12,11 @@ import MUIDatePicker from "@/components/input/MUIDatePicker"
 import BPLBranchSelect from "@/components/selectbox/BranchBPL"
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
 import { useCookies } from "react-cookie"
+import { APIContext } from "../context/APIContext"
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false)
+  const { branchBPL }: any = React.useContext(APIContext)
   const [cookies] = useCookies(["user"])
   const [searchValues, setSearchValues] = React.useState({
     docnum: 0,
@@ -47,19 +49,22 @@ export default function Lists() {
           return cell.row.original?.CreateDate.toString().replace("T00:00:00Z", "")
         },
       },
-      // {
-      //   accessorKey: "CardCode",
-      //   header: "Customer Code",
-      //   enableClickToCopy: true,
-      //   visible: true,
-      //   type: "string",
-      // },
-      // {
-      //   accessorKey: "CardName",
-      //   header: "Customer Name",
-      //   visible: true,
-      //   type: "string",
-      // },
+      {
+        accessorKey: "U_tl_bplid",
+        header: "Branch",
+        // enableClickToCopy: true,
+        visible: true,
+        Cell: ({ cell }: any) =>
+          branchBPL.find(
+            ({ BPLID }: any) => BPLID.toString() === cell.getValue(),
+          )?.BPLName,
+      },
+      {
+        accessorKey: "Status",
+        header: "Status",
+        visible: true,
+        Cell: ({ cell }: any) => (cell.getValue() === "O" ? "Open" : "Close"),
+      },
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -202,7 +207,7 @@ export default function Lists() {
     if (searchValues.docdate)
       queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`)
     if (searchValues.bplid > 0)
-      queryFilters.push(`U_tl_bplid eq ${searchValues.bplid}`)
+      queryFilters.push(`U_tl_bplid eq '${searchValues.bplid}'`)
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`)

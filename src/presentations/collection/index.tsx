@@ -40,7 +40,7 @@ const SaleMasterPage = () => {
 
   return (
     <>
-      <MainContainer title="Banking">
+      <MainContainer title="Collection">
         {/* <ItemCard
           title="Incoming Payments"
           icon={<AiOutlineFileProtect />}

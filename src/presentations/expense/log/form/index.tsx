@@ -123,6 +123,7 @@ class Form extends CoreFormDocument {
 
           state = {
             ...data,
+            DocumentStatus: data?.Status === "C" ? "Closed" : "Open",
             GLCash: data?.U_tl_cashacct,
             Branch: data?.U_tl_bplid,
             Items:
@@ -459,36 +460,37 @@ class Form extends CoreFormDocument {
               </div>
             </>
           )}
-
-          <div className="sticky w-full bottom-4  mt-2 ">
-            <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-              <div className="flex ">
-                <LoadingButton
-                  size="small"
-                  sx={{ height: "25px" }}
-                  variant="contained"
-                  disableElevation
-                >
-                  <span className="px-3 text-[11px] py-1 text-white">Cancel</span>
-                </LoadingButton>
-              </div>
-              <div className="flex items-center space-x-4">
-                <LoadingButton
-                  type="submit"
-                  sx={{ height: "25px" }}
-                  className="bg-white"
-                  loading={false}
-                  size="small"
-                  variant="contained"
-                  disableElevation
-                >
-                  <span className="px-6 text-[11px] py-4 text-white">
-                    {this.props.edit ? "Update" : "Save"}
-                  </span>
-                </LoadingButton>
+          {this.state.DocumentStatus !== "Closed" && (
+            <div className="sticky w-full bottom-4  mt-2 ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                <div className="flex ">
+                  <LoadingButton
+                    size="small"
+                    sx={{ height: "25px" }}
+                    variant="contained"
+                    disableElevation
+                  >
+                    <span className="px-3 text-[11px] py-1 text-white">Cancel</span>
+                  </LoadingButton>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <LoadingButton
+                    type="submit"
+                    sx={{ height: "25px" }}
+                    className="bg-white"
+                    loading={false}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      {this.props.edit ? "Update" : "Save"}
+                    </span>
+                  </LoadingButton>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </form>
       </>
     )

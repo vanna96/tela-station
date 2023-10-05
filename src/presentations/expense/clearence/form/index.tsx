@@ -126,13 +126,16 @@ class Form extends CoreFormDocument {
             res[value.U_tl_expcode].U_tl_linetotal += value.U_tl_linetotal
             return res
           }, {})
-
+          console.log(data?.U_tl_cashacct);
+          
           state = {
             ...data,
+            DocumentStatus: data?.Status === "C" ? "Closed" : "Open",
             GLCash: data?.U_tl_cashacct,
             Branch: data?.U_tl_bplid,
             Items: result || [],
             Logs: data?.TL_EXP_CLEAR_LINESCollection || [],
+            refs: data?.TL_EXP_CLEAR_LINESCollection || [],
           }
         })
         .catch((err: any) => console.log(err))
@@ -160,12 +163,11 @@ class Form extends CoreFormDocument {
     this.setState({ ...this.state, Items: items })
   }
 
-  async handlerSubmit(event: any, sysInfo: any) {
-    event.preventDefault()
+  async handlerSubmit(postToERP: boolean, sysInfo: any, tlExpDic: any) {
     const data: any = { ...this.state }
 
     try {
-      this.setState({ ...this.state, isSubmitting: false })
+      this.setState({ ...this.state, isSubmitting: true })
       await new Promise((resolve) => setTimeout(() => resolve(""), 800))
       const { id } = this.props?.match?.params || 0
 
@@ -174,43 +176,83 @@ class Form extends CoreFormDocument {
       const files = data?.AttachmentList?.map((item: any) => item)
       if (files?.length > 0) TL_ATTECHCollection = await getAttachment(files)
 
-      // on Edit
+      if (postToERP) {
+        const seList: any = await DocumentSerieRepository.getDocumentSeries({
+          Document: "46",
+        })
+
+        var find = seList?.find(
+          ({ BPLID, Locked }: any) =>
+            BPLID.toString() === data?.Branch.toString() && Locked === "tNO",
+        )
+      }
+
+      console.log(data?.Logs)
+
       const payload = {
+        OGSeries: find?.Series || "",
         // Series: data?.Series || null,
-        CreateDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
+        U_tl_docdate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
+        U_tl_taxdate: `${formatDate(data?.DocumentDate || new Date())}"T00:00:00Z"`,
         U_tl_cashacct: data?.GLCash,
         U_tl_bplid: data?.Branch,
+        postToERP,
+        U_tl_doccur: data?.Currency || sysInfo?.SystemCurrency,
         TL_EXP_CLEAR_LINESCollection:
           data?.Logs?.map((log: any) => {
+            const gl = tlExpDic.find(({ Code }: any) => Code === log.U_tl_expcode)
             return {
-              DocEntry: log.DocEntry,
               LineId: log.LineId,
+              U_tl_baseentry: log.U_tl_baseentry || log.DocEntry,
               U_tl_linetotal: log.U_tl_linetotal,
               U_tl_expcode: log.U_tl_expcode,
               U_tl_expdesc: log.U_tl_expdesc,
               U_tl_remark: log.U_tl_remark,
+              U_tl_expacct: gl.U_tl_expacct || "",
             }
           }) || [],
-        // TL_ATTECHCollection,
       }
 
       if (id) {
-        return await request("PATCH", `/TL_ExpClear(${id})`, payload)
-          .then(
-            (res: any) => this.dialog.current?.success("Update Successfully.", id),
-          )
+        return await request("PATCH", `/script/test/Clearance(${id})`, payload)
+          .then(async (res: any) => {
+            data?.LogsEntry?.forEach(async (e: any) => {
+              await request("POST", `TL_ExpLog(${e.DocEntry})/Close`, {}).then(
+                (res: any) => console.log(),
+              )
+            })
+            if (postToERP) {
+              await request("POST", `TL_ExpClear(${id})/Close`, {}).then(
+                (res: any) => console.log(),
+              )
+            }
+            return this.dialog.current?.success("Update Successfully.", id)
+          })
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }))
       }
 
-      await request("POST", "/TL_ExpClear", payload)
-        .then(
-          (res: any) =>
-            this.dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.DocEntry,
-            ),
-        )
+      console.log(payload)
+
+      await request("POST", "/script/test/Clearance", payload)
+        .then(async (res: any) => {
+          data?.LogsEntry?.forEach(async (e: any) => {
+            await request("POST", `TL_ExpLog(${e.DocEntry})/Close`, {}).then(
+              (res: any) => console.log(),
+            )
+          })
+          if (postToERP) {
+            await request(
+              "POST",
+              `TL_ExpClear(${res.data?.DocEntry})/Close`,
+              {},
+            ).then((res: any) => console.log())
+          }
+          return this.dialog.current?.success(
+            "Create Successfully.",
+            res.data?.DocEntry,
+          )
+        })
         .catch((err: any) => this.dialog.current?.error(err.message))
         .finally(() => this.setState({ ...this.state, isSubmitting: false }))
     } catch (error: any) {
@@ -340,11 +382,11 @@ class Form extends CoreFormDocument {
       .then((res: any) => res.data?.value || [])
       .catch((err: any) => {})
 
-    this.logsRef.current?.onOpen(expLogs)
+    this.logsRef.current?.onOpen(expLogs, this.state.refs)
   }
 
   FormRender = () => {
-    let { sysInfo, getPeriod }: any = useContext(APIContext)
+    let { sysInfo, getPeriod, tlExpDic }: any = useContext(APIContext)
     let BranchIDD: any = this.state?.Branch || ""
     let SerieListsData: any = this.state?.SerieLists || []
 
@@ -378,11 +420,7 @@ class Form extends CoreFormDocument {
           ref={this.logsRef}
           handlerChange={(e: any) => this.setState(Object.assign(this.state, e))}
         />
-        <form
-          id="formData"
-          onSubmit={(e: any) => this.handlerSubmit(e, sysInfo)}
-          className="h-full w-full flex flex-col gap-4 relative"
-        >
+        <form id="formData" className="h-full w-full flex flex-col gap-4 relative">
           {this.state.loading ? (
             <div className="w-full h-full flex item-center justify-center">
               <LoadingProgress />
@@ -427,47 +465,54 @@ class Form extends CoreFormDocument {
             </>
           )}
 
-          <div className="sticky w-full bottom-4  mt-2 ">
-            <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-              <div className="flex ">
-                <LoadingButton
-                  size="small"
-                  sx={{ height: "25px" }}
-                  variant="contained"
-                  disableElevation
-                  onClick={this.handlerCopyFrom}
-                >
-                  <span className="px-3 text-[11px] py-1 text-white">Copy From</span>
-                </LoadingButton>
-              </div>
-              <div className="flex items-center space-x-4">
-                <LoadingButton
-                  sx={{ height: "25px" }}
-                  loading={false}
-                  size="small"
-                  variant="contained"
-                  disableElevation
-                >
-                  <span className="px-6 text-[11px] py-4 text-white">
-                    Post to ERP
-                  </span>
-                </LoadingButton>
-                <LoadingButton
-                  type="submit"
-                  sx={{ height: "25px" }}
-                  className="bg-white"
-                  loading={false}
-                  size="small"
-                  variant="contained"
-                  disableElevation
-                >
-                  <span className="px-6 text-[11px] py-4 text-white">
-                    {this.props.edit ? "Update" : "Save"}
-                  </span>
-                </LoadingButton>
+          {this.state?.Status !== "C" && (
+            <div className="sticky w-full bottom-4  mt-2 ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                <div className="flex ">
+                  <LoadingButton
+                    size="small"
+                    sx={{ height: "25px" }}
+                    variant="contained"
+                    disableElevation
+                    onClick={this.handlerCopyFrom}
+                  >
+                    <span className="px-3 text-[11px] py-1 text-white">
+                      Copy From
+                    </span>
+                  </LoadingButton>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <LoadingButton
+                    sx={{ height: "25px" }}
+                    loading={this.state.isSubmitting}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                    onClick={(e: any) => this.handlerSubmit(true, sysInfo, tlExpDic)}
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      Post to ERP
+                    </span>
+                  </LoadingButton>
+                  <LoadingButton
+                    sx={{ height: "25px" }}
+                    className="bg-white"
+                    loading={this.state.isSubmitting}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                    onClick={(e: any) =>
+                      this.handlerSubmit(false, sysInfo, tlExpDic)
+                    }
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      {this.props.edit ? "Update" : "Save"}
+                    </span>
+                  </LoadingButton>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </form>
       </>
     )

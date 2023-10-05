@@ -87,21 +87,33 @@ class FormDetail extends Component<any, any> {
               })
               .catch((error) => console.log(error))
           }
+
+          let result: any = []
+          data?.TL_EXP_CLEAR_LINESCollection?.reduce(function (
+            res: any,
+            value: any,
+          ) {
+            if (!res[value.U_tl_expcode]) {
+              res[value.U_tl_expcode] = {
+                ...value,
+                U_tl_expcode: value.U_tl_expcode,
+                U_tl_linetotal: 0,
+              }
+              result.push(res[value.U_tl_expcode])
+            }
+            res[value.U_tl_expcode].U_tl_linetotal += value.U_tl_linetotal
+            return res
+          }, {})
+
           this.setState({
             ...data,
             edit: true,
             GLCash: data?.U_tl_cashacct,
             Branch: data?.U_tl_bplid,
             loading: false,
-            Items:
-              data?.TL_EXP_CLEAR_LINESCollection?.map((item: any) => {
-                return {
-                  U_tl_linetotal: item.U_tl_linetotal,
-                  U_tl_expcode: item.U_tl_expcode,
-                  U_tl_expdesc: item.U_tl_expdesc,
-                  U_tl_remark: item.U_tl_remark,
-                }
-              }) || [],
+            Items: result || [],
+            Logs: data?.TL_EXP_CLEAR_LINESCollection || [],
+            refs: data?.TL_EXP_CLEAR_LINESCollection || [],
           })
         })
         .catch((err: any) => this.setState({ isError: true, message: err.message }))
@@ -205,36 +217,48 @@ function Content(props: any) {
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "ExpenseCode",
+        accessorKey: "U_tl_expcode",
         header: "Expense Code",
         visible: true,
-        Cell: ({ cell }: any) => {
-          const i = tlExpDic?.find((e: any) => e.Code === cell.getValue())
-          return `${i?.Code} - ${i?.Name}`
-        },
+        Cell: ({ cell }: any) => (
+          <MUITextField
+            readOnly={true}
+            defaultValue={
+              tlExpDic?.find((e: any) => e.Code === cell.getValue())?.Code
+            }
+          />
+        ),
       },
       {
         accessorKey: "ExpenseName",
         header: "Expense Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField defaultValue={cell.getValue()} />
+          return (
+            <MUITextField
+              defaultValue={
+                tlExpDic?.find((e: any) => e.Code === cell.row.original.U_tl_expcode)
+                  ?.Name
+              }
+              readOnly={true}
+            />
+          )
         },
       },
       {
-        accessorKey: "Amount",
+        accessorKey: "U_tl_linetotal",
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField type="number" defaultValue={cell.getValue()} />
+          return <MUITextField defaultValue={numberWithCommas(cell.getValue(0).toFixed(2))}  readOnly={true}/>
         },
       },
       {
-        accessorKey: "Remark",
+        accessorKey: "U_tl_remark",
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField defaultValue={cell.getValue()} />
+          return <MUITextField defaultValue={cell.getValue()} readOnly={true}/>
         },
       },
     ],
@@ -243,7 +267,7 @@ function Content(props: any) {
 
   const itemInvoicePrices =
     data?.Items?.reduce((prev: number, item: any) => {
-      return prev + parseFloat(item?.Amount || 0)
+      return prev + parseFloat(item?.U_tl_linetotal || 0)
     }, 0) ?? 0
 
   return (
