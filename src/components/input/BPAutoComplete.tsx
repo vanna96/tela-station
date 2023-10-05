@@ -16,13 +16,14 @@ export default function BPAutoComplete(props: {
     queryFn: () => new BusinessPartnerRepository().getCustomerCode(),
     staleTime: Infinity,
   });
-  console.log(data)
+
   const [value, setValue] = React.useState();
+
   return (
     <div className="block">
       <label
         htmlFor=""
-        className={` text-[14px] xl:text-[13px] text-[#656565] mt-1`}
+        className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label || "Vendor/Customer"}
       </label>
@@ -38,7 +39,15 @@ export default function BPAutoComplete(props: {
           }
         }}
         loading={isLoading}
-        getOptionLabel={(option: any) => option.CardCode}
+        getOptionLabel={(option: any) => `${option.CardCode} - ${option.CardName}`}
+        filterOptions={(options, state) => {
+          const inputValue = state.inputValue.toLowerCase();
+          return options.filter(
+            (option) =>
+              option.CardCode.toLowerCase().includes(inputValue) ||
+              option.CardName.toLowerCase().includes(inputValue)
+          );
+        }}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             {/* <BsDot /> */}
