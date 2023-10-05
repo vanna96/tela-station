@@ -15,70 +15,77 @@ import LoadingProgress from "../LoadingProgress";
 import { ItemModalComponent } from "../modal/ItemComponentModal";
 
 export interface CoreFormDocumentState {
-    collapse: boolean,
-    isOpenItem: boolean,
-    isOpenVendor: boolean,
-    isOpenAccount: boolean,
-    isOpenProject: boolean,
-    isLoadingSerie: boolean,
-    Renewal: boolean,
-    CardCode?: any,
-    CardName?: any,
-    ContactPersonCode?: number | undefined | null,
-    Phone?: string | undefined | null,
-    Email?: string | undefined | null,
-    Owner?: any,
-    Buyer?: any,
-    PaymentTermType?: string | undefined | null,
-    PaymentMethod?: string | undefined | null,
-    Currency?: string | undefined | null,
-    PriceLists?: string | undefined | null,
-    SalesPersonCode?: string | undefined | null,
-    ShipToDefault?: string | undefined | null,
-    VendorRef?: string | undefined | null,
-    DocumentStatus?: string | undefined | null,
-    Remark?: string | undefined | null,
-    Description?: string | undefined | null,
-    DocumentServiceItemType?: string | undefined | null,
-    AttachmentEntry?: number | null,
-    Project?: string | undefined | null,
-    ContactPersonList?: any[],
-    ShippingType?: number | null,
-    Items?: any[],
-    Services?: any[],
-    Attachments?: any[],
-    SerieLists: any[],
-    Series: any,
-    DocNum: any,
-    isSubmitting: boolean,
-    title: string,
-    message: string,
-    showDialogMessage: boolean,
-    inWhichDimension: number,
-    showDistribution: boolean,
-    vendorType: VendorModalType,
-    loading: boolean,
-    isApproved: boolean,
-    isOpenRequester: boolean,
-    isOpenRequesterEmployee: boolean,
-    Department: any,
-    Branch: any,
-    ReqType: number,
-    DocTotalBeforeDiscount: number,
-    DocTotal: number,
-    DocDiscountPercent: number | any,
-    DocDiscountPrice: number | any,
-    DocTaxTotal: number | any,
-    Rounded: boolean,
-    DocType: string,
-    Address: string | null;
-    Address2: string | null;
-    disable: any,
-    error: any,
-    tapIndex: number;
-    ContentLoading?: any,
-    lineofBusiness?:any,
-    warehouseCode : string;
+  collapse: boolean;
+  isOpenItem: boolean;
+  isOpenVendor: boolean;
+  isOpenAccount: boolean;
+  isOpenProject: boolean;
+  isLoadingSerie: boolean;
+  Renewal: boolean;
+  CardCode?: any;
+  CardName?: any;
+  ContactPersonCode?: number | undefined | null;
+  Phone?: string | undefined | null;
+  Email?: string | undefined | null;
+  Owner?: any;
+  Buyer?: any;
+  PaymentTermType?: string | undefined | null;
+  PaymentMethod?: string | undefined | null;
+  Currency?: string | undefined | null;
+  PriceLists?: string | undefined | null;
+  SalesPersonCode?: string | undefined | null;
+  ShipToDefault?: string | undefined | null;
+  VendorRef?: string | undefined | null;
+  DocumentStatus?: string | undefined | null;
+  Remark?: string | undefined | null;
+  Description?: string | undefined | null;
+  DocumentServiceItemType?: string | undefined | null;
+  AttachmentEntry?: number | null;
+  Project?: string | undefined | null;
+  ContactPersonList?: any[];
+  ShippingType?: number | null;
+  Items?: any[];
+  Services?: any[];
+  Attachments?: any[];
+  SerieLists: any[];
+  Series: any;
+  DocNum: any;
+  isSubmitting: boolean;
+  title: string;
+  message: string;
+  showDialogMessage: boolean;
+  inWhichDimension: number;
+  showDistribution: boolean;
+  vendorType: VendorModalType;
+  loading: boolean;
+  isApproved: boolean;
+  isOpenRequester: boolean;
+  isOpenRequesterEmployee: boolean;
+  Department: any;
+  Branch: any;
+  ReqType: number;
+  DocTotalBeforeDiscount: number;
+  DocTotal: number;
+  DocDiscountPercent: number | any;
+  DocDiscountPrice: number | any;
+  DocTaxTotal: number | any;
+  Rounded: boolean;
+  DocType: string;
+  Address: string | null;
+  Address2: string | null;
+  disable: any;
+  error: any;
+  tapIndex: number;
+  ContentLoading?: any;
+  lineofBusiness?: any;
+  warehouseCode: string;
+  tabErrors: {
+    general: boolean;
+    content: boolean;
+    logistic: boolean;
+    attachment: boolean;
+  };
+  isDialogOpen: boolean
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -152,6 +159,13 @@ export default abstract class CoreFormDocument extends React.Component<
       error: {},
       lineofBusiness: "",
       warehouseCode: "",
+      tabErrors: {
+        logistic: false,
+        content: false,
+        general: false,
+        attachment: false,
+      },
+      isDialogOpen: false
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);
@@ -168,12 +182,12 @@ export default abstract class CoreFormDocument extends React.Component<
     return (
       <div className="grow flex flex-col">
         <FormMessageModal ref={this.dialog} />
-            <ItemModalComponent
-            ref={this.itemModalRef}
-            type={this.props.type }
-            onOk={this.handlerConfirmItem}
-            group={this.props.group}
-            />
+        <ItemModalComponent
+          ref={this.itemModalRef}
+          type={this.props.type}
+          onOk={this.handlerConfirmItem}
+          group={this.props.group}
+        />
         <Backdrop
           sx={{
             color: "#fff",

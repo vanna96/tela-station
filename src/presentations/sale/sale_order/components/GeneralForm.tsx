@@ -12,6 +12,8 @@ import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -84,44 +86,37 @@ export default function GeneralForm({
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
+
+
       <div className="grid grid-cols-12 ">
         <div className="col-span-5 ">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch <span className="text-red-500">*</span>
+                Branch
               </label>
             </div>
             <div className="col-span-3">
-              <BPLBranchSelect
-                BPdata={userData?.UserBranchAssignment}
-                onChange={(e) =>
-                  handlerChange("BPL_IDAssignedToInvoice", e.target.value)
-                }
-                value={BPL}
-                name="BPL_IDAssignedToInvoice"
-              />
-              {/* <BranchAutoComplete
+              <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
-                // name="BPL_IDAssignedToInvoice"
-              /> */}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Warehouse
+                Warehouse <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
-              <WarehouseByBranch
+              <WarehouseAutoComplete
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e.target.value);
-                  onWarehouseChange(e.target.value);
+                  handlerChange("U_tl_whsdesc", e);
+                  onWarehouseChange(e);
                 }}
               />
             </div>
@@ -157,17 +152,6 @@ export default function GeneralForm({
                 name="BPCode"
                 endAdornment={!edit}
               />
-              {/* <VendorTextField
-                vtype="customer"
-                onChange={(vendor) => handlerChange("vendor", vendor)}
-                key={data?.CardCode}
-                error={"CardCode" in data?.error}
-                helpertext={data?.error?.CardCode}
-                autoComplete="off"
-                defaultValue={data?.CardCode}
-                name="BPCode"
-                endAdornment={!edit}
-              /> */}
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -323,12 +307,9 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <SalePerson
-                name="SalesPersonCode"
+              <SalePersonAutoComplete
                 value={data.SalesPersonCode}
-                onChange={(e) =>
-                  handlerChange("SalesPersonCode", e.target.value)
-                }
+                onChange={(e) => handlerChange("SalesPersonCode", e)}
               />
             </div>
           </div>
@@ -348,7 +329,6 @@ export default function GeneralForm({
               />
             </div>
           </div>
-         
         </div>
       </div>
     </div>

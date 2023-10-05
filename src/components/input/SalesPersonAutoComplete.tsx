@@ -1,35 +1,35 @@
-import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import React, { useState, useEffect } from "react";
+import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import WarehouseRepository from "@/services/warehouseRepository";
+import SalePersonRepository from "@/services/actions/salePersonRepository";
 
-interface Warehouse {
-  WarehouseCode: number;
-  WarehouseName: string;
+interface SalePerson {
+  code: number;
+  name: string;
 }
 
-export default function WarehouseAttendTo(props: {
+export default function SalePersonAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
-  Warehouse?: Warehouse[];
+  name?: any;
   disabled?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["warehouse"],
-    queryFn: () => new WarehouseRepository().get(),
+    queryKey: ["sale_persons"],
+    queryFn: () => new SalePersonRepository().get(),
     staleTime: Infinity,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedWarehouse = data.find(
-        (warehouse: any) => warehouse.WarehouseCode === props.value
+      const selectedSalePerson = data?.find(
+        (salePerson: SalePerson) => salePerson.code === props.value
       );
-      if (selectedWarehouse) {
-        setSelectedValue(selectedWarehouse);
+      if (selectedSalePerson) {
+        setSelectedValue(selectedSalePerson);
       }
     }
   }, [props.value, data]);
@@ -43,39 +43,35 @@ export default function WarehouseAttendTo(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedCode = newValue ? newValue.WarehouseCode : null;
+      const selectedCode = newValue ? newValue.code : null;
       props.onChange(selectedCode);
     }
   };
   const disabled = props.disabled;
-
   return (
-    <div className="block text-[14px] xl:text-[13px] ">
+    <div className="block text-[14px] xl:text-[13px]">
       <label
         htmlFor=""
-        className={` text-[14px] xl:text-[13px] text-[#656565] mt-1`}
+        className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
 
       <Autocomplete
-        disabled={disabled}
-        options={data}
+        options={data ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Warehouse) => option.WarehouseName}
-        renderOption={(props, option: Warehouse) => (
+        getOptionLabel={(option: SalePerson) => option.name}
+        renderOption={(props, option: SalePerson) => (
           <Box component="li" {...props}>
-            <BsDot />
-            {option.WarehouseName}
+            {option.name}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
-            // className="w-full text-xs text-field bg-white"
             className={`w-full text-field text-xs ${
               disabled ? "bg-gray-100" : ""
             }`}

@@ -16,7 +16,13 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { arrayBufferToBlob } from "@/utilies";
 import shortid from "shortid";
-import { Backdrop, CircularProgress } from "@mui/material";
+import {
+  Backdrop,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Button,
+} from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
@@ -393,40 +399,94 @@ class PumpSaleForm extends CoreFormDocument {
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
+  handleNextTab = () => {
+    const currentTab = this.state.tapIndex;
+    const requiredFields = this.getRequiredFieldsByTab(currentTab);
+    const hasErrors = requiredFields.some((field: any) => {
+      if (field === "Items") {
+        // Check if the "Items" array is empty
+        return !this.state[field] || this.state[field].length === 0;
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      // Show the dialog if there are errors
+      this.setState({ isDialogOpen: true });
+    } else {
+      // If no errors, allow the user to move to the next tab
+      this.handlerChangeMenu(currentTab + 1);
+    }
+  };
+  handleCloseDialog = () => {
+    // Close the dialog
+    this.setState({ isDialogOpen: false });
+  };
+
+  getRequiredFieldsByTab(tabIndex: number): string[] {
+    const requiredFieldsMap: { [key: number]: string[] } = {
+      0: ["CardCode", "U_tl_whsdesc"],
+      1: ["Items"],
+      2: ["U_tl_dnsuppo", "PayToCode"],
+      3: [],
+    };
+    return requiredFieldsMap[tabIndex] || [];
+  }
+
+  handlePreviousTab = () => {
+    if (this.state.tapIndex > 0) {
+      this.handlerChangeMenu(this.state.tapIndex - 1);
+    }
+  };
 
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={this.state.tapIndex === 0}
-          onClick={() => this.handlerChangeMenu(0)}
-        >
-          General
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 2}
-          onClick={() => this.handlerChangeMenu(2)}
-        >
-          Content
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 1}
-          onClick={() => this.handlerChangeMenu(1)}
-        >
-          Logistic
-        </MenuButton>
-        {/* <MenuButton
-          active={this.state.tapIndex === 4}
-          onClick={() => this.handlerChangeMenu(4)}
-        >
-          Accounting
-        </MenuButton> */}
-        <MenuButton
-          active={this.state.tapIndex === 3}
-          onClick={() => this.handlerChangeMenu(3)}
-        >
-          Attachment
-        </MenuButton>
+        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
+        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
+        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
+        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        <div className="sticky w-full bottom-4   ">
+          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
+            <div className="flex ">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={this.handlePreviousTab}
+                disabled={this.state.tapIndex === 0}
+                style={{ textTransform: "none" }}
+              >
+                Previous
+              </Button>
+            </div>
+            <div className="flex items-center">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={this.handleNextTab}
+                disabled={this.state.tapIndex === 3}
+                style={{ textTransform: "none" }}
+              >
+                Next
+              </Button>
+
+              <Snackbar
+                open={this.state.isDialogOpen}
+                autoHideDuration={6000}
+                onClose={this.handleCloseDialog}
+              >
+                <Alert
+                  onClose={this.handleCloseDialog}
+                  severity="error"
+                  sx={{ width: "100%" }}
+                >
+                  Please complete all required fields before proceeding to the
+                  next tab.
+                </Alert>
+              </Snackbar>
+            </div>
+          </div>
+        </div>
       </>
     );
   };
@@ -492,7 +552,7 @@ class PumpSaleForm extends CoreFormDocument {
                     />
                   )}
 
-                  {this.state.tapIndex === 1 && (
+                  {this.state.tapIndex === 2 && (
                     <LogisticForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -502,7 +562,7 @@ class PumpSaleForm extends CoreFormDocument {
                     />
                   )}
 
-                  {this.state.tapIndex === 2 && (
+                  {this.state.tapIndex === 1 && (
                     <ContentForm
                       data={this.state}
                       handlerAddItem={() => {
@@ -528,7 +588,7 @@ class PumpSaleForm extends CoreFormDocument {
                 </div>
               </>
             )}
-          </div>  
+          </div>
 
           <div className="sticky w-full bottom-4  mt-2 ">
             <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
