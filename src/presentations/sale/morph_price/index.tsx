@@ -20,6 +20,10 @@ import moment from "moment";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import { useCookies } from "react-cookie";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
 export default function MorphPriceLists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -88,6 +92,15 @@ export default function MorphPriceLists() {
             {"$"} {cell.getValue().toFixed(2)}
           </>
         ),
+      },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        visible: true,
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository().find(cell.getValue())?.BPLName,
+        size: 60,
       },
       {
         accessorKey: "DocumentStatus",
@@ -243,12 +256,15 @@ export default function MorphPriceLists() {
   const handleAdaptFilter = () => {
     setOpen(true);
   };
+  const [cookies] = useCookies(["user"]);
+
   const [searchValues, setSearchValues] = React.useState({
     docnum: "",
     cardcode: "",
     cardname: "",
     deliveryDate: null,
     status: "",
+    bplid: null,
   });
 
   const handleGoClick = () => {
@@ -276,6 +292,11 @@ export default function MorphPriceLists() {
         ? ` and DocumentStatus eq '${searchValues.status}'`
         : `DocumentStatus eq '${searchValues.status}'`;
     }
+    if (searchValues.bplid) {
+      queryFilters += queryFilters
+        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
+        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
+    }
 
     handlerSearchFilter(queryFilters);
   };
@@ -283,11 +304,11 @@ export default function MorphPriceLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route("/sale/morph-price")}>
-        Morph Price
-      </span>
-    </>
-  );
+    <span className="" onClick={() => route("/sale/morph-price")}>
+      Morph Price
+    </span>
+  </>
+);
 
   return (
     <>
@@ -295,73 +316,100 @@ export default function MorphPriceLists() {
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
           <Breadcrumb childBreadcrum={childBreadcrum} />
         </div>
-        <div className="grid grid-cols-10 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <div className="col-span-2">
-            <MUITextField
-              label="Document No."
-              placeholder="Document No."
-              className="bg-white"
-              autoComplete="off"
-              value={searchValues.docnum}
-              onChange={(e) =>
-                setSearchValues({ ...searchValues, docnum: e.target.value })
-              }
-            />
-          </div>
-          <div className="col-span-2">
-            <BPAutoComplete
-              type="Customer"
-              label="Customer"
-              value={searchValues.cardcode}
-              onChange={(selectedValue) =>
-                setSearchValues({ ...searchValues, cardcode: selectedValue })
-              }
-            />
-          </div>
-          <div className="col-span-2">
-            <MUIDatePicker
-              label="Delivery Date"
-              value={searchValues.deliveryDate}
-              // onChange={(e: any) => handlerChange("PostingDate", e)}
-              onChange={(e) => {
-                setSearchValues({
-                  ...searchValues,
-                  deliveryDate: e,
-                });
-              }}
-            />
-          </div>
-          <div className="col-span-2">
-            <div className="flex flex-col gap-1 text-sm">
-              <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                Status
-              </label>
-              <div className="">
-                <MUISelect
-                  items={[
-                    { label: "None", value: "" },
-                    { label: "Open", value: "bost_Open" },
-                    { label: "Close", value: "bost_Close" },
-                    // { label: "Paid", value: "bost_Paid" },
-                    // { label: "Delivered", value: "bost_Delivered" },
-                  ]}
-                  // onChange={(e) =>
-                  //   setSearchValues({ ...searchValues, status: e.target.value })
-                  // }
-                  onChange={(e) => {
-                    if (e) {
-                      setSearchValues({
-                        ...searchValues,
-                        status: e.target.value as string, // Ensure e.target.value is treated as a string
-                      });
-                    }
-                  }}
-                  value={searchValues.status}
+
+        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+          <div className="col-span-10">
+            <div className="grid grid-cols-12  space-x-4">
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Document No."
+                  placeholder="Document No."
+                  className="bg-white"
+                  autoComplete="off"
+                  type="number"
+                  value={searchValues.docnum}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, docnum: e.target.value })
+                  }
                 />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <BPAutoComplete
+                  type="Customer"
+                  label="Customer"
+                  value={searchValues.cardcode}
+                  onChange={(selectedValue) =>
+                    setSearchValues({
+                      ...searchValues,
+                      cardcode: selectedValue,
+                    })
+                  }
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Branch
+                  </label>
+                  <div className="">
+                    <BranchAutoComplete
+                      BPdata={cookies?.user?.UserBranchAssignment}
+                      onChange={(selectedValue) =>
+                        setSearchValues({
+                          ...searchValues,
+                          bplid: selectedValue,
+                        })
+                      }
+                      value={searchValues.bplid}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUIDatePicker
+                  label="Delivery Date"
+                  value={searchValues.deliveryDate}
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
+                  onChange={(e) => {
+                    setSearchValues({
+                      ...searchValues,
+                      deliveryDate: e,
+                    });
+                  }}
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { label: "None", value: "" },
+                        { label: "Open", value: "bost_Open" },
+                        { label: "Close", value: "bost_Close" },
+                        // { label: "Paid", value: "bost_Paid" },
+                        // { label: "Delivered", value: "bost_Delivered" },
+                      ]}
+                      // onChange={(e) =>
+                      //   setSearchValues({ ...searchValues, status: e.target.value })
+                      // }
+                      onChange={(e) => {
+                        if (e) {
+                          setSearchValues({
+                            ...searchValues,
+                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                          });
+                        }
+                      }}
+                      value={searchValues.status}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
@@ -394,7 +442,8 @@ export default function MorphPriceLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus"
+                      e?.accessorKey !== "DocumentStatus" &&
+                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}
                 />
@@ -402,21 +451,19 @@ export default function MorphPriceLists() {
             </div>
           </div>
         </div>
-        <div>
-          <DataTable
-            columns={columns}
-            data={data}
-            handlerRefresh={handlerRefresh}
-            handlerSearch={handlerSearch}
-            handlerSortby={handlerSortby}
-            count={Count?.data || 0}
-            loading={isLoading || isFetching}
-            pagination={pagination}
-            paginationChange={setPagination}
-            title="Morph Price Lists"
-            createRoute="/sale/morph-price/create"
-          />
-        </div>
+        <DataTable
+          columns={columns}
+          data={data}
+          handlerRefresh={handlerRefresh}
+          handlerSearch={handlerSearch}
+          handlerSortby={handlerSortby}
+          count={Count?.data || 0}
+          loading={isLoading || isFetching}
+          pagination={pagination}
+          paginationChange={setPagination}
+          title="Morph Price Lists"
+          createRoute="/sale/morph-price/create"
+        />
       </div>
     </>
   );

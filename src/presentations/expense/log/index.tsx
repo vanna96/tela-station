@@ -1,31 +1,31 @@
-import request, { url } from "@/utilies/request"
-import React from "react"
-import { useQuery } from "react-query"
-import { useNavigate } from "react-router-dom"
-import DataTable from "./components/DataTable"
-import VisibilityIcon from "@mui/icons-material/Visibility"
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
-import MUITextField from "@/components/input/MUITextField"
-import { Button } from "@mui/material"
-import { ModalAdaptFilter } from "./components/ModalAdaptFilter"
-import MUIDatePicker from "@/components/input/MUIDatePicker"
-import BPLBranchSelect from "@/components/selectbox/BranchBPL"
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
-import { useCookies } from "react-cookie"
-import { APIContext } from "../context/APIContext"
+import request, { url } from "@/utilies/request";
+import React from "react";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
+import DataTable from "./components/DataTable";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
+import MUITextField from "@/components/input/MUITextField";
+import { Button } from "@mui/material";
+import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
+import { useCookies } from "react-cookie";
+import { APIContext } from "../context/APIContext";
 
 export default function Lists() {
-  const [open, setOpen] = React.useState<boolean>(false)
-  const { branchBPL }: any = React.useContext(APIContext)
-  const [cookies] = useCookies(["user"])
+  const [open, setOpen] = React.useState<boolean>(false);
+  const { branchBPL }: any = React.useContext(APIContext);
+  const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
     docnum: 0,
     cardcode: "",
     cardname: "",
     docdate: null,
     bplid: -2,
-  })
-  const route = useNavigate()
+  });
+  const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
@@ -45,8 +45,11 @@ export default function Lists() {
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          if (!cell.row.original?.CreateDate) return
-          return cell.row.original?.CreateDate.toString().replace("T00:00:00Z", "")
+          if (!cell.row.original?.CreateDate) return;
+          return cell.row.original?.CreateDate.toString().replace(
+            "T00:00:00Z",
+            ""
+          );
         },
       },
       {
@@ -56,7 +59,7 @@ export default function Lists() {
         visible: true,
         Cell: ({ cell }: any) =>
           branchBPL.find(
-            ({ BPLID }: any) => BPLID.toString() === cell.getValue(),
+            ({ BPLID }: any) => BPLID.toString() === cell.getValue()
           )?.BPLName,
       },
       {
@@ -85,10 +88,11 @@ export default function Lists() {
                 route("/expense/log/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
-                })
+                });
               }}
             >
-              <VisibilityIcon fontSize="small" className="text-gray-600 " /> View
+              <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
+              View
             </button>
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
@@ -96,7 +100,7 @@ export default function Lists() {
                 route(`/expense/log/${cell.row.original.DocEntry}/edit`, {
                   state: cell.row.original,
                   replace: true,
-                })
+                });
               }}
             >
               <DriveFileRenameOutlineIcon
@@ -109,29 +113,32 @@ export default function Lists() {
         ),
       },
     ],
-    [],
-  )
+    []
+  );
 
-  const [filter, setFilter] = React.useState("")
-  const [sortBy, setSortBy] = React.useState("")
+  const [filter, setFilter] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
-  })
+  });
 
   const Count: any = useQuery({
     queryKey: [`TL_ExpLog`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
-      const response: any = await request("GET", `${url}/TL_ExpLog/$count?${filter}`)
+      const response: any = await request(
+        "GET",
+        `${url}/TL_ExpLog/$count?${filter}`
+      )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
-          throw new Error(e.message)
-        })
-      return response
+          throw new Error(e.message);
+        });
+      return response;
     },
     cacheTime: 0,
     staleTime: 0,
-  })
+  });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
@@ -143,76 +150,77 @@ export default function Lists() {
         "GET",
         `${url}/TL_ExpLog?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&${filter}`,
+        }&${filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
-          throw new Error(e.message)
-        })
-      return response
+          throw new Error(e.message);
+        });
+      return response;
     },
     cacheTime: 0,
     staleTime: 0,
-  })
+  });
 
   const handlerRefresh = React.useCallback(() => {
-    setFilter("")
-    setSortBy("")
+    setFilter("");
+    setSortBy("");
     setPagination({
       pageIndex: 0,
       pageSize: 10,
-    })
+    });
     setTimeout(() => {
-      Count.refetch()
-      refetch()
-    }, 500)
-  }, [])
+      Count.refetch();
+      refetch();
+    }, 500);
+  }, []);
 
   const handlerSortby = (value: any) => {
-    setSortBy(value)
+    setSortBy(value);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
-    })
+    });
 
     setTimeout(() => {
-      refetch()
-    }, 500)
-  }
+      refetch();
+    }, 500);
+  };
 
   const handlerSearch = (value: string) => {
-    setFilter(value)
+    setFilter(value);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
-    })
+    });
 
     setTimeout(() => {
-      Count.refetch()
-      refetch()
-    }, 500)
-  }
+      Count.refetch();
+      refetch();
+    }, 500);
+  };
 
   const handleAdaptFilter = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleGoClick = () => {
-    let queryFilters: any = []
-    if (searchValues.docnum) queryFilters.push(`DocNum eq ${searchValues.docnum}`)
+    let queryFilters: any = [];
+    if (searchValues.docnum)
+      queryFilters.push(`DocNum eq ${searchValues.docnum}`);
     if (searchValues.cardcode)
       queryFilters.push(
-        `(CardCode eq '${searchValues.cardcode}' or CardName eq '${searchValues.cardcode}')`,
-      )
+        `(CardCode eq '${searchValues.cardcode}' or CardName eq '${searchValues.cardcode}')`
+      );
     if (searchValues.docdate)
-      queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`)
+      queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`);
     if (searchValues.bplid > 0)
-      queryFilters.push(`U_tl_bplid eq '${searchValues.bplid}'`)
+      queryFilters.push(`U_tl_bplid eq '${searchValues.bplid}'`);
 
     if (queryFilters.length > 0)
-      return handlerSearch(`$filter=${queryFilters.join(" and ")}`)
-    return handlerSearch("")
-  }
+      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+    return handlerSearch("");
+  };
 
   return (
     <>
@@ -242,18 +250,7 @@ export default function Lists() {
                   }
                 />
               </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Customer Name / Code"
-                  placeholder="Customer Name / Code"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.cardcode}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, cardcode: e.target.value })
-                  }
-                />
-              </div> */}
+
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
                   label="Date"
@@ -262,7 +259,7 @@ export default function Lists() {
                     setSearchValues({
                       ...searchValues,
                       docdate: e || null,
-                    })
+                    });
                   }}
                 />
               </div>
@@ -278,7 +275,7 @@ export default function Lists() {
                         setSearchValues({
                           ...searchValues,
                           bplid: e.target.value,
-                        })
+                        });
                       }}
                       value={searchValues?.bplid || 0}
                       name="Branch"
@@ -292,7 +289,11 @@ export default function Lists() {
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
-                <Button variant="contained" size="small" onClick={handleGoClick}>
+                <Button
+                  variant="contained"
+                  size="small"
+                  onClick={handleGoClick}
+                >
                   Go
                 </Button>
               </div>
@@ -317,7 +318,7 @@ export default function Lists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus",
+                      e?.accessorKey !== "DocumentStatus"
                   )}
                   onClick={handlerSearch}
                 />
@@ -339,5 +340,5 @@ export default function Lists() {
         />
       </div>
     </>
-  )
+  );
 }

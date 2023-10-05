@@ -31,7 +31,7 @@ function MUITextField(props: MUITextFieldProps) {
     return <>
         <FormControl fullWidth error={props.error}>
             <div className="flex flex-col gap-1 text-sm">
-                <label htmlFor={props.label} className={` text-[14px] xl:text-[13px] ${props.error ? 'text-red-500' : 'text-[#656565]'} `}>
+            <label htmlFor={props.label} className={` text-[14px] xl:text-[13px] ${props.error ? 'text-red-500' : 'text-[#656565]'} `}>
                     {props.label} {props.required && <span className="text-red-500 font-bold">*</span>}
                 </label>
                 <div className="text-field">
