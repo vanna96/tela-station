@@ -624,7 +624,7 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
     return {
       ItemCode: item.ItemCode || null,
       Quantity: item.Quantity || null,
-      UnitPrice: item.UnitPrice || item.total,
+      GrossPrice: item.GrossPrice || item.total,
       DiscountPercent: item.DiscountPercent || 0,
       TaxCode: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,

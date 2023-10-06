@@ -134,7 +134,7 @@ export default function ContentForm({
 
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
+          return (cell.getValue());
         },
       },
       {
@@ -155,7 +155,7 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
+          return (cell.getValue());
         },
       },
       {

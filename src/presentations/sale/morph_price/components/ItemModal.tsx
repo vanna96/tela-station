@@ -14,6 +14,7 @@ import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import { TextField } from "@mui/material";
 import FormattedInputs from "@/components/input/NumberFormatField";
+import { NumericFormat } from "react-number-format";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -80,8 +81,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       temps["LineTotal"] = total;
 
       let totalGross =
-        parseInt(temps["Quantity"] ?? 1) *
-        (parseFloat(temps["GrossPrice"]) ?? 1);
+        parseInt(temps["Quantity"] ?? 1) * (temps["GrossPrice"] ?? 1);
       totalGross =
         totalGross -
         (totalGross * parseFloat(temps["DiscountPercent"] ?? 0)) / 100;
@@ -146,13 +146,26 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Item Pricing
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <FormattedInputs
+              <NumericFormat
+                onChange={(event) => {
+                  const newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  this.handChange(
+                    { target: { value: newValue } },
+                    "GrossPrice"
+                  );
+                }}
+                decimalScale={2}
+                fixedDecimalScale
                 label="Gross Price"
-                onBlur={(event: any) => this.handChange(event, "GrossPrice")}
-                name={"Gross Price"}
                 value={this.state?.GrossPrice}
                 startAdornment={"USD"}
+                type="text"
+                thousandSeparator
+                customInput={MUITextField}
               />
+
               <MUITextField
                 label="Quantity"
                 defaultValue={this.state?.Quantity}
@@ -171,17 +184,17 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
               />
-              {/* <MUITextField
-                label="Unit Price"
-                disabled
-                startAdornment={"USD"}
-                value={currencyFormat(this.state?.UnitPrice)}
-              /> */}
-              <input hidden value={this.state?.UnitPrice} />
-              <MUITextField
+
+              {/* <input hidden value={this.state?.UnitPrice} /> */}
+              <NumericFormat
                 label="Total"
+                placeholder="0.00"
+                thousandSeparator
+                decimalScale={2}
+                fixedDecimalScale
+                customInput={MUITextField}
                 startAdornment={"USD"}
-                value={currencyFormat(this.state?.TotalGross)}
+                value={this.state?.TotalGross}
               />
             </div>
 

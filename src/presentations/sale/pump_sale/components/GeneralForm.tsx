@@ -276,7 +276,6 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                required
                 error={"DueDate" in data?.error}
                 helpertext={data?.error["DueDate"]}
                 disabled={data?.isStatusClose || false}

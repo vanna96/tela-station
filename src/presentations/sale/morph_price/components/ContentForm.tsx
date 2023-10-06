@@ -13,6 +13,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import wareBinRepository from "@/services/actions/WareBinRepository";
 import WarehouseRepository from "@/services/warehouseRepository";
+import { NumericFormat } from "react-number-format";
 
 
 interface ContentFormProps {
@@ -134,7 +135,8 @@ export default function ContentForm({
 
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
+          // return (cell.getValue()?.toFixed(2));
+          return <NumericFormat value={cell.getValue()}/>
         },
       },
       {
@@ -155,7 +157,7 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
+          return (cell.getValue()?.toFixed(2));
         },
       },
       {

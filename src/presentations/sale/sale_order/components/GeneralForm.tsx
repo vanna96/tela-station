@@ -87,7 +87,6 @@ export default function GeneralForm({
         <h2>Basic Information</h2>
       </div>
 
-
       <div className="grid grid-cols-12 ">
         <div className="col-span-5 ">
           <div className="grid grid-cols-5 py-2">
@@ -277,7 +276,6 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                required
                 error={"DueDate" in data?.error}
                 helpertext={data?.error["DueDate"]}
                 disabled={data?.isStatusClose || false}

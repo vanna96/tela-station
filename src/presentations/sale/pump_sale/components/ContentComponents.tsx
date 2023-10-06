@@ -364,7 +364,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                       disabled={props?.data?.isStatusClose || false}
                       placeholder="0.00"
                       type="text"
-                      value={currencyFormat(docTotal)}
+                      value={(docTotal)?.toFixed(2)}
                       readonly
                       startAdornment={props?.data?.Currency}
                     />
@@ -405,7 +405,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           placeholder="0.00"
                           type="text"
                           startAdornment={props?.data?.Currency}
-                          value={currencyFormat(discountAmount)}
+                          value={(discountAmount)?.toFixed(2)}
                         />
                       </div>
                     </div>
@@ -418,7 +418,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <MUITextField
                       placeholder="0.00"
                       type="text"
-                      value={currencyFormat(docTaxTotal)}
+                      value={(docTaxTotal)?.toFixed(2)}
                       startAdornment={props?.data?.Currency}
                       disabled={props?.data?.isStatusClose || false}
                       readonly
