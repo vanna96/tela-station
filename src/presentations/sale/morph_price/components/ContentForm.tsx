@@ -6,15 +6,14 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { TbEdit } from "react-icons/tb";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton } from "@mui/material";
+import { Alert, Collapse, IconButton, Input, TextField } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import UnitOfMeasurementGroupRepository from '../../../../services/actions/unitOfMeasurementGroupRepository';
+import UnitOfMeasurementGroupRepository from "../../../../services/actions/unitOfMeasurementGroupRepository";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import wareBinRepository from "@/services/actions/WareBinRepository";
 import WarehouseRepository from "@/services/warehouseRepository";
-import { NumericFormat } from "react-number-format";
-
+import { NumberFormatBase, NumericFormat } from "react-number-format";
 
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -33,7 +32,6 @@ export default function ContentForm({
   onChange,
   onChangeItemByCode,
 }: ContentFormProps) {
-  
   const updateRef = React.createRef<ItemModal>();
   const itemGroupRepo = new ItemGroupRepository();
   const [collapseError, setCollapseError] = React.useState(false);
@@ -126,7 +124,7 @@ export default function ContentForm({
         accessorKey: "GrossPrice",
         header: "Gross Price",
         visible: true,
-        size: 80,
+        size: 60,
         Header: (header: any) => (
           <label>
             Gross Price <span className="text-red-500">*</span>
@@ -135,8 +133,16 @@ export default function ContentForm({
 
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          // return (cell.getValue()?.toFixed(2));
-          return <NumericFormat value={cell.getValue()}/>
+
+          return (
+            <NumericFormat
+              className="bg-white w-full"
+              value={cell.getValue()}
+              thousandSeparator
+              fixedDecimalScale
+              decimalScale={2}
+            />
+          );
         },
       },
       {
@@ -149,15 +155,26 @@ export default function ContentForm({
           return cell.getValue();
         },
       },
-    
+
       {
         accessorKey: "TotalGross",
         header: "Total",
-        size: 80,
+        size: 60,
         visible: true,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return (cell.getValue()?.toFixed(2));
+          return (
+            <>
+              <NumericFormat
+                value={cell.getValue()}
+                thousandSeparator
+                fixedDecimalScale
+                disabled
+                className="bg-white w-full"
+                decimalScale={2}
+              />
+            </>
+          );
         },
       },
       {
@@ -166,9 +183,8 @@ export default function ContentForm({
         visible: true,
         size: 80,
         Cell: ({ cell }: any) => {
-          return (new UnitOfMeasurementRepository().find(cell.getValue())?.Name);
+          return new UnitOfMeasurementRepository().find(cell.getValue())?.Name;
           // return new WarehouseRepository()?.find(cell.getValue())?.name;
-
         },
       },
       {
@@ -199,9 +215,10 @@ export default function ContentForm({
         size: 80,
         Cell: ({ cell }: any) => {
           if (Object.keys(cell.row.original).length === 1) return null;
-          return new WareBinLocationRepository().find(cell.getValue())?.BinCode ?? "N/A"
-
-
+          return (
+            new WareBinLocationRepository().find(cell.getValue())?.BinCode ??
+            "N/A"
+          );
         },
       },
 

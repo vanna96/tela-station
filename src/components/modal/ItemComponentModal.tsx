@@ -200,6 +200,7 @@ const ItemModal: FC<ItemModalProps> = ({
         DiscountPercent: 0,
         LineTotal: total,
         Total: total,
+        TotalGross: 0,
         WarehouseCode: WarehouseCode,
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
