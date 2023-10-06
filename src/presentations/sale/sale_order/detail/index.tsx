@@ -25,6 +25,7 @@ import { Checkbox, CircularProgress, darken } from "@mui/material";
 import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import { NumericFormat } from "react-number-format";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -209,16 +210,16 @@ class DeliveryDetail extends Component<any, any> {
                     <div className="border-2  shadow-md rounded-lg  p-4">
                       <General data={this.state} />
                     </div>
-                    <div className="my-2"/>
+                    <div className="my-2" />
                     <div className="border-2  shadow-md rounded-lg   p-4">
                       <Content data={this.state} />
                     </div>
-                    <div className="my-2"/>
+                    <div className="my-2" />
 
                     <div className="border-2  shadow-md rounded-lg   p-4">
                       <Logistic data={this.state} />
                     </div>
-                    <div className="my-2"/>
+                    <div className="my-2" />
 
                     {/* <div className="border-2 shadow-lg rounded-lg mt-1  p-4"></div> */}
 
@@ -361,13 +362,22 @@ function Content(props: any) {
         accessorKey: "Quantity",
         header: "Quantity",
         size: 60,
-        Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
+        Cell: ({ cell }: any) => cell.getValue(),
       },
       {
         accessorKey: "GrossPrice",
         header: "Gross Price",
         size: 60,
-        Cell: ({ cell }: any) => currencyFormat(cell.getValue()),
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            value={cell.getValue() ?? 0}
+            thousandSeparator
+            fixedDecimalScale
+            disabled
+            className="bg-white w-full"
+            decimalScale={2}
+          />
+        ),
       },
       {
         accessorKey: "DiscountPercent",
@@ -422,7 +432,16 @@ function Content(props: any) {
         accessorKey: "GrossTotal",
         header: "Total(LC)",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            value={cell.getValue() ?? 0}
+            thousandSeparator
+            fixedDecimalScale
+            disabled
+            className="bg-white w-full"
+            decimalScale={2}
+          />
+        ),
       },
       {
         accessorKey: "WarehouseCode",
@@ -483,9 +502,19 @@ function Content(props: any) {
               </div>
               <div className="col-span-6 text-gray-900">
                 {data?.Currency}{" "}
-                {currencyFormat(
-                  (data?.DocTotalSys - data?.VatSumSys) * (data?.DocRate || 1)
-                )}
+                {
+                  <NumericFormat
+                    value={
+                      (data?.DocTotalSys - data?.VatSumSys) *
+                      (data?.DocRate || 1)
+                    }
+                    thousandSeparator
+                    fixedDecimalScale
+                    disabled
+                    className="bg-white w-1/2"
+                    decimalScale={2}
+                  />
+                }
               </div>
             </div>
             <div className="grid grid-cols-12 py-1">
@@ -500,7 +529,16 @@ function Content(props: any) {
 
               <div className="col-span-6 text-gray-900 ">
                 {data?.Currency}{" "}
-                {currencyFormat(data?.TotalDiscountFC || data?.TotalDiscountSC)}
+                {
+                  <NumericFormat
+                    value={data?.TotalDiscountFC || data?.TotalDiscountSC}
+                    thousandSeparator
+                    fixedDecimalScale
+                    disabled
+                    className="bg-white w-1/2"
+                    decimalScale={2}
+                  />
+                }
               </div>
             </div>
 
@@ -523,14 +561,32 @@ function Content(props: any) {
               <div className="col-span-6 text-gray-700">Tax</div>
               <div className="col-span-6 text-gray-900">
                 {data?.Currency}{" "}
-                {currencyFormat(data?.VatSumFc || data?.VatSum)}
+                {
+                  <NumericFormat
+                    value={data?.VatSumFc || data?.VatSum}
+                    thousandSeparator
+                    fixedDecimalScale
+                    disabled
+                    className="bg-white w-1/2"
+                    decimalScale={2}
+                  />
+                }
               </div>
             </div>
             <div className="grid grid-cols-12 py-1">
               <div className="col-span-6 text-gray-700">Total</div>
               <div className="col-span-6 text-gray-900">
                 {data?.Currency}{" "}
-                {currencyFormat(data?.DocTotalFc || data?.DocTotalSys)}
+                {
+                  <NumericFormat
+                    value={data?.DocTotalFc || data?.DocTotalSys}
+                    thousandSeparator
+                    fixedDecimalScale
+                    disabled
+                    className="bg-white w-1/2"
+                    decimalScale={2}
+                  />
+                }
               </div>
             </div>
           </div>
@@ -594,7 +650,7 @@ function Logistic(props: any) {
                 {props?.data?.ShipToCode ?? "N/A"}
               </div>
             </div>
-          
+
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Shipping Address</div>
               <div className="col-span-1 text-gray-900">
