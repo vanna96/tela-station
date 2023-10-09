@@ -19,6 +19,7 @@ import React from "react"
 import ContentComponent from "../components/ContentComponents"
 import MaterialReactTable from "material-react-table"
 import { APIContext } from "../../context/APIContext"
+import { useCookies } from "react-cookie"
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -88,6 +89,11 @@ class FormDetail extends Component<any, any> {
               .catch((error) => console.log(error))
           }
 
+          const BPLName = await request(
+            "GET",
+            `/BusinessPlaces(${parseInt(data?.U_tl_bplid)})?$select=BPLName`,
+          ).then(async (res: any) => res?.data?.BPLName).catch(() => {})
+
           let result: any = []
           data?.TL_EXP_CLEAR_LINESCollection?.reduce(function (
             res: any,
@@ -108,6 +114,7 @@ class FormDetail extends Component<any, any> {
           this.setState({
             ...data,
             edit: true,
+            BPLName:BPLName,
             GLCash: data?.U_tl_cashacct,
             Branch: data?.U_tl_bplid,
             loading: false,
@@ -179,7 +186,7 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Currency</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Currency ?? "N/A"}{" "}
+                  {data?.U_tl_doccur ?? "N/A"}{" "}
                   {data?.ExchangeRate > 1 && ` - ${data?.ExchangeRate}`}
                 </div>
               </div>
@@ -250,7 +257,12 @@ function Content(props: any) {
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField defaultValue={numberWithCommas(cell.getValue(0).toFixed(2))}  readOnly={true}/>
+          return (
+            <MUITextField
+              defaultValue={numberWithCommas(cell.getValue(0).toFixed(2))}
+              readOnly={true}
+            />
+          )
         },
       },
       {
@@ -258,7 +270,7 @@ function Content(props: any) {
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField defaultValue={cell.getValue()} readOnly={true}/>
+          return <MUITextField defaultValue={cell.getValue()} readOnly={true} />
         },
       },
     ],

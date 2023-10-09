@@ -87,12 +87,19 @@ class FormDetail extends Component<any, any> {
               })
               .catch((error) => console.log(error))
           }
+
+          const BPLName = await request(
+            "GET",
+            `/BusinessPlaces(${parseInt(data?.U_tl_bplid)})?$select=BPLName`,
+          ).then(async (res: any) => res?.data?.BPLName).catch(() => {})
+
           this.setState({
             ...data,
             edit: true,
             GLCash: data?.U_tl_cashacct,
             Branch: data?.U_tl_bplid,
             loading: false,
+            BPLName:BPLName,
             Items:
               data?.TL_EXPEN_LOG_LINESCollection?.map((item: any) => {
                 return {
@@ -167,7 +174,7 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Currency</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Currency ?? "N/A"}{" "}
+                  {data?.U_tl_doccur ?? "N/A"}{" "}
                   {data?.ExchangeRate > 1 && ` - ${data?.ExchangeRate}`}
                 </div>
               </div>
