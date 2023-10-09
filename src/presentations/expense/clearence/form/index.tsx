@@ -492,7 +492,7 @@ class Form extends CoreFormDocument {
         });
       }
     }, [getPeriod, BranchIDD, serie]);
-
+// 
     return (
       <>
         <LogsModal
