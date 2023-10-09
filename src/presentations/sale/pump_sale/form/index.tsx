@@ -349,30 +349,32 @@ class PumpSaleForm extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-
       await request("POST", "/script/test/PumpSale", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             // const docComments = res.data.Comments;
             // const match = docComments.match(/\d+/);
-            // const docNum = match ? match[0] : null;
+            const docNum = res.data.DocNum;
 
-            // if (docNum) {
-            //   const response = await request(
-            //     "GET",
-            //     `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
-            //   );
+            if (docNum) {
+              const response = await request(
+                "GET",
+                `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
+              );
 
-            //   const orders = response?.data?.value;
-            //   if (orders.length > 0) {
-            //     const docEntry = orders[0]?.DocEntry;
+              const orders = response?.data?.value;
+              if (orders.length > 0) {
+                const docEntry = orders[0]?.DocEntry;
 
-            //     // console.log(`DocEntry: ${docEntry}`);
+                // console.log(`DocEntry: ${docEntry}`);
 
-            //     this.dialog.current?.success("Create Successfully.", docEntry);
-            //   } else {
-            //     console.log(`No matching order found for DocNum ${docNum}`);
-            this.dialog.current?.success("Create Successfully.");
+                this.dialog.current?.success("Create Successfully.", docEntry);
+              } else {
+                console.log(`No matching order found for DocNum ${docNum}`);
+              }
+            } else {
+              console.log("No DocNum found in Comments");
+            }
           } else {
             console.error("Error in POST request:", res.statusText);
           }
@@ -395,7 +397,6 @@ class PumpSaleForm extends CoreFormDocument {
       this.dialog.current?.error(error.message, "Invalid");
     }
   }
-
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
@@ -632,7 +633,7 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
     return {
       ItemCode: item.ItemCode || null,
       Quantity: item.Quantity || null,
-      UnitPrice: item.UnitPrice || item.total,
+      GrossPrice: item.GrossPrice || item.total,
       DiscountPercent: item.DiscountPercent || 0,
       TaxCode: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,

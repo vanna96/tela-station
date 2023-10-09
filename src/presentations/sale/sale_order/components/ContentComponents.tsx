@@ -21,6 +21,7 @@ import shortid from "shortid";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import { bgColor } from "../../../../assets/index";
+import { NumericFormat } from "react-number-format";
 
 interface ContentComponentProps {
   items: any[];
@@ -360,13 +361,17 @@ export default function ContentComponent(props: ContentComponentProps) {
                     Total Before Discount
                   </div>
                   <div className="col-span-6 text-gray-900">
-                    <MUITextField
-                      disabled={props?.data?.isStatusClose || false}
-                      placeholder="0.00"
-                      type="text"
-                      value={currencyFormat(docTotal)}
-                      readonly
+                    <NumericFormat
+                      className="bg-white w-full"
+                      value={docTotal}
+                      thousandSeparator
+                      fixedDecimalScale
                       startAdornment={props?.data?.Currency}
+                      decimalScale={2}
+                      placeholder="0.00"
+                      readonly
+                      customInput={MUITextField}
+                      disabled={props?.data?.isStatusClose || false}
                     />
                   </div>
                 </div>
@@ -400,12 +405,17 @@ export default function ContentComponent(props: ContentComponentProps) {
                   <div className="col-span-6 text-gray-900 ">
                     <div className="grid grid-cols-4">
                       <div className="col-span-4">
-                        <MUITextField
-                          disabled={props?.data?.isStatusClose || false}
-                          placeholder="0.00"
-                          type="text"
+                        <NumericFormat
+                          className="bg-white w-full"
+                          value={discountAmount}
+                          thousandSeparator
+                          fixedDecimalScale
                           startAdornment={props?.data?.Currency}
-                          value={currencyFormat(discountAmount)}
+                          decimalScale={2}
+                          placeholder="0.00"
+                          readonly
+                          customInput={MUITextField}
+                          disabled={props?.data?.isStatusClose || false}
                         />
                       </div>
                     </div>
@@ -415,28 +425,34 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="grid grid-cols-12 py-1">
                   <div className="col-span-6 text-gray-700">Tax</div>
                   <div className="col-span-6 text-gray-900">
-                    <MUITextField
-                      placeholder="0.00"
-                      type="text"
-                      value={currencyFormat(docTaxTotal)}
+                    <NumericFormat
+                      className="bg-white w-full"
+                      value={docTaxTotal}
+                      thousandSeparator
+                      fixedDecimalScale
                       startAdornment={props?.data?.Currency}
-                      disabled={props?.data?.isStatusClose || false}
+                      decimalScale={2}
+                      placeholder="0.00"
                       readonly
+                      customInput={MUITextField}
+                      disabled={props?.data?.isStatusClose || false}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-12 py-1">
                   <div className="col-span-6 text-gray-700">Total</div>
                   <div className="col-span-6 text-gray-900">
-                    <MUITextField
-                      placeholder="0.00"
-                      type="text"
+                    <NumericFormat
+                      className="bg-white w-full"
+                      value={TotalPaymentDue}
+                      thousandSeparator
+                      fixedDecimalScale
                       startAdornment={props?.data?.Currency}
+                      decimalScale={2}
+                      placeholder="0.00"
+                      readonly
+                      customInput={MUITextField}
                       disabled={props?.data?.isStatusClose || false}
-                      key={TotalPaymentDue.toString()}
-                      defaultValue={parseFloat(
-                        TotalPaymentDue.toString()
-                      ).toFixed(2)}
                     />
                   </div>
                 </div>

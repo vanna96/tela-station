@@ -6,7 +6,9 @@ import NumberFormat, {
 import TextField from "@mui/material/TextField";
 
 interface CustomProps {
-  onChange: (event: { target: { name: string; value: string } }) => void;
+  onChange: (event: {
+    target: { name: string; value: number | undefined };
+  }) => void;
   name: string;
 }
 
@@ -24,7 +26,7 @@ export const NumberFormatCustom = React.forwardRef<
         onChange({
           target: {
             name: props.name,
-            value: values.value,
+            value: values.floatValue,
           },
         });
       }}
@@ -45,12 +47,22 @@ interface FormattedInputsProps {
   defaultValue?: string;
   label?: string;
   startAdornment?: string;
+  placeholder?: string;
   disabled?: boolean;
-  readOnly?: boolean
+  readOnly?: boolean;
 }
 
 export default function FormattedInputs(props: FormattedInputsProps) {
-  const { value, onChange, name, onBlur, startAdornment, defaultValue , readOnly} = props;
+  const {
+    value,
+    onChange,
+    name,
+    onBlur,
+    startAdornment,
+    defaultValue,
+    readOnly,
+    placeholder,
+  } = props;
   const disabeld = props.disabled;
 
   return (
@@ -64,6 +76,7 @@ export default function FormattedInputs(props: FormattedInputsProps) {
         defaultValue={defaultValue}
         onChange={onChange}
         name={name}
+        placeholder={placeholder}
         fullWidth
         onBlur={onBlur}
         className={`w-full text-xs text-field pr-0 ${

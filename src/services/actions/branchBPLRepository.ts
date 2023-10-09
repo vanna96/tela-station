@@ -29,7 +29,7 @@ export default class BranchBPLRepository extends Repository<BranchBPL> {
         const data = localStorage.getItem(this.key);
         if (!data) return {};
         const branchs: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
-        return branchs.find((e: any) => e?.Code == code);
+        return branchs.find((e: any) => e?.BPLID == code);
     }
 
     post(payload: any, isUpdate?: boolean | undefined, id?: any): Promise<BranchBPL> {
