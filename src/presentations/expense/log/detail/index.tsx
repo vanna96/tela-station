@@ -233,7 +233,7 @@ function Content(props: any) {
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField type="number" defaultValue={numberWithCommas(cell.getValue(0).toFixed(2))} readOnly={true} />
+          return <MUITextField  defaultValue={numberWithCommas(cell.getValue(0).toFixed(2))} readOnly={true} />
         },
       },
       {

@@ -1,29 +1,29 @@
-import React, { useMemo } from "react"
-import MaterialReactTable from "material-react-table"
-import { Button, Checkbox, IconButton } from "@mui/material"
-import { AiOutlineSetting } from "react-icons/ai"
-import FormCard from "@/components/card/FormCard"
-import { TbSettings } from "react-icons/tb"
-import Modal from "@/components/modal/Modal"
-import { BiSearch } from "react-icons/bi"
-import MUITextField from "@/components/input/MUITextField"
-import shortid from "shortid"
-import { numberWithCommas } from "@/helper/helper"
+import React, { useMemo } from "react";
+import MaterialReactTable from "material-react-table";
+import { Button, Checkbox, IconButton } from "@mui/material";
+import { AiOutlineSetting } from "react-icons/ai";
+import FormCard from "@/components/card/FormCard";
+import { TbSettings } from "react-icons/tb";
+import Modal from "@/components/modal/Modal";
+import { BiSearch } from "react-icons/bi";
+import MUITextField from "@/components/input/MUITextField";
+import shortid from "shortid";
+import { NumericFormat } from "react-number-format";
 
 interface ContentComponentProps {
-  items: any[]
-  onChange?: (key: any, value: any) => void
-  columns: any[]
-  type?: String
-  labelType?: String
-  typeLists?: any[]
-  onRemoveChange?: (record: any[]) => void
-  readOnly?: boolean
-  viewOnly?: boolean
-  data: any
-  loading: boolean
-  isNotAccount: any
-  handlerAddSequence: any
+  items: any[];
+  onChange?: (key: any, value: any) => void;
+  columns: any[];
+  type?: String;
+  labelType?: String;
+  typeLists?: any[];
+  onRemoveChange?: (record: any[]) => void;
+  readOnly?: boolean;
+  viewOnly?: boolean;
+  data: any;
+  loading: boolean;
+  isNotAccount: any;
+  handlerAddSequence: any;
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
@@ -80,7 +80,7 @@ export default function ContentComponent(props: ContentComponentProps) {
     >
       <>
         <div className="col-span-2 data-table">
-          <MaterialReactTable
+        <MaterialReactTable
             columns={columns}
             data={[...props?.data?.Items]}
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
@@ -133,12 +133,16 @@ export default function ContentComponent(props: ContentComponentProps) {
                   </span>
                 </div>
                 <div className="col-span-3">
-                  <MUITextField
+                  <NumericFormat
                     placeholder="0.00"
-                    type="text"
+                    thousandSeparator
                     startAdornment={props?.data?.Currency}
+                    decimalScale={2}
+                    className="bg-white"
+                    fixedDecimalScale
+                    customInput={MUITextField}
                     readOnly={true}
-                    value={numberWithCommas((itemInvoicePrices || 0).toFixed(2))}
+                    value={itemInvoicePrices || 0}
                   />
                 </div>
               </div>
@@ -150,19 +154,19 @@ export default function ContentComponent(props: ContentComponentProps) {
           columns={props.columns}
           visibles={colVisibility}
           onSave={(value) => {
-            setColVisibility(value)
+            setColVisibility(value);
           }}
         />
       </>
     </FormCard>
-  )
+  );
 }
 
 interface ContentTableSelectColumnProps {
-  ref?: React.RefObject<ContentTableSelectColumn | undefined>
-  onSave?: (value: any) => void
-  columns: any[]
-  visibles: any
+  ref?: React.RefObject<ContentTableSelectColumn | undefined>;
+  onSave?: (value: any) => void;
+  columns: any[];
+  visibles: any;
 }
 
 class ContentTableSelectColumn extends React.Component<
@@ -170,51 +174,52 @@ class ContentTableSelectColumn extends React.Component<
   any
 > {
   constructor(props: any) {
-    super(props)
+    super(props);
 
     this.state = {
       open: false,
       searchColumn: "",
       showChecks: false,
       visibles: {},
-    } as any
+    } as any;
 
-    this.onOpen = this.onOpen.bind(this)
-    this.onClose = this.onClose.bind(this)
-    this.onSave = this.onSave.bind(this)
-    this.handChange = this.handChange.bind(this)
-    this.handlerChangeColVisibility = this.handlerChangeColVisibility.bind(this)
+    this.onOpen = this.onOpen.bind(this);
+    this.onClose = this.onClose.bind(this);
+    this.onSave = this.onSave.bind(this);
+    this.handChange = this.handChange.bind(this);
+    this.handlerChangeColVisibility =
+      this.handlerChangeColVisibility.bind(this);
   }
 
   componentDidMount(): void {}
 
   onOpen(data?: any) {
-    this.setState({ open: true, visibles: { ...this.props.visibles } })
+    this.setState({ open: true, visibles: { ...this.props.visibles } });
   }
 
   onClose() {
-    this.setState({ open: false })
+    this.setState({ open: false });
   }
 
   onSave() {
     if (this.props.onSave) {
-      this.props.onSave(this.state.visibles)
+      this.props.onSave(this.state.visibles);
     }
 
-    this.setState({ open: false })
+    this.setState({ open: false });
   }
 
   handChange(event: any) {
-    this.setState({ ...this.state, searchColumn: event.target.value })
+    this.setState({ ...this.state, searchColumn: event.target.value });
   }
 
   handlerChangeColVisibility(event: any, field: string) {
-    const visibles = { ...this.state.visibles }
-    visibles[field] = event.target.checked
+    const visibles = { ...this.state.visibles };
+    visibles[field] = event.target.checked;
     this.setState({
       ...this.state,
       visibles: { ...this.props.visibles, ...visibles },
-    })
+    });
   }
 
   render() {
@@ -264,7 +269,7 @@ class ContentTableSelectColumn extends React.Component<
               .filter((val) =>
                 val.header
                   .toLowerCase()
-                  .includes(this.state.searchColumn.toLowerCase()),
+                  .includes(this.state.searchColumn.toLowerCase())
               )
               .map((e) => (
                 <li key={shortid.generate()} className={`border-b`}>
@@ -281,6 +286,6 @@ class ContentTableSelectColumn extends React.Component<
           </ul>
         </div>
       </Modal>
-    )
+    );
   }
 }
