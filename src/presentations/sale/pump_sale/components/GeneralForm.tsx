@@ -15,6 +15,7 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import AccountTextField from "@/components/input/AccountTextField";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -335,18 +336,15 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <AccountTextField
-                name="accountCode"
-                value={data?.CashAccount ?? ""}
-                onChange={(e) =>
-                  handlerChange("CashAccount", e.target.value?.code)
-                }
+              <CashACAutoComplete
+                onChange={(e: any) => handlerChange("GLCash", e)}
+                value={data?.GLCash}
+                disabled={data?.edit}
               />
             </div>
-        </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
