@@ -187,6 +187,7 @@ class Form extends CoreFormDocument {
         CreateDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
         U_tl_cashacct: data?.GLCash,
         U_tl_bplid: data?.Branch,
+        U_tl_doccur: data?.Currency || sysInfo?.SystemCurrency,
         TL_EXPEN_LOG_LINESCollection:
           data?.Items?.map((item: any) => {
             return {

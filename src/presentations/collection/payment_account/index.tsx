@@ -6,13 +6,13 @@ import DataTable from "./components/DataTable"
 import VisibilityIcon from "@mui/icons-material/Visibility"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 import MUITextField from "@/components/input/MUITextField"
-import BPAutoComplete from "@/components/input/BPAutoComplete"
 import { Button } from "@mui/material"
 import { ModalAdaptFilter } from "./components/ModalAdaptFilter"
 import MUIDatePicker from "@/components/input/MUIDatePicker"
 import BPLBranchSelect from "@/components/selectbox/BranchBPL"
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
 import { useCookies } from "react-cookie"
+import BranchBPLRepository from "@/services/actions/branchBPLRepository"
 
 export default function ReturnRequestLists() {
   const [open, setOpen] = React.useState<boolean>(false)
@@ -25,6 +25,10 @@ export default function ReturnRequestLists() {
     bplid: -2,
   })
   const route = useNavigate()
+  const { data: branchBPL }: any = useQuery({
+    queryKey: ["branchBPL"],
+    queryFn: () => new BranchBPLRepository().get(),
+  })
   const columns = React.useMemo(
     () => [
       {
@@ -60,6 +64,15 @@ export default function ReturnRequestLists() {
         header: "Customer Name",
         visible: true,
         type: "string",
+      },
+      {
+        accessorKey: "BPLID",
+        header: "Branch",
+        visible: true,
+        Cell: ({ cell }: any) => branchBPL.find(
+          ({ BPLID }: any) => BPLID === cell.getValue(),
+        )?.BPLName,
+          
       },
       {
         accessorKey: "DocEntry",

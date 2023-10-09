@@ -187,8 +187,6 @@ class Form extends CoreFormDocument {
         )
       }
 
-      console.log(data?.Logs)
-
       const payload = {
         OGSeries: find?.Series || "",
         // Series: data?.Series || null,
