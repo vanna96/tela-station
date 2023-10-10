@@ -100,19 +100,20 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             {location.pathname.split("/")[2].replace("-", " ")} -{" "}
             {props?.data?.DocNum}
           </h1>
-          {!(location.pathname.includes("edit") || !id) && (
-            <div className="">
-              <Button
-                variant="outlined"
-                size="small"
-                // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
-                onClick={navigateToEdit}
-                endIcon={<MdEdit />}
-              >
-                Edit
-              </Button>
-            </div>
-          )}
+          {props.data.DocumentStatus === "bost_Close" ||
+            (!(location.pathname.includes("edit") || !id) && (
+              <div className="">
+                <Button
+                  variant="outlined"
+                  size="small"
+                  // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
+                  onClick={navigateToEdit}
+                  endIcon={<MdEdit />}
+                >
+                  Edit
+                </Button>
+              </div>
+            ))}
           {(location.pathname.includes("edit") || id) && (
             <Button
               variant="outlined"
