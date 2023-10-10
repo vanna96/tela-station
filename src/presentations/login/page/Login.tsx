@@ -105,6 +105,7 @@ export default function Login() {
       await new ProjectRepository().get(),
       await new CurrencyRepository().get(),
       await new WareBinLocationRepository().get(),
+      await new ChartOfAccountsRepository().get()
     ]);
   }
 
