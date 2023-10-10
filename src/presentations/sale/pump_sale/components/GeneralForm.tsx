@@ -16,6 +16,7 @@ import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import AccountTextField from "@/components/input/AccountTextField";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import CashAccount from '@/components/selectbox/CashAccount';
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -312,6 +313,22 @@ export default function GeneralForm({
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Cash Account<span className="text-red-500">{" "}*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <CashACAutoComplete
+                onChange={(e: any) => handlerChange("CashAccount", e)}
+                value={data?.CashAccount}
+                disabled={data?.edit}
+              />
+              {data.CashAccount}
+            </div>
+          </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -325,21 +342,6 @@ export default function GeneralForm({
                   handlerChange("U_tl_arbusi", e.target.value);
                   onLineofBusinessChange(e.target.value);
                 }}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Cash Account
-              </label>
-            </div>
-            <div className="col-span-3">
-              <CashACAutoComplete
-                onChange={(e: any) => handlerChange("GLCash", e)}
-                value={data?.GLCash}
-                disabled={data?.edit}
               />
             </div>
           </div>
