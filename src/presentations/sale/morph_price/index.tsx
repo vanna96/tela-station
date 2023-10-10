@@ -381,7 +381,7 @@ export default function MorphPriceLists() {
                   }}
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
@@ -410,7 +410,7 @@ export default function MorphPriceLists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -429,12 +429,8 @@ export default function MorphPriceLists() {
                   handlerClearFilter={handlerRefresh}
                   title={
                     <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Adapt Filter
+                      <Button variant="outlined" size="small">
+                        Filter
                       </Button>
                     </div>
                   }
@@ -445,7 +441,7 @@ export default function MorphPriceLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" &&
+                      // e?.accessorKey !== "DocumentStatus" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}
