@@ -596,13 +596,13 @@ class PumpSaleForm extends CoreFormDocument {
               <div className="flex ">
                 <LoadingButton
                   size="small"
-                  sx={{ height: "28px" }}
                   variant="contained"
-                  disableElevation
+                  style={{ textTransform: "none" }}
+                  onClick={() => {
+                    window.history.back();
+                  }}
                 >
-                  <span className="px-3 text-[12px] py-1 text-white">
-                    Copy To
-                  </span>
+                  Cancel
                 </LoadingButton>
               </div>
               <div className="flex items-center">
