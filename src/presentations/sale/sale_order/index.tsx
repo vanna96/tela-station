@@ -125,7 +125,9 @@ export default function SaleOrderLists() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <button
+            <Button
+              variant="outlined"
+              size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route("/sale/sales-order/" + cell.row.original.DocEntry, {
@@ -135,10 +137,19 @@ export default function SaleOrderLists() {
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              View
-            </button>
-            <button
-              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
+              <span style={{ textTransform: "none" }}>View</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={
+                cell.row.original.DocumentStatus === "bost_Close" ?? false
+              }
+              className={`${
+                cell.row.original.DocumentStatus === "bost_Close"
+                  ? "bg-gray-400"
+                  : ""
+              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/sale/sales-order/" + cell.row.original.DocEntry + "/edit",
@@ -153,8 +164,8 @@ export default function SaleOrderLists() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              Edit
-            </button>
+              <span style={{ textTransform: "none" }}> Edit</span>
+            </Button>
           </div>
         ),
       },
@@ -233,13 +244,8 @@ export default function SaleOrderLists() {
   };
 
   const handlerSearch = (value: string) => {
-    let query = "";
-    if (value.trim() !== "") {
-      // If there is a value in the search, apply the filter
-      query = "&$filter=" + value.trim();
-    }
-
-    setFilter(query);
+    const qurey = value;
+    setFilter(qurey);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
