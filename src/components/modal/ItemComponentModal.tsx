@@ -42,13 +42,11 @@ const ItemModal: FC<ItemModalProps> = ({
   const [filterKey, setFilterKey] = React.useState("key-id");
 
   const itemsGroupCodes = [100, 101, 102];
-  const { data, isLoading }: any = useQuery({
+  const { data, isFetching }: any = useQuery({
     queryKey: ["items"],
     queryFn: () =>
       new itemRepository().getSaleItem(
-        `&$filter=ItemType eq 'itItems' and (ItemsGroupCode eq ${itemsGroupCodes.join(
-          " or ItemsGroupCode eq "
-        )}) &$orderby=ItemCode asc`
+        ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
     staleTime: Infinity,
   });
@@ -323,7 +321,7 @@ const ItemModal: FC<ItemModalProps> = ({
                       })}
                       state={{
                         globalFilter,
-                        isLoading,
+                        isLoading: isFetching,
                         pagination: pagination,
                         rowSelection,
                       }}

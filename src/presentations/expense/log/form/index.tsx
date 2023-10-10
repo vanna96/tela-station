@@ -1,30 +1,31 @@
-import CoreFormDocument from "@/components/core/CoreFormDocument"
-import { withRouter } from "@/routes/withRouter"
-import { LoadingButton } from "@mui/lab"
-import DocumentSerieRepository from "@/services/actions/documentSerie"
-import MenuButton from "@/components/button/MenuButton"
-import { FormValidateException } from "@/utilies/error"
-import LoadingProgress from "@/components/LoadingProgress"
+import CoreFormDocument from "@/components/core/CoreFormDocument";
+import { withRouter } from "@/routes/withRouter";
+import { LoadingButton } from "@mui/lab";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
+import MenuButton from "@/components/button/MenuButton";
+import { FormValidateException } from "@/utilies/error";
+import LoadingProgress from "@/components/LoadingProgress";
 
-import GeneralForm from "./../components/GeneralForm"
-import ContentForm from "./../components/ContentForm"
-import AttachmentForm from "../components/AttachmentForm"
-import React, { useContext } from "react"
-import { ServiceModalComponent } from "../components/ServiceModalComponent"
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper"
-import request from "@/utilies/request"
-import BusinessPartner from "@/models/BusinessParter"
-import { arrayBufferToBlob } from "@/utilies"
-import shortid from "shortid"
-import PaymentForm from "../components/PaymentForm"
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
-import { APIContext } from "../../context/APIContext"
+import GeneralForm from "./../components/GeneralForm";
+import ContentForm from "./../components/ContentForm";
+import AttachmentForm from "../components/AttachmentForm";
+import React, { useContext } from "react";
+import { ServiceModalComponent } from "../components/ServiceModalComponent";
+import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
+import request from "@/utilies/request";
+import BusinessPartner from "@/models/BusinessParter";
+import { arrayBufferToBlob } from "@/utilies";
+import shortid from "shortid";
+import PaymentForm from "../components/PaymentForm";
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import { APIContext } from "../../context/APIContext";
+import { Alert, Snackbar, Button } from "@mui/material";
 
 class Form extends CoreFormDocument {
-  serviceRef = React.createRef<ServiceModalComponent>()
+  serviceRef = React.createRef<ServiceModalComponent>();
 
   constructor(props: any) {
-    super(props)
+    super(props);
     this.state = {
       ...this.state,
       DocType: "rSupplier",
@@ -35,75 +36,75 @@ class Form extends CoreFormDocument {
       LineofBusiness: "",
       SalesPersonCode: "",
       Branch: 1,
-    } as any
+    } as any;
 
-    this.onInit = this.onInit.bind(this)
-    this.handlerRemoveItem = this.handlerRemoveItem.bind(this)
-    this.handlerSubmit = this.handlerSubmit.bind(this)
-    this.handlerChangeMenu = this.handlerChangeMenu.bind(this)
-    this.hanndAddNewItem = this.hanndAddNewItem.bind(this)
-    this.hanndResetState = this.hanndResetState.bind(this)
-    this.incoming = this.incoming.bind(this)
+    this.onInit = this.onInit.bind(this);
+    this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
+    this.handlerSubmit = this.handlerSubmit.bind(this);
+    this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
+    this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
+    this.hanndResetState = this.hanndResetState.bind(this);
+    this.incoming = this.incoming.bind(this);
   }
 
   componentDidMount(): void {
-    this.setState({ loading: true })
-    this.onInit()
+    this.setState({ loading: true });
+    this.onInit();
   }
 
   async onInit() {
-    let state: any = { ...this.state }
-    let seriesList: any = this.props?.query?.find("return-series")
-    let defaultSeries: any = this.props?.query?.find("return-default-series")
+    let state: any = { ...this.state };
+    let seriesList: any = this.props?.query?.find("return-series");
+    let defaultSeries: any = this.props?.query?.find("return-default-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "24",
-      })
-      this.props?.query?.set("return-series", seriesList)
+      });
+      this.props?.query?.set("return-series", seriesList);
     }
 
     if (!defaultSeries) {
       defaultSeries = await DocumentSerieRepository.getDefaultDocumentSerie({
         Document: "24",
-      })
-      this.props?.query?.set("return-default-series", defaultSeries)
+      });
+      this.props?.query?.set("return-default-series", defaultSeries);
     }
 
     if (this.props.edit) {
-      const { id }: any = this.props?.match?.params || 0
+      const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_ExpLog(${id})`)
         .then(async (res: any) => {
-          const data: any = res?.data
+          const data: any = res?.data;
           // vendor
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`,
+            `/BusinessPartners('${data?.CardCode}')`
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err))
+            .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = []
+          let AttachmentList: any = [];
 
           if (data?.AttachmentEntry > 0) {
             AttachmentList = await request(
               "GET",
-              `/Attachments2(${data?.AttachmentEntry})`,
+              `/Attachments2(${data?.AttachmentEntry})`
             )
               .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines
-                if (attachments.length <= 0) return
+                const attachments: any = res?.data?.Attachments2_Lines;
+                if (attachments.length <= 0) return;
 
                 const files: any = attachments.map(async (e: any) => {
                   const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`,
-                  )
+                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
+                  );
                   const blob: any = await arrayBufferToBlob(
                     req.data,
                     req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`,
-                  )
+                    `${e?.FileName}.${e?.FileExtension}`
+                  );
 
                   return {
                     id: shortid.generate(),
@@ -114,11 +115,11 @@ class Form extends CoreFormDocument {
                     Extension: `.${e?.FileExtension}`,
                     FreeText: "",
                     AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  }
-                })
-                return await Promise.all(files)
+                  };
+                });
+                return await Promise.all(files);
               })
-              .catch((error) => console.log(error))
+              .catch((error) => console.log(error));
           }
 
           state = {
@@ -133,43 +134,43 @@ class Form extends CoreFormDocument {
                   ExpenseName: item?.U_tl_expdesc,
                   Amount: item?.U_tl_linetotal,
                   Remark: item?.U_tl_remark,
-                }
+                };
               }) || [],
-          }
+          };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
-          state["SerieLists"] = seriesList
-          state["Series"] = defaultSeries.Series
-          state["loading"] = false
-          state["isLoadingSerie"] = false
-          this.setState(state)
-        })
+          state["SerieLists"] = seriesList;
+          state["Series"] = defaultSeries.Series;
+          state["loading"] = false;
+          state["isLoadingSerie"] = false;
+          this.setState(state);
+        });
     } else {
-      state["SerieLists"] = seriesList
-      state["Series"] = defaultSeries.Series
-      state["DocNum"] = defaultSeries.NextNumber
-      state["loading"] = false
-      state["isLoadingSerie"] = false
-      this.setState(state)
+      state["SerieLists"] = seriesList;
+      state["Series"] = defaultSeries.Series;
+      state["DocNum"] = defaultSeries.NextNumber;
+      state["loading"] = false;
+      state["isLoadingSerie"] = false;
+      this.setState(state);
     }
   }
 
   handlerRemoveItem(code: string) {
-    let items = [...(this.state.Items ?? [])]
-    const index = items.findIndex((e: any) => e?.ItemCode === code)
-    items.splice(index, 1)
-    this.setState({ ...this.state, Items: items })
+    let items = [...(this.state.Items ?? [])];
+    const index = items.findIndex((e: any) => e?.ItemCode === code);
+    items.splice(index, 1);
+    this.setState({ ...this.state, Items: items });
   }
 
   async handlerSubmit(event: any, sysInfo: any) {
-    event.preventDefault()
-    const data: any = { ...this.state }
+    event.preventDefault();
+    const data: any = { ...this.state };
 
     try {
-      this.setState({ ...this.state, isSubmitting: false })
-      await new Promise((resolve) => setTimeout(() => resolve(""), 800))
-      const { id } = this.props?.match?.params || 0
+      this.setState({ ...this.state, isSubmitting: false });
+      await new Promise((resolve) => setTimeout(() => resolve(""), 800));
+      const { id } = this.props?.match?.params || 0;
 
       // if (!data.CardCode) {
       //   data["error"] = { CardCode: "Customer is Required!" }
@@ -177,14 +178,16 @@ class Form extends CoreFormDocument {
       // }
 
       // attachment
-      let TL_ATTECHCollection = null
-      const files = data?.AttachmentList?.map((item: any) => item)
-      if (files?.length > 0) TL_ATTECHCollection = await getAttachment(files)
+      let TL_ATTECHCollection = null;
+      const files = data?.AttachmentList?.map((item: any) => item);
+      if (files?.length > 0) TL_ATTECHCollection = await getAttachment(files);
 
       // on Edit
       const payload = {
         // Series: data?.Series || null,
-        CreateDate: `${formatDate(data?.PostingDate || new Date())}"T00:00:00Z"`,
+        CreateDate: `${formatDate(
+          data?.PostingDate || new Date()
+        )}"T00:00:00Z"`,
         U_tl_cashacct: data?.GLCash,
         U_tl_bplid: data?.Branch,
         U_tl_doccur: data?.Currency || sysInfo?.SystemCurrency,
@@ -196,22 +199,23 @@ class Form extends CoreFormDocument {
               U_tl_expdesc: item?.ExpenseName,
               U_tl_linetotal: item?.Amount,
               U_tl_remark: item?.Remark,
-            }
+            };
           }) || [],
         U_tl_doctotal:
           data?.Items?.reduce((prev: number, item: any) => {
-            return prev + parseFloat(item?.Amount || 0)
+            return prev + parseFloat(item?.Amount || 0);
           }, 0) || 0,
         // TL_ATTECHCollection,
-      }
+      };
 
       if (id) {
         return await request("PATCH", `/TL_ExpLog(${id})`, payload)
           .then(
-            (res: any) => this.dialog.current?.success("Update Successfully.", id),
+            (res: any) =>
+              this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
-          .finally(() => this.setState({ ...this.state, isSubmitting: false }))
+          .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
       await request("POST", "/TL_ExpLog", payload)
@@ -219,25 +223,25 @@ class Form extends CoreFormDocument {
           (res: any) =>
             this.dialog.current?.success(
               "Create Successfully.",
-              res?.data?.DocEntry,
-            ),
+              res?.data?.DocEntry
+            )
         )
         .catch((err: any) => this.dialog.current?.error(err.message))
-        .finally(() => this.setState({ ...this.state, isSubmitting: false }))
+        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
     } catch (error: any) {
       if (error instanceof FormValidateException) {
-        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap })
-        this.dialog.current?.error(error.message, "Invalid")
-        return
+        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
+        this.dialog.current?.error(error.message, "Invalid");
+        return;
       }
 
-      this.setState({ ...data, isSubmitting: false })
-      this.dialog.current?.error(error.message, "Invalid")
+      this.setState({ ...data, isSubmitting: false });
+      this.dialog.current?.error(error.message, "Invalid");
     }
   }
 
   async handlerChangeMenu(index: number) {
-    this.setState({ ...this.state, tapIndex: index })
+    this.setState({ ...this.state, tapIndex: index });
   }
 
   hanndResetState(props: any) {
@@ -302,89 +306,168 @@ class Form extends CoreFormDocument {
       disable: {},
       tapIndex: 0,
       error: {},
+      tabErrors: {
+        // Initialize error flags for each tab
+        general: false,
+        content: false,
+        logistic: false,
+        attachment: false,
+      },
+      isDialogOpen: false,
       ...props,
-    } as any)
+    } as any);
   }
+
+  handleNextTab = () => {
+    const currentTab = this.state.tapIndex;
+    const requiredFields = this.getRequiredFieldsByTab(currentTab);
+    const hasErrors = requiredFields.some((field: any) => {
+      if (field === "Items") {
+        return (
+          !this?.state[field] ||
+          this.state[field]?.length === 0 ||
+          this.state[field]?.some((field: any) => {
+            return field.ExpenseCode === "" || field.Amount === "";
+          })
+        );
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      // Show the dialog if there are errors
+      this.setState({ isDialogOpen: true });
+    } else {
+      // If no errors, allow the user to move to the next tab
+      this.handlerChangeMenu(currentTab + 1);
+    }
+  };
+
+  handleCloseDialog = () => {
+    // Close the dialog
+    this.setState({ isDialogOpen: false });
+  };
+
+  getRequiredFieldsByTab(tabIndex: number): string[] {
+    const requiredFieldsMap: { [key: number]: string[] } = {
+      0: ["GLCash"],
+      1: ["Items"],
+      2: [],
+    };
+    return requiredFieldsMap[tabIndex] || [];
+  }
+
+  handlePreviousTab = () => {
+    if (this.state.tapIndex > 0) {
+      this.handlerChangeMenu(this.state.tapIndex - 1);
+    }
+  };
 
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={this.state.tapIndex === 0}
-          onClick={() => this.handlerChangeMenu(0)}
-        >
-          General
-        </MenuButton>
-        {/* <MenuButton
-          active={this.state.tapIndex === 1}
-          onClick={() => this.handlerChangeMenu(1)}
-        >
-          Payment Means
-        </MenuButton> */}
-        <MenuButton
-          active={this.state.tapIndex === 2}
-          onClick={() => this.handlerChangeMenu(2)}
-        >
-          Content
-        </MenuButton>
-        <MenuButton
-          active={this.state.tapIndex === 3}
-          onClick={() => this.handlerChangeMenu(3)}
-        >
-          Attachment
-        </MenuButton>
+        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
+        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
+        <MenuButton active={this.state.tapIndex === 2}>Attachment</MenuButton>
+        <div className="sticky w-full bottom-4   ">
+          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
+            <div className="flex ">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={this.handlePreviousTab}
+                disabled={this.state.tapIndex === 0}
+                style={{ textTransform: "none" }}
+              >
+                Previous
+              </Button>
+            </div>
+            <div className="flex items-center">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={this.handleNextTab}
+                disabled={this.state.tapIndex === 3}
+                style={{ textTransform: "none" }}
+              >
+                Next
+              </Button>
+
+              <Snackbar
+                open={this.state.isDialogOpen}
+                autoHideDuration={6000}
+                onClose={this.handleCloseDialog}
+              >
+                <Alert
+                  onClose={this.handleCloseDialog}
+                  severity="error"
+                  sx={{ width: "100%" }}
+                >
+                  Please complete all required fields before proceeding to the
+                  next tab.
+                </Alert>
+              </Snackbar>
+            </div>
+          </div>
+        </div>
       </>
-    )
-  }
+    );
+  };
 
   hanndAddNewItem() {
-    this.serviceRef.current?.onOpen(this.state?.CardCode)
+    this.serviceRef.current?.onOpen();
   }
 
   incoming: any = async (data: any, LineOfBussiness: any) => {
-    let filter: any = []
-    if (!this.state?.CardCode) return
+    let filter: any = [];
+    if (!this.state?.CardCode) return;
     //
-    if (this.state?.CardCode) filter.push(`BPCode eq '${this.state?.CardCode}'`)
-    if (this.state?.Branch) filter.push(`BPLId eq ${this.state?.Branch}`)
+    if (this.state?.CardCode)
+      filter.push(`BPCode eq '${this.state?.CardCode}'`);
+    if (this.state?.Branch) filter.push(`BPLId eq ${this.state?.Branch}`);
     if (
       !(
         (this.state?.SalesPersonCode || "") == "" ||
         this.state?.SalesPersonCode == "-1"
       )
     )
-      filter.push(` SlpCode eq ${this.state?.SalesPersonCode}`)
+      filter.push(` SlpCode eq ${this.state?.SalesPersonCode}`);
     if (this.state?.Lob) {
       const FactorDescription = LineOfBussiness?.find(
-        ({ FactorCode }: any) => FactorCode === this.state?.Lob,
-      )?.FactorDescription
-      filter.push(` NumAtCard eq '${FactorDescription}'`)
+        ({ FactorCode }: any) => FactorCode === this.state?.Lob
+      )?.FactorDescription;
+      filter.push(` NumAtCard eq '${FactorDescription}'`);
     }
 
     await request(
       "GET",
       `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and ${filter.join(
-        " and ",
-      )}`,
+        " and "
+      )}`
     )
       .then((res: any) => {
         const results = res.data?.value
           ?.sort(
-            (a: any, b: any) => parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
+            (a: any, b: any) =>
+              parseInt(b.OverDueDays) - parseInt(a.OverDueDays)
           )
-          .filter(({ DocStatus }: any) => DocStatus === "O")
-        this.setState({ ...this.state, Items: results, ContentLoading: false })
+          .filter(({ DocStatus }: any) => DocStatus === "O");
+        this.setState({ ...this.state, Items: results, ContentLoading: false });
       })
-      .catch((err: any) => this.setState({ ...this.state, ContentLoading: false }))
-  }
+      .catch((err: any) =>
+        this.setState({ ...this.state, ContentLoading: false })
+      );
+  };
 
   FormRender = () => {
-    let { sysInfo, getPeriod }: any = useContext(APIContext)
-    let BranchIDD: any = this.state?.Branch || ""
-    let SerieListsData: any = this.state?.SerieLists || []
+    let { sysInfo, getPeriod }: any = useContext(APIContext);
+    let BranchIDD: any = this.state?.Branch || "";
+    let SerieListsData: any = this.state?.SerieLists || [];
 
-    let prevData = usePrevious({ BranchIDD })
-    let serie = this.state?.SerieLists?.find(({ BPLID }: any) => BPLID === BranchIDD)
+    let prevData = usePrevious({ BranchIDD });
+    let serie = this.state?.SerieLists?.find(
+      ({ BPLID }: any) => BPLID === BranchIDD
+    );
 
     React.useEffect(() => {
       if (!this.props.edit) {
@@ -394,7 +477,7 @@ class Form extends CoreFormDocument {
             Series: serie?.Series,
             DocNum: serie?.NextNumber,
             loading: false,
-          })
+          });
         }
       }
 
@@ -403,9 +486,9 @@ class Form extends CoreFormDocument {
           ...this.state,
           GLCash: getPeriod?.AccountforCashReceipt,
           loading: false,
-        })
+        });
       }
-    }, [getPeriod, BranchIDD, serie])
+    }, [getPeriod, BranchIDD, serie]);
 
     return (
       <>
@@ -430,15 +513,17 @@ class Form extends CoreFormDocument {
                     hanndResetState={this.hanndResetState}
                     data={this.state}
                     edit={this.props?.edit}
-                    handlerChange={(key, value) => this.handlerChange(key, value)}
+                    handlerChange={(key, value) =>
+                      this.handlerChange(key, value)
+                    }
                   />
                 )}
 
-                {this.state.tapIndex === 2 && (
+                {this.state.tapIndex === 1 && (
                   <ContentForm
                     data={this.state}
                     handlerAddItem={() => {
-                      this.hanndAddNewItem()
+                      this.hanndAddNewItem();
                     }}
                     handlerRemoveItem={(items: any[]) =>
                       this.setState({ ...this.state, Items: items })
@@ -450,11 +535,11 @@ class Form extends CoreFormDocument {
                   />
                 )}
 
-                {this.state.tapIndex === 3 && (
+                {this.state.tapIndex === 2 && (
                   <AttachmentForm
                     data={this.state}
                     handlerChange={(key: any, value: any) => {
-                      this.handlerChange(key, value)
+                      this.handlerChange(key, value);
                     }}
                   />
                 )}
@@ -471,7 +556,9 @@ class Form extends CoreFormDocument {
                     variant="contained"
                     disableElevation
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">Cancel</span>
+                    <span className="px-3 text-[11px] py-1 text-white">
+                      Cancel
+                    </span>
                   </LoadingButton>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -494,16 +581,16 @@ class Form extends CoreFormDocument {
           )}
         </form>
       </>
-    )
-  }
+    );
+  };
 }
 
-export default withRouter(Form)
+export default withRouter(Form);
 
 function usePrevious(value: any) {
-  const ref: any = React.useRef()
+  const ref: any = React.useRef();
   React.useEffect(() => {
-    ref.current = value
-  })
-  return ref.current
+    ref.current = value;
+  });
+  return ref.current;
 }

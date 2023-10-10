@@ -100,7 +100,7 @@ export default function Login() {
       await new ManufacturerRepository().get(),
 
       // vanna new modified
-      await new ChartOfAccountsRepository().get(),
+      // await new ChartOfAccountsRepository().get(),
       await new ProjectRepository().get(),
       await new CurrencyRepository().get(),
       await new WareBinLocationRepository().get(),

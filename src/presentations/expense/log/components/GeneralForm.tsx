@@ -1,19 +1,21 @@
-import React, { useContext } from "react"
-import MUIDatePicker from "@/components/input/MUIDatePicker"
-import MUITextField from "@/components/input/MUITextField"
-import BPLBranchSelect from "@/components/selectbox/BranchBPL"
-import MUISelect from "@/components/selectbox/MUISelect"
-import { useExchangeRate } from "../hook/useExchangeRate"
-import { useCookies } from "react-cookie"
-import CashAccount from "@/components/selectbox/CashAccount"
-import { APIContext } from "../../context/APIContext"
+import React, { useContext } from "react";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
+import MUITextField from "@/components/input/MUITextField";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import MUISelect from "@/components/selectbox/MUISelect";
+import { useExchangeRate } from "../hook/useExchangeRate";
+import { useCookies } from "react-cookie";
+import CashAccount from "@/components/selectbox/CashAccount";
+import { APIContext } from "../../context/APIContext";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 
 export interface IGeneralFormProps {
-  handlerChange: (key: string, value: any) => void
-  data: any
-  handlerOpenProject?: () => void
-  edit?: boolean
-  hanndResetState?: any
+  handlerChange: (key: string, value: any) => void;
+  data: any;
+  handlerOpenProject?: () => void;
+  edit?: boolean;
+  hanndResetState?: any;
 }
 
 export default function GeneralForm({
@@ -22,12 +24,12 @@ export default function GeneralForm({
   edit,
   hanndResetState,
 }: IGeneralFormProps) {
-  const { CurrencyAPI, sysInfo }: any = useContext(APIContext)
-  const [cookies, setCookie] = useCookies(["user"])
+  const { CurrencyAPI, sysInfo }: any = useContext(APIContext);
+  const [cookies, setCookie] = useCookies(["user"]);
   const branchId =
-    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1)
+    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
 
-  useExchangeRate(data?.Currency, handlerChange)
+  useExchangeRate(data?.Currency, handlerChange);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
@@ -44,9 +46,9 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <BPLBranchSelect
+                <BranchAutoComplete
                   BPdata={cookies?.user?.UserBranchAssignment}
-                  onChange={(e) => handlerChange("Branch", e.target.value)}
+                  onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                   value={branchId || 0}
                   name="Branch"
                   disabled={data?.edit}
@@ -60,8 +62,8 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <CashAccount
-                  onChange={(e: any) => handlerChange("GLCash", e.target.value)}
+                <CashACAutoComplete
+                  onChange={(e: any) => handlerChange("GLCash", e)}
                   value={data?.GLCash}
                   disabled={data?.edit}
                 />
@@ -124,7 +126,9 @@ export default function GeneralForm({
                     loading={data?.isLoadingSerie}
                     value={data?.Series === "" ? "M" : data?.Series}
                     disabled={edit}
-                    onChange={(e: any) => handlerChange("Series", e.target.value)}
+                    onChange={(e: any) =>
+                      handlerChange("Series", e.target.value)
+                    }
                   />
                   <div className="-mt-1">
                     <MUITextField
@@ -170,5 +174,5 @@ export default function GeneralForm({
         </div>
       </div>
     </div>
-  )
+  );
 }

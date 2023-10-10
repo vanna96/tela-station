@@ -4,9 +4,10 @@ import Encryption from "@/utilies/encryption";
 import request from "@/utilies/request";
 
 export default class GLAccountRepository extends Repository<GLAccount> {
-   
-    url = `/ChartOfAccounts?$filter=ActiveAccount eq 'tYES' & $select=Code,Name&$orderby=Code asc`;
-    
+
+    url = "/ChartOfAccounts?$filter=CashAccount eq 'tYES' and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc"
+
+
     // specific key
     key = 'gl_accounts';
 
@@ -28,7 +29,7 @@ export default class GLAccountRepository extends Repository<GLAccount> {
     find<GLAccount>(code: number | undefined | null): any {
         const data = localStorage.getItem(this.key);
         if (!data) return {};
-     
+
         const gLAccounts: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
         return gLAccounts.find((e: any) => e?.Code == code);
     }
