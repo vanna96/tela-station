@@ -99,6 +99,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
+              key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
