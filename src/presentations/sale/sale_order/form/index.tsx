@@ -589,8 +589,11 @@ class SalesOrderForm extends CoreFormDocument {
                           size="small"
                           variant="contained"
                           style={{ textTransform: "none" }}
+                          onClick={() => {
+                            window.history.back();
+                          }}
                         >
-                          Copy To
+                          Cancel
                         </LoadingButton>
                       </div>
                       <div className="flex items-center">
