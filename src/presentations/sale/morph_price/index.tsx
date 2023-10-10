@@ -125,7 +125,9 @@ export default function MorphPriceLists() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <button
+            <Button
+              variant="outlined"
+              size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route("/sale/morph-price/" + cell.row.original.DocEntry, {
@@ -135,10 +137,14 @@ export default function MorphPriceLists() {
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              View
-            </button>
-            <button
-              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
+              <span style={{ textTransform: "none" }}>View</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={
+                cell.row.original.DocumentStatus === "bost_Close" ?? false
+              }
               onClick={() => {
                 route(
                   "/sale/morph-price/" + cell.row.original.DocEntry + "/edit",
@@ -153,15 +159,14 @@ export default function MorphPriceLists() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              Edit
-            </button>
+              <span style={{ textTransform: "none" }}> Edit</span>
+            </Button>
           </div>
         ),
       },
     ],
     []
   );
-
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
@@ -233,13 +238,8 @@ export default function MorphPriceLists() {
   };
 
   const handlerSearch = (value: string) => {
-    let query = "";
-    if (value.trim() !== "") {
-      // If there is a value in the search, apply the filter
-      query = "&$filter=" + value.trim();
-    }
-
-    setFilter(query);
+    const qurey = value;
+    setFilter(qurey);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -307,11 +307,11 @@ export default function MorphPriceLists() {
 
   const childBreadcrum = (
     <>
-    <span className="" onClick={() => route("/sale/morph-price")}>
-      Morph Price
-    </span>
-  </>
-);
+      <span className="" onClick={() => route("/sale/morph-price")}>
+        Morph Price
+      </span>
+    </>
+  );
 
   return (
     <>
