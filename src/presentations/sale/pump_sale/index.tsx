@@ -233,10 +233,13 @@ export default function PumpSaleLists() {
   };
 
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    // .replace("CardCode", "BPCode")
-    // .replace("CardName", "BPName");
-    setFilter(qurey);
+    let query = "";
+    if (value.trim() !== "") {
+      // If there is a value in the search, apply the filter
+      query = "&$filter=" + value.trim();
+    }
+
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -249,9 +252,10 @@ export default function PumpSaleLists() {
   };
 
   const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return;
+    if (queries === "") return handlerSearch("");
     handlerSearch("&$filter=" + queries);
   };
+
 
   const handleAdaptFilter = () => {
     setOpen(true);

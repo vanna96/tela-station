@@ -48,7 +48,7 @@ const ItemModal: FC<ItemModalProps> = ({
       new itemRepository().getSaleItem(
         ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -97,6 +97,16 @@ const ItemModal: FC<ItemModalProps> = ({
         return [];
     }
   }, [data]);
+  // const itemFilter = useMemo(() => {
+  //   const filterFunctions = {
+  //     100: (e: any) => e?.ItemsGroupCode === 100,
+  //     101: (e: any) => e?.ItemsGroupCode === 101,
+  //     102: (e: any) => e?.ItemsGroupCode === 102,
+  //     0: () => true, // Return true for group 0 to include all items
+  //   };
+
+  //   return data?.filter((e: any) => filterFunctions[Number(group)](e));
+  // }, [data, group]);
   const itemFilter = useMemo(() => {
     switch (Number(group)) {
       case 100:
@@ -110,7 +120,7 @@ const ItemModal: FC<ItemModalProps> = ({
       default:
         return data;
     }
-  }, [Number(group)]);
+  }, [Number(group), data]);
 
   const handlerConfirm = async () => {
     const keys = Object.keys(rowSelection);
