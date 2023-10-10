@@ -384,7 +384,7 @@ export default function PumpSaleLists() {
                   }}
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
@@ -413,7 +413,7 @@ export default function PumpSaleLists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -437,7 +437,7 @@ export default function PumpSaleLists() {
                         size="small"
                         // onClick={handleGoClick}
                       >
-                        Adapt Filter
+                         Filter
                       </Button>
                     </div>
                   }
@@ -448,7 +448,7 @@ export default function PumpSaleLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" &&
+                      // e?.accessorKey !== "DocumentStatus" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}

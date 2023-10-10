@@ -387,7 +387,7 @@ export default function SaleOrderLists() {
                   }}
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
@@ -398,17 +398,12 @@ export default function SaleOrderLists() {
                         { label: "None", value: "" },
                         { label: "Open", value: "bost_Open" },
                         { label: "Close", value: "bost_Close" },
-                        // { label: "Paid", value: "bost_Paid" },
-                        // { label: "Delivered", value: "bost_Delivered" },
                       ]}
-                      // onChange={(e) =>
-                      //   setSearchValues({ ...searchValues, status: e.target.value })
-                      // }
                       onChange={(e) => {
                         if (e) {
                           setSearchValues({
                             ...searchValues,
-                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                            status: e.target.value as string,
                           });
                         }
                       }}
@@ -416,7 +411,7 @@ export default function SaleOrderLists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -440,7 +435,7 @@ export default function SaleOrderLists() {
                         size="small"
                         // onClick={handleGoClick}
                       >
-                        Adapt Filter
+                         Filter
                       </Button>
                     </div>
                   }
@@ -451,7 +446,7 @@ export default function SaleOrderLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" &&
+                      // e?.accessorKey !== "DocumentStatus" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}
