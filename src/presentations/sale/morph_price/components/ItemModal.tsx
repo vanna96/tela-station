@@ -157,6 +157,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                   );
                 }}
                 decimalScale={2}
+                readOnly
+                disabled
                 fixedDecimalScale
                 label="Gross Price"
                 value={this.state?.GrossPrice}
