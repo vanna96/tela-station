@@ -495,7 +495,8 @@ class SalesOrderForm extends CoreFormDocument {
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode
+        this.state.warehouseCode,
+        this.state.Currency
       );
   }
 

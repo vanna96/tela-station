@@ -326,7 +326,6 @@ export default function GeneralForm({
                 value={data?.CashAccount}
                 disabled={data?.edit}
               />
-              {data.CashAccount}
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">

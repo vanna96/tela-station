@@ -27,6 +27,7 @@ interface ItemModalProps {
   CardCode?: any;
   WarehouseCode?: any;
   AbsEntry?: any;
+  Currency?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -37,6 +38,7 @@ const ItemModal: FC<ItemModalProps> = ({
   onOk,
   CardCode,
   WarehouseCode,
+  Currency,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -210,6 +212,7 @@ const ItemModal: FC<ItemModalProps> = ({
         Total: total,
         TotalGross: 0,
         WarehouseCode: WarehouseCode,
+
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
@@ -227,7 +230,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UomName: baseUOM?.Name,
         UomLists: uomLists,
         SaleUOMLists: UoMEntryValues,
-        DocCurrency: e?.DocCurrency,
+        Currency: Currency,
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection?.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
         )?.BaseQuantity,
@@ -277,9 +280,9 @@ const ItemModal: FC<ItemModalProps> = ({
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center  ">
-                      <h2 className="font-bold text-xl mt-12">
+                      {/* <h2 className="font-bold text-xl mt-12">
                         {"List of Items"}
-                      </h2>
+                      </h2> */}
                       <OutlinedInput
                         size="small"
                         key={filterKey}
@@ -397,12 +400,13 @@ export class ItemModalComponent extends React.Component<
     this.setState({ isOpen: false });
   }
 
-  onOpen(CardCode?: any, type?: any, WarehouseCode?: any) {
+  onOpen(CardCode?: any, type?: any, WarehouseCode?: any, Currency?: any) {
     this.setState({
       isOpen: true,
       CardCode: CardCode,
       type: type ?? "sale",
       WarehouseCode: WarehouseCode,
+      Currency: Currency,
     });
   }
 
@@ -421,6 +425,7 @@ export class ItemModalComponent extends React.Component<
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}
+        Currency = {this.state.Currency}
       />
     );
   }
