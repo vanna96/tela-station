@@ -267,7 +267,26 @@ class PumpSaleForm extends CoreFormDocument {
         data["error"] = {
           Items: "Items is missing and must at least one record!",
         };
-        throw new FormValidateException("Items is missing", 2);
+        throw new FormValidateException("Items is missing", 1);
+      } else {
+        let hasInvalidGrossPrice = false;
+
+        data.Items.forEach((item: any) => {
+          if (!item.hasOwnProperty("GrossPrice") || item.GrossPrice <= 0) {
+            hasInvalidGrossPrice = true;
+            return;
+          }
+        });
+
+        if (hasInvalidGrossPrice) {
+          data["error"] = {
+            Items: "Some items have invalid GrossPrice values!",
+          };
+          throw new FormValidateException(
+            "Some items have invalid GrossPrice values",
+            1
+          );
+        }
       }
 
       // attachment
