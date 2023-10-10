@@ -79,6 +79,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
+              key={"U_tl_linetotal_" + cell.getValue()}
               type="text"
               readOnly={true}
               value={numberWithCommas(cell.getValue(0).toFixed(2))}
