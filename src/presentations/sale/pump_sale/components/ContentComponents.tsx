@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import MaterialReactTable from "material-react-table";
 import {
   Button,
@@ -22,6 +22,10 @@ import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import { bgColor } from "../../../../assets/index";
 import { NumericFormat } from "react-number-format";
+import { sysInfo } from "@/helper/helper";
+import CurrencyRepository from "@/services/actions/currencyRepository";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
 interface ContentComponentProps {
   items: any[];
@@ -38,8 +42,34 @@ interface ContentComponentProps {
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
-  const checked = props?.data?.Rounding == "true";
   const { id }: any = useParams();
+
+  const { data: CurrencyAPI }: any = useQuery({
+    queryKey: ["Currency"],
+    queryFn: () => new CurrencyRepository().get(),
+    staleTime: Infinity,
+  });
+
+  console.log(CurrencyAPI);
+  const a = CurrencyAPI?.map((c: any) => {
+    return {
+      value: c.Code,
+      name: c.Name,
+    };
+  });
+
+  console.log(a);
+
+  const { data: sysInfo }: any = useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () =>
+      request("POST", "CompanyService_GetAdminInfo")
+        .then((res: any) => res?.data)
+        .catch((err: any) => console.log(err)),
+    staleTime: Infinity,
+  });
+  console.log(sysInfo);
+
   if (!(id > 0)) useExchangeRate(props?.data?.Currency, props.onChange);
 
   const columnRef = React.createRef<ContentTableSelectColumn>();
@@ -49,6 +79,14 @@ export default function ContentComponent(props: ContentComponentProps) {
   >({});
   const blankItem = { ItemCode: "" };
   const [rowSelection, setRowSelection] = React.useState<any>({});
+
+  const dataCurrency = props.data?.vendor?.currenciesCollection
+    ?.filter(({ Include }: any) => Include === "tYES")
+    ?.map(({ CurrencyCode }: any) => {
+      return { value: CurrencyCode, name: CurrencyCode };
+    });
+
+  useExchangeRate(props.data?.Currency, props.onChange);
 
   const handlerRemove = () => {
     if (props.onRemoveChange === undefined) return;
@@ -100,12 +138,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     setRowSelection(rowSelects);
   };
 
-  const dataCurrency = props?.data?.vendor?.currenciesCollection
-    ?.filter(({ Include }: any) => Include === "tYES")
-    ?.map(({ CurrencyCode }: any) => {
-      return { value: CurrencyCode, name: CurrencyCode };
-    });
-
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount || discount;
     if (dataDiscount <= 0) return 0;
@@ -115,13 +147,6 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   let TotalPaymentDue =
     docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
-  if (checked)
-    TotalPaymentDue =
-      TotalPaymentDue + parseFloat(props.data.RoundingValue || 0);
-
-  useEffect(() => {
-    if (!checked) onChange("RoundingValue", 0);
-  }, [checked]);
 
   return (
     <div className="">
@@ -152,7 +177,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               !props.viewOnly && ""
             }`}
           >
-            <div className="grid grid-cols-12 ">
+            {/* <div className="grid grid-cols-12 ">
               <div className="col-span-5">
                 <div className="flex gap-4 items-start">
                   <label
@@ -238,8 +263,59 @@ export default function ContentComponent(props: ContentComponentProps) {
                       />
                     </div>
                   )}
+              </div> 
+            </div> */}
+
+            {/*  */}
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-1">
+                <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                  Currency
+                </label>
+              </div>
+              <div className="col-span-3  ">
+                <div className="grid grid-cols-12">
+                  <div className="col-span-6">
+                    <div className="flex gap-4 items-start">
+                      {
+                        <MUISelect
+                          value={
+                            props.data?.Currency || sysInfo?.SystemCurrency
+                          }
+                          disabled={props.data?.edit}
+                          items={
+                            dataCurrency?.length > 0
+                              ? CurrencyAPI?.map((c: any) => {
+                                  console.log(c.Name);
+                                  return {
+                                    value: c.Code,
+                                    name: c.Name,
+                                  };
+                                })
+                              : dataCurrency
+                          }
+                          aliaslabel="name"
+                          aliasvalue="value"
+                          onChange={(e: any) => onChange("Currency", e)}
+                        />
+                      }
+                    </div>
+                  </div>
+                  <div className="col-span-6 pl-5">
+                    {(props.data?.Currency || sysInfo?.SystemCurrency) !==
+                      sysInfo?.SystemCurrency && (
+                      <MUITextField
+                        value={props.data?.ExchangeRate || 0}
+                        name=""
+                        disabled={true}
+                        className="-mt-1"
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
+            {/*  */}
           </div>
           <div className="col-span-2 ">
             <MaterialReactTable
