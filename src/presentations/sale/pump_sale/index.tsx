@@ -259,6 +259,7 @@ export default function PumpSaleLists() {
     handlerSearch("&$filter=" + queries);
   };
 
+
   const handleAdaptFilter = () => {
     setOpen(true);
   };
