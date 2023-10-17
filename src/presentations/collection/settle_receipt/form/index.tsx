@@ -228,7 +228,7 @@ class Form extends CoreFormDocument {
     const data: any = { ...this.state };
 
     try {
-      this.setState({ ...this.state, isSubmitting: false });
+      this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
