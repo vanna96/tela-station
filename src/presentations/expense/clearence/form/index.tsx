@@ -133,7 +133,7 @@ class Form extends CoreFormDocument {
             ...data,
             DocumentStatus: data?.Status === "C" ? "Closed" : "Open",
             GLCash: data?.U_tl_cashacct,
-            Branch: data?.U_tl_bplid,
+            Branch: parseInt(data?.U_tl_bplid || 0),
             Items: result || [],
             Logs: data?.TL_EXP_CLEAR_LINESCollection || [],
             refs: data?.TL_EXP_CLEAR_LINESCollection || [],

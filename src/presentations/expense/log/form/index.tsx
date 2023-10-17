@@ -126,7 +126,7 @@ class Form extends CoreFormDocument {
             ...data,
             DocumentStatus: data?.Status === "C" ? "Closed" : "Open",
             GLCash: data?.U_tl_cashacct,
-            Branch: data?.U_tl_bplid,
+            Branch: parseInt(data?.U_tl_bplid || 0),
             Items:
               data?.TL_EXPEN_LOG_LINESCollection?.map((item: any) => {
                 return {
@@ -168,7 +168,7 @@ class Form extends CoreFormDocument {
     const data: any = { ...this.state };
 
     try {
-      this.setState({ ...this.state, isSubmitting: false });
+      this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
