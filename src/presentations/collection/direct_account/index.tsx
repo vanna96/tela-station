@@ -57,10 +57,7 @@ export default function ReturnRequestLists() {
         accessorKey: "BPLID",
         header: "Branch",
         visible: true,
-        Cell: ({ cell }: any) => branchBPL.find(
-          ({ BPLID }: any) => BPLID === cell.getValue(),
-        )?.BPLName,
-          
+        Cell: ({ cell }: any) => branchBPL?.find(({ BPLID }: any) => BPLID === cell.getValue())?.BPLName || "",
       },
       {
         accessorKey: "DocEntry",
