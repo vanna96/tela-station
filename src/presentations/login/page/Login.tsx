@@ -99,7 +99,7 @@ export default function Login() {
       await new DistributionRuleRepository().get,
       await new CustomsGroupRepository().get(),
       await new ManufacturerRepository().get(),
-
+// test 
       // vanna new modified
       await new BranchBPLRepository().get(),
       await new ProjectRepository().get(),
