@@ -125,7 +125,9 @@ export default function MorphPriceLists() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <button
+            <Button
+              variant="outlined"
+              size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route("/sale/morph-price/" + cell.row.original.DocEntry, {
@@ -135,10 +137,14 @@ export default function MorphPriceLists() {
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              View
-            </button>
-            <button
-              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
+              <span style={{ textTransform: "none" }}>View</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={
+                cell.row.original.DocumentStatus === "bost_Close" ?? false
+              }
               onClick={() => {
                 route(
                   "/sale/morph-price/" + cell.row.original.DocEntry + "/edit",
@@ -153,15 +159,14 @@ export default function MorphPriceLists() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              Edit
-            </button>
+              <span style={{ textTransform: "none" }}> Edit</span>
+            </Button>
           </div>
         ),
       },
     ],
     []
   );
-
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
@@ -234,8 +239,6 @@ export default function MorphPriceLists() {
 
   const handlerSearch = (value: string) => {
     const qurey = value;
-    // .replace("CardCode", "BPCode")
-    // .replace("CardName", "BPName");
     setFilter(qurey);
     setPagination({
       pageIndex: 0,
@@ -249,7 +252,7 @@ export default function MorphPriceLists() {
   };
 
   const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return;
+    if (queries === "") return handlerSearch("");
     handlerSearch("&$filter=" + queries);
   };
 
@@ -304,11 +307,11 @@ export default function MorphPriceLists() {
 
   const childBreadcrum = (
     <>
-    <span className="" onClick={() => route("/sale/morph-price")}>
-      Morph Price
-    </span>
-  </>
-);
+      <span className="" onClick={() => route("/sale/morph-price")}>
+        Morph Price
+      </span>
+    </>
+  );
 
   return (
     <>
@@ -378,7 +381,7 @@ export default function MorphPriceLists() {
                   }}
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
@@ -407,7 +410,7 @@ export default function MorphPriceLists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -426,12 +429,8 @@ export default function MorphPriceLists() {
                   handlerClearFilter={handlerRefresh}
                   title={
                     <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Adapt Filter
+                      <Button variant="outlined" size="small">
+                        Filter
                       </Button>
                     </div>
                   }
@@ -442,7 +441,7 @@ export default function MorphPriceLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" &&
+                      // e?.accessorKey !== "DocumentStatus" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}

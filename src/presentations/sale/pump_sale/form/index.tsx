@@ -267,7 +267,26 @@ class PumpSaleForm extends CoreFormDocument {
         data["error"] = {
           Items: "Items is missing and must at least one record!",
         };
-        throw new FormValidateException("Items is missing", 2);
+        throw new FormValidateException("Items is missing", 1);
+      } else {
+        let hasInvalidGrossPrice = false;
+
+        data.Items.forEach((item: any) => {
+          if (!item.hasOwnProperty("GrossPrice") || item.GrossPrice <= 0) {
+            hasInvalidGrossPrice = true;
+            return;
+          }
+        });
+
+        if (hasInvalidGrossPrice) {
+          data["error"] = {
+            Items: "Some items have invalid GrossPrice values!",
+          };
+          throw new FormValidateException(
+            "Some items have invalid GrossPrice values",
+            1
+          );
+        }
       }
 
       // attachment
@@ -426,7 +445,7 @@ class PumpSaleForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc"],
+      0: ["CardCode", "U_tl_whsdesc", "CashAccount"],
       1: ["Items"],
       2: ["U_tl_dnsuppo", "PayToCode"],
       3: [],
@@ -498,7 +517,8 @@ class PumpSaleForm extends CoreFormDocument {
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode
+        this.state.warehouseCode,
+        this.state.Currency
       );
   }
 
@@ -596,13 +616,13 @@ class PumpSaleForm extends CoreFormDocument {
               <div className="flex ">
                 <LoadingButton
                   size="small"
-                  sx={{ height: "28px" }}
                   variant="contained"
-                  disableElevation
+                  style={{ textTransform: "none" }}
+                  onClick={() => {
+                    window.history.back();
+                  }}
                 >
-                  <span className="px-3 text-[12px] py-1 text-white">
-                    Copy To
-                  </span>
+                  Cancel
                 </LoadingButton>
               </div>
               <div className="flex items-center">

@@ -261,7 +261,7 @@ class SalesOrderForm extends CoreFormDocument {
         data["error"] = {
           Items: "Items is missing and must at least one record!",
         };
-        throw new FormValidateException("Items is missing", 2);
+        throw new FormValidateException("Items is missing", 1);
       }
 
       // attachment
@@ -282,7 +282,7 @@ class SalesOrderForm extends CoreFormDocument {
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
-        PriceListNum : 7,
+        PriceListNum: 7,
         SOSeries: data?.Series,
         DNSeries: data?.DNSeries,
         INSeries: data?.INSeries,
@@ -495,7 +495,8 @@ class SalesOrderForm extends CoreFormDocument {
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode
+        this.state.warehouseCode,
+        this.state.Currency
       );
   }
 
@@ -585,15 +586,16 @@ class SalesOrderForm extends CoreFormDocument {
 
                   <div className="sticky w-full bottom-4   ">
                     <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <div className="flex ">
-                        <LoadingButton
-                          size="small"
-                          variant="contained"
-                          style={{ textTransform: "none" }}
-                        >
-                          Copy To
-                        </LoadingButton>
-                      </div>
+                      <LoadingButton
+                        size="small"
+                        variant="contained"
+                        style={{ textTransform: "none" }}
+                        onClick={() => {
+                          window.history.back();
+                        }}
+                      >
+                        Cancel
+                      </LoadingButton>
                       <div className="flex items-center">
                         <LoadingButton
                           type="submit"

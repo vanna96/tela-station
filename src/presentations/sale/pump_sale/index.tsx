@@ -123,9 +123,13 @@ export default function PumpSaleLists() {
         maxSize: 100,
         header: "Action",
         visible: true,
+
+        visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <button
+            <Button
+              variant="outlined"
+              size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route("/sale/pump-sale/" + cell.row.original.DocEntry, {
@@ -135,10 +139,14 @@ export default function PumpSaleLists() {
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              View
-            </button>
-            <button
-              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
+              <span style={{ textTransform: "none" }}>View</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={
+                cell.row.original.DocumentStatus === "bost_Close" ?? false
+              }
               onClick={() => {
                 route(
                   "/sale/pump-sale/" + cell.row.original.DocEntry + "/edit",
@@ -153,8 +161,8 @@ export default function PumpSaleLists() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              Edit
-            </button>
+              <span style={{ textTransform: "none" }}> Edit</span>
+            </Button>
           </div>
         ),
       },
@@ -234,8 +242,6 @@ export default function PumpSaleLists() {
 
   const handlerSearch = (value: string) => {
     const qurey = value;
-    // .replace("CardCode", "BPCode")
-    // .replace("CardName", "BPName");
     setFilter(qurey);
     setPagination({
       pageIndex: 0,
@@ -249,7 +255,7 @@ export default function PumpSaleLists() {
   };
 
   const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return;
+    if (queries === "") return handlerSearch("");
     handlerSearch("&$filter=" + queries);
   };
 
@@ -304,8 +310,8 @@ export default function PumpSaleLists() {
 
   const childBreadcrum = (
     <>
-       <span className="" onClick={() => route("/sale/pump-sale")}>
-       Pump Sale
+      <span className="" onClick={() => route("/sale/pump-sale")}>
+        Pump Sale
       </span>
     </>
   );
@@ -378,7 +384,7 @@ export default function PumpSaleLists() {
                   }}
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
@@ -407,7 +413,7 @@ export default function PumpSaleLists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -431,7 +437,7 @@ export default function PumpSaleLists() {
                         size="small"
                         // onClick={handleGoClick}
                       >
-                        Adapt Filter
+                         Filter
                       </Button>
                     </div>
                   }
@@ -442,7 +448,7 @@ export default function PumpSaleLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" &&
+                      // e?.accessorKey !== "DocumentStatus" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}

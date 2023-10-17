@@ -261,7 +261,7 @@ class SalesOrderForm extends CoreFormDocument {
         data["error"] = {
           Items: "Items is missing and must at least one record!",
         };
-        throw new FormValidateException("Items is missing", 2);
+        throw new FormValidateException("Items is missing", 1);
       }
 
       // attachment
@@ -494,7 +494,8 @@ class SalesOrderForm extends CoreFormDocument {
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode
+        this.state.warehouseCode,
+        this.state.Currency
       );
   }
 
@@ -589,8 +590,11 @@ class SalesOrderForm extends CoreFormDocument {
                           size="small"
                           variant="contained"
                           style={{ textTransform: "none" }}
+                          onClick={() => {
+                            window.history.back();
+                          }}
                         >
-                          Copy To
+                          Cancel
                         </LoadingButton>
                       </div>
                       <div className="flex items-center">

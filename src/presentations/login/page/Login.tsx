@@ -32,6 +32,7 @@ import { Alert, AlertTitle, TextField } from "@mui/material";
 import CurrencyRepository from "@/services/actions/currencyRepository";
 import WareBinLocationRepository from "../../../services/whBinLocationRepository";
 import { GridSaveAltIcon } from "@mui/x-data-grid";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -100,10 +101,11 @@ export default function Login() {
       await new ManufacturerRepository().get(),
 
       // vanna new modified
-      // await new ChartOfAccountsRepository().get(),
+      await new BranchBPLRepository().get(),
       await new ProjectRepository().get(),
       await new CurrencyRepository().get(),
       await new WareBinLocationRepository().get(),
+      await new ChartOfAccountsRepository().get(),
     ]);
   }
 

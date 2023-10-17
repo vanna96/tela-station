@@ -27,6 +27,7 @@ interface ItemModalProps {
   CardCode?: any;
   WarehouseCode?: any;
   AbsEntry?: any;
+  Currency?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -37,6 +38,7 @@ const ItemModal: FC<ItemModalProps> = ({
   onOk,
   CardCode,
   WarehouseCode,
+  Currency,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -48,7 +50,7 @@ const ItemModal: FC<ItemModalProps> = ({
       new itemRepository().getSaleItem(
         ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -97,6 +99,16 @@ const ItemModal: FC<ItemModalProps> = ({
         return [];
     }
   }, [data]);
+  // const itemFilter = useMemo(() => {
+  //   const filterFunctions = {
+  //     100: (e: any) => e?.ItemsGroupCode === 100,
+  //     101: (e: any) => e?.ItemsGroupCode === 101,
+  //     102: (e: any) => e?.ItemsGroupCode === 102,
+  //     0: () => true, // Return true for group 0 to include all items
+  //   };
+
+  //   return data?.filter((e: any) => filterFunctions[Number(group)](e));
+  // }, [data, group]);
   const itemFilter = useMemo(() => {
     switch (Number(group)) {
       case 100:
@@ -110,7 +122,7 @@ const ItemModal: FC<ItemModalProps> = ({
       default:
         return data;
     }
-  }, [Number(group)]);
+  }, [Number(group), data]);
 
   const handlerConfirm = async () => {
     const keys = Object.keys(rowSelection);
@@ -200,6 +212,7 @@ const ItemModal: FC<ItemModalProps> = ({
         Total: total,
         TotalGross: 0,
         WarehouseCode: WarehouseCode,
+
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
@@ -217,7 +230,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UomName: baseUOM?.Name,
         UomLists: uomLists,
         SaleUOMLists: UoMEntryValues,
-        DocCurrency: e?.DocCurrency,
+        Currency: Currency,
         UnitsOfMeasurement: uomGroup?.UoMGroupDefinitionCollection?.find(
           (e: any) => e?.AlternateUoM === uomGroup?.BaseUoM
         )?.BaseQuantity,
@@ -387,12 +400,13 @@ export class ItemModalComponent extends React.Component<
     this.setState({ isOpen: false });
   }
 
-  onOpen(CardCode?: any, type?: any, WarehouseCode?: any) {
+  onOpen(CardCode?: any, type?: any, WarehouseCode?: any, Currency?: any) {
     this.setState({
       isOpen: true,
       CardCode: CardCode,
       type: type ?? "sale",
       WarehouseCode: WarehouseCode,
+      Currency: Currency,
     });
   }
 
@@ -411,6 +425,7 @@ export class ItemModalComponent extends React.Component<
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}
+        Currency = {this.state.Currency}
       />
     );
   }

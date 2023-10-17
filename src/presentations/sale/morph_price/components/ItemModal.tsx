@@ -156,12 +156,13 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                     "GrossPrice"
                   );
                 }}
-                decimalScale={2}
-                fixedDecimalScale
                 label="Gross Price"
                 value={this.state?.GrossPrice}
-                startAdornment={"USD"}
+                startAdornment={this.state.Currency}
                 type="text"
+                decimalScale={2}
+                fixedDecimalScale
+                disabled
                 thousandSeparator
                 customInput={MUITextField}
               />
@@ -193,7 +194,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 decimalScale={2}
                 fixedDecimalScale
                 customInput={MUITextField}
-                startAdornment={"USD"}
+                startAdornment={this.state.Currency}
                 value={this.state?.TotalGross}
               />
             </div>

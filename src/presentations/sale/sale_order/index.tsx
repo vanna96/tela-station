@@ -125,7 +125,9 @@ export default function SaleOrderLists() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <button
+            <Button
+              variant="outlined"
+              size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route("/sale/sales-order/" + cell.row.original.DocEntry, {
@@ -135,10 +137,19 @@ export default function SaleOrderLists() {
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              View
-            </button>
-            <button
-              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
+              <span style={{ textTransform: "none" }}>View</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              disabled={
+                cell.row.original.DocumentStatus === "bost_Close" ?? false
+              }
+              className={`${
+                cell.row.original.DocumentStatus === "bost_Close"
+                  ? "bg-gray-400"
+                  : ""
+              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/sale/sales-order/" + cell.row.original.DocEntry + "/edit",
@@ -153,8 +164,8 @@ export default function SaleOrderLists() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              Edit
-            </button>
+              <span style={{ textTransform: "none" }}> Edit</span>
+            </Button>
           </div>
         ),
       },
@@ -234,8 +245,6 @@ export default function SaleOrderLists() {
 
   const handlerSearch = (value: string) => {
     const qurey = value;
-    // .replace("CardCode", "BPCode")
-    // .replace("CardName", "BPName");
     setFilter(qurey);
     setPagination({
       pageIndex: 0,
@@ -249,7 +258,7 @@ export default function SaleOrderLists() {
   };
 
   const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return;
+    if (queries === "") return handlerSearch("");
     handlerSearch("&$filter=" + queries);
   };
 
@@ -264,7 +273,7 @@ export default function SaleOrderLists() {
     cardname: "",
     deliveryDate: null,
     status: "",
-    bplid: null,
+    bplid: "",
   });
 
   const handleGoClick = () => {
@@ -378,7 +387,7 @@ export default function SaleOrderLists() {
                   }}
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
@@ -389,17 +398,12 @@ export default function SaleOrderLists() {
                         { label: "None", value: "" },
                         { label: "Open", value: "bost_Open" },
                         { label: "Close", value: "bost_Close" },
-                        // { label: "Paid", value: "bost_Paid" },
-                        // { label: "Delivered", value: "bost_Delivered" },
                       ]}
-                      // onChange={(e) =>
-                      //   setSearchValues({ ...searchValues, status: e.target.value })
-                      // }
                       onChange={(e) => {
                         if (e) {
                           setSearchValues({
                             ...searchValues,
-                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                            status: e.target.value as string,
                           });
                         }
                       }}
@@ -407,7 +411,7 @@ export default function SaleOrderLists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -431,7 +435,7 @@ export default function SaleOrderLists() {
                         size="small"
                         // onClick={handleGoClick}
                       >
-                        Adapt Filter
+                         Filter
                       </Button>
                     </div>
                   }
@@ -442,7 +446,7 @@ export default function SaleOrderLists() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus" &&
+                      // e?.accessorKey !== "DocumentStatus" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}

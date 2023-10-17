@@ -26,6 +26,8 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import ChartOfAccountsRepository from '@/services/actions/ChartOfAccountsRepository';
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -326,6 +328,19 @@ function General(props: any) {
                 )?.name ?? "N/A"}
               </div>
             </div>
+
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">Cash Account</div>
+              <div className="col-span-1 text-gray-900">
+                {props?.data?.ControlAccount ?? "N/A"}
+
+                {
+                  new ChartOfAccountsRepository()?.find(props?.data?.ControlAccount)
+                    ?.Name
+                }
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Line of Business</div>
               <div className="col-span-1 text-gray-900">
