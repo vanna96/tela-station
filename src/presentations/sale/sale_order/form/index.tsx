@@ -341,31 +341,11 @@ class SalesOrderForm extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-
       await request("POST", "/script/test/SO", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
-            const docNum = res.data.DocNum;
-
-            if (docNum) {
-              const response = await request(
-                "GET",
-                `Orders?$select=DocEntry,DocNum&$filter=DocNum eq ${docNum}`
-              );
-
-              const orders = response?.data?.value;
-              if (orders.length > 0) {
-                const docEntry = orders[0]?.DocEntry;
-
-                // console.log(`DocEntry: ${docEntry}`);
-
-                this.dialog.current?.success("Create Successfully.", docEntry);
-              } else {
-                console.log(`No matching order found for DocNum ${docNum}`);
-              }
-            } else {
-              console.log("No DocNum found in Comments");
-            }
+            const docEntry = res.data.DocEntry;
+            this.dialog.current?.success("Create Successfully.", docEntry);
           } else {
             console.error("Error in POST request:", res.statusText);
           }
