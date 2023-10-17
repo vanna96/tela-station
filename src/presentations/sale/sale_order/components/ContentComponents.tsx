@@ -56,6 +56,7 @@ export default function ContentComponent(props: ContentComponentProps) {
       name: c.Name,
     };
   });
+  //test
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
