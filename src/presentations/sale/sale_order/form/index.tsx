@@ -345,9 +345,7 @@ class SalesOrderForm extends CoreFormDocument {
       await request("POST", "/script/test/SO", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
-            const docComments = res.data.Comments;
-            const match = docComments.match(/\d+/);
-            const docNum = match ? match[0] : null;
+            const docNum = res.data.DocNum;
 
             if (docNum) {
               const response = await request(

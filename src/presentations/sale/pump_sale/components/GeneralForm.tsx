@@ -17,7 +17,6 @@ import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import AccountTextField from "@/components/input/AccountTextField";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import CashAccount from '@/components/selectbox/CashAccount';
-import CashAccount from '@/components/selectbox/CashAccount';
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;

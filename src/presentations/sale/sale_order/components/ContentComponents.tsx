@@ -50,15 +50,12 @@ export default function ContentComponent(props: ContentComponentProps) {
     staleTime: Infinity,
   });
 
-  console.log(CurrencyAPI);
   const a = CurrencyAPI?.map((c: any) => {
     return {
       value: c.Code,
       name: c.Name,
     };
   });
-
-  console.log(a);
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -68,7 +65,6 @@ export default function ContentComponent(props: ContentComponentProps) {
         .catch((err: any) => console.log(err)),
     staleTime: Infinity,
   });
-  console.log(sysInfo);
 
   if (!(id > 0)) useExchangeRate(props?.data?.Currency, props.onChange);
 
@@ -177,96 +173,6 @@ export default function ContentComponent(props: ContentComponentProps) {
               !props.viewOnly && ""
             }`}
           >
-            {/* <div className="grid grid-cols-12 ">
-              <div className="col-span-5">
-                <div className="flex gap-4 items-start">
-                  <label
-                    htmlFor="currency"
-                    className=" flex pt-1 text-gray-700"
-                  >
-                    Currency
-                  </label>
-                  <MUISelect
-                    value={props?.data?.CurrencyType || "L"}
-                    items={[
-                      { value: "L", name: "Local Currency" },
-                      { value: "S", name: "System Currency" },
-                      { value: "B", name: "BP Currency" },
-                    ]}
-                    aliaslabel="name"
-                    aliasvalue="value"
-                    onChange={(e: any) => onChange("CurrencyType", e)}
-                  />
-                </div>
-              </div>
-              <div className="col-span-3 px-5">
-                {props?.data?.CurrencyType === "B" && (
-                  <MUISelect
-                    value={props?.data?.Currency || "USD"}
-                    disabled={
-                      props?.data?.disabledFields?.CurrencyType || false
-                    }
-                    items={
-                      dataCurrency?.length > 0
-                        ? dataCurrency
-                        : [
-                            {
-                              value: "USD",
-                              name: "Australian Dollar",
-                            },
-                            {
-                              value: "GBP",
-                              name: "British Pound",
-                            },
-                            {
-                              value: "EUR",
-                              name: "Euro",
-                            },
-                            {
-                              value: "JPY",
-                              name: "Japanese Yen",
-                            },
-                            {
-                              value: "KHR",
-                              name: "Khmer",
-                            },
-                            {
-                              value: "NZD",
-                              name: "New Zealand Dollar",
-                            },
-                            {
-                              value: "SGD",
-                              name: "Singapore Dollar",
-                            },
-                            {
-                              Code: "USD",
-                              name: "US Dollar",
-                            },
-                          ]
-                    }
-                    aliaslabel="name"
-                    aliasvalue="value"
-                    onChange={(e: any) => onChange("Currency", e)}
-                  />
-                )}
-              </div>
-              <div className="col-span-4">
-                {props?.data?.CurrencyType === "B" &&
-                  (props?.data?.Currency || "USD") !== "USD" && (
-                    <div className="w-1/2">
-                      <MUITextField
-                        value={props?.data?.ExchangeRate || 0}
-                        name=""
-                        disabled={true}
-                        className="-mt-1"
-                        // helpertext="update exchange rate"
-                      />
-                    </div>
-                  )}
-              </div> 
-            </div> */}
-
-            {/*  */}
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-1">
                 <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -286,7 +192,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           items={
                             dataCurrency?.length > 0
                               ? CurrencyAPI?.map((c: any) => {
-                                  console.log(c.Name);
+                                  // console.log(c.Name);
                                   return {
                                     value: c.Code,
                                     name: c.Name,
