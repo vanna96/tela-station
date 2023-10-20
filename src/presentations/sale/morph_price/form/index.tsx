@@ -108,6 +108,7 @@ class SalesOrderForm extends CoreFormDocument {
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
+          console.log(data)
           const vendor: any = await request(
             "GET",
             `/BusinessPartners('${data?.CardCode}')`
@@ -155,7 +156,7 @@ class SalesOrderForm extends CoreFormDocument {
               })
               .catch((error) => console.log(error));
           }
-
+console.log(state)
           state = {
             ...data,
             // Description: data?.Comments,
@@ -167,6 +168,8 @@ class SalesOrderForm extends CoreFormDocument {
                 ItemName: item.ItemDescription || item.Name || null,
                 Quantity: item.Quantity || null,
                 UnitPrice: item.UnitPrice || item.total,
+                GrossPrice: item.GrossPrice || item.total,
+                GrossTotal: item.GrossTotal || item.total,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
                 // UomCode: item.UomCode,
@@ -584,27 +587,33 @@ class SalesOrderForm extends CoreFormDocument {
                     />
                   )}
 
-                  <div className="sticky w-full bottom-4   ">
+                  <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <LoadingButton
-                        size="small"
-                        variant="contained"
-                        style={{ textTransform: "none" }}
-                        onClick={() => {
-                          window.history.back();
-                        }}
-                      >
-                        Cancel
-                      </LoadingButton>
-                      <div className="flex items-center">
+                      <div className="flex ">
+                        <LoadingButton
+                          size="small"
+                          sx={{ height: "25px" }}
+                          variant="contained"
+                          disableElevation
+                        >
+                          <span className="px-3 text-[11px] py-1 text-white">
+                            Cancel
+                          </span>
+                        </LoadingButton>
+                      </div>
+                      <div className="flex items-center space-x-4">
                         <LoadingButton
                           type="submit"
-                          size="small"
+                          sx={{ height: "25px" }}
+                          className="bg-white"
                           loading={false}
+                          size="small"
                           variant="contained"
-                          style={{ textTransform: "none" }}
+                          disableElevation
                         >
-                          Save
+                          <span className="px-6 text-[11px] py-4 text-white">
+                            {this.props.edit ? "Update" : "Save"}
+                          </span>
                         </LoadingButton>
                       </div>
                     </div>

@@ -87,12 +87,12 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   return (
     <div
       className={`w-full flex flex-col rounded ${
-        !collapse ? "gap-3" : ""
+        collapse ? "gap-3" : ""
       } justify-between items-center  sticky top-0 border-y bg-white z-50 px-4  `}
     >
       <div
         className={`w-full flex justify-between px-6 ${
-          !collapse ? "border-b  py-2" : "pt-2"
+          collapse ? "border-b  py-2" : "pt-2"
         } border-b-gray-200 z-50 px-0`}
       >
         <div className="flex gap-2 items-center">
@@ -106,7 +106,6 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
                 <Button
                   variant="outlined"
                   size="small"
-                  // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
                   onClick={navigateToEdit}
                   endIcon={<MdEdit />}
                 >
@@ -130,7 +129,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       </div>
       <div
         className={`w-full  grid grid-cols-2 gap-2 px-6 py-1 transition-all rounded overflow-hidden duration-300 ease-out  ${
-          !collapse ? "h-[6rem]" : "h-0"
+          collapse ? "h-[6rem]" : "h-0"
         }`}
       >
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -173,7 +172,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           </div>
         </div>
 
-        {!location.pathname.includes("create") && (
+        {/* {!location.pathname.includes("create") && (
           <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
             <div className="col-span-5"></div>
             <div className="col-span-7">
@@ -208,11 +207,8 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
                 </div>
               </div>
             </div>
-            {/* <div className="col-span-2">
-              <Button variant="contained"> + New</Button>
-            </div> */}
           </div>
-        )}
+        )} */}
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
@@ -220,7 +216,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         }`}
       >
         {props?.menuTabs}
-        <div className="absolute -top-[16px] w-full flex justify-center gap-2">
+        {/* <div className="absolute -top-[16px] w-full flex justify-center gap-2">
           <div
             title="btn-collapse"
             role="button"
@@ -228,10 +224,10 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             onClick={handlerCollapse}
           >
             <div className="opacity-20">
-              {!collapse ? <IoIosArrowUp /> : <BsArrowDownShort />}
+              {collapse ? <IoIosArrowUp /> : <BsArrowDownShort />}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

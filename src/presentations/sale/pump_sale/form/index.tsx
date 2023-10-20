@@ -595,26 +595,28 @@ class PumpSaleForm extends CoreFormDocument {
               <div className="flex ">
                 <LoadingButton
                   size="small"
+                  sx={{ height: "25px" }}
                   variant="contained"
-                  style={{ textTransform: "none" }}
-                  onClick={() => {
-                    window.history.back();
-                  }}
+                  disableElevation
                 >
-                  Cancel
+                  <span className="px-3 text-[11px] py-1 text-white">
+                    Cancel
+                  </span>
                 </LoadingButton>
               </div>
-              <div className="flex items-center">
+              <div className="flex items-center space-x-4">
                 <LoadingButton
                   type="submit"
-                  sx={{ height: "28px" }}
+                  sx={{ height: "25px" }}
                   className="bg-white"
                   loading={false}
                   size="small"
                   variant="contained"
                   disableElevation
                 >
-                  <span className="px-6 text-[12px] py-4 text-white">Save</span>
+                  <span className="px-6 text-[11px] py-4 text-white">
+                    {this.props.edit ? "Update" : "Save"}
+                  </span>
                 </LoadingButton>
               </div>
             </div>
