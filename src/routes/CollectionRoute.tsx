@@ -9,7 +9,7 @@ import Collection from "@/presentations/collection"
 // import OutGoingDetail from "@/presentations/collection/outgoing_payment/detail";
 import SettleReceiptLists from "@/presentations/collection/settle_receipt"
 import SettleReceiptForm from "@/presentations/collection/settle_receipt/form"
-import SettleReceiptDetail from "@/presentations/collection/settle_receipt/detail"
+import SettleReceiptDetail from "@/presentations/collection/settle_receipt/detail/index"
 import { APIContextProvider } from "@/presentations/collection/settle_receipt/context/APIContext"
 import PaymentAccountLists from "@/presentations/collection/payment_account"
 import PaymentAccountForm from "@/presentations/collection/payment_account/form"

@@ -1,100 +1,101 @@
-import { withRouter } from "@/routes/withRouter"
-import { Component, useContext } from "react"
-import { arrayBufferToBlob, dateFormat } from "@/utilies"
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent"
-import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository"
-import MenuButton from "@/components/button/MenuButton"
-import LoadingProgress from "@/components/LoadingProgress"
-import shortid from "shortid"
-import request from "@/utilies/request"
-import BusinessPartner from "@/models/BusinessParter"
-import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper"
-import { CircularProgress } from "@mui/material"
-import CashAccount from "@/components/selectbox/CashAccount"
-import MUITextField from "@/components/input/MUITextField"
-import PaymentTable from "../components/PaymentTable"
-import { APIContext } from "../context/APIContext"
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
-import PreviewAttachment from "@/components/attachment/PreviewAttachment"
-import React from "react"
-import ContentComponent from "../components/ContentComponents"
-import MaterialReactTable from "material-react-table"
+import { withRouter } from "@/routes/withRouter";
+import { Component, useContext } from "react";
+import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
+import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository";
+import MenuButton from "@/components/button/MenuButton";
+import LoadingProgress from "@/components/LoadingProgress";
+import shortid from "shortid";
+import request from "@/utilies/request";
+import BusinessPartner from "@/models/BusinessParter";
+import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper";
+import { CircularProgress } from "@mui/material";
+import CashAccount from "@/components/selectbox/CashAccount";
+import MUITextField from "@/components/input/MUITextField";
+import PaymentTable from "../components/PaymentTable";
+import { APIContext } from "../context/APIContext";
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import PreviewAttachment from "@/components/attachment/PreviewAttachment";
+import React from "react";
+import ContentComponent from "../components/ContentComponents";
+import MaterialReactTable from "material-react-table";
+import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
-    super(props)
+    super(props);
     this.state = {
       loading: true,
       isError: false,
       message: "",
       tapIndex: 0,
-    }
+    };
 
-    this.fetchData = this.fetchData.bind(this)
-    this.onTap = this.onTap.bind(this)
+    this.fetchData = this.fetchData.bind(this);
+    this.onTap = this.onTap.bind(this);
   }
 
   componentDidMount(): void {
-    this.fetchData()
+    this.fetchData();
   }
 
   async fetchData() {
-    const { id } = this.props.match.params
-    const data = this.props.query.find("pa-id-" + id)
-    this.setState({ ...this.state, loading: true })
-    await new Promise((resolve) => setTimeout(() => resolve(""), 800))
+    const { id } = this.props.match.params;
+    const data = this.props.query.find("pa-id-" + id);
+    this.setState({ ...this.state, loading: true });
+    await new Promise((resolve) => setTimeout(() => resolve(""), 800));
 
     if (!data) {
-      const { id }: any = this.props?.match?.params || 0
+      const { id }: any = this.props?.match?.params || 0;
       await request("GET", `IncomingPayments(${id})`)
         .then(async (res: any) => {
-          const data: any = res?.data
+          const data: any = res?.data;
 
           // invoice
           const invoice = await request(
             "GET",
-            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
+            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`
           )
             .then((res: any) => {
               return res.data?.value?.sort(
                 (a: any, b: any) =>
-                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays),
-              )
+                  parseInt(b.OverDueDays) - parseInt(a.OverDueDays)
+              );
             })
-            .catch((err: any) => {})
+            .catch((err: any) => {});
 
           // vendor
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`,
+            `/BusinessPartners('${data?.CardCode}')`
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err))
+            .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = []
+          let AttachmentList: any = [];
           let disabledFields: any = {
             CurrencyType: true,
-          }
+          };
 
           if (data?.AttachmentEntry > 0) {
             AttachmentList = await request(
               "GET",
-              `/Attachments2(${data?.AttachmentEntry})`,
+              `/Attachments2(${data?.AttachmentEntry})`
             )
               .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines
-                if (attachments.length <= 0) return
+                const attachments: any = res?.data?.Attachments2_Lines;
+                if (attachments.length <= 0) return;
 
                 const files: any = attachments.map(async (e: any) => {
                   const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`,
-                  )
+                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
+                  );
                   const blob: any = await arrayBufferToBlob(
                     req.data,
                     req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`,
-                  )
+                    `${e?.FileName}.${e?.FileExtension}`
+                  );
 
                   return {
                     id: shortid.generate(),
@@ -105,11 +106,11 @@ class FormDetail extends Component<any, any> {
                     Extension: `.${e?.FileExtension}`,
                     FreeText: "",
                     AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  }
-                })
-                return await Promise.all(files)
+                  };
+                });
+                return await Promise.all(files);
               })
-              .catch((error) => console.log(error))
+              .catch((error) => console.log(error));
           }
           this.setState({
             ...data,
@@ -123,12 +124,12 @@ class FormDetail extends Component<any, any> {
             loading: false,
 
             GLCash: data?.CashAccount || "",
-            GLCashAmount: parseFloat(data?.CashSumFC || data?.CashSum || 0).toFixed(
-              2,
-            ),
+            GLCashAmount: parseFloat(
+              data?.CashSumFC || data?.CashSum || 0
+            ).toFixed(2),
             GLBank: data?.TransferAccount,
             GLBankAmount: parseFloat(
-              (data?.TransferSum || 0) * (data?.DocRate || 1),
+              (data?.TransferSum || 0) * (data?.DocRate || 1)
             ).toFixed(2),
             CheckAccount: data?.GLCheck || "",
 
@@ -139,86 +140,137 @@ class FormDetail extends Component<any, any> {
                   amount: check?.CheckSum || 0,
                   bank: check?.BankCode || "",
                   check_no: check?.CheckNumber,
-                }
+                };
               }) || [],
 
             AttachmentList,
 
             Items: data?.PaymentInvoices?.map((inv: any) => {
               const find = invoice?.find(
-                ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry,
-              )
+                ({ DocumentNo, DocEntry }: any) => DocEntry === inv.DocEntry
+              );
               if (find) {
                 return {
                   ...find,
                   ...inv,
                   TotalPayment: inv?.AppliedFC || inv?.AppliedSys,
-                }
+                };
               }
             }),
-          })
+          });
         })
-        .catch((err: any) => this.setState({ isError: true, message: err.message }))
+        .catch((err: any) =>
+          this.setState({ isError: true, message: err.message })
+        );
     } else {
-      this.setState({ ...data, loading: false })
+      this.setState({ ...data, loading: false });
     }
   }
 
   onTap(index: number) {
-    this.setState({ ...this.state, tapIndex: index })
+    this.setState({ ...this.state, tapIndex: index });
+  }
+
+  //   render() {
+  //     return (
+  //       <>
+  //         <div className="w-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
+  //           <DocumentHeaderComponent data={this.state} menuTabs />
+
+  //           <div className="w-full h-full flex flex-col gap-4">
+  //             {this.state.loading ? (
+  //               <div className="grow flex justify-center items-center pb-6">
+  //                 <CircularProgress />
+  //               </div>
+  //             ) : (
+  //               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
+  //                 <div className="grow flex flex-col gap-3 ">
+  //                   <div className="bg-white w-full px-8 py-4  ">
+  //                     <General data={this.state} />
+  //                     <PaymentMean data={this.state} />
+  //                     <PreviewAttachment
+  //                       attachmentEntry={this.state.AttachmentEntry}
+  //                     />
+  //                   </div>
+
+  //                   <div className="mb-5"></div>
+  //                 </div>
+  //               </div>
+  //             )}
+  //           </div>
+  //         </div>
+  //       </>
+  //     )
+  //   }
+  // }
+  async handlerChangeMenu(index: number) {
+    this.setState({ ...this.state, tapIndex: index });
   }
 
   render() {
     return (
       <>
-        <div className="w-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-          <DocumentHeaderComponent data={this.state} menuTabs />
+        <DocumentHeaderDetails
+          data={this.state}
+          menuTabs
+          type="Collection"
+          PaymentAccount = {true}
+          handlerChangeMenu={(index) => this.handlerChangeMenu(index)}
+        />
 
-          <div className="w-full h-full flex flex-col gap-4">
-            {this.state.loading ? (
-              <div className="grow flex justify-center items-center pb-6">
-                <CircularProgress />
-              </div>
-            ) : (
-              <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
-                <div className="grow flex flex-col gap-3 ">
-                  <div className="bg-white w-full px-8 py-4  ">
-                    <General data={this.state} />
-                    <PaymentMean data={this.state} />
-                    <PreviewAttachment
-                      attachmentEntry={this.state.AttachmentEntry}
-                    />
-                  </div>
+        <form
+          id="formData"
+          className="h-full w-full flex flex-col gap-4 relative"
+        >
+          {this.state.loading ? (
+            <div className="w-full h-full flex item-center justify-center">
+              <LoadingProgress />
+            </div>
+          ) : (
+            <>
+              <div className="grow  px-16 py-4 ">
+                {this.state.tapIndex === 0 && <PaymentMean data={this.state} />}
 
-                  <div className="mb-5"></div>
-                </div>
+                {/* {this.state.tapIndex === 1 && <Content data={this.state} />} */}
+
+                {this.state.tapIndex === 2 && (
+                  <PreviewAttachment
+                    attachmentEntry={this.state.AttachmentEntry}
+                  />
+                )}
               </div>
-            )}
-          </div>
-        </div>
+            </>
+          )}
+        </form>
       </>
-    )
+    );
   }
 }
 
-export default withRouter(FormDetail)
+export default withRouter(FormDetail);
 
 function General(props: any) {
-  const { data }: any = props
+  const { data }: any = props;
   return (
     <>
       <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
-        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">General</h2>
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          General
+        </h2>
         <div className="py-4 px-8">
           <div className="grid grid-cols-12 ">
             <div className="col-span-5">
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Customer</div>
-                <div className="col-span-1 text-gray-900">{props.data.CardCode}</div>
+                <div className="col-span-1 text-gray-900">
+                  {props.data.CardCode}
+                </div>
               </div>
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Name</div>
-                <div className="col-span-1 text-gray-900">{props.data.CardName}</div>
+                <div className="col-span-1 text-gray-900">
+                  {props.data.CardName}
+                </div>
               </div>
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Branch</div>
@@ -238,7 +290,9 @@ function General(props: any) {
             <div className="col-span-5 ">
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700">DocNum</div>
-                <div className="col-span-1  text-gray-900">{props.data.DocNum}</div>
+                <div className="col-span-1  text-gray-900">
+                  {props.data.DocNum}
+                </div>
               </div>
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Posting Date</div>
@@ -257,13 +311,13 @@ function General(props: any) {
         </div>
       </div>
     </>
-  )
+  );
 }
 
 function PaymentMean(props: any) {
-  const { data } = props
-  const { sysInfo }: any = useContext(APIContext)
-  const [totalUsd] = useDocumentTotalHook(data)
+  const { data } = props;
+  const { sysInfo }: any = useContext(APIContext);
+  const [totalUsd] = useDocumentTotalHook(data);
 
   return (
     <>
@@ -380,11 +434,11 @@ function PaymentMean(props: any) {
         </div>
       </div>
     </>
-  )
+  );
 }
 
 function Content(props: any) {
-  const { data }: any = props
+  const { data }: any = props;
 
   const itemColumns = React.useMemo(
     () => [
@@ -408,10 +462,10 @@ function Content(props: any) {
         header: "Total",
         visible: true,
         Cell: ({ cell }: any) => {
-          const row = cell?.row?.original
+          const row = cell?.row?.original;
           return `${row?.FCCurrency} ${numberWithCommas(
-            (row?.DocTotalFC || row?.DocTotal).toFixed(2),
-          )}`
+            (row?.DocTotalFC || row?.DocTotal).toFixed(2)
+          )}`;
         },
       },
       {
@@ -419,10 +473,10 @@ function Content(props: any) {
         header: "Balance Due",
         visible: true,
         Cell: ({ cell }: any) => {
-          const row = cell?.row?.original
+          const row = cell?.row?.original;
           return `${row?.FCCurrency} ${numberWithCommas(
-            (row?.DocBalanceFC || row?.DocBalance || 0).toFixed(2),
-          )}`
+            (row?.DocBalanceFC || row?.DocBalance || 0).toFixed(2)
+          )}`;
         },
       },
       {
@@ -431,7 +485,7 @@ function Content(props: any) {
         visible: true,
         Cell: ({ cell }: any) =>
           `${cell?.row?.original?.FCCurrency} ${numberWithCommas(
-            (cell?.row?.original.Discount || 0).toFixed(2),
+            (cell?.row?.original.Discount || 0).toFixed(2)
           )}`,
       },
       {
@@ -445,19 +499,20 @@ function Content(props: any) {
         visible: true,
         Cell: ({ cell }: any) =>
           `${cell?.row?.original?.FCCurrency} ${numberWithCommas(
-            (cell?.row?.original.TotalPayment || 0).toFixed(2),
+            (cell?.row?.original.TotalPayment || 0).toFixed(2)
           )}`,
       },
     ],
-    [],
-  )
+    []
+  );
 
   const itemInvoicePrices =
     (data?.Items?.reduce((prev: number, item: any) => {
       return (
-        prev + parseFloat((item?.TotalPayment || 0) / parseFloat(item?.DocRate || 1))
-      )
-    }, 0) ?? 0) * data?.ExchangeRate
+        prev +
+        parseFloat((item?.TotalPayment || 0) / parseFloat(item?.DocRate || 1))
+      );
+    }, 0) ?? 0) * data?.ExchangeRate;
 
   return (
     <>
@@ -515,5 +570,5 @@ function Content(props: any) {
         </div>
       </fieldset>
     </>
-  )
+  );
 }
