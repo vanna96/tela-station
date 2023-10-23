@@ -16,7 +16,7 @@ import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import AccountTextField from "@/components/input/AccountTextField";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import CashAccount from '@/components/selectbox/CashAccount';
+import CashAccount from "@/components/selectbox/CashAccount";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -85,7 +85,7 @@ export default function GeneralForm({
     data.Series = seriesSO;
   }
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+    <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
@@ -317,7 +317,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Cash Account<span className="text-red-500">{" "}*</span>
+                Cash Account<span className="text-red-500"> *</span>
               </label>
             </div>
             <div className="col-span-3">

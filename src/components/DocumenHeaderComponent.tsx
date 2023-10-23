@@ -106,7 +106,6 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
                 <Button
                   variant="outlined"
                   size="small"
-                  // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
                   onClick={navigateToEdit}
                   endIcon={<MdEdit />}
                 >
@@ -173,7 +172,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           </div>
         </div>
 
-        {!location.pathname.includes("create") && (
+        {/* {!location.pathname.includes("create") && (
           <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
             <div className="col-span-5"></div>
             <div className="col-span-7">
@@ -208,15 +207,12 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
                 </div>
               </div>
             </div>
-            {/* <div className="col-span-2">
-              <Button variant="contained"> + New</Button>
-            </div> */}
           </div>
-        )}
+        )} */}
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
-          collapse ? "mt-0" : ""
+          !collapse ? "mt-0" : ""
         }`}
       >
         {props?.menuTabs}

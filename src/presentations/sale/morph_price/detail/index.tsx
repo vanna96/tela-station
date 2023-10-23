@@ -26,6 +26,8 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
+import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
+
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -178,62 +180,109 @@ class DeliveryDetail extends Component<any, any> {
     this.setState({ ...this.state, tapIndex: index });
   }
 
+  //   render() {
+  //     const childBreadcrum = (
+  //       <>
+  //         <span className="" onClick={() => this.navigateToSalesOrder}>
+  //           Sales Order / Details
+  //         </span>
+  //       </>
+  //     );
+  //     return (
+  //       <>
+  //         <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
+  //           {/* <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
+  //             <Breadcrumb childBreadcrum={childBreadcrum} />
+  //           </div> */}
+  //           {/* <div className="grid grid-cols-12  py-2 bg-white">
+  //             <div></div>
+  //             <Breadcrumb childBreadcrum={childBreadcrum} />
+  //           </div> */}
+  //           <DocumentHeaderComponent data={this.state} menuTabs />
+
+  //           <div className="w-full h-full flex flex-col gap-4">
+  //             {this.state.loading ? (
+  //               <div className="grow flex justify-center items-center pb-6">
+  //                 <CircularProgress />
+  //               </div>
+  //             ) : (
+  //               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
+  //                 <div className="grow flex flex-col gap-3 ">
+  //                   <div className="bg-white w-full rounded-md px-8 py-4  ">
+  //                     <div className="border-2  shadow-md rounded-lg  p-4">
+  //                       <General data={this.state} />
+  //                     </div>
+  //                     <div className="my-2" />
+  //                     <div className="border-2  shadow-md rounded-lg   p-4">
+  //                       <Content data={this.state} />
+  //                     </div>
+  //                     <div className="my-2" />
+
+  //                     <div className="border-2  shadow-md rounded-lg   p-4">
+  //                       <Logistic data={this.state} />
+  //                     </div>
+  //                     <div className="my-2" />
+
+  //                     {/* <div className="border-2 shadow-lg rounded-lg mt-1  p-4"></div> */}
+
+  //                     <PreviewAttachment
+  //                       attachmentEntry={this.state.AttachmentEntry}
+  //                     />
+  //                   </div>
+
+  //                   <div className="mb-5"></div>
+  //                 </div>
+  //               </div>
+  //             )}
+  //           </div>
+  //         </div>
+  //       </>
+  //     );
+  //   }
+  // }
+
+  // export default withRouter(DeliveryDetail);
+  async handlerChangeMenu(index: number) {
+    this.setState({ ...this.state, tapIndex: index });
+  }
+  
+  
   render() {
-    const childBreadcrum = (
-      <>
-        <span className="" onClick={() => this.navigateToSalesOrder}>
-          Sales Order / Details
-        </span>
-      </>
-    );
     return (
       <>
-        <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-          {/* <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
-            <Breadcrumb childBreadcrum={childBreadcrum} />
-          </div> */}
-          {/* <div className="grid grid-cols-12  py-2 bg-white">
-            <div></div>
-            <Breadcrumb childBreadcrum={childBreadcrum} />
-          </div> */}
-          <DocumentHeaderComponent data={this.state} menuTabs />
+        <DocumentHeaderDetails
+          data={this.state}
+          menuTabs
+          type="Sale"
+          handlerChangeMenu={(index) => this.handlerChangeMenu(index)}
+        />
 
-          <div className="w-full h-full flex flex-col gap-4">
-            {this.state.loading ? (
-              <div className="grow flex justify-center items-center pb-6">
-                <CircularProgress />
-              </div>
-            ) : (
-              <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
-                <div className="grow flex flex-col gap-3 ">
-                  <div className="bg-white w-full rounded-md px-8 py-4  ">
-                    <div className="border-2  shadow-md rounded-lg  p-4">
-                      <General data={this.state} />
-                    </div>
-                    <div className="my-2" />
-                    <div className="border-2  shadow-md rounded-lg   p-4">
-                      <Content data={this.state} />
-                    </div>
-                    <div className="my-2" />
+        <form
+          id="formData"
+          className="h-full w-full flex flex-col gap-4 relative"
+        >
+          {this.state.loading ? (
+            <div className="w-full h-full flex item-center justify-center">
+              <LoadingProgress />
+            </div>
+          ) : (
+            <>
+              <div className="relative">
+                <div className="grow  px-16 py-4 ">
+                  {this.state.tapIndex === 0 && <Content data={this.state} />}
 
-                    <div className="border-2  shadow-md rounded-lg   p-4">
-                      <Logistic data={this.state} />
-                    </div>
-                    <div className="my-2" />
+                  {this.state.tapIndex === 1 && <Logistic data={this.state} />}
 
-                    {/* <div className="border-2 shadow-lg rounded-lg mt-1  p-4"></div> */}
-
+                  {this.state.tapIndex === 2 && (
                     <PreviewAttachment
                       attachmentEntry={this.state.AttachmentEntry}
                     />
-                  </div>
-
-                  <div className="mb-5"></div>
+                  )}
                 </div>
               </div>
-            )}
-          </div>
-        </div>
+            </>
+          )}
+        </form>
       </>
     );
   }
@@ -457,98 +506,97 @@ function Content(props: any) {
 
   return (
     <>
-      <h2 className="col-span-2 py-4 font-medium text-lg underline-offset-1 ml-8">
-        Content
-      </h2>
-      <div className="bg-white   w-full  p-4  ">
-        <MaterialReactTable
-          enableColumnActions={false}
-          enableColumnFilters={false}
-          enablePagination={false}
-          enableSorting={false}
-          enableBottomToolbar={false}
-          enableTopToolbar={false}
-          muiTableBodyRowProps={{ hover: false }}
-          columns={itemColumn}
-          data={data?.Items || []}
-          muiTableProps={{
-            sx: {
-              border: "1px solid rgba(211,211,211)",
-            },
-          }}
-          // muiTableHeadCellProps={{
-          //   sx: {
-          //     border: "1px solid rgba(211,211,211)",
-          //   },
-          // }}
-          // muiTableBodyCellProps={{
-          //   sx: {
-          //     border: "1px solid rgba(211,211,211)",
-          //   },
-          // }}
-        />
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5"></div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-1 py-4">
-              <div className="col-span-1 text-lg font-medium">
-                Total Summary
+      <div className="overflow-auto w-full bg-white shadow-md border p-4 rounded-md mb-6  px-8">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          Content Information
+        </h2>
+        <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
+          <MaterialReactTable
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            muiTableBodyRowProps={{ hover: false }}
+            columns={itemColumn}
+            data={data?.Items || []}
+            muiTableProps={{
+              sx: {
+                border: "1px solid rgba(211,211,211)",
+              },
+            }}
+            // muiTableHeadCellProps={{
+            //   sx: {
+            //     border: "1px solid rgba(211,211,211)",
+            //   },
+            // }}
+            // muiTableBodyCellProps={{
+            //   sx: {
+            //     border: "1px solid rgba(211,211,211)",
+            //   },
+            // }}
+          />
+          <div className="grid grid-cols-12 ">
+            <div className="col-span-4  col-start-9 ">
+              <div className="grid grid-cols-2 py-1 py-4">
+                <div className="col-span-1 text-lg font-medium">
+                  Total Summary
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-12 py-1">
-              <div className="col-span-6 text-gray-700">
-                Total Before Discount
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">
+                  Total Before Discount
+                </div>
+                <div className="col-span-6 text-gray-900">
+                  {data?.Currency}{" "}
+                  {
+                    <NumericFormat
+                      value={
+                        (data?.DocTotalSys - data?.VatSumSys) *
+                        (data?.DocRate || 1)
+                      }
+                      thousandSeparator
+                      fixedDecimalScale
+                      disabled
+                      className="bg-white w-1/2"
+                      decimalScale={2}
+                    />
+                  }
+                </div>
               </div>
-              <div className="col-span-6 text-gray-900">
-                {data?.Currency}{" "}
-                {
-                  <NumericFormat
-                    value={
-                      (data?.DocTotalSys - data?.VatSumSys) *
-                      (data?.DocRate || 1)
-                    }
-                    thousandSeparator
-                    fixedDecimalScale
-                    disabled
-                    className="bg-white w-1/2"
-                    decimalScale={2}
-                  />
-                }
-              </div>
-            </div>
-            <div className="grid grid-cols-12 py-1">
-              <div className="col-span-6 text-gray-700">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-8 text-gray-700">Discount</div>
-                  <div className="col-span-4 text-gray-900 ">
-                    % {data?.DocDiscount || 0.0}
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">
+                  <div className="grid grid-cols-12">
+                    <div className="col-span-8 text-gray-700">Discount</div>
+                    <div className="col-span-4 text-gray-900 ">
+                      % {data?.DocDiscount || 0.0}
+                    </div>
                   </div>
+                </div>
+
+                <div className="col-span-6 text-gray-900 ">
+                  {data?.Currency}{" "}
+                  {
+                    <NumericFormat
+                      value={data?.TotalDiscountFC || data?.TotalDiscountSC}
+                      thousandSeparator
+                      fixedDecimalScale
+                      disabled
+                      className="bg-white w-1/2"
+                      decimalScale={2}
+                    />
+                  }
                 </div>
               </div>
 
-              <div className="col-span-6 text-gray-900 ">
-                {data?.Currency}{" "}
-                {
-                  <NumericFormat
-                    value={data?.TotalDiscountFC || data?.TotalDiscountSC}
-                    thousandSeparator
-                    fixedDecimalScale
-                    disabled
-                    className="bg-white w-1/2"
-                    decimalScale={2}
-                  />
-                }
-              </div>
-            </div>
-
-            {/* <div className="grid grid-cols-12">
+              {/* <div className="grid grid-cols-12">
               <div className="col-span-6 text-gray-700">Freight</div>
               <div className="col-span-6 text-gray-900">
                 {(data?.Currency)}
               </div>
             </div> */}
-            {/* <div className="grid grid-cols-12 py-1">
+              {/* <div className="grid grid-cols-12 py-1">
               <div className="col-span-6 text-gray-700">Rounding</div>
               <div className="col-span-6 text-gray-900">
                 {data?.Currency}
@@ -557,36 +605,37 @@ function Content(props: any) {
                 )}
               </div>
             </div> */}
-            <div className="grid grid-cols-12 py-1">
-              <div className="col-span-6 text-gray-700">Tax</div>
-              <div className="col-span-6 text-gray-900">
-                {data?.Currency}{" "}
-                {
-                  <NumericFormat
-                    value={data?.VatSumFc || data?.VatSum}
-                    thousandSeparator
-                    fixedDecimalScale
-                    disabled
-                    className="bg-white w-1/2"
-                    decimalScale={2}
-                  />
-                }
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">Tax</div>
+                <div className="col-span-6 text-gray-900">
+                  {data?.Currency}{" "}
+                  {
+                    <NumericFormat
+                      value={data?.VatSumFc || data?.VatSum}
+                      thousandSeparator
+                      fixedDecimalScale
+                      disabled
+                      className="bg-white w-1/2"
+                      decimalScale={2}
+                    />
+                  }
+                </div>
               </div>
-            </div>
-            <div className="grid grid-cols-12 py-1">
-              <div className="col-span-6 text-gray-700">Total</div>
-              <div className="col-span-6 text-gray-900">
-                {data?.Currency}{" "}
-                {
-                  <NumericFormat
-                    value={data?.DocTotalFc || data?.DocTotalSys}
-                    thousandSeparator
-                    fixedDecimalScale
-                    disabled
-                    className="bg-white w-1/2"
-                    decimalScale={2}
-                  />
-                }
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">Total</div>
+                <div className="col-span-6 text-gray-900">
+                  {data?.Currency}{" "}
+                  {
+                    <NumericFormat
+                      value={data?.DocTotalFc || data?.DocTotalSys}
+                      thousandSeparator
+                      fixedDecimalScale
+                      disabled
+                      className="bg-white w-1/2"
+                      decimalScale={2}
+                    />
+                  }
+                </div>
               </div>
             </div>
           </div>
@@ -598,11 +647,11 @@ function Content(props: any) {
 
 function Logistic(props: any) {
   return (
-    <div>
-      <h2 className="col-span-2 border-b py-4 font-medium text-lg underline-offset-1 ml-8">
+    <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6 py-4 px-8">
+      <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
         Logistics
       </h2>
-      <div className="p-8">
+      <div className="py-2 px-4">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
             <div className="grid grid-cols-2 py-1">
