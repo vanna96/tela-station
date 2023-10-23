@@ -123,8 +123,6 @@ export default function PumpSaleLists() {
         maxSize: 100,
         header: "Action",
         visible: true,
-
-        visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
             <Button

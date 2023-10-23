@@ -48,7 +48,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <BranchAutoComplete
                   BPdata={cookies?.user?.UserBranchAssignment}
-                  onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                  onChange={(e) => handlerChange("Branch", e)}
                   value={branchId || 0}
                   name="Branch"
                   disabled={data?.edit}
