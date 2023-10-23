@@ -24,7 +24,7 @@ export default class FormCard extends React.Component<FormCardProps> {
     public render() {
 
         return (
-            <div className={`flex flex-col rounded-lg shadow-sm bg-white border p-6 px-8 min-h-screen`}>
+            <div className={`flex flex-col rounded-lg shadow-sm bg-white border p-6 px-8  h-[calc(100vh-200px)]`}>
                 <div
                     className={`font-medium  text-xl flex justify-between items-center border-b  mb-4`}
                 >

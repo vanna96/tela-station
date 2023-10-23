@@ -31,7 +31,7 @@ export default function LogisticForm({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
+      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>Information</h2>
         </div>

@@ -29,7 +29,7 @@ export default function WarehouseAutoComplete(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedWarehouse = filteredWarehouses.find(
+      const selectedWarehouse = filteredWarehouses?.find(
         (warehouse:any) => warehouse.WarehouseCode === props.value
       );
       if (selectedWarehouse) {

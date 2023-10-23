@@ -485,6 +485,7 @@ class Form extends CoreFormDocument {
     this.setState({ isDialogOpen: false });
   };
 
+  
   HeaderTaps = () => {
     return (
       <>
