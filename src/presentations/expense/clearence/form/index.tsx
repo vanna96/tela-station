@@ -206,14 +206,24 @@ class Form extends CoreFormDocument {
             const gl = tlExpDic.find(
               ({ Code }: any) => Code === log.U_tl_expcode
             );
+            if (log.Object == "TL_ExpClear")
+                return {
+                    LineId: log.Object == "TL_ExpClear" ? log.LineId : 0,
+                    U_tl_baseentry: log.U_tl_baseentry || log.DocEntry,
+                    U_tl_linetotal: log.U_tl_linetotal,
+                    U_tl_expcode: log.U_tl_expcode,
+                    U_tl_expdesc: log.U_tl_expdesc,
+                    U_tl_remark: log.U_tl_remark,
+                    U_tl_expacct: gl.U_tl_expacct || "",
+                }
+
             return {
-              LineId: log.LineId,
-              U_tl_baseentry: log.U_tl_baseentry || log.DocEntry,
-              U_tl_linetotal: log.U_tl_linetotal,
-              U_tl_expcode: log.U_tl_expcode,
-              U_tl_expdesc: log.U_tl_expdesc,
-              U_tl_remark: log.U_tl_remark,
-              U_tl_expacct: gl.U_tl_expacct || "",
+                U_tl_baseentry: log.U_tl_baseentry || log.DocEntry,
+                U_tl_linetotal: log.U_tl_linetotal,
+                U_tl_expcode: log.U_tl_expcode,
+                U_tl_expdesc: log.U_tl_expdesc,
+                U_tl_remark: log.U_tl_remark,
+                U_tl_expacct: gl.U_tl_expacct || "",
             };
           }) || [],
       };
@@ -236,8 +246,6 @@ class Form extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-
-      console.log(payload);
 
       await request("POST", "/script/test/Clearance", payload)
         .then(async (res: any) => {
