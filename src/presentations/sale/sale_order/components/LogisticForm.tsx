@@ -8,7 +8,7 @@ import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import { getShippingAddress } from "@/models/BusinessParter";
 import { TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface ILogisticFormProps {
   data: any;
@@ -44,28 +44,20 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {/* <WarehouseSelect
-                  Branch={data?.BPL_IDAssignedToInvoice}
-                  value={data.U_tl_dnsuppo}
-                  onChange={(e) =>
-                    handlerChange("U_tl_dnsuppo", e.target.value)
-                  }
-                /> */}
-                {/* <WarehouseByBranch
-                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                  value={data?.U_tl_dnsuppo}
-                  onChange={(e) => {
-                    handlerChange("U_tl_dnsuppo", e.target.value);
-                  }}
-                /> */}
-                <WarehouseAutoComplete
-                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                  value={data?.U_tl_dnsuppo}
-                  onChange={(e) => {
-                    handlerChange("U_tl_dnsuppo", e);
-                    // onWarehouseChange(e);
-                  }}
-                />
+                {!edit ? (
+                  <WarehouseAutoComplete
+                    Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                    value={data?.U_tl_dnsuppo}
+                    onChange={(e) => {
+                      handlerChange("U_tl_dnsuppo", e);
+                    }}
+                  />
+                ) : (
+                  <WarehouseAttendTo
+                    value={data.U_tl_dnsuppo}
+                    onChange={(e) => handlerChange("U_tl_dnsuppo", e)}
+                  />
+                )}
               </div>
             </div>
 
@@ -87,13 +79,12 @@ export default function LogisticForm({
                   </div>
                 </div>
               </div>
-              {/* <div className="col-span-1">
-               
-              </div> */}
+
               <div className="col-span-3">
                 <div className="grid grid-cols-1 ">
                   <div className="-mt-1">
                     <WarehouseAttendTo
+                      U_tl_attn_ter={true}
                       value={data.U_tl_grsuppo}
                       onChange={(e) => handlerChange("U_tl_grsuppo", e)}
                       disabled={!isChecked}
@@ -136,12 +127,24 @@ export default function LogisticForm({
                   fullWidth
                   multiline
                   rows={2}
-                  value={getShippingAddress(
-                    data?.PayToCode,
-                    data?.BPAddresses?.filter(
-                      ({ addressType }: any) => addressType === "bo_BillTo"
-                    )
-                  )}
+                  value={
+                    !edit
+                      ? getShippingAddress(
+                          data?.PayToCode,
+
+                          data?.BPAddresses?.filter(
+                            ({ addressType }: any) =>
+                              addressType === "bo_BillTo"
+                          )
+                        )
+                      : getShippingAddress(
+                          data?.PayToCode,
+                          data?.vendor.bpAddress?.filter(
+                            ({ addressType }: any) =>
+                              addressType === "bo_BillTo"
+                          )
+                        )
+                  }
                 />
               </div>
             </div>
