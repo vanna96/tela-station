@@ -81,6 +81,7 @@ export default function GeneralForm({
     data.INSeries = seriesIN;
     data.Series = seriesSO;
   }
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">

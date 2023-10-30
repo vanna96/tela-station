@@ -15,12 +15,18 @@ export default function WarehouseAttendTo(props: {
   onChange?: (value: any) => void;
   Warehouse?: Warehouse[];
   disabled?: any;
+  U_tl_attn_ter?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
     queryFn: () => new WarehouseRepository().get(),
     staleTime: Infinity,
   });
+  let filteredData = data;
+
+  if (props.U_tl_attn_ter) {
+    filteredData = data?.filter((item: any) => item.U_tl_attn_ter === "Y");
+  }
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
@@ -33,7 +39,7 @@ export default function WarehouseAttendTo(props: {
       }
     }
   }, [props.value, data]);
-
+  // U_tl_attn_ter
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 

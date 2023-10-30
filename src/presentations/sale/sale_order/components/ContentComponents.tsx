@@ -146,7 +146,7 @@ export default function ContentComponent(props: ContentComponentProps) {
     docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
 
   return (
-    <div className="">
+    <div className="h-screen">
       <FormCard
         title="Content"
         action={

@@ -141,6 +141,7 @@ export default function ContentForm({
               thousandSeparator
               fixedDecimalScale
               decimalScale={2}
+              disabled
             />
           );
         },
