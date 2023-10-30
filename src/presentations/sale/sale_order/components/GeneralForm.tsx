@@ -14,6 +14,10 @@ import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
+import CurrencyRepository from "@/services/actions/currencyRepository";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
+import { useExchangeRate } from "../hook/useExchangeRate";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -82,6 +86,36 @@ export default function GeneralForm({
     data.Series = seriesSO;
   }
 
+  const { data: CurrencyAPI }: any = useQuery({
+    queryKey: ["Currency"],
+    queryFn: () => new CurrencyRepository().get(),
+    staleTime: Infinity,
+  });
+
+  const a = CurrencyAPI?.map((c: any) => {
+    return {
+      value: c.Code,
+      name: c.Name,
+    };
+  });
+  //test
+
+  const { data: sysInfo }: any = useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () =>
+      request("POST", "CompanyService_GetAdminInfo")
+        .then((res: any) => res?.data)
+        .catch((err: any) => console.log(err)),
+    staleTime: Infinity,
+  });
+  const dataCurrency = data?.vendor?.currenciesCollection
+    ?.filter(({ Include }: any) => Include === "tYES")
+    ?.map(({ CurrencyCode }: any) => {
+      return { value: CurrencyCode, name: CurrencyCode };
+    });
+
+  useExchangeRate(data?.Currency, handlerChange);
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -118,6 +152,31 @@ export default function GeneralForm({
                   handlerChange("U_tl_whsdesc", e);
                   onWarehouseChange(e);
                 }}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Bin Location
+                {/* <span className="text-red-500">*</span> */}
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={data?.vendor?.contactEmployee?.map(
+                  (e: ContactEmployee) => ({
+                    id: e.id,
+                    name: e.name,
+                  })
+                )}
+                // onChange={(e) =>
+                //   handlerChange("ContactPersonCode", e.target.value)
+                // }
+                // value={data?.ContactPersonCode}
+                aliasvalue="id"
+                aliaslabel="name"
+                name="ContactPersonCode"
               />
             </div>
           </div>
@@ -192,25 +251,48 @@ export default function GeneralForm({
               />
             </div>
           </div>
-
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Remark
+                Currency
               </label>
             </div>
-            <div className="col-span-3">
-              <TextField
-                size="small"
-                fullWidth
-                multiline
-                rows={2}
-                name="User_Text"
-                value={data?.User_Text}
-                onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
-                }
-              />
+            <div className="col-span-3  ">
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-6">
+                  {
+                    <MUISelect
+                      value={data?.Currency || sysInfo?.SystemCurrency}
+                      items={
+                        dataCurrency?.length > 0
+                          ? CurrencyAPI?.map((c: any) => {
+                              return {
+                                value: c.Code,
+                                name: c.Name,
+                              };
+                            })
+                          : dataCurrency
+                      }
+                      aliaslabel="name"
+                      aliasvalue="value"
+                      onChange={(e: any) =>
+                        handlerChange("Currency", e.target.value)
+                      }
+                    />
+                  }
+                </div>
+                <div className="col-span-6 ">
+                  {(data?.Currency || sysInfo?.SystemCurrency) !==
+                    sysInfo?.SystemCurrency && (
+                    <MUITextField
+                      value={data?.ExchangeRate || 0}
+                      name=""
+                      disabled={true}
+                      className="-mt-1"
+                    />
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -312,7 +394,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
+          {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Line of Business
@@ -325,6 +407,26 @@ export default function GeneralForm({
                   handlerChange("U_tl_arbusi", e.target.value);
                   onLineofBusinessChange(e.target.value);
                 }}
+              />
+            </div>
+          </div> */}
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Remark
+              </label>
+            </div>
+            <div className="col-span-3">
+              <TextField
+                size="small"
+                fullWidth
+                multiline
+                rows={2}
+                name="User_Text"
+                value={data?.User_Text}
+                onChange={(e: any) =>
+                  handlerChange("User_Text", e.target.value)
+                }
               />
             </div>
           </div>

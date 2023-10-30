@@ -40,7 +40,7 @@ export default function Login() {
   const [message, setMessage] = React.useState("");
   const navigate = useNavigate();
 
-  const company = React.useRef("TLTELA_LIVE");
+  const company = React.useRef("TLTELA_DEVELOPER");
   const username = React.useRef("manager");
   const password = React.useRef("Admin@tela");
 
