@@ -18,6 +18,8 @@ import CurrencyRepository from "@/services/actions/currencyRepository";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
+import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
+import { useParams } from "react-router-dom";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -80,10 +82,28 @@ export default function GeneralForm({
     ) || {}
   ).Series;
 
+  const route = useParams();
+  const salesType = route["*"];
+  const getValueBasedOnFactor = () => {
+    switch (salesType) {
+      case "oil-sales/create":
+        return "Oil";
+      case "lube-sales/create":
+        return "Lube";
+      case "gas-sales/create":
+        return "LPG";
+      default:
+        return ""; // Set a default value if needed
+    }
+  };
+ 
+
   if (data) {
     data.DNSeries = seriesDN;
     data.INSeries = seriesIN;
     data.Series = seriesSO;
+    data.U_tl_arbusi =  getValueBasedOnFactor();
+    data.lineofBusiness = getValueBasedOnFactor();
   }
 
   const { data: CurrencyAPI }: any = useQuery({
@@ -115,7 +135,7 @@ export default function GeneralForm({
     });
 
   useExchangeRate(data?.Currency, handlerChange);
-
+console.log(data)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -163,20 +183,13 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUISelect
-                items={data?.vendor?.contactEmployee?.map(
-                  (e: ContactEmployee) => ({
-                    id: e.id,
-                    name: e.name,
-                  })
-                )}
-                // onChange={(e) =>
-                //   handlerChange("ContactPersonCode", e.target.value)
-                // }
-                // value={data?.ContactPersonCode}
-                aliasvalue="id"
-                aliaslabel="name"
-                name="ContactPersonCode"
+              <BinLocationAutoComplete
+                value={data?.BinLocation}
+                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("BinLocation", e);
+                  // onWarehouseChange(e);
+                }}
               />
             </div>
           </div>
@@ -193,6 +206,32 @@ export default function GeneralForm({
               value={data.INSeries}
               onChange={(e) => handlerChange("INSeries", e.target.value)}
             />
+            <input
+              hidden
+              name="U_tl_arbusi"
+              value={data?.U_tl_arbusi}
+              // value={getValueBasedOnFactor()}
+              onChange={(e) => {
+                handlerChange("U_tl_arbusi", e.target.value);
+                onLineofBusinessChange(e.target.value);
+              }}
+            />
+            {/* <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Line of Business
+                </label>
+              </div>
+              <div className="col-span-3">
+                <DistributionRuleSelect
+                  value={data?.U_tl_arbusi}
+                  onChange={(e) => {
+                    handlerChange("U_tl_arbusi", e.target.value);
+                    onLineofBusinessChange(e.target.value);
+                  }}
+                />
+              </div>
+            </div> */}
           </div>
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
@@ -394,22 +433,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          {/* <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Line of Business
-              </label>
-            </div>
-            <div className="col-span-3">
-              <DistributionRuleSelect
-                value={data?.U_tl_arbusi}
-                onChange={(e) => {
-                  handlerChange("U_tl_arbusi", e.target.value);
-                  onLineofBusinessChange(e.target.value);
-                }}
-              />
-            </div>
-          </div> */}
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
