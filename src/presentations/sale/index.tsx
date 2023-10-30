@@ -58,15 +58,15 @@ const SaleMasterPage = () => {
         />
 
         <ItemCard
-          title="Pump Sale"
+          title="Pump Record"
           icon={<AiOutlineFileSearch />}
-          onClick={() => goTo("pump-sale")}
+          onClick={() => goTo("pump-record")}
           amount={count?.order || 0}
         />
         <ItemCard
-          title="Morph Price"
+          title="Dispenser"
           icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("morph-price")}
+          onClick={() => goTo("dispenser")}
           amount={count?.order || 0}
         />
       </MainContainer>

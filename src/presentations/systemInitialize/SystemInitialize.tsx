@@ -77,16 +77,16 @@ export default function SystemInitializeMasterPage() {
             amount={count?.order || 0}
           />
           <ItemCard
-            title="Pump Sale"
+            title="Pump Record"
             icon={<AiOutlineSolution />}
             amount={count?.order || 0}
-            onClick={() => navigate("/sale/pump-sale")}
+            onClick={() => navigate("/sale/pump-record")}
           />
           <ItemCard
-            title="Morph Price"
+            title="Dispenser"
             icon={<AiOutlineSolution />}
             amount={count?.order || 0}
-            onClick={() => navigate("/sale/morph-price")}
+            onClick={() => navigate("/sale/dispenser")}
           />
         </div>
         <h1 className="mb-4 mt-10">Collection</h1>
