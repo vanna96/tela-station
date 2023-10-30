@@ -10,6 +10,7 @@ import { TbArrowLeftBar, TbEditCircle } from "react-icons/tb";
 import { BiEdit, BiLeftArrow, BiRightArrow } from "react-icons/bi";
 import { MdEdit } from "react-icons/md";
 import { IoCreate } from "react-icons/io5";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 interface DocumentHeaderComponentProps {
   data: any;
@@ -84,6 +85,16 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       // Maybe log an error or show a message to the user
     }
   };
+  // const discountAmount = useMemo(() => {
+  //   const dataDiscount: number = props?.data?.DocDiscount || discount;
+  //   if (dataDiscount <= 0) return 0;
+  //   if (dataDiscount > 100) return 100;
+  //   return docTotal * (dataDiscount / 100);
+  // }, [discount, props.items]);
+
+  // let TotalPaymentDue =
+  //   docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
+  // console.log(props.data.Items);
   return (
     <div
       className={`w-full flex flex-col rounded ${
@@ -128,87 +139,92 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         <div className=" flex gap-3 pr-3"></div>
       </div>
       <div
-        className={`w-full  grid grid-cols-2 gap-2 px-6 py-1 transition-all rounded overflow-hidden duration-300 ease-out  ${
-          !collapse ? "h-[6rem]" : "h-0"
+        className={`w-full  grid grid-cols-2 transition-all  overflow-hidden duration-100   ${
+          !collapse ? "h-full" : "h-0"
         }`}
       >
-        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">
-                Customer Code
-              </span>
-              <span className="font-medium text-green-700">
-                {props?.data?.CardCode}
-              </span>
+        <div className=" grid grid-cols-1 text-left w-full px-12">
+          <div className="col-span-5  col-start-1">
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2 ">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Status
+                </label>
+              </div>
+              <div className="col-span-4 ">
+                {" "}
+                <span className="text-green-500">{"OPEN"}</span>
+              </div>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">Name</span>
-              <span className="font-medium text-green-700">
-                {props?.data?.CardName}
-              </span>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Customer
+                </label>
+              </div>
+              <div className="col-span-4">
+                {props.data?.CardCode} {" - "} {props.data.CardName}
+              </div>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">
-                Status
-              </span>
-              <span className="font-medium text-green-700">
-                {props?.data?.DocumentStatus?.split("bost_")}
-              </span>
-            </div>
-          </div>
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">Total</span>
-              <span className="font-medium text-green-700">
-                {props?.data?.DocTotal}
-                {props?.data?.DocCurrency}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* {!location.pathname.includes("create") && (
-          <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-            <div className="col-span-5"></div>
-            <div className="col-span-7">
-              <div className="grid grid-cols-7">
-                <div className="col-span-2  mt-3">
-                  <Button variant="outlined" className="text-green">
-                    <span className="text-green-600 mr-1">
-                      <BiLeftArrow />
-                    </span>
-                    Prev
-                  </Button>
-                </div>
-                <div className="col-span-3 text-center ">
-                  <div className="flex flex-col gap-2">
-                    <span className="text-gray-600 text-base font-medium">
-                      Doc. Number
-                    </span>
-                    <span className="font-medium text-green-700">
-                      {props?.data?.DocNum ??
-                        props?.data?.NextNum ??
-                        "Document Number"}
-                    </span>
-                  </div>
-                </div>
-                <div className="col-span-2 mt-3">
-                  <Button variant="outlined" onClick={navigateToNextPage}>
-                    Next
-                    <div>
-                      <BiRightArrow className="text-green-600 ml-1  " />
-                    </div>
-                  </Button>
-                </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Branch
+                </label>
+              </div>
+              <div className="col-span-4">
+                {new BranchBPLRepository().find(
+                  props?.data?.BPL_IDAssignedToInvoice || 1
+                )?.BPLName ?? "N/A"}
               </div>
             </div>
           </div>
-        )} */}
+        </div>
+        <div className="grid grid-cols-1 px-12 text-right w-full">
+          <div className="col-span-5  col-start-3">
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  <span> Total Before Discount</span>
+                </label>
+              </div>
+              <div className="col-span-4">
+                {/* {props.data?.TotalBeforeDiscount} */}
+                {"USD 1,220.00"}
+              </div>
+            </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Discount
+                </label>
+              </div>
+              <div className="col-span-4">
+                {/* {props.data?.DocDiscount}  */}
+                {"USD 0.00"}
+              </div>
+            </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Tax
+                </label>
+              </div>
+              <div className="col-span-4">
+                {/* {props.data?.DiscountAmount} */}
+                {"USD 0.00"}
+              </div>
+            </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Total
+                </label>
+              </div>
+              <div className="col-span-4">{"USD 1,220.00"}</div>
+            </div>
+          </div>
+        </div>
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
