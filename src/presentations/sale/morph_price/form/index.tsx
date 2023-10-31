@@ -20,6 +20,7 @@ import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
+import PumpData from "../components/PumpData";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -426,10 +427,10 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc"],
-      1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
-      3: [],
+      // 0: ["CardCode", "U_tl_whsdesc"],
+      // 1: ["Items"],
+      // 2: ["U_tl_dnsuppo", "PayToCode"],
+      // 3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
@@ -443,10 +444,13 @@ class SalesOrderForm extends CoreFormDocument {
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        <div className="w-full mt-2">
+          <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
+          <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
+          {/* <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
+        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
+        </div>
+
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -465,7 +469,7 @@ class SalesOrderForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
                 Next
@@ -540,7 +544,7 @@ class SalesOrderForm extends CoreFormDocument {
             ) : (
               <>
                 <div className="grow">
-                  {this.state.tapIndex === 0 && (
+                  {/* {this.state.tapIndex === 0 && (
                     <GeneralForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -582,6 +586,24 @@ class SalesOrderForm extends CoreFormDocument {
                     <AttachmentForm
                       data={this.state}
                       handlerChange={(key: any, value: any) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )} */}
+                  {this.state.tapIndex === 0 && (
+                    <GeneralForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {this.state.tapIndex === 1 && (
+                    <PumpData
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
                     />
