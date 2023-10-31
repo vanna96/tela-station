@@ -17,6 +17,11 @@ import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import AccountTextField from "@/components/input/AccountTextField";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import CashAccount from "@/components/selectbox/CashAccount";
+import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
+import { useQuery } from "react-query";
+import CurrencyRepository from "@/services/actions/currencyRepository";
+import request from "@/utilies/request";
+import { useExchangeRate } from "../hook/useExchangeRate";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -84,6 +89,35 @@ export default function GeneralForm({
     data.INSeries = seriesIN;
     data.Series = seriesSO;
   }
+  const { data: CurrencyAPI }: any = useQuery({
+    queryKey: ["Currency"],
+    queryFn: () => new CurrencyRepository().get(),
+    staleTime: Infinity,
+  });
+
+  const a = CurrencyAPI?.map((c: any) => {
+    return {
+      value: c.Code,
+      name: c.Name,
+    };
+  });
+  //test
+
+  const { data: sysInfo }: any = useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () =>
+      request("POST", "CompanyService_GetAdminInfo")
+        .then((res: any) => res?.data)
+        .catch((err: any) => console.log(err)),
+    staleTime: Infinity,
+  });
+  const dataCurrency = data?.vendor?.currenciesCollection
+    ?.filter(({ Include }: any) => Include === "tYES")
+    ?.map(({ CurrencyCode }: any) => {
+      return { value: CurrencyCode, name: CurrencyCode };
+    });
+
+  useExchangeRate(data?.Currency, handlerChange);
   return (
     <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -108,6 +142,28 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
+                Dispenser
+                {/* <span className="text-red-500">*</span> */}
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={[
+                  { id: 1, name: "DS-001" },
+                  { id: 2, name: "DS-002" },
+                  { id: 3, name: "DS-003" },
+                ]}
+                onChange={(e) => handlerChange("Dispenser", e.target.value)}
+                value={data?.Dispenser}
+                aliasvalue="id"
+                aliaslabel="name"
+                name="Dispenser"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Warehouse
               </label>
             </div>
@@ -118,6 +174,24 @@ export default function GeneralForm({
                 onChange={(e) => {
                   handlerChange("U_tl_whsdesc", e);
                   onWarehouseChange(e);
+                }}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Bin Location
+                {/* <span className="text-red-500">*</span> */}
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BinLocationAutoComplete
+                value={data?.BinLocation}
+                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("BinLocation", e);
+                  // onWarehouseChange(e);
                 }}
               />
             </div>
@@ -172,6 +246,50 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
+                Currency
+              </label>
+            </div>
+            <div className="col-span-3  ">
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-6">
+                  {
+                    <MUISelect
+                      value={data?.Currency || sysInfo?.SystemCurrency}
+                      items={
+                        dataCurrency?.length > 0
+                          ? CurrencyAPI?.map((c: any) => {
+                              return {
+                                value: c.Code,
+                                name: c.Name,
+                              };
+                            })
+                          : dataCurrency
+                      }
+                      aliaslabel="name"
+                      aliasvalue="value"
+                      onChange={(e: any) =>
+                        handlerChange("Currency", e.target.value)
+                      }
+                    />
+                  }
+                </div>
+                <div className="col-span-6 ">
+                  {(data?.Currency || sysInfo?.SystemCurrency) !==
+                    sysInfo?.SystemCurrency && (
+                    <MUITextField
+                      value={data?.ExchangeRate || 0}
+                      name=""
+                      disabled={true}
+                      className="-mt-1"
+                    />
+                  )}
+                </div>
+              </div>
+          </div>
+        </div>
+          {/* <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Contact Person
               </label>
             </div>
@@ -192,9 +310,9 @@ export default function GeneralForm({
                 name="ContactPersonCode"
               />
             </div>
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-5 py-2">
+          {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Remark
@@ -213,7 +331,7 @@ export default function GeneralForm({
                 }
               />
             </div>
-          </div>
+          </div> */}
         </div>
         <div className="col-span-2 md:col-span-1"></div>
         <div className="col-span-5 ">
@@ -251,7 +369,7 @@ export default function GeneralForm({
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
+          {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Posting Date
@@ -285,7 +403,7 @@ export default function GeneralForm({
                 onChange={(e: any) => handlerChange("DueDate", e)}
               />
             </div>
-          </div>
+          </div> */}
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -314,7 +432,7 @@ export default function GeneralForm({
             </div>
           </div>
 
-          <div className="grid grid-cols-5 py-2">
+          {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Cash Account<span className="text-red-500"> *</span>
@@ -327,7 +445,7 @@ export default function GeneralForm({
                 disabled={data?.edit}
               />
             </div>
-          </div>
+          </div> */}
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
