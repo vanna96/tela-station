@@ -28,6 +28,8 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 export default function SaleOrderLists() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
+  const salesTypes = useParams();
+  const salesType = salesTypes["*"];
 
   const columns = React.useMemo(
     () => [
@@ -130,7 +132,7 @@ export default function SaleOrderLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/sales-order/" + cell.row.original.DocEntry, {
+                route(`/sale/${salesType}/` + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -152,7 +154,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  "/sale/sales-order/" + cell.row.original.DocEntry + "/edit",
+                  `/sale/${salesType}/` + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -310,11 +312,18 @@ export default function SaleOrderLists() {
     handlerSearchFilter(queryFilters);
   };
   const { id }: any = useParams();
+  function capitalizeHyphenatedWords(str: any) {
+    return str
+      .split("-")
+      .map((word: any) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route("/sale/sales-order")}>
-        Sales Order
+      <span className="" onClick={() => route(`/sale/${salesType}`)}>
+        <span className=""></span>
+        {" "}{capitalizeHyphenatedWords(salesType)}
       </span>
     </>
   );
@@ -435,7 +444,7 @@ export default function SaleOrderLists() {
                         size="small"
                         // onClick={handleGoClick}
                       >
-                         Filter
+                        Filter
                       </Button>
                     </div>
                   }
@@ -466,7 +475,7 @@ export default function SaleOrderLists() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Order Lists"
-          createRoute="/sale/sales-order/create"
+          createRoute={`/sale/${salesType}/create`}
         />
       </div>
     </>

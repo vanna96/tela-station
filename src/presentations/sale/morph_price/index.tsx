@@ -130,7 +130,7 @@ export default function MorphPriceLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/morph-price/" + cell.row.original.DocEntry, {
+                route("/sale/dispenser/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -147,7 +147,7 @@ export default function MorphPriceLists() {
               }
               onClick={() => {
                 route(
-                  "/sale/morph-price/" + cell.row.original.DocEntry + "/edit",
+                  "/sale/dispenser/" + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -307,8 +307,8 @@ export default function MorphPriceLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route("/sale/morph-price")}>
-        Morph Price
+      <span className="" onClick={() => route("/sale/dispenser")}>
+     {" "}  Dispenser
       </span>
     </>
   );
@@ -460,8 +460,8 @@ export default function MorphPriceLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Morph Price Lists"
-          createRoute="/sale/morph-price/create"
+          title="Dispenser Lists"
+          createRoute="/sale/dispenser/create"
         />
       </div>
     </>

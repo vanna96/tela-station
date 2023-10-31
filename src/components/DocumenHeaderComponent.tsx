@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import BackButton from "./button/BackButton";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button, IconButton } from "@mui/material";
@@ -10,6 +10,9 @@ import { TbArrowLeftBar, TbEditCircle } from "react-icons/tb";
 import { BiEdit, BiLeftArrow, BiRightArrow } from "react-icons/bi";
 import { MdEdit } from "react-icons/md";
 import { IoCreate } from "react-icons/io5";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useDocumentTotalHook } from "@/hook";
+import { NumericFormat } from "react-number-format";
 
 interface DocumentHeaderComponentProps {
   data: any;
@@ -34,12 +37,6 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   const handlerGoToEdit = () => {
     navigate(location.pathname + "/edit", { state: props.data, replace: true });
   };
-
-  // const handlerGoToCreate = () => {
-
-  //   const url = location.pathname.replace(`${id}/edit`, "create");
-  //   window.location.href = url;
-  // };
 
   const handlerGoToCreate = () => {
     if (location.pathname.includes("/edit")) {
@@ -84,6 +81,23 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       // Maybe log an error or show a message to the user
     }
   };
+
+  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
+  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+    props.data.Items ?? [],
+    props.data.DocDiscount,
+    1
+  );
+
+  const discountAmount = useMemo(() => {
+    const dataDiscount: number = props?.data?.DocDiscount || discount;
+    if (dataDiscount <= 0) return 0;
+    if (dataDiscount > 100) return 100;
+    return docTotal * (dataDiscount / 100);
+  }, [discount, props?.data?.DocDiscount]);
+
+  let TotalPaymentDue =
+    docTotal - (docTotal * props.data.DocDiscount) / 100 + docTaxTotal || 0;
   return (
     <div
       className={`w-full flex flex-col rounded ${
@@ -128,87 +142,139 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         <div className=" flex gap-3 pr-3"></div>
       </div>
       <div
-        className={`w-full  grid grid-cols-2 gap-2 px-6 py-1 transition-all rounded overflow-hidden duration-300 ease-out  ${
-          !collapse ? "h-[6rem]" : "h-0"
+        className={`w-full  grid grid-cols-2 duration-300 ease-in overflow-hidden  ${
+          !collapse ? "h-[10rem]" : "h-0"
         }`}
       >
-        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">
-                Customer Code
-              </span>
-              <span className="font-medium text-green-700">
-                {props?.data?.CardCode}
-              </span>
+        <div className=" grid grid-cols-1 text-left w-full px-12">
+          <div className="col-span-5  col-start-1">
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2 ">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Status
+                </label>
+              </div>
+              <div className="col-span-4 ">
+                {" "}
+                <span className="text-green-500">{"OPEN"}</span>
+              </div>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">Name</span>
-              <span className="font-medium text-green-700">
-                {props?.data?.CardName}
-              </span>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Customer
+                </label>
+              </div>
+              <div className="col-span-4">
+                {props.data?.CardCode} {" - "} {props.data.CardName}
+              </div>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">
-                Status
-              </span>
-              <span className="font-medium text-green-700">
-                {props?.data?.DocumentStatus?.split("bost_")}
-              </span>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Branch
+                </label>
+              </div>
+              <div className="col-span-4">
+                {new BranchBPLRepository().find(
+                  props?.data?.BPL_IDAssignedToInvoice || 1
+                )?.BPLName ?? "N/A"}
+              </div>
             </div>
-          </div>
-          <div className="col-span-3">
-            <div className="flex flex-col gap-2">
-              <span className="text-gray-600 text-base font-medium">Total</span>
-              <span className="font-medium text-green-700">
-                {props?.data?.DocTotal}
-                {props?.data?.DocCurrency}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* {!location.pathname.includes("create") && (
-          <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-            <div className="col-span-5"></div>
-            <div className="col-span-7">
-              <div className="grid grid-cols-7">
-                <div className="col-span-2  mt-3">
-                  <Button variant="outlined" className="text-green">
-                    <span className="text-green-600 mr-1">
-                      <BiLeftArrow />
-                    </span>
-                    Prev
-                  </Button>
-                </div>
-                <div className="col-span-3 text-center ">
-                  <div className="flex flex-col gap-2">
-                    <span className="text-gray-600 text-base font-medium">
-                      Doc. Number
-                    </span>
-                    <span className="font-medium text-green-700">
-                      {props?.data?.DocNum ??
-                        props?.data?.NextNum ??
-                        "Document Number"}
-                    </span>
-                  </div>
-                </div>
-                <div className="col-span-2 mt-3">
-                  <Button variant="outlined" onClick={navigateToNextPage}>
-                    Next
-                    <div>
-                      <BiRightArrow className="text-green-600 ml-1  " />
-                    </div>
-                  </Button>
-                </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Currency
+                </label>
+              </div>
+              <div className="col-span-4">
+                <span>
+                  {props?.data?.Currency || 1}
+                  {" - "} {props.data.ExchangeRate}
+                </span>
               </div>
             </div>
           </div>
-        )} */}
+        </div>
+        <div className="grid grid-cols-1 px-12 text-right w-full">
+          <div className="col-span-5  col-start-3">
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  <span> Total Before Discount</span>
+                </label>
+              </div>
+              <div className="col-span-4">
+                {props.data?.Currency}{" "}
+                {
+                  <NumericFormat
+                    value={docTotal}
+                    thousandSeparator
+                    fixedDecimalScale
+                    disabled
+                    className="bg-white w-1/2"
+                    decimalScale={2}
+                  />
+                }
+              </div>
+            </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Discount
+                </label>
+              </div>
+              <div className="col-span-4">
+                {props.data?.Currency} {/* {props.data?.DocDiscount ?? 0} */}
+                <NumericFormat
+                  value={discountAmount}
+                  thousandSeparator
+                  fixedDecimalScale
+                  disabled
+                  className="bg-white w-1/2"
+                  decimalScale={2}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Tax
+                </label>
+              </div>
+              <div className="col-span-4">
+                {props.data?.Currency}{" "}
+                <NumericFormat
+                  value={docTaxTotal}
+                  thousandSeparator
+                  fixedDecimalScale
+                  disabled
+                  className="bg-white w-1/2"
+                  decimalScale={2}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-7 py-2">
+              <div className="col-span-3">
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Total
+                </label>
+              </div>
+              <div className="col-span-4">
+                {" "}
+                {props.data?.Currency}{" "}
+                <NumericFormat
+                  value={TotalPaymentDue}
+                  thousandSeparator
+                  fixedDecimalScale
+                  disabled
+                  className="bg-white w-1/2"
+                  decimalScale={2}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
@@ -216,15 +282,15 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         }`}
       >
         {props?.menuTabs}
-        <div className="absolute -top-[16px] w-full flex justify-center gap-2">
+        <div className="absolute -top-[9px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
           <div
             title="btn-collapse"
             role="button"
-            className={`flex items-center justify-center w-6 h-6 shadow-md drop-shadow-sm rounded-md p-2 bg-slate-200 border `}
+            className={`flex items-center justify-center w-6 h-6 shadow-md drop-shadow-sm rounded-md p-2 bg-slate-100 border cursor-pointer hover:cur`}
             onClick={handlerCollapse}
           >
             <div className="opacity-20">
-              {!collapse ? <IoIosArrowUp /> : <BsArrowDownShort />}
+              {!collapse ? <IoIosArrowUp /> : <IoIosArrowDown />}
             </div>
           </div>
         </div>

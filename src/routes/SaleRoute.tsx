@@ -21,14 +21,32 @@ export default function SaleRoute() {
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
+      <Route path="/oil-sales">
+        <Route index element={<SaleOrderLists />} />
+        <Route path="create" element={<SalesOrderForm />} />
+        <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
+        <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+      </Route>
+      <Route path="/lube-sales">
+        <Route index element={<SaleOrderLists />} />
+        <Route path="create" element={<SalesOrderForm />} />
+        <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
+        <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+      </Route>
+      <Route path="/gas-sales">
+        <Route index element={<SaleOrderLists />} />
+        <Route path="create" element={<SalesOrderForm />} />
+        <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
+        <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+      </Route>
 
-      <Route path="/morph-price">
+      <Route path="/dispenser">
         <Route index element={<MorphPriceLists />} />
         <Route path="create" element={<MorphPriceForm />} />
         <Route path=":id/edit" element={<MorphPriceForm edit={true} />} />
         <Route path=":id" element={<MorphPriceDetail edit={true} />} />
       </Route>
-      <Route path="/pump-sale">
+      <Route path="/pump-record">
         <Route index element={<PumpSaleLists />} />
         <Route path="create" element={<PumpSaleForm />} />
         <Route path=":id/edit" element={<PumpSaleForm edit={true} />} />

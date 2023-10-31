@@ -6,7 +6,7 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
+import LogisticForm from "../components/ConsumptionAllocation";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
 import AccountingForm from "../components/AccountingForm";
@@ -26,6 +26,10 @@ import {
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
+import ConsumptionAllocation from "../components/ConsumptionAllocation";
+import IncomingPayment from "../components/IncomingPayment";
+import PumpData from "../components/PumpData";
+import StockAllocation from "../components/StockAllocation";
 
 class PumpSaleForm extends CoreFormDocument {
   constructor(props: any) {
@@ -302,8 +306,7 @@ class PumpSaleForm extends CoreFormDocument {
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
-        warehouseCodeGet,
-        this.state.lineofBusiness
+        warehouseCodeGet
       );
       // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
@@ -318,7 +321,7 @@ class PumpSaleForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        CashAccount: data?.CashAccount,
+        // CashAccount: data?.CashAccount,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
@@ -426,10 +429,10 @@ class PumpSaleForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc", "CashAccount"],
-      1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
-      3: [],
+      // 0: ["CardCode", "U_tl_whsdesc"],
+      // 1: ["Items"],
+      // 2: ["U_tl_dnsuppo", "PayToCode"],
+      // 3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
@@ -443,10 +446,22 @@ class PumpSaleForm extends CoreFormDocument {
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        <div className="w-full mt-2">
+          <MenuButton active={this.state.tapIndex === 0}>
+            <span> Basic Information</span>
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
+          <MenuButton active={this.state.tapIndex === 2}>
+            Consumption Allocation
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 3}>
+            Incoming Payment
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 4}>
+            Stock Allocation
+          </MenuButton>
+        </div>
+
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -465,7 +480,7 @@ class PumpSaleForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 4}
                 style={{ textTransform: "none" }}
               >
                 Next
@@ -553,9 +568,26 @@ class PumpSaleForm extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
-
+                  {this.state.tapIndex === 1 && (
+                    <PumpData
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) =>
+                        this.handlerChange(key, value)
+                      }
+                    />
+                  )}
                   {this.state.tapIndex === 2 && (
-                    <LogisticForm
+                    <ConsumptionAllocation
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {this.state.tapIndex === 3 && (
+                    <IncomingPayment
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) => {
@@ -564,7 +596,17 @@ class PumpSaleForm extends CoreFormDocument {
                     />
                   )}
 
-                  {this.state.tapIndex === 1 && (
+                  {this.state.tapIndex === 4 && (
+                    <StockAllocation
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+
+                  {/* {this.state.tapIndex === 4 && (
                     <ContentForm
                       data={this.state}
                       handlerAddItem={() => {
@@ -577,16 +619,16 @@ class PumpSaleForm extends CoreFormDocument {
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
                     />
-                  )}
+                  )} */}
 
-                  {this.state.tapIndex === 3 && (
+                  {/* {this.state.tapIndex === 3 && (
                     <AttachmentForm
                       data={this.state}
                       handlerChange={(key: any, value: any) => {
                         this.handlerChange(key, value);
                       }}
                     />
-                  )}
+                  )} */}
                 </div>
               </>
             )}

@@ -32,23 +32,41 @@ const SaleMasterPage = () => {
   return (
     <>
       <MainContainer title="Sales">
-        <ItemCard
+        {/* <ItemCard
           title="Sales Order"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("sales-order")}
           amount={count?.order || 0}
-        />
-
+        /> */}
         <ItemCard
-          title="Pump Sale"
-          icon={<AiOutlineFileSearch />}
-          onClick={() => goTo("pump-sale")}
+          title="Oil Sales"
+          icon={<AiOutlineFileAdd />}
+          onClick={() => goTo("oil-sales")}
           amount={count?.order || 0}
         />
         <ItemCard
-          title="Morph Price"
+          title="Lube Sales"
+          icon={<AiOutlineFileAdd />}
+          onClick={() => goTo("lube-sales")}
+          amount={count?.order || 0}
+        />
+        <ItemCard
+          title="Gas Sales"
+          icon={<AiOutlineFileAdd />}
+          onClick={() => goTo("gas-sales")}
+          amount={count?.order || 0}
+        />
+
+        <ItemCard
+          title="Pump Record"
+          icon={<AiOutlineFileSearch />}
+          onClick={() => goTo("pump-record")}
+          amount={count?.order || 0}
+        />
+        <ItemCard
+          title="Dispenser"
           icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("morph-price")}
+          onClick={() => goTo("dispenser")}
           amount={count?.order || 0}
         />
       </MainContainer>

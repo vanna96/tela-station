@@ -172,57 +172,7 @@ export default function ContentComponent(props: ContentComponentProps) {
             className={`col-span-2 grid grid-cols-2 md:grid-cols-1  gap-4 ${
               !props.viewOnly && ""
             }`}
-          >
-            {/*  */}
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-1">
-                <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                  Currency
-                </label>
-              </div>
-              <div className="col-span-3  ">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-6">
-                    <div className="flex gap-4 items-start">
-                      {
-                        <MUISelect
-                          value={
-                            props.data?.Currency || sysInfo?.SystemCurrency
-                          }
-                          disabled={props.data?.edit}
-                          items={
-                            dataCurrency?.length > 0
-                              ? CurrencyAPI?.map((c: any) => {
-                                  return {
-                                    value: c.Code,
-                                    name: c.Name,
-                                  };
-                                })
-                              : dataCurrency
-                          }
-                          aliaslabel="name"
-                          aliasvalue="value"
-                          onChange={(e: any) => onChange("Currency", e)}
-                        />
-                      }
-                    </div>
-                  </div>
-                  <div className="col-span-6 pl-5">
-                    {(props.data?.Currency || sysInfo?.SystemCurrency) !==
-                      sysInfo?.SystemCurrency && (
-                      <MUITextField
-                        value={props.data?.ExchangeRate || 0}
-                        name=""
-                        disabled={true}
-                        className="-mt-1"
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/*  */}
-          </div>
+          ></div>
           <div className="col-span-2 ">
             <MaterialReactTable
               columns={
