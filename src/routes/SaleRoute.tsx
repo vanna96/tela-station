@@ -3,12 +3,15 @@ import SaleMasterPage from "@/presentations/sale";
 import SaleOrderLists from "@/presentations/sale/sale_order";
 import SalesOrderForm from "@/presentations/sale/sale_order/form/index";
 import SaleOrderDetail from "@/presentations/sale/sale_order/detail";
-import MorphPriceLists from "@/presentations/sale/morph_price";
-import MorphPriceForm from "@/presentations/sale/morph_price/form";
-import MorphPriceDetail from "@/presentations/sale/morph_price/detail";
+import DispenserForm from "@/presentations/sale/dispenser/form";
+import DispenserDetail from "@/presentations/sale/dispenser/detail";
 import PumpSaleLists from "@/presentations/sale/pump_sale";
 import PumpSaleForm from "@/presentations/sale/pump_sale/form";
 import PumpSaleDetail from "@/presentations/sale/pump_sale/detail";
+import DispenserList from "@/presentations/sale/dispenser";
+import MorphPriceLists from "@/presentations/sale/morph_price";
+import MorphPriceForm from '@/presentations/sale/morph_price/form';
+import MorphPriceDetail from '@/presentations/sale/morph_price/detail';
 
 export default function SaleRoute() {
   return (
@@ -40,11 +43,19 @@ export default function SaleRoute() {
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
 
-      <Route path="/dispenser">
+
+      <Route path="/morph-price">
         <Route index element={<MorphPriceLists />} />
         <Route path="create" element={<MorphPriceForm />} />
         <Route path=":id/edit" element={<MorphPriceForm edit={true} />} />
         <Route path=":id" element={<MorphPriceDetail edit={true} />} />
+      </Route>
+
+      <Route path="/dispenser">
+        <Route index element={<DispenserList />} />
+        <Route path="create" element={<DispenserForm />} />
+        <Route path=":id/edit" element={<DispenserForm edit={true} />} />
+        <Route path=":id" element={<DispenserDetail edit={true} />} />
       </Route>
       <Route path="/pump-record">
         <Route index element={<PumpSaleLists />} />
