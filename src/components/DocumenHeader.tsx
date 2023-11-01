@@ -111,7 +111,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = (
           !collapse ? "border-b  py-2" : "pt-2"
         } border-b-gray-200 z-50 px-0`}
       >
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center mb-2">
           <h1 className="text-md  capitalize">
             {location.pathname.split("/")[2].replace("-", " ")} -{" "}
             {props?.data?.DocNum}
