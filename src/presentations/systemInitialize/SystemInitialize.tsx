@@ -59,9 +59,9 @@ export default function SystemInitializeMasterPage() {
             amount={count?.order || 0}
           /> */}
           <ItemCard
-            title="Oil Sales"
+            title="Fuel Sales"
             icon={<AiOutlineSolution />}
-            onClick={() => navigate("/sale/oil-sales")}
+            onClick={() => navigate("/sale/fuel-sales")}
             amount={count?.order || 0}
           />
           <ItemCard
@@ -71,9 +71,9 @@ export default function SystemInitializeMasterPage() {
             amount={count?.order || 0}
           />
           <ItemCard
-            title="Gas Sales"
+            title="LPG Sales"
             icon={<AiOutlineSolution />}
-            onClick={() => navigate("/sale/gas-sales")}
+            onClick={() => navigate("/sale/lpg-sales")}
             amount={count?.order || 0}
           />
           <ItemCard
@@ -81,6 +81,12 @@ export default function SystemInitializeMasterPage() {
             icon={<AiOutlineSolution />}
             amount={count?.order || 0}
             onClick={() => navigate("/sale/pump-record")}
+          />
+          <ItemCard
+            title="Morph Price"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/sale/morph-price")}
           />
           <ItemCard
             title="Dispenser"

@@ -86,11 +86,11 @@ export default function GeneralForm({
   const salesType = route["*"];
   const getValueBasedOnFactor = () => {
     switch (salesType) {
-      case "oil-sales/create":
+      case "fuel-sales/create":
         return "Oil";
       case "lube-sales/create":
         return "Lube";
-      case "gas-sales/create":
+      case "lpg-sales/create":
         return "LPG";
       default:
         return ""; // Set a default value if needed

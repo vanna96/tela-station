@@ -39,9 +39,9 @@ const SaleMasterPage = () => {
           amount={count?.order || 0}
         /> */}
         <ItemCard
-          title="Oil Sales"
+          title="Fuel Sales"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("oil-sales")}
+          onClick={() => goTo("fuel-sales")}
           amount={count?.order || 0}
         />
         <ItemCard
@@ -51,9 +51,9 @@ const SaleMasterPage = () => {
           amount={count?.order || 0}
         />
         <ItemCard
-          title="Gas Sales"
+          title="LPG"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("gas-sales")}
+          onClick={() => goTo("lpg-sales")}
           amount={count?.order || 0}
         />
 
@@ -61,6 +61,12 @@ const SaleMasterPage = () => {
           title="Pump Record"
           icon={<AiOutlineFileSearch />}
           onClick={() => goTo("pump-record")}
+          amount={count?.order || 0}
+        />
+         <ItemCard
+          title="Morph Price"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("morph-price")}
           amount={count?.order || 0}
         />
         <ItemCard

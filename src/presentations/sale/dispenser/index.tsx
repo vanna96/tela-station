@@ -25,11 +25,9 @@ import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
-export default function SaleOrderLists() {
+export default function DispenserList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
 
   const columns = React.useMemo(
     () => [
@@ -132,7 +130,7 @@ export default function SaleOrderLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/sale/${salesType}/` + cell.row.original.DocEntry, {
+                route("/sale/dispenser/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -147,14 +145,9 @@ export default function SaleOrderLists() {
               disabled={
                 cell.row.original.DocumentStatus === "bost_Close" ?? false
               }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale/${salesType}/` + cell.row.original.DocEntry + "/edit",
+                  "/sale/dispenser/" + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -174,7 +167,6 @@ export default function SaleOrderLists() {
     ],
     []
   );
-
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
@@ -275,7 +267,7 @@ export default function SaleOrderLists() {
     cardname: "",
     deliveryDate: null,
     status: "",
-    bplid: "",
+    bplid: null,
   });
 
   const handleGoClick = () => {
@@ -312,23 +304,11 @@ export default function SaleOrderLists() {
     handlerSearchFilter(queryFilters);
   };
   const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/sale/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
+      <span className="" onClick={() => route("/sale/dispenser")}>
+     {" "}  Dispenser
       </span>
     </>
   );
@@ -412,12 +392,17 @@ export default function SaleOrderLists() {
                         { label: "None", value: "" },
                         { label: "Open", value: "bost_Open" },
                         { label: "Close", value: "bost_Close" },
+                        // { label: "Paid", value: "bost_Paid" },
+                        // { label: "Delivered", value: "bost_Delivered" },
                       ]}
+                      // onChange={(e) =>
+                      //   setSearchValues({ ...searchValues, status: e.target.value })
+                      // }
                       onChange={(e) => {
                         if (e) {
                           setSearchValues({
                             ...searchValues,
-                            status: e.target.value as string,
+                            status: e.target.value as string, // Ensure e.target.value is treated as a string
                           });
                         }
                       }}
@@ -444,11 +429,7 @@ export default function SaleOrderLists() {
                   handlerClearFilter={handlerRefresh}
                   title={
                     <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
+                      <Button variant="outlined" size="small">
                         Filter
                       </Button>
                     </div>
@@ -479,8 +460,8 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
-          createRoute={`/sale/${salesType}/create`}
+          title="Dispenser Lists"
+          createRoute="/sale/dispenser/create"
         />
       </div>
     </>

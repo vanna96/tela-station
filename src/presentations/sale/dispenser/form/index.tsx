@@ -20,8 +20,9 @@ import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
+import PumpData from "../components/PumpData";
 
-class SalesOrderForm extends CoreFormDocument {
+class DispenserForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -108,6 +109,7 @@ class SalesOrderForm extends CoreFormDocument {
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
+          console.log(data);
           const vendor: any = await request(
             "GET",
             `/BusinessPartners('${data?.CardCode}')`
@@ -155,7 +157,7 @@ class SalesOrderForm extends CoreFormDocument {
               })
               .catch((error) => console.log(error));
           }
-
+          console.log(state);
           state = {
             ...data,
             // Description: data?.Comments,
@@ -169,12 +171,13 @@ class SalesOrderForm extends CoreFormDocument {
                 UnitPrice: item.UnitPrice || item.total,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
-                // UomCode: item.UomCode,
-                // UomGroupCode: item.UoMCode || null,
-                // UomEntry: item.UoMGroupEntry || null,
-                UomEntry: item.UomCode || null,
-                WarehouseCode: this.state.warehouseCode,
-                // Currency: "AUD",
+                GrossPrice: item.GrossPrice,
+                TotalGross: item.GrossTotal,
+                DiscountPercent: item.DiscountPercent || 0,
+                TaxCode: item.VatGroup || item.taxCode || null,
+                UoMEntry: item.UomAbsEntry || null,
+                WarehouseCode: item?.WarehouseCode || null,
+                UomAbsEntry: item?.UoMEntry,
                 LineTotal: item.LineTotal,
                 VatRate: item.TaxPercentagePerRow,
               };
@@ -182,12 +185,13 @@ class SalesOrderForm extends CoreFormDocument {
             ExchangeRate: data?.DocRate || 1,
             // ShippingTo: data?.ShipToCode || null,
             // BillingTo: data?.PayToCode || null,
-            // JournalRemark: data?.JournalMemo,
+            JournalMemo: data?.JournalMemo,
             // PaymentTermType: data?.PaymentGroupCode,
             // ShippingType: data?.TransportationCode,
             // FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
             vendor,
+            warehouseCode: data?.U_tl_whsdesc,
             DocDiscount: data?.DiscountPercent,
             BPAddresses: vendor?.bpAddress?.map(
               ({ addressName, addressType }: any) => {
@@ -423,10 +427,10 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc"],
-      1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
-      3: [],
+      // 0: ["CardCode", "U_tl_whsdesc"],
+      // 1: ["Items"],
+      // 2: ["U_tl_dnsuppo", "PayToCode"],
+      // 3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
@@ -440,10 +444,13 @@ class SalesOrderForm extends CoreFormDocument {
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        <div className="w-full mt-2">
+          <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
+          <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
+          {/* <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
+        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
+        </div>
+
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -462,7 +469,7 @@ class SalesOrderForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
                 Next
@@ -537,7 +544,7 @@ class SalesOrderForm extends CoreFormDocument {
             ) : (
               <>
                 <div className="grow">
-                  {this.state.tapIndex === 0 && (
+                  {/* {this.state.tapIndex === 0 && (
                     <GeneralForm
                       data={this.state}
                       edit={this.props?.edit}
@@ -582,29 +589,53 @@ class SalesOrderForm extends CoreFormDocument {
                         this.handlerChange(key, value);
                       }}
                     />
+                  )} */}
+                  {this.state.tapIndex === 0 && (
+                    <GeneralForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {this.state.tapIndex === 1 && (
+                    <PumpData
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
                   )}
 
-                  <div className="sticky w-full bottom-4   ">
+                  <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <LoadingButton
-                        size="small"
-                        variant="contained"
-                        style={{ textTransform: "none" }}
-                        onClick={() => {
-                          window.history.back();
-                        }}
-                      >
-                        Cancel
-                      </LoadingButton>
-                      <div className="flex items-center">
+                      <div className="flex ">
+                        <LoadingButton
+                          size="small"
+                          sx={{ height: "25px" }}
+                          variant="contained"
+                          disableElevation
+                        >
+                          <span className="px-3 text-[11px] py-1 text-white">
+                            Cancel
+                          </span>
+                        </LoadingButton>
+                      </div>
+                      <div className="flex items-center space-x-4">
                         <LoadingButton
                           type="submit"
-                          size="small"
+                          sx={{ height: "25px" }}
+                          className="bg-white"
                           loading={false}
+                          size="small"
                           variant="contained"
-                          style={{ textTransform: "none" }}
+                          disableElevation
                         >
-                          Save
+                          <span className="px-6 text-[11px] py-4 text-white">
+                            {this.props.edit ? "Update" : "Save"}
+                          </span>
                         </LoadingButton>
                       </div>
                     </div>
@@ -619,7 +650,7 @@ class SalesOrderForm extends CoreFormDocument {
   };
 }
 
-export default withRouter(SalesOrderForm);
+export default withRouter(DispenserForm);
 
 const getItem = (items: any, type: any, warehouseCode: any) =>
   items?.map((item: any, index: number) => {
