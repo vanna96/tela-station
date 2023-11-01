@@ -39,9 +39,9 @@ const SaleMasterPage = () => {
           amount={count?.order || 0}
         /> */}
         <ItemCard
-          title="Oil Sales"
+          title="Fuel Sales"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("oil-sales")}
+          onClick={() => goTo("fuel-sales")}
           amount={count?.order || 0}
         />
         <ItemCard
@@ -51,9 +51,9 @@ const SaleMasterPage = () => {
           amount={count?.order || 0}
         />
         <ItemCard
-          title="Gas Sales"
+          title="LPG"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("gas-sales")}
+          onClick={() => goTo("lpg-sales")}
           amount={count?.order || 0}
         />
 

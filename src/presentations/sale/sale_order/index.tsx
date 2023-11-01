@@ -315,15 +315,20 @@ export default function SaleOrderLists() {
   function capitalizeHyphenatedWords(str: any) {
     return str
       .split("-")
-      .map((word: any) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((word: any) => {
+        if (word.toLowerCase() === "lpg") {
+          return word.toUpperCase();
+        } else {
+          return word.charAt(0).toUpperCase() + word.slice(1);
+        }
+      })
       .join(" ");
   }
 
   const childBreadcrum = (
     <>
       <span className="" onClick={() => route(`/sale/${salesType}`)}>
-        <span className=""></span>
-        {" "}{capitalizeHyphenatedWords(salesType)}
+        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
       </span>
     </>
   );

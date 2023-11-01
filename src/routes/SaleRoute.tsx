@@ -24,7 +24,7 @@ export default function SaleRoute() {
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/oil-sales">
+      <Route path="/fuel-sales">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
@@ -36,7 +36,7 @@ export default function SaleRoute() {
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/gas-sales">
+      <Route path="/lpg-sales">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
