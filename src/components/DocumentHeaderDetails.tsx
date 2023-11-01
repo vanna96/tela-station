@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import BackButton from "./button/BackButton";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button, IconButton } from "@mui/material";
@@ -14,6 +14,9 @@ import { dateFormat } from "@/utilies";
 import WarehouseRepository from "@/services/warehouseRepository";
 import MenuButton from "./button/MenuButton";
 import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { NumericFormat } from "react-number-format";
+import { useDocumentTotalHook } from "@/hook";
 
 interface DocumentHeaderDetailsProps {
   data: any;
@@ -22,7 +25,7 @@ interface DocumentHeaderDetailsProps {
   onLastPage?: () => void;
   onPreviousPage?: () => void;
   onNextPage?: () => void;
-  menuTabs?: JSX.Element | React.ReactNode;
+  menuTabs?: (props: any) => JSX.Element;
   type?: string;
   handlerChangeMenu: (index: number) => void;
   PaymentAccount?: boolean;
@@ -124,227 +127,273 @@ const DocumentHeaderDetails: React.FC<DocumentHeaderDetailsProps> = (
             </Button>
           )}
         </div>
+        <div className=" flex gap-3 pr-3"></div>
       </div>
-      {props.type === "Sale" && (
-        <div className="w-full sticky">
-          <Sale data={props.data} CashAccount={props.CashAccount} />
-          <div className="w-full flex gap-2 px-12 text-sm  border-y-gray-200  sticky  ">
-            <div>
-              <MenuButton
-                active={props.data.tapIndex === 0}
-                onClick={() => props.handlerChangeMenu(0)}
-              >
-                <span> Content</span>
-              </MenuButton>
-              <MenuButton
-                active={props.data.tapIndex === 1}
-                onClick={() => props.handlerChangeMenu(1)}
-              >
-                Logistic
-              </MenuButton>
-              <MenuButton
-                active={props.data.tapIndex === 2}
-                onClick={() => props.handlerChangeMenu(2)}
-              >
-                Attachment
-              </MenuButton>
+      <div
+        className={`w-full  grid grid-cols-2 duration-300 ease-in overflow-hidden  ${
+          !collapse ? "h-[10rem]" : "h-0"
+        }`}
+      >
+        {props.type === "Sale" && (
+          <div className="w-full sticky">
+            <Sale data={props.data} CashAccount={props.CashAccount} />
+          </div>
+        )}
+
+        {props.type === "Collection" && (
+          <div className={`w-full  `}>
+            <Collection data={props.data} />
+            <div className="w-full flex gap-2 px-12 text-sm  border-y-gray-200  sticky  ">
+              <div>
+                <MenuButton
+                  active={props.data.tapIndex === 0}
+                  onClick={() => props.handlerChangeMenu(0)}
+                >
+                  <span> Payment Means</span>
+                </MenuButton>
+
+                {!props.PaymentAccount && (
+                  <MenuButton
+                    active={props.data.tapIndex === 1}
+                    onClick={() => props.handlerChangeMenu(1)}
+                  >
+                    Content
+                  </MenuButton>
+                )}
+
+                <MenuButton
+                  active={props.data.tapIndex === 2}
+                  onClick={() => props.handlerChangeMenu(2)}
+                >
+                  Attachment
+                </MenuButton>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {props.type === "Collection" && (
-        <div className={`w-full  `}>
-          <Collection data={props.data} />
-          <div className="w-full flex gap-2 px-12 text-sm  border-y-gray-200  sticky  ">
-            <div>
-              <MenuButton
-                active={props.data.tapIndex === 0}
-                onClick={() => props.handlerChangeMenu(0)}
-              >
-                <span> Payment Means</span>
-              </MenuButton>
+        {props.type === "Expense" && (
+          <div className={`w-full   `}>
+            <Expense data={props.data} />
+            <div className="w-full flex gap-2 px-12 text-sm  border-y-gray-200  sticky  ">
+              <div>
+                <MenuButton
+                  active={props.data.tapIndex === 0}
+                  onClick={() => props.handlerChangeMenu(0)}
+                >
+                  <span> Content</span>
+                </MenuButton>
 
-              {!props.PaymentAccount && (
                 <MenuButton
                   active={props.data.tapIndex === 1}
                   onClick={() => props.handlerChangeMenu(1)}
                 >
-                  Content
+                  Attachment
                 </MenuButton>
-              )}
-
-              <MenuButton
-                active={props.data.tapIndex === 2}
-                onClick={() => props.handlerChangeMenu(2)}
-              >
-                Attachment
-              </MenuButton>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      <div
+        className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
+          !collapse ? "mt-0" : ""
+        }`}
+      >
+        <div className="w-full flex gap-2 px-12 text-sm  border-y-gray-200  sticky  ">
+          <div>
+            <MenuButton
+              active={props.data.tapIndex === 0}
+              onClick={() => props.handlerChangeMenu(0)}
+            >
+              <span> Content</span>
+            </MenuButton>
+            <MenuButton
+              active={props.data.tapIndex === 1}
+              onClick={() => props.handlerChangeMenu(1)}
+            >
+              Logistic
+            </MenuButton>
+            <MenuButton
+              active={props.data.tapIndex === 2}
+              onClick={() => props.handlerChangeMenu(2)}
+            >
+              Attachment
+            </MenuButton>
+          </div>
+        </div>
+        <div className="absolute -top-[9px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
+          <div
+            title="btn-collapse"
+            role="button"
+            className={`flex items-center justify-center w-6 h-6 shadow-md drop-shadow-sm rounded-md p-2 bg-slate-100 border cursor-pointer hover:cur`}
+            onClick={handlerCollapse}
+          >
+            <div className="opacity-20">
+              {!collapse ? <IoIosArrowUp /> : <IoIosArrowDown />}
             </div>
           </div>
         </div>
-      )}
-
-      {props.type === "Expense" && (
-        <div className={`w-full   `}>
-          <Expense data={props.data} />
-          <div className="w-full flex gap-2 px-12 text-sm  border-y-gray-200  sticky  ">
-            <div>
-              <MenuButton
-                active={props.data.tapIndex === 0}
-                onClick={() => props.handlerChangeMenu(0)}
-              >
-                <span> Content</span>
-              </MenuButton>
-
-              <MenuButton
-                active={props.data.tapIndex === 1}
-                onClick={() => props.handlerChangeMenu(1)}
-              >
-                Attachment
-              </MenuButton>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
 
 const Sale = (props: any) => {
-  const { data }: any = props;
+  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
+  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+    props.data.Items ?? [],
+    props.data.DocDiscount,
+    1
+  );
+
+  const discountAmount = useMemo(() => {
+    const dataDiscount: number = props?.data?.DocDiscount || discount;
+    if (dataDiscount <= 0) return 0;
+    if (dataDiscount > 100) return 100;
+    return docTotal * (dataDiscount / 100);
+  }, [discount, props?.data?.DocDiscount]);
+
+  let TotalPaymentDue =
+    docTotal - (docTotal * props.data.DocDiscount) / 100 + docTaxTotal || 0;
+  const [collapse, setCollapse] = React.useState<boolean>(true);
+
+  const handlerCollapse = () => {
+    setCollapse(!collapse);
+  };
+
   return (
-    <>
-      <div className=" bg-white  px-12 pb-2 border-b">
-        <div className="grid grid-cols-12   w-full">
-          <div className="col-span-5  col-start-1">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Customer
-                </label>
-              </div>
-              <div className="col-span-3">{data?.CardCode}</div>
+    <div className={`w-full `}>
+      <div className=" grid grid-cols-1 text-left w-full px-12">
+        <div className="col-span-5  col-start-1">
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-2 ">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Status
+              </label>
             </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Name
-                </label>
-              </div>
-              <div className="col-span-3">{data?.CardName}</div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Branch
-                </label>
-              </div>
-              <div className="col-span-3">{data?.BPLName ?? "N/A"}</div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Warehouse <span className="text-red-500">*</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                {" "}
-                {new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Contact Person
-                </label>
-              </div>
-              <div className="col-span-3">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Remark
-                </label>
-              </div>
-              <div className="col-span-3">{data?.Comments ?? "N/A"}</div>
+            <div className="col-span-4 ">
+              {" "}
+              <span className="text-green-500">{"OPEN"}</span>
             </div>
           </div>
-          {/* <div className="col-span-2  bg-green-200"></div> */}
-          <div className="col-span-5 col-start-9 ">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Posting Date
-                </label>
-              </div>
-
-              <div className="col-span-3">{dateFormat(data?.TaxDate)}</div>
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Customer
+              </label>
             </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Delivery Date
-                </label>
-              </div>
-              <div className="col-span-3">{dateFormat(data?.DocDueDate)}</div>
+            <div className="col-span-4">
+              {props.data?.CardCode} {" - "} {props.data.CardName}
             </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Document Date
-                </label>
-              </div>
-              <div className="col-span-3">{dateFormat(data?.DocDate)}</div>
+          </div>
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Branch
+              </label>
             </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Sale Employee
-                </label>
-              </div>
-              <div className="col-span-3">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
+            <div className="col-span-4">
+              {new BranchBPLRepository().find(
+                props?.data?.BPL_IDAssignedToInvoice || 1
+              )?.BPLName ?? "N/A"}
             </div>
-            {props.CashAccount && (
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2 text-gray-600 ">Cash Account</div>
-                <div className="col-span-3 text-gray-900">
-                  {props?.data?.ControlAccount ?? "N/A"}
-
-                  {
-                    new ChartOfAccountsRepository()?.find(
-                      props?.data?.ControlAccount
-                    )?.Name
-                  }
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Line of Business
-                </label>
-              </div>
-              <div className="col-span-3">
-                {props?.data?.U_tl_arbusi ?? "N/A"}
-              </div>
+          </div>
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Currency
+              </label>
+            </div>
+            <div className="col-span-4">
+              <span>
+                {props?.data?.Currency || 1}
+                {" - "} {props.data.ExchangeRate}
+              </span>
             </div>
           </div>
         </div>
       </div>
-    </>
+      <div className="grid grid-cols-1 px-12 text-right w-full">
+        <div className="col-span-5  col-start-3">
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-3">
+              <label htmlFor="Code" className="text-gray-600 ">
+                <span> Total Before Discount</span>
+              </label>
+            </div>
+            <div className="col-span-4">
+              {props.data?.Currency}{" "}
+              {
+                <NumericFormat
+                  value={docTotal}
+                  thousandSeparator
+                  fixedDecimalScale
+                  disabled
+                  className="bg-white w-1/2"
+                  decimalScale={2}
+                />
+              }
+            </div>
+          </div>
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-3">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Discount
+              </label>
+            </div>
+            <div className="col-span-4">
+              {props.data?.Currency} {/* {props.data?.DocDiscount ?? 0} */}
+              <NumericFormat
+                value={discountAmount}
+                thousandSeparator
+                fixedDecimalScale
+                disabled
+                className="bg-white w-1/2"
+                decimalScale={2}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-3">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Tax
+              </label>
+            </div>
+            <div className="col-span-4">
+              {props.data?.Currency}{" "}
+              <NumericFormat
+                value={docTaxTotal}
+                thousandSeparator
+                fixedDecimalScale
+                disabled
+                className="bg-white w-1/2"
+                decimalScale={2}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-7 py-2">
+            <div className="col-span-3">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Total
+              </label>
+            </div>
+            <div className="col-span-4">
+              {" "}
+              {props.data?.Currency}{" "}
+              <NumericFormat
+                value={TotalPaymentDue}
+                thousandSeparator
+                fixedDecimalScale
+                disabled
+                className="bg-white w-1/2"
+                decimalScale={2}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
