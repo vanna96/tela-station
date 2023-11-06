@@ -20,6 +20,7 @@ import ContentComponent from "../components/ContentComponents";
 import MaterialReactTable from "material-react-table";
 import { APIContext } from "../../context/APIContext";
 import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
+import DocumentHeader from "@/components/DocumenHeader";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -125,45 +126,52 @@ class FormDetail extends Component<any, any> {
   onTap(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
-
-  //   render() {
-  //     return (
-  //       <>
-  //         <div className="w-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-  //           <DocumentHeaderComponent data={this.state} menuTabs />
-
-  //           <div className="w-full h-full flex flex-col gap-4">
-  //             {this.state.loading ? (
-  //               <div className="grow flex justify-center items-center pb-6">
-  //                 <CircularProgress />
-  //               </div>
-  //             ) : (
-  //               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
-  //                 <div className="grow flex flex-col gap-3 ">
-  //                   <div className="bg-white w-full px-8 py-4  ">
-  //                     <General data={this.state} />
-  //                     <Content data={this.state} />
-  //                     <PreviewAttachment
-  //                       attachmentEntry={this.state.AttachmentEntry}
-  //                     />
-  //                   </div>
-  //                   <div className="mb-5"></div>
-  //                 </div>
-  //               </div>
-  //             )}
-  //           </div>
-  //         </div>
-  //       </>
-  //     )
-  //   }
-  // }
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
+  HeaderTabs = () => {
+    return (
+      <>
+        <div className="w-full flex justify-between">
+          <div className="">
+            <MenuButton
+              active={this.state.tapIndex === 0}
+              onClick={() => this.handlerChangeMenu(0)}
+            >
+              General
+            </MenuButton>
+            <MenuButton
+              active={this.state.tapIndex === 1}
+              onClick={() => this.handlerChangeMenu(1)}
+            >
+              <span>Payment Means</span>
+            </MenuButton>
+            {/* <MenuButton
+              active={this.state.tapIndex === 2}
+              onClick={() => this.handlerChangeMenu(2)}
+            >
+              Content
+            </MenuButton> */}
+            <MenuButton
+              active={this.state.tapIndex === 2}
+              onClick={() => this.handlerChangeMenu(2)}
+            >
+              Attachment
+            </MenuButton>
+          </div>
+        </div>
+      </>
+    );
+  };
+
   render() {
     return (
       <>
-        <DocumentHeaderDetails data={this.state} type="Expense"  handlerChangeMenu={(index) => this.handlerChangeMenu(index)}/>
+        <DocumentHeader
+          data={this.state}
+          menuTabs={this.HeaderTabs}
+          handlerChangeMenu={this.handlerChangeMenu}
+        />
 
         <form
           id="formData"
@@ -175,14 +183,18 @@ class FormDetail extends Component<any, any> {
             </div>
           ) : (
             <>
-              <div className="grow  px-16 py-4">
-                {this.state.tapIndex === 0 && <Content data={this.state} />}
+              <div className="relative">
+                <div className="grow  px-16 py-4 ">
+                  {this.state.tapIndex === 0 && <General data={this.state} />}
 
-                {this.state.tapIndex === 1 && (
-                  <PreviewAttachment
-                    attachmentEntry={this.state.AttachmentEntry}
-                  />
-                )}
+                  {this.state.tapIndex === 1 && <Content data={this.state} />}
+
+                  {this.state.tapIndex === 2 && (
+                    <PreviewAttachment
+                      attachmentEntry={this.state.AttachmentEntry}
+                    />
+                  )}
+                </div>
               </div>
             </>
           )}

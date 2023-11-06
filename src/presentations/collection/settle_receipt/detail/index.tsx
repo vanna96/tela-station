@@ -1,6 +1,10 @@
 import { withRouter } from "@/routes/withRouter";
 import { Component, useContext } from "react";
 import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
+import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository";
+import MenuButton from "@/components/button/MenuButton";
+import LoadingProgress from "@/components/LoadingProgress";
 import shortid from "shortid";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
@@ -15,9 +19,7 @@ import PreviewAttachment from "@/components/attachment/PreviewAttachment";
 import React from "react";
 import ContentComponent from "../components/ContentComponents";
 import MaterialReactTable from "material-react-table";
-import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
-import MenuButton from "@/components/button/MenuButton";
-import LoadingProgress from "@/components/LoadingProgress";
+import DocumentHeader from "@/components/DocumenHeader";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -168,18 +170,52 @@ class FormDetail extends Component<any, any> {
   onTap(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
+
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
+  HeaderTabs = () => {
+    return (
+      <>
+        <div className="w-full flex justify-between">
+          <div className="">
+            <MenuButton
+              active={this.state.tapIndex === 0}
+              onClick={() => this.handlerChangeMenu(0)}
+            >
+              General
+            </MenuButton>
+            <MenuButton
+              active={this.state.tapIndex === 1}
+              onClick={() => this.handlerChangeMenu(1)}
+            >
+              <span>Payment Means</span>
+            </MenuButton>
+            <MenuButton
+              active={this.state.tapIndex === 2}
+              onClick={() => this.handlerChangeMenu(2)}
+            >
+              Content
+            </MenuButton>
+            <MenuButton
+              active={this.state.tapIndex === 3}
+              onClick={() => this.handlerChangeMenu(3)}
+            >
+              Attachment
+            </MenuButton>
+          </div>
+        </div>
+      </>
+    );
+  };
 
   render() {
     return (
       <>
-        <DocumentHeaderDetails
+        <DocumentHeader
           data={this.state}
-          menuTabs
-          type="Collection"
-          handlerChangeMenu={(index) => this.handlerChangeMenu(index)}
+          menuTabs={this.HeaderTabs}
+          handlerChangeMenu={this.handlerChangeMenu}
         />
 
         <form
@@ -192,18 +228,21 @@ class FormDetail extends Component<any, any> {
             </div>
           ) : (
             <>
-              {/* <div className="w-full flex justify-between  px-8 py-2"> */}
+              <div className="relative">
+                <div className="grow  px-16 py-4 ">
+                  {this.state.tapIndex === 0 && <General data={this.state} />}
+                  {this.state.tapIndex === 1 && (
+                    <PaymentMean data={this.state} />
+                  )}
 
-              <div className="grow  px-16 py-4 ">
-                {this.state.tapIndex === 0 && <PaymentMean data={this.state} />}
+                  {this.state.tapIndex === 2 && <Content data={this.state} />}
 
-                {this.state.tapIndex === 1 && <Content data={this.state} />}
-
-                {this.state.tapIndex === 2 && (
-                  <PreviewAttachment
-                    attachmentEntry={this.state.AttachmentEntry}
-                  />
-                )}
+                  {this.state.tapIndex === 3 && (
+                    <PreviewAttachment
+                      attachmentEntry={this.state.AttachmentEntry}
+                    />
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -326,9 +365,7 @@ function PaymentMean(props: any) {
             </div>
             <div className="pl-20"></div>
           </div>
-          <div className="py-6 px-2">
-            <PaymentTable data={data} onChange={() => console.log()} />
-          </div>
+          <PaymentTable data={data} onChange={() => console.log()} />
           {/* </fieldset>
         <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
           <legend className="text-md px-2 font-bold">

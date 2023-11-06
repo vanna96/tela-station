@@ -19,7 +19,7 @@ import PreviewAttachment from "@/components/attachment/PreviewAttachment";
 import React from "react";
 import ContentComponent from "../components/ContentComponents";
 import MaterialReactTable from "material-react-table";
-import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
+import DocumentHeader from "@/components/DocumenHeader";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -171,51 +171,51 @@ class FormDetail extends Component<any, any> {
     this.setState({ ...this.state, tapIndex: index });
   }
 
-  //   render() {
-  //     return (
-  //       <>
-  //         <div className="w-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-  //           <DocumentHeaderComponent data={this.state} menuTabs />
-
-  //           <div className="w-full h-full flex flex-col gap-4">
-  //             {this.state.loading ? (
-  //               <div className="grow flex justify-center items-center pb-6">
-  //                 <CircularProgress />
-  //               </div>
-  //             ) : (
-  //               <div className="grow w-full h-full  flex flex-col gap-3 px-7 mt-4">
-  //                 <div className="grow flex flex-col gap-3 ">
-  //                   <div className="bg-white w-full px-8 py-4  ">
-  //                     <General data={this.state} />
-  //                     <PaymentMean data={this.state} />
-  //                     <PreviewAttachment
-  //                       attachmentEntry={this.state.AttachmentEntry}
-  //                     />
-  //                   </div>
-
-  //                   <div className="mb-5"></div>
-  //                 </div>
-  //               </div>
-  //             )}
-  //           </div>
-  //         </div>
-  //       </>
-  //     )
-  //   }
-  // }
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
+  HeaderTabs = () => {
+    return (
+      <>
+        <div className="w-full flex justify-between">
+          <div className="">
+            <MenuButton
+              active={this.state.tapIndex === 0}
+              onClick={() => this.handlerChangeMenu(0)}
+            >
+              General
+            </MenuButton>
+            <MenuButton
+              active={this.state.tapIndex === 1}
+              onClick={() => this.handlerChangeMenu(1)}
+            >
+              <span>Payment Means</span>
+            </MenuButton>
+            {/* <MenuButton
+              active={this.state.tapIndex === 2}
+              onClick={() => this.handlerChangeMenu(2)}
+            >
+              Content
+            </MenuButton> */}
+            <MenuButton
+              active={this.state.tapIndex === 3}
+              onClick={() => this.handlerChangeMenu(3)}
+            >
+              Attachment
+            </MenuButton>
+          </div>
+        </div>
+      </>
+    );
+  };
 
   render() {
     return (
       <>
-        <DocumentHeaderDetails
+        <DocumentHeader
           data={this.state}
-          menuTabs
-          type="Collection"
-          PaymentAccount = {true}
-          handlerChangeMenu={(index) => this.handlerChangeMenu(index)}
+          menuTabs={this.HeaderTabs}
+          handlerChangeMenu={this.handlerChangeMenu}
         />
 
         <form
@@ -228,16 +228,21 @@ class FormDetail extends Component<any, any> {
             </div>
           ) : (
             <>
-              <div className="grow  px-16 py-4 ">
-                {this.state.tapIndex === 0 && <PaymentMean data={this.state} />}
+              <div className="relative">
+                <div className="grow  px-16 py-4 ">
+                  {this.state.tapIndex === 0 && <General data={this.state} />}
+                  {this.state.tapIndex === 1 && (
+                    <PaymentMean data={this.state} />
+                  )}
 
-                {/* {this.state.tapIndex === 1 && <Content data={this.state} />} */}
+                  {this.state.tapIndex === 2 && <Content data={this.state} />}
 
-                {this.state.tapIndex === 2 && (
-                  <PreviewAttachment
-                    attachmentEntry={this.state.AttachmentEntry}
-                  />
-                )}
+                  {this.state.tapIndex === 3 && (
+                    <PreviewAttachment
+                      attachmentEntry={this.state.AttachmentEntry}
+                    />
+                  )}
+                </div>
               </div>
             </>
           )}
@@ -321,6 +326,15 @@ function PaymentMean(props: any) {
 
   return (
     <>
+      {/* <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
+        <h2>
+          Payment Means -{" "}
+          <b>
+            {data?.Currency || sysInfo?.SystemCurrency}{" "}
+            {parseFloat(totalUsd).toFixed(2) || "0.00"}
+          </b>
+        </h2>
+      </div> */}
       <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
         <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
           Payment Means -{" "}
@@ -516,8 +530,12 @@ function Content(props: any) {
 
   return (
     <>
-      <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-        <legend className="text-md px-2 font-bold">Content Information</legend>
+      {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+        <legend className="text-md px-2 font-bold">Content Information</legend> */}
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
+        <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
+          Content
+        </h2>
         <MaterialReactTable
           columns={itemColumns}
           data={data?.Items ?? []}
@@ -568,7 +586,9 @@ function Content(props: any) {
             </div>
           </div>
         </div>
-      </fieldset>
+      </div>
+
+      {/* </fieldset> */}
     </>
   );
 }
