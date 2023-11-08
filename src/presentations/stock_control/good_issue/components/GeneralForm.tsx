@@ -145,71 +145,6 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-              Transfer Type
-                {/* <span className="text-red-500">*</span> */}
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
-                onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
-                }}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Good in Transit
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-1">
-            <div className="col-span-2 text-gray-600 ">
-              GIT Account <span className="text-red-500">*</span>
-            </div>
-            <div className="col-span-3 text-gray-900">
-              <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
-                vtype="customer"
-                onChange={(vendor) => handlerChange("vendor", vendor)}
-                key={data?.CardCode}
-                error={"CardCode" in data?.error}
-                helpertext={data?.error?.CardCode}
-                autoComplete="off"
-                defaultValue={data?.CardCode}
-                name="BPCode"
-                endAdornment={!edit}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-               GIT Name
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
                 Branch
               </label>
             </div>
@@ -221,10 +156,11 @@ export default function GeneralForm({
               />
             </div>
           </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Warehouse Code<span className="text-red-500">*</span>
+                Warehouse <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -238,11 +174,53 @@ export default function GeneralForm({
               />
             </div>
           </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Bin Code
-                {/* <span className="text-red-500">*</span> */}
+                Employee
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={data?.CardName}
+                disabled={edit}
+                name="BPName"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Transportation No.
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={data?.CardName}
+                disabled={edit}
+                name="BPName"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Truck No.
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={data?.CardName}
+                disabled={edit}
+                name="BPName"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+              Revenue Line
               </label>
             </div>
             <div className="col-span-3">
@@ -251,12 +229,30 @@ export default function GeneralForm({
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
                   handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
                 }}
               />
             </div>
           </div>
-          
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+               Remarks
+              </label>
+            </div>
+            <div className="col-span-3">
+              <TextField
+                size="small"
+                multiline
+                rows={2}
+                fullWidth
+                name="user_Text"
+                className="w-full "
+                value={data?.user_Text}
+                onChange={(e) => handlerChange("user_Text", e.target.value)}
+              />
+            </div>
+          </div>
+
           <div>
             <input
               hidden
@@ -332,27 +328,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label
-                htmlFor="Code"
-                className={`${
-                  !("DueDate" in data?.error) ? "text-gray-600" : "text-red-500"
-                } `}
-              >
-                Due Date <span className="text-red-500">*</span>
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUIDatePicker
-                error={"DueDate" in data?.error}
-                helpertext={data?.error["DueDate"]}
-                disabled={data?.isStatusClose || false}
-                value={data.DueDate ?? null}
-                onChange={(e: any) => handlerChange("DueDate", e)}
-              />
-            </div>
-          </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -370,40 +346,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                To Branch
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BranchAutoComplete
-                BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
-                value={BPL}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Warehouse Code<span className="text-red-500">*</span>
-              </label>
-            </div>
-            <div className="col-span-3">
-              <WarehouseAutoComplete
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
-                onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
-                  onWarehouseChange(e);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Bin Code
-                {/* <span className="text-red-500">*</span> */}
+                Good Issue Type
               </label>
             </div>
             <div className="col-span-3">
@@ -412,11 +355,59 @@ export default function GeneralForm({
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
                   handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
                 }}
               />
             </div>
           </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Sale Type
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BinLocationAutoComplete
+                value={data?.BinLocation}
+                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("BinLocation", e);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Ref No
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={data?.CardName}
+                disabled={edit}
+                name="BPName"
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Offset Account
+              </label>
+            </div>
+            <div className="col-span-3">
+            <BinLocationAutoComplete
+                value={data?.BinLocation}
+                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("BinLocation", e);
+                }}
+              />
+            </div>
+          </div>
+
+      
         </div>
       </div>
     </div>

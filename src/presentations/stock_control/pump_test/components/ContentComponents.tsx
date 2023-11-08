@@ -295,32 +295,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                       Additional Infos
                     </div>
                   </div>
-                  <div className="grid grid-cols-12 py-1">
-                    <div className="col-span-6 text-gray-700">
-                      Sales Employee
-                    </div>
-                    <div className="col-span-6 text-gray-900">
-                      <SalePersonAutoComplete
-                        value={props.data.SalesPersonCode}
-                        onChange={(e) => onChange("SalesPersonCode", e)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-12 py-1">
-                    <div className="col-span-6 text-gray-700">
-                      Pick and Pack Remarks
-                    </div>
-                    <div className="col-span-6 text-gray-900">
-                      <MUITextField
-                        disabled={props?.data?.isStatusClose || false}
-                        value={props.data.PickandPack}
-                        onChange={(event: any) => {
-                          onChange("Pick", event);
-                        }}
-                      />
-                    </div>
-                  </div>
+                 
 
                   <div className="grid grid-cols-12 py-1">
                     <div className="col-span-6 text-gray-700">

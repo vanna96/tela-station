@@ -11,7 +11,7 @@ import {
   AiOutlineStock,
 } from "react-icons/ai";
 import { motion } from "framer-motion";
-import { BiSolidCaretDownCircle } from "react-icons/bi";
+import { MdOutlineStore } from "react-icons/md";
 
 export default function SideBar(props: any) {
   const navigate = useNavigate();
@@ -181,42 +181,42 @@ export default function SideBar(props: any) {
           setActiveParent={setActiveParent} // Pass setActiveParent prop
         >
           <ChildButton
-            icon={<BiSolidCaretDownCircle />}
+            icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/inventory-transfer-request")}
             route="inventory-transfer-request"
             collapse={props?.collapse}
             title="Inventory Transfer Request"
           />
           <ChildButton
-            icon={<BiSolidCaretDownCircle />}
+            icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/inventory-transfer")}
             route="inventory-transfer"
             collapse={props?.collapse}
             title="Inventory Transfer"
           />
           <ChildButton
-            icon={<BiSolidCaretDownCircle />}
+            icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/good-issue")}
             route="good-issue"
             collapse={props?.collapse}
-            title="Good Issuer"
+            title="Good Issue"
           />
           <ChildButton
-            icon={<BiSolidCaretDownCircle />}
+            icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/good-receipt")}
             route="good-receipt"
             collapse={props?.collapse}
             title="Good Receipt"
           />
            <ChildButton
-            icon={<BiSolidCaretDownCircle />}
+            icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/pump-test")}
             route="pump-test"
             collapse={props?.collapse}
             title="Pump Test"
           />
            <ChildButton
-            icon={<BiSolidCaretDownCircle />}
+            icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/fuel-level")}
             route="fuel-level"
             collapse={props?.collapse}
