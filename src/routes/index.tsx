@@ -1,19 +1,25 @@
-import React from "react"
-import { BrowserRouter, Route, Routes, createBrowserRouter } from "react-router-dom"
-import { AnimatePresence } from "framer-motion"
+import React from "react";
+import {
+  BrowserRouter,
+  Route,
+  Routes,
+  createBrowserRouter,
+} from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 
-import ProcumentRoute from "./ProcumentRoute"
-import Login from "../presentations/login/page/Login"
-import App from "../layouts/App"
+import ProcumentRoute from "./ProcumentRoute";
+import Login from "../presentations/login/page/Login";
+import App from "../layouts/App";
 
-import MasterDataRoute from "./MasterDataRoute"
-import SaleRoute from "./SaleRoute"
-import InventoryRoute from "./InventoryRoute"
-import LogisticRoute from "./LogisticRoute"
-import { useCookies } from "react-cookie"
-import SystemInitializeMasterPage from "@/presentations/systemInitialize/SystemInitialize"
-import CollectionRoute from "./CollectionRoute"
-import ExpenseRoute from "./ExpenseRoute"
+import MasterDataRoute from "./MasterDataRoute";
+import SaleRoute from "./SaleRoute";
+import InventoryRoute from "./InventoryRoute";
+import LogisticRoute from "./LogisticRoute";
+import { useCookies } from "react-cookie";
+import SystemInitializeMasterPage from "@/presentations/systemInitialize/SystemInitialize";
+import CollectionRoute from "./CollectionRoute";
+import ExpenseRoute from "./ExpenseRoute";
+import StockControlRoute from "./StockControlRoute";
 
 const Router = () => {
   return (
@@ -46,11 +52,16 @@ const Router = () => {
               element={<ExpenseRoute />}
               errorElement={<span>Error</span>}
             />
+            <Route
+              path="/stock-control/*"
+              element={<StockControlRoute />}
+              errorElement={<span>Error</span>}
+            />
           </Route>
         </Routes>
       </BrowserRouter>
     </AnimatePresence>
-  )
-}
+  );
+};
 
-export default Router
+export default Router;

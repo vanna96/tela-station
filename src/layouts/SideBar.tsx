@@ -5,8 +5,13 @@ import { FiBarChart2, FiGrid, FiShoppingBag } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
 import { BsCollection } from "react-icons/bs";
 import { HiOutlineShoppingBag } from "react-icons/hi";
-import { AiOutlineCaretDown, AiOutlineCaretRight } from "react-icons/ai";
+import {
+  AiOutlineCaretDown,
+  AiOutlineCaretRight,
+  AiOutlineStock,
+} from "react-icons/ai";
 import { motion } from "framer-motion";
+import { BiSolidCaretDownCircle } from "react-icons/bi";
 
 export default function SideBar(props: any) {
   const navigate = useNavigate();
@@ -163,6 +168,61 @@ export default function SideBar(props: any) {
             title="Clearance"
           />
         </NavButton>
+
+        <NavButton
+          onClick={() => {
+            goTo("/stock-control");
+          }}
+          route="stock-control"
+          collapse={props.collapse}
+          icon={<AiOutlineStock />}
+          title="Stock Control"
+          isActive={activeParent === "stock-control"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
+        >
+          <ChildButton
+            icon={<BiSolidCaretDownCircle />}
+            onClick={() => goTo("/stock-control/inventory-transfer-request")}
+            route="inventory-transfer-request"
+            collapse={props?.collapse}
+            title="Inventory Transfer Request"
+          />
+          <ChildButton
+            icon={<BiSolidCaretDownCircle />}
+            onClick={() => goTo("/stock-control/inventory-transfer")}
+            route="inventory-transfer"
+            collapse={props?.collapse}
+            title="Inventory Transfer"
+          />
+          <ChildButton
+            icon={<BiSolidCaretDownCircle />}
+            onClick={() => goTo("/stock-control/good-issue")}
+            route="good-issue"
+            collapse={props?.collapse}
+            title="Good Issuer"
+          />
+          <ChildButton
+            icon={<BiSolidCaretDownCircle />}
+            onClick={() => goTo("/stock-control/good-receipt")}
+            route="good-receipt"
+            collapse={props?.collapse}
+            title="Good Receipt"
+          />
+           <ChildButton
+            icon={<BiSolidCaretDownCircle />}
+            onClick={() => goTo("/stock-control/pump-test")}
+            route="pump-test"
+            collapse={props?.collapse}
+            title="Pump Test"
+          />
+           <ChildButton
+            icon={<BiSolidCaretDownCircle />}
+            onClick={() => goTo("/stock-control/fuel-level")}
+            route="fuel-level"
+            collapse={props?.collapse}
+            title="Fuel Level"
+          />
+        </NavButton>
       </div>
     </motion.aside>
   );
@@ -191,18 +251,11 @@ type ChildButtonProps = {
 
 export function NavButton(props: NavButtonProps) {
   const location = useLocation();
-  // const [isExpanded, setIsExpanded] = useState(false);
-  // function toggleExpansion() {
-  //   setIsExpanded(!isExpanded);
-  // }
-  console.log(location.pathname?.split("/")[1]);
-  console.log(props.route);
-  // const isActive = location.pathname.startsWith(props.route);
+
   const isActive = location.pathname?.split("/")[1] === props.route;
 
   const hasChildren = React.Children.count(props.children) > 0;
 
-  // const isActive = location.pathname.startsWith(props.route) || props.isActive;
   const toggleExpansion = () => {
     if (props.setActiveParent && props.isActive !== undefined) {
       if (props.route !== null) {
