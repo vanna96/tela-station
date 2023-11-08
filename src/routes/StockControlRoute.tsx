@@ -10,6 +10,8 @@ import GoodIssueList from "@/presentations/stock_control/good_issue";
 import GoodIssueForm from "@/presentations/stock_control/good_issue/form/index";
 import PumpTestList from "@/presentations/stock_control/pump_test";
 import PumpTestForm from "@/presentations/stock_control/pump_test/form/index";
+import FuelLevelList from "@/presentations/stock_control/fuel_level";
+import FuelLevelForm from "@/presentations/stock_control/fuel_level/form/index";
 
 
 export default function StockControlRoute() {
@@ -50,9 +52,9 @@ export default function StockControlRoute() {
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
         <Route path="/fuel-level">
-          <Route index element={<InventoryTransferRequestList />} />
-          <Route path="create" element={<InventoryTransferForm />} />
-          <Route path=":id/edit" element={<InventoryTransferForm edit={true} />} />
+          <Route index element={<FuelLevelList />} />
+          <Route path="create" element={<FuelLevelForm />} />
+          <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
       </Routes>
