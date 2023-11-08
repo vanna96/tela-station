@@ -22,6 +22,8 @@ export default function SideBar(props: any) {
     [props.collapse]
   );
 
+  const [activeParent, setActiveParent] = useState<string | null>(null);
+
   return (
     <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-500 to-green-600">
       {props?.collapse ? (
@@ -43,7 +45,17 @@ export default function SideBar(props: any) {
           collapse={props?.collapse}
           icon={<FiGrid />}
           title="Dashboard"
-        />
+          isActive={activeParent === "dashboard"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
+        >
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/sale/dispenser")}
+            route="dispenser"
+            collapse={props?.collapse}
+            title="Dispenser"
+          />
+        </NavButton>
         <NavButton
           onClick={() => {
             goTo("/sale");
@@ -52,6 +64,8 @@ export default function SideBar(props: any) {
           collapse={props.collapse}
           icon={<HiOutlineShoppingBag />}
           title="Ordering System"
+          isActive={activeParent === "sale"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
         >
           <ChildButton
             icon={<HiOutlineShoppingBag />}
@@ -98,6 +112,8 @@ export default function SideBar(props: any) {
           collapse={props.collapse}
           icon={<BsCollection />}
           title="Collection"
+          isActive={activeParent === "banking"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
         >
           <ChildButton
             icon={<HiOutlineShoppingBag />}
@@ -129,6 +145,8 @@ export default function SideBar(props: any) {
           collapse={props.collapse}
           icon={<FiBarChart2 />}
           title="Expense Log"
+          isActive={activeParent === "expense"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
         >
           <ChildButton
             icon={<HiOutlineShoppingBag />}
@@ -153,10 +171,12 @@ export default function SideBar(props: any) {
 type NavButtonProps = {
   collapse: boolean;
   title: string;
-  route: string;
+  route: string | null;
   disable?: boolean;
   icon: React.ReactElement;
   onClick: () => void;
+  isActive: boolean; // Include isActive prop
+  setActiveParent?: (route: string) => void; // Include setActiveParent prop
   children?: React.ReactNode;
 };
 
@@ -171,16 +191,25 @@ type ChildButtonProps = {
 
 export function NavButton(props: NavButtonProps) {
   const location = useLocation();
+  // const [isExpanded, setIsExpanded] = useState(false);
+  // function toggleExpansion() {
+  //   setIsExpanded(!isExpanded);
+  // }
+  console.log(location.pathname?.split("/")[1]);
+  console.log(props.route);
+  // const isActive = location.pathname.startsWith(props.route);
+  const isActive = location.pathname?.split("/")[1] === props.route;
 
   const hasChildren = React.Children.count(props.children) > 0;
 
-  const [isExpanded, setIsExpanded] = useState(false);
-  function toggleExpansion() {
-    setIsExpanded(!isExpanded);
-  }
-
-  const isActive = location.pathname.startsWith(props.route);
-  const isDashboard = location.pathname?.split("/")[1] === "dashboard";
+  // const isActive = location.pathname.startsWith(props.route) || props.isActive;
+  const toggleExpansion = () => {
+    if (props.setActiveParent && props.isActive !== undefined) {
+      if (props.route !== null) {
+        props.setActiveParent(props.isActive ? props.route : props.route);
+      }
+    }
+  };
 
   return (
     <>
@@ -196,22 +225,20 @@ export function NavButton(props: NavButtonProps) {
           className={`flex text-base ${
             props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
           } ${
-            isDashboard
+            isActive
               ? "bg-white text-gray-900"
-              : isExpanded
+              : isActive
               ? "bg-white text-gray-900"
               : ""
           } transition-transform duration-100 ease-in text-white hover:scale-105 active:scale-95 py-[0.6rem]  items-center gap-4`}
         >
           <span
-            className={`${
-              isDashboard || isExpanded ? "bg-white text-xl text-gray-900" : ""
-            }`}
+            className={`${isActive ? "bg-white text-xl text-gray-900" : ""}`}
           >
             {props.icon}
           </span>
           {props.collapse ? (
-            <span className={isDashboard || isExpanded ? "text-gray-900" : ""}>
+            <span className={isActive ? "text-gray-900" : ""}>
               {props.title}
             </span>
           ) : null}
@@ -219,15 +246,11 @@ export function NavButton(props: NavButtonProps) {
             <span className="mr-2">
               <div
                 className={`flex items-center text-right ${
-                  isDashboard || isExpanded ? "text-gray-900" : ""
+                  isActive ? "text-gray-900" : ""
                 }`}
               >
                 <span className="mr-2">
-                  {isExpanded ? (
-                    <AiOutlineCaretDown />
-                  ) : (
-                    <AiOutlineCaretRight />
-                  )}
+                  {isActive ? <AiOutlineCaretDown /> : <AiOutlineCaretRight />}
                 </span>
               </div>
             </span>
@@ -235,10 +258,10 @@ export function NavButton(props: NavButtonProps) {
         </div>
         <div
           className={`bg-white text-gray-900 ${
-            isDashboard || isExpanded ? "bg-gray-200 text-gray-900" : ""
+            isActive ? "bg-gray-200 text-gray-900" : ""
           }`}
         >
-          {isExpanded && props.children}
+          {props.isActive && props.children}
         </div>
       </motion.div>
     </>
