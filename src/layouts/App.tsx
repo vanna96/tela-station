@@ -50,7 +50,7 @@ export default function App() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <div className={`h-full w-full flex gap-0 transition-all duration-300`}>
+      <div className={`h-full w-full flex gap-0 transition-all duration-300 bg-white`}>
         <SideBar collapse={collapse} />
         <div className="grow flex flex-col overflow-auto relative">
           <div
