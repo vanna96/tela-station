@@ -46,11 +46,99 @@ export default function ContentForm({
     onChange("Items", items);
   };
 
+  // const itemColumns = React.useMemo(
+  //   () => [
+  //     {
+  //       accessorKey: "ExpenseCode",
+  //       header: "Expense Code",
+  //       visible: true,
+  //       Cell: ({ cell }: any) => {
+  //         return (
+  //           <MUISelect
+  //             value={cell.getValue()}
+  //             items={
+  //               tlExpDic?.map((e: any) => {
+  //                 return {
+  //                   ...e,
+  //                   label: `${e.Code} - ${e.Name}`,
+  //                 };
+  //               }) || []
+  //             }
+  //             aliaslabel="label"
+  //             aliasvalue="Code"
+  //             onChange={(e: any) =>
+  //               handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
+  //             }
+  //           />
+  //         );
+  //       },
+  //     },
+  //     {
+  //       accessorKey: "ExpenseName",
+  //       header: "Expense Name",
+  //       visible: true,
+  //       Cell: ({ cell }: any) => {
+  //         return (
+  //           <MUITextField
+  //             value={
+  //               tlExpDic?.find(
+  //                 (e: any) => e.Code === cell.row.original.ExpenseCode
+  //               )?.Name
+  //             }
+  //             // onBlur={(e: any) =>
+  //             //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
+  //             // }
+  //           />
+  //         );
+  //       },
+  //     },
+  //     {
+  //       accessorKey: "Amount",
+  //       header: "Amount",
+  //       visible: true,
+  //       Cell: ({ cell }: any) => {
+  //         return (
+  //           <NumericFormat
+  //             key={"amount_" + cell.getValue()}
+  //             thousandSeparator
+  //             decimalScale={2}
+  //             fixedDecimalScale
+  //             customInput={MUITextField}
+  //             defaultValue={cell.getValue()}
+  //             onBlur={(event) => {
+  //               const newValue = parseFloat(
+  //                 event.target.value.replace(/,/g, "")
+  //               );
+  //               handlerUpdateRow(cell.row.id, ["Amount", newValue]);
+  //             }}
+  //           />
+  //         );
+  //       },
+  //     },
+  //     {
+  //       accessorKey: "Remark",
+  //       header: "Remark",
+  //       visible: true,
+  //       Cell: ({ cell }: any) => {
+  //         return (
+  //           <MUITextField
+  //             defaultValue={cell.getValue()}
+  //             onBlur={(e: any) =>
+  //               handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
+  //             }
+  //           />
+  //         );
+  //       },
+  //     },
+  //   ],
+  //   [data?.Items]
+  // );
+
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "ExpenseCode",
-        header: "Expense Code",
+        accessorKey: "WarehouseCode",
+        header: "Warehouse Code",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -74,8 +162,8 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "ExpenseName",
-        header: "Expense Name",
+        accessorKey: "BinCode",
+        header: "Bin Code",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -93,8 +181,27 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "Amount",
-        header: "Amount",
+        accessorKey: "Volumn",
+        header: "Volumn",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              value={
+                tlExpDic?.find(
+                  (e: any) => e.Code === cell.row.original.ExpenseCode
+                )?.Name
+              }
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
+              // }
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "Quantity",
+        header: "Qty",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -115,6 +222,7 @@ export default function ContentForm({
           );
         },
       },
+     
       {
         accessorKey: "Remark",
         header: "Remark",

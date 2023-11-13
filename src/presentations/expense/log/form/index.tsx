@@ -387,7 +387,7 @@ class Form extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
                 Next

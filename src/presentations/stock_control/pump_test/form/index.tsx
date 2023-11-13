@@ -6,10 +6,8 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
 import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
@@ -442,7 +440,7 @@ class Form extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
                 Next

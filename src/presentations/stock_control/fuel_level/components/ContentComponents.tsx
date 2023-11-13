@@ -177,7 +177,7 @@ export default function ContentComponent(props: ContentComponentProps) {
             enableTableFooter={false}
           />
         </div>
-        <div className="col-span-2 mt-[-40px]">
+        {/* <div className="col-span-2 mt-[-40px]">
           <div className="grid grid-cols-2">
             <div className="w-full grid grid-cols-2 mt-4"></div>
             <div className="pl-20">
@@ -203,7 +203,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
         <ContentTableSelectColumn
           ref={columnRef}
           columns={props.columns}
