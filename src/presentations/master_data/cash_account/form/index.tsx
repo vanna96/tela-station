@@ -36,47 +36,10 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_ExpDic(${id})`)
+      await request("GET", `TL_CashAcct('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-
-          let AttachmentList: any = [];
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
 
           state = {
             ...data,
@@ -102,10 +65,7 @@ class Form extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      let TL_ATTECHCollection = null;
-      const files = data?.AttachmentList?.map((item: any) => item);
-      if (files?.length > 0) TL_ATTECHCollection = await getAttachment(files);
-
+    
       // on Edit
       const payload = {
         // Series: data?.Series || null,
@@ -113,12 +73,12 @@ class Form extends CoreFormDocument {
         Code: data?.Code,
         Name: data?.Name,
         U_tl_cashacct: data?.U_tl_cashacct,
-        U_tl_bplid : data?.U_tl_bplid,
+        U_tl_bplid: data?.U_tl_bplid,
         U_tl_cashactive: data?.U_tl_cashactive,
       };
 
       if (id) {
-        return await request("PATCH", `/TL_CashAcct(${id})`, payload)
+        return await request("PATCH", `/TL_CashAcct('${id}')`, payload)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)

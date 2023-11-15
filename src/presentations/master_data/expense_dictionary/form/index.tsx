@@ -36,50 +36,17 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_ExpDic(${id})`)
+      await request("GET", `TL_ExpDic('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
-          // vendor
-
-          let AttachmentList: any = [];
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
+       console.log(data)
 
           state = {
             ...data,
+            // Code: data?.Code,
+            // Name: data?.Name,
+            // U_tl_expacct: data?.U_tl_expacct,
+            // U_tl_expactive: data?.U_tl_expactive,
           };
         })
         .catch((err: any) => console.log(err))
@@ -117,7 +84,7 @@ class Form extends CoreFormDocument {
       };
 
       if (id) {
-        return await request("PATCH", `/TL_ExpDic(${id})`, payload)
+        return await request("PATCH", `/TL_ExpDic('${id}')`, payload)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
