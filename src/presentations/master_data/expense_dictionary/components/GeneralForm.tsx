@@ -63,7 +63,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <CashACAutoComplete
                   onChange={(e) =>
-                    handlerChange("U_tl_expacct", e.target.value)
+                    handlerChange("U_tl_expacct", e)
                   }
                   value={data?.U_tl_expacct}
                 />

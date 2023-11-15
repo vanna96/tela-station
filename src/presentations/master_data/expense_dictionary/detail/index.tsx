@@ -115,8 +115,8 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">GL Account </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_expacct ?? "N/A"}{" "}
-                  {data?.U_tl_expactive > 1 && ` - ${data?.ExchangeRate}`}
+               
+                  {data?.U_tl_expactive}
                 </div>
               </div>
             </div>

@@ -1,30 +1,20 @@
-import Formular from "@/utilies/formular"
 import React from "react"
 
-export const useDocumentTotalHook = (
-  items: any[],
-  discount = 0,
-  ExchangeRate: any
-) => {
-  const docTotal: number = React.useMemo(() => {
-    let total = items.reduce((prev: number, cur: any) => {
-      return prev + cur?.LineTotal
-      // Formular.findLineTotal(cur?.Quantity, cur?.UnitPrice, cur?.LineDiscount)
-    }, 0)
-    return total * ExchangeRate
-  }, [items, ExchangeRate])
+export const useDocumentTotalHook = (data: any) => {
 
-  let docTaxTotal: number = React.useMemo(() => {
-    let total = items.reduce((prev: number, cur: any) => {
-      return (
-        prev +
-        (parseFloat(cur?.VatRate ?? 0) * parseFloat(cur?.LineTotal ?? 1)) / 100
-      )
-    }, 0)
+  const totalUsd = React.useMemo(() => {
+    return  parseFloat(data?.GLBankAmount || 0) + 
+            parseFloat(data?.GLCashAmount || 0)+
+            (data?.paymentMeanCheckData?.reduce((prev: number, p: any) => {
+       return prev + parseFloat(p?.amount)
+    }, 0) || 0)
+  }, [
+    parseFloat(data?.GLBankAmount || 0),
+    parseFloat(data?.GLCashAmount || 0),
+    data?.paymentMeanCheckData
+  ])
 
-    return total * ExchangeRate
-  }, [items, discount, ExchangeRate])
+  const totalFC = totalUsd * (data?.ExchangeRate || 1)
 
-  docTaxTotal = docTaxTotal - (docTaxTotal * discount) / 100
-  return [docTotal, docTaxTotal]
+  return [totalUsd, totalFC]
 }

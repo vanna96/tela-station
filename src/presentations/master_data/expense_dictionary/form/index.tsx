@@ -131,7 +131,7 @@ class Form extends CoreFormDocument {
           (res: any) =>
             this.dialog.current?.success(
               "Create Successfully.",
-              res?.data?.DocEntry
+              res?.data?.Code
             )
         )
         .catch((err: any) => this.dialog.current?.error(err.message))

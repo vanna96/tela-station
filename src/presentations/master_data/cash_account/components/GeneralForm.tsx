@@ -1,35 +1,36 @@
-import FormCard from "@/components/card/FormCard";
+import React, { useContext } from "react";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
-import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
-import BPAddress from "@/components/selectbox/BPAddress";
+import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseSelect from "@/components/selectbox/Warehouse";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import { getShippingAddress } from "@/models/BusinessParter";
+import { useExchangeRate } from "../hook/useExchangeRate";
+import { useCookies } from "react-cookie";
+import CashAccount from "@/components/selectbox/CashAccount";
+import { APIContext } from "../../context/APIContext";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
-import { useState } from "react";
-import EmployeeForm from "@/presentations/master/employee/page/EmployeeForm";
 
 export interface IGeneralFormProps {
-  data: any;
   handlerChange: (key: string, value: any) => void;
+  data: any;
+  handlerOpenProject?: () => void;
   edit?: boolean;
-  ref?: React.RefObject<FormCard>;
+  hanndResetState?: any;
 }
 
 export default function GeneralForm({
   data,
   handlerChange,
   edit,
-  ref,
+  hanndResetState,
 }: IGeneralFormProps) {
-  const [isChecked, setIsChecked] = useState(false);
+  const { CurrencyAPI, sysInfo }: any = useContext(APIContext);
+  const [cookies, setCookie] = useCookies(["user"]);
+  const branchId =
+    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
 
-  const handleCheckboxChange = (e: any) => {
-    setIsChecked(e.target.checked);
-  };
+  useExchangeRate(data?.Currency, handlerChange);
 
   return (
     <>
@@ -42,65 +43,40 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Dispenser Code
+                  Cash Code
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) => handlerChange("Dispenser", e.target.value)}
-                  value={data?.Dispenser}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="Dispenser"
+                <MUITextField
+                  value={data?.Code}
+                  name="Code"
+                  onChange={(e) => handlerChange("Code", e.target.value)}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Dispenser Name
+                  GL Account
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) =>
-                    handlerChange("DispenserName", e.target.value)
-                  }
-                  value={data?.DispenserName}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="DispenserName"
+                <CashACAutoComplete
+                  onChange={(e) => handlerChange("U_tl_cashacct", e)}
+                  value={data?.U_tl_cashacct}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Employee
+                  Branch
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) => handlerChange("Employee", e.target.value)}
-                  value={data?.Employee}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="Employee"
+                <BranchAutoComplete
+                  onChange={(e) => handlerChange("U_tl_bplid", e)}
+                  value={data?.U_tl_bplid}
                 />
               </div>
             </div>
@@ -111,42 +87,39 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Type
+                  Active
                 </label>
               </div>
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
+                    { id: "Y", name: "Yes" },
+                    { id: "N", name: "No" },
                   ]}
-                  onChange={(e) => handlerChange("Type", e.target.value)}
-                  value={data?.Type}
+                  onChange={(e) =>
+                    handlerChange("U_tl_cashactive", e.target.value)
+                  }
+                  value={data?.U_tl_cashactive}
                   aliasvalue="id"
                   aliaslabel="name"
-                  name="Type"
+                  name="U_tl_cashactive"
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Status
+                  Description
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) => handlerChange("Status", e.target.value)}
-                  value={data?.Status}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="Status"
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  onChange={(e) => handlerChange("Name", e.target.value)}
+                  rows={2}
+                  value={data.Name}
                 />
               </div>
             </div>

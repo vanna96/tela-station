@@ -1,116 +1,90 @@
 import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../components/DataTable";
+import { useNavigate } from "react-router-dom";
+import DataTable from "./components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
-import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
-import { Breadcrumb } from "../components/Breadcrumn";
+import { Button } from "@mui/material";
+import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import { APIContext } from "../context/APIContext";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import BranchRepository from "@/services/actions/branchRepository";
 
-export default function DispenserList() {
+export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
+  const { branchBPL }: any = React.useContext(APIContext);
+  const [cookies] = useCookies(["user"]);
+  const [searchValues, setSearchValues] = React.useState({
+    docnum: 0,
+    cardcode: "",
+    cardname: "",
+    docdate: null,
+    bplid: -2,
+  });
   const route = useNavigate();
-
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        accessorKey: "Code",
+        header: "Expense Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        // type: "number",
+      },
+      {
+        accessorKey: "Name",
+        header: "Name", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+      },
+      {
+        accessorKey: "U_tl_expacct",
+        header: "Account Code", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+      },
+      {
+        accessorKey: "AccoutName",
+        header: "Account Name", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 100,
+        visible: true,
+        Cell: (cell: any) => {
+          return new GLAccountRepository().find(cell.row.original.U_tl_expacct)
+            ?.Name;
+        },
+      },
+      {
+        accessorKey: "U_tl_bplid",
+        header: "Branch",
         size: 40,
         visible: true,
-        type: "number",
-      },
-      {
-        accessorKey: "CardCode",
-        header: "Customer Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
-      },
-      {
-        accessorKey: "CardName",
-        header: "Customer Name",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
-      {
-        accessorKey: "TaxDate",
-        header: "Posting Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
+          return new BranchRepository().find(cell.row.original.U_tl_bplid)
+            ?.Name;
         },
-      },
-      {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
-        header: "Branch",
-        enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
-      },
-      {
-        accessorKey: "DocumentStatus",
-        header: " Status",
-        visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
 
+      {
+        accessorKey: "U_tl_expactive",
+        header: "Active",
+        size: 40,
+        visible: true,
+        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
+      },
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -125,29 +99,23 @@ export default function DispenserList() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <Button
-              variant="outlined"
-              size="small"
+            <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/dispenser/" + cell.row.original.DocEntry, {
+                route("/master-data/cash-account/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              <span style={{ textTransform: "none" }}>View</span>
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              View
+            </button>
+            <button
+              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  "/master-data/dispenser/" + cell.row.original.DocEntry + "/edit",
+                  `/master-data/cash-account/${cell.row.original.Code}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -159,14 +127,15 @@ export default function DispenserList() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              <span style={{ textTransform: "none" }}> Edit</span>
-            </Button>
+              Edit
+            </button>
           </div>
         ),
       },
     ],
     []
   );
+
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
@@ -175,11 +144,11 @@ export default function DispenserList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: [`TL_CashAcct`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/TL_CashAcct/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -187,20 +156,21 @@ export default function DispenserList() {
         });
       return response;
     },
-    staleTime: Infinity,
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "TL_CashAcct",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_CashAcct?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }&${filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -208,8 +178,8 @@ export default function DispenserList() {
         });
       return response;
     },
-    staleTime: Infinity,
-    retry: 1,
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   const handlerRefresh = React.useCallback(() => {
@@ -238,8 +208,7 @@ export default function DispenserList() {
   };
 
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
+    setFilter(value);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -251,166 +220,60 @@ export default function DispenserList() {
     }, 500);
   };
 
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
-  };
-
   const handleAdaptFilter = () => {
     setOpen(true);
   };
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    deliveryDate: null,
-    status: "",
-    bplid: null,
-  });
 
   const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.deliveryDate) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
-    }
+    let queryFilters: any = [];
+    if (searchValues.docnum)
+      queryFilters.push(`DocNum eq ${searchValues.docnum}`);
+    if (searchValues.cardcode)
+      queryFilters.push(
+        `(CardCode eq '${searchValues.cardcode}' or CardName eq '${searchValues.cardcode}')`
+      );
+    if (searchValues.docdate)
+      queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`);
+    if (searchValues.bplid > 0)
+      queryFilters.push(`U_tl_bplid eq '${searchValues.bplid}'`);
 
-    handlerSearchFilter(queryFilters);
+    if (queryFilters.length > 0)
+      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+    return handlerSearch("");
   };
-  const { id }: any = useParams();
-
-  const childBreadcrum = (
-    <>
-      <span className="" onClick={() => route("/master-data/dispenser")}>
-     {" "}  Dispenser
-      </span>
-    </>
-  );
 
   return (
     <>
-      <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
-          <Breadcrumb childBreadcrum={childBreadcrum} />
+      <ModalAdaptFilter
+        isOpen={open}
+        handleClose={() => setOpen(false)}
+      ></ModalAdaptFilter>
+      <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
+        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
+          <h3 className="text-base 2xl:text-base xl:text-base ">
+            Master Data / Cash Account{" "}
+          </h3>
         </div>
-
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <div className="col-span-10">
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
+                  type="number"
                   label="Document No."
                   placeholder="Document No."
                   className="bg-white"
                   autoComplete="off"
-                  type="number"
                   value={searchValues.docnum}
                   onChange={(e) =>
                     setSearchValues({ ...searchValues, docnum: e.target.value })
                   }
                 />
               </div>
+
               <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                />
+                
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Branch
-                  </label>
-                  <div className="">
-                    <BranchAutoComplete
-                      BPdata={cookies?.user?.UserBranchAssignment}
-                      onChange={(selectedValue) =>
-                        setSearchValues({
-                          ...searchValues,
-                          bplid: selectedValue,
-                        })
-                      }
-                      value={searchValues.bplid}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Delivery Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
-                        // { label: "Paid", value: "bost_Paid" },
-                        // { label: "Delivered", value: "bost_Delivered" },
-                      ]}
-                      // onChange={(e) =>
-                      //   setSearchValues({ ...searchValues, status: e.target.value })
-                      // }
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string, // Ensure e.target.value is treated as a string
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
-                    />
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -429,8 +292,12 @@ export default function DispenserList() {
                   handlerClearFilter={handlerRefresh}
                   title={
                     <div className="flex gap-2">
-                      <Button variant="outlined" size="small">
-                        Filter
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        // onClick={handleGoClick}
+                      >
+                        Adapt Filter
                       </Button>
                     </div>
                   }
@@ -441,8 +308,7 @@ export default function DispenserList() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
+                      e?.accessorKey !== "DocumentStatus"
                   )}
                   onClick={handlerSearch}
                 />
@@ -460,8 +326,7 @@ export default function DispenserList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Dispenser Lists"
-          createRoute="/master-data/dispenser/create"
+          title="Cash Account"
         />
       </div>
     </>

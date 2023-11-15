@@ -1,14 +1,10 @@
 import React from "react"
 import { Button } from "@mui/material"
 import { HiRefresh } from "react-icons/hi"
-import { BiFilterAlt } from "react-icons/bi"
 import { useNavigate } from "react-router-dom"
 import { AiOutlineSetting } from "react-icons/ai"
 import MaterialReactTable from "material-react-table"
-import { BsPencilSquare, BsSortDown } from "react-icons/bs"
-import MenuCompoment from "@/components/data_table/MenuComponent"
-import { ThemeContext } from "@/contexts"
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
+import { BsPencilSquare } from "react-icons/bs"
 import ColumnSearch from "@/components/data_table/ColumnSearch"
 import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility"
 
@@ -23,7 +19,6 @@ interface DataTableProps {
   pagination: any
   paginationChange: (value: any) => void
   title?: string
-  createRoute?: string
 }
 
 export default function DataTable(props: DataTableProps) {
@@ -53,32 +48,12 @@ export default function DataTable(props: DataTableProps) {
       <div className="flex justify-between">
         <div className="flex gap-4 items-center justify-center">
           <h3 className="text-base">{props.title}</h3>
-          {/* <DataTableColumnFilter
-            handlerClearFilter={props.handlerRefresh}
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BiFilterAlt />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Filter</span>
-              </div>
-            }
-            items={props.columns?.filter((e) => e?.accessorKey !== "DocEntry")}
-            onClick={handlerSearch}
-          /> */}
         </div>
         <div className="flex justify-end gap-2 items-center text-[13px]">
-          {/* <Button size="small" variant="text" onClick={props.handlerRefresh}>
-            <span className="text-lg mr-2">
-              <HiRefresh />
-            </span>
-            <span className="capitalize text-sm">Refresh</span>
-          </Button>*/}
-          
           <Button
             size="small"
             variant="text"
-            onClick={() => route(props?.createRoute)}
+            onClick={() => route("/master-data/cash-account/create")}
           >
             <span className="text-lg mr-2">
               <BsPencilSquare />
@@ -91,18 +66,6 @@ export default function DataTable(props: DataTableProps) {
             </span>
             <span className="capitalize text-sm">Refresh</span>
           </Button>
-          <MenuCompoment
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BsSortDown />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Sort By</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={props.handlerSortby}
-          /> 
           <DataTableColumnVisibility
             title={
               <div className="flex gap-2">
@@ -129,9 +92,8 @@ export default function DataTable(props: DataTableProps) {
             density: "compact",
             columnVisibility: colVisibility,
           }}
-          enableDensityToggle={true}
-          // enableColumnResizing
-        
+          enableDensityToggle={false}
+          enableColumnResizing
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -155,6 +117,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
+          enableRowNumbers={true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

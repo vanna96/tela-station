@@ -24,6 +24,15 @@ import DispenserForm from "@/presentations/master_data/dispenser/form";
 import ExpenseDictionaryList from "@/presentations/master_data/expense_dictionary";
 import ExpenseDictionaryForm from "@/presentations/master_data/expense_dictionary/form";
 import ExpenseDictionaryDetail from "@/presentations/master_data/expense_dictionary/detail";
+
+import CashAccountList from "@/presentations/master_data/cash_account/index";
+import CashAccountForm from "@/presentations/master_data/cash_account/form/index";
+import CashAccountDetail from "@/presentations/master_data/cash_account/detail/index";
+
+
+
+
+
 export default function MasterDataRoute() {
   return (
     <Routes>
@@ -42,6 +51,15 @@ export default function MasterDataRoute() {
         <Route
           path=":id/edit"
           element={<ExpenseDictionaryForm edit={true} />}
+        />
+      </Route>
+      <Route path="/cash-account">
+        <Route index element={<CashAccountList />} />
+        <Route path=":id" element={<CashAccountDetail />} />
+        <Route path="create" element={<CashAccountForm />} />
+        <Route
+          path=":id/edit"
+          element={<CashAccountForm edit={true} />}
         />
       </Route>
       {/* <Route path='/warehouse' >

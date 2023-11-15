@@ -62,7 +62,7 @@ export default function BranchAutoComplete(props: {
 
       <Autocomplete
         disabled={disabled}
-        options={filteredBranch ?? data}
+        options={props.BPdata ? filteredBranch : data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
