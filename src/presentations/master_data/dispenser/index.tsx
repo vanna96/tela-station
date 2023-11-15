@@ -2,7 +2,7 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../sale_delivery/components/DataTable";
+import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -130,7 +130,7 @@ export default function DispenserList() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/sale/dispenser/" + cell.row.original.DocEntry, {
+                route("/master-data/dispenser/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -147,7 +147,7 @@ export default function DispenserList() {
               }
               onClick={() => {
                 route(
-                  "/sale/dispenser/" + cell.row.original.DocEntry + "/edit",
+                  "/master-data/dispenser/" + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -307,7 +307,7 @@ export default function DispenserList() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route("/sale/dispenser")}>
+      <span className="" onClick={() => route("/master-data/dispenser")}>
      {" "}  Dispenser
       </span>
     </>
@@ -461,7 +461,7 @@ export default function DispenserList() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Dispenser Lists"
-          createRoute="/sale/dispenser/create"
+          createRoute="/master-data/dispenser/create"
         />
       </div>
     </>

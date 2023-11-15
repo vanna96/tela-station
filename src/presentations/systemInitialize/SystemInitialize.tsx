@@ -88,11 +88,14 @@ export default function SystemInitializeMasterPage() {
             amount={count?.order || 0}
             onClick={() => navigate("/sale/morph-price")}
           />
+        </div>
+        <h1 className="mb-4 mt-10">Master Data</h1>
+        <div className="grid grid-cols-6 space-x-4">
           <ItemCard
             title="Dispenser"
             icon={<AiOutlineSolution />}
             amount={count?.order || 0}
-            onClick={() => navigate("/sale/dispenser")}
+            onClick={() => navigate("/master-data/dispenser")}
           />
         </div>
         <h1 className="mb-4 mt-10">Collection</h1>

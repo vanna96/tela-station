@@ -52,10 +52,21 @@ export default function SideBar(props: any) {
           title="Dashboard"
           isActive={activeParent === "dashboard"} // Pass isActive prop
           setActiveParent={setActiveParent} // Pass setActiveParent prop
+        ></NavButton>
+        <NavButton
+          onClick={() => {
+            goTo("/master-data");
+          }}
+          route="master-data"
+          collapse={props?.collapse}
+          icon={<FiGrid />}
+          title="Master Data"
+          isActive={activeParent === "master-data"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
         >
           <ChildButton
             icon={<HiOutlineShoppingBag />}
-            onClick={() => goTo("/sale/dispenser")}
+            onClick={() => goTo("/master-data/dispenser")}
             route="dispenser"
             collapse={props?.collapse}
             title="Dispenser"
@@ -208,14 +219,14 @@ export default function SideBar(props: any) {
             collapse={props?.collapse}
             title="Good Receipt"
           />
-           <ChildButton
+          <ChildButton
             icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/pump-test")}
             route="pump-test"
             collapse={props?.collapse}
             title="Pump Test"
           />
-           <ChildButton
+          <ChildButton
             icon={<MdOutlineStore />}
             onClick={() => goTo("/stock-control/fuel-level")}
             route="fuel-level"
@@ -236,7 +247,7 @@ type NavButtonProps = {
   icon: React.ReactElement;
   onClick: () => void;
   isActive: boolean; // Include isActive prop
-  setActiveParent?: (route: string) => void; // Include setActiveParent prop
+  setActiveParent?: (route: string | null) => void; // Include setActiveParent prop
   children?: React.ReactNode;
 };
 
@@ -251,15 +262,15 @@ type ChildButtonProps = {
 
 export function NavButton(props: NavButtonProps) {
   const location = useLocation();
-
   const isActive = location.pathname?.split("/")[1] === props.route;
-
   const hasChildren = React.Children.count(props.children) > 0;
 
   const toggleExpansion = () => {
-    if (props.setActiveParent && props.isActive !== undefined) {
+    if (props.setActiveParent && isActive !== undefined) {
       if (props.route !== null) {
-        props.setActiveParent(props.isActive ? props.route : props.route);
+        props.setActiveParent(
+          isActive ? location.pathname?.split("/")[1] : props.route
+        );
       }
     }
   };
@@ -278,20 +289,22 @@ export function NavButton(props: NavButtonProps) {
           className={`flex text-base ${
             props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
           } ${
-            isActive
+            props.isActive
               ? "bg-white text-gray-900"
-              : isActive
+              : props.isActive
               ? "bg-white text-gray-900"
               : ""
           } transition-transform duration-100 ease-in text-white hover:scale-105 active:scale-95 py-[0.6rem]  items-center gap-4`}
         >
           <span
-            className={`${isActive ? "bg-white text-xl text-gray-900" : ""}`}
+            className={`${
+              props.isActive ? "bg-white text-xl text-gray-900" : ""
+            }`}
           >
             {props.icon}
           </span>
           {props.collapse ? (
-            <span className={isActive ? "text-gray-900" : ""}>
+            <span className={props.isActive ? "text-gray-900" : ""}>
               {props.title}
             </span>
           ) : null}
@@ -299,11 +312,15 @@ export function NavButton(props: NavButtonProps) {
             <span className="mr-2">
               <div
                 className={`flex items-center text-right ${
-                  isActive ? "text-gray-900" : ""
+                  props.isActive ? "text-gray-900" : ""
                 }`}
               >
                 <span className="mr-2">
-                  {isActive ? <AiOutlineCaretDown /> : <AiOutlineCaretRight />}
+                  {props.isActive ? (
+                    <AiOutlineCaretDown />
+                  ) : (
+                    <AiOutlineCaretRight />
+                  )}
                 </span>
               </div>
             </span>
@@ -311,7 +328,7 @@ export function NavButton(props: NavButtonProps) {
         </div>
         <div
           className={`bg-white text-gray-900 ${
-            isActive ? "bg-gray-200 text-gray-900" : ""
+            props.isActive ? "bg-gray-200 text-gray-900" : ""
           }`}
         >
           {props.isActive && props.children}

@@ -57,6 +57,11 @@ const Router = () => {
               element={<StockControlRoute />}
               errorElement={<span>Error</span>}
             />
+            <Route
+              path="/master-data/*"
+              element={<MasterDataRoute />}
+              errorElement={<span>Error</span>}
+            />
           </Route>
         </Routes>
       </BrowserRouter>
