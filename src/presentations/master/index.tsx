@@ -43,9 +43,28 @@ const MasterDataPage = () => {
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("dispenser")}
           amount={
-            // count?.order || 
-            0}
+            // count?.order ||
+            0
+          }
+        />
 
+        <ItemCard
+          title="Expense Dictionary"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("expense-dictionary")}
+          amount={
+            // count?.order ||
+            0
+          }
+        />
+        <ItemCard
+          title="Cash Account"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("cash-account")}
+          amount={
+            // count?.order ||
+            0
+          }
         />
       </MainContainer>
     </>

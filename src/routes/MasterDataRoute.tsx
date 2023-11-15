@@ -19,9 +19,11 @@ import SupplierForm from "@/presentations/master/supplierMasterData/page/Supplie
 import SupplierDetails from "@/presentations/master/supplierMasterData/page/SupplierDetails";
 import BusinessPartnerForm from "@/presentations/master/supplierMasterData/page/SupplierForm";
 import DispenserList from "@/presentations/master_data/dispenser";
-import DispenserDetail from '@/presentations/master_data/dispenser/detail';
-import DispenserForm from '@/presentations/master_data/dispenser/form';
-
+import DispenserDetail from "@/presentations/master_data/dispenser/detail";
+import DispenserForm from "@/presentations/master_data/dispenser/form";
+import ExpenseDictionaryList from "@/presentations/master_data/expense_dictionary";
+import ExpenseDictionaryForm from "@/presentations/master_data/expense_dictionary/form";
+import ExpenseDictionaryDetail from "@/presentations/master_data/expense_dictionary/detail";
 export default function MasterDataRoute() {
   return (
     <Routes>
@@ -31,6 +33,16 @@ export default function MasterDataRoute() {
         <Route path=":id" element={<DispenserDetail />} />
         <Route path="create" element={<DispenserForm />} />
         <Route path=":id/edit" element={<DispenserForm edit={true} />} />
+      </Route>
+
+      <Route path="/expense-dictionary">
+        <Route index element={<ExpenseDictionaryList />} />
+        <Route path=":id" element={<ExpenseDictionaryDetail />} />
+        <Route path="create" element={<ExpenseDictionaryForm />} />
+        <Route
+          path=":id/edit"
+          element={<ExpenseDictionaryForm edit={true} />}
+        />
       </Route>
       {/* <Route path='/warehouse' >
                 <Route index element={<WarehoseLists />} />

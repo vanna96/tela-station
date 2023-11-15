@@ -71,6 +71,20 @@ export default function SideBar(props: any) {
             collapse={props?.collapse}
             title="Dispenser"
           />
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/master-data/expense-dictionary")}
+            route="expense-dictionary"
+            collapse={props?.collapse}
+            title="Expense Dictionary"
+          />
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/master-data/cash-account")}
+            route="cash-account"
+            collapse={props?.collapse}
+            title="Cash Account"
+          />
         </NavButton>
         <NavButton
           onClick={() => {
