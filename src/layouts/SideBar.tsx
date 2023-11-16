@@ -42,7 +42,7 @@ export default function SideBar(props: any) {
       )}
 
       <div className="mt-12 grow flex flex-col transition-all duration-600 gap-2 whitespace-nowrap overflow-hidden text-base bg-gradient-to-tr from-green-500 to-green-600">
-        <NavButton
+        <DashboardButton
           onClick={() => {
             goTo("/dashboard");
           }}
@@ -52,7 +52,7 @@ export default function SideBar(props: any) {
           title="Dashboard"
           isActive={activeParent === "dashboard"} // Pass isActive prop
           setActiveParent={setActiveParent} // Pass setActiveParent prop
-        ></NavButton>
+        ></DashboardButton>
         <NavButton
           onClick={() => {
             goTo("/master-data");
@@ -301,7 +301,7 @@ export function NavButton(props: NavButtonProps) {
             }
           }}
           className={`flex text-base ${
-            props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
+            props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[1rem]"
           } ${
             props.isActive
               ? "bg-white text-gray-900"
@@ -325,7 +325,7 @@ export function NavButton(props: NavButtonProps) {
           {hasChildren && (
             <span className="mr-2">
               <div
-                className={`flex items-center text-right ${
+                className={`flex items-center text-right  ${
                   props.isActive ? "text-gray-900" : ""
                 }`}
               >
@@ -351,6 +351,57 @@ export function NavButton(props: NavButtonProps) {
     </>
   );
 }
+export function DashboardButton(props: NavButtonProps) {
+  const location = useLocation();
+  const isActive = location.pathname?.split("/")[1] === "dashboard";
+  const hasChildren = React.Children.count(props.children) > 0;
+
+  const toggleExpansion = () => {
+    if (props.setActiveParent && isActive !== undefined) {
+      if (props.route !== null) {
+        props.setActiveParent(
+          isActive ? location.pathname?.split("/")[1] : props.route
+        );
+      }
+    }
+  };
+
+  return (
+    <>
+      <motion.div className="bg-transparent">
+        <div
+          role="button"
+          onClick={() => {
+            props.onClick();
+            if (hasChildren) {
+              toggleExpansion(); // Allow multiple parents to be open
+            }
+          }}
+          className={`flex text-base ${
+            props.collapse ? "pl-6 pr-10 2xl:px-4" : "pl-[0.9rem]"
+          } ${
+            props.isActive
+              ? "bg-white text-gray-900"
+              : isActive
+              ? "bg-white text-gray-900"
+              : ""
+          } transition-transform duration-100 ease-in text-white hover:scale-105 active:scale-95 py-[0.6rem]  items-center gap-4`}
+        >
+          <span
+            className={`${isActive ? "bg-white text-xl text-gray-900" : ""}`}
+          >
+            {props.icon}
+          </span>
+          {props.collapse ? (
+            <span className={isActive ? "text-gray-900" : ""}>
+              {props.title}
+            </span>
+          ) : null}
+        </div>
+      </motion.div>
+    </>
+  );
+}
 
 export function ChildButton(props: ChildButtonProps) {
   const location = useLocation();
@@ -360,28 +411,30 @@ export function ChildButton(props: ChildButtonProps) {
 
   return (
     <>
-      <div
-        role="button"
-        onClick={props.onClick}
-        className={`flex text-sm${
-          props.collapse ? "mt-1 pl-9 pr-10 2xl:px-4" : "pl-[0.9rem]"
-        } ${
-          parentIsActive || isActive ? "bg-gray-200 mx-4 text-gray-900" : ""
-        } transition-transform duration-100 ease-in text-gray-900 hover:scale-105 active:scale-95 py-[0.6rem] ml-1 mr-1 rounded-md items-center gap-4`}
-      >
-        <span
-          className={`${
-            parentIsActive || isActive ? "text-xl text-gray-900" : ""
-          }`}
+      {props.collapse && (
+        <div
+          role="button"
+          onClick={props.onClick}
+          className={`flex text-sm${
+            props.collapse ? "mt-1 pl-9 pr-10 2xl:px-4" : "pl-[0.9rem]"
+          } ${
+            parentIsActive || isActive ? "bg-gray-200 mx-4 text-gray-900" : ""
+          } transition-transform duration-100 ease-in text-gray-900 hover:scale-105 active:scale-95 py-[0.6rem] ml-1 mr-1 rounded-md items-center gap-4`}
         >
-          {props.icon}
-        </span>
-        {props.collapse ? (
-          <span className={parentIsActive || isActive ? "text-gray-900" : ""}>
-            {props.title}
+          <span
+            className={`${
+              parentIsActive || isActive ? "text-xl text-gray-900" : ""
+            }`}
+          >
+            {props.icon}
           </span>
-        ) : null}
-      </div>
+          {props.collapse ? (
+            <span className={parentIsActive || isActive ? "text-gray-900" : ""}>
+              {props.title}
+            </span>
+          ) : null}
+        </div>
+      )}
     </>
   );
 }
