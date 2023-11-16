@@ -69,12 +69,7 @@ const SaleMasterPage = () => {
           onClick={() => goTo("morph-price")}
           amount={count?.order || 0}
         />
-        <ItemCard
-          title="Dispenser"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("dispenser")}
-          amount={count?.order || 0}
-        />
+       
       </MainContainer>
     </>
   );

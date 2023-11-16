@@ -1,32 +1,68 @@
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import EmployeeLists from "@/presentations/master/employee/page/EmployeeList";
+import EmployeeForm from "@/presentations/master/employee/page/EmployeeForm";
+import MasterDataPage from "@/presentations/master";
+import BinlocationLists from "@/presentations/master/binlocation";
+import BinlocationDetail from "@/presentations/master/binlocation/page/BinlocationDetail";
+import BinlocationForm from "@/presentations/master/binlocation/page/BinlocationForm";
+
+import ItemMasterDataListing from "@/presentations/master/item_master_data/ItemListing";
+import ItemMasterDataDetails from "../presentations/master/item_master_data/page/ItemDetails";
+import ItemMasterDataForm from "../presentations/master/item_master_data/page/ItemForm";
+import WarehoseLists from "@/presentations/master/Warehouse";
+import WarehouseDetail from "@/presentations/master/Warehouse/page/WarehouseDetail";
+import WarehouseForm from "@/presentations/master/Warehouse/page/WarehouseForm";
+import EmployeeDetail from "@/presentations/master/employee/page/EmployeeDetail";
+import SuppilerLists from "@/presentations/master/supplierMasterData/page/SupplierList";
+import SupplierForm from "@/presentations/master/supplierMasterData/page/SupplierForm";
+import SupplierDetails from "@/presentations/master/supplierMasterData/page/SupplierDetails";
+import BusinessPartnerForm from "@/presentations/master/supplierMasterData/page/SupplierForm";
+import DispenserList from "@/presentations/master_data/dispenser";
+import DispenserDetail from "@/presentations/master_data/dispenser/detail";
+import DispenserForm from "@/presentations/master_data/dispenser/form";
+import ExpenseDictionaryList from "@/presentations/master_data/expense_dictionary";
+import ExpenseDictionaryForm from "@/presentations/master_data/expense_dictionary/form";
+import ExpenseDictionaryDetail from "@/presentations/master_data/expense_dictionary/detail";
+
+import CashAccountList from "@/presentations/master_data/cash_account/index";
+import CashAccountForm from "@/presentations/master_data/cash_account/form/index";
+import CashAccountDetail from "@/presentations/master_data/cash_account/detail/index";
 
 
 
-import React from 'react'
-import { Route, Routes } from 'react-router-dom';
-import EmployeeLists from '@/presentations/master/employee/page/EmployeeList';
-import EmployeeForm from '@/presentations/master/employee/page/EmployeeForm';
-import MasterDataPage from '@/presentations/master';
-import BinlocationLists from '@/presentations/master/binlocation';
-import BinlocationDetail from '@/presentations/master/binlocation/page/BinlocationDetail';
-import BinlocationForm from '@/presentations/master/binlocation/page/BinlocationForm';
 
-import ItemMasterDataListing from '@/presentations/master/item_master_data/ItemListing';
-import ItemMasterDataDetails from '../presentations/master/item_master_data/page/ItemDetails';
-import ItemMasterDataForm from '../presentations/master/item_master_data/page/ItemForm';
-import WarehoseLists from '@/presentations/master/Warehouse';
-import WarehouseDetail from '@/presentations/master/Warehouse/page/WarehouseDetail';
-import WarehouseForm from '@/presentations/master/Warehouse/page/WarehouseForm';
-import EmployeeDetail from '@/presentations/master/employee/page/EmployeeDetail';
-import SuppilerLists from '@/presentations/master/supplierMasterData/page/SupplierList';
-import SupplierForm from '@/presentations/master/supplierMasterData/page/SupplierForm';
-import SupplierDetails from '@/presentations/master/supplierMasterData/page/SupplierDetails';
-import BusinessPartnerForm from '@/presentations/master/supplierMasterData/page/SupplierForm';
 
 export default function MasterDataRoute() {
-    return (
-        <Routes>
-            <Route index element={<MasterDataPage />} />
-            <Route path='/warehouse' >
+  return (
+    <Routes>
+      <Route index element={<MasterDataPage />} />
+      <Route path="/dispenser">
+        <Route index element={<DispenserList />} />
+        <Route path=":id" element={<DispenserDetail />} />
+        <Route path="create" element={<DispenserForm />} />
+        <Route path=":id/edit" element={<DispenserForm edit={true} />} />
+      </Route>
+
+      <Route path="/expense-dictionary">
+        <Route index element={<ExpenseDictionaryList />} />
+        <Route path=":id" element={<ExpenseDictionaryDetail />} />
+        <Route path="create" element={<ExpenseDictionaryForm />} />
+        <Route
+          path=":id/edit"
+          element={<ExpenseDictionaryForm edit={true} />}
+        />
+      </Route>
+      <Route path="/cash-account">
+        <Route index element={<CashAccountList />} />
+        <Route path=":id" element={<CashAccountDetail />} />
+        <Route path="create" element={<CashAccountForm />} />
+        <Route
+          path=":id/edit"
+          element={<CashAccountForm edit={true} />}
+        />
+      </Route>
+      {/* <Route path='/warehouse' >
                 <Route index element={<WarehoseLists />} />
                 <Route path=':id' element={<WarehouseDetail />} />
                 <Route path='create' element={<WarehouseForm />} />
@@ -55,7 +91,7 @@ export default function MasterDataRoute() {
                 <Route path=':id' element={<SupplierDetails />} />
                 <Route path='create' element={<BusinessPartnerForm />} />
                 <Route path=':id/edit' element={<SupplierForm edit={true} type={"supplier"} />} />
-            </Route>
-        </Routes>
-    )
+            </Route> */}
+    </Routes>
+  );
 }

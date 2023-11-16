@@ -51,12 +51,7 @@ export default function SaleRoute() {
         <Route path=":id" element={<MorphPriceDetail edit={true} />} />
       </Route>
 
-      <Route path="/dispenser">
-        <Route index element={<DispenserList />} />
-        <Route path="create" element={<DispenserForm />} />
-        <Route path=":id/edit" element={<DispenserForm edit={true} />} />
-        <Route path=":id" element={<DispenserDetail edit={true} />} />
-      </Route>
+     
       <Route path="/pump-record">
         <Route index element={<PumpSaleLists />} />
         <Route path="create" element={<PumpSaleForm />} />

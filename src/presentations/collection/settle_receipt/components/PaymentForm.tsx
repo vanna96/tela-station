@@ -8,6 +8,7 @@ import { APIContext } from "../context/APIContext";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
 import { currencyFormat } from "@/utilies";
+import NewContentForm from "./NewContentForm";
 
 interface PaymentFormProps {
   handlerAddItem: () => void;
@@ -49,7 +50,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
         </Alert>
       </Collapse>
       <div className=" rounded-lg shadow-sm bg-white border p-6 px-8">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
+        {/* <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>
             Payment Means -{" "}
             <b>
@@ -68,34 +69,9 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
               }
             </b>
           </h2>
-        </div>
+        </div> */}
         <div className="mt-6">
-          <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-            <legend className="text-md px-2 font-bold">
-              Payment Means - Check
-            </legend>
-            <div className="grid grid-cols-2 my-4">
-              <div className="pl-4 pr-20">
-                <div className="grid grid-cols-5">
-                  <div className="col-span-2">
-                    <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                      GL Check Account
-                    </label>
-                  </div>
-                  <div className="col-span-3">
-                    <CashAccount
-                      onChange={(e: any) => onChange("GLCheck", e.target.value)}
-                      value={data?.GLCheck}
-                      disabled={data?.edit}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="pl-20"></div>
-            </div>
-            <PaymentTable data={data} onChange={onChange} />
-          </fieldset>
-          <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
             <legend className="text-md px-2 font-bold">
               Payment Means - Bank Transfer
             </legend>
@@ -124,12 +100,6 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                     </label>
                   </div>
                   <div className="col-span-3">
-                    {/* <MUITextField
-                        onChange={(e: any) => onChange("GLBankAmount", e.target.value)}
-                        value={data?.GLBankAmount}
-                        type="number"
-                        disabled={data?.edit}
-                      /> */}
                     <FormattedInputs
                       onChange={(e: any) =>
                         onChange("GLBankAmount", e.target.value)
@@ -142,8 +112,8 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                 </div>
               </div>
             </div>
-          </fieldset>
-          <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          </fieldset> */}
+          {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
             <legend className="text-md px-2 font-bold">
               Payment Means - Cash
             </legend>
@@ -172,14 +142,6 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                     </label>
                   </div>
                   <div className="col-span-3">
-                    {/* <MUITextField
-                      onChange={(e: any) =>
-                        onChange("GLCashAmount", e.target.value)
-                      }
-                      value={data?.GLCashAmount}
-                      type="number"
-                      disabled={data?.edit}
-                    /> */}
                     <FormattedInputs
                       onChange={(e: any) =>
                         onChange("GLCashAmount", e.target.value)
@@ -192,6 +154,87 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
                 </div>
               </div>
             </div>
+          </fieldset> */}
+          <div>
+            {/* <ContentForm/> */}
+            <NewContentForm
+
+              data={data}
+              // handlerAddItem={() => {
+              //   this.hanndAddNewItem();
+              // }}
+              // handlerRemoveItem={(items: any[]) =>
+              //   this.setState({ ...this.state, Items: items })
+              // }
+              // handlerChangeItem={this.handlerChangeItems}
+              // onChangeItemByCode={this.handlerChangeItemByCode}
+              // onChange={this.handlerChange}
+              // ContentLoading={this.state.ContentLoading}
+            />
+          </div>
+          {/* <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+            <div className="grid grid-cols-2 my-4">
+              <div className="pl-4 pr-20">
+                <div className="grid grid-cols-5">
+                  <div className="col-span-2">
+                    <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                      GL Bank Account
+                    </label>
+                  </div>
+                  <div className="col-span-3">
+                    <CashAccount
+                      onChange={(e: any) => onChange("GLBank", e.target.value)}
+                      value={data?.GLBank}
+                      disabled={data?.edit}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="pl-20">
+                <div className="grid grid-cols-5 py-2">
+                  <div className="col-span-2">
+                    <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                      Total
+                    </label>
+                  </div>
+                  <div className="col-span-3">
+                    <FormattedInputs
+                      onChange={(e: any) =>
+                        onChange("GLBankAmount", e.target.value)
+                      }
+                      value={data?.GLBankAmount}
+                      name="GLBankAmount"
+                      disabled={data?.edit}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset> */}
+          <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+            <legend className="text-md px-2 font-bold">
+              Payment Means - Check
+            </legend>
+            <div className="grid grid-cols-2 my-4">
+              <div className="pl-4 pr-20">
+                <div className="grid grid-cols-5">
+                  <div className="col-span-2">
+                    <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                      GL Check Account
+                    </label>
+                  </div>
+                  <div className="col-span-3">
+                    <CashAccount
+                      onChange={(e: any) => onChange("GLCheck", e.target.value)}
+                      value={data?.GLCheck}
+                      disabled={data?.edit}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="pl-20"></div>
+            </div>
+            <PaymentTable data={data} onChange={onChange} />
           </fieldset>
         </div>
       </div>
