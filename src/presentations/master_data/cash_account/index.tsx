@@ -15,6 +15,9 @@ import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import BranchRepository from "@/services/actions/branchRepository";
+import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -22,9 +25,10 @@ export default function Lists() {
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
     docnum: 0,
-    cardcode: "",
-    cardname: "",
+    code: "",
+    name: "",
     docdate: null,
+    account: -1,
     bplid: -2,
   });
   const route = useNavigate();
@@ -46,6 +50,9 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.Name ?? "N/A";
+        },
       },
       {
         accessorKey: "U_tl_expacct",
@@ -54,6 +61,9 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_tl_expacct ?? "N/A";
+        },
       },
       {
         accessorKey: "AccoutName",
@@ -63,18 +73,22 @@ export default function Lists() {
         size: 100,
         visible: true,
         Cell: (cell: any) => {
-          return new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-            ?.Name;
+          return (
+            new GLAccountRepository().find(cell.row.original.U_tl_expacct)
+              ?.Name ?? "N/A"
+          );
         },
       },
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",
-        size: 40,
+        size: 100,
         visible: true,
         Cell: (cell: any) => {
-          return new BranchRepository().find(cell.row.original.U_tl_bplid)
-            ?.Name;
+          return (
+            new BranchBPLRepository().find(cell.row.original.U_tl_bplid)
+              ?.BPLName ?? "N/A"
+          );
         },
       },
 
@@ -227,15 +241,20 @@ export default function Lists() {
   const handleGoClick = () => {
     let queryFilters: any = [];
     if (searchValues.docnum)
-      queryFilters.push(`DocNum eq ${searchValues.docnum}`);
-    if (searchValues.cardcode)
-      queryFilters.push(
-        `(CardCode eq '${searchValues.cardcode}' or CardName eq '${searchValues.cardcode}')`
-      );
+      queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
+    if (searchValues.code)
+      queryFilters.push(`startswith(Code, '${searchValues.code}')`);
+    if (searchValues.name)
+      queryFilters.push(`startswith(Name, '${searchValues.name}')`);
     if (searchValues.docdate)
-      queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`);
+      queryFilters.push(
+        `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
+      );
+    if (searchValues.account > 0)
+      queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
+
     if (searchValues.bplid > 0)
-      queryFilters.push(`U_tl_bplid eq '${searchValues.bplid}'`);
+      queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
@@ -270,10 +289,64 @@ export default function Lists() {
                   }
                 />
               </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Expese Code"
+                  placeholder="Code"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.code}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, code: e.target.value })
+                  }
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Name"
+                  placeholder="Name"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.name}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, name: e.target.value })
+                  }
+                />
+              </div>
 
               <div className="col-span-2 2xl:col-span-3">
-                
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Account
+                  </label>
+                  <div className="">
+                    <CashACAutoComplete
+                      value={searchValues.account}
+                      onChange={(e) =>
+                        setSearchValues({ ...searchValues, account: e })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
+
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Branch
+                  </label>
+                  <div className="">
+                    <BranchAutoComplete
+                      value={searchValues.bplid}
+                      onChange={(e) =>
+                        setSearchValues({ ...searchValues, bplid: e })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-2 2xl:col-span-3"></div>
             </div>
           </div>
           <div className="col-span-2">

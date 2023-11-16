@@ -7,6 +7,9 @@ import shortid from "shortid";
 import request from "@/utilies/request";
 import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper";
 import DocumentHeader from "@/components/DocumenHeader";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -116,13 +119,17 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">GL Account </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_cashacct ?? "N/A"}{" "}
+                  {data?.U_tl_cashacct ?? "N/A"}
+                  {" - "}
+                  {new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ??
+                    "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Branch </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_bplid ?? "N/A"}{" "}
+                  {new BranchBPLRepository().find(data?.U_tl_bplid)?.BPLName ??
+                    "N/A"}
                 </div>
               </div>
             </div>

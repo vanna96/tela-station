@@ -14,6 +14,7 @@ import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter
 import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -21,10 +22,10 @@ export default function Lists() {
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
     docnum: 0,
-    cardcode: "",
-    cardname: "",
+    code: "",
+    name: "",
     docdate: null,
-    bplid: -2,
+    account: -1,
   });
   const route = useNavigate();
   const columns = React.useMemo(
@@ -107,8 +108,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  "/master-data/expense-dictionary/" + 
-                    cell.row.original.Code ,
+                  "/master-data/expense-dictionary/" + cell.row.original.Code,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -235,15 +235,17 @@ export default function Lists() {
   const handleGoClick = () => {
     let queryFilters: any = [];
     if (searchValues.docnum)
-      queryFilters.push(`DocNum eq ${searchValues.docnum}`);
-    if (searchValues.cardcode)
-      queryFilters.push(
-        `(CardCode eq '${searchValues.cardcode}' or CardName eq '${searchValues.cardcode}')`
-      );
+      queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
+    if (searchValues.code)
+      queryFilters.push(`startswith(Code, '${searchValues.code}')`);
+    if (searchValues.name)
+      queryFilters.push(`startswith(Name, '${searchValues.name}')`);
     if (searchValues.docdate)
-      queryFilters.push(`CreateDate eq '${searchValues.docdate}T00:00:00Z'`);
-    if (searchValues.bplid > 0)
-      queryFilters.push(`U_tl_bplid eq '${searchValues.bplid}'`);
+      queryFilters.push(
+        `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
+      );
+    if (searchValues.account > 0)
+      queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
@@ -278,10 +280,49 @@ export default function Lists() {
                   }
                 />
               </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Expese Code"
+                  placeholder="Code"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.code}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, code: e.target.value })
+                  }
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Name"
+                  placeholder="Name"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.name}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, name: e.target.value })
+                  }
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Account
+                  </label>
+                  <div className="">
+                    <CashACAutoComplete
+                      value={searchValues.account}
+                      onChange={(e) =>
+                        setSearchValues({ ...searchValues, account: e })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
-                  label="Date"
+                  label="Create Date"
                   value={searchValues?.docdate}
                   onChange={(e) => {
                     setSearchValues({
@@ -343,7 +384,8 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Expense Dictionary"        />
+          title="Expense Dictionary"
+        />
       </div>
     </>
   );

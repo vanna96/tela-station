@@ -7,6 +7,7 @@ import shortid from "shortid";
 import request from "@/utilies/request";
 import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper";
 import DocumentHeader from "@/components/DocumenHeader";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -115,8 +116,10 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">GL Account </div>
                 <div className="col-span-1 text-gray-900">
-               
-                  {data?.U_tl_expactive}
+                  {data?.U_tl_expacct ?? "N/A"}
+                  {" - "}
+                  {new GLAccountRepository().find(data?.U_tl_expacct)?.Name ??
+                    "N/A"}
                 </div>
               </div>
             </div>
@@ -125,7 +128,7 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700">Active</div>
                 <div className="col-span-1  text-gray-900">
-                  {props.data.Active}
+                  {props.data.U_tl_expactive == 'Y' ?"Yes " : "No"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
