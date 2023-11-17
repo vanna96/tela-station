@@ -1,4 +1,4 @@
-// sidebar.tsx
+
 import React, { useState, useEffect, ReactNode } from "react";
 import {
   Avatar,
@@ -23,6 +23,7 @@ import telaLogo from "@/assets/img/tela-logo.png";
 import { motion } from "framer-motion";
 
 type RouteType = {
+ 
   state: string;
   index?: boolean;
   path?: string;
@@ -33,15 +34,10 @@ type RouteType = {
   };
 };
 const Sidebar = (props: any) => {
-  const [openItems, setOpenItems] = useState<string[]>([]);
+  const [open, setOpen] = useState<string | null>(null);
+
   const handleCollapse = (state: string) => {
-    setOpenItems((prevOpenItems) => {
-      if (prevOpenItems.includes(state)) {
-        return prevOpenItems.filter((item) => item !== state);
-      } else {
-        return [...prevOpenItems, state];
-      }
-    });
+    setOpen((prevOpen) => (prevOpen === state ? null : state));
   };
   const img = React.useMemo(
     () => (
@@ -51,8 +47,7 @@ const Sidebar = (props: any) => {
   );
 
   return (
-    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-500 to-green-600">
-      <div className="bg-[url('../assets/img/')]"></div>
+    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-600 to-green-700">
       {props?.collapse ? (
         <div className=" w-[300px] transition-all duration-600 scale-100 mr-8 ml-4">
           <div className="box-border px-12 py-4">{img}</div>
@@ -73,7 +68,7 @@ const Sidebar = (props: any) => {
                   <SidebarItemCollapse
                     item={route}
                     key={index}
-                    openItems={openItems}
+                    open={open}
                     handleCollapse={handleCollapse}
                   />
                 ) : (
@@ -108,10 +103,7 @@ const SidebarItem = ({ item }: { item: RouteType }) => {
         "&: hover": {
           backgroundColor: colorConfigs.sidebar.hoverBg,
         },
-        backgroundColor:
-          location.pathname === item.path
-            ? colorConfigs.sidebar.activeBg
-            : "unset",
+        backgroundColor: isActive ? colorConfigs.sidebar.activeParent : "unset",
         paddingY: "10px",
         paddingX: "24px",
       }}
@@ -132,17 +124,18 @@ const SidebarItem = ({ item }: { item: RouteType }) => {
 
 const SidebarItemCollapse = ({
   item,
-  openItems,
+  open,
   handleCollapse,
 }: {
   item: RouteType;
-  openItems: string[];
+  open: string | null;
   handleCollapse: (state: string) => void;
 }) => {
   const location = useLocation();
   const isActive = location.pathname === item.path;
 
-  const isOpen = openItems.includes(item.state);
+  const isOpen = open === item.state;
+
   useEffect(() => {
     if (item.child?.some((child: any) => child.state === open)) {
       handleCollapse(item.state);
@@ -157,10 +150,7 @@ const SidebarItemCollapse = ({
           "&: hover": {
             backgroundColor: colorConfigs.sidebar.hoverBg,
           },
-          backgroundColor:
-            location.pathname === item.path
-              ? colorConfigs.sidebar.activeBg
-              : "unset",
+          backgroundColor: isActive ? "white" : "unset",
           paddingY: "10px",
           paddingX: "24px",
         }}
@@ -174,7 +164,7 @@ const SidebarItemCollapse = ({
         </ListItemIcon>
         <ListItemText
           disableTypography
-          className={isActive ? "text-white" : "text-white"}
+          className={isActive ? "text-black" : "text-white"}
           primary={
             <Typography sx={{ color: "#ffff", textDecorationColor: "#fff" }}>
               {item.sidebarProps.displayText}
@@ -182,7 +172,7 @@ const SidebarItemCollapse = ({
           }
         />
 
-        <div className={isActive ? "text-white" : "text-white"}>
+        <div className={isActive ? "text-black" : "text-white"}>
           {isOpen ? <ExpandLessOutlinedIcon /> : <ExpandMoreOutlinedIcon />}
         </div>
       </ListItemButton>
@@ -194,7 +184,7 @@ const SidebarItemCollapse = ({
                 <SidebarItemCollapse
                   item={route}
                   key={index}
-                  openItems={openItems}
+                  open={open}
                   handleCollapse={handleCollapse}
                 />
               ) : (
@@ -218,7 +208,7 @@ const MiniSizeBar = ({ item }: { item: RouteType }) => {
         "&: hover": {
           backgroundColor: colorConfigs.sidebar.hoverBg,
         },
-        backgroundColor: active ? colorConfigs.sidebar.activeBg : "unset",
+        backgroundColor: active ? colorConfigs.sidebar.activeParent : "unset",
         boxSizing: "border-box",
         paddingY: "12px",
         paddingRight: "0px",
@@ -234,6 +224,12 @@ const MiniSizeBar = ({ item }: { item: RouteType }) => {
       </ListItemIcon>
     </ListItemButton>
   ) : null;
+};
+
+const extractBasePath = (path: string): string => {
+  const parts = path.split("/").filter(Boolean); // Split and filter out empty parts
+  const baseParts = parts.slice(0, parts.length - 1); // Take all parts except the last one
+  return `/${baseParts.join("/")}`;
 };
 
 export default Sidebar;
