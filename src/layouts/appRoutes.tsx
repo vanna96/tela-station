@@ -102,21 +102,21 @@ const appRoutes: RouteType[] = [
     child: [
       {
         path: "/master-data/dispenser",
-        state: "component.alert",
+        state: "dispenser",
         sidebarProps: {
           displayText: "Dispenser",
         },
       },
       {
         path: "/master-data/cash-account",
-        state: "",
+        state: "cash-account",
         sidebarProps: {
           displayText: "Cash Account",
         },
       },
       {
         path: "/master-data/expense-dictionary",
-        state: "",
+        state: "expense-dictionary",
         sidebarProps: {
           displayText: "Expense Dictionary",
         },
@@ -133,21 +133,21 @@ const appRoutes: RouteType[] = [
     child: [
       {
         path: "/banking/settle-receipt",
-        state: "component.alert",
+        state: "settle-receipt",
         sidebarProps: {
           displayText: "Settle Receipt",
         },
       },
       {
         path: "/banking/payment-account",
-        state: "component.alert",
+        state: "payment-account",
         sidebarProps: {
           displayText: "Payment Account",
         },
       },
       {
         path: "/banking/direct-account",
-        state: "component.alert",
+        state: "direct-account",
         sidebarProps: {
           displayText: "Direct Account",
         },
@@ -165,14 +165,14 @@ const appRoutes: RouteType[] = [
       {
         path: "/expense/log",
         // element: <ExpenseLogLists />,
-        state: "component.alert",
+        state: "expense/log",
         sidebarProps: {
           displayText: "Expense Log",
         },
       },
       {
         path: "/expense/clearance",
-        state: "component.alert",
+        state: "expense/clearance",
         sidebarProps: {
           displayText: "Expense Clearnace",
         },
@@ -188,10 +188,46 @@ const appRoutes: RouteType[] = [
     },
     child: [
       {
-        path: "/stock-control/inventory-manage",
-        state: "component.alert",
+        path: "/stock-control/inventory-transfer-request",
+        state: "/inventory-transfer-request",
         sidebarProps: {
-          displayText: "Inventory Transfer List",
+          displayText: "Inventory Transfer Request",
+        },
+      },
+      {
+        path: "/stock-control/inventory-transfer",
+        state: "/inventory-transfer",
+        sidebarProps: {
+          displayText: "Inventory Transfer",
+        },
+      },
+      {
+        path: "/stock-control/good-issue",
+        state: "/good-issue",
+        sidebarProps: {
+          displayText: "Good Issue",
+        },
+      },
+      {
+        path: "/stock-control/good-receipt",
+        state: "/good-receipt",
+        sidebarProps: {
+          displayText: "Good Receipt",
+        },
+      },
+   
+      {
+        path: "/stock-control/pump-test",
+        state: "/pump-test",
+        sidebarProps: {
+          displayText: "Pump Test",
+        },
+      },
+      {
+        path: "/stock-control/fuel-level",
+        state: "/fuel-level",
+        sidebarProps: {
+          displayText: "Fuel Level",
         },
       },
     ],
