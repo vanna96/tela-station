@@ -23,7 +23,6 @@ import telaLogo from "@/assets/img/tela-logo.png";
 import { motion } from "framer-motion";
 
 type RouteType = {
-  element: ReactNode;
   state: string;
   index?: boolean;
   path?: string;
@@ -53,6 +52,7 @@ const Sidebar = (props: any) => {
 
   return (
     <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-500 to-green-600">
+      <div className="bg-[url('../assets/img/')]"></div>
       {props?.collapse ? (
         <div className=" w-[300px] transition-all duration-600 scale-100 mr-8 ml-4">
           <div className="box-border px-12 py-4">{img}</div>
@@ -108,7 +108,10 @@ const SidebarItem = ({ item }: { item: RouteType }) => {
         "&: hover": {
           backgroundColor: colorConfigs.sidebar.hoverBg,
         },
-        backgroundColor:  location.pathname === item.path ? colorConfigs.sidebar.activeBg : "unset",
+        backgroundColor:
+          location.pathname === item.path
+            ? colorConfigs.sidebar.activeBg
+            : "unset",
         paddingY: "10px",
         paddingX: "24px",
       }}
@@ -154,7 +157,10 @@ const SidebarItemCollapse = ({
           "&: hover": {
             backgroundColor: colorConfigs.sidebar.hoverBg,
           },
-          backgroundColor:  location.pathname === item.path ? colorConfigs.sidebar.activeBg : "unset",
+          backgroundColor:
+            location.pathname === item.path
+              ? colorConfigs.sidebar.activeBg
+              : "unset",
           paddingY: "10px",
           paddingX: "24px",
         }}
@@ -203,6 +209,7 @@ const SidebarItemCollapse = ({
 };
 
 const MiniSizeBar = ({ item }: { item: RouteType }) => {
+  const active = location.pathname?.split("/")[1] == item.path?.split("/")[1];
   return item.sidebarProps && item.path ? (
     <ListItemButton
       component={Link}
@@ -211,7 +218,7 @@ const MiniSizeBar = ({ item }: { item: RouteType }) => {
         "&: hover": {
           backgroundColor: colorConfigs.sidebar.hoverBg,
         },
-        backgroundColor:  location.pathname === item.path ? colorConfigs.sidebar.activeBg : "unset",
+        backgroundColor: active ? colorConfigs.sidebar.activeBg : "unset",
         boxSizing: "border-box",
         paddingY: "12px",
         paddingRight: "0px",
