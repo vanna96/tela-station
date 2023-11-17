@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, ReactNode } from "react";
 import {
   Avatar,
@@ -23,7 +22,6 @@ import telaLogo from "@/assets/img/tela-logo.png";
 import { motion } from "framer-motion";
 
 type RouteType = {
- 
   state: string;
   index?: boolean;
   path?: string;
@@ -47,7 +45,7 @@ const Sidebar = (props: any) => {
   );
 
   return (
-    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-gradient-to-tr from-green-600 to-green-700">
+    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-600 to-green-700 backdrop-blur-xl">
       {props?.collapse ? (
         <div className=" w-[300px] transition-all duration-600 scale-100 mr-8 ml-4">
           <div className="box-border px-12 py-4">{img}</div>
@@ -92,18 +90,21 @@ const Sidebar = (props: any) => {
   );
 };
 const SidebarItem = ({ item }: { item: RouteType }) => {
-  // console.log(item.state)
   const location = useLocation();
-  const isActive = location.pathname === item.path;
+
+  const locationBasePath = location.pathname?.split("/").filter(Boolean)[1];
+  const itemBasePath = item.path?.split("/").filter(Boolean)[1];
+  const active = locationBasePath === itemBasePath;
   return item.sidebarProps && item.path ? (
     <ListItemButton
       component={Link}
       to={item.path}
       sx={{
-        "&: hover": {
-          backgroundColor: colorConfigs.sidebar.hoverBg,
-        },
-        backgroundColor: isActive ? colorConfigs.sidebar.activeParent : "unset",
+        // "&: hover": {
+        //   backgroundColor: colorConfigs.sidebar.hoverBg,
+        //   textDecorationColor: "white"
+        // },
+        backgroundColor: active ? colorConfigs.sidebar.activeChild : "unset",
         paddingY: "10px",
         paddingX: "24px",
       }}
@@ -115,7 +116,7 @@ const SidebarItem = ({ item }: { item: RouteType }) => {
       >
         {item.sidebarProps.icon && item.sidebarProps.icon}
       </ListItemIcon>
-      <div className={isActive ? "text-white" : "text-white"}>
+      <div className={active ? "text-yellow-500" : "text-gray-100"}>
         {item.sidebarProps.displayText}
       </div>
     </ListItemButton>
@@ -132,9 +133,8 @@ const SidebarItemCollapse = ({
   handleCollapse: (state: string) => void;
 }) => {
   const location = useLocation();
-  const isActive = location.pathname === item.path;
-
   const isOpen = open === item.state;
+  const active = location.pathname?.split("/")[1] == item.path?.split("/")[1];
 
   useEffect(() => {
     if (item.child?.some((child: any) => child.state === open)) {
@@ -147,10 +147,10 @@ const SidebarItemCollapse = ({
       <ListItemButton
         onClick={() => handleCollapse(item.state)}
         sx={{
-          "&: hover": {
-            backgroundColor: colorConfigs.sidebar.hoverBg,
-          },
-          backgroundColor: isActive ? "white" : "unset",
+          // "&: hover": {
+          //   backgroundColor: colorConfigs.sidebar.hoverBg,
+          // },
+          backgroundColor: active ? colorConfigs.sidebar.activeParent : "unset",
           paddingY: "10px",
           paddingX: "24px",
         }}
@@ -160,11 +160,13 @@ const SidebarItemCollapse = ({
             color: colorConfigs.sidebar.color,
           }}
         >
-          {item.sidebarProps.icon && item.sidebarProps.icon}
+          <div className={active ? "text-yellow-500" : "text-white"}>
+            {item.sidebarProps.icon && item.sidebarProps.icon}
+          </div>
         </ListItemIcon>
         <ListItemText
           disableTypography
-          className={isActive ? "text-black" : "text-white"}
+          className={active ? "text-yellow-500" : "text-white"}
           primary={
             <Typography sx={{ color: "#ffff", textDecorationColor: "#fff" }}>
               {item.sidebarProps.displayText}
@@ -172,7 +174,7 @@ const SidebarItemCollapse = ({
           }
         />
 
-        <div className={isActive ? "text-black" : "text-white"}>
+        <div className={active ? "text-yellow-500" : "text-white"}>
           {isOpen ? <ExpandLessOutlinedIcon /> : <ExpandMoreOutlinedIcon />}
         </div>
       </ListItemButton>
@@ -224,12 +226,6 @@ const MiniSizeBar = ({ item }: { item: RouteType }) => {
       </ListItemIcon>
     </ListItemButton>
   ) : null;
-};
-
-const extractBasePath = (path: string): string => {
-  const parts = path.split("/").filter(Boolean); // Split and filter out empty parts
-  const baseParts = parts.slice(0, parts.length - 1); // Take all parts except the last one
-  return `/${baseParts.join("/")}`;
 };
 
 export default Sidebar;

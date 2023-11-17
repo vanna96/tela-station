@@ -22,9 +22,14 @@ const colorConfigs = {
   sidebar: {
     bg: "#16a34a",
     color: "#eeeeee",
-    hoverBg: "#15803d",
+    hoverBg: "#16a34a",
     activeChild: "#15803d"
     , activeParent: "#166534"
+  },
+  tela: {
+    Green: "#1B9B47",
+    Yellow: "#F7D309",
+    Red: "#EA1D2C"
   },
   topbar: {
     bg: "#fff",
