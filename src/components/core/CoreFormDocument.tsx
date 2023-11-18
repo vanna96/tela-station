@@ -172,6 +172,7 @@ export default abstract class CoreFormDocument extends React.Component<
     this.handlerChangeItems = this.handlerChangeItems.bind(this);
     this.handlerChange = this.handlerChange.bind(this);
     this.handlerChangeItemByCode = this.handlerChangeItemByCode.bind(this);
+    this.handlerChangeObject = this.handlerChangeObject.bind(this);
   }
 
   abstract FormRender(): JSX.Element;
@@ -410,5 +411,9 @@ export default abstract class CoreFormDocument extends React.Component<
       items[index] = value;
       this.setState({ ...this.state, error: {}, Items: items });
     }
+  }
+
+  protected handlerChangeObject(value: Record<string, any>){
+    this.setState({ ...this.state, ...value });
   }
 }

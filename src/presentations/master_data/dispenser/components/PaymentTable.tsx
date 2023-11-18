@@ -6,18 +6,25 @@ import MUITextField from "@/components/input/MUITextField";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankSelect from "@/components/selectbox/bank";
 import FormattedInputs from "@/components/input/NumberFormatField";
+import { TbEdit } from "react-icons/tb";
+import { ItemModal } from "./ItemModal";
+import ItemGroupRepository from "@/services/actions/itemGroupRepository";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function PaymentTable(props: any) {
-  const { data, onChange }: any = props;
+  const { data, onChange, handlerAddItem }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
+  const updateRef = React.createRef<ItemModal>();
+  const itemGroupRepo = new ItemGroupRepository();
+  const [collapseError, setCollapseError] = React.useState(false);
 
   const handlerAddCheck = () => {
-    onChange("paymentMeanCheckData", [
-      ...(data?.paymentMeanCheckData || []),
+    onChange("PumpData", [
+      ...(data?.PumpData || []),
       {
         pumpCode: "",
         itemMaster: "",
-        itemName: "",
+        itemName: "", 
         uom: "",
         registerMeeting: "",
         updateMetering: "",
@@ -29,15 +36,15 @@ export default function PaymentTable(props: any) {
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
-    const newData = data?.paymentMeanCheckData?.filter(
+    const newData = data?.PumpData?.filter(
       (item: any, index: number) => !rows.includes(index.toString())
     );
-    onChange("paymentMeanCheckData", newData);
+    onChange("PumpData", newData);
     setRowSelection({});
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.paymentMeanCheckData?.map(
+    const newData = data?.PumpData?.map(
       (item: any, index: number) => {
         if (index.toString() !== key.toString()) return item;
         item[Object.keys(obj).toString()] = Object.values(obj).toString();
@@ -45,7 +52,7 @@ export default function PaymentTable(props: any) {
       }
     );
     if (newData.length <= 0) return;
-    onChange("paymentMeanCheckData", newData);
+    onChange("PumpData", newData);
   };
 
   const columns = [
@@ -56,8 +63,7 @@ export default function PaymentTable(props: any) {
         <MUITextField
           key={"pumpCode" + cell.getValue() + cell?.row?.id}
           type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.pumpCode || ""}
+          defaultValue={cell.getValue() || ""}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               pumpCode: e.target.value,
@@ -67,36 +73,43 @@ export default function PaymentTable(props: any) {
       ),
     },
     {
-      accessorKey: "itemMaster",
-      header: "Item Master",
-      Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"itemMaster" + cell.getValue() + cell?.row?.id}
-          type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.itemMaster || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              itemMaster: e.target.value,
-            });
+      accessorKey: "itemCode",
+      header: "Item Code", //uses the default width from defaultColumn prop
+      visible: true,
+      size: 120,
+      Cell: ({ cell }: any) => {
+        return <MUITextField
+          value={cell.getValue()}
+          endAdornment={!(data?.isStatusClose || false)}
+          onClick={() => {
+            if ((cell.getValue() ?? "") === "") {
+              handlerAddItem(cell?.row.id);
+            } else {
+              handlerAddItem(cell?.row.id);
+              // updateRef.current?.onOpen(cell.row.original);
+            }
           }}
+          endIcon={
+            cell.getValue() === "" ? null : <TbEdit className="text-lg" />
+          }
+          readOnly={true}
         />
-      ),
+      },
     },
     {
-      accessorKey: "itemName",
+      accessorKey: "ItemDescription",
       header: "Item Name",
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"itemName" + cell.getValue() + cell?.row?.id}
           type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.itemName || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              itemName: e.target.value,
-            });
-          }}
+          readOnly={true}
+          defaultValue={cell.row.original?.ItemDescription || ""}
+          // onBlur={(e: any) => {
+          //   handlerChangeItem(cell?.row?.id || 0, {
+          //     itemName: e.target.value,
+          //   });
+          // }}
         />
       ),
     },
@@ -157,17 +170,21 @@ export default function PaymentTable(props: any) {
       accessorKey: "status",
       header: "Status",
       Cell: ({ cell }: any) => (
-        <FormattedInputs
+        <MUISelect
           key={"status" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.status || 0}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              status: e.target.value,
-            });
-          }}
-          name={"status"}
-          value={cell.row.original?.status || ""}
+          items={[
+            { id: "New", name: "New" },
+            { id: "Initialized", name: "Initialized" },
+            { id: "OutOfOrder", name: "Out Of Order" },
+            { id: "Inactive", name: "Inactive" },
+          ]}
+          onChange={(e) => handlerChangeItem(cell?.row?.id || 0, {
+            status: e.target.value,
+          })}
+          value={cell.getValue()}
+          aliasvalue="id"
+          aliaslabel="name"
+          name="Status"
         />
       ),
     },
@@ -176,7 +193,7 @@ export default function PaymentTable(props: any) {
   return (
     <>
       <div className="flex space-x-4 text-[25px] justify-end mb-2">
-        {!data?.edit && (
+        {/* {!data?.edit && (
           <>
             <AiOutlinePlus
               className="text-blue-700 cursor-pointer"
@@ -188,11 +205,11 @@ export default function PaymentTable(props: any) {
             />
           </>
         )}
-        <AiOutlineSetting className="cursor-pointer" />
+        <AiOutlineSetting className="cursor-pointer" /> */}
       </div>
       <MaterialReactTable
         columns={columns}
-        data={data?.paymentMeanCheckData || []}
+        data={data?.PumpData || []}
         enableStickyHeader={true}
         enableHiding={true}
         enablePinning={true}
@@ -206,18 +223,24 @@ export default function PaymentTable(props: any) {
         enableTopToolbar={false}
         enableColumnResizing={true}
         enableTableFooter={false}
-        enableRowSelection
+        enableRowSelection={false}
         onRowSelectionChange={setRowSelection}
+        enableRowNumbers={true}
         initialState={{
           density: "compact",
-          rowSelection,
+          // rowSelection,
         }}
-        state={{
-          rowSelection,
-        }}
+        // state={{
+        //   rowSelection,
+        // }}
         muiTableProps={{
           sx: { cursor: "pointer", height: "60px" },
         }}
+      />
+      <ItemModal
+        ref={updateRef}
+        onSave={() => {}}
+        columns={columns}
       />
     </>
   );
