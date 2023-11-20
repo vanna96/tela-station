@@ -10,6 +10,7 @@ import GoodIssueList from "@/presentations/stock_control/good_issue";
 import GoodIssueForm from "@/presentations/stock_control/good_issue/form/index";
 import PumpTestList from "@/presentations/stock_control/pump_test";
 import PumpTestForm from "@/presentations/stock_control/pump_test/form/index";
+import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index";
 import FuelLevelList from "@/presentations/stock_control/fuel_level";
 import FuelLevelForm from "@/presentations/stock_control/fuel_level/form/index";
 
@@ -49,7 +50,7 @@ export default function StockControlRoute() {
           <Route index element={<PumpTestList />} />
           <Route path="create" element={<PumpTestForm />} />
           <Route path=":id/edit" element={<PumpTestForm edit={true} />} />
-          <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+          <Route path=":id" element={<PumpTestDetail edit={true} />} />
         </Route>
         <Route path="/fuel-level">
           <Route index element={<FuelLevelList />} />

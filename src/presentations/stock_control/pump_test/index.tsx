@@ -28,8 +28,6 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 export default function PumpTestList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
 
   const columns = React.useMemo(
     () => [
@@ -43,8 +41,8 @@ export default function PumpTestList() {
         type: "number",
       },
       {
-        accessorKey: "CardCode",
-        header: "Customer Code",
+        accessorKey: "Series",
+        header: "Series",
         enableClickToCopy: true,
         visible: true,
         type: "string",
@@ -52,16 +50,28 @@ export default function PumpTestList() {
         size: 65,
       },
       {
-        accessorKey: "CardName",
-        header: "Customer Name",
+        accessorKey: "Status",
+        header: "Status ",
         visible: true,
         type: "string",
         align: "center",
         size: 90,
+        Cell: (cell: any) => {
+          return  cell.row.original.Status ==  "O" ? "Open" : "Closed";
+        },
       },
       {
-        accessorKey: "TaxDate",
-        header: "Posting Date",
+        accessorKey: "Creator",
+        header: "Test By ",
+        visible: true,
+        type: "string",
+        align: "center",
+        size: 90,
+      
+      },
+      {
+        accessorKey: "CreateDate",
+        header: "Create Date",
         visible: true,
         type: "string",
         align: "center",
@@ -72,8 +82,8 @@ export default function PumpTestList() {
         },
       },
       {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
+        accessorKey: "UpdateDate",
+        header: "Update Date",
         visible: true,
         type: "string",
         align: "center",
@@ -83,20 +93,9 @@ export default function PumpTestList() {
           return <span>{formattedDate}</span>;
         },
       },
+
       {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "U_tl_bplid",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
@@ -104,14 +103,7 @@ export default function PumpTestList() {
           new BranchBPLRepository().find(cell.getValue())?.BPLName,
         size: 60,
       },
-      {
-        accessorKey: "DocumentStatus",
-        header: " Status",
-        visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
-      },
+     
 
       {
         accessorKey: "DocEntry",
@@ -133,7 +125,7 @@ export default function PumpTestList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/stock-control/${salesType}/` + cell.row.original.DocEntry,
+                  `/stock-control/pump-test/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -157,7 +149,7 @@ export default function PumpTestList() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/stock-control/${salesType}/` +
+                  `/stock-control/pump-test/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -188,11 +180,11 @@ export default function PumpTestList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["pump-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/tl_PumpTest/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -203,15 +195,16 @@ export default function PumpTestList() {
     staleTime: Infinity,
   });
 
+
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "pump-test",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/tl_PumpTest?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -332,8 +325,8 @@ export default function PumpTestList() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/stock-control/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
+      <span className="" onClick={() => route(`/stock-control/pump-test`)}>
+        <span className=""></span> Pump Test
       </span>
     </>
   );
@@ -484,8 +477,8 @@ export default function PumpTestList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
-          createRoute={`/stock-control/${salesType}/create`}
+          title="Pump Test Lists"
+          createRoute={`/stock-control/pump-test/create`}
         />
       </div>
     </>

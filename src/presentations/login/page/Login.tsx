@@ -33,6 +33,7 @@ import CurrencyRepository from "@/services/actions/currencyRepository";
 import WareBinLocationRepository from "../../../services/whBinLocationRepository";
 import { GridSaveAltIcon } from "@mui/x-data-grid";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import UsersRepository from "@/services/actions/usersRepository";
 
 export default function Login() {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId", "user"]);
@@ -95,7 +96,7 @@ export default function Login() {
       await new WarehouseRepository().get(),
       await new DistributionRuleRepository().get(),
       await new PriceListRepository().get(),
-      // await new UsersRepository().get(),
+      await new UsersRepository().get(),
       await new DistributionRuleRepository().get,
       await new CustomsGroupRepository().get(),
       await new ManufacturerRepository().get(),

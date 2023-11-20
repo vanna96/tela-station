@@ -50,14 +50,16 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     // staleTime: Infinity,
   })
 
-  const { data: tlExpDic }: any = useQuery({
-    queryKey: ["tlExpDic"],
+  const { data: tl_PumpTest }: any = useQuery({
+    queryKey: ["tl_PumpTest"],
     queryFn: () =>
-      request("GET", "TL_ExpDic?$filter=U_tl_expactive eq 'Y'")
-        .then((res: any) => res?.data?.value)
+      request("GET", "tl_PumpTest")
+        .then((res: any) => res?.data?.value?.TL_PUMP_TEST_LINESCollection)
         .catch((err: any) => console.log(err)),
     // staleTime: Infinity,
   })
+
+  console.log(tl_PumpTest)
 
   return (
     <>
@@ -69,7 +71,7 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
           CurrencyAPI,
           sysInfo,
           getPeriod,
-          tlExpDic
+          tl_PumpTest
         }}
       >
         {children}

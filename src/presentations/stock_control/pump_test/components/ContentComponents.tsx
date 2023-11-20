@@ -78,10 +78,12 @@ export default function ContentComponent(props: ContentComponentProps) {
     const Items = [
       ...props?.items,
       {
-        ExpenseCode: "",
-        ExpenseName: "",
-        Amount: "",
-        Remark: "",
+        U_tl_pumpcode: "",
+        U_tl_itemnum: "",
+        U_tl_itemdesc: "",
+        U_tl_old_meter: 0,
+        U_tl_new_meter: 0,
+        U_tl_testby: -1,
       },
     ];
     if (props?.onChange) props.onChange("Items", Items);

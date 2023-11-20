@@ -11,6 +11,8 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { APIContext } from "../../context/APIContext";
 import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
+import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -31,7 +33,7 @@ export default function ContentForm({
   ContentLoading,
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  const { tlExpDic }: any = React.useContext(APIContext);
+  const { tl_PumpTest }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
@@ -43,164 +45,80 @@ export default function ContentForm({
       if (i.toString() === indexItem.toString()) item[e[0]] = e[1];
       return item;
     });
+    console.log(items);
     onChange("Items", items);
   };
 
-  // const itemColumns = React.useMemo(
-  //   () => [
-  //     {
-  //       accessorKey: "ExpenseCode",
-  //       header: "Expense Code",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <MUISelect
-  //             value={cell.getValue()}
-  //             items={
-  //               tlExpDic?.map((e: any) => {
-  //                 return {
-  //                   ...e,
-  //                   label: `${e.Code} - ${e.Name}`,
-  //                 };
-  //               }) || []
-  //             }
-  //             aliaslabel="label"
-  //             aliasvalue="Code"
-  //             onChange={(e: any) =>
-  //               handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
-  //             }
-  //           />
-  //         );
-  //       },
-  //     },
-  //     {
-  //       accessorKey: "ExpenseName",
-  //       header: "Expense Name",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <MUITextField
-  //             value={
-  //               tlExpDic?.find(
-  //                 (e: any) => e.Code === cell.row.original.ExpenseCode
-  //               )?.Name
-  //             }
-  //             // onBlur={(e: any) =>
-  //             //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-  //             // }
-  //           />
-  //         );
-  //       },
-  //     },
-  //     {
-  //       accessorKey: "Amount",
-  //       header: "Amount",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <NumericFormat
-  //             key={"amount_" + cell.getValue()}
-  //             thousandSeparator
-  //             decimalScale={2}
-  //             fixedDecimalScale
-  //             customInput={MUITextField}
-  //             defaultValue={cell.getValue()}
-  //             onBlur={(event) => {
-  //               const newValue = parseFloat(
-  //                 event.target.value.replace(/,/g, "")
-  //               );
-  //               handlerUpdateRow(cell.row.id, ["Amount", newValue]);
-  //             }}
-  //           />
-  //         );
-  //       },
-  //     },
-  //     {
-  //       accessorKey: "Remark",
-  //       header: "Remark",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <MUITextField
-  //             defaultValue={cell.getValue()}
-  //             onBlur={(e: any) =>
-  //               handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
-  //             }
-  //           />
-  //         );
-  //       },
-  //     },
-  //   ],
-  //   [data?.Items]
-  // );
+  console.log(tl_PumpTest);
 
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "PumpCode",
+        accessorKey: "U_tl_pumpcode",
         header: "Pump ID",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUISelect
-              value={cell.getValue()}
-              items={
-                tlExpDic?.map((e: any) => {
-                  return {
-                    ...e,
-                    label: `${e.Code} - ${e.Name}`,
-                  };
-                }) || []
-              }
-              aliaslabel="label"
-              aliasvalue="Code"
-              onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
+            // <MUISelect
+            //   value={cell.getValue()}
+            //   items={
+            //     tl_PumpTest?.map((e: any) => {
+            //       return {
+            //         ...e,
+            //         label: `${e.Code} - ${e.Name}`,
+            //       };
+            //     }) || []
+            //   }
+            //   aliaslabel="label"
+            //   aliasvalue="Code"
+            //   onChange={(e: any) =>
+            //     handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
+            //   }
+            // />
+            <MUITextField
+              defaultValue={cell.getValue()}
+              onBlur={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["U_tl_pumpcode", e.target.value])
               }
             />
           );
         },
       },
       {
-        accessorKey: "ItemCode",
+        accessorKey: "U_tl_itemnum",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              value={
-                tlExpDic?.find(
-                  (e: any) => e.Code === cell.row.original.ExpenseCode
-                )?.Name
+              defaultValue={cell.getValue()}
+              onBlur={(e: any) =>
+                handlerUpdateRow(cell.row.id, [
+                  "U_tl_itemnum",
+                  e.target.value,
+                ])
               }
-              // onBlur={(e: any) =>
-              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-              // }
             />
           );
         },
       },
       {
-        accessorKey: "ItemName",
+        accessorKey: "U_tl_itemdesc",
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              value={
-                tlExpDic?.find(
-                  (e: any) => e.Code === cell.row.original.ExpenseCode
-                )?.Name
+              defaultValue={cell.getValue()}
+              onBlur={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["U_tl_itemdesc", e.target.value])
               }
-              // onBlur={(e: any) =>
-              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-              // }
             />
           );
         },
       },
       {
-        accessorKey: "OldMeter",
+        accessorKey: "U_tl_old_meter",
         header: "Old Meter",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -216,14 +134,14 @@ export default function ContentForm({
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
                 );
-                handlerUpdateRow(cell.row.id, ["Amount", newValue]);
+                handlerUpdateRow(cell.row.id, ["U_tl_old_meter", newValue]);
               }}
             />
           );
         },
       },
       {
-        accessorKey: "NewMeter",
+        accessorKey: "U_tl_new_meter",
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -239,22 +157,22 @@ export default function ContentForm({
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
                 );
-                handlerUpdateRow(cell.row.id, ["Amount", newValue]);
+                handlerUpdateRow(cell.row.id, ["U_tl_new_meter", newValue]);
               }}
             />
           );
         },
       },
       {
-        accessorKey: "TestBy",
+        accessorKey: "U_tl_testby",
         header: "Test By",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
+            <UserCodeAutoComplete
+              value={cell.getValue}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["U_tl_testby", e])
               }
             />
           );
