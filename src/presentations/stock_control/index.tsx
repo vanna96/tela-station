@@ -58,7 +58,7 @@ const StockControlPage = () => {
         <ItemCard
           title="Pump Test "
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("good-receipt")}
+          onClick={() => goTo("pump-test")}
           amount={count?.order || 0}
         />
         <ItemCard

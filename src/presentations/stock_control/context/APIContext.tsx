@@ -10,11 +10,6 @@ type GeneralProps = { children: any; Edit?: any }
 
 export const APIContext = createContext({})
 export const APIContextProvider = ({ children }: GeneralProps) => {
-  const { data: LineOfBussiness, loadingLineOfBussiness }: any = useQuery({
-    queryKey: ["distribution-rule"],
-    queryFn: () => new DistributionRuleRepository().get(),
-    // staleTime: Infinity,
-  })
 
   const { data: branchBPL, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
@@ -22,11 +17,6 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     // staleTime: Infinity,
   })
 
-  const { data: CurrencyAPI }: any = useQuery({
-    queryKey: ["Currency"],
-    queryFn: () => new CurrencyRepository().get(),
-    // staleTime: Infinity,
-  })
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -59,19 +49,27 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     // staleTime: Infinity,
   })
 
+  const { data: tl_Dispenser }: any = useQuery({
+    queryKey: ["dispenser"],
+    queryFn: () =>
+      request("GET", "TL_Dispenser")
+        .then((res: any) => res?.data?.value)
+        .catch((err: any) => console.log(err)),
+    // staleTime: Infinity,
+  })
+
   console.log(tl_PumpTest)
+  console.log(tl_Dispenser)
 
   return (
     <>
       <APIContext.Provider
         value={{
-          LineOfBussiness,
-          loadingLineOfBussiness,
           branchBPL,
-          CurrencyAPI,
           sysInfo,
           getPeriod,
-          tl_PumpTest
+          tl_PumpTest,
+          tl_Dispenser
         }}
       >
         {children}

@@ -74,6 +74,20 @@ export default function ContentComponent(props: ContentComponentProps) {
     setRowSelection(rowSelects);
   };
 
+  if (props.items.length === 0) {
+    props.onChange &&
+      props.onChange("Items", [
+        {
+          U_tl_pumpcode: "",
+          U_tl_itemnum: "",
+          U_tl_itemdesc: "",
+          U_tl_old_meter: 0,
+          U_tl_new_meter: 0,
+          U_tl_testby: -1,
+        },
+      ]);
+  }
+
   const handlerAdd = () => {
     const Items = [
       ...props?.items,

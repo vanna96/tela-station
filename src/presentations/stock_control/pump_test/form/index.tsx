@@ -8,7 +8,7 @@ import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
-import React from "react";
+import React, { useContext } from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
@@ -19,6 +19,7 @@ import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import { APIContext } from "../../context/APIContext";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -68,39 +69,32 @@ class Form extends CoreFormDocument {
   }
 
   async onInit() {
-    let state: any = { ...this.state };
+    try {
+      let state: any = { ...this.state };
 
-    if (this.props.edit) {
-      const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `tl_PumpTest(${id})`)
-        .then(async (res: any) => {
-          const data: any = res?.data;
+      // Fetch tl_Dispenser
+      const { data: tl_Dispenser }: any = await request("GET", "TL_Dispenser");
+      console.log(tl_Dispenser);
 
-          state = {
-            ...data,
-            
-            Items: data?.TL_PUMP_TEST_LINESCollection?.map((item: any) => {
-              return {
-                U_tl_pumpcode: item.U_tl_pumpcode,
-                U_tl_itemnum: item.U_tl_itemnum,
-                U_tl_itemdesc: item.U_tl_itemdesc,
-                U_tl_old_meter: item.U_tl_old_meter,
-                U_tl_new_meter: item.U_tl_new_meter,
-                U_tl_testby: item.U_tl_testby,
-              };
-            }),
-          };
-        })
-        .catch((err: any) => console.log(err))
-        .finally(() => {
-          state["loading"] = false;
-          state["isLoadingSerie"] = false;
-          this.setState(state);
-        });
-    } else {
-      state["loading"] = false;
-      state["isLoadingSerie"] = false;
-      this.setState(state);
+      // Set tl_Dispenser in the state
+      state = {
+        ...state,
+        tl_Dispenser,
+      };
+
+      // Continue with the rest of your initialization logic
+      // ...
+
+      this.setState({
+        ...state,
+        loading: false, // Set loading to false after initialization is complete
+      });
+    } catch (error) {
+      console.error("Error in onInit:", error);
+      this.setState({
+        loading: false,
+        error: { tl_Dispenser: "Error fetching tl_Dispenser" },
+      });
     }
   }
 
@@ -229,8 +223,6 @@ class Form extends CoreFormDocument {
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
         <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        {/* <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -277,7 +269,6 @@ class Form extends CoreFormDocument {
   };
 
   hanndAddNewItem() {
-    if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
@@ -288,8 +279,18 @@ class Form extends CoreFormDocument {
   }
 
   FormRender = () => {
-  
+    let { tl_Dispenser }: any = useContext(APIContext);
 
+    React.useEffect(() => {
+      if (tl_Dispenser) {
+        this.setState({
+          ...this.state,
+          // GLCash: getPeriod?.AccountforCashReceipt,
+          loading: false,
+          // tl_Dispener: tl_Dispenser,
+        });
+      }
+    }, [tl_Dispenser]);
     return (
       <>
         {/* <ItemModalComponent
@@ -318,7 +319,6 @@ class Form extends CoreFormDocument {
                       handlerChange={(key, value) =>
                         this.handlerChange(key, value)
                       }
-                   
                     />
                   )}
 
@@ -337,16 +337,6 @@ class Form extends CoreFormDocument {
                       ContentLoading={this.state.ContentLoading}
                     />
                   )}
-
-                  {/* {this.state.tapIndex === 2 && (
-                    <LogisticForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
 
                   {this.state.tapIndex === 3 && (
                     <AttachmentForm
@@ -400,7 +390,7 @@ class Form extends CoreFormDocument {
 
 export default withRouter(Form);
 
-const getItem = (items: any, ) =>
+const getItem = (items: any) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,

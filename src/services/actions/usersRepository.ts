@@ -28,7 +28,6 @@ export default class UsersRepository extends Repository<Users> {
     const data = localStorage.getItem(this.key);
     if (!data) return {};
     const branchs: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
-    console.log(branchs)
     return branchs.find((e: any) => e?.InternalKey == code);
   }
   post(payload: any, isUpdate?: boolean | undefined, id?: any): Promise<Users> {

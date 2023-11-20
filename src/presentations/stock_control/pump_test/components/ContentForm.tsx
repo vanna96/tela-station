@@ -2,7 +2,15 @@ import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton } from "@mui/material";
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  CircularProgress,
+  Collapse,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { numberWithCommas } from "@/helper/helper";
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
@@ -34,22 +42,61 @@ export default function ContentForm({
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
   const { tl_PumpTest }: any = React.useContext(APIContext);
+
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
 
-  const handlerUpdateRow = (i: number, e: any) => {
-    const items: any = data?.Items?.map((item: any, indexItem: number) => {
-      if (i.toString() === indexItem.toString()) item[e[0]] = e[1];
-      return item;
-    });
-    console.log(items);
-    onChange("Items", items);
-  };
+  // const handlerUpdateRow = (i: number, e: any) => {
+  //   const items: any = data?.Items?.map((item: any, indexItem: number) => {
+  //     if (i.toString() === indexItem.toString()) item[e[0]] = e[1];
+  //     return item;
+  //   });
+  //   console.log(items);
+  //   onChange("Items", items);
+  // };
 
-  console.log(tl_PumpTest);
+  // const handlerUpdateRow = (i: number, e: any) => {
+  //   const items = [...data?.Items];
+  //   items[i] = { ...items[i], [e[0]]: e[1] };
+  //   console.log(items);
+  //   onChange("Items", items);
+  // };
+
+  const handlerUpdateRow = (i: number, e: any) => {
+    setData((prevData) => {
+      const items = [...prevData];
+  
+      const selectedPump = TL_DISPENSER_LINESCollection?.find(
+        (dispenser: any) =>
+          dispenser.some((item: any) => item.U_tl_pumpcode === e[1])
+      );
+  
+      const selectedItem = selectedPump?.find(
+        (item: any) => item.U_tl_pumpcode === e[1]
+      );
+  
+      items[i] = {
+        ...items[i],
+        U_tl_pumpcode: e[1], // Update the pump code
+        U_tl_itemnum: selectedItem?.U_tl_itemnum ,
+        U_tl_old_meter: selectedItem?.U_tl_reg_meter ,
+        U_tl_new_meter: selectedItem?.U_tl_upd_meter,
+      };
+  
+      return items;
+    });
+  };
+  
+  const tl_Dispenser = data.tl_Dispenser.value;
+  const TL_DISPENSER_LINESCollection = tl_Dispenser.map(
+    (item: any) => item.TL_DISPENSER_LINESCollection
+  );
+  const initialData: any[] = [];
+
+  const [data1, setData] = React.useState(initialData);
 
   const itemColumns = React.useMemo(
     () => [
@@ -59,27 +106,59 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            // <MUISelect
-            //   value={cell.getValue()}
-            //   items={
-            //     tl_PumpTest?.map((e: any) => {
-            //       return {
-            //         ...e,
-            //         label: `${e.Code} - ${e.Name}`,
-            //       };
-            //     }) || []
-            //   }
-            //   aliaslabel="label"
-            //   aliasvalue="Code"
-            //   onChange={(e: any) =>
-            //     handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
-            //   }
-            // />
-            <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["U_tl_pumpcode", e.target.value])
+            <MUISelect
+              value={cell.getValue()}
+              items={
+                TL_DISPENSER_LINESCollection?.flatMap((dispenser: any) =>
+                  dispenser.map((item: any) => ({
+                    label: `${item.U_tl_pumpcode}`,
+                    value: item.U_tl_pumpcode,
+                    TL_DISPENSER_LINESCollection:
+                      item.TL_DISPENSER_LINESCollection,
+                  }))
+                ) || []
               }
+              loading={!tl_Dispenser}
+              aliaslabel="label"
+              aliasvalue="Code"
+              onChange={(e: any) => {
+                handlerUpdateRow(cell.row.id, [
+                  "U_tl_pumpcode",
+                  e.target.value,
+                ]);
+
+                setData((prevData) => {
+                  const selectedPump = TL_DISPENSER_LINESCollection?.find(
+                    (dispenser: any) =>
+                      dispenser.some(
+                        (item: any) => item.U_tl_pumpcode === e.target.value
+                      )
+                  );
+
+                  const selectedItem = selectedPump?.find(
+                    (item: any) => item.U_tl_pumpcode === e.target.value
+                  );
+
+                  const updatedData = prevData.map(
+                    (item: any, indexItem: number) => {
+                      if (cell.row.id.toString() === indexItem.toString()) {
+                        return {
+                          ...item,
+                          U_tl_itemnum:
+                            selectedItem?.U_tl_itemnum ,
+                          U_tl_old_meter:
+                            selectedItem?.U_tl_reg_meter ,
+                          U_tl_new_meter:
+                            selectedItem?.U_tl_upd_meter ,
+                        };
+                      }
+                      return item;
+                    }
+                  );
+
+                  return updatedData;
+                });
+              }}
             />
           );
         },
@@ -89,19 +168,29 @@ export default function ContentForm({
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
+          // const selectedPumpCode = cell.row.original.U_tl_pumpcode;
+          // const selectedPump = TL_DISPENSER_LINESCollection?.find(
+          //   (dispenser: any) =>
+          //     dispenser.some(
+          //       (item: any) => item.U_tl_pumpcode === selectedPumpCode
+          //     )
+          // );
+
+          // const selectedItem = selectedPump?.find(
+          //   (item: any) => item.U_tl_pumpcode === selectedPumpCode
+          // );
+
           return (
             <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, [
-                  "U_tl_itemnum",
-                  e.target.value,
-                ])
-              }
+              value={cell.getValue()}
+              // onBlur={(e: any) => {
+              //   handlerUpdateRow(cell.row.id, ["U_tl_itemnum", e.target.value]);
+              // }}
             />
           );
         },
       },
+
       {
         accessorKey: "U_tl_itemdesc",
         header: "Item Name",
@@ -121,21 +210,30 @@ export default function ContentForm({
         accessorKey: "U_tl_old_meter",
         header: "Old Meter",
         visible: true,
+
         Cell: ({ cell }: any) => {
+          // const selectedPumpCode = cell.row.original.U_tl_pumpcode;
+          // const selectedPump = TL_DISPENSER_LINESCollection?.find(
+          //   (dispenser: any) =>
+          //     dispenser.some(
+          //       (item: any) => item.U_tl_pumpcode === selectedPumpCode
+          //     )
+          // );
+
+          // const selectedItem = selectedPump?.find(
+          //   (item: any) => item.U_tl_pumpcode === selectedPumpCode
+          // );
+
           return (
-            <NumericFormat
-              key={"amount_" + cell.getValue()}
-              thousandSeparator
-              decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(cell.row.id, ["U_tl_old_meter", newValue]);
-              }}
+            <MUITextField
+              // value={selectedItem?.U_tl_reg_meter}
+              value={cell.getValue()}
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, [
+              //     "U_tl_old_meter",
+              //     e.target.value,
+              //   ])
+              // }
             />
           );
         },
@@ -145,20 +243,28 @@ export default function ContentForm({
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
+          // const selectedPumpCode = cell.row.original.U_tl_pumpcode;
+          // const selectedPump = TL_DISPENSER_LINESCollection?.find(
+          //   (dispenser: any) =>
+          //     dispenser.some(
+          //       (item: any) => item.U_tl_pumpcode === selectedPumpCode
+          //     )
+          // );
+
+          // const selectedItem = selectedPump?.find(
+          //   (item: any) => item.U_tl_pumpcode === selectedPumpCode
+          // );
+
           return (
-            <NumericFormat
-              key={"amount_" + cell.getValue()}
-              thousandSeparator
-              decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(cell.row.id, ["U_tl_new_meter", newValue]);
-              }}
+            <MUITextField
+              // value={selectedItem?.U_tl_upd_meter}
+              value={cell.getValue()}
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, [
+              //     "U_tl_new_meter",
+              //     e.target.value,
+              //   ])
+              // }
             />
           );
         },
@@ -179,11 +285,12 @@ export default function ContentForm({
         },
       },
     ],
-    [data?.Items]
+    [TL_DISPENSER_LINESCollection]
   );
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";
+
   return (
     <>
       <Collapse in={collapseError}>
