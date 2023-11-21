@@ -70,6 +70,8 @@ export default function ContentForm({
     (item: any) => item.TL_DISPENSER_LINESCollection
   );
 
+  console.log(data)
+
   const itemColumns = React.useMemo(
     () => [
       {
@@ -167,7 +169,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <UserCodeAutoComplete
-              value={cell.getValue}
+              value={cell.getValue()}
               onChange={(e: any) =>
                 handlerUpdateRow(cell.row.id, ["U_tl_testby", e])
               }

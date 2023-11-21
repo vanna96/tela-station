@@ -72,18 +72,38 @@ class Form extends CoreFormDocument {
     try {
       let state: any = { ...this.state };
 
-      // Fetch tl_Dispenser
-      const { data: tl_Dispenser }: any = await request("GET", "TL_Dispenser");
-      console.log(tl_Dispenser);
+      if (this.props.edit) {
+        const { id }: any = this.props?.match?.params || 0;
+        const { data: tl_PumpTest }: any = await request(
+          "GET",
+          `tl_PumpTest(${id})`
+        );
 
-      // Set tl_Dispenser in the state
+        state = {
+          ...state,
+          ...tl_PumpTest,
+          U_tl_bplid: parseInt(tl_PumpTest?.U_tl_bplid || 0),
+          Items: [
+            ...(tl_PumpTest?.TL_PUMP_TEST_LINESCollection?.map((item: any) => {
+              return {
+                U_tl_pumpcode: item?.U_tl_pumpcode,
+                U_tl_itemnum: item?.U_tl_itemnum,
+                U_tl_itemdesc: item?.U_tl_itemdesc,
+                U_tl_old_meter: item?.U_tl_old_meter,
+                U_tl_new_meter: item?.U_tl_new_meter,
+                U_tl_testby: item?.U_tl_testby,
+              };
+            }) || []),
+            ...state.Items, // Keep the existing items in the state.Items array
+          ],
+        };
+      }
+      const { data: tl_Dispenser }: any = await request("GET", "TL_Dispenser");
+
       state = {
         ...state,
         tl_Dispenser,
       };
-
-      // Continue with the rest of your initialization logic
-      // ...
 
       this.setState({
         ...state,
@@ -328,6 +348,7 @@ class Form extends CoreFormDocument {
                       handlerAddItem={() => {
                         this.hanndAddNewItem();
                       }}
+                      edit={this.props?.edit}
                       handlerRemoveItem={(items: any[]) =>
                         this.setState({ ...this.state, Items: items })
                       }
