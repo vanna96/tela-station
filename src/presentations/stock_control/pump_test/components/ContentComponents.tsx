@@ -22,7 +22,6 @@ interface ContentComponentProps {
   viewOnly?: boolean;
   data: any;
   loading: boolean;
-  isNotAccount: any;
   handlerAddSequence: any;
 }
 
@@ -150,9 +149,10 @@ export default function ContentComponent(props: ContentComponentProps) {
               ...columns,
             ]}
             data={
-              props?.isNotAccount
-                ? [...props?.data?.Items]
-                : [...props?.data?.Items, { ItemCode: "" }]
+              [...props?.data?.Items] ?? [
+                ...props?.data?.Items,
+                { ItemCode: "" },
+              ]
             }
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
             enableStickyHeader={true}
@@ -193,33 +193,7 @@ export default function ContentComponent(props: ContentComponentProps) {
             enableTableFooter={false}
           />
         </div>
-        {/* <div className="col-span-2 mt-[-40px]">
-          <div className="grid grid-cols-2">
-            <div className="w-full grid grid-cols-2 mt-4"></div>
-            <div className="pl-20">
-              <div className="grid grid-cols-5">
-                <div className="col-span-2">
-                  <span className="flex items-center pt-2 text-sm">
-                    <b>Total Payment Due</b>
-                  </span>
-                </div>
-                <div className="col-span-3">
-                  <NumericFormat
-                    placeholder="0.00"
-                    thousandSeparator
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={2}
-                    className="bg-white"
-                    fixedDecimalScale
-                    customInput={MUITextField}
-                    readOnly={true}
-                    value={itemInvoicePrices || 0}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
+
         <ContentTableSelectColumn
           ref={columnRef}
           columns={props.columns}
