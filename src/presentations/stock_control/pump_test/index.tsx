@@ -293,8 +293,8 @@ export default function PumpTestList() {
     }
     if (searchValues.deliveryDate) {
       queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
+        ? ` and CreateDate ge '${searchValues.deliveryDate}'`
+        : `CreateDate ge '${searchValues.deliveryDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -303,8 +303,8 @@ export default function PumpTestList() {
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
+        ? ` and U_tl_bplid eq ${searchValues.bplid}`
+        : `U_tl_bplid eq ${searchValues.bplid}`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -354,19 +354,7 @@ export default function PumpTestList() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                />
-              </div>
+             
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -388,7 +376,7 @@ export default function PumpTestList() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
-                  label="Delivery Date"
+                  label="Create Date"
                   value={searchValues.deliveryDate}
                   // onChange={(e: any) => handlerChange("PostingDate", e)}
                   onChange={(e) => {
