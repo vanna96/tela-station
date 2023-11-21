@@ -49,7 +49,6 @@ export default function ContentForm({
   const handlerUpdateRow = (i: number, e: any) => {
     const items = [...data?.Items];
     items[i] = { ...items[i], [e[0]]: e[1] };
-    console.log(items);
     onChange("Items", items);
   };
 
@@ -70,7 +69,6 @@ export default function ContentForm({
     (item: any) => item.TL_DISPENSER_LINESCollection
   );
 
-  console.log(data)
 
   const itemColumns = React.useMemo(
     () => [
