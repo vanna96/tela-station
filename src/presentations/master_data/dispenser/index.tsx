@@ -24,6 +24,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import SalePersonRepository from "@/services/actions/salePersonRepository";
 
 export default function DispenserList() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -32,87 +33,59 @@ export default function DispenserList() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        accessorKey: "Code",
+        header: "Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
         visible: true,
-        type: "number",
       },
       {
-        accessorKey: "CardCode",
-        header: "Customer Code",
+        accessorKey: "Name",
+        header: "Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 40,
         visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
       },
       {
-        accessorKey: "CardName",
-        header: "Customer Name",
+        accessorKey: "U_tl_empid",
+        header: "Employee", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 40,
         visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
-      {
-        accessorKey: "TaxDate",
-        header: "Posting Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
+        Cell: ({ cell }: any) => {
+          if(!cell.getValue()) return "";
+          return new SalePersonRepository().find(cell.getValue())?.name;
         },
       },
       {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
-        header: "Branch",
+        accessorKey: "U_tl_type",
+        header: "LOB", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 40,
         visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
       },
       {
-        accessorKey: "DocumentStatus",
-        header: " Status",
+        accessorKey: "U_tl_pumpnum",
+        header: "Number of Pumps", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 40,
         visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-
       {
-        accessorKey: "DocEntry",
+        accessorKey: "U_tl_status",
+        header: "Status", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 40,
+        visible: true,
+      },
+      {
+        accessorKey: "Code",
         enableFilterMatchHighlighting: false,
         enableColumnFilterModes: false,
         enableColumnActions: false,
@@ -124,13 +97,13 @@ export default function DispenserList() {
         header: "Action",
         visible: true,
         Cell: (cell: any) => (
-          <div className="flex space-x-2">
+          <div className="flex space-x-2" key={`code_${cell.value}`}>
             <Button
               variant="outlined"
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/dispenser/" + cell.row.original.DocEntry, {
+                route("/master-data/dispenser/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -147,7 +120,7 @@ export default function DispenserList() {
               }
               onClick={() => {
                 route(
-                  "/master-data/dispenser/" + cell.row.original.DocEntry + "/edit",
+                  "/master-data/dispenser/" + cell.row.original.Code + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -179,7 +152,7 @@ export default function DispenserList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/TL_Dispenser/$count?$select=Code${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -187,7 +160,7 @@ export default function DispenserList() {
         });
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
@@ -198,7 +171,7 @@ export default function DispenserList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_Dispenser?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -208,7 +181,7 @@ export default function DispenserList() {
         });
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
     retry: 1,
   });
 

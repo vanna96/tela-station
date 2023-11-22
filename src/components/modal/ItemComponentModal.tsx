@@ -193,13 +193,9 @@ const ItemModal: FC<ItemModalProps> = ({
 
       const total = (defaultPrice ?? 0) * 1;
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
-        (item: any) => item.UoMType === "iutInventory"
+        (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
       // const warehouseCode = WarehouseCode;
-
-      console.log([UoMEntryValues, baseUOM, uomGroup]);
-
-      return false;
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,

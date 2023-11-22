@@ -21,6 +21,7 @@ import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import PumpData from "../components/PumpData";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 
 class DispenserForm extends CoreFormDocument {
   constructor(props: any) {
@@ -110,125 +111,47 @@ class DispenserForm extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `TL_Dispenser('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
-          // vendor
-          console.log(data);
-          const vendor: any = await request(
-            "GET",
-            `/BusinessPartners('${data?.CardCode}')`
-          )
-            .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err));
-
-          // attachment
-          let AttachmentList: any = [];
-          let disabledFields: any = {
-            CurrencyType: true,
-          };
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await requestHeader(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
-          
           state = {
-            ...data,
-            // Description: data?.Comments,
-            // Owner: data?.DocumentsOwner,
-            // Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                GrossPrice: item.GrossPrice,
-                TotalGross: item.GrossTotal,
-                DiscountPercent: item.DiscountPercent || 0,
-                TaxCode: item.VatGroup || item.taxCode || null,
-                UoMEntry: item.UomAbsEntry || null,
-                WarehouseCode: item?.WarehouseCode || null,
-                UomAbsEntry: item?.UoMEntry,
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
-              };
-            }),
-            ExchangeRate: data?.DocRate || 1,
-            // ShippingTo: data?.ShipToCode || null,
-            // BillingTo: data?.PayToCode || null,
-            JournalMemo: data?.JournalMemo,
-            // PaymentTermType: data?.PaymentGroupCode,
-            // ShippingType: data?.TransportationCode,
-            // FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
-            vendor,
-            warehouseCode: data?.U_tl_whsdesc,
-            DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType };
-              }
+            DispenserCode: data?.Code,
+            DispenserName: data?.Name,
+            NumOfPump: data?.U_tl_pumpnum,
+            SalesPersonCode: data?.U_tl_empid,
+            lineofBusiness: data?.U_tl_type,
+            Status: data?.U_tl_status,
+            PumpData: await Promise.all(
+              (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);                
+                let item: any = {
+                  pumpCode: e?.U_tl_pumpcode,
+                  itemCode: e?.U_tl_itemnum,
+                  UomAbsEntry: e?.U_tl_uom,
+                  uom: uom?.Name,
+                  registerMeeting: e?.U_tl_reg_meter,
+                  updateMetering: e?.U_tl_upd_meter,
+                  status: e?.U_tl_status,
+                  LineId: e?.LineId,
+                };
+                
+                if (e?.U_tl_itemnum) {
+                  const itemResponse: any = await request('GET', `Items('${e?.U_tl_itemnum}')?$select=ItemName`).then((res:any) => res?.data);
+                  item.ItemDescription = itemResponse?.ItemName;
+                }
+                return item;
+              })
             ),
-            AttachmentList,
-            disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
             Edit: true,
-            PostingDate: data?.DocDate,
-            DueDate: data?.DocDueDate,
-            DocumentDate: data?.TaxDate,
           };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
-          // state["SerieLists"] = seriesList;
-          // state["dnSeries"] = dnSeries;
-          // state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
-      // state["SerieLists"] = seriesList;
-      // state["dnSeries"] = dnSeries;
-      // state["invoiceSeries"] = invoiceSeries;
-      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       this.setState(state);
@@ -288,7 +211,7 @@ class DispenserForm extends CoreFormDocument {
         TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e:any) => {
           return {
             U_tl_pumpcode: e?.pumpCode,
-            U_tl_itemnum: e?.ItemCode,
+            U_tl_itemnum: e?.itemCode,
             U_tl_uom: e?.UomAbsEntry,
             U_tl_reg_meter: e?.registerMeeting,
             U_tl_upd_meter: e?.updateMetering,
@@ -296,12 +219,9 @@ class DispenserForm extends CoreFormDocument {
           }
         })
       }
-      
-      console.log([this.state, payloads]);
-      return false;
 
       if (id) {
-        return await request("PATCH", `/TL_Dispenser(${id})`, payloads)
+        return await request("PATCH", `/TL_Dispenser('${id}')`, payloads)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -461,6 +381,9 @@ class DispenserForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+
+    console.log(this.state);
+    
 
     return (
       <>

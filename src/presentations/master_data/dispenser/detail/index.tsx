@@ -29,6 +29,8 @@ import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasureme
 import { NumericFormat } from "react-number-format";
 import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
 import ContentComponent from "../../morph_price/components/ContentComponents";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import SalePersonRepository from "@/services/actions/salePersonRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -49,6 +51,7 @@ class DeliveryDetail extends Component<any, any> {
   }
 
   async fetchData() {
+    let state: any = { ...this.state };
     const { id } = this.props.match.params;
     const data = this.props.query.find("pa-id-" + id);
     this.setState({ ...this.state, loading: true });
@@ -56,117 +59,46 @@ class DeliveryDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `TL_Dispenser('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
-          // vendor
-          const vendor: any = await request(
-            "GET",
-            `/BusinessPartners('${data?.CardCode}')`
-          )
-            .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err));
-
-          // attachment
-          let AttachmentList: any = [];
-          let disabledFields: any = {
-            CurrencyType: true,
-          };
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
+          state = {
+            DispenserCode: data?.Code,
+            DispenserName: data?.Name,
+            NumOfPump: data?.U_tl_pumpnum,
+            SalesPersonCode: data?.U_tl_empid,
+            lineofBusiness: data?.U_tl_type,
+            Status: data?.U_tl_status,
+            PumpData: await Promise.all(
+              (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);                                
+                let item: any = {
+                  pumpCode: e?.U_tl_pumpcode,
+                  itemCode: e?.U_tl_itemnum,
+                  UomAbsEntry: e?.U_tl_uom,
+                  uom: uom?.Name,
+                  registerMeeting: e?.U_tl_reg_meter,
+                  updateMetering: e?.U_tl_upd_meter,
+                  status: e?.U_tl_status,
+                  LineId: e?.LineId,
+                };
+                
+                if (e?.U_tl_itemnum) {
+                  const itemResponse: any = await request('GET', `Items('${e?.U_tl_itemnum}')?$select=ItemName`).then((res:any) => res?.data);
+                  item.ItemDescription = itemResponse?.ItemName;
+                }
+                return item;
               })
-              .catch((error) => console.log(error));
-          }
-          this.setState({
-            ...data,
-            Description: data?.Comments,
-            Owner: data?.DocumentsOwner,
-            Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
-                GrossPrice: item.GrossPrice || item.total,
-                GrossTotal: item.GrossTotal,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                UomGroupCode: item.UoMCode || null,
-                UomEntry: item.UoMEntry || null,
-                Currency: item.Currency,
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
-                WarehouseCode: item.WarehouseCode,
-                DiscountPercent: item.DiscountPercent,
-                MeasureUnit: item.MeasureUnit,
-                ItemsGroupCode: item.CostingCode,
-              };
-            }),
-            ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
-            vendor,
-            DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType };
-              }
             ),
-            AttachmentList,
-            disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
             Edit: true,
-            PostingDate: data?.DocDate,
-            DueDate: data?.DocDueDate,
-            DocumentDate: data?.TaxDate,
-            loading: false,
-            BPProject: data?.Project,
-            QRCode: data?.CreateQRCodeFrom,
-            CashDiscount: data?.CashDiscountDateOffset,
-          });
+          };
         })
-        .catch((err: any) =>
-          this.setState({ isError: true, message: err.message })
-        );
+        .catch((err: any) => console.log(err))
+        .finally(() => {
+          state["loading"] = false;
+          state["isLoadingSerie"] = false;
+          this.setState(state);
+        });
     } else {
       this.setState({ ...data, loading: false });
     }
@@ -198,19 +130,7 @@ class DeliveryDetail extends Component<any, any> {
               active={this.state.tapIndex === 1}
               onClick={() => this.handlerChangeMenu(1)}
             >
-              <span>Content</span>
-            </MenuButton>
-            <MenuButton
-              active={this.state.tapIndex === 2}
-              onClick={() => this.handlerChangeMenu(2)}
-            >
-              Logistics
-            </MenuButton>
-            <MenuButton
-              active={this.state.tapIndex === 3}
-              onClick={() => this.handlerChangeMenu(3)}
-            >
-              Attachment
+              <span>Pump Data</span>
             </MenuButton>
           </div>
         </div>
@@ -241,14 +161,6 @@ class DeliveryDetail extends Component<any, any> {
                 <div className="grow  px-16 py-4 ">
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
-
-                  {this.state.tapIndex === 2 && <Logistic data={this.state} />}
-
-                  {this.state.tapIndex === 3 && (
-                    <PreviewAttachment
-                      attachmentEntry={this.state.AttachmentEntry}
-                    />
-                  )}
                 </div>
               </div>
             </>
@@ -272,48 +184,27 @@ function General(props: any) {
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Branch</div>
+              <div className="col-span-1 text-gray-700 ">Dispenser Code</div>
               <div className="col-span-1 text-gray-900">
-                {props?.data?.BPLName ?? "N/A"}
+                { props?.data?.DispenserCode ?? "N/A" }
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Warehouse</div>
+              <div className="col-span-1 text-gray-700 ">Dispenser Name</div>
               <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
-                  ?.WarehouseName ?? "N/A"}
+                { props?.data?.DispenserName ?? "N/A" }
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Bin Location</div>
+              <div className="col-span-1 text-gray-700 ">Number of Pump</div>
               <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
+                {props.data?.NumOfPump}
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Customer</div>
+              <div className="col-span-1 text-gray-700 ">Employee</div>
               <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Name</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardName}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Contact Person</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Currency</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.Currency ?? props.data.DocCurrency}
+                {new SalePersonRepository().find(props.data?.SalesPersonCode)?.name}
               </div>
             </div>
           </div>
@@ -322,55 +213,17 @@ function General(props: any) {
           {/*  */}
           <div className="col-span-5 ">
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700">Series</div>
+              <div className="col-span-1 text-gray-700">Type</div>
               <div className="col-span-1  text-gray-900">
-                {props.data.Series}
+                {props.data?.lineofBusiness}
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700">DocNum</div>
+              <div className="col-span-1 text-gray-700">Status</div>
               <div className="col-span-1  text-gray-900">
-                {props.data.DocNum}
+                {props.data?.Status}
               </div>
             </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Posting Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.TaxDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Delivery Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDueDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Document Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Sale Employee</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Remark</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Comments ?? "N/A"}
-              </div>
-            </div>
-            {/* <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Line of Business</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.U_tl_arbusi ?? "N/A"}
-              </div>
-            </div> */}
           </div>
         </div>
       </div>
@@ -380,115 +233,39 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  const itemGroupRepo = new ItemGroupRepository();
-
+  console.log(data?.PumpData);
+  
   const itemColumn: any = useMemo(
     () => [
       {
-        accessorKey: "ItemCode",
-        header: "Item NO.", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 150,
+        accessorKey: "pumpCode",
+        header: "Pump Code",
       },
       {
-        accessorKey: "ItemName",
-        header: "Item Description",
-        enableClickToCopy: true,
-        size: 200,
+        accessorKey: "itemCode",
+        header: "Item Code", //uses the default width from defaultColumn prop
+        visible: true,
+        size: 120,
       },
       {
-        accessorKey: "Quantity",
-        header: "Quantity",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        accessorKey: "ItemDescription",
+        header: "Item Name",
       },
       {
-        accessorKey: "GrossPrice",
-        header: "Gross Price",
-        size: 60,
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
-            fixedDecimalScale
-            disabled
-            className="bg-white w-full"
-            decimalScale={2}
-          />
-        ),
+        accessorKey: "uom",
+        header: "UOM",
       },
       {
-        accessorKey: "DiscountPercent",
-        header: "Discount %",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        accessorKey: "registerMeeting",
+        header: "Register Meeting",
       },
       {
-        accessorKey: "VatGroup",
-        header: "Tax Code",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        accessorKey: "updateMetering",
+        header: "Update Metering",
       },
       {
-        accessorKey: "ItemsGroupCode",
-        header: "Item Group",
-        size: 60,
-        Cell: ({ cell }: any) => {
-          const value = cell.getValue();
-          switch (value) {
-            case "201001":
-              return "Oil";
-            case "201002":
-              return "Lube";
-            case "201003":
-              return "LPG";
-            default:
-              return value;
-          }
-        },
-      },
-      {
-        accessorKey: "MeasureUnit",
-        header: "UoM Group",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "UomEntry",
-        header: "UoM Name",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
-      },
-      // {
-      //   accessorKey: "UnitsOfMeasurement",
-      //   header: "Item Per Units",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => cell.getValue(),
-      // },
-      {
-        accessorKey: "GrossTotal",
-        header: "Total(LC)",
-        size: 60,
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
-            fixedDecimalScale
-            disabled
-            className="bg-white w-full"
-            decimalScale={2}
-          />
-        ),
-      },
-      {
-        accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
-          "N/A",
+        accessorKey: "status",
+        header: "Status"
       },
     ],
     [data]
@@ -510,95 +287,15 @@ function Content(props: any) {
             enableTopToolbar={false}
             muiTableBodyRowProps={{ hover: false }}
             columns={itemColumn}
-            data={data?.Items || []}
+            data={data?.PumpData || []}
             muiTableProps={{
               sx: {
                 border: "1px solid rgba(211,211,211)",
               },
             }}
-            // muiTableHeadCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
-            // muiTableBodyCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
           />
         </div>
       </div>
     </>
   );
 }
-
-function Logistic(props: any) {
-  return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
-      <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-        <h2>Basic Information</h2>
-      </div>
-      <div className="py-2 px-4">
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship From Address</div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-12 py-2">
-              <div className="col-span-6">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-9">
-                    <label htmlFor="Code" className="text-gray-700 ">
-                      Attention Terminal
-                    </label>
-                  </div>
-                  <div className="col-span-3">
-                    <Checkbox
-                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
-                      checked={props?.data?.U_tl_grsuppo ? true : false}
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* <div className="col-span-1">
-               
-              </div> */}
-              <div className="col-span-6">
-                <div className="grid grid-cols-1 ">
-                  <div className="-mt-1">
-                    {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                      ?.WarehouseName ?? "N/A"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship-To Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToCode ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Address2 ?? "N/A"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
