@@ -1,22 +1,15 @@
 import FormCard from "@/components/card/FormCard";
 import MUITextField from "@/components/input/MUITextField";
-import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
-import BPAddress from "@/components/selectbox/BPAddress";
 import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseSelect from "@/components/selectbox/Warehouse";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import { getShippingAddress } from "@/models/BusinessParter";
-import { TextField } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
-import EmployeeForm from "@/presentations/master/employee/page/EmployeeForm";
+import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 
 export interface IGeneralFormProps {
   data: any;
   handlerChange: (key: string, value: any) => void;
   edit?: boolean;
   ref?: React.RefObject<FormCard>;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function GeneralForm({
@@ -24,6 +17,7 @@ export default function GeneralForm({
   handlerChange,
   edit,
   ref,
+  handlerChangeObject
 }: IGeneralFormProps) {
   const [isChecked, setIsChecked] = useState(false);
 
@@ -42,44 +36,63 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Dispenser Code
+                  Dispenser Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) => handlerChange("Dispenser", e.target.value)}
-                  value={data?.Dispenser}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="Dispenser"
+                <MUITextField
+                  size="small"
+                  value={data?.DispenserCode}
+                  placeholder="Dispenser Code"
+                  onChange={(e) => handlerChange("DispenserCode", e.target.value)}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Dispenser Name
+                  Dispenser Name <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) =>
-                    handlerChange("DispenserName", e.target.value)
-                  }
+                <MUITextField
+                  size="small"
                   value={data?.DispenserName}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="DispenserName"
+                  placeholder="Dispenser Name"
+                  onChange={(e) => handlerChange("DispenserName", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500">
+                  Number of Pump <span className="text-red-500">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  size="small"
+                  type="number"
+                  value={data?.NumOfPump}
+                  placeholder="Number of Pump"
+                  onChange={(e) => {
+                    const PumpData = [];
+                    for (let index = 0; index < parseInt(e.target.value ?? 0); index++) {
+                      PumpData.push({
+                          pumpCode: `${data?.DispenserCode || ""}p${index+1}`,
+                          itemCode: "",
+                          itemName: "", 
+                          uom: "",
+                          registerMeeting: "",
+                          updateMetering: "",
+                          status: "",
+                      })
+                    }
+                    handlerChangeObject({
+                      PumpData,
+                      NumOfPump: e.target.value,
+                    })
+                  }}
                 />
               </div>
             </div>
@@ -90,17 +103,9 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
-                  ]}
-                  onChange={(e) => handlerChange("Employee", e.target.value)}
-                  value={data?.Employee}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="Employee"
+                <SalePersonAutoComplete
+                  value={data.SalesPersonCode}
+                  onChange={(e) => handlerChange("SalesPersonCode", e)}
                 />
               </div>
             </div>
@@ -117,12 +122,13 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
+                    { id: "", name: "Type" },
+                    { id: "Oil", name: "Oil" },
+                    { id: "Lube", name: "Lube" },
+                    { id: "LPG", name: "LPG" },
                   ]}
-                  onChange={(e) => handlerChange("Type", e.target.value)}
-                  value={data?.Type}
+                  onChange={(e) => handlerChange("lineofBusiness", e.target.value)}
+                  value={data?.lineofBusiness}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="Type"
@@ -138,9 +144,10 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: 1, name: "DS-001" },
-                    { id: 2, name: "DS-002" },
-                    { id: 3, name: "DS-003" },
+                    { id: "New", name: "New" },
+                    { id: "Initialized", name: "Initialized" },
+                    { id: "OutOfOrder", name: "Out Of Order" },
+                    { id: "Inactive", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("Status", e.target.value)}
                   value={data?.Status}

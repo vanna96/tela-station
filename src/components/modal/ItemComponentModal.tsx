@@ -28,6 +28,7 @@ interface ItemModalProps {
   WarehouseCode?: any;
   AbsEntry?: any;
   Currency?: any;
+  multipleSelect?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -39,6 +40,7 @@ const ItemModal: FC<ItemModalProps> = ({
   CardCode,
   WarehouseCode,
   Currency,
+  multipleSelect
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -318,7 +320,7 @@ const ItemModal: FC<ItemModalProps> = ({
                       enableSelectAll={false}
                       enableFullScreenToggle={false}
                       enableColumnVirtualization={false}
-                      enableMultiRowSelection={true}
+                      enableMultiRowSelection={multipleSelect}
                       enableRowSelection={true}
                       onRowSelectionChange={setRowSelection}
                       positionToolbarAlertBanner="none"
@@ -426,6 +428,7 @@ export class ItemModalComponent extends React.Component<
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}
         Currency = {this.state.Currency}
+        multipleSelect={this.props.multipleSelect}
       />
     );
   }
