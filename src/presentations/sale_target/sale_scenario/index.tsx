@@ -93,10 +93,13 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("sale-target/sale-scenario" + cell.row.original.Code, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  "/sale-target/sale-scenario/" + cell.row.original.Code,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
@@ -106,7 +109,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `sale-target/sale-scenario${cell.row.original.Code}/edit`,
+                  `/sale-target/sale-scenario/${cell.row.original.Code}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
