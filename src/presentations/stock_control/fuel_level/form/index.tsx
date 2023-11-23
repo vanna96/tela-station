@@ -71,6 +71,15 @@ class Form extends CoreFormDocument {
     try {
       let state: any = { ...this.state };
 
+      let seriesList: any = this.props?.query?.find("fuel-level-series");
+
+      if (!seriesList) {
+        seriesList = await DocumentSerieRepository.getDocumentSeries({
+          Document: "TL_FUEL_LEVEL",
+        });
+        this.props?.query?.set("fuel-level-series", seriesList);
+      }
+
       if (this.props.edit) {
         const { id }: any = this.props?.match?.params || 0;
         const { data: TL_FUEL_LEVEL }: any = await request(
@@ -105,6 +114,8 @@ class Form extends CoreFormDocument {
 
       this.setState({
         ...state,
+        SerieList: seriesList,
+        isLoadingSerie: false,
         loading: false, // Set loading to false after initialization is complete
       });
     } catch (error) {
@@ -148,7 +159,7 @@ class Form extends CoreFormDocument {
 
       const payloads = {
         // general
-        // Series: data?.Series
+        Series: data?.Series,
         // Remark: data?.Remark
         U_tl_bplid: data?.U_tl_bplid,
         TL_FUEL_LEVEL_LINESCollection: data?.Items,
@@ -344,8 +355,6 @@ class Form extends CoreFormDocument {
                       ContentLoading={this.state.ContentLoading}
                     />
                   )}
-
-                 
 
                   <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">

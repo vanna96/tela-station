@@ -38,18 +38,25 @@ export default function GeneralForm({
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
 
-  const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
-  );
+  // const filteredSeries = data?.SerieList?.filter(
+  //   (series: any) => series?.BPLID === BPL
+  // );
 
-  const seriesSO =
-    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+  const filteredSeries = data?.SerieList;
+  console.log(filteredSeries[0]);
+
+  // const seriesSO =
+  //   data.SerieList.find((series: any) => series.BPLID === BPL)?.Series || "";
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
+  
 
   const route = useParams();
+  if (data) {
+    data.Series = filteredSeries[0]?.Series;
+  }
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -59,6 +66,8 @@ export default function GeneralForm({
         .catch((err: any) => console.log(err)),
     staleTime: Infinity,
   });
+
+  console.log(data);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -94,12 +103,12 @@ export default function GeneralForm({
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={filteredSeries ?? data.SerieLists}
+                  items={filteredSeries ?? data.SerieList}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={edit ? data?.Series : filteredSeries[0]?.Series}
+                  value={edit ? data?.SerieList : filteredSeries[0].Series}
                   disabled={edit}
                   // onChange={(e: any) => handlerChange("Series", e.target.value)}
                   // onChange={handleSeriesChange}
@@ -119,20 +128,6 @@ export default function GeneralForm({
               </div>
             </div>
           </div>
-          {/* <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Posting Date
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUIDatePicker
-                disabled={data?.isStatusClose || false}
-                value={data.PostingDate}
-                onChange={(e: any) => handlerChange("PostingDate", e)}
-              />
-            </div>
-          </div> */}
 
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">

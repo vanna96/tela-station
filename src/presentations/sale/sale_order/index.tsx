@@ -101,7 +101,7 @@ export default function SaleOrderLists() {
         enableClickToCopy: true,
         visible: true,
         Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
         size: 60,
       },
       {
