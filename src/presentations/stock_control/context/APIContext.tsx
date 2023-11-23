@@ -40,26 +40,17 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     // staleTime: Infinity,
   })
 
-  const { data: tl_PumpTest }: any = useQuery({
-    queryKey: ["tl_PumpTest"],
+  const { data: TL_FUEL_LEVEL }: any = useQuery({
+    queryKey: ["TL_FUEL_LEVEL"],
     queryFn: () =>
-      request("GET", "tl_PumpTest")
-        .then((res: any) => res?.data?.value?.TL_PUMP_TEST_LINESCollection)
+      request("GET", "TL_FUEL_LEVEL")
+        .then((res: any) => res?.data?.value?.TL_FUEL_LEVEL_LINESCollection)
         .catch((err: any) => console.log(err)),
     // staleTime: Infinity,
   })
 
-  const { data: tl_Dispenser }: any = useQuery({
-    queryKey: ["dispenser"],
-    queryFn: () =>
-      request("GET", "TL_Dispenser")
-        .then((res: any) => res?.data?.value)
-        .catch((err: any) => console.log(err)),
-    // staleTime: Infinity,
-  })
 
-  console.log(tl_PumpTest)
-  console.log(tl_Dispenser)
+
 
   return (
     <>
@@ -68,8 +59,7 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
           branchBPL,
           sysInfo,
           getPeriod,
-          tl_PumpTest,
-          tl_Dispenser
+          TL_FUEL_LEVEL
         }}
       >
         {children}

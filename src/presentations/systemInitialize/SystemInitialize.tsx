@@ -152,6 +152,58 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/expense/clearance")}
           />
         </div>
+        <h1 className="mb-4 mt-10">Stock Control</h1>
+        <div className="grid grid-cols-6 space-x-4">
+          <ItemCard
+            title="Inventory Transfer Request"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() =>
+              navigate("/stock-control/inventory-transfer-request")
+            }
+          />
+          <ItemCard
+            title="Inventory Transfer "
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/stock-control/inventory-transfer")}
+          />
+          <ItemCard
+            title="Good Issue"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/stock-control/good-issue")}
+          />
+          <ItemCard
+            title="Good Receipt"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/stock-control/good-receipt")}
+          />
+          <ItemCard
+            title="Pump Test"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/stock-control/pump-test")}
+          />
+
+          <ItemCard
+            title="Fuel Level"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/stock-control/fuel-level")}
+          />
+        </div>
+
+        <h1 className="mb-4 mt-10">Sale Scenario</h1>
+        <div className="grid grid-cols-6 space-x-4">
+          <ItemCard
+            title="Sale Scenario"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("/sale-scenario/sale-scenario")}
+          />
+        </div>
       </div>
     </>
   );

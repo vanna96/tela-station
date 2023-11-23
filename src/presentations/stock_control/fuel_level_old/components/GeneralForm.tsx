@@ -25,10 +25,16 @@ export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
+  lineofBusiness: string;
+  warehouseCode: string;
+  onLineofBusinessChange: (value: any) => void;
+  onWarehouseChange: (value: any) => void;
 }
 
 export default function GeneralForm({
   data,
+  onLineofBusinessChange,
+  onWarehouseChange,
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -38,6 +44,7 @@ export default function GeneralForm({
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
 
+  //Filtering SO series
   const filteredSeries = data?.SerieLists?.filter(
     (series: any) => series?.BPLID === BPL
   );
@@ -49,7 +56,68 @@ export default function GeneralForm({
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
+  // Finding date and to filter DN and INVOICE series Name
+  const currentDate = new Date();
+  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
+  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateA = `23A${formattedMonth}`;
+  const formattedDateB = `23B${formattedMonth}`;
+
+  const seriesDN = (
+    data?.dnSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
+  const seriesIN = (
+    data?.invoiceSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
   const route = useParams();
+  const salesType = route["*"];
+  const getValueBasedOnFactor = () => {
+    switch (salesType) {
+      case "fuel-sales/create":
+        return "Oil";
+      case "lube-sales/create":
+        return "Lube";
+      case "lpg-sales/create":
+        return "LPG";
+      default:
+        return ""; // Set a default value if needed
+    }
+  };
+
+  if (data) {
+    data.DNSeries = seriesDN;
+    data.INSeries = seriesIN;
+    data.Series = seriesSO;
+    data.U_tl_arbusi = getValueBasedOnFactor();
+    data.lineofBusiness = getValueBasedOnFactor();
+  }
+
+  const { data: CurrencyAPI }: any = useQuery({
+    queryKey: ["Currency"],
+    queryFn: () => new CurrencyRepository().get(),
+    staleTime: Infinity,
+  });
+
+  const a = CurrencyAPI?.map((c: any) => {
+    return {
+      value: c.Code,
+      name: c.Name,
+    };
+  });
+  //test
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -59,7 +127,13 @@ export default function GeneralForm({
         .catch((err: any) => console.log(err)),
     staleTime: Infinity,
   });
+  const dataCurrency = data?.vendor?.currenciesCollection
+    ?.filter(({ Include }: any) => Include === "tYES")
+    ?.map(({ CurrencyCode }: any) => {
+      return { value: CurrencyCode, name: CurrencyCode };
+    });
 
+  useExchangeRate(data?.Currency, handlerChange);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -77,10 +151,35 @@ export default function GeneralForm({
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("U_tl_bplid", e)}
+                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
               />
             </div>
+          </div>
+
+          <div>
+            <input
+              hidden
+              name="DNSeries"
+              value={data.DNSeries}
+              onChange={(e) => handlerChange("DNSeries", e.target.value)}
+            />
+            <input
+              hidden
+              name="INSeries"
+              value={data.INSeries}
+              onChange={(e) => handlerChange("INSeries", e.target.value)}
+            />
+            <input
+              hidden
+              name="U_tl_arbusi"
+              value={data?.U_tl_arbusi}
+              // value={getValueBasedOnFactor()}
+              onChange={(e) => {
+                handlerChange("U_tl_arbusi", e.target.value);
+                onLineofBusinessChange(e.target.value);
+              }}
+            />
           </div>
         </div>
         <div className="col-span-2 md:col-span-1"></div>
@@ -119,7 +218,7 @@ export default function GeneralForm({
               </div>
             </div>
           </div>
-          {/* <div className="grid grid-cols-5 py-2">
+          <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Posting Date
@@ -132,7 +231,7 @@ export default function GeneralForm({
                 onChange={(e: any) => handlerChange("PostingDate", e)}
               />
             </div>
-          </div> */}
+          </div>
 
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
