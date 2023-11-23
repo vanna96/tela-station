@@ -20,6 +20,7 @@ import SystemInitializeMasterPage from "@/presentations/systemInitialize/SystemI
 import CollectionRoute from "./CollectionRoute";
 import ExpenseRoute from "./ExpenseRoute";
 import StockControlRoute from "./StockControlRoute";
+import SaleTargetRoute from "./SaleTargetRoute";
 
 const Router = () => {
   return (
@@ -60,6 +61,11 @@ const Router = () => {
             <Route
               path="/master-data/*"
               element={<MasterDataRoute />}
+              errorElement={<span>Error</span>}
+            />
+            <Route
+              path="/sale-target/*"
+              element={<SaleTargetRoute/>}
               errorElement={<span>Error</span>}
             />
           </Route>

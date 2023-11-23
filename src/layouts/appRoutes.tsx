@@ -23,6 +23,8 @@ import InventoryTransferList from "@/presentations/stock_control/inventory_trans
 import ExpenseLogLists from "@/presentations/expense/log";
 import ClearenceLists from "@/presentations/expense/clearence";
 import DirectAccountLists from "@/presentations/collection/direct_account";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import AdsClickIcon from "@mui/icons-material/AdsClick";
 import PaymentAccountLists from "@/presentations/collection/payment_account";
 type RouteType = {
   state: string;
@@ -184,7 +186,7 @@ const appRoutes: RouteType[] = [
     state: "stock-control",
     sidebarProps: {
       displayText: "Stock Control",
-      icon: <ShowChartIcon />,
+      icon: <TrendingUpIcon />,
     },
     child: [
       {
@@ -215,7 +217,7 @@ const appRoutes: RouteType[] = [
           displayText: "Good Receipt",
         },
       },
-   
+
       {
         path: "/stock-control/pump-test",
         state: "/pump-test",
@@ -228,6 +230,24 @@ const appRoutes: RouteType[] = [
         state: "/fuel-level",
         sidebarProps: {
           displayText: "Fuel Level",
+        },
+      },
+    ],
+  },
+
+  {
+    path: "/sale-target",
+    state: "sale-target",
+    sidebarProps: {
+      displayText: "Sale Target",
+      icon: <AdsClickIcon />,
+    },
+    child: [
+      {
+        path: "/sale-target/sale-scenario",
+        state: "sale-target/sale-scenario",
+        sidebarProps: {
+          displayText: "Sale Scenario",
         },
       },
     ],

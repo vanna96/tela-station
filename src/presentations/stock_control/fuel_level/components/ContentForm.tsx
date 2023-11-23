@@ -66,8 +66,6 @@ export default function ContentForm({
     onChange("Items", items);
   };
 
-  console.log(data);
-
   const itemColumns = React.useMemo(
     () => [
       {
@@ -78,7 +76,7 @@ export default function ContentForm({
           return (
             <WarehouseAttendTo
               U_tl_attn_ter={false}
-              value={cell.getValue()}
+              value={cell.getValue() || -1}
               onChange={(e: any) =>
                 handlerUpdateRow(cell.row.id, ["U_tl_whscode", e])
               }
@@ -108,8 +106,8 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-            value={cell.getValue()}
-            onChange={(e: any) =>
+              value={cell.getValue()}
+              onChange={(e: any) =>
                 handlerUpdateRow(cell.row.id, ["U_tl_volumn", e.target.value])
               }
             />

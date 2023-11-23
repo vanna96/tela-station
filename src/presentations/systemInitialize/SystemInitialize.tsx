@@ -195,13 +195,13 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
 
-        <h1 className="mb-4 mt-10">Sale Scenario</h1>
+        <h1 className="mb-4 mt-10">Sale Target</h1>
         <div className="grid grid-cols-6 space-x-4">
           <ItemCard
             title="Sale Scenario"
             icon={<AiOutlineSolution />}
             amount={count?.logs || 0}
-            onClick={() => navigate("/sale-scenario/sale-scenario")}
+            onClick={() => navigate("/sale-target/sale-scenario")}
           />
         </div>
       </div>
