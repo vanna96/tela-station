@@ -25,11 +25,9 @@ import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
-export default function FuelLevelList() {
+export default function List() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
 
   const columns = React.useMemo(
     () => [
@@ -43,8 +41,8 @@ export default function FuelLevelList() {
         type: "number",
       },
       {
-        accessorKey: "CardCode",
-        header: "Customer Code",
+        accessorKey: "Series",
+        header: "Series",
         enableClickToCopy: true,
         visible: true,
         type: "string",
@@ -52,16 +50,28 @@ export default function FuelLevelList() {
         size: 65,
       },
       {
-        accessorKey: "CardName",
-        header: "Customer Name",
+        accessorKey: "Status",
+        header: "Status ",
         visible: true,
         type: "string",
         align: "center",
         size: 90,
+        Cell: (cell: any) => {
+          return  cell.row.original.Status ==  "O" ? "Open" : "Closed";
+        },
       },
       {
-        accessorKey: "TaxDate",
-        header: "Posting Date",
+        accessorKey: "Creator",
+        header: "Test By ",
+        visible: true,
+        type: "string",
+        align: "center",
+        size: 90,
+      
+      },
+      {
+        accessorKey: "CreateDate",
+        header: "Create Date",
         visible: true,
         type: "string",
         align: "center",
@@ -72,8 +82,8 @@ export default function FuelLevelList() {
         },
       },
       {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
+        accessorKey: "UpdateDate",
+        header: "Update Date",
         visible: true,
         type: "string",
         align: "center",
@@ -83,20 +93,9 @@ export default function FuelLevelList() {
           return <span>{formattedDate}</span>;
         },
       },
+
       {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "U_tl_bplid",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
@@ -104,14 +103,7 @@ export default function FuelLevelList() {
           new BranchBPLRepository().find(cell.getValue())?.BPLName,
         size: 60,
       },
-      {
-        accessorKey: "DocumentStatus",
-        header: " Status",
-        visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
-      },
+     
 
       {
         accessorKey: "DocEntry",
@@ -133,7 +125,7 @@ export default function FuelLevelList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/stock-control/${salesType}/` + cell.row.original.DocEntry,
+                  `/stock-control/fuel-level/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -157,7 +149,7 @@ export default function FuelLevelList() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/stock-control/${salesType}/` +
+                  `/stock-control/fuel-level/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -188,11 +180,11 @@ export default function FuelLevelList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["fuel-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/TL_FUEL_LEVEL/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -203,15 +195,16 @@ export default function FuelLevelList() {
     staleTime: Infinity,
   });
 
+
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "fuel-level",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_FUEL_LEVEL?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -300,8 +293,8 @@ export default function FuelLevelList() {
     }
     if (searchValues.deliveryDate) {
       queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
+        ? ` and CreateDate ge '${searchValues.deliveryDate}'`
+        : `CreateDate ge '${searchValues.deliveryDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -310,8 +303,8 @@ export default function FuelLevelList() {
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
+        ? ` and U_tl_bplid eq '${searchValues.bplid}'`
+        : `U_tl_bplid eq '${searchValues.bplid}'`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -332,8 +325,8 @@ export default function FuelLevelList() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/stock-control/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
+      <span className="" onClick={() => route(`/stock-control/fuel-level`)}>
+        <span className=""></span> Fuel Level Test
       </span>
     </>
   );
@@ -361,19 +354,7 @@ export default function FuelLevelList() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                />
-              </div>
+             
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -395,7 +376,7 @@ export default function FuelLevelList() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
-                  label="Delivery Date"
+                  label="Create Date"
                   value={searchValues.deliveryDate}
                   // onChange={(e: any) => handlerChange("PostingDate", e)}
                   onChange={(e) => {
@@ -484,8 +465,8 @@ export default function FuelLevelList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
-          createRoute={`/stock-control/${salesType}/create`}
+          title="Fuel Level Lists"
+          createRoute={`/stock-control/fuel-level/create`}
         />
       </div>
     </>

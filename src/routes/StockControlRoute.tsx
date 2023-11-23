@@ -13,6 +13,7 @@ import PumpTestForm from "@/presentations/stock_control/pump_test/form/index";
 import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index";
 import FuelLevelList from "@/presentations/stock_control/fuel_level";
 import FuelLevelForm from "@/presentations/stock_control/fuel_level/form/index";
+import FuelLevelDetails from "@/presentations/stock_control/fuel_level/detail/index";
 
 
 export default function StockControlRoute() {
@@ -56,7 +57,7 @@ export default function StockControlRoute() {
           <Route index element={<FuelLevelList />} />
           <Route path="create" element={<FuelLevelForm />} />
           <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
-          <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+          <Route path=":id" element={<FuelLevelDetails edit={true} />} />
         </Route>
       </Routes>
     </APIContextProvider>

@@ -2,7 +2,15 @@ import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton } from "@mui/material";
+import {
+  Alert,
+  Autocomplete,
+  Box,
+  CircularProgress,
+  Collapse,
+  IconButton,
+  TextField,
+} from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { numberWithCommas } from "@/helper/helper";
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
@@ -11,6 +19,10 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { APIContext } from "../../context/APIContext";
 import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
+import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -23,15 +35,13 @@ interface ContentFormProps {
 
 export default function ContentForm({
   data,
-  // handlerChangeItem,
-  // handlerAddItem,
   handlerRemoveItem,
   onChange,
-  // onChangeItemByCode,
   ContentLoading,
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  const { tlExpDic }: any = React.useContext(APIContext);
+  const { TL_FUEL_LEVEL }: any = React.useContext(APIContext);
+
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
@@ -39,200 +49,104 @@ export default function ContentForm({
   }, [data?.error]);
 
   const handlerUpdateRow = (i: number, e: any) => {
-    const items: any = data?.Items?.map((item: any, indexItem: number) => {
-      if (i.toString() === indexItem.toString()) item[e[0]] = e[1];
-      return item;
+    const items = [...data?.Items];
+    items[i] = { ...items[i], [e[0]]: e[1] };
+    onChange("Items", items);
+  };
+
+  const handlerUpdateMultipleRow = (i: number, updates: [string, any][]) => {
+    const items = [...data.Items];
+
+    updates.forEach(([property, value]) => {
+      items[i] = {
+        ...items[i],
+        [property]: value,
+      };
     });
     onChange("Items", items);
   };
 
-  // const itemColumns = React.useMemo(
-  //   () => [
-  //     {
-  //       accessorKey: "ExpenseCode",
-  //       header: "Expense Code",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <MUISelect
-  //             value={cell.getValue()}
-  //             items={
-  //               tlExpDic?.map((e: any) => {
-  //                 return {
-  //                   ...e,
-  //                   label: `${e.Code} - ${e.Name}`,
-  //                 };
-  //               }) || []
-  //             }
-  //             aliaslabel="label"
-  //             aliasvalue="Code"
-  //             onChange={(e: any) =>
-  //               handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
-  //             }
-  //           />
-  //         );
-  //       },
-  //     },
-  //     {
-  //       accessorKey: "ExpenseName",
-  //       header: "Expense Name",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <MUITextField
-  //             value={
-  //               tlExpDic?.find(
-  //                 (e: any) => e.Code === cell.row.original.ExpenseCode
-  //               )?.Name
-  //             }
-  //             // onBlur={(e: any) =>
-  //             //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-  //             // }
-  //           />
-  //         );
-  //       },
-  //     },
-  //     {
-  //       accessorKey: "Amount",
-  //       header: "Amount",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <NumericFormat
-  //             key={"amount_" + cell.getValue()}
-  //             thousandSeparator
-  //             decimalScale={2}
-  //             fixedDecimalScale
-  //             customInput={MUITextField}
-  //             defaultValue={cell.getValue()}
-  //             onBlur={(event) => {
-  //               const newValue = parseFloat(
-  //                 event.target.value.replace(/,/g, "")
-  //               );
-  //               handlerUpdateRow(cell.row.id, ["Amount", newValue]);
-  //             }}
-  //           />
-  //         );
-  //       },
-  //     },
-  //     {
-  //       accessorKey: "Remark",
-  //       header: "Remark",
-  //       visible: true,
-  //       Cell: ({ cell }: any) => {
-  //         return (
-  //           <MUITextField
-  //             defaultValue={cell.getValue()}
-  //             onBlur={(e: any) =>
-  //               handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
-  //             }
-  //           />
-  //         );
-  //       },
-  //     },
-  //   ],
-  //   [data?.Items]
-  // );
-
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "WarehouseCode",
+        accessorKey: "U_tl_whscode",
         header: "Warehouse Code",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUISelect
-              value={cell.getValue()}
-              items={
-                tlExpDic?.map((e: any) => {
-                  return {
-                    ...e,
-                    label: `${e.Code} - ${e.Name}`,
-                  };
-                }) || []
-              }
-              aliaslabel="label"
-              aliasvalue="Code"
+            <WarehouseAttendTo
+              U_tl_attn_ter={false}
+              value={cell.getValue() || -1}
               onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
+                handlerUpdateRow(cell.row.id, ["U_tl_whscode", e])
               }
             />
           );
         },
       },
       {
-        accessorKey: "BinCode",
+        accessorKey: "U_tl_bincode",
         header: "Bin Code",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              value={
-                tlExpDic?.find(
-                  (e: any) => e.Code === cell.row.original.ExpenseCode
-                )?.Name
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["U_tl_bincode", e.target.value])
               }
-              // onBlur={(e: any) =>
-              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-              // }
             />
           );
         },
       },
       {
-        accessorKey: "Volumn",
+        accessorKey: "U_tl_volumn",
         header: "Volumn",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              value={
-                tlExpDic?.find(
-                  (e: any) => e.Code === cell.row.original.ExpenseCode
-                )?.Name
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["U_tl_volumn", e.target.value])
               }
-              // onBlur={(e: any) =>
-              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
-              // }
             />
           );
         },
       },
       {
-        accessorKey: "Quantity",
+        accessorKey: "U_tl_qty",
         header: "Qty",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
-              key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              onBlur={(event) => {
+              value={cell.getValue()}
+              onChange={(event) => {
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
                 );
-                handlerUpdateRow(cell.row.id, ["Amount", newValue]);
+                handlerUpdateRow(cell.row.id, ["U_tl_qty", newValue]);
               }}
             />
           );
         },
       },
-     
+
       {
-        accessorKey: "Remark",
+        accessorKey: "U_tl_remark",
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["U_tl_remark", e.target.value])
               }
             />
           );
@@ -244,6 +158,7 @@ export default function ContentForm({
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";
+
   return (
     <>
       <Collapse in={collapseError}>
@@ -268,15 +183,11 @@ export default function ContentForm({
         key={key}
         columns={itemColumns}
         items={[...data?.Items]}
-        isNotAccount={isNotAccount}
         data={data}
         onChange={onChange}
         onRemoveChange={handlerRemoveItem}
         loading={ContentLoading}
-        handlerAddSequence={() => {
-          // handlerAddSequence()
-          // setKey(shortid.generate())
-        }}
+        handlerAddSequence={() => {}}
       />
     </>
   );
