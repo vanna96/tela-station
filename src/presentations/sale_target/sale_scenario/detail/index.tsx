@@ -34,7 +34,7 @@ class FormDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_ExpDic('${id}')`)
+      await request("GET", `TL_SALES_SCENARIO('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
 
@@ -108,33 +108,36 @@ function General(props: any) {
           <div className="grid grid-cols-12 ">
             <div className="col-span-5">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Expense Code</div>
+                <div className="col-span-1 text-gray-700 "> Code</div>
                 <div className="col-span-1 text-gray-900">
                   {data?.Code ?? "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">GL Account </div>
+                <div className="col-span-1 text-gray-700 ">Name </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_expacct ?? "N/A"}
-                  {" - "}
-                  {new GLAccountRepository().find(data?.U_tl_expacct)?.Name ??
-                    "N/A"}
+                  {data?.Name ?? "N/A"}
                 </div>
               </div>
             </div>
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700">Active</div>
+                <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
-                  {props.data.U_tl_expactive == 'Y' ?"Yes " : "No"}
+                  {props.data.U_tl_status}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Description</div>
+                <div className="col-span-1 text-gray-700 ">Remark</div>
                 <div className="col-span-1 text-gray-900">
-                  {props.data.Name}
+                  {props.data.U_tl_remark}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Date</div>
+                <div className="col-span-1 text-gray-900">
+                  {dateFormat(props.data.U_tl_date)}
                 </div>
               </div>
             </div>

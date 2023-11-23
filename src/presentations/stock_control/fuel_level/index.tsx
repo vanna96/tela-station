@@ -303,8 +303,8 @@ export default function List() {
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and U_tl_bplid eq ${searchValues.bplid}`
-        : `U_tl_bplid eq ${searchValues.bplid}`;
+        ? ` and U_tl_bplid eq '${searchValues.bplid}'`
+        : `U_tl_bplid eq '${searchValues.bplid}'`;
     }
 
     handlerSearchFilter(queryFilters);

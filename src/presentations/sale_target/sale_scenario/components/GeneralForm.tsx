@@ -43,7 +43,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Expense Code
+                  Code
                 </label>
               </div>
               <div className="col-span-3">
@@ -57,15 +57,33 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account
+                  Date
                 </label>
               </div>
               <div className="col-span-3">
-                <CashACAutoComplete
-                  onChange={(e) =>
-                    handlerChange("U_tl_expacct", e)
-                  }
-                  value={data?.U_tl_expacct}
+                <MUIDatePicker
+                  value={data?.U_tl_date}
+                  onChange={(e: any) => handlerChange("U_tl_date", e)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Status
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUISelect
+                  items={[
+                    { id: "Y", name: "Yes" },
+                    { id: "N", name: "No" },
+                  ]}
+                  onChange={(e) => handlerChange("U_tl_status", e.target.value)}
+                  value={data?.U_tl_status}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="U_tl_status"
                 />
               </div>
             </div>
@@ -76,39 +94,33 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Active
+                  Name
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: "Y", name: "Yes" },
-                    { id: "N", name: "No" },
-                  ]}
-                  onChange={(e) =>
-                    handlerChange("U_tl_expactive", e.target.value)
-                  }
-                  value={data?.U_tl_expactive}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="U_tl_expactive"
+               
+                 <MUITextField
+                  value={data?.Name}
+                  name="Name"
+                  onChange={(e) => handlerChange("Name", e.target.value)}
                 />
               </div>
             </div>
+
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Description
+                  Remark
                 </label>
               </div>
               <div className="col-span-3">
-                <TextField
+              <TextField
                   size="small"
                   fullWidth
                   multiline
-                  onChange={(e) => handlerChange("Name", e.target.value)}
+                  onChange={(e) => handlerChange("U_tl_remark", e.target.value)}
                   rows={2}
-                  value={data.Name}
+                  value={data.U_tl_remark}
                 />
               </div>
             </div>

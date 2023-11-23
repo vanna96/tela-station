@@ -18,6 +18,7 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
+      U_tl_date:  new Date().toISOString()
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -36,10 +37,10 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_ExpDic('${id}')`)
+      await request("GET", `TL_SALES_SCENARIO('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
-       console.log(data)
+          console.log(data);
 
           state = {
             ...data,
@@ -79,12 +80,13 @@ class Form extends CoreFormDocument {
 
         Code: data?.Code,
         Name: data?.Name,
-        U_tl_expacct: data?.U_tl_expacct,
-        U_tl_expactive: data?.U_tl_expactive,
+        U_tl_date: data?.U_tl_date ,
+        U_tl_remark: data?.U_tl_remark,
+        U_tl_status: data?.U_tl_status,
       };
 
       if (id) {
-        return await request("PATCH", `/TL_ExpDic('${id}')`, payload)
+        return await request("PATCH", `/TL_SALES_SCENARIO('${id}')`, payload)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -93,7 +95,7 @@ class Form extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/TL_ExpDic", payload)
+      await request("POST", "/TL_SALES_SCENARIO", payload)
         .then(
           (res: any) =>
             this.dialog.current?.success(

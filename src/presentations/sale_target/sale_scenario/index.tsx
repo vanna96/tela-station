@@ -13,8 +13,6 @@ import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -25,14 +23,13 @@ export default function Lists() {
     code: "",
     name: "",
     docdate: null,
-    account: -1,
   });
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "Code",
-        header: "Expense Code", //uses the default width from defaultColumn prop
+        header: " Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -47,36 +44,17 @@ export default function Lists() {
         size: 88,
         visible: true,
       },
+
       {
-        accessorKey: "U_tl_expacct",
-        header: "Account Code", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-      },
-      {
-        accessorKey: "AccoutName",
-        header: "Account Name", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 100,
-        visible: true,
-        Cell: (cell: any) => {
-          return new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-            ?.Name;
-        },
-      },
-      {
-        accessorKey: "CreateDate",
-        header: "Document Date", //uses the default width from defaultColumn prop
+        accessorKey: "U_tl_date",
+        header: " Date", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          if (!cell.row.original?.CreateDate) return;
-          return cell.row.original?.CreateDate.toString().replace(
+          if (!cell.row.original?.U_tl_date) return;
+          return cell.row.original?.U_tl_date.toString().replace(
             "T00:00:00Z",
             ""
           );
@@ -84,11 +62,19 @@ export default function Lists() {
       },
 
       {
-        accessorKey: "U_tl_expactive",
-        header: "Active",
+        accessorKey: "U_tl_remark",
+        header: "Remark", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 100,
+        visible: true,
+      },
+      {
+        accessorKey: "U_tl_status",
+        header: "Status",
         size: 40,
         visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
+        // Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
       },
       {
         accessorKey: "DocEntry",
@@ -107,13 +93,10 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  "/master-data/expense-dictionary/" + cell.row.original.Code,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                route("sale-target/sale-scenario" + cell.row.original.Code, {
+                  state: cell.row.original,
+                  replace: true,
+                });
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
@@ -123,7 +106,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/master-data/expense-dictionary/${cell.row.original.Code}/edit`,
+                  `sale-target/sale-scenario${cell.row.original.Code}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -152,11 +135,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_ExpDic`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_SALES_SCENARIO`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ExpDic/$count?${filter}`
+        `${url}/TL_SALES_SCENARIO/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -170,13 +153,13 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_ExpDic",
+      "TL_SALES_SCENARIO",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ExpDic?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_SALES_SCENARIO?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&${filter}`
       )
@@ -244,8 +227,6 @@ export default function Lists() {
       queryFilters.push(
         `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
       );
-    if (searchValues.account > 0)
-      queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
@@ -261,7 +242,7 @@ export default function Lists() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Expense Dictionary{" "}
+            Sale Target / Sale Scenario
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -282,7 +263,7 @@ export default function Lists() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="Expese Code"
+                  label=" Code"
                   placeholder="Code"
                   className="bg-white"
                   autoComplete="off"
@@ -304,25 +285,10 @@ export default function Lists() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Account
-                  </label>
-                  <div className="">
-                    <CashACAutoComplete
-                      value={searchValues.account}
-                      onChange={(e) =>
-                        setSearchValues({ ...searchValues, account: e })
-                      }
-                    />
-                  </div>
-                </div>
-              </div>
 
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
-                  label="Create Date"
+                  label=" Date"
                   value={searchValues?.docdate}
                   onChange={(e) => {
                     setSearchValues({
@@ -384,7 +350,7 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Expense Dictionary"
+          title="Sale Scenario"
         />
       </div>
     </>
