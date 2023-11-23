@@ -31,7 +31,7 @@ export default function WarehouseAttendTo(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedWarehouse = data.find(
+      const selectedWarehouse = data?.find(
         (warehouse: any) => warehouse.WarehouseCode === props.value
       );
       if (selectedWarehouse) {
