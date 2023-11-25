@@ -112,7 +112,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-
+// 
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
