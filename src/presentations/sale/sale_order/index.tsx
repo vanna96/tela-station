@@ -101,7 +101,7 @@ export default function SaleOrderLists() {
         enableClickToCopy: true,
         visible: true,
         Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
         size: 60,
       },
       {
@@ -112,7 +112,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-
+// 
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
