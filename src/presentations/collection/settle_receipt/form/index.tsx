@@ -61,6 +61,14 @@ class Form extends CoreFormDocument {
           total: null,
         },
       ],
+      paymentMeanCheckData: [
+        {
+          due_date: new Date() || "",
+          amount: "" || 0,
+          bank: "",
+          check_no: "" || 0,
+        },
+      ],
     } as any;
 
     this.onInit = this.onInit.bind(this);

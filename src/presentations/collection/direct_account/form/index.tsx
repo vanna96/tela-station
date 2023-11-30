@@ -35,6 +35,22 @@ class Form extends CoreFormDocument {
       LineofBusiness: "",
       SalesPersonCode: "",
       Branch: 1,
+      paymentMeanData: [
+        { type: "Cash", gl_acccode: null, gl_acname: "", total: null },
+        {
+          type: "Bank Transfer",
+          gl_acccode: null,
+          total: null,
+        },
+      ],
+      paymentMeanCheckData: [
+        {
+          due_date: new Date() || "",
+          amount: "" || 0,
+          bank: "",
+          check_no: "" || 0,
+        },
+      ],
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -282,11 +298,10 @@ class Form extends CoreFormDocument {
         BPLID: data?.Branch,
 
         DocCurrency: data?.Currency,
-        CashAccount: data?.GLCash || "",
-        CashSum: data?.GLCashAmount || 0,
-
-        TransferAccount: data?.GLBank || "",
-        TransferSum: data?.GLBankAmount || 0,
+        CashAccount: data?.paymentMeanData[0]?.gl_acccode || "",
+        CashSum: data?.paymentMeanData[0]?.total || 0,
+        TransferAccount: data?.paymentMeanData[1]?.gl_acccode || "",
+        TransferSum: data?.paymentMeanData[1]?.total || 0,
 
         CheckAccount: data?.GLCheck || "",
         PaymentChecks: PaymentChecks,
@@ -398,6 +413,7 @@ class Form extends CoreFormDocument {
   handleNextTab = () => {
     const currentTab = this.state.tapIndex;
     const requiredFields = this.getRequiredFieldsByTab(currentTab);
+
     const hasErrors = requiredFields.every((field) => {
       if (field === "Items") {
         // Check if the "Items" array is empty
@@ -405,7 +421,6 @@ class Form extends CoreFormDocument {
       }
 
       if (field === "paymentMeanCheckData") {
-        // Check if every object in "paymentMeanCheckData" has non-empty values for "amount", "bank", and "check_no"
         return (
           !this?.state[field] ||
           this.state[field]?.some((payment: any) => {
@@ -417,15 +432,22 @@ class Form extends CoreFormDocument {
           })
         );
       }
+      if (field === "paymentMeanData") {
+        const validRows = this.state[field]?.filter((payment: any) => {
+          return (
+            payment.gl_acccode !== null &&
+            payment.total !== null &&
+            payment.gl_acccode !== "" &&
+            payment.total !== ""
+          );
+        });
 
-      if (field === "GLBankAmount") {
-        // Check if "GLBankAmount" requires "GLBank"
-        return !this.state[field] || !this.state["GLBank"];
-      }
-
-      if (field === "GLCashAmount") {
-        // Check if "GLCashAmount" requires "GLCash"
-        return !this.state[field] || !this.state["GLCash"];
+        // Check if either both rows or none have valid values for "gl_acccode" and "total"
+        return (
+          !this?.state[field] ||
+          validRows.length === 2 ||
+          validRows.length === 0
+        );
       }
 
       // For other fields, check if they are falsy
@@ -442,9 +464,9 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ['Branch'],
-      1: ["paymentMeanCheckData", "GLBankAmount", "GLCashAmount"], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
-      2: ['Items'],
+      0: ["Branch"],
+      1: ["paymentMeanCheckData", "paymentMeanData", ], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
+      2: ["Items"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -471,8 +493,10 @@ class Form extends CoreFormDocument {
             >
               General
             </MenuButton>
-            <MenuButton active={this.state.tapIndex === 1}
-             onClick={() => this.handlerChangeMenu(1)}>
+            <MenuButton
+              active={this.state.tapIndex === 1}
+              onClick={() => this.handlerChangeMenu(1)}
+            >
               <span> Payment Means</span>
             </MenuButton>
             <MenuButton active={this.state.tapIndex === 2}>Content</MenuButton>

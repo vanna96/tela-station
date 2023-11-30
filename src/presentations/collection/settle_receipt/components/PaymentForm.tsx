@@ -8,7 +8,7 @@ import { APIContext } from "../context/APIContext";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
 import { currencyFormat } from "@/utilies";
-import NewContentForm from "./NewContentForm";
+import NewContentForm from "../../components/NewContentForm";
 import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
 
 interface PaymentFormProps {
