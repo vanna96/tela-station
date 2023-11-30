@@ -54,11 +54,11 @@ class Form extends CoreFormDocument {
       Branch: 1,
       // paymentMeanCheckData: [],
       paymentMeanData: [
-        { type: "Cash", gl_acccode: null, gl_acname: "", total: 0 },
+        { type: "Cash", gl_acccode: null, gl_acname: "", total: null },
         {
           type: "Bank Transfer",
           gl_acccode: null,
-          total: 0,
+          total: null,
         },
       ],
     } as any;
@@ -443,13 +443,7 @@ class Form extends CoreFormDocument {
     const currentTab = this.state.tapIndex;
     const requiredFields = this.getRequiredFieldsByTab(currentTab);
     const hasErrors = requiredFields.every((field) => {
-      // if (field === "Items") {
-      //   // Check if the "Items" array is empty
-      //   return !this.state[field] || this.state[field]?.length === 0;
-      // }
-
       if (field === "paymentMeanCheckData") {
-        // Check if every object in "paymentMeanCheckData" has non-empty values for "amount", "bank", and "check_no"
         return (
           !this?.state[field] ||
           this.state[field]?.some((payment: any) => {
@@ -461,19 +455,18 @@ class Form extends CoreFormDocument {
           })
         );
       }
-
       if (field === "paymentMeanData") {
-        // Check if "GLBankAmount" requires "GLBank"
+        const validRows = this.state[field]?.filter((payment: any) => {
+          return payment.gl_acccode !== null && payment.total !== null && payment.gl_acccode !== "" && payment.total !== "";
+        });
+      
+        // Check if either both rows or none have valid values for "gl_acccode" and "total"
         return (
           !this?.state[field] ||
-          this.state[field]?.some((payment: any) => {
-            return (
-              payment.gl_acccode === "" || // Check if amount is empty
-              payment.total === ""  // Check if bank is empty
-            );
-          })
+          (validRows.length === 2 || validRows.length === 0)
         );
       }
+      
 
       // For other fields, check if they are falsy
       return !this.state[field];
@@ -490,7 +483,7 @@ class Form extends CoreFormDocument {
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode"],
-      1: ["paymentMeanCheckData", "paymentMeanData",], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
+      1: ["paymentMeanCheckData", "paymentMeanData", ],
       2: ["Currency"],
       3: [],
     };
@@ -506,8 +499,9 @@ class Form extends CoreFormDocument {
     // Close the dialog
     this.setState({ isDialogOpen: false });
   };
-
   HeaderTaps = () => {
+    console.log(this.state);
+
     return (
       <>
         <div className="w-full flex justify-between">

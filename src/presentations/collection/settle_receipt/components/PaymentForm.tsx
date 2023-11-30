@@ -29,6 +29,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
   }, [data?.error]);
 
   const [totalUsd, TotalFc] = useDocumentTotalHook(data);
+  
 
   return (
     <>

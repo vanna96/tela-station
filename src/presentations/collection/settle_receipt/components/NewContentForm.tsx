@@ -49,7 +49,6 @@ export default function NewContentForm({
   };
 
 
-  console.log(data)
   const itemColumns = React.useMemo(
     () => [
       {
