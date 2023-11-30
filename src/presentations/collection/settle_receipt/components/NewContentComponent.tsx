@@ -115,7 +115,7 @@ export default function NewContentComponent(props: ContentComponentProps) {
               ...columns,
             ]}
             data={props?.data}
-            enableRowNumbers={!(props?.data?.DocType === "rAccount")}
+            enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

@@ -44,11 +44,12 @@ export default function NewContentForm({
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
     });
-    console.log(newData);
     if (newData.length <= 0) return;
     onChange("paymentMeanData", newData);
   };
 
+
+  console.log(data)
   const itemColumns = React.useMemo(
     () => [
       {

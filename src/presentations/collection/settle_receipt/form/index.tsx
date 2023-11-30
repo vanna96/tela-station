@@ -52,7 +52,7 @@ class Form extends CoreFormDocument {
       LineofBusiness: "",
       SalesPersonCode: "",
       Branch: 1,
-      paymentMeanCheckData: [],
+      // paymentMeanCheckData: [],
       paymentMeanData: [
         { type: "Cash", gl_acccode: null, gl_acname: "", total: 0 },
         {
@@ -321,11 +321,16 @@ class Form extends CoreFormDocument {
         BPLID: data?.Branch,
 
         DocCurrency: data?.Currency,
-        CashAccount: data?.GLCash || "",
-        CashSum: data?.GLCashAmount || 0,
 
-        TransferAccount: data?.GLBank || "",
-        TransferSum: data?.GLBankAmount || 0,
+        // cash account change and bank account
+        // CashAccount: data?.GLCash || "",
+        // CashSum: data?.GLCashAmount || 0,
+        // TransferAccount: data?.GLBank || "",
+        // TransferSum: data?.GLBankAmount || 0,
+        CashAccount: data?.paymentMeanData[0]?.gl_acccode || "",
+        CashSum: data?.paymentMeanData[0]?.total || 0,
+        TransferAccount: data?.paymentMeanData[1]?.gl_acccode || "",
+        TransferSum: data?.paymentMeanData[1]?.total || 0,
 
         CheckAccount: data?.GLCheck || "",
         PaymentChecks: PaymentChecks,
@@ -457,14 +462,17 @@ class Form extends CoreFormDocument {
         );
       }
 
-      if (field === "GLBankAmount") {
+      if (field === "paymentMeanData") {
         // Check if "GLBankAmount" requires "GLBank"
-        return !this.state[field] || !this.state["GLBank"];
-      }
-
-      if (field === "GLCashAmount") {
-        // Check if "GLCashAmount" requires "GLCash"
-        return !this.state[field] || !this.state["GLCash"];
+        return (
+          !this?.state[field] ||
+          this.state[field]?.some((payment: any) => {
+            return (
+              payment.gl_acccode === "" || // Check if amount is empty
+              payment.total === ""  // Check if bank is empty
+            );
+          })
+        );
       }
 
       // For other fields, check if they are falsy
@@ -482,8 +490,7 @@ class Form extends CoreFormDocument {
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode"],
-      // Tabs 2 and 3 have no required fields, so return an empty array for them
-      1: ["paymentMeanCheckData", "GLBankAmount", "GLCashAmount"], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
+      1: ["paymentMeanCheckData", "paymentMeanData",], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
       2: ["Currency"],
       3: [],
     };
