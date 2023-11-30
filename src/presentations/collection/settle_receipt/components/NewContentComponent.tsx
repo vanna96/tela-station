@@ -91,30 +91,30 @@ export default function NewContentComponent(props: ContentComponentProps) {
     props?.items?.reduce((prev: number, item: any) => {
       return prev + parseFloat(item?.Amount || 0);
     }, 0) || 0;
-  const data = [{ Type: "Cash" }, { Type: "Bank Transfer" }];
+
   return (
     <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
       <>
         <div className="col-span-2 data-table">
           <MaterialReactTable
             columns={[
-            //   {
-            //     accessorKey: "id",
-            //     size: 30,
-            //     minSize: 30,
-            //     maxSize: 30,
-            //     enableResizing: false,
-            //     Cell: (cell) => (
-            //       <Checkbox
-            //         checked={cell.row.index in rowSelection}
-            //         size="small"
-            //         onChange={(event) => onCheckRow(event, cell.row.index)}
-            //       />
-            //     ),
-            //   },
+              //   {
+              //     accessorKey: "id",
+              //     size: 30,
+              //     minSize: 30,
+              //     maxSize: 30,
+              //     enableResizing: false,
+              //     Cell: (cell) => (
+              //       <Checkbox
+              //         checked={cell.row.index in rowSelection}
+              //         size="small"
+              //         onChange={(event) => onCheckRow(event, cell.row.index)}
+              //       />
+              //     ),
+              //   },
               ...columns,
             ]}
-            data={data}
+            data={props?.data}
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
             enableStickyHeader={true}
             enableColumnActions={false}

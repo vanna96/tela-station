@@ -29,6 +29,12 @@ interface FormState {
     bank: string;
     check_no: string;
   }>;
+
+  paymentMeanData: Array<{
+    type: string;
+    gl_acccode: number;
+    total: number;
+  }>;
 }
 
 class Form extends CoreFormDocument {
@@ -46,6 +52,15 @@ class Form extends CoreFormDocument {
       LineofBusiness: "",
       SalesPersonCode: "",
       Branch: 1,
+      paymentMeanCheckData: [],
+      paymentMeanData: [
+        { type: "Cash", gl_acccode: null, gl_acname: "", total: 0 },
+        {
+          type: "Bank Transfer",
+          gl_acccode: null,
+          total: 0,
+        },
+      ],
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -466,10 +481,10 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ['CardCode'],
+      0: ["CardCode"],
       // Tabs 2 and 3 have no required fields, so return an empty array for them
       1: ["paymentMeanCheckData", "GLBankAmount", "GLCashAmount"], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
-      2: ['Currency'],
+      2: ["Currency"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -485,7 +500,6 @@ class Form extends CoreFormDocument {
     this.setState({ isDialogOpen: false });
   };
 
-  
   HeaderTaps = () => {
     return (
       <>
