@@ -29,6 +29,12 @@ interface FormState {
     bank: string;
     check_no: string;
   }>;
+
+  paymentMeanData: Array<{
+    type: string;
+    gl_acccode: number;
+    total: number;
+  }>;
 }
 
 class Form extends CoreFormDocument {
@@ -46,6 +52,23 @@ class Form extends CoreFormDocument {
       LineofBusiness: "",
       SalesPersonCode: "",
       Branch: 1,
+      // paymentMeanCheckData: [],
+      paymentMeanData: [
+        { type: "Cash", gl_acccode: null, gl_acname: "", total: null },
+        {
+          type: "Bank Transfer",
+          gl_acccode: null,
+          total: null,
+        },
+      ],
+      paymentMeanCheckData: [
+        {
+          due_date: new Date() || "",
+          amount: "" || 0,
+          bank: "",
+          check_no: "" || 0,
+        },
+      ],
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -306,11 +329,16 @@ class Form extends CoreFormDocument {
         BPLID: data?.Branch,
 
         DocCurrency: data?.Currency,
-        CashAccount: data?.GLCash || "",
-        CashSum: data?.GLCashAmount || 0,
 
-        TransferAccount: data?.GLBank || "",
-        TransferSum: data?.GLBankAmount || 0,
+        // cash account change and bank account
+        // CashAccount: data?.GLCash || "",
+        // CashSum: data?.GLCashAmount || 0,
+        // TransferAccount: data?.GLBank || "",
+        // TransferSum: data?.GLBankAmount || 0,
+        CashAccount: data?.paymentMeanData[0]?.gl_acccode || "",
+        CashSum: data?.paymentMeanData[0]?.total || 0,
+        TransferAccount: data?.paymentMeanData[1]?.gl_acccode || "",
+        TransferSum: data?.paymentMeanData[1]?.total || 0,
 
         CheckAccount: data?.GLCheck || "",
         PaymentChecks: PaymentChecks,
@@ -423,13 +451,7 @@ class Form extends CoreFormDocument {
     const currentTab = this.state.tapIndex;
     const requiredFields = this.getRequiredFieldsByTab(currentTab);
     const hasErrors = requiredFields.every((field) => {
-      // if (field === "Items") {
-      //   // Check if the "Items" array is empty
-      //   return !this.state[field] || this.state[field]?.length === 0;
-      // }
-
       if (field === "paymentMeanCheckData") {
-        // Check if every object in "paymentMeanCheckData" has non-empty values for "amount", "bank", and "check_no"
         return (
           !this?.state[field] ||
           this.state[field]?.some((payment: any) => {
@@ -441,16 +463,18 @@ class Form extends CoreFormDocument {
           })
         );
       }
-
-      if (field === "GLBankAmount") {
-        // Check if "GLBankAmount" requires "GLBank"
-        return !this.state[field] || !this.state["GLBank"];
+      if (field === "paymentMeanData") {
+        const validRows = this.state[field]?.filter((payment: any) => {
+          return payment.gl_acccode !== null && payment.total !== null && payment.gl_acccode !== "" && payment.total !== "";
+        });
+      
+        // Check if either both rows or none have valid values for "gl_acccode" and "total"
+        return (
+          !this?.state[field] ||
+          (validRows.length === 2 || validRows.length === 0)
+        );
       }
-
-      if (field === "GLCashAmount") {
-        // Check if "GLCashAmount" requires "GLCash"
-        return !this.state[field] || !this.state["GLCash"];
-      }
+      
 
       // For other fields, check if they are falsy
       return !this.state[field];
@@ -466,10 +490,9 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ['CardCode'],
-      // Tabs 2 and 3 have no required fields, so return an empty array for them
-      1: ["paymentMeanCheckData", "GLBankAmount", "GLCashAmount"], // Require either "paymentMeanCheckData" or "GLBankAmount" or "GLCashAmount"
-      2: ['Currency'],
+      0: ["CardCode"],
+      1: ["paymentMeanCheckData", "paymentMeanData", ],
+      2: ["Currency"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -484,9 +507,9 @@ class Form extends CoreFormDocument {
     // Close the dialog
     this.setState({ isDialogOpen: false });
   };
-
-  
   HeaderTaps = () => {
+    console.log(this.state);
+
     return (
       <>
         <div className="w-full flex justify-between">
