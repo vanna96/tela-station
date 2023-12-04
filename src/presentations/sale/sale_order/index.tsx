@@ -183,11 +183,13 @@ export default function SaleOrderLists() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["pa-count" + (filter !== "" ? "-f" : "")],
     queryFn: async () => {
+      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${filter ? ` and ${filter}` : ''}`;
+  
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        apiUrl
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -197,6 +199,7 @@ export default function SaleOrderLists() {
     },
     staleTime: Infinity,
   });
+  
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
@@ -208,7 +211,7 @@ export default function SaleOrderLists() {
         "GET",
         `${url}/Orders?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }&$filter=U_tl_salestype eq null${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -219,7 +222,7 @@ export default function SaleOrderLists() {
     staleTime: Infinity,
     retry: 1,
   });
-
+  
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
