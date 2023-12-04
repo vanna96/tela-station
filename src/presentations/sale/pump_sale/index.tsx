@@ -392,7 +392,7 @@ export default function PumpSaleLists() {
                       items={[
                         { label: "None", value: "" },
                         { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
+                        { label: "Close", value: "bost_Close" ta
                         // { label: "Paid", value: "bost_Paid" },
                         // { label: "Delivered", value: "bost_Delivered" },
                       ]}

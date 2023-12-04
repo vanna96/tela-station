@@ -183,7 +183,7 @@ export default function SaleOrderLists() {
   });
   console.log(salesType);
   const Count: any = useQuery({
-    queryKey: ["pa-count" + (filter !== "" ? "-f" : "")],
+    queryKey: ["sales-count" + (filter !== "" ? "-f" : "")],
     queryFn: async () => {
       let numAtCardFilter = "";
   
@@ -201,17 +201,20 @@ export default function SaleOrderLists() {
           // Handle the default case or log an error if needed
       }
   
-      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${numAtCardFilter !== "" ? ` and NumAtCard eq '${numAtCardFilter}'` : ''}${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ''}${filter ? ` and ${filter}` : ""}`;
   
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
+        console.log(response)
       return response;
     },
     // staleTime: Infinity,
   });
+
+  console.log(Count.data)
   
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
@@ -239,7 +242,7 @@ export default function SaleOrderLists() {
         "GET",
         `${url}/Orders?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_salestype eq null${numAtCardFilter ? ` and NumAtCard eq '${numAtCardFilter}'` : ''}${filter}${
+        }&$filter=U_tl_salestype eq null${numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ''}${filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : ""
         }`
       )
