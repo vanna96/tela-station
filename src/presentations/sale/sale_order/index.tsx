@@ -112,7 +112,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-// 
+      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -181,47 +181,79 @@ export default function SaleOrderLists() {
     pageIndex: 0,
     pageSize: 10,
   });
-
+  console.log(salesType);
   const Count: any = useQuery({
     queryKey: ["pa-count" + (filter !== "" ? "-f" : "")],
     queryFn: async () => {
-      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${filter ? ` and ${filter}` : ''}`;
+      let numAtCardFilter = "";
   
-      const response: any = await request(
-        "GET",
-        apiUrl
-      )
+      switch (salesType) {
+        case "fuel-sales":
+          numAtCardFilter = "Fuel";
+          break;
+        case "lube-sales":
+          numAtCardFilter = "Lube";
+          break;
+        case "lpg-sales":
+          numAtCardFilter = "LPG";
+          break;
+        default:
+          // Handle the default case or log an error if needed
+      }
+  
+      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${numAtCardFilter !== "" ? ` and NumAtCard eq '${numAtCardFilter}'` : ''}${filter ? ` and ${filter}` : ""}`;
+  
+      const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
   
-
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "pa",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
+      let numAtCardFilter = "";
+  
+      switch (salesType) {
+        case "fuel-sales":
+          numAtCardFilter = "Fuel";
+          break;
+        case "lube-sales":
+          numAtCardFilter = "Lube";
+          break;
+        case "lpg-sales":
+          numAtCardFilter = "LPG";
+          break;
+        default:
+          // Handle the default case or log an error if needed
+      }
+  
       const response: any = await request(
         "GET",
         `${url}/Orders?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_salestype eq null${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }&$filter=U_tl_salestype eq null${numAtCardFilter ? ` and NumAtCard eq '${numAtCardFilter}'` : ''}${filter}${
+          sortBy !== "" ? "&$orderby=" + sortBy : ""
+        }`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
+  
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
     retry: 1,
   });
+  
   
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
