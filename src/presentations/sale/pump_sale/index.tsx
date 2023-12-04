@@ -174,18 +174,23 @@ export default function PumpSaleLists() {
     pageIndex: 0,
     pageSize: 10,
   });
-
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["sales-count" + (filter !== "" ? "-f" : "")],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
-      )
+      let numAtCardFilter = "pump_record";
+
+      const apiUrl = `${url}/Orders/$count?$filter=U_tl_arbusi eq null${
+        numAtCardFilter !== ""
+          ? ` and U_tl_salestype eq '${numAtCardFilter}'`
+          : ""
+      }${filter ? ` and ${filter}` : ""}`;
+
+      const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
+      console.log(response);
       return response;
     },
     staleTime: Infinity,
@@ -197,16 +202,21 @@ export default function PumpSaleLists() {
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
+      let numAtCardFilter = "pump_record";
+
       const response: any = await request(
         "GET",
         `${url}/Orders?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
+        }&$filter=U_tl_arbusi eq null${
+          numAtCardFilter ? ` and U_tl_salestype eq '${numAtCardFilter}'` : ""
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
+
       return response;
     },
     staleTime: Infinity,
@@ -309,7 +319,8 @@ export default function PumpSaleLists() {
   const childBreadcrum = (
     <>
       <span className="" onClick={() => route("/sale/pump-record")}>
-      {" "}  Pump Record
+        {" "}
+        Pump Record
       </span>
     </>
   );
@@ -435,7 +446,7 @@ export default function PumpSaleLists() {
                         size="small"
                         // onClick={handleGoClick}
                       >
-                         Filter
+                        Filter
                       </Button>
                     </div>
                   }
