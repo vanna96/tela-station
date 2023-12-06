@@ -9,7 +9,7 @@ import {
   AiOutlineFileSearch,
 } from "react-icons/ai";
 import { request } from "http";
-import SalesQuotationRepository from "@/services/actions/SalesQuotationRepository";
+// import SalesQuotationRepository from "@/services/actions/SalesQuotationRepository";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
 
 const SaleMasterPage = () => {
