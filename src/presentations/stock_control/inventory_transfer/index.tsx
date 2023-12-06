@@ -44,7 +44,7 @@ export default function InventoryTransferList() {
       },
       {
         accessorKey: "CardCode",
-        header: "Customer Code",
+        header: "GIT Code",
         enableClickToCopy: true,
         visible: true,
         type: "string",
@@ -53,7 +53,7 @@ export default function InventoryTransferList() {
       },
       {
         accessorKey: "CardName",
-        header: "Customer Name",
+        header: "GIT Name",
         visible: true,
         type: "string",
         align: "center",
@@ -83,20 +83,20 @@ export default function InventoryTransferList() {
           return <span>{formattedDate}</span>;
         },
       },
+      // {
+      //   accessorKey: "DocTotal",
+      //   header: " DocumentTotal",
+      //   visible: true,
+      //   type: "string",
+      //   size: 70,
+      //   Cell: ({ cell }: any) => (
+      //     <>
+      //       {"$"} {cell.getValue().toFixed(2)}
+      //     </>
+      //   ),
+      // },
       {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "BPLID",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
@@ -192,7 +192,7 @@ export default function InventoryTransferList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/StockTransfers/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -200,7 +200,7 @@ export default function InventoryTransferList() {
         });
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
@@ -211,7 +211,7 @@ export default function InventoryTransferList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/StockTransfers?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -221,7 +221,7 @@ export default function InventoryTransferList() {
         });
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
     retry: 1,
   });
 
@@ -310,8 +310,8 @@ export default function InventoryTransferList() {
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
+        ? ` and BPLID eq ${searchValues.bplid}`
+        : `BPLID eq ${searchValues.bplid}`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -466,7 +466,7 @@ export default function InventoryTransferList() {
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
                       // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
+                      e?.accessorKey !== "BPLID"
                   )}
                   onClick={handlerSearch}
                 />

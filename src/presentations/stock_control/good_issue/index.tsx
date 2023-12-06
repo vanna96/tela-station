@@ -83,18 +83,18 @@ export default function GoodIssueList() {
           return <span>{formattedDate}</span>;
         },
       },
-      {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
+      // {
+      //   accessorKey: "DocTotal",
+      //   header: " DocumentTotal",
+      //   visible: true,
+      //   type: "string",
+      //   size: 70,
+      //   Cell: ({ cell }: any) => (
+      //     <>
+      //       {"$"} {cell.getValue().toFixed(2)}
+      //     </>
+      //   ),
+      // },
       {
         accessorKey: "BPL_IDAssignedToInvoice",
         header: "Branch",
@@ -192,7 +192,7 @@ export default function GoodIssueList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/InventoryGenEntries/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -211,7 +211,7 @@ export default function GoodIssueList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/InventoryGenEntries?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )

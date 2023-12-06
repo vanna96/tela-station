@@ -178,7 +178,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Name
+              GIT  Name
               </label>
             </div>
             <div className="col-span-3">
