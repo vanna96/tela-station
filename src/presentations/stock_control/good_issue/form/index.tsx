@@ -6,11 +6,8 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
@@ -81,13 +78,11 @@ class Form extends CoreFormDocument {
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "20",
+        Document: "60",
       });
       this.props?.query?.set("issue-series", seriesList);
     }
-
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
+    
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
@@ -95,7 +90,7 @@ class Form extends CoreFormDocument {
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-         
+
           // attachment
           let AttachmentList: any = [];
           let disabledFields: any = {
@@ -146,7 +141,7 @@ class Form extends CoreFormDocument {
               return {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,  
+                Quantity: item.Quantity || null,
                 UnitPrice: item.UnitPrice || item.total,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
@@ -169,9 +164,9 @@ class Form extends CoreFormDocument {
             // ShippingType: data?.TransportationCode,
             // FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
-            warehouseCode : data?.U_tl_whsdesc,
+            warehouseCode: data?.U_tl_whsdesc,
             DocDiscount: data?.DiscountPercent,
-          
+
             AttachmentList,
             disabledFields,
             isStatusClose: data?.DocumentStatus === "bost_Close",
@@ -187,14 +182,12 @@ class Form extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -258,14 +251,10 @@ class Form extends CoreFormDocument {
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
-        SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
+        Series: data?.Series,
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
         DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
