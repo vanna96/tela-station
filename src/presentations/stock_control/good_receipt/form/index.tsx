@@ -6,10 +6,8 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
 import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
@@ -77,25 +75,45 @@ class Form extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("issue-series");
+    let seriesList: any = this.props?.query?.find("orders-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "20",
+        Document: "17",
       });
-      this.props?.query?.set("issue-series", seriesList);
+      this.props?.query?.set("orders-series", seriesList);
     }
 
     let dnSeries: any = this.props?.query?.find("dn-series");
 
+    if (!dnSeries) {
+      dnSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "15",
+      });
+      this.props?.query?.set("dn-series", dnSeries);
+    }
+    let invoiceSeries: any = this.props?.query?.find("invoice-series");
+
+    if (!invoiceSeries) {
+      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "13",
+      });
+      this.props?.query?.set("invoice-series", invoiceSeries);
+    }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `InventoryGenEntries(${id})`)
+      await request("GET", `Orders(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-         
+          const vendor: any = await request(
+            "GET",
+            `/BusinessPartners('${data?.CardCode}')`
+          )
+            .then((res: any) => new BusinessPartner(res?.data, 0))
+            .catch((err: any) => console.log(err));
+
           // attachment
           let AttachmentList: any = [];
           let disabledFields: any = {
@@ -169,9 +187,14 @@ class Form extends CoreFormDocument {
             // ShippingType: data?.TransportationCode,
             // FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
+            vendor,
             warehouseCode : data?.U_tl_whsdesc,
             DocDiscount: data?.DiscountPercent,
-          
+            BPAddresses: vendor?.bpAddress?.map(
+              ({ addressName, addressType }: any) => {
+                return { addressName: addressName, addressType: addressType };
+              }
+            ),
             AttachmentList,
             disabledFields,
             isStatusClose: data?.DocumentStatus === "bost_Close",
@@ -188,6 +211,7 @@ class Form extends CoreFormDocument {
         .finally(() => {
           state["SerieLists"] = seriesList;
           state["dnSeries"] = dnSeries;
+          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
@@ -195,6 +219,7 @@ class Form extends CoreFormDocument {
     } else {
       state["SerieLists"] = seriesList;
       state["dnSeries"] = dnSeries;
+      state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -309,7 +334,7 @@ class Form extends CoreFormDocument {
       };
 
       if (id) {
-        return await request("PATCH", `/InventoryGenEntries(${id})`, payloads)
+        return await request("PATCH", `/Orders(${id})`, payloads)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -317,7 +342,7 @@ class Form extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/InventoryGenEntries", payloads)
+      await request("POST", "/script/test/SO", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;

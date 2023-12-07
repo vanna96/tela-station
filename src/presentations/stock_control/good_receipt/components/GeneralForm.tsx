@@ -183,9 +183,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUITextField
-                value={data?.U_tl_empl}
+                value={data?.CardName}
                 disabled={edit}
-                name="U_tl_empl"
+                name="BPName"
               />
             </div>
           </div>
