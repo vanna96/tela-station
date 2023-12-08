@@ -107,11 +107,11 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
+          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
             <span className="capitalize text-sm" onClick={handlerAdd}>
               Add
             </span>
-          </Button>
+          </Button> */}
           <IconButton onClick={() => columnRef.current?.onOpen()}>
             <TbSettings className="text-2lg" />
           </IconButton>
@@ -125,9 +125,9 @@ export default function ContentComponent(props: ContentComponentProps) {
               {
                 accessorKey: "id",
                 size: 30,
-                minSize: 30,
-                maxSize: 30,
-                enableResizing: false,
+                // minSize: 30,
+                // maxSize: 30,
+                // enableResizing: false,
                 Cell: (cell) => (
                   <Checkbox
                     checked={cell.row.index in rowSelection}
@@ -139,7 +139,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               ...columns,
             ]}
             data={[...props?.items, { ItemCode: "" }] ?? []}
-            enableRowNumbers={!(props?.data?.DocType === "rAccount")}
+            enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

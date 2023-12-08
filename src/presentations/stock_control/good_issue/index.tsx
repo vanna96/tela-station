@@ -172,7 +172,7 @@ export default function GoodIssueList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["good-issue-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
@@ -189,7 +189,7 @@ export default function GoodIssueList() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "good-issue",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
@@ -468,7 +468,7 @@ export default function GoodIssueList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
+          title="Good Issue Lists"
           createRoute={`/stock-control/${salesType}/create`}
         />
       </div>

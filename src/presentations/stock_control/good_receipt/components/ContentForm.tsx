@@ -13,6 +13,7 @@ import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
 import { TbEdit } from "react-icons/tb";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -107,7 +108,7 @@ export default function ContentForm({
             <NumericFormat
               key={"Quantity" + cell.getValue()}
               thousandSeparator
-              decimalScale={0}
+              decimalScale={1}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
@@ -140,6 +141,14 @@ export default function ContentForm({
               aliaslabel="name"
               name="UomAbsEntry"
             />
+            // <MUITextField
+            //   defaultValue={
+            //     new UnitOfMeasurementRepository().find(cell.getValue())?.Name
+            //   }
+            //   onBlur={(e: any) =>
+            //     handlerUpdateRow(cell.row.id, ["UomAbsEntry", e.target.value])
+            //   }
+            // />
           );
         },
       },

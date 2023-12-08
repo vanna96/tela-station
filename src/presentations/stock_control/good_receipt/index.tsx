@@ -172,7 +172,7 @@ export default function GoodReceiptList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["good-receipt-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
@@ -189,7 +189,7 @@ export default function GoodReceiptList() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "good-receipt",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {

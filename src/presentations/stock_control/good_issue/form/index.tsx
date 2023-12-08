@@ -18,6 +18,7 @@ import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -136,49 +137,67 @@ class Form extends CoreFormDocument {
 
           state = {
             ...data,
-            // Description: data?.Comments,
-            // Owner: data?.DocumentsOwner,
-            // Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                GrossPrice: item.GrossPrice,
-                TotalGross: item.GrossTotal,
-                DiscountPercent: item.DiscountPercent || 0,
-                TaxCode: item.VatGroup || item.taxCode || null,
-                UoMEntry: item.UomAbsEntry || null,
-                WarehouseCode: item?.WarehouseCode || null,
-                UomAbsEntry: item?.UoMEntry,
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
-              };
-            }),
-            ExchangeRate: data?.DocRate || 1,
-            // ShippingTo: data?.ShipToCode || null,
-            // BillingTo: data?.PayToCode || null,
-            JournalMemo: data?.JournalMemo,
-            // PaymentTermType: data?.PaymentGroupCode,
-            // ShippingType: data?.TransportationCode,
-            // FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
-            warehouseCode: data?.U_tl_whsdesc,
-            DocDiscount: data?.DiscountPercent,
 
-            AttachmentList,
-            disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
-            Edit: true,
-            PostingDate: data?.DocDate,
-            DueDate: data?.DocDueDate,
-            DocumentDate: data?.TaxDate,
+            Items: await Promise.all(
+              (data?.DocumentLines || []).map(async (item: any) => {
+                const uomGroups: any =
+                  await new UnitOfMeasurementGroupRepository().get();
+
+                const uoms = await new UnitOfMeasurementRepository().get();
+                const uomGroup: any = uomGroups.find(
+                  (row: any) => row.AbsEntry === item?.UoMEntry
+                );
+                let uomLists: any[] = [];
+                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+                  const itemUOM = uoms.find(
+                    (record: any) => record?.AbsEntry === row?.AlternateUoM
+                  );
+                  if (itemUOM) {
+                    uomLists.push(itemUOM);
+                  }
+                });
+
+                return {
+                  ItemCode: item.ItemCode || null,
+                  ItemDescription: item.ItemDescription || item.Name || null,
+                  Quantity: item.Quantity || null,
+                  UnitPrice: item.UnitPrice || item.total,
+                  Discount: item.DiscountPercent || 0,
+                  VatGroup: item.VatGroup || "",
+                  GrossPrice: item.GrossPrice,
+                  TotalGross: item.GrossTotal,
+                  DiscountPercent: item.DiscountPercent || 0,
+                  TaxCode: item.VatGroup || item.taxCode || null,
+                  UoMEntry: item.UomAbsEntry || null,
+                  WarehouseCode: item?.WarehouseCode || null,
+                  UomAbsEntry: item?.UoMEntry,
+                  LineTotal: item.LineTotal,
+                  VatRate: item.TaxPercentagePerRow,
+                  UomLists: uomLists,
+
+                  ExchangeRate: data?.DocRate || 1,
+                  // ShippingTo: data?.ShipToCode || null,
+                  // BillingTo: data?.PayToCode || null,
+                  JournalMemo: data?.JournalMemo,
+                  // PaymentTermType: data?.PaymentGroupCode,
+                  // ShippingType: data?.TransportationCode,
+                  // FederalTax: data?.FederalTaxID || null,
+                  CurrencyType: "B",
+                  warehouseCode: data?.U_tl_whsdesc,
+                  DocDiscount: data?.DiscountPercent,
+
+                  AttachmentList,
+                  disabledFields,
+                  isStatusClose: data?.DocumentStatus === "bost_Close",
+                  RoundingValue:
+                    data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
+                  Rounding: (data?.Rounding == "tYES").toString(),
+                  Edit: true,
+                  PostingDate: data?.DocDate,
+                  DueDate: data?.DocDueDate,
+                };
+              })
+            ),
           };
         })
         .catch((err: any) => console.log(err))
