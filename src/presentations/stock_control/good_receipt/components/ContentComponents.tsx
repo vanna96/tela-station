@@ -78,12 +78,13 @@ export default function ContentComponent(props: ContentComponentProps) {
   const handlerAdd = () => {
     const Items = [
       ...props?.items,
-      {
-        ExpenseCode: "",
-        ExpenseName: "",
-        Amount: "",
-        Remark: "",
-      },
+      // {
+      // ItemCode: "",
+      // ItemName: "",
+      // Quantity: "",
+      // UOM: "",
+      // OffsetAccount: "",
+      // },
     ];
     if (props?.onChange) props.onChange("Items", Items);
   };
@@ -137,11 +138,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               },
               ...columns,
             ]}
-            data={
-              props?.isNotAccount
-                ? [...props?.data?.Items]
-                : [...props?.data?.Items, { ItemCode: "" }]
-            }
+            data={[...props?.items, { ItemCode: "" }] ?? []}
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
             enableStickyHeader={true}
             enableColumnActions={false}
@@ -214,8 +211,6 @@ export default function ContentComponent(props: ContentComponentProps) {
             </div>
           </div>
         </div>
-
-       
 
         <ContentTableSelectColumn
           ref={columnRef}

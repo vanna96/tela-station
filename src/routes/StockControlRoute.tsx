@@ -14,7 +14,8 @@ import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index
 import FuelLevelList from "@/presentations/stock_control/fuel_level";
 import FuelLevelForm from "@/presentations/stock_control/fuel_level/form/index";
 import FuelLevelDetails from "@/presentations/stock_control/fuel_level/detail/index";
-
+import GoodReceiptList from "@/presentations/stock_control/good_receipt";
+import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/index";
 
 export default function StockControlRoute() {
   return (
@@ -25,13 +26,19 @@ export default function StockControlRoute() {
         <Route path="/inventory-transfer-request">
           <Route index element={<InventoryTransferRequestList />} />
           <Route path="create" element={<InventoryTransferRequestForm />} />
-          <Route path=":id/edit" element={<InventoryTransferRequestForm edit={true} />} />
+          <Route
+            path=":id/edit"
+            element={<InventoryTransferRequestForm edit={true} />}
+          />
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
         <Route path="/inventory-transfer">
           <Route index element={<InventoryTransferList />} />
           <Route path="create" element={<InventoryTransferForm />} />
-          <Route path=":id/edit" element={<InventoryTransferForm edit={true} />} />
+          <Route
+            path=":id/edit"
+            element={<InventoryTransferForm edit={true} />}
+          />
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
         <Route path="/good-issue">
@@ -41,9 +48,9 @@ export default function StockControlRoute() {
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
         <Route path="/good-receipt">
-          <Route index element={<GoodIssueList />} />
-          <Route path="create" element={<GoodIssueForm />} />
-          <Route path=":id/edit" element={<GoodIssueForm edit={true} />} />
+          <Route index element={<GoodReceiptList />} />
+          <Route path="create" element={<GoodReceiptForm />} />
+          <Route path=":id/edit" element={<GoodReceiptForm edit={true} />} />
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
 

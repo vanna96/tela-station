@@ -44,6 +44,7 @@ class Form extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -59,6 +60,7 @@ class Form extends CoreFormDocument {
     this.handlerSubmit = this.handlerSubmit.bind(this);
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
+    this.handleModalItem = this.handleModalItem.bind(this);
   }
   handleLineofBusinessChange = (value: any) => {
     this.setState({ lineofBusiness: value });
@@ -71,18 +73,18 @@ class Form extends CoreFormDocument {
     this.setState({ loading: true });
     this.onInit();
   }
+  handleModalItem = () => {};
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("issue-series");
+    let seriesList: any = this.props?.query?.find("good-issue-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "60",
       });
-      this.props?.query?.set("issue-series", seriesList);
+      this.props?.query?.set("good-issue-series", seriesList);
     }
-    
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
@@ -216,9 +218,9 @@ class Form extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" };
-        throw new FormValidateException("Vendor is Required!", 0);
+      if (!data.warehouseCode) {
+        data["error"] = { CardCode: "Warehouse is Required!" };
+        throw new FormValidateException("Warehouse is Required!", 0);
       }
 
       if (!data?.DueDate) {
@@ -261,7 +263,7 @@ class Form extends CoreFormDocument {
         DiscountPercent: data?.DocDiscount,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
-        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
+        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
@@ -365,7 +367,7 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      // 0: ["CardCode", "U_tl_whsdesc"],
+      0: ["warehouseCode"],
       // 1: ["Items"],
       // 2: ["U_tl_dnsuppo", "PayToCode"],
       // 3: [],
@@ -432,13 +434,17 @@ class Form extends CoreFormDocument {
   };
 
   hanndAddNewItem() {
-    if (!this.state?.CardCode) return;
+    if (!this.state?.warehouseCode) {
+      // Notify the user to enter the warehouse code
+      alert("Please enter the warehouse code");
+      return;
+    }
     if (this.state.DocType === "dDocument_Items")
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode,
-        this.state.Currency
+        this.state?.warehouseCode,
+        this.state?.Currency
       );
   }
 
@@ -463,8 +469,29 @@ class Form extends CoreFormDocument {
         <ItemModalComponent
           type="sale"
           group={itemGroupCode}
+          // onOk={(items) => {
+          //   if (items.length) {
+          //     let items: any = this.state?.Items?.map(
+          //       (item: any, index: number) => {
+          //         if (index.toString() === this.state?.Items.toString()) {
+          //           return {
+          //             ...item,
+          //             ...items[0],
+          //             itemCode: items[0]?.ItemCode,
+          //             ItemDescription: items[0]?.ItemDescription,
+          //             uom: items[0]?.UomName,
+          //           };
+          //         }
+          //         return item;
+          //       }
+          //     );
+
+          //     this.handlerChange("Items", items);
+          //   }
+          // }}
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
+          // multipleSelect={false}
         />
         <form
           id="formData"
@@ -492,8 +519,22 @@ class Form extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
+                  {/* {this.state.tapIndex === 1 && (
+                    <PumpData
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                      handlerAddItem={(e: any) => {
+                        this.handlerChange("pumpIndex", e);
+                        this.hanndAddNewItem();
+                      }}
+                    />
+                  )} */}
                   {this.state.tapIndex === 1 && (
                     <ContentForm
+                      ContentLoading={this.state.ContentLoading}
                       data={this.state}
                       handlerAddItem={() => {
                         this.hanndAddNewItem();
@@ -506,7 +547,6 @@ class Form extends CoreFormDocument {
                       onChange={this.handlerChange}
                     />
                   )}
-
                   {/* {this.state.tapIndex === 2 && (
                     <LogisticForm
                       data={this.state}

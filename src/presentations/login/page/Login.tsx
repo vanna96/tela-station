@@ -43,7 +43,8 @@ export default function Login() {
 
   const company = React.useRef("TLTELA_DEVELOPER");
   const username = React.useRef("manager");
-  const password = React.useRef("Admin@tela");
+  // const password = React.useRef("Admin@tela");
+  const password = React.useRef("1234");
 
   const onSubmit = async () => {
     try {

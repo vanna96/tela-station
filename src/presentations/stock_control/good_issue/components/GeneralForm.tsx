@@ -103,6 +103,7 @@ export default function GeneralForm({
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
+    data.U_tl_whsdesc = data.warehouseCode
   }
 
   const { data: CurrencyAPI }: any = useQuery({
@@ -132,8 +133,12 @@ export default function GeneralForm({
     ?.map(({ CurrencyCode }: any) => {
       return { value: CurrencyCode, name: CurrencyCode };
     });
-
   useExchangeRate(data?.Currency, handlerChange);
+
+  if (data.U_tl_whsdesc) {
+    data.warehouseCode = data.U_tl_whsdesc;
+  }
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -220,7 +225,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-              Revenue Line
+                Revenue Line
               </label>
             </div>
             <div className="col-span-3">
@@ -236,7 +241,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-              Ship To 
+                Ship To
               </label>
             </div>
             <div className="col-span-3">
@@ -397,7 +402,7 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-            <BinLocationAutoComplete
+              <BinLocationAutoComplete
                 value={data?.BinLocation}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
@@ -406,8 +411,6 @@ export default function GeneralForm({
               />
             </div>
           </div>
-
-      
         </div>
       </div>
     </div>

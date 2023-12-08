@@ -42,23 +42,7 @@ export default function GoodIssueList() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "CardCode",
-        header: "Customer Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
-      },
-      {
-        accessorKey: "CardName",
-        header: "Customer Name",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
+     
       {
         accessorKey: "TaxDate",
         header: "Posting Date",
@@ -361,7 +345,7 @@ export default function GoodIssueList() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <BPAutoComplete
                   type="Customer"
                   label="Customer"
@@ -373,7 +357,7 @@ export default function GoodIssueList() {
                     })
                   }
                 />
-              </div>
+              </div> */}
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">

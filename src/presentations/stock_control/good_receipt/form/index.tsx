@@ -8,7 +8,6 @@ import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
-import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
@@ -45,6 +44,7 @@ class Form extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -60,6 +60,7 @@ class Form extends CoreFormDocument {
     this.handlerSubmit = this.handlerSubmit.bind(this);
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
+    this.handleModalItem = this.handleModalItem.bind(this);
   }
   handleLineofBusinessChange = (value: any) => {
     this.setState({ lineofBusiness: value });
@@ -72,47 +73,25 @@ class Form extends CoreFormDocument {
     this.setState({ loading: true });
     this.onInit();
   }
+  handleModalItem = () => {};
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("orders-series");
+    let seriesList: any = this.props?.query?.find("good-receipt-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
+        Document: "59",
       });
-      this.props?.query?.set("orders-series", seriesList);
-    }
-
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
+      this.props?.query?.set("good-receipt-series", seriesList);
     }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `InventoryGenExits(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-          const vendor: any = await request(
-            "GET",
-            `/BusinessPartners('${data?.CardCode}')`
-          )
-            .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err));
 
           // attachment
           let AttachmentList: any = [];
@@ -164,7 +143,7 @@ class Form extends CoreFormDocument {
               return {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,  
+                Quantity: item.Quantity || null,
                 UnitPrice: item.UnitPrice || item.total,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
@@ -187,14 +166,9 @@ class Form extends CoreFormDocument {
             // ShippingType: data?.TransportationCode,
             // FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
-            vendor,
-            warehouseCode : data?.U_tl_whsdesc,
+            warehouseCode: data?.U_tl_whsdesc,
             DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType };
-              }
-            ),
+
             AttachmentList,
             disabledFields,
             isStatusClose: data?.DocumentStatus === "bost_Close",
@@ -210,16 +184,12 @@ class Form extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -248,9 +218,9 @@ class Form extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" };
-        throw new FormValidateException("Vendor is Required!", 0);
+      if (!data.warehouseCode) {
+        data["error"] = { CardCode: "Warehouse is Required!" };
+        throw new FormValidateException("Warehouse is Required!", 0);
       }
 
       if (!data?.DueDate) {
@@ -283,21 +253,17 @@ class Form extends CoreFormDocument {
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
-        SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
+        Series: data?.Series,
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
         DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
 
         // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
         // DocRate: data?.ExchangeRate || 0,
         DiscountPercent: data?.DocDiscount,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
-        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
+        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
@@ -334,7 +300,7 @@ class Form extends CoreFormDocument {
       };
 
       if (id) {
-        return await request("PATCH", `/Orders(${id})`, payloads)
+        return await request("PATCH", `/InventoryGenExits(${id})`, payloads)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -342,7 +308,7 @@ class Form extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/script/test/SO", payloads)
+      await request("POST", "/InventoryGenExits", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;
@@ -401,7 +367,7 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      // 0: ["CardCode", "U_tl_whsdesc"],
+      0: ["warehouseCode"],
       // 1: ["Items"],
       // 2: ["U_tl_dnsuppo", "PayToCode"],
       // 3: [],
@@ -468,13 +434,17 @@ class Form extends CoreFormDocument {
   };
 
   hanndAddNewItem() {
-    if (!this.state?.CardCode) return;
+    if (!this.state?.warehouseCode) {
+      // Notify the user to enter the warehouse code
+      alert("Please enter the warehouse code");
+      return;
+    }
     if (this.state.DocType === "dDocument_Items")
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode,
-        this.state.Currency
+        this.state?.warehouseCode,
+        this.state?.Currency
       );
   }
 
@@ -499,8 +469,29 @@ class Form extends CoreFormDocument {
         <ItemModalComponent
           type="sale"
           group={itemGroupCode}
+          // onOk={(items) => {
+          //   if (items.length) {
+          //     let items: any = this.state?.Items?.map(
+          //       (item: any, index: number) => {
+          //         if (index.toString() === this.state?.Items.toString()) {
+          //           return {
+          //             ...item,
+          //             ...items[0],
+          //             itemCode: items[0]?.ItemCode,
+          //             ItemDescription: items[0]?.ItemDescription,
+          //             uom: items[0]?.UomName,
+          //           };
+          //         }
+          //         return item;
+          //       }
+          //     );
+
+          //     this.handlerChange("Items", items);
+          //   }
+          // }}
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
+          // multipleSelect={false}
         />
         <form
           id="formData"
@@ -528,8 +519,22 @@ class Form extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
+                  {/* {this.state.tapIndex === 1 && (
+                    <PumpData
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                      handlerAddItem={(e: any) => {
+                        this.handlerChange("pumpIndex", e);
+                        this.hanndAddNewItem();
+                      }}
+                    />
+                  )} */}
                   {this.state.tapIndex === 1 && (
                     <ContentForm
+                      ContentLoading={this.state.ContentLoading}
                       data={this.state}
                       handlerAddItem={() => {
                         this.hanndAddNewItem();
@@ -542,7 +547,6 @@ class Form extends CoreFormDocument {
                       onChange={this.handlerChange}
                     />
                   )}
-
                   {/* {this.state.tapIndex === 2 && (
                     <LogisticForm
                       data={this.state}
