@@ -42,23 +42,7 @@ export default function GoodIssueList() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "CardCode",
-        header: "Customer Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
-      },
-      {
-        accessorKey: "CardName",
-        header: "Customer Name",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
+     
       {
         accessorKey: "TaxDate",
         header: "Posting Date",
@@ -83,18 +67,18 @@ export default function GoodIssueList() {
           return <span>{formattedDate}</span>;
         },
       },
-      {
-        accessorKey: "DocTotal",
-        header: " DocumentTotal",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
+      // {
+      //   accessorKey: "DocTotal",
+      //   header: " DocumentTotal",
+      //   visible: true,
+      //   type: "string",
+      //   size: 70,
+      //   Cell: ({ cell }: any) => (
+      //     <>
+      //       {"$"} {cell.getValue().toFixed(2)}
+      //     </>
+      //   ),
+      // },
       {
         accessorKey: "BPL_IDAssignedToInvoice",
         header: "Branch",
@@ -188,11 +172,11 @@ export default function GoodIssueList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["good-issue-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders/$count?$select=DocNum${filter}`
+        `${url}/InventoryGenEntries/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -205,13 +189,13 @@ export default function GoodIssueList() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "good-issue",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/InventoryGenEntries?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -361,7 +345,7 @@ export default function GoodIssueList() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <BPAutoComplete
                   type="Customer"
                   label="Customer"
@@ -373,7 +357,7 @@ export default function GoodIssueList() {
                     })
                   }
                 />
-              </div>
+              </div> */}
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -484,7 +468,7 @@ export default function GoodIssueList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
+          title="Good Issue Lists"
           createRoute={`/stock-control/${salesType}/create`}
         />
       </div>

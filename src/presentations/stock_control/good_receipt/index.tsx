@@ -25,7 +25,7 @@ import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
-export default function InventoryTransferRequestList() {
+export default function GoodReceiptList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
   const salesTypes = useParams();
@@ -42,23 +42,7 @@ export default function InventoryTransferRequestList() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "CardCode",
-        header: "GIT Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
-      },
-      {
-        accessorKey: "CardName",
-        header: "GIT Name",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
+     
       {
         accessorKey: "TaxDate",
         header: "Posting Date",
@@ -96,7 +80,7 @@ export default function InventoryTransferRequestList() {
       //   ),
       // },
       {
-        accessorKey: "BPLID",
+        accessorKey: "BPL_IDAssignedToInvoice",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
@@ -188,11 +172,11 @@ export default function InventoryTransferRequestList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["good-receipt-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryTransferRequests/$count?$select=DocNum${filter}`
+        `${url}/InventoryGenExits/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -200,18 +184,18 @@ export default function InventoryTransferRequestList() {
         });
       return response;
     },
-    // staleTime: Infinity,
+    staleTime: Infinity,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "good-receipt",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryTransferRequests?$top=${pagination.pageSize}&$skip=${
+        `${url}/InventoryGenExits?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -221,7 +205,7 @@ export default function InventoryTransferRequestList() {
         });
       return response;
     },
-    // staleTime: Infinity,
+    staleTime: Infinity,
     retry: 1,
   });
 
@@ -310,8 +294,8 @@ export default function InventoryTransferRequestList() {
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and BPLID eq ${searchValues.bplid}`
-        : `BPLID eq ${searchValues.bplid}`;
+        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
+        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -361,7 +345,7 @@ export default function InventoryTransferRequestList() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <BPAutoComplete
                   type="Customer"
                   label="Customer"
@@ -373,7 +357,7 @@ export default function InventoryTransferRequestList() {
                     })
                   }
                 />
-              </div>
+              </div> */}
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -466,7 +450,7 @@ export default function InventoryTransferRequestList() {
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
                       // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPLID"
+                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}
                 />
@@ -484,7 +468,7 @@ export default function InventoryTransferRequestList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Inventory Transfer Requests Lists"
+          title="Good Receipt Lists"
           createRoute={`/stock-control/${salesType}/create`}
         />
       </div>

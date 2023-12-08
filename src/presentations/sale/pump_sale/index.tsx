@@ -193,7 +193,7 @@ export default function PumpSaleLists() {
       console.log(response);
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
@@ -219,7 +219,7 @@ export default function PumpSaleLists() {
 
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
     retry: 1,
   });
 

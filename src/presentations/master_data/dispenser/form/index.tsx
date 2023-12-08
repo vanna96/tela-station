@@ -77,9 +77,7 @@ class DispenserForm extends CoreFormDocument {
     this.onInit();
   }
 
-  handleModalItem = () =>{
-
-  }
+  handleModalItem = () => {};
 
   async onInit() {
     let state: any = { ...this.state };
@@ -123,7 +121,7 @@ class DispenserForm extends CoreFormDocument {
             Status: data?.U_tl_status,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
-                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);                
+                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);
                 let item: any = {
                   pumpCode: e?.U_tl_pumpcode,
                   itemCode: e?.U_tl_itemnum,
@@ -134,9 +132,12 @@ class DispenserForm extends CoreFormDocument {
                   status: e?.U_tl_status,
                   LineId: e?.LineId,
                 };
-                
+
                 if (e?.U_tl_itemnum) {
-                  const itemResponse: any = await request('GET', `Items('${e?.U_tl_itemnum}')?$select=ItemName`).then((res:any) => res?.data);
+                  const itemResponse: any = await request(
+                    "GET",
+                    `Items('${e?.U_tl_itemnum}')?$select=ItemName`
+                  ).then((res: any) => res?.data);
                   item.ItemDescription = itemResponse?.ItemName;
                 }
                 return item;
@@ -188,7 +189,7 @@ class DispenserForm extends CoreFormDocument {
         data["error"] = { DispenserName: "Dispenser Name is Required!" };
         throw new FormValidateException("Dispenser Name is Required!", 0);
       }
-      
+
       if (!data?.NumOfPump) {
         data["error"] = { NumOfPump: "Number Of Pump is Required!" };
         throw new FormValidateException("Number Of Pump is Required!", 0);
@@ -208,17 +209,17 @@ class DispenserForm extends CoreFormDocument {
         U_tl_empid: this.state?.SalesPersonCode,
         U_tl_type: this.state?.lineofBusiness,
         U_tl_status: this.state?.Status,
-        TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e:any) => {
+        TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
           return {
             U_tl_pumpcode: e?.pumpCode,
             U_tl_itemnum: e?.itemCode,
             U_tl_uom: e?.UomAbsEntry,
             U_tl_reg_meter: e?.registerMeeting,
             U_tl_upd_meter: e?.updateMetering,
-            U_tl_status: e?.status
-          }
-        })
-      }
+            U_tl_status: e?.status,
+          };
+        }),
+      };
 
       if (id) {
         return await request("PATCH", `/TL_Dispenser('${id}')`, payloads)
@@ -383,7 +384,6 @@ class DispenserForm extends CoreFormDocument {
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
 
     console.log(this.state);
-    
 
     return (
       <>
@@ -391,19 +391,21 @@ class DispenserForm extends CoreFormDocument {
           type="inventory"
           group={itemGroupCode}
           onOk={(items) => {
-            if(items.length){
-              let pumpData:any = this.state?.PumpData?.map((item:any, index:number) => {                
-                if(index.toString() === this.state?.pumpIndex.toString()){
-                  return  {
-                    ...item,
-                    ...items[0],
-                    "itemCode": items[0]?.ItemCode,
-                    "ItemDescription": items[0]?.ItemDescription,
-                    "uom": items[0]?.UomName,
-                  };
+            if (items.length) {
+              let pumpData: any = this.state?.PumpData?.map(
+                (item: any, index: number) => {
+                  if (index.toString() === this.state?.pumpIndex.toString()) {
+                    return {
+                      ...item,
+                      ...items[0],
+                      itemCode: items[0]?.ItemCode,
+                      ItemDescription: items[0]?.ItemDescription,
+                      uom: items[0]?.UomName,
+                    };
+                  }
+                  return item;
                 }
-                return item;
-              })
+              );
 
               this.handlerChange("PumpData", pumpData);
             }
@@ -431,7 +433,9 @@ class DispenserForm extends CoreFormDocument {
                       handlerChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
-                      handlerChangeObject={(value:any) => this.handlerChangeObject(value)}
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                     />
                   )}
                   {this.state.tapIndex === 1 && (
@@ -441,9 +445,9 @@ class DispenserForm extends CoreFormDocument {
                       handlerChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
-                      handlerAddItem={(e:any) => {
-                        this.handlerChange('pumpIndex', e);
-                        this.hanndAddNewItem()
+                      handlerAddItem={(e: any) => {
+                        this.handlerChange("pumpIndex", e);
+                        this.hanndAddNewItem();
                       }}
                     />
                   )}

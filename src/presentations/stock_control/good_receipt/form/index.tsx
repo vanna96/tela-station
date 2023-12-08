@@ -78,18 +78,18 @@ class Form extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("good-issue-series");
+    let seriesList: any = this.props?.query?.find("good-receipt-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "60",
+        Document: "59",
       });
-      this.props?.query?.set("good-issue-series", seriesList);
+      this.props?.query?.set("good-receipt-series", seriesList);
     }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `InventoryGenEntries(${id})`)
+      await request("GET", `InventoryGenExits(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -174,7 +174,6 @@ class Form extends CoreFormDocument {
                   LineTotal: item.LineTotal,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
-
                   ExchangeRate: data?.DocRate || 1,
                   // ShippingTo: data?.ShipToCode || null,
                   // BillingTo: data?.PayToCode || null,
@@ -195,6 +194,7 @@ class Form extends CoreFormDocument {
                   Edit: true,
                   PostingDate: data?.DocDate,
                   DueDate: data?.DocDueDate,
+                  DocumentDate: data?.TaxDate,
                 };
               })
             ),
@@ -319,7 +319,7 @@ class Form extends CoreFormDocument {
       };
 
       if (id) {
-        return await request("PATCH", `/InventoryGenEntries(${id})`, payloads)
+        return await request("PATCH", `/InventoryGenExits(${id})`, payloads)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -327,7 +327,7 @@ class Form extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/InventoryGenEntries", payloads)
+      await request("POST", "/InventoryGenExits", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;

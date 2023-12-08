@@ -116,21 +116,7 @@ export default function ContentForm({
           );
         },
       },
-      {
-        accessorKey: "Remark",
-        header: "Register Meeting",
-        visible: true,
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
-              }
-            />
-          );
-        },
-      },
+     
       {
         accessorKey: "Quantity",
         header: "QTY",
