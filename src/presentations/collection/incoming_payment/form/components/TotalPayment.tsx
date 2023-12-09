@@ -51,7 +51,7 @@ export const TotalPayment = () => {
     let AttachmentEntry = null;
     const files = form?.documentLines?.map((item: any) => item);
     if (files?.length > 0) AttachmentEntry = await getAttachment(files);
-
+    
     if (Edit) {
       const payload = {
         PayToCode: form?.payTo || null,
@@ -409,7 +409,7 @@ const getAttachment = async (files: any) => {
     }
     data.append(`uploads[${index}]`, file, Date.now() + file.name);
   });
-
+  console.log(data);
   const res: any = await request("POST", "/Attachments2", data);
   return res?.data?.AbsoluteEntry;
 };
