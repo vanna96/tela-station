@@ -124,6 +124,29 @@ export default function ContentForm({
         },
       },
       {
+        accessorKey: "Price",
+        header: "Price",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"Price" + cell.getValue()}
+              thousandSeparator
+              decimalScale={2}
+              fixedDecimalScale
+              customInput={MUITextField}
+              defaultValue={cell.getValue()}
+              onBlur={(event) => {
+                const newValue = parseFloat(
+                  event.target.value.replace(/,/g, "")
+                );
+                handlerUpdateRow(cell.row.id, ["Price", newValue]);
+              }}
+            />
+          );
+        },
+      },
+      {
         accessorKey: "UomAbsEntry",
         header: " UoM",
         visible: true,
@@ -154,15 +177,15 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "Remark",
-        header: "Remark",
+        accessorKey: "StockTransferLinesBinAllocations",
+        header: "Bin Allocations",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
+                handlerUpdateRow(cell.row.id, ["Bin", e.target.value])
               }
             />
           );
