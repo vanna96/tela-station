@@ -218,7 +218,6 @@ class Form extends CoreFormDocument {
     }
   }
 
-
   handlerRemoveItem(code: string) {
     let items = [...(this.state.Items ?? [])];
     const index = items.findIndex((e: any) => e?.ItemCode === code);
@@ -380,7 +379,6 @@ class Form extends CoreFormDocument {
       this.handlerChangeMenu(this.state.tapIndex - 1);
     }
   };
-
 
   HeaderTaps = () => {
     return (
