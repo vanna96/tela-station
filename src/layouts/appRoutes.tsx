@@ -197,10 +197,10 @@ const appRoutes: RouteType[] = [
         },
       },
       {
-        path: "/stock-control/inventory-transfer",
-        state: "/inventory-transfer",
+        path: "/stock-control/stock-transfer",
+        state: "/stock-transfer",
         sidebarProps: {
-          displayText: "Inventory Transfer",
+          displayText: "Stock Transfer",
         },
       },
       {

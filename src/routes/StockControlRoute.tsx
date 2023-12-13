@@ -18,6 +18,7 @@ import GoodReceiptList from "@/presentations/stock_control/good_receipt";
 import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/index";
 import GoodReceiptDetails from "@/presentations/stock_control/good_receipt/detail/index";
 import GoodIssueDetails from "@/presentations/stock_control/good_issue/detail/index";
+import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index";
 
 export default function StockControlRoute() {
   return (
@@ -34,14 +35,14 @@ export default function StockControlRoute() {
           />
           <Route path=":id" element={<SaleOrderDetail edit={true} />} />
         </Route>
-        <Route path="/inventory-transfer">
+        <Route path="/stock-transfer">
           <Route index element={<InventoryTransferList />} />
           <Route path="create" element={<InventoryTransferForm />} />
           <Route
             path=":id/edit"
             element={<InventoryTransferForm edit={true} />}
           />
-          <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+          <Route path=":id" element={<InventoryTransferDetails edit={true} />} />
         </Route>
         <Route path="/good-issue">
           <Route index element={<GoodIssueList />} />

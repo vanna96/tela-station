@@ -24,6 +24,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import WarehouseRepository from "@/services/warehouseRepository";
 
 export default function InventoryTransferList() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -42,23 +43,23 @@ export default function InventoryTransferList() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "CardCode",
-        header: "GIT Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
-      },
-      {
-        accessorKey: "CardName",
-        header: "GIT Name",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
+      // {
+      //   accessorKey: "CardCode",
+      //   header: "GIT Code",
+      //   enableClickToCopy: true,
+      //   visible: true,
+      //   type: "string",
+      //   align: "center",
+      //   size: 65,
+      // },
+      // {
+      //   accessorKey: "CardName",
+      //   header: "GIT Name",
+      //   visible: true,
+      //   type: "string",
+      //   align: "center",
+      //   size: 90,
+      // },
       {
         accessorKey: "TaxDate",
         header: "Posting Date",
@@ -67,34 +68,44 @@ export default function InventoryTransferList() {
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          const formattedDate = moment(cell.row.original.TaxDate).format("DD.MM.YYYY");
           return <span>{formattedDate}</span>;
         },
       },
       {
-        accessorKey: "DocDueDate",
+        accessorKey: "DueDate",
         header: "Delivery Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          const formattedDate = moment(cell.row.original.DueDate).format("DD.MM.YYYY");
           return <span>{formattedDate}</span>;
         },
       },
-      // {
-      //   accessorKey: "DocTotal",
-      //   header: " DocumentTotal",
-      //   visible: true,
-      //   type: "string",
-      //   size: 70,
-      //   Cell: ({ cell }: any) => (
-      //     <>
-      //       {"$"} {cell.getValue().toFixed(2)}
-      //     </>
-      //   ),
-      // },
+
+      {
+        accessorKey: "FromWarehouse",
+        header: " From Warehouse",
+        visible: true,
+        type: "string",
+        size: 60,
+        Cell: ({ cell }: any) =>
+          new WarehouseRepository().find(cell.getValue())?.WarehouseName ??
+          "N/A",
+      },
+
+      {
+        accessorKey: "ToWarehouse",
+        header: " To Warehouse",
+        visible: true,
+        type: "string",
+        size: 60,
+        Cell: ({ cell }: any) =>
+          new WarehouseRepository().find(cell.getValue())?.WarehouseName ??
+          "N/A",
+      },
       {
         accessorKey: "BPLID",
         header: "Branch",
@@ -484,7 +495,7 @@ export default function InventoryTransferList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
+          title="Stock Transfer Lists"
           createRoute={`/stock-control/${salesType}/create`}
         />
       </div>

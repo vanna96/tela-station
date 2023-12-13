@@ -78,12 +78,13 @@ export default function ContentComponent(props: ContentComponentProps) {
   const handlerAdd = () => {
     const Items = [
       ...props?.items,
-      {
-        ExpenseCode: "",
-        ExpenseName: "",
-        Amount: "",
-        Remark: "",
-      },
+      // {
+      // ItemCode: "",
+      // ItemName: "",
+      // Quantity: "",
+      // UOM: "",
+      // OffsetAccount: "",
+      // },
     ];
     if (props?.onChange) props.onChange("Items", Items);
   };
@@ -94,8 +95,10 @@ export default function ContentComponent(props: ContentComponentProps) {
     }, 0) || 0;
 
   const onChange = (key: string, value: any) => {
-    if (props.onChange) props.onChange(key, value?.target?.value);
+    if (props.onChange) props.onChange(key, value);
   };
+
+  console.log(props.data)
   return (
     <FormCard
       title="Content"
@@ -106,11 +109,11 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
+          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
             <span className="capitalize text-sm" onClick={handlerAdd}>
               Add
             </span>
-          </Button>
+          </Button> */}
           <IconButton onClick={() => columnRef.current?.onOpen()}>
             <TbSettings className="text-2lg" />
           </IconButton>
@@ -124,9 +127,9 @@ export default function ContentComponent(props: ContentComponentProps) {
               {
                 accessorKey: "id",
                 size: 30,
-                minSize: 30,
-                maxSize: 30,
-                enableResizing: false,
+                // minSize: 30,
+                // maxSize: 30,
+                // enableResizing: false,
                 Cell: (cell) => (
                   <Checkbox
                     checked={cell.row.index in rowSelection}
@@ -137,12 +140,8 @@ export default function ContentComponent(props: ContentComponentProps) {
               },
               ...columns,
             ]}
-            data={
-              props?.isNotAccount
-                ? [...props?.data?.Items]
-                : [...props?.data?.Items, { ItemCode: "" }]
-            }
-            enableRowNumbers={!(props?.data?.DocType === "rAccount")}
+            data={[...props?.items, { ItemCode: "" }] ?? []}
+            enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}
@@ -182,9 +181,13 @@ export default function ContentComponent(props: ContentComponentProps) {
           />
         </div>
         <div className="col-span-1 gap-2 ">
-          <div className="grid grid-cols-12 py-1">
-            <div className="col-span-4 text-gray-700 ">Sales Employee</div>
-            <div className="col-span-6 text-gray-900">
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Sale Employee
+              </label>
+            </div>
+            <div className="col-span-3">
               <SalePersonAutoComplete
                 value={props.data.SalesPersonCode}
                 onChange={(e) => onChange("SalesPersonCode", e)}
@@ -192,57 +195,56 @@ export default function ContentComponent(props: ContentComponentProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-12 py-1">
-            <div className="col-span-4 text-gray-700">Journal Remark</div>
-            <div className="col-span-6 text-gray-900">
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2 text-gray-700">Journal Remark</div>
+            <div className="col-span-3 text-gray-900">
               <TextField
                 size="small"
                 multiline
                 rows={2}
                 fullWidth
-                name="user_Text"
+                name="JournalMemo"
                 className="w-full "
-                value={props.data?.user_Text}
-                onChange={(e) => onChange("user_Text", e.target.value)}
+                value={props.data?.JournalMemo}
+                onChange={(e) => onChange("JournalMemo", e.target.value)}
               />
             </div>
           </div>
         </div>
-
-        <div className="w-full">
-          <div className="col-span-5 col-start-8">
-            <div className="grid grid-cols-12 py-1">
-              <div className="col-span-4 text-gray-700">
+        <div className="col-span-1 gap-2 ">
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Pick and Pack Remarks
-              </div>
-              <div className="col-span-6 text-gray-900">
-                <MUITextField
-                  disabled={props?.data?.isStatusClose || false}
-                  value={props.data.PickandPack}
-                  onChange={(event: any) => {
-                    onChange("Pick", event);
-                  }}
-                />
-              </div>
+              </label>
             </div>
-            <div className="grid grid-cols-12 py-1">
-              <div className="col-span-4 text-gray-700">Remarks</div>
-              <div className="col-span-6 text-gray-900">
-                <TextField
-                  size="small"
-                  multiline
-                  rows={2}
-                  fullWidth
-                  name="user_Text"
-                  className="w-full "
-                  value={props.data?.user_Text}
-                  onChange={(e) => onChange("user_Text", e.target.value)}
-                />
-              </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={props.data?.PickRemark}
+                onChange={(e) => onChange("PickRemark", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Remarks
+              </label>
+            </div>
+            <div className="col-span-3">
+              <TextField
+                size="small"
+                multiline
+                rows={2}
+                fullWidth
+                name="Comments"
+                className="w-full "
+                value={props.data?.Comments}
+                onChange={(e) => onChange("Comments", e.target.value)}
+              />
             </div>
           </div>
         </div>
-
         <ContentTableSelectColumn
           ref={columnRef}
           columns={props.columns}

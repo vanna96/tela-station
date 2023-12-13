@@ -56,17 +56,10 @@ class Details extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `StockTransfers(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-          const vendor: any = await request(
-            "GET",
-            `/BusinessPartners('${data?.CardCode}')`
-          )
-            .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err));
-
           // attachment
           let AttachmentList: any = [];
           let disabledFields: any = {
@@ -112,7 +105,7 @@ class Details extends Component<any, any> {
             Description: data?.Comments,
             Owner: data?.DocumentsOwner,
             Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
+            Items: data?.StockTransferLines?.map((item: any) => {
               return {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
@@ -141,13 +134,7 @@ class Details extends Component<any, any> {
             ShippingType: data?.TransportationCode,
             FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
-            vendor,
             DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType };
-              }
-            ),
             AttachmentList,
             disabledFields,
             isStatusClose: data?.DocumentStatus === "bost_Close",
@@ -200,12 +187,7 @@ class Details extends Component<any, any> {
             >
               <span>Content</span>
             </MenuButton>
-            <MenuButton
-              active={this.state.tapIndex === 2}
-              onClick={() => this.handlerChangeMenu(2)}
-            >
-              Logistics
-            </MenuButton>
+
             <MenuButton
               active={this.state.tapIndex === 3}
               onClick={() => this.handlerChangeMenu(3)}
@@ -242,8 +224,6 @@ class Details extends Component<any, any> {
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
 
-                  {this.state.tapIndex === 2 && <Logistic data={this.state} />}
-
                   {this.state.tapIndex === 3 && (
                     <PreviewAttachment
                       attachmentEntry={this.state.AttachmentEntry}
@@ -278,9 +258,17 @@ function General(props: any) {
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Warehouse</div>
+              <div className="col-span-1 text-gray-700 ">From Warehouse</div>
               <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
+                {new WarehouseRepository().find(props?.data?.FromWarehouse)
+                  ?.WarehouseName ?? "N/A"}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700 ">To Warehouse</div>
+              <div className="col-span-1 text-gray-900">
+                {new WarehouseRepository().find(props?.data?.ToWarehouse)
                   ?.WarehouseName ?? "N/A"}
               </div>
             </div>
@@ -290,26 +278,7 @@ function General(props: any) {
                 {props.data.CardCode}
               </div>
             </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Customer</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Name</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardName}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Contact Person</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
+
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Currency</div>
               <div className="col-span-1 text-gray-900">
@@ -342,23 +311,11 @@ function General(props: any) {
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Delivery Date</div>
               <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDueDate)}
+                {dateFormat(props.data.DueDate)}
               </div>
             </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Document Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Sale Employee</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
+            
+           
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Remark</div>
               <div className="col-span-1 text-gray-900">
@@ -397,15 +354,10 @@ function Content(props: any) {
         enableClickToCopy: true,
         size: 200,
       },
+
       {
         accessorKey: "Quantity",
-        header: "Quantity",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "GrossPrice",
-        header: "Gross Price",
+        header: "Quantity ",
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
@@ -414,81 +366,23 @@ function Content(props: any) {
             fixedDecimalScale
             disabled
             className="bg-white w-full"
-            decimalScale={2}
+            decimalScale={1}
           />
         ),
       },
-      {
-        accessorKey: "DiscountPercent",
-        header: "Discount %",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "VatGroup",
-        header: "Tax Code",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "ItemsGroupCode",
-        header: "Item Group",
-        size: 60,
-        Cell: ({ cell }: any) => {
-          const value = cell.getValue();
-          switch (value) {
-            case "201001":
-              return "Oil";
-            case "201002":
-              return "Lube";
-            case "201003":
-              return "LPG";
-            default:
-              return value;
-          }
-        },
-      },
-      {
-        accessorKey: "MeasureUnit",
-        header: "UoM Group",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
+
       {
         accessorKey: "UomEntry",
-        header: "UoM Name",
+        header: "Inventory UoM",
         size: 60,
         Cell: ({ cell }: any) =>
           new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
       },
-      // {
-      //   accessorKey: "UnitsOfMeasurement",
-      //   header: "Item Per Units",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => cell.getValue(),
-      // },
       {
-        accessorKey: "GrossTotal",
-        header: "Total(LC)",
-        size: 60,
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
-            fixedDecimalScale
-            disabled
-            className="bg-white w-full"
-            decimalScale={2}
-          />
-        ),
-      },
-      {
-        accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
-          "N/A",
+        accessorKey: "OffsetAccount",
+        header: "Offset Account ",
+        enableClickToCopy: true,
+        size: 70,
       },
     ],
     [data]
@@ -516,88 +410,36 @@ function Content(props: any) {
                 border: "1px solid rgba(211,211,211)",
               },
             }}
-            // muiTableHeadCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
-            // muiTableBodyCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
           />
+        </div>
+        <div>
+          <div className="py-4 px-8">
+            <div className="grid grid-cols-12 ">
+              <div className="col-span-5">
+                <div className="grid grid-cols-2 py-2">
+                  <div className="col-span-1 text-gray-700 ">Remark</div>
+                  <div className="col-span-1 text-gray-900">
+                    {props?.data?.Comments ?? "N/A"}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 py-2">
+                  <div className="col-span-1 text-gray-700 ">
+                    Journal Remark
+                  </div>
+                  <div className="col-span-1 text-gray-900">
+                    {props.data.JournalMemo ?? "N/A"}
+                  </div>
+                </div>
+              </div>
+              {/*  */}
+              <div className="col-span-2"></div>
+              {/*  */}
+              <div className="col-span-5 "></div>
+            </div>
+          </div>
         </div>
       </div>
     </>
-  );
-}
-
-function Logistic(props: any) {
-  return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
-      <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-        <h2>Basic Information</h2>
-      </div>
-      <div className="py-2 px-4">
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship From Address</div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-12 py-2">
-              <div className="col-span-6">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-9">
-                    <label htmlFor="Code" className="text-gray-700 ">
-                      Attention Terminal
-                    </label>
-                  </div>
-                  <div className="col-span-3">
-                    <Checkbox
-                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
-                      checked={props?.data?.U_tl_grsuppo ? true : false}
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* <div className="col-span-1">
-               
-              </div> */}
-              <div className="col-span-6">
-                <div className="grid grid-cols-1 ">
-                  <div className="-mt-1">
-                    {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                      ?.WarehouseName ?? "N/A"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship-To Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToCode ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Address2 ?? "N/A"}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 

@@ -6,11 +6,8 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
@@ -21,6 +18,7 @@ import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -47,6 +45,7 @@ class Form extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -62,6 +61,7 @@ class Form extends CoreFormDocument {
     this.handlerSubmit = this.handlerSubmit.bind(this);
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
+    this.handleModalItem = this.handleModalItem.bind(this);
   }
   handleLineofBusinessChange = (value: any) => {
     this.setState({ lineofBusiness: value });
@@ -70,51 +70,30 @@ class Form extends CoreFormDocument {
   handleWarehouseChange = (value: any) => {
     this.setState({ warehouseCode: value });
   };
+
   componentDidMount(): void {
     this.setState({ loading: true });
     this.onInit();
   }
+  handleModalItem = () => {};
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("orders-series");
+    let seriesList: any = this.props?.query?.find("good-receipt-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
+        Document: "59",
       });
-      this.props?.query?.set("orders-series", seriesList);
-    }
-
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
+      this.props?.query?.set("good-receipt-series", seriesList);
     }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `StockTransfers(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-          const vendor: any = await request(
-            "GET",
-            `/BusinessPartners('${data?.CardCode}')`
-          )
-            .then((res: any) => new BusinessPartner(res?.data, 0))
-            .catch((err: any) => console.log(err));
 
           // attachment
           let AttachmentList: any = [];
@@ -159,75 +138,86 @@ class Form extends CoreFormDocument {
 
           state = {
             ...data,
-            // Description: data?.Comments,
-            // Owner: data?.DocumentsOwner,
-            // Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,  
-                UnitPrice: item.UnitPrice || item.total,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                GrossPrice: item.GrossPrice,
-                TotalGross: item.GrossTotal,
-                DiscountPercent: item.DiscountPercent || 0,
-                TaxCode: item.VatGroup || item.taxCode || null,
-                UoMEntry: item.UomAbsEntry || null,
-                WarehouseCode: item?.WarehouseCode || null,
-                UomAbsEntry: item?.UoMEntry,
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
-              };
-            }),
-            ExchangeRate: data?.DocRate || 1,
-            // ShippingTo: data?.ShipToCode || null,
-            // BillingTo: data?.PayToCode || null,
-            JournalMemo: data?.JournalMemo,
-            // PaymentTermType: data?.PaymentGroupCode,
-            // ShippingType: data?.TransportationCode,
-            // FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
-            vendor,
-            warehouseCode : data?.U_tl_whsdesc,
-            DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType };
-              }
+
+            Items: await Promise.all(
+              (data?.StockTransferLines || []).map(async (item: any) => {
+                const uomGroups: any =
+                  await new UnitOfMeasurementGroupRepository().get();
+
+                const uoms = await new UnitOfMeasurementRepository().get();
+                const uomGroup: any = uomGroups.find(
+                  (row: any) => row.AbsEntry === item?.UoMEntry
+                );
+                let uomLists: any[] = [];
+                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+                  const itemUOM = uoms.find(
+                    (record: any) => record?.AbsEntry === row?.AlternateUoM
+                  );
+                  if (itemUOM) {
+                    uomLists.push(itemUOM);
+                  }
+                });
+
+                return {
+                  ItemCode: item.ItemCode || null,
+                  ItemDescription: item.ItemDescription || item.Name || null,
+                  Quantity: item.Quantity || null,
+                  UnitPrice: item.UnitPrice || item.total,
+                  Discount: item.DiscountPercent || 0,
+                  VatGroup: item.VatGroup || "",
+                  GrossPrice: item.GrossPrice,
+                  TotalGross: item.GrossTotal,
+                  DiscountPercent: item.DiscountPercent || 0,
+                  TaxCode: item.VatGroup || item.taxCode || null,
+                  UoMEntry: item.UomAbsEntry || null,
+                  WarehouseCode: item?.WarehouseCode || null,
+                  UomAbsEntry: item?.UoMEntry,
+                  LineTotal: item.LineTotal,
+                  VatRate: item.TaxPercentagePerRow,
+                  UomLists: uomLists,
+                  ExchangeRate: data?.DocRate || 1,
+                  // ShippingTo: data?.ShipToCode || null,
+                  // BillingTo: data?.PayToCode || null,
+                  JournalMemo: data?.JournalMemo,
+                  // PaymentTermType: data?.PaymentGroupCode,
+                  // ShippingType: data?.TransportationCode,
+                  // FederalTax: data?.FederalTaxID || null,
+                  CurrencyType: "B",
+                  warehouseCode: data?.WarehouseCode,
+                  toWarehouseCode: data?.FromWarehouseCode,
+                  DocDiscount: data?.DiscountPercent,
+
+                  AttachmentList,
+                  disabledFields,
+                  isStatusClose: data?.DocumentStatus === "bost_Close",
+                  RoundingValue:
+                    data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
+                  Rounding: (data?.Rounding == "tYES").toString(),
+                  Edit: true,
+                  PostingDate: data?.DocDate,
+                  DueDate: data?.DocDueDate,
+                  DocumentDate: data?.TaxDate,
+                };
+              })
             ),
-            AttachmentList,
-            disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
-            Edit: true,
-            PostingDate: data?.DocDate,
-            DueDate: data?.DocDueDate,
-            DocumentDate: data?.TaxDate,
           };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       this.setState(state);
     }
   }
+
 
   handlerRemoveItem(code: string) {
     let items = [...(this.state.Items ?? [])];
@@ -245,14 +235,15 @@ class Form extends CoreFormDocument {
         ...this.state,
         isSubmitting: false,
         warehouseCode: "",
+
         loading: true,
       });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" };
-        throw new FormValidateException("Vendor is Required!", 0);
+      if (!data.warehouseCode || !data.ToWarehouse) {
+        data["error"] = { CardCode: "Warehouse is Required!" };
+        throw new FormValidateException("Warehouse is Required!", 0);
       }
 
       if (!data?.DueDate) {
@@ -275,7 +266,8 @@ class Form extends CoreFormDocument {
       // items
 
       const warehouseCodeGet = this.state.warehouseCode;
-      const DocumentLines = getItem(
+
+      const StockTransferLines = getItem(
         data?.Items || [],
         data?.DocType,
         warehouseCodeGet
@@ -285,58 +277,30 @@ class Form extends CoreFormDocument {
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
-        SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
+        // Series: data?.Series,
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
-        DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
+        DueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
 
-        // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
-        // DocRate: data?.ExchangeRate || 0,
-        DiscountPercent: data?.DocDiscount,
-        ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
-        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
-        U_tl_whsdesc: data?.U_tl_whsdesc,
+        BPLID: data?.BPL_IDAssignedToInvoice ?? 1,
+        FromWarehouse: data?.FromWarehouse,
+        ToWarehouse: data?.ToWarehouse,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
+
         U_tl_arbusi: data?.U_tl_arbusi,
 
-        // content
-        // DocType: data?.DocType,
-        // RoundingDiffAmount: isUSD ? roundingValue : 0,
-        // RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
-        // RoundingDiffAmountSC: isUSD ? roundingValue : 0,
-        // Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
-        // DocumentsOwner: data?.Owner || null,
-        // DiscountPercent: data?.DocDiscount,
-        DocumentLines,
+        StockTransferLines,
 
-        // logistic
-        // ShipToCode: data?.ShippingTo || null,
-        PayToCode: data?.PayToCode || null,
-        // TransportationCode: data?.ShippingType,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-        // Address: data?.Address2,
-
-        // accounting
-        // FederalTaxID: data?.FederalTax || null,
-        // PaymentMethod: data?.PaymentMethod || null,
-        // CashDiscountDateOffset: data?.CashDiscount || 0,
-        // CreateQRCodeFrom: data?.QRCode || null,
-        // PaymentGroupCode: data?.PaymentTermType || null,
-        // JournalMemo: data?.JournalRemark,
-        // Project: data?.BPProject || null,
-        // attachment
+        Comments: data?.Comments,
+        JournalMemo: data?.JournalMemo,
         AttachmentEntry,
       };
 
       if (id) {
-        return await request("PATCH", `/Orders(${id})`, payloads)
+        return await request("PATCH", `/StockTransfers(${id})`, payloads)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -344,7 +308,7 @@ class Form extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/script/test/SO", payloads)
+      await request("POST", "/StockTransfers", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;
@@ -403,8 +367,8 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      // 0: ["CardCode", "U_tl_whsdesc"],
-      // 1: ["Items"],
+      0: ["FromWarehouse", "ToWarehouse"],
+      1: ["Items"],
       // 2: ["U_tl_dnsuppo", "PayToCode"],
       // 3: [],
     };
@@ -416,6 +380,7 @@ class Form extends CoreFormDocument {
       this.handlerChangeMenu(this.state.tapIndex - 1);
     }
   };
+
 
   HeaderTaps = () => {
     return (
@@ -470,13 +435,17 @@ class Form extends CoreFormDocument {
   };
 
   hanndAddNewItem() {
-    if (!this.state?.CardCode) return;
+    if (!this.state?.warehouseCode) {
+      // Notify the user to enter the warehouse code
+      alert("Please enter the warehouse code");
+      return;
+    }
     if (this.state.DocType === "dDocument_Items")
       return this.itemModalRef.current?.onOpen(
         this.state?.CardCode,
         "sale",
-        this.state.warehouseCode,
-        this.state.Currency
+        this.state?.warehouseCode,
+        this.state?.Currency
       );
   }
 
@@ -495,6 +464,7 @@ class Form extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+    console.log(this.state);
 
     return (
       <>
@@ -530,8 +500,10 @@ class Form extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
+
                   {this.state.tapIndex === 1 && (
                     <ContentForm
+                      ContentLoading={this.state.ContentLoading}
                       data={this.state}
                       handlerAddItem={() => {
                         this.hanndAddNewItem();
@@ -544,16 +516,6 @@ class Form extends CoreFormDocument {
                       onChange={this.handlerChange}
                     />
                   )}
-
-                  {/* {this.state.tapIndex === 2 && (
-                    <LogisticForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
 
                   {this.state.tapIndex === 3 && (
                     <AttachmentForm
@@ -612,24 +574,21 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
     return {
       ItemCode: item.ItemCode || null,
       Quantity: item.Quantity || null,
-      GrossPrice: item.GrossPrice || item.total,
+      Price: item.Price || item.total,
       DiscountPercent: item.DiscountPercent || 0,
-      TaxCode: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
-      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
-      RevenueLine: item.revenueLine ?? "202001",
-      ProductLine: item.REV ?? "203004",
-      BinAbsEntry: item.BinAbsEntry ?? 65,
-      WarehouseCode: item?.WarehouseCode || null,
-      DocumentLinesBinAllocations: [
-        {
-          BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.UnitsOfMeasurement,
-          // AllowNegativeQuantity: "tNO",
-          // SerialAndBatchNumbersBaseLine: -1,
-          BaseLineNumber: index,
-        },
-      ],
+      // BinAbsEntry: item.BinAbsEntry ?? 65,
+      // FromWarehouseCode: item?.toWarehouseCode ,
+      // WarehouseCode: item?.WarehouseCode || null,
+      // StockTransferLinesBinAllocations: [
+      //   {
+      //     BinAbsEntry: item.BinAbsEntry,
+      //     Quantity: item.UnitsOfMeasurement,
+      //     // AllowNegativeQuantity: "tNO",
+      //     // SerialAndBatchNumbersBaseLine: -1,
+      //     BaseLineNumber: index,
+      //   },
+      // ],
     };
   });

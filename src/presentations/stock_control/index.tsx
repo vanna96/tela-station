@@ -38,9 +38,9 @@ const StockControlPage = () => {
           amount={count?.order || 0}
         />
         <ItemCard
-          title="Inventory Transfer "
+          title="Stock Transfer "
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("inventory-transfer")}
+          onClick={() => goTo("stock-transfer")}
           amount={count?.order || 0}
         />
         <ItemCard

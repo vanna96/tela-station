@@ -27,6 +27,7 @@ export interface IGeneralFormProps {
   edit?: boolean;
   lineofBusiness: string;
   warehouseCode: string;
+
   onLineofBusinessChange: (value: any) => void;
   onWarehouseChange: (value: any) => void;
 }
@@ -35,6 +36,7 @@ export default function GeneralForm({
   data,
   onLineofBusinessChange,
   onWarehouseChange,
+
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -142,11 +144,10 @@ export default function GeneralForm({
 
       <div className="grid grid-cols-12 ">
         <div className="col-span-5 ">
-          <div className="grid grid-cols-5 py-2">
+          {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-              Transfer Type
-                {/* <span className="text-red-500">*</span> */}
+                Transfer Type
               </label>
             </div>
             <div className="col-span-3">
@@ -196,7 +197,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-               GIT Name
+                GIT Name
               </label>
             </div>
             <div className="col-span-3">
@@ -206,7 +207,7 @@ export default function GeneralForm({
                 name="BPName"
               />
             </div>
-          </div>
+          </div> */}
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -221,6 +222,21 @@ export default function GeneralForm({
               />
             </div>
           </div>
+
+          {/* <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                To Branch
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BranchAutoComplete
+                BPdata={userData?.UserBranchAssignment}
+                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                value={BPL}
+              />
+            </div>
+          </div> */}
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -230,9 +246,27 @@ export default function GeneralForm({
             <div className="col-span-3">
               <WarehouseAutoComplete
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
+                value={data?.FromWarehouse}
                 onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
+                  handlerChange("FromWarehouse", e);
+                  onWarehouseChange(e);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                To Warehouse Code<span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <WarehouseAutoComplete
+                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                value={data?.ToWarehouse}
+                onChange={(e) => {
+                  handlerChange("ToWarehouse", e);
                   onWarehouseChange(e);
                 }}
               />
@@ -256,30 +290,23 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          
-          <div>
-            <input
-              hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="U_tl_arbusi"
-              value={data?.U_tl_arbusi}
-              // value={getValueBasedOnFactor()}
-              onChange={(e) => {
-                handlerChange("U_tl_arbusi", e.target.value);
-                onLineofBusinessChange(e.target.value);
-              }}
-            />
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                To Bin Code
+                {/* <span className="text-red-500">*</span> */}
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BinLocationAutoComplete
+                value={data?.BinLocation}
+                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("BinLocation", e);
+                  // onWarehouseChange(e);
+                }}
+              />
+            </div>
           </div>
         </div>
         <div className="col-span-2 md:col-span-1"></div>
@@ -364,56 +391,6 @@ export default function GeneralForm({
                 disabled={edit && data?.Status?.includes("A")}
                 value={data.DocumentDate}
                 onChange={(e: any) => handlerChange("DocumentDate", e)}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Branch
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BranchAutoComplete
-                BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
-                value={BPL}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Warehouse Code<span className="text-red-500">*</span>
-              </label>
-            </div>
-            <div className="col-span-3">
-              <WarehouseAutoComplete
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
-                onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
-                  onWarehouseChange(e);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Bin Code
-                {/* <span className="text-red-500">*</span> */}
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
-                onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
-                }}
               />
             </div>
           </div>
