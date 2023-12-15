@@ -45,6 +45,9 @@ class Form extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      FromWarehouse: "",
+      ToWarehouse:"",
+      Items: [{ ItemCode: "" }],
 
       tabErrors: {
         // Initialize error flags for each tab
@@ -83,7 +86,7 @@ class Form extends CoreFormDocument {
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "59",
+        Document: "67",
       });
       this.props?.query?.set("good-receipt-series", seriesList);
     }
@@ -269,7 +272,8 @@ class Form extends CoreFormDocument {
       const StockTransferLines = getItem(
         data?.Items || [],
         data?.DocType,
-        warehouseCodeGet
+        warehouseCodeGet,
+        data.FromWarehouse
       );
       // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
@@ -501,6 +505,7 @@ class Form extends CoreFormDocument {
 
                   {this.state.tapIndex === 1 && (
                     <ContentForm
+                      edit={this.props?.edit}
                       ContentLoading={this.state.ContentLoading}
                       data={this.state}
                       handlerAddItem={() => {
@@ -567,18 +572,23 @@ class Form extends CoreFormDocument {
 
 export default withRouter(Form);
 
-const getItem = (items: any, type: any, warehouseCode: any) =>
+const getItem = (
+  items: any,
+  type: any,
+  warehouseCode: any,
+  FromWarehouse: any
+) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
       Quantity: item.Quantity || null,
-      Price: item.Price || item.total,
+      UnitPrice: item.UnitPrice || item.total,
       DiscountPercent: item.DiscountPercent || 0,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       // BinAbsEntry: item.BinAbsEntry ?? 65,
-      // FromWarehouseCode: item?.toWarehouseCode ,
-      // WarehouseCode: item?.WarehouseCode || null,
+      FromWarehouseCode: item?.FromWarehouseCode,
+      WarehouseCode: item?.WarehouseCode || null,
       // StockTransferLinesBinAllocations: [
       //   {
       //     BinAbsEntry: item.BinAbsEntry,
@@ -588,5 +598,23 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       //     BaseLineNumber: index,
       //   },
       // ],
+      StockTransferLinesBinAllocations: [
+        {
+          BinAbsEntry: item.FromBin,
+          Quantity: item.Quantity,
+          AllowNegativeQuantity: "tNO",
+          SerialAndBatchNumbersBaseLine: -1,
+          BinActionType: "batFromWarehouse",
+          // BaseLineNumber: 0,
+        },
+        {
+          BinAbsEntry: item.ToBin,
+          Quantity: item.Quantity,
+          AllowNegativeQuantity: "tNO",
+          SerialAndBatchNumbersBaseLine: -1,
+          BinActionType: "batToWarehouse",
+          // BaseLineNumber: 0,
+        },
+      ],
     };
   });

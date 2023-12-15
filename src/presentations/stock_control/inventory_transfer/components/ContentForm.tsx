@@ -2,7 +2,7 @@ import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
+import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { numberWithCommas } from "@/helper/helper";
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
@@ -11,11 +11,13 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { APIContext } from "../../context/APIContext";
 import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
-import { TbEdit } from "react-icons/tb";
-import ItemGroupRepository from "@/services/actions/itemGroupRepository";
+import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-interface ContentForm {
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import BinLocationTo from "@/components/input/BinLocationTo";
+import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
   handlerRemoveItem: (record: any[]) => void;
@@ -23,82 +25,140 @@ interface ContentForm {
   onChange: (key: any, value: any) => void;
   onChangeItemByCode: (record: any) => void;
   ContentLoading: any;
+  edit: boolean;
 }
 
 export default function ContentForm({
   data,
   // handlerChangeItem,
-  handlerAddItem,
+  // handlerAddItem,
   handlerRemoveItem,
   onChange,
-  onChangeItemByCode,
+  // onChangeItemByCode,
+  edit,
   ContentLoading,
-}: ContentForm) {
-  const updateRef = React.createRef<ItemModal>();
+}: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  // const { tlExpDic }: any = React.useContext(APIContext);
+  const { tlExpDic }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
-  const itemGroupRepo = new ItemGroupRepository();
 
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
 
-  const handlerUpdateRow = (i: number, e: any) => {
-    const items: any = data?.Items?.map((item: any, indexItem: number) => {
-      if (i.toString() === indexItem.toString()) item[e[0]] = e[1];
-      return item;
-    });
-    onChange("Items", items);
+  const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
+    // Check if the selected field is ItemCode before making the API call
+    if (selectedField === "ItemCode") {
+      const selectedCode = e[1];
+      const response = await request("GET", `/Items('${selectedCode}')`);
+      const itemDetails = response.data;
+
+      const items: any = data?.Items?.map((item: any, indexItem: number) => {
+        // const uomGroups: any = new UnitOfMeasurementGroupRepository().get();
+
+        // const uoms = new UnitOfMeasurementRepository().get();
+        // const uomGroup: any = uomGroups.find(
+        //   (row: any) => row.AbsEntry === item?.UoMEntry
+        // );
+
+        // console.log(uomGroup);
+        // console.log(uomGroups);
+        // let uomLists: any[] = [];
+        // uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+        //   const itemUOM = uoms.find(
+        //     (record: any) => record?.AbsEntry === row?.AlternateUoM
+        //   );
+        //   if (itemUOM) {
+        //     uomLists.push(itemUOM);
+        //   }
+        // });
+
+        if (i.toString() === indexItem.toString()) {
+          item.ItemCode = itemDetails.ItemCode;
+          item.ItemDescription = itemDetails.ItemName;
+          item.UnitPrice = itemDetails.AvgStdPrice;
+          item.Quantity = itemDetails.Quantity ?? 1;
+          item.UomAbsEntry = itemDetails.InventoryUoMEntry;
+          item.FromWarehouseCode = data.FromBinItems?.find(
+            (e: any) => e.ItemCode === item.ItemCode
+          )?.WhsCode;
+          item.WarehouseCode = data.ToWarehouse;
+          item.FromBin = data.FromBinItems?.find(
+            (e: any) => e.ItemCode === item.ItemCode
+          )?.BinAbsEntry;
+          item.BinQty = data.FromBinItems?.find(
+            (e: any) => e.ItemCode === item.ItemCode
+          )?.OnHandQty;
+          item.ToBin = data.ToBinItems?.find(
+            (e: any) => e.WhsCode === item.WarehouseCode
+          )?.BinAbsEntry;
+          // item.UoMLists = uomLists;
+        }
+        return item;
+      });
+
+      // Update the state with the modified items
+      onChange("Items", items);
+    } else {
+      // If the selected field is not ItemCode, update the specific field directly
+      const items: any = data?.Items?.map((item: any, indexItem: number) => {
+        if (i.toString() === indexItem.toString()) {
+          item[selectedField] = e[1];
+        }
+        return item;
+      });
+
+      // Update the state with the modified items
+      onChange("Items", items);
+    }
   };
+
   console.log(data);
+
   const itemColumns = React.useMemo(
     () => [
       {
         accessorKey: "ItemCode",
-        Header: (header: any) => (
-          <label>
-            Item No <span className="text-red-500">*</span>
-          </label>
-        ),
-        header: "Item No", //uses the default width from defaultColumn prop
+        header: "Item Code",
         visible: true,
-        size: 120,
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            value={cell.getValue()}
-            onBlur={(e) =>
-              handlerUpdateRow(cell.row.id, ["ItemCode", e.target.value])
-            }
-            onClick={() => handlerAddItem()}
-            endAdornment
-            // onClick={() => {
-            //   if (cell.getValue() === "") {
-            //     handlerAddItem();
-            //     updateRef.current?.onOpen(cell.row.original);
-            //   } else {
-            //     updateRef.current?.onOpen(cell.row.original);
-            //   }
-            // }}
-            // endIcon={
-            //   cell.getValue() === "" ? null : <TbEdit className="text-lg" />
-            // }
-            // readOnly={true}
-          />
-        ),
+        Cell: ({ cell }: any) => {
+          return edit ? (
+            <MUITextField value={cell.getValue()} disabled />
+          ) : (
+            <MUISelect
+              value={cell.getValue()}
+              items={data.FromBinItems?.map((e: any) => ({
+                label: e.ItemCode,
+                value: e.ItemCode,
+              }))}
+              aliaslabel="label"
+              aliasvalue="Code"
+              onChange={(e: any) =>
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["ItemCode", e.target.value],
+                  "ItemCode"
+                )
+              }
+            />
+          );
+        },
       },
+
       {
-        accessorKey: "ItemName",
-        header: "Item Description",
+        accessorKey: "ItemDescription",
+        header: "Item Name",
         visible: true,
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            key={"itemName" + cell.getValue() + cell?.row?.id}
-            type="text"
-            readOnly={true}
-            defaultValue={cell.row.original?.ItemDescription || ""}
-          />
-        ),
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              value={cell.getValue()}
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, ["ItemName", e.target.value])
+              // }
+            />
+          );
+        },
       },
       {
         accessorKey: "Quantity",
@@ -107,7 +167,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
-              key={"Quantity" + cell.getValue()}
+              key={"Quantity_" + cell.getValue()}
               thousandSeparator
               decimalScale={1}
               fixedDecimalScale
@@ -117,20 +177,24 @@ export default function ContentForm({
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
                 );
-                handlerUpdateRow(cell.row.id, ["Quantity", newValue]);
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["Quantity", newValue],
+                  "Quantity"
+                );
               }}
             />
           );
         },
       },
       {
-        accessorKey: "Price",
-        header: "Price",
+        accessorKey: "UnitPrice",
+        header: "Unit Price",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
-              key={"Price" + cell.getValue()}
+              key={"Price_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
@@ -140,7 +204,11 @@ export default function ContentForm({
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
                 );
-                handlerUpdateRow(cell.row.id, ["Price", newValue]);
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["UnitPrice", newValue],
+                  "UnitPrice"
+                );
               }}
             />
           );
@@ -148,59 +216,90 @@ export default function ContentForm({
       },
       {
         accessorKey: "UomAbsEntry",
-        header: " UoM",
+        header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUISelect
-              items={cell.row.original?.UomLists?.map((e: any) => ({
-                id: e.AbsEntry,
-                name: e.Name,
-              }))}
-              onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["UomAbsEntry", e.target.value])
-              }
-              value={cell.getValue()}
-              aliasvalue="id"
-              aliaslabel="name"
-              name="UomAbsEntry"
-            />
-            // <MUITextField
-            //   defaultValue={
-            //     new UnitOfMeasurementRepository().find(cell.getValue())?.Name
-            //   }
-            //   onBlur={(e: any) =>
-            //     handlerUpdateRow(cell.row.id, ["UomAbsEntry", e.target.value])
-            //   }
-            // />
+            <MUITextField value={ new UnitOfMeasurementRepository().find(cell.row.original.UomAbsEntry)?.Name} disabled />
           );
         },
       },
       {
-        accessorKey: "StockTransferLinesBinAllocations",
-        header: "Bin Allocations",
+        accessorKey: "FromWarehouseCode",
+        header: "From Warehouse",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["Bin", e.target.value])
-              }
+              value={cell.row.original.FromWarehouseCode}
+              disabled
             />
           );
         },
       },
       {
         accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        visible: false,
+        header: "To Warehouse",
+        visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["WarehouseCode", e.target.value])
+            <MUITextField value={cell.row.original.WarehouseCode} disabled />
+          );
+        },
+      },
+
+      {
+        accessorKey: "BinQty",
+        header: "From Bin Qty",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return <MUITextField value={cell.row.original.BinQty} disabled />;
+        },
+      },
+     
+      // {
+      //   accessorKey: "FromBin_",
+      //   header: "From Bin Code",
+      //   visible: true,
+      //   Cell: ({ cell }: any) => {
+      //     return <MUITextField value={cell.row.original.FromBin} disabled />;
+      //   },
+      // },
+      // {
+      //   accessorKey: "ToBin_",
+      //   header: "To Bin Code",
+      //   visible: true,
+      //   Cell: ({ cell }: any) => {
+      //     return <MUITextField value={cell.row.original.ToBin} disabled />;
+      //   },
+      // },
+      {
+        accessorKey: "FromBin",
+        header: "From Bin Location",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <BinLocationToAsEntry
+              value={cell.row.original.FromBin}
+              Warehouse={data?.FromWarehouse ?? "WH01"}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["FromBin", e], "FromBin")
+              }
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "ToBin",
+        header: "To Bin Location",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <BinLocationToAsEntry
+              value={cell.row.original.ToBin}
+              Warehouse={data?.ToWarehouse ?? "WH01"}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["ToBin", e], "ToBin")
               }
             />
           );
@@ -210,42 +309,42 @@ export default function ContentForm({
     [data?.Items]
   );
 
-  const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";
   return (
     <>
-      <div>
-        <Collapse in={collapseError}>
-          <Alert
-            className="mb-3"
-            severity="error"
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={onClose}
-              >
-                <MdOutlineClose fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {data?.error["Items"]}
-          </Alert>
-        </Collapse>
-        <ContentComponent
-          key={key}
-          columns={itemColumns}
-          items={[...data?.Items]}
-          isNotAccount={isNotAccount}
-          data={data}
-          onChange={onChange}
-          onRemoveChange={handlerRemoveItem}
-          loading={ContentLoading}
-          handlerAddSequence={() => {}}
-        />
-      </div>
+      <Collapse in={collapseError}>
+        <Alert
+          className="mb-3"
+          severity="error"
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={onClose}
+            >
+              <MdOutlineClose fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          {data?.error["Items"]}
+        </Alert>
+      </Collapse>
+      <ContentComponent
+        key={key}
+        columns={itemColumns}
+        items={[...data?.Items]}
+        isNotAccount={isNotAccount}
+        data={data}
+        onChange={onChange}
+        onRemoveChange={handlerRemoveItem}
+        loading={ContentLoading}
+        handlerAddSequence={() => {
+          // handlerAddSequence()
+          // setKey(shortid.generate())
+        }}
+      />
     </>
   );
 }

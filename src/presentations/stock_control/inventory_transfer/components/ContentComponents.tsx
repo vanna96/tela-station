@@ -78,13 +78,12 @@ export default function ContentComponent(props: ContentComponentProps) {
   const handlerAdd = () => {
     const Items = [
       ...props?.items,
-      // {
-      // ItemCode: "",
-      // ItemName: "",
-      // Quantity: "",
-      // UOM: "",
-      // OffsetAccount: "",
-      // },
+      {
+        ItemCode: "",
+        // ItemDescription: "",
+        // Quantity: "",
+        // UnitPrice: "",
+      },
     ];
     if (props?.onChange) props.onChange("Items", Items);
   };
@@ -97,8 +96,6 @@ export default function ContentComponent(props: ContentComponentProps) {
   const onChange = (key: string, value: any) => {
     if (props.onChange) props.onChange(key, value);
   };
-
-  console.log(props.data)
   return (
     <FormCard
       title="Content"
@@ -109,11 +106,11 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
-          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
+          <Button size="small" disabled={props?.data?.isStatusClose || false}>
             <span className="capitalize text-sm" onClick={handlerAdd}>
               Add
             </span>
-          </Button> */}
+          </Button>
           <IconButton onClick={() => columnRef.current?.onOpen()}>
             <TbSettings className="text-2lg" />
           </IconButton>
@@ -127,9 +124,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               {
                 accessorKey: "id",
                 size: 30,
-                // minSize: 30,
-                // maxSize: 30,
-                // enableResizing: false,
+               
                 Cell: (cell) => (
                   <Checkbox
                     checked={cell.row.index in rowSelection}
@@ -140,7 +135,11 @@ export default function ContentComponent(props: ContentComponentProps) {
               },
               ...columns,
             ]}
-            data={[...props?.items, { ItemCode: "" }] ?? []}
+            data={
+              props?.isNotAccount
+                ? [...props?.data?.Items]
+                : [...props?.data?.Items, { ItemCode: "" }]
+            }
             enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
@@ -205,14 +204,14 @@ export default function ContentComponent(props: ContentComponentProps) {
                 fullWidth
                 name="JournalMemo"
                 className="w-full "
-                value={props.data?.JournalMemo}
+                value={ "Inventory Transfer - " + props.data.DocNum }
                 onChange={(e) => onChange("JournalMemo", e.target.value)}
               />
             </div>
           </div>
         </div>
         <div className="col-span-1 gap-2 ">
-          <div className="grid grid-cols-5 py-2">
+          {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Pick and Pack Remarks
@@ -224,7 +223,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 onChange={(e) => onChange("PickRemark", e.target.value)}
               />
             </div>
-          </div>
+          </div> */}
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -257,6 +256,7 @@ export default function ContentComponent(props: ContentComponentProps) {
     </FormCard>
   );
 }
+
 
 interface ContentTableSelectColumnProps {
   ref?: React.RefObject<ContentTableSelectColumn | undefined>;

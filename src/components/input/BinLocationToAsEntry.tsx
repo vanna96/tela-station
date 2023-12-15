@@ -14,7 +14,7 @@ interface WareBinLocation {
   id__: number;
 }
 
-export default function BinLocationTo(props: {
+export default function BinLocationToAsEntry(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
@@ -44,7 +44,7 @@ export default function BinLocationTo(props: {
   useEffect(() => {
     if (props.value) {
       const selectedWarehouse = uniqueWarehouses?.find(
-        (warebin: any) => warebin.BinCode === props.value
+        (warebin: any) => warebin.BinAbsEntry === props.value
       );
       if (selectedWarehouse) {
         setSelectedValue(selectedWarehouse);
@@ -58,7 +58,7 @@ export default function BinLocationTo(props: {
     setSelectedValue(newValue);
 
     if (props.onChange) {
-      const selectedCode = newValue ? newValue.BinCode : null;
+      const selectedCode = newValue ? newValue.BinAbsEntry : null;
       props.onChange(selectedCode);
     }
   };
@@ -77,7 +77,7 @@ export default function BinLocationTo(props: {
         loading={isLoading}
         getOptionLabel={(option: WareBinLocation) => option.BinCode}
         renderOption={(props, option: WareBinLocation) => (
-          <Box component="li" {...props} key={option.BinCode}>
+          <Box component="li" {...props} key={option.BinAbsEntry}>
             <BsDot />
             {option.BinCode}
           </Box>

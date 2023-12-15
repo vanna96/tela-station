@@ -108,20 +108,22 @@ export default function GeneralForm({
     staleTime: Infinity,
   });
 
-  const desiredBinCode = data.BinLocation;
-  const filteredData = WarebinItems?.filter(
-    (entry: any) => entry.BinCode === desiredBinCode
+  const filteredFromBin = WarebinItems?.filter(
+    (entry: any) => entry.BinCode === data.FromBinLocation
   );
-  const itemCodes = filteredData?.map((entry: any) => entry.ItemCode);
+  const filterToBin = WarebinItems?.filter(
+    (e: any) => e.BinCode === data.ToBinLocation
+  );
 
-  // console.log(itemCodes);
   if (data) {
     data.DNSeries = seriesDN;
     data.INSeries = seriesIN;
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
-    data.ItemLists = itemCodes;
+    data.FromBinItems = filteredFromBin;
+    data.ToBinItems = filterToBin;
+    data.DocNum =  filteredSeries[0].NextNumber;
   }
 
   const { data: CurrencyAPI }: any = useQuery({
@@ -215,20 +217,35 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
+                From Bin Location
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BinLocationTo
+                value={data?.FromBinLocation}
+                Warehouse={data?.FromWarehouse ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("FromBinLocation", e);
+                  // console.log(e);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 To Bin Location
               </label>
             </div>
             <div className="col-span-3">
               <BinLocationTo
-                value={data?.BinLocation}
+                value={data?.ToBinLocation}
                 Warehouse={data?.ToWarehouse ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                  console.log(e);
+                  handlerChange("ToBinLocation", e);
+                  // console.log(e);
                 }}
-                // onItemCodeSelect={(itemCode) =>
-                //   handlerChange("ItemCode", itemCode)
-                // }
               />
             </div>
           </div>

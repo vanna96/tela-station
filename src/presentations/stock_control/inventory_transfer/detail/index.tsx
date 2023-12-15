@@ -28,7 +28,6 @@ import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
-import ContentComponent from "../../morph_price/components/ContentComponents";
 
 class Details extends Component<any, any> {
   constructor(props: any) {
@@ -272,19 +271,12 @@ function General(props: any) {
                   ?.WarehouseName ?? "N/A"}
               </div>
             </div>
-            <div className="grid grid-cols-2 py-2">
+            {/* <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Bin Location</div>
               <div className="col-span-1 text-gray-900">
                 {props.data.CardCode}
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Currency</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.Currency ?? props.data.DocCurrency}
-              </div>
-            </div>
+            </div> */}
           </div>
           {/*  */}
           <div className="col-span-2"></div>
@@ -314,14 +306,7 @@ function General(props: any) {
                 {dateFormat(props.data.DueDate)}
               </div>
             </div>
-            
-           
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Remark</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Comments ?? "N/A"}
-              </div>
-            </div>
+
             {/* <div className="grid grid-cols-2 py-1">
               <div className="col-span-1 text-gray-700 ">Line of Business</div>
               <div className="col-span-1 text-gray-900">
@@ -372,17 +357,40 @@ function Content(props: any) {
       },
 
       {
-        accessorKey: "UomEntry",
-        header: "Inventory UoM",
+        accessorKey: "FromWarehouseCode",
+        header: "From Warehouse",
         size: 60,
         Cell: ({ cell }: any) =>
-          new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
+          new WarehouseRepository().find(cell.getValue())?.WarehouseName,
       },
       {
-        accessorKey: "OffsetAccount",
-        header: "Offset Account ",
+        accessorKey: "WarehouseCode",
+        header: "To Warehouse",
+        size: 60,
+        Cell: ({ cell }: any) =>
+          new WarehouseRepository().find(cell.getValue())?.WarehouseName,
+      },
+      {
+        accessorKey: "UoMCode",
+        header: "UoM ",
         enableClickToCopy: true,
         size: 70,
+      },
+      {
+        accessorKey: "StockTransferLinesBinAllocations",
+        header: "From Bin",
+        size: 60,
+        Cell: ({ cell }: any) => {
+          // Access the StockTransferLinesBinAllocations array
+          const binAllocations = cell.getValue();
+
+          // Extract and concatenate BinAbsEntry values into a string
+          const binAbsEntries = binAllocations
+            ?.map((allocation: any) => allocation.BinAbsEntry)
+            ?.join(", ");
+
+          return binAbsEntries;
+        },
       },
     ],
     [data]
