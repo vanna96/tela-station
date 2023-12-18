@@ -39,6 +39,8 @@
     "react-query": "^3.39.3",
     "react-router-dom": "^6.8.1",
     "react-scroll": "^1.8.9",
+    "react-select": "^5.8.0",
+    "react-tailwindcss-select": "^1.8.5",
     "react-toastify": "^9.1.1",
     "shortid": "^2.2.16",
     "vite-tsconfig-paths": "^4.0.7"

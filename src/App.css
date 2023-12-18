@@ -226,3 +226,14 @@ MuiButton-contained {
 .text-system-color {
   color: #111749;
 }
+
+.absolute.z-10.w-full.bg-white.shadow-lg.border.rounded.py-1.text-sm.text-gray-700{
+  position: fixed;
+  z-index: 9999;
+  background-color: white;
+  width: 160px;
+}
+
+.flex.text-sm.text-gray-500.border.border-gray-300.rounded.shadow-sm.transition-all {
+  height: 30px;
+}
