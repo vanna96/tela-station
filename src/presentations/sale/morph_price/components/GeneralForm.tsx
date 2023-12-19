@@ -106,6 +106,7 @@ export default function GeneralForm({
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
                 Warehouse
+                <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">

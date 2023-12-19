@@ -23,11 +23,11 @@ export default function PumpData({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
+      <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Pump Data</h2>
         </div>
-          <PaymentTable data={data} onChange={handlerChange} />
+        <PaymentTable data={data} onChange={handlerChange} />
       </div>
     </>
   );

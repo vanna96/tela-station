@@ -22,6 +22,7 @@ import { useQuery } from "react-query";
 import CurrencyRepository from "@/services/actions/currencyRepository";
 import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
+import BinLocationTo from "@/components/input/BinLocationTo";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -118,6 +119,8 @@ export default function GeneralForm({
     });
 
   useExchangeRate(data?.Currency, handlerChange);
+
+  // console.log(data);
   return (
     <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -186,7 +189,7 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BinLocationAutoComplete
+              <BinLocationTo
                 value={data?.BinLocation}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
@@ -285,8 +288,8 @@ export default function GeneralForm({
                   )}
                 </div>
               </div>
+            </div>
           </div>
-        </div>
           {/* <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">

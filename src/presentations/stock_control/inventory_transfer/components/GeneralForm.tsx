@@ -58,7 +58,7 @@ export default function GeneralForm({
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
   if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0].NextNumber;
+    data.DocNum = filteredSeries[0]?.NextNumber;
   }
 
   // Finding date and to filter DN and INVOICE series Name
@@ -123,7 +123,7 @@ export default function GeneralForm({
     data.lineofBusiness = getValueBasedOnFactor();
     data.FromBinItems = filteredFromBin;
     data.ToBinItems = filterToBin;
-    data.DocNum =  filteredSeries[0].NextNumber;
+    data.DocNum =  filteredSeries[0]?.NextNumber;
   }
 
   const { data: CurrencyAPI }: any = useQuery({

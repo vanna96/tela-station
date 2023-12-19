@@ -175,6 +175,8 @@ class Form extends CoreFormDocument {
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || null,
                   UomAbsEntry: item?.UoMEntry,
+                  FromWarehouseCode : item?.FromWarehouseCode,
+                  
                   LineTotal: item.LineTotal,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,

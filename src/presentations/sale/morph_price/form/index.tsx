@@ -462,7 +462,7 @@ class SalesOrderForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 1}
+                disabled={this.state.tapIndex === 3}
                 style={{ textTransform: "none" }}
               >
                 Next
