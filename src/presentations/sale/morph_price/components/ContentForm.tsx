@@ -272,7 +272,7 @@ export default function ContentForm({
       {
         accessorKey: "GrossPrice",
         header: "Unit Price",
-        visible: true,
+        visible: false,
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -320,7 +320,7 @@ export default function ContentForm({
       {
         accessorKey: "TotalGross",
         header: "Amount",
-        visible: true,
+        visible: false,
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
