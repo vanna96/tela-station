@@ -7,7 +7,7 @@ export interface IPumpDataProps {
   handlerChange: (key: string, value: any) => void;
   edit?: boolean;
   ref?: React.RefObject<FormCard>;
-  handlerAddItem: (e:any) => void;
+  handlerAddItem: (e: any) => void;
 }
 
 export default function PumpData({
@@ -15,7 +15,7 @@ export default function PumpData({
   handlerChange,
   edit,
   ref,
-  handlerAddItem
+  handlerAddItem,
 }: IPumpDataProps) {
   const [isChecked, setIsChecked] = useState(false);
 
@@ -29,7 +29,12 @@ export default function PumpData({
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>Pump Data</h2>
         </div>
-          <PaymentTable data={data} onChange={handlerChange} handlerAddItem={handlerAddItem} />
+        <PaymentTable
+          data={data}
+          onChange={handlerChange}
+          handlerAddItem={handlerAddItem}
+          edit={edit}
+        />
       </div>
     </>
   );

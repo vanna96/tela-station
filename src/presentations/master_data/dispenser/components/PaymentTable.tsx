@@ -12,7 +12,7 @@ import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function PaymentTable(props: any) {
-  const { data, onChange, handlerAddItem }: any = props;
+  const { data, onChange, handlerAddItem, edit }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
   const updateRef = React.createRef<ItemModal>();
   const itemGroupRepo = new ItemGroupRepository();
@@ -136,7 +136,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"registerMeeting" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
+          disabled={edit}
           defaultValue={cell.row.original?.registerMeeting || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -154,7 +154,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"updateMetering" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
+          disabled={edit}
           defaultValue={cell.row.original?.updateMetering || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
