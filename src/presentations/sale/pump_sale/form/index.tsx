@@ -448,7 +448,7 @@ class PumpSaleForm extends CoreFormDocument {
       <>
         <div className="w-full mt-2">
           <MenuButton active={this.state.tapIndex === 0}>
-            <span> Basic Information</span>
+            <span> Information</span>
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
           <MenuButton active={this.state.tapIndex === 2}>
@@ -568,7 +568,7 @@ class PumpSaleForm extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
-                  {this.state.tapIndex === 1 && (
+                  {/* {this.state.tapIndex === 1 && (
                     <PumpData
                       data={this.state}
                       edit={this.props?.edit}
@@ -576,7 +576,7 @@ class PumpSaleForm extends CoreFormDocument {
                         this.handlerChange(key, value)
                       }
                     />
-                  )}
+                  )} */}
                   {this.state.tapIndex === 2 && (
                     <ConsumptionAllocation
                       data={this.state}
@@ -606,7 +606,7 @@ class PumpSaleForm extends CoreFormDocument {
                     />
                   )}
 
-                  {/* {this.state.tapIndex === 4 && (
+                  {this.state.tapIndex === 1 && (
                     <ContentForm
                       data={this.state}
                       handlerAddItem={() => {
@@ -619,7 +619,7 @@ class PumpSaleForm extends CoreFormDocument {
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
                     />
-                  )} */}
+                  )}
 
                   {/* {this.state.tapIndex === 3 && (
                     <AttachmentForm

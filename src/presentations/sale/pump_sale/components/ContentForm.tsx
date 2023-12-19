@@ -1,20 +1,23 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import { currencyFormat } from "@/utilies";
-import ItemGroupRepository from "../../../../services/actions/itemGroupRepository";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import { TbEdit } from "react-icons/tb";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton, Input, TextField } from "@mui/material";
+import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import UnitOfMeasurementGroupRepository from "../../../../services/actions/unitOfMeasurementGroupRepository";
+import { numberWithCommas } from "@/helper/helper";
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import shortid from "shortid";
+import MUISelect from "@/components/selectbox/MUISelect";
+// import { APIContext } from "../../context/APIContext";
+import { ClockNumberClassKey } from "@mui/x-date-pickers";
+import { NumericFormat } from "react-number-format";
+import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import WareBinLocationRepository from "@/services/whBinLocationRepository";
-import wareBinRepository from "@/services/actions/WareBinRepository";
-import WarehouseRepository from "@/services/warehouseRepository";
-import { NumberFormatBase, NumericFormat } from "react-number-format";
-
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import BinLocationTo from "@/components/input/BinLocationTo";
+import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import { TbEdit } from "react-icons/tb";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -22,6 +25,8 @@ interface ContentFormProps {
   data: any;
   onChange: (key: any, value: any) => void;
   onChangeItemByCode: (record: any) => void;
+  ContentLoading: any;
+  edit: boolean;
 }
 
 export default function ContentForm({
@@ -31,15 +36,79 @@ export default function ContentForm({
   handlerRemoveItem,
   onChange,
   onChangeItemByCode,
+  edit,
+  ContentLoading,
 }: ContentFormProps) {
-  const updateRef = React.createRef<ItemModal>();
-  const itemGroupRepo = new ItemGroupRepository();
+  const [key, setKey] = React.useState(shortid.generate());
+  // const { tlExpDic }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
 
+  const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
+    if (selectedField === "ItemCode") {
+      const selectedCode = e[1];
+
+      const uomGroups: any = await new UnitOfMeasurementGroupRepository().get();
+      const uoms = await new UnitOfMeasurementRepository().get();
+      const uomGroup: any = uomGroups.find(
+        (row: any) => row.AbsEntry === e?.UoMGroupEntry
+      );
+      let uomLists: any[] = [];
+      uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+        const itemUOM = uoms.find(
+          (record: any) => record?.AbsEntry === row?.AlternateUoM
+        );
+        if (itemUOM) {
+          uomLists.push(itemUOM);
+        }
+      });
+
+      const response = await request("GET", `/Items('${selectedCode}')`);
+      const itemDetails = response.data;
+
+      const items: any = data?.Items?.map((item: any, indexItem: number) => {
+        if (i.toString() === indexItem.toString()) {
+          item.ItemCode = itemDetails.ItemCode;
+          item.ItemName = itemDetails.ItemName;
+          item.UnitPrice = itemDetails.MovingAveragePrice;
+          item.Quantity = itemDetails.Quantity ?? 1;
+          item.UomAbsEntry = itemDetails.InventoryUoMEntry;
+          item.FromWarehouseCode = data.FromBinItems?.find(
+            (e: any) => e.ItemCode === item.ItemCode
+          )?.WhsCode;
+          item.WarehouseCode = data.ToWarehouse;
+          item.FromBin = data.FromBinItems?.find(
+            (e: any) => e.ItemCode === item.ItemCode
+          )?.BinAbsEntry;
+          item.BinQty = data.FromBinItems?.find(
+            (e: any) => e.ItemCode === item.ItemCode
+          )?.OnHandQty;
+          item.ToBin = data.ToBinItems?.find(
+            (e: any) => e.WhsCode === item.WarehouseCode
+          )?.BinAbsEntry;
+          item.UoMList = uomLists;
+        }
+        return item;
+      });
+
+      onChange("Items", items);
+    } else {
+      const items: any = data?.Items?.map((item: any, indexItem: number) => {
+        if (i.toString() === indexItem.toString()) {
+          item[selectedField] = e[1];
+        }
+        return item;
+      });
+
+      onChange("Items", items);
+    }
+  };
+
+  // console.log(data);
+  const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
 
@@ -49,6 +118,34 @@ export default function ContentForm({
 
   const itemColumns = React.useMemo(
     () => [
+      // {
+      //   accessorKey: "ItemCode",
+      //   header: "Item Code",
+      //   visible: true,
+      //   Cell: ({ cell }: any) => {
+      //     return edit ? (
+      //       <MUITextField value={cell.getValue()} disabled />
+      //     ) : (
+      //       <MUISelect
+      //         value={cell.getValue()}
+      //         items={data.FromBinItems?.map((e: any) => ({
+      //           label: e.ItemCode,
+      //           value: e.ItemCode,
+      //         }))}
+      //         aliaslabel="label"
+      //         aliasvalue="Code"
+      //         onChange={(e: any) =>
+      //           handlerUpdateRow(
+      //             cell.row.id,
+      //             ["ItemCode", e.target.value],
+      //             "ItemCode"
+      //           )
+      //         }
+      //       />
+      //     );
+      //   },
+      // },
+
       {
         accessorKey: "ItemCode",
         Header: (header: any) => (
@@ -81,215 +178,139 @@ export default function ContentForm({
           />
         ),
       },
+
       {
         accessorKey: "ItemName",
-        header: "Description",
+        header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return cell.getValue();
-        },
-        size: 120,
-      },
-      {
-        accessorKey: "ItemGroup",
-        header: "Item Group",
-        size: 80,
-        visible: false,
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            readOnly={true}
-            disabled={data.disable["DocumentLine"]}
-            value={itemGroupRepo.find(cell.getValue())?.GroupName}
-          />
-        ),
-      },
-      {
-        accessorKey: "Quantity",
-        header: "Quantity",
-        Header: (header: any) => (
-          <label>
-            Quantity <span className="text-red-500">*</span>
-          </label>
-        ),
-
-        visible: true,
-        size: 80,
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return cell.getValue();
-        },
-      },
-      {
-        accessorKey: "GrossPrice",
-        header: "Gross Price",
-        visible: true,
-        size: 60,
-        Header: (header: any) => (
-          <label>
-            Gross Price <span className="text-red-500">*</span>
-          </label>
-        ),
-
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-
           return (
-            <NumericFormat
-              className="bg-white w-full"
+            <MUITextField
               value={cell.getValue()}
-              thousandSeparator
-              fixedDecimalScale
-              decimalScale={2}
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, ["ItemName", e.target.value])
+              // }
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "UomAbsEntry",
+        header: "UoM",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <MUISelect
+              value={cell.getValue()}
+              items={// edit
+              //   ? []
+              //   :
+              cell.row.original.UomLists?.map((e: any) => ({
+                label: e.Name,
+                value: e.AbsEntry,
+              }))}
+              aliaslabel="label"
+              aliasvalue="value"
+              onChange={(e: any) =>
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["UomAbsEntry", e.target.value],
+                  "UomAbsEntry"
+                )
+              }
             />
           );
         },
       },
       {
-        accessorKey: "VatGroup",
-        header: "Tax Code",
-        visible: true,
-        size: 80,
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return cell.getValue();
-        },
-      },
-
-      {
-        accessorKey: "TotalGross",
-        header: "Total",
-        size: 60,
+        accessorKey: "OldMeter",
+        header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
           return (
-            <>
-              <NumericFormat
-                value={cell.getValue()}
-                thousandSeparator
-                fixedDecimalScale
-                disabled
-                className="bg-white w-full"
-                decimalScale={2}
-              />
-            </>
-          );
-        },
-      },
-      {
-        accessorKey: "UomAbsEntry",
-        header: "Uom Code",
-        visible: true,
-        size: 80,
-        Cell: ({ cell }: any) => {
-          return new UnitOfMeasurementRepository().find(cell.getValue())?.Name;
-          // return new WarehouseRepository()?.find(cell.getValue())?.name;
-        },
-      },
-      {
-        accessorKey: "UomGroup",
-        header: "Uom Group",
-        visible: false,
-        size: 80,
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
-        },
-      },
-      {
-        accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        visible: true,
-        size: 80,
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          // return new WarehouseRepository()?.find(cell.getValue())?.WarehouseName;
-          return cell.getValue();
-        },
-      },
-      {
-        accessorKey: "BinAbsEntry",
-        header: "Bin Location",
-        visible: true,
-        size: 80,
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return (
-            new WareBinLocationRepository().find(cell.getValue())?.BinCode ??
-            "N/A"
+            <NumericFormat
+              key={"Quantity_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={1}
+              fixedDecimalScale
+              customInput={MUITextField}
+              defaultValue={cell.getValue()}
+              onBlur={(event) => {
+                const newValue = parseFloat(
+                  event.target.value.replace(/,/g, "")
+                );
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["Quantity", newValue],
+                  "Quantity"
+                );
+              }}
+            />
           );
         },
       },
 
       {
-        accessorKey: "UnitOfMeasure",
-        header: "Item Per Group",
-
-        visible: false,
+        accessorKey: "OldMeter",
+        header: "Old Meter",
+        visible: true,
         Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
+          return (
+            <NumericFormat
+              key={"Quantity_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={1}
+              fixedDecimalScale
+              customInput={MUITextField}
+              defaultValue={cell.getValue()}
+              onBlur={(event) => {
+                const newValue = parseFloat(
+                  event.target.value.replace(/,/g, "")
+                );
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["Quantity", newValue],
+                  "Quantity"
+                );
+              }}
+            />
+          );
         },
       },
       {
-        accessorKey: "Dimesion1",
-        header: "Dimesion 1",
-        visible: false,
-
+        accessorKey: "OldMeter",
+        header: "Consumption",
+        visible: true,
         Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
-        },
-      },
-      {
-        accessorKey: "Dimesion2",
-        header: "Dimesion 2",
-
-        visible: false,
-
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
-        },
-      },
-      {
-        accessorKey: "Dimesion3",
-        header: "Dimesion 3",
-        visible: false,
-
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
-        },
-      },
-      {
-        accessorKey: "Dimesion4",
-        header: "Dimesion 4",
-        visible: false,
-
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
-        },
-      },
-      {
-        accessorKey: "Dimesion5",
-        header: "Dimesion 5",
-        visible: false,
-
-        Cell: ({ cell }: any) => {
-          if (Object.keys(cell.row.original).length === 1) return null;
-          return currencyFormat(cell.getValue());
+          return (
+            <NumericFormat
+              key={"Quantity_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={1}
+              fixedDecimalScale
+              customInput={MUITextField}
+              defaultValue={cell.getValue()}
+              onBlur={(event) => {
+                const newValue = parseFloat(
+                  event.target.value.replace(/,/g, "")
+                );
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["Quantity", newValue],
+                  "Quantity"
+                );
+              }}
+            />
+          );
         },
       },
     ],
-    [updateRef]
+    []
   );
 
-  const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const onClose = React.useCallback(() => setCollapseError(false), []);
-
+  const isNotAccount = data?.DocType !== "rAccount";
   return (
     <>
       <Collapse in={collapseError}>
@@ -311,25 +332,18 @@ export default function ContentForm({
         </Alert>
       </Collapse>
       <ContentComponent
-        columns={
-          data?.DocType === "dDocument_Items" ? itemColumns : itemColumns
-        }
-        items={data?.Items ?? []}
-        data={data}
-        LineOfBusiness={data?.LineofBusiness}
-        onChange={onChange}
-        labelType={"Item / Service Type"}
-        type={data?.DocType ?? "dDocument_Items"}
-        typeLists={[
-          { name: "Item", value: "dDocument_Items" },
-          { name: "Service", value: "dDocument_Items" },
-        ]}
-        onRemoveChange={handlerRemoveItem}
-      />
-      <ItemModal
-        ref={updateRef}
-        onSave={onUpdateByItem}
+        key={key}
         columns={itemColumns}
+        items={[...data?.Items]}
+        isNotAccount={isNotAccount}
+        data={data}
+        onChange={onChange}
+        onRemoveChange={handlerRemoveItem}
+        loading={ContentLoading}
+        handlerAddSequence={() => {
+          // handlerAddSequence()
+          // setKey(shortid.generate())
+        }}
       />
     </>
   );
