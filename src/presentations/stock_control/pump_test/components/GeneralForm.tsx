@@ -141,12 +141,22 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
-                onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                }}
+              <MUISelect
+                items={[
+                  {
+                    Code: "O",
+                    Name: "Open",
+                  },
+                  {
+                    Code: "C",
+                    Name: "Closed",
+                  },
+                ]}
+                aliasvalue="Code"
+                aliaslabel="Name"
+                name="Status"
+                value={data?.Status}
+                onChange={(e) => handlerChange("Status", e.target.value)}
               />
             </div>
           </div>

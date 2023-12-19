@@ -47,32 +47,12 @@ export default function ContentForm({
   }, [data?.error]);
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
-    // Check if the selected field is ItemCode before making the API call
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
 
       const items: any = data?.Items?.map((item: any, indexItem: number) => {
-        // const uomGroups: any = new UnitOfMeasurementGroupRepository().get();
-
-        // const uoms = new UnitOfMeasurementRepository().get();
-        // const uomGroup: any = uomGroups.find(
-        //   (row: any) => row.AbsEntry === item?.UoMEntry
-        // );
-
-        // console.log(uomGroup);
-        // console.log(uomGroups);
-        // let uomLists: any[] = [];
-        // uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-        //   const itemUOM = uoms.find(
-        //     (record: any) => record?.AbsEntry === row?.AlternateUoM
-        //   );
-        //   if (itemUOM) {
-        //     uomLists.push(itemUOM);
-        //   }
-        // });
-
         if (i.toString() === indexItem.toString()) {
           item.ItemCode = itemDetails.ItemCode;
           item.ItemDescription = itemDetails.ItemName;
@@ -92,15 +72,12 @@ export default function ContentForm({
           item.ToBin = data.ToBinItems?.find(
             (e: any) => e.WhsCode === item.WarehouseCode
           )?.BinAbsEntry;
-          // item.UoMLists = uomLists;
         }
         return item;
       });
 
-      // Update the state with the modified items
       onChange("Items", items);
     } else {
-      // If the selected field is not ItemCode, update the specific field directly
       const items: any = data?.Items?.map((item: any, indexItem: number) => {
         if (i.toString() === indexItem.toString()) {
           item[selectedField] = e[1];
@@ -108,12 +85,11 @@ export default function ContentForm({
         return item;
       });
 
-      // Update the state with the modified items
       onChange("Items", items);
     }
   };
 
-  console.log(data);
+  // console.log(data);
 
   const itemColumns = React.useMemo(
     () => [
@@ -220,7 +196,14 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField value={ new UnitOfMeasurementRepository().find(cell.row.original.UomAbsEntry)?.Name} disabled />
+            <MUITextField
+              value={
+                new UnitOfMeasurementRepository().find(
+                  cell.row.original.UomAbsEntry
+                )?.Name
+              }
+              disabled
+            />
           );
         },
       },
@@ -256,7 +239,7 @@ export default function ContentForm({
           return <MUITextField value={cell.row.original.BinQty} disabled />;
         },
       },
-     
+
       // {
       //   accessorKey: "FromBin_",
       //   header: "From Bin Code",
