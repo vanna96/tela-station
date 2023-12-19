@@ -141,7 +141,6 @@ class Form extends CoreFormDocument {
 
           state = {
             ...data,
-
             Items: await Promise.all(
               (data?.StockTransferLines || []).map(async (item: any) => {
                 const uomGroups: any =
@@ -160,10 +159,9 @@ class Form extends CoreFormDocument {
                     uomLists.push(itemUOM);
                   }
                 });
-
                 return {
                   ItemCode: item.ItemCode || null,
-                  ItemDescription: item.ItemDescription || item.Name || null,
+                  ItemName: item.ItemDescription || item.Name || null,
                   Quantity: item.Quantity || null,
                   UnitPrice: item.UnitPrice || item.total,
                   Discount: item.DiscountPercent || 0,
@@ -175,8 +173,6 @@ class Form extends CoreFormDocument {
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || null,
                   UomAbsEntry: item?.UoMEntry,
-                  FromWarehouseCode : item?.FromWarehouseCode,
-                  
                   LineTotal: item.LineTotal,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
@@ -188,10 +184,17 @@ class Form extends CoreFormDocument {
                   // ShippingType: data?.TransportationCode,
                   // FederalTax: data?.FederalTaxID || null,
                   CurrencyType: "B",
-                  warehouseCode: data?.WarehouseCode,
-                  toWarehouseCode: data?.FromWarehouseCode,
+                  vendor,
+                  warehouseCode: data?.U_tl_whsdesc,
                   DocDiscount: data?.DiscountPercent,
-
+                  BPAddresses: vendor?.bpAddress?.map(
+                    ({ addressName, addressType }: any) => {
+                      return {
+                        addressName: addressName,
+                        addressType: addressType,
+                      };
+                    }
+                  ),
                   AttachmentList,
                   disabledFields,
                   isStatusClose: data?.DocumentStatus === "bost_Close",

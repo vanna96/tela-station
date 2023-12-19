@@ -1,5 +1,5 @@
-import Formular from "@/utilies/formular";
-import React from "react";
+import Formular from "@/utilies/formular"
+import React from "react"
 
 export const useDocumentTotalHook = (
   items: any[],
@@ -8,23 +8,27 @@ export const useDocumentTotalHook = (
 ) => {
   const docTotal: number = React.useMemo(() => {
     let total = items.reduce((prev: number, cur: any) => {
-      return prev + cur?.TotalGross;
+      return prev + cur?.TotalGross
       // Formular.findLineTotal(cur?.Quantity, cur?.UnitPrice, cur?.LineDiscount)
-    }, 0);
-    return total * ExchangeRate;
-  }, [items, ExchangeRate]);
+    }, 0)
+
+
+console.log(total)
+    return total * ExchangeRate
+    
+  }, [items, ExchangeRate])
 
   let docTaxTotal: number = React.useMemo(() => {
     let total = items.reduce((prev: number, cur: any) => {
       return (
         prev +
         (parseFloat(cur?.VatRate ?? 0) * parseFloat(cur?.TotalGross ?? 1)) / 100
-      );
-    }, 0);
+      )
+    }, 0)
 
-    return total * ExchangeRate;
-  }, [items, discount, ExchangeRate]);
+    return total * ExchangeRate
+  }, [items, discount, ExchangeRate])
 
-  docTaxTotal = docTaxTotal - (docTaxTotal * discount) / 100;
-  return [docTotal, docTaxTotal];
-};
+  docTaxTotal = docTaxTotal - (docTaxTotal * discount) / 100
+  return [docTotal, docTaxTotal]
+}
