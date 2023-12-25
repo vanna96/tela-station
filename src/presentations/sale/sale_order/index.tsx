@@ -183,10 +183,10 @@ export default function SaleOrderLists() {
   });
   console.log(salesType);
   const Count: any = useQuery({
-    queryKey: ["sales-count" + (filter !== "" ? "-f" : "")],
+    queryKey: ["sales-count" + (filter !== "" ? "-f" : ""), salesType, filter],
     queryFn: async () => {
       let numAtCardFilter = "";
-  
+
       switch (salesType) {
         case "fuel-sales":
           numAtCardFilter = "Fuel";
@@ -198,24 +198,26 @@ export default function SaleOrderLists() {
           numAtCardFilter = "LPG";
           break;
         default:
-          // Handle the default case or log an error if needed
+        // Handle the default case or log an error if needed
       }
-  
-      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ''}${filter ? ` and ${filter}` : ""}`;
-  
+
+      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${
+        numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      }${filter ? ` and ${filter}` : ""}`;
+      console.log(apiUrl);
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-        console.log(response)
+      console.log(response);
+      console.log("API URL:", apiUrl);
+
       return response;
     },
     // staleTime: Infinity,
   });
 
-  console.log(Count.data)
-  
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "pa",
@@ -223,7 +225,7 @@ export default function SaleOrderLists() {
     ],
     queryFn: async () => {
       let numAtCardFilter = "";
-  
+
       switch (salesType) {
         case "fuel-sales":
           numAtCardFilter = "Fuel";
@@ -235,29 +237,28 @@ export default function SaleOrderLists() {
           numAtCardFilter = "LPG";
           break;
         default:
-          // Handle the default case or log an error if needed
+        // Handle the default case or log an error if needed
       }
-  
+
       const response: any = await request(
         "GET",
         `${url}/Orders?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_salestype eq null${numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ''}${filter}${
-          sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }`
+        }&$filter=U_tl_salestype eq null${
+          numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-  
+
       return response;
     },
     // staleTime: Infinity,
     retry: 1,
   });
-  
-  
+
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
