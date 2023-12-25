@@ -75,7 +75,7 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   if (props.items.length === 0) {
     props.onChange &&
-      props.onChange("Items", [
+      props.onChange("PumpData", [
         {
           U_tl_pumpcode: "",
           U_tl_itemnum: "",
@@ -99,7 +99,7 @@ export default function ContentComponent(props: ContentComponentProps) {
         U_tl_testby: -1,
       },
     ];
-    if (props?.onChange) props.onChange("Items", Items);
+    if (props?.onChange) props.onChange("PumpData", Items);
   };
 
   const itemInvoicePrices =
@@ -148,12 +148,13 @@ export default function ContentComponent(props: ContentComponentProps) {
               },
               ...columns,
             ]}
-            data={
-              [...props?.data?.Items] ?? [
-                ...props?.data?.Items,
-                { ItemCode: "" },
-              ]
-            }
+            // data={
+            //   [...props?.data?.Items] ?? [
+            //     ...props?.data?.Items,
+            //     { ItemCode: "" },
+            //   ]
+            // }
+            data={ props.data?.PumpData}
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
             enableStickyHeader={true}
             enableColumnActions={false}

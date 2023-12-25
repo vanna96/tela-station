@@ -6,14 +6,16 @@ import MUITextField from "@/components/input/MUITextField";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankSelect from "@/components/selectbox/bank";
 import FormattedInputs from "@/components/input/NumberFormatField";
+import FormCard from "@/components/card/FormCard";
+import { Button } from "@mui/material";
 
 export default function PaymentTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerAddCheck = () => {
-    onChange("paymentMeanCheckData", [
-      ...(data?.paymentMeanCheckData || []),
+    onChange("pumpData", [
+      ...(data?.pumpData || []),
       {
         pumpCode: "",
         itemCode: "",
@@ -29,23 +31,21 @@ export default function PaymentTable(props: any) {
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
-    const newData = data?.paymentMeanCheckData?.filter(
+    const newData = data?.pumpData?.filter(
       (item: any, index: number) => !rows.includes(index.toString())
     );
-    onChange("paymentMeanCheckData", newData);
+    onChange("pumpData", newData);
     setRowSelection({});
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.paymentMeanCheckData?.map(
-      (item: any, index: number) => {
-        if (index.toString() !== key.toString()) return item;
-        item[Object.keys(obj).toString()] = Object.values(obj).toString();
-        return item;
-      }
-    );
+    const newData = data?.pumpData?.map((item: any, index: number) => {
+      if (index.toString() !== key.toString()) return item;
+      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+      return item;
+    });
     if (newData.length <= 0) return;
-    onChange("paymentMeanCheckData", newData);
+    onChange("pumpData", newData);
   };
 
   const columns = [
@@ -174,52 +174,111 @@ export default function PaymentTable(props: any) {
     },
   ];
 
+  // return (
+  //   <>
+  //     <div className="flex space-x-4 text-[25px] justify-end mb-2">
+  //       {!data?.edit && (
+  //         <>
+  //           <AiOutlinePlus
+  //             className="text-blue-700 cursor-pointer"
+  //             onClick={handlerAddCheck}
+  //           />
+  //           <MdDeleteOutline
+  //             className="text-red-500 cursor-pointer"
+  //             onClick={handlerRemoveCheck}
+  //           />
+  //         </>
+  //       )}
+  //       <AiOutlineSetting className="cursor-pointer" />
+  //     </div>
+
+  //     <MaterialReactTable
+  //       columns={columns}
+  //       data={data?.pumpData || []}
+  //       enableStickyHeader={true}
+  //       enableHiding={true}
+  //       enablePinning={true}
+  //       enableSelectAll={true}
+  //       enableMultiRowSelection={true}
+  //       enableColumnActions={false}
+  //       enableColumnFilters={false}
+  //       enablePagination={false}
+  //       enableSorting={false}
+  //       enableBottomToolbar={false}
+  //       enableTopToolbar={false}
+  //       enableColumnResizing={true}
+  //       enableTableFooter={false}
+  //       enableRowSelection
+  //       onRowSelectionChange={setRowSelection}
+  //       initialState={{
+  //         density: "compact",
+  //         rowSelection,
+  //       }}
+  //       state={{
+  //         rowSelection,
+  //       }}
+  //       muiTableProps={{
+  //         sx: { cursor: "pointer", height: "60px" },
+  //       }}
+  //     />
+  //   </>
+  // );
+
+  console.log(data.pumpData)
   return (
-    <>
-      <div className="flex space-x-4 text-[25px] justify-end mb-2">
-        {!data?.edit && (
-          <>
-            <AiOutlinePlus
-              className="text-blue-700 cursor-pointer"
-              onClick={handlerAddCheck}
-            />
-            <MdDeleteOutline
-              className="text-red-500 cursor-pointer"
-              onClick={handlerRemoveCheck}
-            />
-          </>
-        )}
-        <AiOutlineSetting className="cursor-pointer" />
-      </div>
-      <MaterialReactTable
-        columns={columns}
-        data={data?.paymentMeanCheckData || []}
-        enableStickyHeader={true}
-        enableHiding={true}
-        enablePinning={true}
-        enableSelectAll={true}
-        enableMultiRowSelection={true}
-        enableColumnActions={false}
-        enableColumnFilters={false}
-        enablePagination={false}
-        enableSorting={false}
-        enableBottomToolbar={false}
-        enableTopToolbar={false}
-        enableColumnResizing={true}
-        enableTableFooter={false}
-        enableRowSelection
-        onRowSelectionChange={setRowSelection}
-        initialState={{
-          density: "compact",
-          rowSelection,
-        }}
-        state={{
-          rowSelection,
-        }}
-        muiTableProps={{
-          sx: { cursor: "pointer", height: "60px" },
-        }}
-      />
-    </>
+    <FormCard
+      title="Content"
+      action={
+        <div className="flex ">
+          <Button size="small" disabled={props?.data?.isStatusClose || false}>
+            <span className="capitalize text-sm" onClick={handlerRemoveCheck}>
+              Remove
+            </span>
+          </Button>
+          <Button size="small" disabled={props?.data?.isStatusClose || false}>
+            <span className="capitalize text-sm" onClick={handlerAddCheck}>
+              Add
+            </span>
+          </Button>
+          {/* <IconButton onClick={() => columnRef.current?.onOpen()}>
+            <TbSettings className="text-2lg" />
+          </IconButton> */}
+        </div>
+      }
+    >
+      <>
+        <div className="col-span-2 data-table">
+          <MaterialReactTable
+            columns={columns}
+            data={data?.pumpData || []}
+            enableStickyHeader={true}
+            enableHiding={true}
+            enablePinning={true}
+            enableSelectAll={true}
+            enableMultiRowSelection={true}
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            enableColumnResizing={true}
+            enableTableFooter={false}
+            enableRowSelection
+            onRowSelectionChange={setRowSelection}
+            initialState={{
+              density: "compact",
+              rowSelection,
+            }}
+            state={{
+              rowSelection,
+            }}
+            muiTableProps={{
+              sx: { cursor: "pointer", height: "60px" },
+            }}
+          />
+        </div>
+      </>
+    </FormCard>
   );
 }

@@ -35,13 +35,13 @@ export default function NewContentForm({
   }, [data?.error]);
 
   const handlerUpdateRow = (key: number, obj: any) => {
-    const newData = data?.paymentMeanData?.map((item: any, index: number) => {
+    const newData = data?.IncomingCash?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
     });
     if (newData.length <= 0) return;
-    onChange("paymentMeanData", newData);
+    onChange("IncomingCash", newData);
   };
 
   const itemColumns = React.useMemo(
@@ -65,7 +65,7 @@ export default function NewContentForm({
         accessorKey: "Rate",
         header: "Rate",
         visible: true,
-        size: 300,
+        // size: 300,
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -142,9 +142,9 @@ export default function NewContentForm({
       <NewContentComponent
         key={key}
         columns={itemColumns}
-        items={[...data?.paymentMeanData]}
+        items={[...data?.IncomingCash]}
         isNotAccount={isNotAccount}
-        data={data.paymentMeanData}
+        data={data.IncomingCash}
         onChange={onChange}
         onRemoveChange={handlerRemoveItem}
         loading={ContentLoading}

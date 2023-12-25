@@ -57,8 +57,17 @@ class PumpSaleForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      pumpData: [
+        {
+          itemCode: "",
+          itemName: "",
+          newMeter: "",
+          pumpCode: "",
+          uom: "",
+        },
+      ],
       Services: [],
-      paymentMeanData: [{ Currency: "KHR" }, { Currency: "USD" }],
+      IncomingCash: [{ Currency: "KHR" }, { Currency: "USD" }],
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -81,6 +90,7 @@ class PumpSaleForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
+    console.log(state);
     let seriesList: any = this.props?.query?.find("orders-series");
     const { data: tl_Dispenser }: any = await request("GET", `/TL_Dispenser`);
     state = {
@@ -93,23 +103,6 @@ class PumpSaleForm extends CoreFormDocument {
         Document: "17",
       });
       this.props?.query?.set("orders-series", seriesList);
-    }
-
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
     }
 
     if (this.props.edit) {
@@ -183,16 +176,12 @@ class PumpSaleForm extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -284,8 +273,7 @@ class PumpSaleForm extends CoreFormDocument {
       const payloads = {
         // general
         SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
+
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
         DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
@@ -539,14 +527,31 @@ class PumpSaleForm extends CoreFormDocument {
                     />
                   )}
                   {/* {this.state.tapIndex === 1 && (
-                    <PumpData
+                    <ContentForm
                       data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
+                      }}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
                     />
                   )} */}
+                  {this.state.tapIndex === 1 && (
+                    <PumpData
+                      data={this.state}
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
+                      }}
+                      handlerRemoveItem={(items: any[]) =>
+                        this.setState({ ...this.state, Items: items })
+                      }
+                      handlerChangeItem={this.handlerChangeItems}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
+                    />
+                  )}
                   {this.state.tapIndex === 2 && (
                     <ConsumptionAllocation
                       data={this.state}
@@ -573,23 +578,7 @@ class PumpSaleForm extends CoreFormDocument {
                         this.hanndAddNewItem();
                       }}
                       handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Stock: items })
-                      }
-                      handlerChangeItem={this.handlerChangeItems}
-                      onChangeItemByCode={this.handlerChangeItemByCode}
-                      onChange={this.handlerChange}
-                      ContentLoading={this.state.ContentLoading}
-                    />
-                  )}
-
-                  {this.state.tapIndex === 1 && (
-                    <ContentForm
-                      data={this.state}
-                      handlerAddItem={() => {
-                        this.hanndAddNewItem();
-                      }}
-                      handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Services: items })
+                        this.setState({ ...this.state, Items: items })
                       }
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}

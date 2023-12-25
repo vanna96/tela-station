@@ -204,14 +204,11 @@ export default function SaleOrderLists() {
       const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${
         numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : ""}`;
-      console.log(apiUrl);
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-      console.log(response);
-      console.log("API URL:", apiUrl);
 
       return response;
     },

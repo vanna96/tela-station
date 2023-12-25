@@ -75,7 +75,7 @@ export default function StockComponent(props: StockComponentProps) {
 
   if (props.items.length === 0) {
     props.onChange &&
-      props.onChange("Services", [
+      props.onChange("Items", [
         {
           Branch: "",
           Warehouse: "",
@@ -95,7 +95,7 @@ export default function StockComponent(props: StockComponentProps) {
         ItemCode: "",
       },
     ];
-    if (props?.onChange) props.onChange("Services", Items);
+    if (props?.onChange) props.onChange("Items", Items);
   };
 
   return (

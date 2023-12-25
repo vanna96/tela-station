@@ -23,8 +23,6 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import request from "@/utilies/request";
 interface ContentFormProps {
   handlerAddItem: () => void;
-  handlerChangeItem: (record: any) => void;
-  handlerRemoveItem: (record: any[]) => void;
   data: any;
   onChange: (key: any, value: any) => void;
   onChangeItemByCode: (record: any) => void;
@@ -33,7 +31,6 @@ interface ContentFormProps {
 
 export default function ContentForm({
   data,
-  handlerRemoveItem,
   onChange,
   ContentLoading,
 }: ContentFormProps) {
@@ -46,13 +43,13 @@ export default function ContentForm({
   }, [data?.error]);
 
   const handlerUpdateRow = (i: number, e: any) => {
-    const items = [...data?.Items];
+    const items = [...data?.PumpData];
     items[i] = { ...items[i], [e[0]]: e[1] };
-    onChange("Items", items);
+    onChange("PumpData", items);
   };
 
   const handlerUpdateMultipleRow = (i: number, updates: [string, any][]) => {
-    const items = [...data.Items];
+    const items = [...data.PumpData];
 
     updates.forEach(([property, value]) => {
       items[i] = {
@@ -60,10 +57,8 @@ export default function ContentForm({
         [property]: value,
       };
     });
-    onChange("Items", items);
+    onChange("PumpData", items);
   };
-
-
 
   const tl_Dispenser = data.tl_Dispenser?.value;
   // console.log(data.tl_Dispenser)
@@ -227,10 +222,9 @@ export default function ContentForm({
       <ContentComponent
         key={key}
         columns={itemColumns}
-        items={[...data?.Items]}
-        data={data}
+        items={[...data?.PumpData]}
+        data={data.PumpData ?? []}
         onChange={onChange}
-        onRemoveChange={handlerRemoveItem}
         loading={ContentLoading}
         handlerAddSequence={() => {}}
       />

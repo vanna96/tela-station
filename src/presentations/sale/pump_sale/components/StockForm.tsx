@@ -56,7 +56,7 @@ export default function StockForm({
   //   onChange("Items", items);
   // };
 
-  console.log(data.Services);
+  // console.log(data)
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -80,7 +80,7 @@ export default function StockForm({
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
 
-      const items: any = data?.Services?.map((item: any, indexItem: number) => {
+      const items: any = data?.Items?.map((item: any, indexItem: number) => {
         if (i.toString() === indexItem.toString()) {
           item.ItemName = itemDetails.ItemName;
           item.Quantity = itemDetails.Quantity ?? 1;
@@ -90,16 +90,17 @@ export default function StockForm({
         return item;
       });
 
-      onChange("Services", items);
+
+      onChange("Items", items);
     } else {
-      const items: any = data?.Services?.map((item: any, indexItem: number) => {
+      const items: any = data?.Items?.map((item: any, indexItem: number) => {
         if (i.toString() === indexItem.toString()) {
           item[selectedField] = e[1];
         }
         return item;
       });
 
-      onChange("Services", items);
+      onChange("Items", items);
     }
   };
 
@@ -239,7 +240,7 @@ export default function StockForm({
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";
-
+console.log(data)
   return (
     <>
       <Collapse in={collapseError}>
@@ -263,7 +264,7 @@ export default function StockForm({
       <StockComponent
         key={key}
         columns={itemColumns}
-        items={[...data?.Services]}
+        items={[...data?.Items]}
         data={data}
         onChange={onChange}
         onRemoveChange={handlerRemoveItem}
