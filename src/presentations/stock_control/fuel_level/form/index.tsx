@@ -162,7 +162,7 @@ class Form extends CoreFormDocument {
         // general
         Series: data?.Series,
         // Remark: data?.Remark
-        U_tl_bplid: data?.U_tl_bplid,
+        U_tl_bplid: data?.U_tl_bplid ?? 1,
         TL_FUEL_LEVEL_LINESCollection: data?.Items,
       };
 
