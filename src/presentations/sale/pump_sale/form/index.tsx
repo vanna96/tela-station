@@ -30,6 +30,7 @@ import ConsumptionAllocation from "../components/ConsumptionAllocation";
 import IncomingPayment from "../components/IncomingPayment";
 import PumpData from "../components/PumpData";
 import StockAllocation from "../components/StockAllocation";
+import StockForm from "../components/StockForm";
 
 class PumpSaleForm extends CoreFormDocument {
   constructor(props: any) {
@@ -56,6 +57,7 @@ class PumpSaleForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      Services: []
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -79,6 +81,11 @@ class PumpSaleForm extends CoreFormDocument {
   async onInit() {
     let state: any = { ...this.state };
     let seriesList: any = this.props?.query?.find("orders-series");
+    const { data: tl_Dispenser }: any = await request("GET", `/TL_Dispenser`);
+    state = {
+      ...state,
+      tl_Dispenser,
+    };
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
@@ -117,49 +124,12 @@ class PumpSaleForm extends CoreFormDocument {
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
 
-          // attachment
-          let AttachmentList: any = [];
-          let disabledFields: any = {
-            CurrencyType: true,
-          };
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await requestHeader(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
+          //  `/TL_Dispenser('${data?.Dispenser}')`
 
           state = {
             ...data,
+            tl_Dispenser,
+
             // Description: data?.Comments,
             // Owner: data?.DocumentsOwner,
             // Currency: data?.DocCurrency,
@@ -198,8 +168,7 @@ class PumpSaleForm extends CoreFormDocument {
                 return { addressName: addressName, addressType: addressType };
               }
             ),
-            AttachmentList,
-            disabledFields,
+
             isStatusClose: data?.DocumentStatus === "bost_Close",
             RoundingValue:
               data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
@@ -597,12 +566,18 @@ class PumpSaleForm extends CoreFormDocument {
                   )}
 
                   {this.state.tapIndex === 4 && (
-                    <StockAllocation
+                    <StockForm
                       data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
                       }}
+                      handlerRemoveItem={(items: any[]) =>
+                        this.setState({ ...this.state, Stock: items })
+                      }
+                      handlerChangeItem={this.handlerChangeItems}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
                     />
                   )}
 
@@ -613,11 +588,12 @@ class PumpSaleForm extends CoreFormDocument {
                         this.hanndAddNewItem();
                       }}
                       handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Items: items })
+                        this.setState({ ...this.state, Services: items })
                       }
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
                     />
                   )}
 

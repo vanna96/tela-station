@@ -10,7 +10,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 
-interface ContentComponentProps {
+interface StockComponentProps {
   items: any[];
   onChange?: (key: any, value: any) => void;
   columns: any[];
@@ -25,7 +25,7 @@ interface ContentComponentProps {
   handlerAddSequence: any;
 }
 
-export default function ContentComponent(props: ContentComponentProps) {
+export default function StockComponent(props: StockComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [colVisibility, setColVisibility] = React.useState<
@@ -75,14 +75,12 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   if (props.items.length === 0) {
     props.onChange &&
-      props.onChange("Items", [
+      props.onChange("Services", [
         {
-          U_tl_pumpcode: "",
-          U_tl_itemnum: "",
-          U_tl_itemdesc: "",
-          U_tl_old_meter: 0,
-          U_tl_new_meter: 0,
-          con: -1,
+          Branch: "",
+          Warehouse: "",
+          BinCode: "",
+          ItemCode: "",
         },
       ]);
   }
@@ -91,21 +89,14 @@ export default function ContentComponent(props: ContentComponentProps) {
     const Items = [
       ...props?.items,
       {
-        U_tl_pumpcode: "",
-        U_tl_itemnum: "",
-        U_tl_itemdesc: "",
-        U_tl_old_meter: 0,
-        U_tl_new_meter: 0,
-        U_tl_testby: -1,
+        Branch: "",
+        Warehouse: "",
+        BinCode: "",
+        ItemCode: "",
       },
     ];
-    if (props?.onChange) props.onChange("Items", Items);
+    if (props?.onChange) props.onChange("Services", Items);
   };
-
-  const itemInvoicePrices =
-    props?.items?.reduce((prev: number, item: any) => {
-      return prev + parseFloat(item?.Amount || 0);
-    }, 0) || 0;
 
   return (
     <FormCard
@@ -134,10 +125,10 @@ export default function ContentComponent(props: ContentComponentProps) {
             columns={[
               {
                 accessorKey: "id",
-                size: 30,
-                minSize: 30,
-                maxSize: 30,
-                enableResizing: false,
+                size: 20,
+                // minSize: 30,
+                // maxSize: 30,
+                // enableResizing: false,
                 Cell: (cell) => (
                   <Checkbox
                     checked={cell.row.index in rowSelection}
@@ -154,7 +145,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 { ItemCode: "" },
               ]
             }
-            enableRowNumbers={!(props?.data?.DocType === "rAccount")}
+            enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

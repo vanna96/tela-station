@@ -7,7 +7,7 @@ import { ContactEmployee } from "@/models/BusinessParter";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import SalePerson from "@/components/selectbox/SalePerson";
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
-import { TextField } from "@mui/material";
+import { Autocomplete, TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
@@ -120,7 +120,7 @@ export default function GeneralForm({
 
   useExchangeRate(data?.Currency, handlerChange);
 
-  // console.log(data);
+  console.log(data);
   return (
     <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -149,18 +149,38 @@ export default function GeneralForm({
                 {/* <span className="text-red-500">*</span> */}
               </label>
             </div>
+
             <div className="col-span-3">
-              <MUISelect
-                items={[
-                  { id: 1, name: "DS-001" },
-                  { id: 2, name: "DS-002" },
-                  { id: 3, name: "DS-003" },
-                ]}
+              {/* <MUISelect
+                items={data.tl_Dispenser?.value?.map((e: any) => ({
+                  name: e.Name,
+                  id: e.Code,
+                }))}
                 onChange={(e) => handlerChange("Dispenser", e.target.value)}
                 value={data?.Dispenser}
                 aliasvalue="id"
                 aliaslabel="name"
                 name="Dispenser"
+              /> */}
+              <Autocomplete
+                options={
+                  data.tl_Dispenser?.value?.map((e: any) => ({
+                    label: e.Name,
+                    value: e.Code,
+                  })) || []
+                }
+                getOptionLabel={(option) => option.label || ""}
+                onChange={(e, newValue) => handlerChange("Dispenser", newValue?.value || null)}
+                value={data?.Dispenser}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    className="w-full text-xs text-field bg-white"
+                    InputProps={{
+                      ...params.InputProps,
+                    }}
+                  />
+                )}
               />
             </div>
           </div>
