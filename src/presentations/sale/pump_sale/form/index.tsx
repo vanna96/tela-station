@@ -57,7 +57,8 @@ class PumpSaleForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
-      Services: []
+      Services: [],
+      paymentMeanData: [{ Currency: "KHR" }, { Currency: "USD" }],
     } as any;
 
     this.onInit = this.onInit.bind(this);

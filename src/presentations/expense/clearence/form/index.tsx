@@ -187,9 +187,10 @@ class Form extends CoreFormDocument {
             BPLID.toString() === data?.Branch.toString() && Locked === "tNO"
         );
       }
+      console.log(this.state);
 
       const payload = {
-        OGSeries: find?.Series || "",
+        // OGSeries: find?.Series || "",
         // Series: data?.Series || null,
         U_tl_docdate: `${formatDate(
           data?.PostingDate || new Date()
@@ -199,37 +200,22 @@ class Form extends CoreFormDocument {
         )}"T00:00:00Z"`,
         U_tl_cashacct: data?.GLCash,
         U_tl_bplid: data?.Branch,
-        postToERP,
+        // postToERP,
         U_tl_doccur: data?.Currency || sysInfo?.SystemCurrency,
         TL_EXP_CLEAR_LINESCollection:
-          data?.Logs?.map((log: any) => {
-            const gl = tlExpDic.find(
-              ({ Code }: any) => Code === log.U_tl_expcode
-            );
-            if (log.Object == "TL_ExpClear")
-                return {
-                    LineId: log.Object == "TL_ExpClear" ? log.LineId : 0,
-                    U_tl_baseentry: log.U_tl_baseentry || log.DocEntry,
-                    U_tl_linetotal: log.U_tl_linetotal,
-                    U_tl_expcode: log.U_tl_expcode,
-                    U_tl_expdesc: log.U_tl_expdesc,
-                    U_tl_remark: log.U_tl_remark,
-                    U_tl_expacct: gl.U_tl_expacct || "",
-                }
-
+          data?.Items?.map((item: any) => {
             return {
-                U_tl_baseentry: log.U_tl_baseentry || log.DocEntry,
-                U_tl_linetotal: log.U_tl_linetotal,
-                U_tl_expcode: log.U_tl_expcode,
-                U_tl_expdesc: log.U_tl_expdesc,
-                U_tl_remark: log.U_tl_remark,
-                U_tl_expacct: gl.U_tl_expacct || "",
+              // U_tl_currency: data?.Currency,
+              U_tl_expcode: item?.ExpenseCode,
+              U_tl_expdesc: item?.ExpenseName,
+              U_tl_linetotal: item?.Amount,
+              U_tl_remark: item?.Remark,
             };
           }) || [],
       };
 
       if (id) {
-        return await request("PATCH", `/script/test/Clearance(${id})`, payload)
+        return await request("PATCH", `/TL_ExpClear(${id})`, payload)
           .then(async (res: any) => {
             data?.LogsEntry?.forEach(async (e: any) => {
               await request("POST", `TL_ExpLog(${e.DocEntry})/Close`, {}).then(
@@ -247,7 +233,7 @@ class Form extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/script/test/Clearance", payload)
+      await request("POST", "/TL_ExpClear", payload)
         .then(async (res: any) => {
           data?.LogsEntry?.forEach(async (e: any) => {
             await request("POST", `TL_ExpLog(${e.DocEntry})/Close`, {}).then(
@@ -500,7 +486,7 @@ class Form extends CoreFormDocument {
         });
       }
     }, [getPeriod, BranchIDD, serie]);
-// 
+    //
     return (
       <>
         <LogsModal

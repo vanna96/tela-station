@@ -10,6 +10,7 @@ import { getShippingAddress } from "@/models/BusinessParter";
 import { TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import { useState } from "react";
+import NewContentForm from "./NewContentForm";
 
 export interface IIncomingPaymentProps {
   data: any;
@@ -36,19 +37,13 @@ export default function IncomingPayment({
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>Information</h2>
         </div>
+
+        <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
+          <legend className="text-md px-2 font-bold">Cash</legend>
+          <NewContentForm data={data} onChange={handlerChange} />
+        </fieldset>
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Cash
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField value={data?.Cash} disabled={edit} name="Cash" />
-              </div>
-            </div>
-
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -59,10 +54,6 @@ export default function IncomingPayment({
                 <MUITextField value={data?.Bank} disabled={edit} name="Bank" />
               </div>
             </div>
-          </div>
-
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -92,6 +83,9 @@ export default function IncomingPayment({
               </div>
             </div>
           </div>
+
+          <div className="col-span-2"></div>
+          <div className="col-span-5"> </div>
         </div>
       </div>
     </>

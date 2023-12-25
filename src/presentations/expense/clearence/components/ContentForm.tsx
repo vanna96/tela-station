@@ -1,23 +1,24 @@
-import React, { useEffect } from "react"
-import MUITextField from "../../../../components/input/MUITextField"
-import ContentComponent from "./ContentComponents"
-import { ItemModal } from "./ItemModal"
-import { Alert, Collapse, IconButton } from "@mui/material"
-import { MdOutlineClose } from "react-icons/md"
-import { numberWithCommas } from "@/helper/helper"
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook"
-import shortid from "shortid"
-import MUISelect from "@/components/selectbox/MUISelect"
-import { APIContext } from "../../context/APIContext"
-import { ClockNumberClassKey } from "@mui/x-date-pickers"
+import React from "react";
+import MUITextField from "../../../../components/input/MUITextField";
+import ContentComponent from "./ContentComponents";
+import { ItemModal } from "./ItemModal";
+import { Alert, Collapse, IconButton } from "@mui/material";
+import { MdOutlineClose } from "react-icons/md";
+import { numberWithCommas } from "@/helper/helper";
+import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import shortid from "shortid";
+import MUISelect from "@/components/selectbox/MUISelect";
+import { APIContext } from "../../context/APIContext";
+import { ClockNumberClassKey } from "@mui/x-date-pickers";
+import { NumericFormat } from "react-number-format";
 interface ContentFormProps {
-  handlerAddItem: () => void
-  handlerChangeItem: (record: any) => void
-  handlerRemoveItem: (record: any[]) => void
-  data: any
-  onChange: (key: any, value: any) => void
-  onChangeItemByCode: (record: any) => void
-  ContentLoading: any
+  handlerAddItem: () => void;
+  handlerChangeItem: (record: any) => void;
+  handlerRemoveItem: (record: any[]) => void;
+  data: any;
+  onChange: (key: any, value: any) => void;
+  onChangeItemByCode: (record: any) => void;
+  ContentLoading: any;
 }
 
 export default function ContentForm({
@@ -29,34 +30,53 @@ export default function ContentForm({
   // onChangeItemByCode,
   ContentLoading,
 }: ContentFormProps) {
-  const [key, setKey] = React.useState(shortid.generate())
-  const { tlExpDic }: any = React.useContext(APIContext)
-  const [collapseError, setCollapseError] = React.useState(false)
+  const [key, setKey] = React.useState(shortid.generate());
+  const { tlExpDic }: any = React.useContext(APIContext);
+  const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
-    setCollapseError("Items" in data?.error)
-  }, [data?.error])
+    setCollapseError("Items" in data?.error);
+  }, [data?.error]);
 
   const handlerUpdateRow = (i: number, e: any) => {
     const items: any = data?.Items?.map((item: any, indexItem: number) => {
-      if (i.toString() === indexItem.toString()) item[e[0]] = e[1]
-      return item
-    })
-    onChange("Items", items)
-  }
+      if (i.toString() === indexItem.toString()) item[e[0]] = e[1];
+      return item;
+    });
+    onChange("Items", items);
+  };
+
+  console.log(data)
 
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_expcode",
+        accessorKey: "ExpenseCode",
         header: "Expense Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField value={cell.getValue()} readOnly={true} />
+          return (
+            <MUISelect
+              value={cell.getValue()}
+              items={
+                tlExpDic?.map((e: any) => {
+                  return {
+                    ...e,
+                    label: `${e.Code} - ${e.Name}`,
+                  };
+                }) || []
+              }
+              aliaslabel="label"
+              aliasvalue="Code"
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
+              }
+            />
+          );
         },
       },
       {
-        accessorKey: "U_tl_expdesc",
+        accessorKey: "ExpenseName",
         header: "Expense Name",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -64,45 +84,60 @@ export default function ContentForm({
             <MUITextField
               value={
                 tlExpDic?.find(
-                  ({ Code }: any) => Code === cell.row.original.U_tl_expcode,
-                )?.Name || "N/A"
+                  (e: any) => e.Code === cell.row.original.ExpenseCode
+                )?.Name
               }
-              readOnly={true}
+              // onBlur={(e: any) =>
+              //   handlerUpdateRow(cell.row.id, ["ExpenseName", e.target.value])
+              // }
             />
-          )
+          );
         },
       },
       {
-        accessorKey: "U_tl_linetotal",
+        accessorKey: "Amount",
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField
-              key={"U_tl_linetotal_" + cell.getValue()}
-              type="text"
-              readOnly={true}
-              value={numberWithCommas(cell.getValue(0).toFixed(2))}
+            <NumericFormat
+              key={"amount_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={2}
+              fixedDecimalScale
+              customInput={MUITextField}
+              defaultValue={cell.getValue()}
+              onBlur={(event) => {
+                const newValue = parseFloat(
+                  event.target.value.replace(/,/g, "")
+                );
+                handlerUpdateRow(cell.row.id, ["Amount", newValue]);
+              }}
             />
-          )
+          );
         },
       },
       {
-        accessorKey: "U_tl_remark",
+        accessorKey: "Remark",
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField value={cell.getValue()} readOnly={true} />
+          return (
+            <MUITextField
+              defaultValue={cell.getValue()}
+              onBlur={(e: any) =>
+                handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
+              }
+            />
+          );
         },
       },
     ],
-    [data?.Items],
-  )
+    [data?.Items]
+  );
 
-  const onClose = React.useCallback(() => setCollapseError(false), [])
-
-  React.useEffect(() => setKey(shortid.generate()), [data?.Items])
-
+  const onClose = React.useCallback(() => setCollapseError(false), []);
+  const isNotAccount = data?.DocType !== "rAccount";
   return (
     <>
       <Collapse in={collapseError}>
@@ -126,14 +161,17 @@ export default function ContentForm({
       <ContentComponent
         key={key}
         columns={itemColumns}
-        items={data?.Logs || []}
-        isNotAccount={true}
+        items={[...data?.Items]}
+        isNotAccount={isNotAccount}
         data={data}
         onChange={onChange}
         onRemoveChange={handlerRemoveItem}
         loading={ContentLoading}
-        handlerAddSequence={() => {}}
+        handlerAddSequence={() => {
+          // handlerAddSequence()
+          // setKey(shortid.generate())
+        }}
       />
     </>
-  )
+  );
 }

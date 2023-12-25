@@ -26,7 +26,7 @@ interface ContentComponentProps {
   handlerAddSequence: any;
 }
 
-export default function ContentComponent(props: ContentComponentProps) {
+export default function NewContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [colVisibility, setColVisibility] = React.useState<
@@ -78,10 +78,9 @@ export default function ContentComponent(props: ContentComponentProps) {
     const Items = [
       ...props?.items,
       {
-        ExpenseCode: "",
-        ExpenseName: "",
+        Currency: "",
+        Rate: "",
         Amount: "",
-        Remark: "",
       },
     ];
     if (props?.onChange) props.onChange("Items", Items);
@@ -93,52 +92,29 @@ export default function ContentComponent(props: ContentComponentProps) {
     }, 0) || 0;
 
   return (
-    <FormCard
-      title="Content"
-      action={
-        <div className="flex ">
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerRemove}>
-              Remove
-            </span>
-          </Button>
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerAdd}>
-              Add
-            </span>
-          </Button>
-          <IconButton onClick={() => columnRef.current?.onOpen()}>
-            <TbSettings className="text-2lg" />
-          </IconButton>
-        </div>
-      }
-    >
+    <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
       <>
         <div className="col-span-2 data-table">
           <MaterialReactTable
             columns={[
-              {
-                accessorKey: "id",
-                size: 30,
-                minSize: 30,
-                maxSize: 30,
-                enableResizing: false,
-                Cell: (cell) => (
-                  <Checkbox
-                    checked={cell.row.index in rowSelection}
-                    size="small"
-                    onChange={(event) => onCheckRow(event, cell.row.index)}
-                  />
-                ),
-              },
+              //   {
+              //     accessorKey: "id",
+              //     size: 30,
+              //     minSize: 30,
+              //     maxSize: 30,
+              //     enableResizing: false,
+              //     Cell: (cell) => (
+              //       <Checkbox
+              //         checked={cell.row.index in rowSelection}
+              //         size="small"
+              //         onChange={(event) => onCheckRow(event, cell.row.index)}
+              //       />
+              //     ),
+              //   },
               ...columns,
             ]}
-            data={
-              props?.isNotAccount
-                ? [...props?.data?.Items]
-                : [...props?.data?.Items, { ItemCode: "" }]
-            }
-            enableRowNumbers={!(props?.data?.DocType === "rAccount")}
+            data={props?.data}
+            enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}
@@ -177,33 +153,7 @@ export default function ContentComponent(props: ContentComponentProps) {
             enableTableFooter={false}
           />
         </div>
-        <div className="col-span-2 mt-[-40px]">
-          <div className="grid grid-cols-2">
-            <div className="w-full grid grid-cols-2 mt-4"></div>
-            <div className="pl-20">
-              <div className="grid grid-cols-5">
-                <div className="col-span-2">
-                  <span className="flex items-center pt-2 text-sm">
-                    <b>Total Payment Due</b>
-                  </span>
-                </div>
-                <div className="col-span-3">
-                  <NumericFormat
-                    placeholder="0.00"
-                    thousandSeparator
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={2}
-                    className="bg-white"
-                    fixedDecimalScale
-                    customInput={MUITextField}
-                    readOnly={true}
-                    value={itemInvoicePrices || 0}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
         <ContentTableSelectColumn
           ref={columnRef}
           columns={props.columns}
@@ -213,7 +163,7 @@ export default function ContentComponent(props: ContentComponentProps) {
           }}
         />
       </>
-    </FormCard>
+    </fieldset>
   );
 }
 
