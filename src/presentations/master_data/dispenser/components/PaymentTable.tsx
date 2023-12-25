@@ -195,7 +195,7 @@ export default function PaymentTable(props: any) {
 
   return (
     <>
-      <FormCard title="">
+      <FormCard title="Pump Data">
         <div className="col-span-2 data-table">
           <MaterialReactTable
             columns={columns}
