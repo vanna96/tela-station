@@ -61,27 +61,35 @@ export default function StockForm({
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
+      console.log(selectedCode);
+      console.log(e);
 
       const uomGroups: any = await new UnitOfMeasurementGroupRepository().get();
       const uoms = await new UnitOfMeasurementRepository().get();
-      const uomGroup: any = uomGroups.find(
-        (row: any) => row.AbsEntry === e?.UoMGroupEntry
-      );
-      let uomLists: any[] = [];
-      uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-        const itemUOM = uoms.find(
-          (record: any) => record?.AbsEntry === row?.AlternateUoM
-        );
-        if (itemUOM) {
-          uomLists.push(itemUOM);
-        }
-      });
 
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
 
       const items: any = data?.Items?.map((item: any, indexItem: number) => {
+        const uomGroup: any = uomGroups.find(
+          (row: any) => row.AbsEntry === itemDetails.InventoryUoMEntry
+        );
+        // console.log(e?.UoMGroupEntry);
+        console.log(uomGroups);
+
+        let uomLists: any[] = [];
+        uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+          const itemUOM = uoms.find(
+            (record: any) => record?.AbsEntry === row?.AlternateUoM
+          );
+          // console.log(itemUOM);
+          if (itemUOM) {
+            uomLists.push(itemUOM);
+          }
+        });
+
         if (i.toString() === indexItem.toString()) {
+          item.ItemCode = itemDetails.ItemCode;
           item.ItemName = itemDetails.ItemName;
           item.Quantity = itemDetails.Quantity ?? 1;
           item.UomAbsEntry = itemDetails.InventoryUoMEntry;
@@ -89,7 +97,6 @@ export default function StockForm({
         }
         return item;
       });
-
 
       onChange("Items", items);
     } else {
@@ -104,7 +111,7 @@ export default function StockForm({
     }
   };
 
-console.log(data.Items) 
+  console.log(data.Items);
 
   const itemColumns = React.useMemo(
     () => [
@@ -227,7 +234,7 @@ console.log(data.Items)
                 handlerUpdateRow(
                   cell.row.id,
                   ["UomAbsEntry", e.target.value],
-                  "UoMAbsEntry"
+                  "UomAbsEntry"
                 )
               }
             />
@@ -240,7 +247,7 @@ console.log(data.Items)
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";
-console.log(data)
+  console.log(data);
   return (
     <>
       <Collapse in={collapseError}>
