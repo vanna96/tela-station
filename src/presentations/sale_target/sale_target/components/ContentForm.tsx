@@ -2,7 +2,7 @@ import MUITextField from "../../../../components/input/MUITextField"
 import MaterialReactTable from "material-react-table"
 import FormCard from "@/components/card/FormCard"
 import { Button, IconButton } from "@mui/material"
-import { TbSettings } from "react-icons/tb"
+import { TbEdit, TbSettings } from "react-icons/tb"
 import { AiOutlineFileAdd } from "react-icons/ai"
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete"
 import MUISelect from "@/components/selectbox/MUISelect"
@@ -10,13 +10,9 @@ import SalePersonRepository from "@/services/actions/salePersonRepository"
 import { useQuery } from "react-query"
 import Select from "react-tailwindcss-select"
 import { useState } from "react"
+import DistributionRuleSelect from "@/components/selectbox/DistributionRule"
 
 const ContentForm = function ContentForm({ data, handlerChange }: any) {
-
-  let [count , setCount] = useState(0);
-
-  console.log([count, data?.Targets]);
-
   const handlerAddNewLob = (index: any) => {
     const cpTarget = data?.Targets.find((e: any, idx: any) => index === idx)
     if (!cpTarget?.saleCode?.value) return
@@ -54,14 +50,14 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
         Dec_qty: "0",
         Total: "0",
         isLob: true,
-      }
-    ];
-    // newArray.sort((a, b) => a.saleName.localeCompare(b.saleName));
-    // handlerChange("Targets", newArray)
+      },
+    ]
+    newArray.sort((a, b) => a.saleName.localeCompare(b.saleName))
+    handlerChange("Targets", newArray)
     // .sort((a, b) => {
     //   // Compare by age
     //   const ageComparison = a.age - b.age;
-    
+
     //   // If ages are equal, compare by name
     //   return ageComparison === 0 ? a.name.localeCompare(b.name) : ageComparison;
     // });
@@ -110,7 +106,7 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
   const handlerChangeField = (index: number, key: any, value: any) => {
     const newData: any = data?.Targets?.map((target: any, idx: any) => {
       let inputString = value?.label
-      let result = inputString.replace(`${value?.value} - `, "")
+      let result = inputString?.replace(`${value?.value} - `, "")
 
       if (idx === index) {
         if (key === "saleCode") return { ...target, [key]: value, saleName: result }
@@ -186,9 +182,11 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
               </div>
             )}
             {cell.row.original.isLob && (
-              <MUITextField
+              <DistributionRuleSelect
                 value={cell.getValue()}
-                disabled={!cell.row.original.isLob}
+                onChange={(e: any) =>
+                  handlerChangeField(cell.row.index, "lob", e.target.value)
+                }
               />
             )}
           </div>
@@ -201,8 +199,32 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
       visible: true,
       Cell: ({ cell }: any) => {
         return (
-          <div className="flex" style={{ position: "relative" }}>
-            {cell.row.original.isLob && <MUITextField value={cell.getValue()} />}
+          // <div className="flex" style={{ position: "relative" }}>
+          //   {cell.row.original.isLob && <MUITextField value={cell.getValue()} />}
+          // </div>
+          <div>
+            {cell.row.original.isLob && (
+              <MUITextField
+                value={cell.getValue()}
+                disabled={data?.isStatusClose || false}
+                // onBlur={(event) =>
+                //   handlerChangeInput(event, cell?.row?.original, "ItemCode")
+                // }
+                endAdornment={!(data?.isStatusClose || false)}
+                onClick={() => {
+                  if (cell.getValue() === "") {
+                    // handlerAddItem();
+                    alert();
+                  } else {
+                    // updateRef.current?.onOpen(cell.row.original);
+                  }
+                }}
+                endIcon={
+                  cell.getValue() === "" ? null : <TbEdit className="text-lg" />
+                }
+                readOnly={true}
+              />
+            )}
           </div>
         )
       },
@@ -214,7 +236,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
       Cell: ({ cell }: any) => {
         return (
           <div>
-            {cell.row.original.isLob && <MUITextField value={cell.getValue()} />}{" "}
+            {cell.row.original.isLob && (
+              <MUITextField value={cell.getValue()} readOnly />
+            )}{" "}
           </div>
         )
       },

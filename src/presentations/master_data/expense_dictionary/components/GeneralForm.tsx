@@ -10,6 +10,8 @@ import { APIContext } from "../../context/APIContext";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import { useQuery } from "react-query";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -25,7 +27,6 @@ export default function GeneralForm({
   edit,
   hanndResetState,
 }: IGeneralFormProps) {
-  const { CurrencyAPI, sysInfo }: any = useContext(APIContext);
   const [cookies, setCookie] = useCookies(["user"]);
   const branchId =
     data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
@@ -56,8 +57,22 @@ export default function GeneralForm({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
+                <label htmlFor="Type" className="text-gray-500 ">
+                  Expense Type
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  value={data?.Type}
+                  name="Type"
+                  onChange={(e) => handlerChange("Type", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account
+                  GL Account Name
                 </label>
               </div>
               <div className="col-span-3">
@@ -66,6 +81,37 @@ export default function GeneralForm({
                     handlerChange("U_tl_expacct", e)
                   }
                   value={data?.U_tl_expacct}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  GL Account Code
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  value={data?.U_tl_expacct ?? ""}
+                  name="Type"
+                  readOnly={true}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Description
+                </label>
+              </div>
+              <div className="col-span-3">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  onChange={(e) => handlerChange("Name", e.target.value)}
+                  rows={2}
+                  value={data.Name}
                 />
               </div>
             </div>
@@ -92,23 +138,6 @@ export default function GeneralForm({
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_tl_expactive"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Description
-                </label>
-              </div>
-              <div className="col-span-3">
-                <TextField
-                  size="small"
-                  fullWidth
-                  multiline
-                  onChange={(e) => handlerChange("Name", e.target.value)}
-                  rows={2}
-                  value={data.Name}
                 />
               </div>
             </div>
