@@ -51,7 +51,6 @@ export default function PaymentTable(props: any) {
   };
   const handlerUpdateRow = (i: number, e: any) => {
     const items = [...data?.pumpData];
-    console.log(items)
     items[i] = { ...items[i], [e[0]]: e[1] };
     onChange("pumpData", items);
   };
@@ -60,7 +59,6 @@ export default function PaymentTable(props: any) {
 
   const handlerUpdateMultipleRow = (i: number, updates: [string, any][]) => {
     const items = [...data.pumpData];
-    console.log(items)
 
     updates.forEach(([property, value]) => {
       items[i] = {
@@ -77,7 +75,6 @@ export default function PaymentTable(props: any) {
     (item: any) => item.TL_DISPENSER_LINESCollection
   );
 
-  console.log(TL_DISPENSER_LINESCollection)
 
 
 
@@ -100,9 +97,7 @@ export default function PaymentTable(props: any) {
 
             if (selectedPump) {
               const selectedItem = selectedPump[0];
-              console.log(selectedItem)
-              console.log(selectedPump[0])
-
+            
               const itemDetailsResponse = await request(
                 "GET",
                 `/Items('${selectedItem?.U_tl_itemnum}')`

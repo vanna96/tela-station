@@ -61,8 +61,6 @@ export default function StockForm({
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
-      console.log(selectedCode);
-      console.log(e);
 
       const uomGroups: any = await new UnitOfMeasurementGroupRepository().get();
       const uoms = await new UnitOfMeasurementRepository().get();
@@ -74,15 +72,12 @@ export default function StockForm({
         const uomGroup: any = uomGroups.find(
           (row: any) => row.AbsEntry === itemDetails.InventoryUoMEntry
         );
-        // console.log(e?.UoMGroupEntry);
-        console.log(uomGroups);
 
         let uomLists: any[] = [];
         uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
           const itemUOM = uoms.find(
             (record: any) => record?.AbsEntry === row?.AlternateUoM
           );
-          // console.log(itemUOM);
           if (itemUOM) {
             uomLists.push(itemUOM);
           }
@@ -247,7 +242,8 @@ export default function StockForm({
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";
-  console.log(data);
+
+  console.log(data)
   return (
     <>
       <Collapse in={collapseError}>
