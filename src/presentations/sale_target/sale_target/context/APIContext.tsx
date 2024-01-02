@@ -1,5 +1,4 @@
 import { diffDays, formatDate, getLocalCacheData } from "@/helper/helper"
-import GLAccountRepository from "@/services/actions/GLAccountRepository"
 import BranchBPLRepository from "@/services/actions/branchBPLRepository"
 import DistributionRuleRepository from "@/services/actions/distributionRulesRepository"
 import request from "@/utilies/request"
@@ -23,11 +22,7 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
     staleTime: Infinity,
   });
 
-  const { data:glAccount }: any = useQuery({
-    queryKey: ["gl_account"],
-    queryFn: () => new GLAccountRepository().get(),
-    // staleTime: Infinity,
-  });
+  console.log(1);
   
 
   return (

@@ -25,6 +25,8 @@ import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import BinLocationTo from "@/components/input/BinLocationTo";
+import { useQuery } from "react-query";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -67,6 +69,12 @@ export default function ContentForm({
     });
     onChange("Items", items);
   };
+
+  const { data:bin, isLoading }: any = useQuery({
+    queryKey: ["ware-BinLocation"],
+    queryFn: () => new WareBinLocationRepository().get(),
+    staleTime: Infinity,
+  });
 
   const itemColumns = React.useMemo(
     () => [

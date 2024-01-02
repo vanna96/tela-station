@@ -10,8 +10,8 @@ import { APIContext } from "../../context/APIContext";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -28,10 +28,12 @@ export default function GeneralForm({
   hanndResetState,
 }: IGeneralFormProps) {
   const [cookies, setCookie] = useCookies(["user"]);
-  const branchId =
-    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
-
-  useExchangeRate(data?.Currency, handlerChange);
+  const userData = cookies.user;
+  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
+  const { data:scenario } = useQuery({
+    queryKey: "scenario",
+    queryFn: async () => await request('GET', `TL_SALES_SCENARIO?$filter=U_tl_status ne 'N'`).then((res: any) => res.data.value)
+  });
 
   return (
     <>
@@ -43,75 +45,57 @@ export default function GeneralForm({
           <div className="col-span-5">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Expense Code
+                <label htmlFor="Scenario" className="text-gray-500 ">
+                  Scenario
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  value={data?.Code}
-                  name="Code"
-                  onChange={(e) => handlerChange("Code", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Type" className="text-gray-500 ">
-                  Expense Type
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  value={data?.Type}
-                  name="Type"
-                  onChange={(e) => handlerChange("Type", e.target.value)}
+                <MUISelect
+                  items={scenario?.map((res:any) => {
+                    return {
+                      id: res.Code,
+                      name: res.Name
+                    }
+                  })}
+                  onChange={(e) => handlerChange("scenario_sale", e.target.value)}
+                  value={data?.scenario_sale}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="Scenario"
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account Name
+                  Branch
                 </label>
               </div>
               <div className="col-span-3">
-                <CashACAutoComplete
-                  onChange={(e) =>
-                    handlerChange("U_tl_expacct", e)
-                  }
-                  value={data?.U_tl_expacct}
+                <BranchAutoComplete
+                  BPdata={userData?.UserBranchAssignment}
+                  onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                  value={BPL}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account Code
+                <label htmlFor="Sale Team" className="text-gray-500 ">
+                  Sale Team
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  value={data?.U_tl_expacct ?? ""}
-                  name="Type"
-                  readOnly={true}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Description
-                </label>
-              </div>
-              <div className="col-span-3">
-                <TextField
-                  size="small"
-                  fullWidth
-                  multiline
-                  onChange={(e) => handlerChange("Name", e.target.value)}
-                  rows={2}
-                  value={data.Name}
+                <MUISelect
+                  items={[
+                    { id: "Wholesale", name: "Wholesale" },
+                    { id: "retail", name: "Retail" },
+                  ]}
+                  onChange={(e) => handlerChange("sale_team", e.target.value)}
+                  value={data?.sale_team ?? "Wholesale"}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="Sale Team"
                 />
               </div>
             </div>
@@ -121,24 +105,37 @@ export default function GeneralForm({
           <div className="col-span-5">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
+                <label htmlFor="Date" className="text-gray-500 ">
+                  Date
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUIDatePicker
+                  name="Date"
+                  value={data?.date}
+                  onChange={(e: any) => handlerChange("date", e)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Active
+                  Status
                 </label>
               </div>
               <div className="col-span-3">
                 <MUISelect
-                  items={[
-                    { id: "Y", name: "Yes" },
-                    { id: "N", name: "No" },
-                  ]}
-                  onChange={(e) =>
-                    handlerChange("U_tl_expactive", e.target.value)
-                  }
-                  value={data?.U_tl_expactive}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="U_tl_expactive"
-                />
+                    items={[
+                      { id: "N", name: "No" },
+                      { id: "Y", name: "Yes" },
+                    ]}
+                    onChange={(e) => handlerChange("status", e.target.value)}
+                    value={data?.status ?? "Y"}
+                    aliasvalue="id"
+                    aliaslabel="name"
+                    name="Status"
+                  />
               </div>
             </div>
           </div>

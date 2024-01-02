@@ -76,7 +76,8 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <BranchAutoComplete
                   onChange={(e) => handlerChange("U_tl_bplid", e)}
-                  value={data?.U_tl_bplid}
+                  value={parseInt(data?.U_tl_bplid ?? 0)}
+                  BPdata={cookies?.user?.UserBranchAssignment}
                 />
               </div>
             </div>

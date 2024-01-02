@@ -148,19 +148,10 @@ export default function ContentForm({
         accessorKey: "U_tl_old_meter",
         header: "Old Meter",
         visible: true,
-
         Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              value={cell.getValue()}
-              onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, [
-                  "U_tl_old_meter",
-                  e.target.value,
-                ])
-              }
-            />
-          );
+          return <MUITextField defaultValue={cell.getValue()} onBlur={(e: any) =>
+            handlerUpdateRow(cell.row.id, ["U_tl_old_meter", e.target.value])
+          } />;
         },
       },
       {
@@ -168,17 +159,9 @@ export default function ContentForm({
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              value={cell.getValue()}
-              onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, [
-                  "U_tl_new_meter",
-                  e.target.value,
-                ])
-              }
-            />
-          );
+          return <MUITextField defaultValue={cell.getValue()} onBlur={(e: any) =>
+            handlerUpdateRow(cell.row.id, ["U_tl_new_meter", e.target.value])
+          } />;
         },
       },
       {

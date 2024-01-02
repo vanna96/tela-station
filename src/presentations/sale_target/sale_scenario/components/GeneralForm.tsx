@@ -57,6 +57,42 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
+                  Name
+                </label>
+              </div>
+              <div className="col-span-3">
+               
+                 <MUITextField
+                  value={data?.Name}
+                  name="Name"
+                  onChange={(e) => handlerChange("Name", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Remark
+                </label>
+              </div>
+              <div className="col-span-3">
+              <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  onChange={(e) => handlerChange("U_tl_remark", e.target.value)}
+                  rows={2}
+                  value={data.U_tl_remark}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-2"></div>
+          <div className="col-span-5">
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
                   Date
                 </label>
               </div>
@@ -84,43 +120,6 @@ export default function GeneralForm({
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_tl_status"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Name
-                </label>
-              </div>
-              <div className="col-span-3">
-               
-                 <MUITextField
-                  value={data?.Name}
-                  name="Name"
-                  onChange={(e) => handlerChange("Name", e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Remark
-                </label>
-              </div>
-              <div className="col-span-3">
-              <TextField
-                  size="small"
-                  fullWidth
-                  multiline
-                  onChange={(e) => handlerChange("U_tl_remark", e.target.value)}
-                  rows={2}
-                  value={data.U_tl_remark}
                 />
               </div>
             </div>

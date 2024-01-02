@@ -50,10 +50,65 @@ const appRoutes: RouteType[] = [
     },
   },
   {
+    path: "/master-data",
+    state: "master-data",
+    sidebarProps: {
+      displayText: "Master Data",
+      icon: <DatasetLinkedIcon />,
+    },
+    child: [
+      {
+        path: "/master-data/dispenser",
+        state: "dispenser",
+        sidebarProps: {
+          displayText: "Dispenser",
+        },
+      },
+      {
+        path: "/master-data/cash-account",
+        state: "cash-account",
+        sidebarProps: {
+          displayText: "Cash Account",
+        },
+      },
+      {
+        path: "/master-data/expense-dictionary",
+        state: "expense-dictionary",
+        sidebarProps: {
+          displayText: "Expense Dictionary",
+        },
+      },
+    ],
+  },
+  {
+    path: "/sale-target",
+    state: "sale-target",
+    sidebarProps: {
+      displayText: "Sale Target",
+      icon: <AdsClickIcon />,
+    },
+    child: [
+      {
+        path: "/sale-target/sale-scenario",
+        state: "sale-target/sale-scenario",
+        sidebarProps: {
+          displayText: "Sale Scenario",
+        },
+      },
+      {
+        path: "/sale-target/sale-target",
+        state: "sale-target/sale-target",
+        sidebarProps: {
+          displayText: "Sale Target",
+        },
+      },
+    ],
+  },
+  {
     path: "/sale",
     state: "sale",
     sidebarProps: {
-      displayText: "Sale",
+      displayText: "Ordering",
       icon: <PointOfSaleIcon />,
     },
     child: [
@@ -90,37 +145,6 @@ const appRoutes: RouteType[] = [
         state: "morph-price",
         sidebarProps: {
           displayText: "Morph Price ",
-        },
-      },
-    ],
-  },
-  {
-    path: "/master-data",
-    state: "master-data",
-    sidebarProps: {
-      displayText: "Master Data",
-      icon: <DatasetLinkedIcon />,
-    },
-    child: [
-      {
-        path: "/master-data/dispenser",
-        state: "dispenser",
-        sidebarProps: {
-          displayText: "Dispenser",
-        },
-      },
-      {
-        path: "/master-data/cash-account",
-        state: "cash-account",
-        sidebarProps: {
-          displayText: "Cash Account",
-        },
-      },
-      {
-        path: "/master-data/expense-dictionary",
-        state: "expense-dictionary",
-        sidebarProps: {
-          displayText: "Expense Dictionary",
         },
       },
     ],
@@ -233,25 +257,7 @@ const appRoutes: RouteType[] = [
         },
       },
     ],
-  },
-
-  {
-    path: "/sale-target",
-    state: "sale-target",
-    sidebarProps: {
-      displayText: "Sale Target",
-      icon: <AdsClickIcon />,
-    },
-    child: [
-      {
-        path: "/sale-target/sale-scenario",
-        state: "sale-target/sale-scenario",
-        sidebarProps: {
-          displayText: "Sale Scenario",
-        },
-      },
-    ],
-  },
+  }
 ];
 
 export default appRoutes;

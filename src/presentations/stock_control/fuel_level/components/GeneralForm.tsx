@@ -67,8 +67,6 @@ export default function GeneralForm({
     staleTime: Infinity,
   });
 
-  console.log(data);
-
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -136,23 +134,22 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUISelect
-                items={[
-                  {
-                    Code: "O",
-                    Name: "Open",
-                  },
-                  {
-                    Code: "C",
-                    Name: "Closed",
-                  },
-                ]}
-                aliasvalue="Code"
-                aliaslabel="Name"
-                name="Status"
-                value={data?.Status}
-                onChange={(e) => handlerChange("Status", e.target.value)}
-              />
+            <MUISelect
+                  items={[
+                    {
+                      'value': 'Yes',
+                      'label': 'Yes'
+                    },
+                    {
+                      'value': 'No',
+                      'label': 'No'
+                    }]}
+                  aliasvalue="value"
+                  aliaslabel="Label"
+                  name="Status"
+                  value={data?.Status}
+                  onChange={(e: any) => handlerChange("Status", e.target.value)}
+                />
             </div>
           </div>
         </div>

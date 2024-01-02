@@ -17,7 +17,7 @@ export default function CashACAutoComplete(props: {
   const { data, isLoading }: any = useQuery({
     queryKey: ["gl_account"],
     queryFn: () => new GLAccountRepository().get(),
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
 
   useEffect(() => {
