@@ -27,40 +27,70 @@ interface ContentComponentProps {
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
-  const columnRef = React.createRef<ContentTableSelectColumn>()
-  const [colVisibility, setColVisibility] = React.useState<Record<string, boolean>>(
-    {},
-  )
-  const [rowSelection, setRowSelection] = React.useState<any>({})
+  const columnRef = React.createRef<ContentTableSelectColumn>();
+  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
+  const [colVisibility, setColVisibility] = React.useState<
+    Record<string, boolean>
+  >({});
+  const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerRemove = () => {
-    if (props.onRemoveChange === undefined || Object.keys(rowSelection).length === 0)
-      return
+    if (
+      props.onRemoveChange === undefined ||
+      Object.keys(rowSelection).length === 0
+    )
+      return;
 
-    let temps: any[] = [...props.items.filter(({ ItemCode }: any) => ItemCode != "")]
+    let temps: any[] = [
+      ...props.items.filter(({ ItemCode }: any) => ItemCode != ""),
+    ];
     Object.keys(rowSelection).forEach((index: any) => {
-      const item = props.items[index]
-      const indexWhere = temps.findIndex((e) => e?.ItemCode === item?.ItemCode)
-      if (indexWhere >= 0) temps.splice(indexWhere, 1)
-    })
-    setRowSelection({})
-    props.onRemoveChange(temps)
-  }
+      const item = props.items[index];
+      const indexWhere = temps.findIndex((e) => e?.ItemCode === item?.ItemCode);
+      if (indexWhere >= 0) temps.splice(indexWhere, 1);
+    });
+    setRowSelection({});
+    props.onRemoveChange(temps);
+  };
 
   React.useEffect(() => {
-    const cols: any = {}
+    const cols: any = {};
     props.columns.forEach((e: any) => {
-      cols[e?.accessorKey] = e?.visible
-    })
-    setColVisibility({ ...cols, ...colVisibility })
-  }, [props.columns])
+      cols[e?.accessorKey] = e?.visible;
+    });
+    setColVisibility({ ...cols, ...colVisibility });
+  }, [props.columns]);
 
-  const columns = useMemo(() => props.columns, [colVisibility])
+  const columns = useMemo(() => props.columns, [colVisibility]);
+
+  const onCheckRow = (event: any, index: number) => {
+    const rowSelects: any = { ...rowSelection };
+    rowSelects[index] = true;
+
+    if (!event.target.checked) {
+      delete rowSelects[index];
+    }
+
+    setRowSelection(rowSelects);
+  };
+
+  const handlerAdd = () => {
+    const Items = [
+      ...props?.items,
+      {
+        ExpenseCode: "",
+        ExpenseName: "",
+        Amount: "",
+        Remark: "",
+      },
+    ];
+    if (props?.onChange) props.onChange("Items", Items);
+  };
 
   const itemInvoicePrices =
     props?.items?.reduce((prev: number, item: any) => {
-      return prev + parseFloat(item?.U_tl_linetotal || 0)
-    }, 0) || 0
+      return prev + parseFloat(item?.Amount || 0);
+    }, 0) || 0;
 
   return (
     <FormCard
@@ -72,6 +102,11 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
+          <Button size="small" disabled={props?.data?.isStatusClose || false}>
+            <span className="capitalize text-sm" onClick={handlerAdd}>
+              Add
+            </span>
+          </Button>
           <IconButton onClick={() => columnRef.current?.onOpen()}>
             <TbSettings className="text-2lg" />
           </IconButton>
@@ -80,9 +115,29 @@ export default function ContentComponent(props: ContentComponentProps) {
     >
       <>
         <div className="col-span-2 data-table">
-        <MaterialReactTable
-            columns={columns}
-            data={[...props?.data?.Items]}
+          <MaterialReactTable
+            columns={[
+              {
+                accessorKey: "id",
+                size: 30,
+                minSize: 30,
+                maxSize: 30,
+                enableResizing: false,
+                Cell: (cell) => (
+                  <Checkbox
+                    checked={cell.row.index in rowSelection}
+                    size="small"
+                    onChange={(event) => onCheckRow(event, cell.row.index)}
+                  />
+                ),
+              },
+              ...columns,
+            ]}
+            data={
+              props?.isNotAccount
+                ? [...props?.data?.Items]
+                : [...props?.data?.Items, { ItemCode: "" }]
+            }
             enableRowNumbers={!(props?.data?.DocType === "rAccount")}
             enableStickyHeader={true}
             enableColumnActions={false}

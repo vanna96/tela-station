@@ -11,7 +11,11 @@ export const useDocumentTotalHook = (
       return prev + cur?.TotalGross
       // Formular.findLineTotal(cur?.Quantity, cur?.UnitPrice, cur?.LineDiscount)
     }, 0)
+
+
+console.log(total)
     return total * ExchangeRate
+    
   }, [items, ExchangeRate])
 
   let docTaxTotal: number = React.useMemo(() => {

@@ -20,6 +20,8 @@ import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import useState from "react";
 import requestHeader from "@/utilies/requestheader";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -158,52 +160,74 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
-            // Description: data?.Comments,
-            // Owner: data?.DocumentsOwner,
-            // Currency: data?.DocCurrency,
-            Items: data?.DocumentLines?.map((item: any) => {
-              return {
-                ItemCode: item.ItemCode || null,
-                ItemName: item.ItemDescription || item.Name || null,
-                Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
-                Discount: item.DiscountPercent || 0,
-                VatGroup: item.VatGroup || "",
-                // UomCode: item.UomCode,
-                // UomGroupCode: item.UoMCode || null,
-                // UomEntry: item.UoMGroupEntry || null,
-                UomEntry: item.UomCode || null,
-                WarehouseCode: this.state.warehouseCode,
-                // Currency: "AUD",
-                LineTotal: item.LineTotal,
-                VatRate: item.TaxPercentagePerRow,
-              };
-            }),
-            ExchangeRate: data?.DocRate || 1,
-            // ShippingTo: data?.ShipToCode || null,
-            // BillingTo: data?.PayToCode || null,
-            // JournalRemark: data?.JournalMemo,
-            // PaymentTermType: data?.PaymentGroupCode,
-            // ShippingType: data?.TransportationCode,
-            // FederalTax: data?.FederalTaxID || null,
-            CurrencyType: "B",
-            vendor,
-            DocDiscount: data?.DiscountPercent,
-            BPAddresses: vendor?.bpAddress?.map(
-              ({ addressName, addressType }: any) => {
-                return { addressName: addressName, addressType: addressType };
-              }
+            Items: await Promise.all(
+              (data?.DocumentLines || []).map(async (item: any) => {
+                const uomGroups: any =
+                  await new UnitOfMeasurementGroupRepository().get();
+
+                const uoms = await new UnitOfMeasurementRepository().get();
+                const uomGroup: any = uomGroups.find(
+                  (row: any) => row.AbsEntry === item?.UoMEntry
+                );
+                
+                let uomLists: any[] = [];
+                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+                  const itemUOM = uoms.find(
+                    (record: any) => record?.AbsEntry === row?.AlternateUoM
+                  );
+                  if (itemUOM) {
+                    uomLists.push(itemUOM);
+                  }
+                });
+                return {
+                  ItemCode: item.ItemCode || null,
+                  ItemName: item.ItemDescription || item.Name || null,
+                  Quantity: item.Quantity || null,
+                  UnitPrice: item.UnitPrice || item.total,
+                  Discount: item.DiscountPercent || 0,
+                  VatGroup: item.VatGroup || "",
+                  GrossPrice: item.GrossPrice,
+                  TotalGross: item.GrossTotal,
+                  DiscountPercent: item.DiscountPercent || 0,
+                  TaxCode: item.VatGroup || item.taxCode || null,
+                  UoMEntry: item.UomAbsEntry || null,
+                  WarehouseCode: item?.WarehouseCode || null,
+                  UomAbsEntry: item?.UoMEntry,
+                  LineTotal: item.LineTotal,
+                  VatRate: item.TaxPercentagePerRow,
+                  UomLists: uomLists,
+                  ExchangeRate: data?.DocRate || 1,
+                  // ShippingTo: data?.ShipToCode || null,
+                  // BillingTo: data?.PayToCode || null,
+                  JournalMemo: data?.JournalMemo,
+                  // PaymentTermType: data?.PaymentGroupCode,
+                  // ShippingType: data?.TransportationCode,
+                  // FederalTax: data?.FederalTaxID || null,
+                  CurrencyType: "B",
+                  vendor,
+                  warehouseCode: data?.U_tl_whsdesc,
+                  DocDiscount: data?.DiscountPercent,
+                  BPAddresses: vendor?.bpAddress?.map(
+                    ({ addressName, addressType }: any) => {
+                      return {
+                        addressName: addressName,
+                        addressType: addressType,
+                      };
+                    }
+                  ),
+                  AttachmentList,
+                  disabledFields,
+                  isStatusClose: data?.DocumentStatus === "bost_Close",
+                  RoundingValue:
+                    data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
+                  Rounding: (data?.Rounding == "tYES").toString(),
+                  Edit: true,
+                  PostingDate: data?.DocDate,
+                  DueDate: data?.DocDueDate,
+                  DocumentDate: data?.TaxDate,
+                };
+              })
             ),
-            AttachmentList,
-            disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
-            Edit: true,
-            PostingDate: data?.DocDate,
-            DueDate: data?.DocDueDate,
-            DocumentDate: data?.TaxDate,
           };
         })
         .catch((err: any) => console.log(err))
@@ -462,7 +486,7 @@ class SalesOrderForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 1}
+                disabled={this.state.tapIndex === 3}
                 style={{ textTransform: "none" }}
               >
                 Next

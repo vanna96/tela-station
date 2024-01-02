@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import MaterialReactTable from "material-react-table";
-import { Button, Checkbox, IconButton, TextField } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { AiOutlineSetting } from "react-icons/ai";
 import FormCard from "@/components/card/FormCard";
 import { TbSettings } from "react-icons/tb";
@@ -9,8 +9,6 @@ import { BiSearch } from "react-icons/bi";
 import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 
 interface ContentComponentProps {
   items: any[];
@@ -28,7 +26,7 @@ interface ContentComponentProps {
   handlerAddSequence: any;
 }
 
-export default function ContentComponent(props: ContentComponentProps) {
+export default function NewContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [colVisibility, setColVisibility] = React.useState<
@@ -80,81 +78,42 @@ export default function ContentComponent(props: ContentComponentProps) {
     const Items = [
       ...props?.items,
       {
-        ItemCode: "",
+        Currency: "",
+        Rate: "",
+        Amount: "",
       },
     ];
     if (props?.onChange) props.onChange("Items", Items);
   };
-
-  console.log(props?.data);
 
   const itemInvoicePrices =
     props?.items?.reduce((prev: number, item: any) => {
       return prev + parseFloat(item?.Amount || 0);
     }, 0) || 0;
 
-  const onChange = (key: string, value: any) => {
-    if (props.onChange) props.onChange(key, value);
-  };
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
-    props.data.Items ?? [],
-    discount,
-    // props?.data?.ExchangeRate ?? 1
-    1
-  );
-
-  console.log(props.data.Items);
-  console.log(props.data.DocDiscount)
-  const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
-    if (dataDiscount <= 0) return 0;
-    if (dataDiscount > 100) return 100;
-    return docTotal * (dataDiscount / 100);
-  }, [discount, props.data.Items]);
-
-  let TotalPaymentDue =
-    docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
-
   return (
-    <FormCard
-      title="Content"
-      action={
-        <div className="flex ">
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerRemove}>
-              Remove
-            </span>
-          </Button>
-          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerAdd}>
-              Add
-            </span>
-          </Button> */}
-          <IconButton onClick={() => columnRef.current?.onOpen()}>
-            <TbSettings className="text-2lg" />
-          </IconButton>
-        </div>
-      }
-    >
+    <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
       <>
         <div className="col-span-2 data-table">
           <MaterialReactTable
             columns={[
-              {
-                accessorKey: "id",
-                size: 30,
-
-                Cell: (cell) => (
-                  <Checkbox
-                    checked={cell.row.index in rowSelection}
-                    size="small"
-                    onChange={(event) => onCheckRow(event, cell.row.index)}
-                  />
-                ),
-              },
+              //   {
+              //     accessorKey: "id",
+              //     size: 30,
+              //     minSize: 30,
+              //     maxSize: 30,
+              //     enableResizing: false,
+              //     Cell: (cell) => (
+              //       <Checkbox
+              //         checked={cell.row.index in rowSelection}
+              //         size="small"
+              //         onChange={(event) => onCheckRow(event, cell.row.index)}
+              //       />
+              //     ),
+              //   },
               ...columns,
             ]}
-            data={[...props?.data?.Items, { ItemCode: "" }]}
+            data={props?.data}
             enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
@@ -193,8 +152,8 @@ export default function ContentComponent(props: ContentComponentProps) {
             }}
             enableTableFooter={false}
           />
-    
         </div>
+
         <ContentTableSelectColumn
           ref={columnRef}
           columns={props.columns}
@@ -204,7 +163,7 @@ export default function ContentComponent(props: ContentComponentProps) {
           }}
         />
       </>
-    </FormCard>
+    </fieldset>
   );
 }
 

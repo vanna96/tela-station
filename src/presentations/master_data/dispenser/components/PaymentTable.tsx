@@ -10,9 +10,10 @@ import { TbEdit } from "react-icons/tb";
 import { ItemModal } from "./ItemModal";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
+import FormCard from "@/components/card/FormCard";
 
 export default function PaymentTable(props: any) {
-  const { data, onChange, handlerAddItem }: any = props;
+  const { data, onChange, handlerAddItem, edit }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
   const updateRef = React.createRef<ItemModal>();
   const itemGroupRepo = new ItemGroupRepository();
@@ -24,7 +25,7 @@ export default function PaymentTable(props: any) {
       {
         pumpCode: "",
         itemMaster: "",
-        itemName: "", 
+        itemName: "",
         uom: "",
         registerMeeting: "",
         updateMetering: "",
@@ -44,13 +45,11 @@ export default function PaymentTable(props: any) {
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.PumpData?.map(
-      (item: any, index: number) => {
-        if (index.toString() !== key.toString()) return item;
-        item[Object.keys(obj).toString()] = Object.values(obj).toString();
-        return item;
-      }
-    );
+    const newData = data?.PumpData?.map((item: any, index: number) => {
+      if (index.toString() !== key.toString()) return item;
+      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+      return item;
+    });
     if (newData.length <= 0) return;
     onChange("PumpData", newData);
   };
@@ -78,22 +77,24 @@ export default function PaymentTable(props: any) {
       visible: true,
       size: 120,
       Cell: ({ cell }: any) => {
-        return <MUITextField
-          value={cell.getValue()}
-          endAdornment={!(data?.isStatusClose || false)}
-          onClick={() => {
-            if ((cell.getValue() ?? "") === "") {
-              handlerAddItem(cell?.row.id);
-            } else {
-              handlerAddItem(cell?.row.id);
-              // updateRef.current?.onOpen(cell.row.original);
+        return (
+          <MUITextField
+            value={cell.getValue()}
+            endAdornment={!(data?.isStatusClose || false)}
+            onClick={() => {
+              if ((cell.getValue() ?? "") === "") {
+                handlerAddItem(cell?.row.id);
+              } else {
+                handlerAddItem(cell?.row.id);
+                // updateRef.current?.onOpen(cell.row.original);
+              }
+            }}
+            endIcon={
+              cell.getValue() === "" ? null : <TbEdit className="text-lg" />
             }
-          }}
-          endIcon={
-            cell.getValue() === "" ? null : <TbEdit className="text-lg" />
-          }
-          readOnly={true}
-        />
+            readOnly={true}
+          />
+        );
       },
     },
     {
@@ -136,7 +137,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"registerMeeting" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
+          disabled={edit}
           defaultValue={cell.row.original?.registerMeeting || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -154,7 +155,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"updateMetering" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
+          disabled={edit}
           defaultValue={cell.row.original?.updateMetering || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -178,9 +179,11 @@ export default function PaymentTable(props: any) {
             { id: "OutOfOrder", name: "Out Of Order" },
             { id: "Inactive", name: "Inactive" },
           ]}
-          onChange={(e) => handlerChangeItem(cell?.row?.id || 0, {
-            status: e.target.value,
-          })}
+          onChange={(e) =>
+            handlerChangeItem(cell?.row?.id || 0, {
+              status: e.target.value,
+            })
+          }
           value={cell.getValue()}
           aliasvalue="id"
           aliaslabel="name"
@@ -192,56 +195,41 @@ export default function PaymentTable(props: any) {
 
   return (
     <>
-      <div className="flex space-x-4 text-[25px] justify-end mb-2">
-        {/* {!data?.edit && (
-          <>
-            <AiOutlinePlus
-              className="text-blue-700 cursor-pointer"
-              onClick={handlerAddCheck}
-            />
-            <MdDeleteOutline
-              className="text-red-500 cursor-pointer"
-              onClick={handlerRemoveCheck}
-            />
-          </>
-        )}
-        <AiOutlineSetting className="cursor-pointer" /> */}
-      </div>
-      <MaterialReactTable
-        columns={columns}
-        data={data?.PumpData || []}
-        enableStickyHeader={true}
-        enableHiding={true}
-        enablePinning={true}
-        enableSelectAll={true}
-        enableMultiRowSelection={true}
-        enableColumnActions={false}
-        enableColumnFilters={false}
-        enablePagination={false}
-        enableSorting={false}
-        enableBottomToolbar={false}
-        enableTopToolbar={false}
-        enableColumnResizing={true}
-        enableTableFooter={false}
-        enableRowSelection={false}
-        onRowSelectionChange={setRowSelection}
-        enableRowNumbers={true}
-        initialState={{
-          density: "compact",
-          // rowSelection,
-        }}
-        // state={{
-        //   rowSelection,
-        // }}
-        muiTableProps={{
-          sx: { cursor: "pointer", height: "60px" },
-        }}
-      />
-      <ItemModal
-        ref={updateRef}
-        onSave={() => {}}
-        columns={columns}
-      />
+      <FormCard title="Pump Data">
+        <div className="col-span-2 data-table">
+          <MaterialReactTable
+            columns={columns}
+            data={data?.PumpData || []}
+            enableStickyHeader={true}
+            enableHiding={true}
+            enablePinning={true}
+            enableSelectAll={true}
+            enableMultiRowSelection={true}
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            enableColumnResizing={true}
+            enableTableFooter={false}
+            enableRowSelection={false}
+            onRowSelectionChange={setRowSelection}
+            enableRowNumbers={true}
+            initialState={{
+              density: "compact",
+              // rowSelection,
+            }}
+            // state={{
+            //   rowSelection,
+            // }}
+            muiTableProps={{
+              sx: { cursor: "pointer", height: "60px" },
+            }}
+          />
+        </div>
+        <ItemModal ref={updateRef} onSave={() => {}} columns={columns} />
+      </FormCard>
     </>
   );
 }

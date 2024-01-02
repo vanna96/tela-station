@@ -163,10 +163,10 @@ export default function SystemInitializeMasterPage() {
             }
           />
           <ItemCard
-            title="Inventory Transfer "
+            title="Stock Transfer "
             icon={<AiOutlineSolution />}
             amount={count?.logs || 0}
-            onClick={() => navigate("/stock-control/inventory-transfer")}
+            onClick={() => navigate("/stock-control/stock-transfer")}
           />
           <ItemCard
             title="Good Issue"

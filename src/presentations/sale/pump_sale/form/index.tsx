@@ -30,6 +30,7 @@ import ConsumptionAllocation from "../components/ConsumptionAllocation";
 import IncomingPayment from "../components/IncomingPayment";
 import PumpData from "../components/PumpData";
 import StockAllocation from "../components/StockAllocation";
+import StockForm from "../components/StockForm";
 
 class PumpSaleForm extends CoreFormDocument {
   constructor(props: any) {
@@ -56,6 +57,18 @@ class PumpSaleForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      pumpData: [
+        {
+          U_tl_pumpcode: "",
+          U_tl_itemnum: "",
+          U_tl_itemdesc: "",
+          U_tl_old_meter: 0,
+          U_tl_new_meter: 0,
+          con: -1,
+        },
+      ],
+      Services: [],
+      IncomingCash: [{ Currency: "KHR" }, { Currency: "USD" }],
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -78,30 +91,19 @@ class PumpSaleForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
+    console.log(state);
     let seriesList: any = this.props?.query?.find("orders-series");
+    const { data: tl_Dispenser }: any = await request("GET", `/TL_Dispenser`);
+    state = {
+      ...state,
+      tl_Dispenser,
+    };
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "17",
       });
       this.props?.query?.set("orders-series", seriesList);
-    }
-
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
     }
 
     if (this.props.edit) {
@@ -117,49 +119,12 @@ class PumpSaleForm extends CoreFormDocument {
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
 
-          // attachment
-          let AttachmentList: any = [];
-          let disabledFields: any = {
-            CurrencyType: true,
-          };
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await requestHeader(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
+          //  `/TL_Dispenser('${data?.Dispenser}')`
 
           state = {
             ...data,
+            tl_Dispenser,
+
             // Description: data?.Comments,
             // Owner: data?.DocumentsOwner,
             // Currency: data?.DocCurrency,
@@ -198,8 +163,7 @@ class PumpSaleForm extends CoreFormDocument {
                 return { addressName: addressName, addressType: addressType };
               }
             ),
-            AttachmentList,
-            disabledFields,
+
             isStatusClose: data?.DocumentStatus === "bost_Close",
             RoundingValue:
               data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
@@ -213,16 +177,12 @@ class PumpSaleForm extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -314,8 +274,7 @@ class PumpSaleForm extends CoreFormDocument {
       const payloads = {
         // general
         SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
+
         DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
         DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
@@ -448,17 +407,19 @@ class PumpSaleForm extends CoreFormDocument {
       <>
         <div className="w-full mt-2">
           <MenuButton active={this.state.tapIndex === 0}>
-            <span> Basic Information</span>
+            <span> Information</span>
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
           <MenuButton active={this.state.tapIndex === 2}>
-            Consumption Allocation
+            Consumption 
+            {/* Allocation */}
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 3}>
             Incoming Payment
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 4}>
-            Stock Allocation
+            Stock 
+            {/* Allocation */}
           </MenuButton>
         </div>
 
@@ -568,13 +529,30 @@ class PumpSaleForm extends CoreFormDocument {
                       onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
+                  {/* {this.state.tapIndex === 1 && (
+                    <ContentForm
+                      data={this.state}
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
+                      }}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
+                    />
+                  )} */}
                   {this.state.tapIndex === 1 && (
                     <PumpData
                       data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
+                      handlerAddItem={() => {
+                        this.hanndAddNewItem();
+                      }}
+                      handlerRemoveItem={(items: any[]) =>
+                        this.setState({ ...this.state, Items: items })
                       }
+                      handlerChangeItem={this.handlerChangeItems}
+                      onChangeItemByCode={this.handlerChangeItemByCode}
+                      onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
                     />
                   )}
                   {this.state.tapIndex === 2 && (
@@ -597,17 +575,7 @@ class PumpSaleForm extends CoreFormDocument {
                   )}
 
                   {this.state.tapIndex === 4 && (
-                    <StockAllocation
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-
-                  {/* {this.state.tapIndex === 4 && (
-                    <ContentForm
+                    <StockForm
                       data={this.state}
                       handlerAddItem={() => {
                         this.hanndAddNewItem();
@@ -618,8 +586,9 @@ class PumpSaleForm extends CoreFormDocument {
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
+                      ContentLoading={this.state.ContentLoading}
                     />
-                  )} */}
+                  )}
 
                   {/* {this.state.tapIndex === 3 && (
                     <AttachmentForm

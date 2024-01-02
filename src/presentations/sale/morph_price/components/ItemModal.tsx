@@ -15,6 +15,7 @@ import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import { TextField } from "@mui/material";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -174,6 +175,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               />
               <MUITextField
                 label="Discount"
+                disabled
                 startAdornment={"%"}
                 value={this.state?.DiscountPercent}
                 onChange={(event) => this.handChange(event, "DiscountPercent")}
@@ -181,6 +183,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <VatGroupTextField
                 label="Tax Code"
                 status={"tNO"}
+                disabled
                 value={this.state?.VatGroup}
                 onChange={(event) => this.handChange(event, "VatGroup")}
                 type={"OutputTax"}
@@ -189,6 +192,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               {/* <input hidden value={this.state?.UnitPrice} /> */}
               <NumericFormat
                 label="Total"
+                disabled
                 placeholder="0.00"
                 thousandSeparator
                 decimalScale={2}
@@ -208,10 +212,15 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 disabled
                 value={this.state?.UomGroupCode}
               />
-              <UOMSelect
-                label="UOM Code"
-                value={this.state?.UomAbsEntry}
-                filterAbsEntry={this.state.SaleUOMLists}
+              <MUISelect
+              label="UoM"
+                value={this.state.UomAbsEntry}
+                items={this.state.UomLists?.map((e: any) => ({
+                  label: e.Name,
+                  value: e.AbsEntry,
+                }))}
+                aliaslabel="label"
+                aliasvalue="value"
                 onChange={(event) => this.handChange(event, "UomAbsEntry")}
               />
               <WarehouseSelect

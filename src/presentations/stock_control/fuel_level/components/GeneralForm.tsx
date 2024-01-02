@@ -20,6 +20,7 @@ import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import { useParams } from "react-router-dom";
+import StatusSelect from "@/components/selectbox/Status";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -51,7 +52,6 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-  
 
   const route = useParams();
   if (data) {
@@ -136,12 +136,22 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
-                onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                }}
+              <MUISelect
+                items={[
+                  {
+                    Code: "O",
+                    Name: "Open",
+                  },
+                  {
+                    Code: "C",
+                    Name: "Closed",
+                  },
+                ]}
+                aliasvalue="Code"
+                aliaslabel="Name"
+                name="Status"
+                value={data?.Status}
+                onChange={(e) => handlerChange("Status", e.target.value)}
               />
             </div>
           </div>

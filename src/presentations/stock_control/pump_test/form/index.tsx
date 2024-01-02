@@ -43,6 +43,7 @@ class Form extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
+      Status: "O",
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",

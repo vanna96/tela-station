@@ -20,6 +20,9 @@ import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import { useParams } from "react-router-dom";
+import ToBinAutoComplete from "@/components/input/BinLocationTo";
+import BinLocationTo from "@/components/input/BinLocationTo";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -27,6 +30,7 @@ export interface IGeneralFormProps {
   edit?: boolean;
   lineofBusiness: string;
   warehouseCode: string;
+
   onLineofBusinessChange: (value: any) => void;
   onWarehouseChange: (value: any) => void;
 }
@@ -35,6 +39,7 @@ export default function GeneralForm({
   data,
   onLineofBusinessChange,
   onWarehouseChange,
+
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -53,7 +58,7 @@ export default function GeneralForm({
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
   if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0].NextNumber;
+    data.DocNum = filteredSeries[0]?.NextNumber;
   }
 
   // Finding date and to filter DN and INVOICE series Name
@@ -97,12 +102,28 @@ export default function GeneralForm({
     }
   };
 
+  const { data: WarebinItems, isLoading }: any = useQuery({
+    queryKey: ["ware-BinLocation"],
+    queryFn: () => new WareBinLocationRepository().get(),
+    staleTime: Infinity,
+  });
+
+  const filteredFromBin = WarebinItems?.filter(
+    (entry: any) => entry.BinCode === data.FromBinLocation
+  );
+  const filterToBin = WarebinItems?.filter(
+    (e: any) => e.BinCode === data.ToBinLocation
+  );
+
   if (data) {
     data.DNSeries = seriesDN;
     data.INSeries = seriesIN;
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
+    data.FromBinItems = filteredFromBin;
+    data.ToBinItems = filterToBin;
+    data.DocNum =  filteredSeries[0]?.NextNumber;
   }
 
   const { data: CurrencyAPI }: any = useQuery({
@@ -145,71 +166,6 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-              Transfer Type
-                {/* <span className="text-red-500">*</span> */}
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
-                onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
-                }}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Good in Transit
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-1">
-            <div className="col-span-2 text-gray-600 ">
-              GIT Account <span className="text-red-500">*</span>
-            </div>
-            <div className="col-span-3 text-gray-900">
-              <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
-                vtype="customer"
-                onChange={(vendor) => handlerChange("vendor", vendor)}
-                key={data?.CardCode}
-                error={"CardCode" in data?.error}
-                helpertext={data?.error?.CardCode}
-                autoComplete="off"
-                defaultValue={data?.CardCode}
-                name="BPCode"
-                endAdornment={!edit}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-               GIT Name
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
                 Branch
               </label>
             </div>
@@ -221,65 +177,77 @@ export default function GeneralForm({
               />
             </div>
           </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Warehouse Code<span className="text-red-500">*</span>
+                From Warehouse<span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
+                value={data?.FromWarehouse}
                 onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
+                  handlerChange("FromWarehouse", e);
                   onWarehouseChange(e);
                 }}
               />
             </div>
           </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Bin Code
-                {/* <span className="text-red-500">*</span> */}
+                To Warehouse<span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+              <WarehouseAutoComplete
+                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                value={data?.ToWarehouse}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
+                  handlerChange("ToWarehouse", e);
+                  onWarehouseChange(e);
                 }}
               />
             </div>
           </div>
-          
-          <div>
-            <input
-              hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="U_tl_arbusi"
-              value={data?.U_tl_arbusi}
-              // value={getValueBasedOnFactor()}
-              onChange={(e) => {
-                handlerChange("U_tl_arbusi", e.target.value);
-                onLineofBusinessChange(e.target.value);
-              }}
-            />
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                From Bin Location
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BinLocationTo
+                value={data?.FromBinLocation}
+                Warehouse={data?.FromWarehouse ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("FromBinLocation", e);
+                  // console.log(e);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                To Bin Location
+              </label>
+            </div>
+            <div className="col-span-3">
+              <BinLocationTo
+                value={data?.ToBinLocation}
+                Warehouse={data?.ToWarehouse ?? "WH01"}
+                onChange={(e) => {
+                  handlerChange("ToBinLocation", e);
+                  // console.log(e);
+                }}
+              />
+            </div>
           </div>
         </div>
         <div className="col-span-2 md:col-span-1"></div>
@@ -364,56 +332,6 @@ export default function GeneralForm({
                 disabled={edit && data?.Status?.includes("A")}
                 value={data.DocumentDate}
                 onChange={(e: any) => handlerChange("DocumentDate", e)}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Branch
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BranchAutoComplete
-                BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
-                value={BPL}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Warehouse Code<span className="text-red-500">*</span>
-              </label>
-            </div>
-            <div className="col-span-3">
-              <WarehouseAutoComplete
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
-                onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
-                  onWarehouseChange(e);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                To Bin Code
-                {/* <span className="text-red-500">*</span> */}
-              </label>
-            </div>
-            <div className="col-span-3">
-              <BinLocationAutoComplete
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
-                onChange={(e) => {
-                  handlerChange("BinLocation", e);
-                  // onWarehouseChange(e);
-                }}
               />
             </div>
           </div>

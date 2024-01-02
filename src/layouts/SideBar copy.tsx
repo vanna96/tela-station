@@ -214,10 +214,10 @@ export default function SideBari(props: any) {
           />
           <ChildButton
             icon={<MdOutlineStore />}
-            onClick={() => goTo("/stock-control/inventory-transfer")}
-            route="inventory-transfer"
+            onClick={() => goTo("/stock-control/stock-transfer")}
+            route="stock-transfer"
             collapse={props?.collapse}
-            title="Inventory Transfer"
+            title="Stock Transfer"
           />
           <ChildButton
             icon={<MdOutlineStore />}

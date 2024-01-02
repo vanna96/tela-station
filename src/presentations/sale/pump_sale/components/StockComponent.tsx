@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import MaterialReactTable from "material-react-table";
-import { Button, Checkbox, IconButton, TextField } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { AiOutlineSetting } from "react-icons/ai";
 import FormCard from "@/components/card/FormCard";
 import { TbSettings } from "react-icons/tb";
@@ -9,10 +9,8 @@ import { BiSearch } from "react-icons/bi";
 import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 
-interface ContentComponentProps {
+interface StockComponentProps {
   items: any[];
   onChange?: (key: any, value: any) => void;
   columns: any[];
@@ -24,11 +22,10 @@ interface ContentComponentProps {
   viewOnly?: boolean;
   data: any;
   loading: boolean;
-  isNotAccount: any;
   handlerAddSequence: any;
 }
 
-export default function ContentComponent(props: ContentComponentProps) {
+export default function StockComponent(props: StockComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [colVisibility, setColVisibility] = React.useState<
@@ -76,48 +73,34 @@ export default function ContentComponent(props: ContentComponentProps) {
     setRowSelection(rowSelects);
   };
 
+  if (props.items.length === 0) {
+    props.onChange &&
+      props.onChange("Items", [
+        {
+          Branch: "",
+          Warehouse: "",
+          BinCode: "",
+          ItemCode: "",
+        },
+      ]);
+  }
+
   const handlerAdd = () => {
     const Items = [
       ...props?.items,
       {
+        Branch: "",
+        Warehouse: "",
+        BinCode: "",
         ItemCode: "",
       },
     ];
     if (props?.onChange) props.onChange("Items", Items);
   };
 
-  console.log(props?.data);
-
-  const itemInvoicePrices =
-    props?.items?.reduce((prev: number, item: any) => {
-      return prev + parseFloat(item?.Amount || 0);
-    }, 0) || 0;
-
-  const onChange = (key: string, value: any) => {
-    if (props.onChange) props.onChange(key, value);
-  };
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
-    props.data.Items ?? [],
-    discount,
-    // props?.data?.ExchangeRate ?? 1
-    1
-  );
-
-  console.log(props.data.Items);
-  console.log(props.data.DocDiscount)
-  const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
-    if (dataDiscount <= 0) return 0;
-    if (dataDiscount > 100) return 100;
-    return docTotal * (dataDiscount / 100);
-  }, [discount, props.data.Items]);
-
-  let TotalPaymentDue =
-    docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
-
   return (
     <FormCard
-      title="Content"
+      title="Stock Allocation"
       action={
         <div className="flex ">
           <Button size="small" disabled={props?.data?.isStatusClose || false}>
@@ -125,11 +108,11 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
-          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
+          <Button size="small" disabled={props?.data?.isStatusClose || false}>
             <span className="capitalize text-sm" onClick={handlerAdd}>
               Add
             </span>
-          </Button> */}
+          </Button>
           <IconButton onClick={() => columnRef.current?.onOpen()}>
             <TbSettings className="text-2lg" />
           </IconButton>
@@ -142,8 +125,10 @@ export default function ContentComponent(props: ContentComponentProps) {
             columns={[
               {
                 accessorKey: "id",
-                size: 30,
-
+                size: 20,
+                // minSize: 30,
+                // maxSize: 30,
+                // enableResizing: false,
                 Cell: (cell) => (
                   <Checkbox
                     checked={cell.row.index in rowSelection}
@@ -154,7 +139,12 @@ export default function ContentComponent(props: ContentComponentProps) {
               },
               ...columns,
             ]}
-            data={[...props?.data?.Items, { ItemCode: "" }]}
+            data={
+              [...props?.data?.Items] ?? [
+                ...props?.data?.Items,
+                { ItemCode: "" },
+              ]
+            }
             enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
@@ -193,8 +183,8 @@ export default function ContentComponent(props: ContentComponentProps) {
             }}
             enableTableFooter={false}
           />
-    
         </div>
+
         <ContentTableSelectColumn
           ref={columnRef}
           columns={props.columns}

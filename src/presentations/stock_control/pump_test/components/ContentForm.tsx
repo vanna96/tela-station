@@ -21,6 +21,7 @@ import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
 import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import request from "@/utilies/request";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -69,7 +70,6 @@ export default function ContentForm({
     (item: any) => item.TL_DISPENSER_LINESCollection
   );
 
-
   const itemColumns = React.useMemo(
     () => [
       {
@@ -89,11 +89,19 @@ export default function ContentForm({
 
             if (selectedPump) {
               const selectedItem = selectedPump[0];
+
+              const itemDetailsResponse = await request(
+                "GET",
+                `/Items('${selectedItem?.U_tl_itemnum}')`
+              );
+              const itemDetails = itemDetailsResponse.data;
+
               handlerUpdateMultipleRow(cell.row.id, [
                 ["U_tl_pumpcode", newPumpCode],
                 ["U_tl_itemnum", selectedItem?.U_tl_itemnum],
                 ["U_tl_old_meter", selectedItem?.U_tl_reg_meter],
                 ["U_tl_new_meter", selectedItem?.U_tl_upd_meter],
+                ["U_tl_itemdesc", itemDetails.ItemName],
               ]);
             }
           };
@@ -133,14 +141,7 @@ export default function ContentForm({
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["U_tl_itemdesc", e.target.value])
-              }
-            />
-          );
+          return <MUITextField disabled value={cell.getValue()} />;
         },
       },
       {
@@ -149,7 +150,17 @@ export default function ContentForm({
         visible: true,
 
         Cell: ({ cell }: any) => {
-          return <MUITextField value={cell.getValue()} />;
+          return (
+            <MUITextField
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, [
+                  "U_tl_old_meter",
+                  e.target.value,
+                ])
+              }
+            />
+          );
         },
       },
       {
@@ -157,7 +168,17 @@ export default function ContentForm({
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
-          return <MUITextField value={cell.getValue()} />;
+          return (
+            <MUITextField
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, [
+                  "U_tl_new_meter",
+                  e.target.value,
+                ])
+              }
+            />
+          );
         },
       },
       {

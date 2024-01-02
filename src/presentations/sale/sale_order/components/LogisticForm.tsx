@@ -41,6 +41,7 @@ export default function LogisticForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Ship-From Address
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -101,6 +102,7 @@ export default function LogisticForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Ship-To Address
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">

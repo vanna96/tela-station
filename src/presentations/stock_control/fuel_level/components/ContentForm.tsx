@@ -23,6 +23,8 @@ import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
+import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
+import BinLocationTo from "@/components/input/BinLocationTo";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -90,10 +92,11 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField
+            <BinLocationTo
+              Warehouse={cell.row.original.U_tl_whscode}
               value={cell.getValue()}
               onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["U_tl_bincode", e.target.value])
+                handlerUpdateRow(cell.row.id, ["U_tl_bincode", e])
               }
             />
           );
@@ -122,7 +125,7 @@ export default function ContentForm({
           return (
             <NumericFormat
               thousandSeparator
-              decimalScale={2}
+              decimalScale={1}
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}
