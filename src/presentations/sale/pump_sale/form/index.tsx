@@ -59,11 +59,12 @@ class PumpSaleForm extends CoreFormDocument {
       warehouseCode: "",
       pumpData: [
         {
-          itemCode: "",
-          itemName: "",
-          newMeter: "",
-          pumpCode: "",
-          uom: "",
+          U_tl_pumpcode: "",
+          U_tl_itemnum: "",
+          U_tl_itemdesc: "",
+          U_tl_old_meter: 0,
+          U_tl_new_meter: 0,
+          con: -1,
         },
       ],
       Services: [],

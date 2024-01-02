@@ -8,6 +8,9 @@ import BankSelect from "@/components/selectbox/bank";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import FormCard from "@/components/card/FormCard";
 import { Button } from "@mui/material";
+import request from "@/utilies/request";
+import MUISelect from "@/components/selectbox/MUISelect";
+import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
 
 export default function PaymentTable(props: any) {
   const { data, onChange }: any = props;
@@ -17,13 +20,12 @@ export default function PaymentTable(props: any) {
     onChange("pumpData", [
       ...(data?.pumpData || []),
       {
-        pumpCode: "",
-        itemCode: "",
-        itemName: "",
-        uom: "",
-        newMeter: "",
-        oldMeter: "",
-        consumption: "",
+        U_tl_pumpcode: "",
+        U_tl_itemnum: "",
+        U_tl_itemdesc: "",
+        U_tl_old_meter: 0,
+        U_tl_new_meter: 0,
+        con: -1,
       },
     ]);
   };
@@ -47,187 +49,156 @@ export default function PaymentTable(props: any) {
     if (newData.length <= 0) return;
     onChange("pumpData", newData);
   };
+  const handlerUpdateRow = (i: number, e: any) => {
+    const items = [...data?.PumpData];
+    console.log(items)
+    items[i] = { ...items[i], [e[0]]: e[1] };
+    onChange("pumpData", items);
+  };
 
-  const columns = [
-    {
-      accessorKey: "pumpCode",
-      header: "Pump Code",
-      Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"pumpCode" + cell.getValue() + cell?.row?.id}
-          type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.pumpCode || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              pumpCode: e.target.value,
-            });
-          }}
-        />
-      ),
-    },
-    {
-      accessorKey: "itemCode",
-      header: "Item Code",
-      Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"itemCode" + cell.getValue() + cell?.row?.id}
-          type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.itemCode || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              itemCode: e.target.value,
-            });
-          }}
-        />
-      ),
-    },
-    {
-      accessorKey: "itemName",
-      header: "Item Name",
-      Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"itemName" + cell.getValue() + cell?.row?.id}
-          type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.itemName || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              itemName: e.target.value,
-            });
-          }}
-        />
-      ),
-    },
-    {
-      accessorKey: "uom",
-      header: "UOM",
-      Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"uom" + cell.getValue() + cell?.row?.id}
-          type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.uom || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              uom: e.target.value,
-            });
-          }}
-        />
-      ),
-    },
 
-    {
-      accessorKey: "newMeter",
-      header: "New Meter",
-      Cell: ({ cell }: any) => (
-        <FormattedInputs
-          key={"newMeter" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.newMeter || 0}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              newMeter: e.target.value,
-            });
-          }}
-          name={"newMeter"}
-          value={cell.row.original?.newMeter || ""}
-        />
-      ),
-    },
-    {
-      accessorKey: "oldMeter",
-      header: "Old Meter",
-      Cell: ({ cell }: any) => (
-        <FormattedInputs
-          key={"oldMeter" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.oldMeter || 0}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              oldMeter: e.target.value,
-            });
-          }}
-          name={"oldMeter"}
-          value={cell.row.original?.oldMeter || ""}
-        />
-      ),
-    },
-    {
-      accessorKey: "consumption",
-      header: "Consumption",
-      Cell: ({ cell }: any) => (
-        <FormattedInputs
-          key={"consumption" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.consumption || 0}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              consumption: e.target.value,
-            });
-          }}
-          name={"consumption"}
-          value={cell.row.original?.consumption || ""}
-        />
-      ),
-    },
-  ];
 
-  // return (
-  //   <>
-  //     <div className="flex space-x-4 text-[25px] justify-end mb-2">
-  //       {!data?.edit && (
-  //         <>
-  //           <AiOutlinePlus
-  //             className="text-blue-700 cursor-pointer"
-  //             onClick={handlerAddCheck}
-  //           />
-  //           <MdDeleteOutline
-  //             className="text-red-500 cursor-pointer"
-  //             onClick={handlerRemoveCheck}
-  //           />
-  //         </>
-  //       )}
-  //       <AiOutlineSetting className="cursor-pointer" />
-  //     </div>
+  const handlerUpdateMultipleRow = (i: number, updates: [string, any][]) => {
+    const items = [...data.pumpData];
+    console.log(items)
 
-  //     <MaterialReactTable
-  //       columns={columns}
-  //       data={data?.pumpData || []}
-  //       enableStickyHeader={true}
-  //       enableHiding={true}
-  //       enablePinning={true}
-  //       enableSelectAll={true}
-  //       enableMultiRowSelection={true}
-  //       enableColumnActions={false}
-  //       enableColumnFilters={false}
-  //       enablePagination={false}
-  //       enableSorting={false}
-  //       enableBottomToolbar={false}
-  //       enableTopToolbar={false}
-  //       enableColumnResizing={true}
-  //       enableTableFooter={false}
-  //       enableRowSelection
-  //       onRowSelectionChange={setRowSelection}
-  //       initialState={{
-  //         density: "compact",
-  //         rowSelection,
-  //       }}
-  //       state={{
-  //         rowSelection,
-  //       }}
-  //       muiTableProps={{
-  //         sx: { cursor: "pointer", height: "60px" },
-  //       }}
-  //     />
-  //   </>
-  // );
+    updates.forEach(([property, value]) => {
+      items[i] = {
+        ...items[i],
+        [property]: value,
+      };
+    });
+    onChange("pumpData", items);
+  };
 
-  console.log(data.pumpData)
+  const tl_Dispenser = data.tl_Dispenser?.value;
+  // console.log(data.tl_Dispenser)
+  const TL_DISPENSER_LINESCollection = tl_Dispenser?.map(
+    (item: any) => item.TL_DISPENSER_LINESCollection
+  );
+
+  console.log(TL_DISPENSER_LINESCollection)
+
+
+
+  const itemColumns = React.useMemo(
+    () => [
+      {
+        accessorKey: "U_tl_pumpcode",
+        header: "Pump ID",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          const handlePumpCodeChange = async (newPumpCode: string) => {
+            handlerUpdateRow(cell.row.id, ["U_tl_pumpcode", newPumpCode]);
+
+            const selectedPump = TL_DISPENSER_LINESCollection?.find(
+              (dispenser: any) =>
+                dispenser.some(
+                  (item: any) => item.U_tl_pumpcode === newPumpCode
+                )
+            );
+
+            if (selectedPump) {
+              const selectedItem = selectedPump[0];
+
+              const itemDetailsResponse = await request(
+                "GET",
+                `/Items('${selectedItem?.U_tl_itemnum}')`
+              );
+              const itemDetails = itemDetailsResponse.data;
+
+              handlerUpdateMultipleRow(cell.row.id, [
+                ["U_tl_pumpcode", newPumpCode],
+                ["U_tl_itemnum", selectedItem?.U_tl_itemnum],
+                ["U_tl_old_meter", selectedItem?.U_tl_reg_meter],
+                ["U_tl_new_meter", selectedItem?.U_tl_upd_meter],
+                ["U_tl_itemdesc", itemDetails.ItemName],
+              ]);
+            }
+          };
+
+          return (
+            <MUISelect
+              value={cell.row.original.U_tl_pumpcode}
+              items={
+                TL_DISPENSER_LINESCollection?.flatMap((dispenser: any) =>
+                  dispenser.map((item: any) => ({
+                    label: `${item.U_tl_pumpcode}`,
+                    value: item.U_tl_pumpcode,
+                    TL_DISPENSER_LINESCollection:
+                      item.TL_DISPENSER_LINESCollection,
+                  }))
+                ) || []
+              }
+              loading={!tl_Dispenser}
+              aliaslabel="label"
+              aliasvalue="Code"
+              onChange={(e: any) => handlePumpCodeChange(e.target.value)}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_itemnum",
+        header: "Item Code",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return <MUITextField value={cell.getValue()} />;
+        },
+      },
+
+      {
+        accessorKey: "U_tl_itemdesc",
+        header: "Item Name",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
+      },
+      {
+        accessorKey: "U_tl_old_meter",
+        header: "Old Meter",
+        visible: true,
+
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, [
+                  "U_tl_old_meter",
+                  e.target.value,
+                ])
+              }
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_new_meter",
+        header: "New Meter",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              value={cell.getValue()}
+              onChange={(e: any) =>
+                handlerUpdateRow(cell.row.id, [
+                  "U_tl_new_meter",
+                  e.target.value,
+                ])
+              }
+            />
+          );
+        },
+      },
+    ],
+    [TL_DISPENSER_LINESCollection]
+  );
+  console.log(data);
   return (
     <FormCard
-      title="Content"
+      title="Pump Data"
       action={
         <div className="flex ">
           <Button size="small" disabled={props?.data?.isStatusClose || false}>
@@ -249,7 +220,7 @@ export default function PaymentTable(props: any) {
       <>
         <div className="col-span-2 data-table">
           <MaterialReactTable
-            columns={columns}
+            columns={itemColumns}
             data={data?.pumpData || []}
             enableStickyHeader={true}
             enableHiding={true}

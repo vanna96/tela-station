@@ -100,7 +100,7 @@ export default function StockComponent(props: StockComponentProps) {
 
   return (
     <FormCard
-      title="Content"
+      title="Stock Allocation"
       action={
         <div className="flex ">
           <Button size="small" disabled={props?.data?.isStatusClose || false}>

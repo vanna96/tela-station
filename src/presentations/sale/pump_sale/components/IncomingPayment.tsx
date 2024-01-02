@@ -33,9 +33,9 @@ export default function IncomingPayment({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
+      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 ">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
-          <h2>Information</h2>
+          <h2>Incoming Payment</h2>
         </div>
 
         <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">

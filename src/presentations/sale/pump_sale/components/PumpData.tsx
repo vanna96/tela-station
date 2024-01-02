@@ -20,12 +20,7 @@ export default function PumpData({ data, onChange }: IPumpDataProps) {
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Pump Data</h2>
-        </div>
-        <PaymentTable data={data} onChange={onChange} />
-      </div>
+      <PaymentTable data={data} onChange={onChange} />
     </>
   );
 }
