@@ -104,7 +104,7 @@ export default function StockForm({
     }
   };
 
- 
+console.log(data.Items) 
 
   const itemColumns = React.useMemo(
     () => [

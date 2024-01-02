@@ -411,13 +411,15 @@ class PumpSaleForm extends CoreFormDocument {
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
           <MenuButton active={this.state.tapIndex === 2}>
-            Consumption Allocation
+            Consumption 
+            {/* Allocation */}
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 3}>
             Incoming Payment
           </MenuButton>
           <MenuButton active={this.state.tapIndex === 4}>
-            Stock Allocation
+            Stock 
+            {/* Allocation */}
           </MenuButton>
         </div>
 

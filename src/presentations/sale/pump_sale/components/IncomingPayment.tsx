@@ -33,7 +33,7 @@ export default function IncomingPayment({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 ">
+       <div className="rounded-lg shadow-sm bg-white border px-14 py-4 overflow-y-auto h-[calc(90vh-100px)]">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>Incoming Payment</h2>
         </div>

@@ -50,7 +50,7 @@ export default function PaymentTable(props: any) {
     onChange("pumpData", newData);
   };
   const handlerUpdateRow = (i: number, e: any) => {
-    const items = [...data?.PumpData];
+    const items = [...data?.pumpData];
     console.log(items)
     items[i] = { ...items[i], [e[0]]: e[1] };
     onChange("pumpData", items);
@@ -100,6 +100,8 @@ export default function PaymentTable(props: any) {
 
             if (selectedPump) {
               const selectedItem = selectedPump[0];
+              console.log(selectedItem)
+              console.log(selectedPump[0])
 
               const itemDetailsResponse = await request(
                 "GET",
