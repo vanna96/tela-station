@@ -1,91 +1,106 @@
 import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../components/DataTable";
+import { useNavigate } from "react-router-dom";
+import DataTable from "./components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
-import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
-import { Breadcrumb } from "../components/Breadcrumn";
+import { Button } from "@mui/material";
+import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
+import { APIContext } from "../context/APIContext";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import BranchRepository from "@/services/actions/branchRepository";
+import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
 
-export default function DispenserList() {
+export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
+  const { branchBPL }: any = React.useContext(APIContext);
+  const [cookies] = useCookies(["user"]);
+  const [searchValues, setSearchValues] = React.useState({
+    docnum: 0,
+    code: "",
+    name: "",
+    docdate: null,
+    account: -1,
+    bplid: -2,
+  });
   const route = useNavigate();
-
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "Code",
-        header: "Code", //uses the default width from defaultColumn prop
+        header: "Expense Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 40,
+        size: 88,
         visible: true,
+        // type: "number",
       },
       {
         accessorKey: "Name",
         header: "Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 40,
+        size: 88,
         visible: true,
-      },
-      {
-        accessorKey: "U_tl_empid",
-        header: "Employee", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 40,
-        visible: true,
-        Cell: ({ cell }: any) => {
-          if(!cell.getValue()) return "";
-          return new SalePersonRepository().find(cell.getValue())?.name;
+        Cell: (cell: any) => {
+          return cell.row.original.Name ?? "N/A";
         },
       },
       {
-        accessorKey: "U_tl_type",
-        header: "LOB", //uses the default width from defaultColumn prop
+        accessorKey: "U_tl_expacct",
+        header: "Account Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 40,
+        size: 88,
         visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_tl_expacct ?? "N/A";
+        },
       },
       {
-        accessorKey: "U_tl_pumpnum",
-        header: "Number of Pumps", //uses the default width from defaultColumn prop
+        accessorKey: "AccoutName",
+        header: "Account Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 40,
+        size: 100,
         visible: true,
+        Cell: (cell: any) => {
+          return (
+            new GLAccountRepository().find(cell.row.original.U_tl_expacct)
+              ?.Name ?? "N/A"
+          );
+        },
       },
       {
-        accessorKey: "U_tl_status",
-        header: "Status", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
+        accessorKey: "U_tl_bplid",
+        header: "Branch",
+        size: 100,
+        visible: true,
+        Cell: (cell: any) => {
+          return (
+            new BranchBPLRepository().find(cell.row.original.U_tl_bplid)
+              ?.BPLName ?? "N/A"
+          );
+        },
+      },
+
+      {
+        accessorKey: "U_tl_expactive",
+        header: "Active",
         size: 40,
         visible: true,
+        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
       },
       {
-        accessorKey: "Code",
+        accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
         enableColumnFilterModes: false,
         enableColumnActions: false,
@@ -97,30 +112,24 @@ export default function DispenserList() {
         header: "Action",
         visible: true,
         Cell: (cell: any) => (
-          <div className="flex space-x-2" key={`code_${cell.value}`}>
-            <Button
-              variant="outlined"
-              size="small"
+          <div className="flex space-x-2">
+            <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/pump/" + cell.row.original.Code, {
+                route("/master-data/pump-attendant/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              <span style={{ textTransform: "none" }}>View</span>
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              View
+            </button>
+            <button
+              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  "/master-data/pump/" + cell.row.original.Code + "/edit",
+                  `/master-data/pump-attendant/${cell.row.original.Code}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -132,14 +141,15 @@ export default function DispenserList() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              <span style={{ textTransform: "none" }}> Edit</span>
-            </Button>
+              Edit
+            </button>
           </div>
         ),
       },
     ],
     []
   );
+
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
@@ -148,11 +158,11 @@ export default function DispenserList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: [`TL_CashAcct`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_Dispenser/$count?$select=Code${filter}`
+        `${url}/TL_CashAcct/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -160,20 +170,21 @@ export default function DispenserList() {
         });
       return response;
     },
-    // staleTime: Infinity,
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "TL_CashAcct",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_Dispenser?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_CashAcct?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }&${filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -181,8 +192,8 @@ export default function DispenserList() {
         });
       return response;
     },
-    // staleTime: Infinity,
-    retry: 1,
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   const handlerRefresh = React.useCallback(() => {
@@ -211,8 +222,7 @@ export default function DispenserList() {
   };
 
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
+    setFilter(value);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -224,85 +234,55 @@ export default function DispenserList() {
     }, 500);
   };
 
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
-  };
-
   const handleAdaptFilter = () => {
     setOpen(true);
   };
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    deliveryDate: null,
-    status: "",
-    bplid: null,
-  });
 
   const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.deliveryDate) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
-    }
+    let queryFilters: any = [];
+    if (searchValues.docnum)
+      queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
+    if (searchValues.code)
+      queryFilters.push(`startswith(Code, '${searchValues.code}')`);
+    if (searchValues.name)
+      queryFilters.push(`startswith(Name, '${searchValues.name}')`);
+    if (searchValues.docdate)
+      queryFilters.push(
+        `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
+      );
+    if (searchValues.account > 0)
+      queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
 
-    handlerSearchFilter(queryFilters);
+    if (searchValues.bplid > 0)
+      queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
+
+    if (queryFilters.length > 0)
+      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+    return handlerSearch("");
   };
-  const { id }: any = useParams();
-
-  const childBreadcrum = (
-    <>
-      <span className="" onClick={() => route("/master-data/pump")}>
-     {" "}  Dispenser
-      </span>
-    </>
-  );
 
   return (
     <>
-      <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
-          <Breadcrumb childBreadcrum={childBreadcrum} />
+      <ModalAdaptFilter
+        isOpen={open}
+        handleClose={() => setOpen(false)}
+      ></ModalAdaptFilter>
+      <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
+        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
+          <h3 className="text-base 2xl:text-base xl:text-base ">
+            Master Data / Pump Attendant{" "}
+          </h3>
         </div>
-
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <div className="col-span-10">
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
+                  type="number"
                   label="Document No."
                   placeholder="Document No."
                   className="bg-white"
                   autoComplete="off"
-                  type="number"
                   value={searchValues.docnum}
                   onChange={(e) =>
                     setSearchValues({ ...searchValues, docnum: e.target.value })
@@ -310,18 +290,46 @@ export default function DispenserList() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
+                <MUITextField
+                  label="Expese Code"
+                  placeholder="Code"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.code}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, code: e.target.value })
                   }
                 />
               </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Name"
+                  placeholder="Name"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.name}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, name: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Account
+                  </label>
+                  <div className="">
+                    <CashACAutoComplete
+                      value={searchValues.account}
+                      onChange={(e) =>
+                        setSearchValues({ ...searchValues, account: e })
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -329,61 +337,17 @@ export default function DispenserList() {
                   </label>
                   <div className="">
                     <BranchAutoComplete
-                      BPdata={cookies?.user?.UserBranchAssignment}
-                      onChange={(selectedValue) =>
-                        setSearchValues({
-                          ...searchValues,
-                          bplid: selectedValue,
-                        })
-                      }
                       value={searchValues.bplid}
+                      onChange={(e) =>
+                        setSearchValues({ ...searchValues, bplid: e })
+                      }
                     />
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Delivery Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
-                        // { label: "Paid", value: "bost_Paid" },
-                        // { label: "Delivered", value: "bost_Delivered" },
-                      ]}
-                      // onChange={(e) =>
-                      //   setSearchValues({ ...searchValues, status: e.target.value })
-                      // }
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string, // Ensure e.target.value is treated as a string
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
-                    />
-                  </div>
-                </div>
-              </div> */}
+              {/*  */}
+
+              <div className="col-span-2 2xl:col-span-3"></div>
             </div>
           </div>
           <div className="col-span-2">
@@ -402,8 +366,12 @@ export default function DispenserList() {
                   handlerClearFilter={handlerRefresh}
                   title={
                     <div className="flex gap-2">
-                      <Button variant="outlined" size="small">
-                        Filter
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        // onClick={handleGoClick}
+                      >
+                        Adapt Filter
                       </Button>
                     </div>
                   }
@@ -414,8 +382,7 @@ export default function DispenserList() {
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
                       e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
+                      e?.accessorKey !== "DocumentStatus"
                   )}
                   onClick={handlerSearch}
                 />
@@ -433,8 +400,7 @@ export default function DispenserList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Pump Lists"
-          createRoute="/master-data/pump/create"
+          title="Pump Attendant"
         />
       </div>
     </>

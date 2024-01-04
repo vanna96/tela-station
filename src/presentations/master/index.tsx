@@ -11,6 +11,7 @@ import {
   AiOutlineFileExcel,
   AiOutlineFileProtect,
 } from "react-icons/ai";
+import Item from "@/models/Item";
 
 const MasterDataPage = () => {
   const navigate = useNavigate();
@@ -39,15 +40,23 @@ const MasterDataPage = () => {
             <ItemCard title='Warehouses' onClick={() => goTo('warehouse')} icon={<AiOutlineSnippets />} />
             <ItemCard title='Bin Location' onClick={() => goTo('binlocation')} icon={<AiOutlineSolution />} /> */}
         <ItemCard
-          title="Dispenser"
+          title="Pump"
           icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("dispenser")}
+          onClick={() => goTo("pump")}
           amount={
             // count?.order ||
             0
           }
         />
-
+        <ItemCard
+          title="Pump Attendant"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("pump-attendant")}
+          amount={
+            // count?.order ||
+            0
+          }
+        />
         <ItemCard
           title="Expense Dictionary"
           icon={<AiOutlineFileProtect />}

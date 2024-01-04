@@ -29,20 +29,14 @@ import CashAccountList from "@/presentations/master_data/cash_account/index";
 import CashAccountForm from "@/presentations/master_data/cash_account/form/index";
 import CashAccountDetail from "@/presentations/master_data/cash_account/detail/index";
 
-
-
-
+import PumpAttendantList from "@/presentations/master_data/pump_attendant/index";
+import PumpAttendantForm from "@/presentations/master_data/pump_attendant/form/index";
+import PumpAttendantDetail from "@/presentations/master_data/pump_attendant/detail/index";
 
 export default function MasterDataRoute() {
   return (
     <Routes>
       <Route index element={<MasterDataPage />} />
-      <Route path="/dispenser">
-        <Route index element={<DispenserList />} />
-        <Route path=":id" element={<DispenserDetail />} />
-        <Route path="create" element={<DispenserForm />} />
-        <Route path=":id/edit" element={<DispenserForm edit={true} />} />
-      </Route>
 
       <Route path="/expense-dictionary">
         <Route index element={<ExpenseDictionaryList />} />
@@ -57,10 +51,20 @@ export default function MasterDataRoute() {
         <Route index element={<CashAccountList />} />
         <Route path=":id" element={<CashAccountDetail />} />
         <Route path="create" element={<CashAccountForm />} />
-        <Route
-          path=":id/edit"
-          element={<CashAccountForm edit={true} />}
-        />
+        <Route path=":id/edit" element={<CashAccountForm edit={true} />} />
+      </Route>
+      <Route path="/pump">
+        <Route index element={<DispenserList />} />
+        <Route path=":id" element={<DispenserDetail />} />
+        <Route path="create" element={<DispenserForm />} />
+        <Route path=":id/edit" element={<DispenserForm edit={true} />} />
+      </Route>
+
+      <Route path="/pump-attendant">
+        <Route index element={<PumpAttendantList />} />
+        <Route path=":id" element={<PumpAttendantDetail />} />
+        <Route path="create" element={<PumpAttendantForm />} />
+        <Route path=":id/edit" element={<PumpAttendantForm edit={true} />} />
       </Route>
       {/* <Route path='/warehouse' >
                 <Route index element={<WarehoseLists />} />

@@ -58,10 +58,17 @@ const appRoutes: RouteType[] = [
     },
     child: [
       {
-        path: "/master-data/dispenser",
-        state: "dispenser",
+        path: "/master-data/pump",
+        state: "pump",
         sidebarProps: {
-          displayText: "Dispenser",
+          displayText: "Pump",
+        },
+      },
+      {
+        path: "/master-data/pump-attendant",
+        state: "pump-attendant",
+        sidebarProps: {
+          displayText: "Pump Attendant",
         },
       },
       {
