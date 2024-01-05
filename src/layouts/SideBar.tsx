@@ -45,9 +45,9 @@ const Sidebar = (props: any) => {
   );
 
   return (
-    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-600 to-green-700 backdrop-blur-xl">
+    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 ">
       {props?.collapse ? (
-        <div className=" w-[300px] transition-all duration-600 scale-100 mr-8 ml-4">
+        <div className=" w-[280px] transition-all duration-600 scale-100 mr-8 ml-4">
           <div className="box-border px-12 py-4">{img}</div>
         </div>
       ) : (

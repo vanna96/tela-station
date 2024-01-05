@@ -50,8 +50,13 @@ export default function App() {
       >
         <CircularProgress color="inherit" />
       </Backdrop>
-      <div className={`h-full w-full flex gap-0 transition-all duration-300 bg-white`}>
-        <SideBar collapse={collapse} />
+      <div
+        className={` w-full flex gap-0 transition-all duration-300 bg-white`}
+      >
+        <div className="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-600 to-green-700 backdrop-blur-xl">
+          <SideBar collapse={collapse} />
+        </div>
+
         <div className="grow flex flex-col overflow-auto relative">
           <div
             className={`sticky z-50 top-0 px-2 pr-4 py-1 w-full shadow flex justify-between items-center bg-white`}
