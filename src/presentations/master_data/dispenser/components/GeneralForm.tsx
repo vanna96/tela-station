@@ -128,7 +128,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <PumpAttendantAutoComplete
-                  value={data.Attendant2}
+                  value={data.Attendant1}
                   onChange={(e) => handlerChange("Attendant1", e)}
                 />
               </div>
