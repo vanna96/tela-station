@@ -81,34 +81,10 @@ class DispenserForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    // let seriesList: any = this.props?.query?.find("orders-series");
-
-    // if (!seriesList) {
-    //   seriesList = await DocumentSerieRepository.getDocumentSeries({
-    //     Document: "17",
-    //   });
-    //   this.props?.query?.set("orders-series", seriesList);
-    // }
-
-    // let dnSeries: any = this.props?.query?.find("dn-series");
-
-    // if (!dnSeries) {
-    //   dnSeries = await DocumentSerieRepository.getDocumentSeries({
-    //     Document: "15",
-    //   });
-    //   this.props?.query?.set("dn-series", dnSeries);
-    // }
-    // let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    // if (!invoiceSeries) {
-    //   invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-    //     Document: "13",
-    //   });
-    //   this.props?.query?.set("invoice-series", invoiceSeries);
-    // }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
+
       await request("GET", `TL_Dispenser('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
@@ -119,6 +95,8 @@ class DispenserForm extends CoreFormDocument {
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
+            Attendant1 : data?.U_tl_attend1,
+            Attendant2 : data?.U_tl_attend2,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);
@@ -144,6 +122,7 @@ class DispenserForm extends CoreFormDocument {
               })
             ),
             Edit: true,
+            TL_PUMP_ATTEND: TL_PUMP_ATTEND,
           };
         })
         .catch((err: any) => console.log(err))
@@ -207,6 +186,8 @@ class DispenserForm extends CoreFormDocument {
         Name: this.state?.DispenserName,
         U_tl_pumpnum: this.state?.NumOfPump,
         U_tl_empid: this.state?.SalesPersonCode,
+        U_tl_attend1: this.state?.Attendant1,
+        U_tl_attend2: this.state?.Attendant2,
         U_tl_type: this.state?.lineofBusiness,
         U_tl_status: this.state?.Status,
         TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
@@ -236,7 +217,7 @@ class DispenserForm extends CoreFormDocument {
           if ((res && res.status === 200) || 201) {
             return this.dialog.current?.success(
               "Create Successfully.",
-              res.data?.DocEntry
+              res.data?.Code
             );
           } else {
             console.error("Error in POST request:", res.statusText);
