@@ -23,7 +23,6 @@ export default function PumpAttendantAutoComplete(props: {
     queryFn: () => new PumpAttendantRepository().get(),
  
   });
-  console.log(data);
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
@@ -45,7 +44,7 @@ export default function PumpAttendantAutoComplete(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedCode = newValue ? newValue.code : null;
+      const selectedCode = newValue ? newValue.Code : null;
       props.onChange(selectedCode);
     }
   };
