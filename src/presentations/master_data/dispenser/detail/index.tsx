@@ -207,6 +207,18 @@ function General(props: any) {
                 {new SalePersonRepository().find(props.data?.SalesPersonCode)?.name}
               </div>
             </div>
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700 ">Pump Attendant 1</div>
+              <div className="col-span-1 text-gray-900">
+                {props.data?.U_tl_attend1?? "N/A"}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700 ">Pump Attendant 2</div>
+              <div className="col-span-1 text-gray-900">
+                {props.data?.U_tl_attend2 ?? "N/A"}
+              </div>
+            </div>
           </div>
           {/*  */}
           <div className="col-span-2"></div>
