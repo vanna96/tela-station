@@ -92,10 +92,16 @@ export default function SystemInitializeMasterPage() {
         <h1 className="mb-4 mt-10">Master Data</h1>
         <div className="grid grid-cols-6 space-x-4">
           <ItemCard
-            title="Dispenser"
+            title="Pump"
             icon={<AiOutlineSolution />}
             amount={count?.order || 0}
-            onClick={() => navigate("/master-data/dispenser")}
+            onClick={() => navigate("/master-data/pump")}
+          />
+          <ItemCard
+            title="Pump Attendant"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/master-data/pump-attendant")}
           />
           <ItemCard
             title="Expense Dictionary"
