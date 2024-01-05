@@ -45,7 +45,7 @@ const Sidebar = (props: any) => {
   );
 
   return (
-    <motion.aside className="border-r ease-in-out flex flex-col py-4 relative z-20 ">
+    <motion.aside className=" ">
       {props?.collapse ? (
         <div className=" w-[280px] transition-all duration-600 scale-100 mr-8 ml-4">
           <div className="box-border px-12 py-4">{img}</div>

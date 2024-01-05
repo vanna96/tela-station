@@ -28,9 +28,7 @@ export default function Lists() {
     docnum: 0,
     code: "",
     fname: "",
-    lname: "",
-    gender: "",
-    status: "",
+
     bplid: -2,
   });
   const route = useNavigate();
@@ -242,24 +240,12 @@ export default function Lists() {
     if (searchValues.docnum)
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
     if (searchValues.code)
-      queryFilters.push(`startswith(Code, '${searchValues.code}')`);
+      // queryFilters.push(`startswith(Code, '${searchValues.code}')`);
+      queryFilters.push(`Code eq '${searchValues.code}'`);
+   
+
     if (searchValues.fname)
-      queryFilters.push(`startswith(U_tl_fname, '${searchValues.fname}')`);
-
-    if (searchValues.lname)
-      queryFilters.push(`startswith(U_tl_lname, '${searchValues.lname}')`);
-
-    if (searchValues.gender)
-      queryFilters.push(`startswith(U_tl_gender, '${searchValues.gender}')`);
-    if (searchValues.status)
-      queryFilters.push(`startswith(U_tl_status, '${searchValues.status}')`);
-
-    // if (searchValues.docdate)
-    //   queryFilters.push(
-    //     `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
-    //   );
-    // if (searchValues.account > 0)
-    //   queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
+      queryFilters.push(`startswith(U_tl_fname, '${searchValues.fname}') or startswith(U_tl_lname,'${searchValues.fname}')`);
 
     if (searchValues.bplid > 0)
       queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
@@ -286,19 +272,6 @@ export default function Lists() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  type="number"
-                  label="Document No."
-                  placeholder="Document No."
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.docnum}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, docnum: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
                   label=" Code"
                   placeholder="Code"
                   className="bg-white"
@@ -311,8 +284,8 @@ export default function Lists() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="First Name"
-                  placeholder="First Name"
+                  label=" Name"
+                  placeholder=" Name"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.fname}
@@ -320,48 +293,6 @@ export default function Lists() {
                     setSearchValues({ ...searchValues, fname: e.target.value })
                   }
                 />
-              </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Last Name"
-                  placeholder="Last Name"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.lname}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, lname: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Gender
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      value={searchValues.gender}
-                      items={[
-                        {
-                          label: "Male",
-                          value: "Male",
-                        },
-                        {
-                          label: "Female",
-                          value: "Female",
-                        },
-                      ]}
-                      onChange={(e) =>
-                        setSearchValues({
-                          ...searchValues,
-                          gender: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
               </div>
 
               <div className="col-span-2 2xl:col-span-3">
