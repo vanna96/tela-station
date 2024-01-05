@@ -36,7 +36,7 @@ class FormDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_CashAcct('${id}')`)
+      await request("GET", `TL_PUMP_ATTEND('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
 
@@ -102,6 +102,18 @@ function General(props: any) {
   const { data }: any = props;
   return (
     <>
+      {/*  "U_tl_fname" : "fname",
+   "U_tl_lname" : "lname",
+   "U_tl_gender" : "Female",
+   "U_tl_dob" : "2024-01-05T00:00:00Z",
+   "U_tl_tel1" : "123213123",
+   "U_tl_tel2" : "1321331312",
+   "U_tl_bplid" : "1",
+   "U_tl_numid" : "123131311",
+   "U_tl_sdate" : "2024-01-05T00:00:00Z",
+   "U_tl_edate" : "2024-01-05T00:00:00Z",
+   "U_tl_address" : "efwafwe",
+   "U_tl_status" : "y" */}
       <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
         <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
           General
@@ -110,21 +122,51 @@ function General(props: any) {
           <div className="grid grid-cols-12 ">
             <div className="col-span-5">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Expense Code</div>
+                <div className="col-span-1 text-gray-700 "> Code</div>
                 <div className="col-span-1 text-gray-900">
                   {data?.Code ?? "N/A"}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">GL Account </div>
+                <div className="col-span-1 text-gray-700 "> First Name</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_cashacct ?? "N/A"}
-                  {" - "}
-                  {new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ??
-                    "N/A"}
+                  {data?.U_tl_fname ?? "N/A"}
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 "> Last Name</div>
+                <div className="col-span-1 text-gray-900">
+                  {data?.U_tl_lname ?? "N/A"}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Gender</div>
+                <div className="col-span-1 text-gray-900">
+                  {data?.U_tl_gender ?? "N/A"}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 "> Date of Birth </div>
+                <div className="col-span-1 text-gray-900">
+                  {dateFormat(data?.U_tl_dob) || "N/A"}
+                </div>
+              </div>
+            </div>
+            <div className="col-span-2"></div>
+            <div className="col-span-5 ">
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700">Status</div>
+                <div className="col-span-1  text-gray-900">
+                  {data.U_tl_cashaU_tl_statusctive === "y"
+                    ? "Active"
+                    : "Inactive"}
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Branch </div>
                 <div className="col-span-1 text-gray-900">
@@ -132,19 +174,53 @@ function General(props: any) {
                     "N/A"}
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">No. ID Card</div>
+                <div className="col-span-1 text-gray-900">
+                  {data.U_tl_numid ?? "N/A"}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-12 mt-8">
+            <div className="col-span-5">
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 "> Mobile 1</div>
+                <div className="col-span-1 text-gray-900">
+                  {data?.Code ?? "N/A"}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 "> Mobile 2</div>
+                <div className="col-span-1 text-gray-900">
+                  {data?.U_tl_fname ?? "N/A"}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">
+                  Residential Address
+                </div>
+                <div className="col-span-1 text-gray-900">
+                  {data?.U_tl_fname ?? "N/A"}
+                </div>
+              </div>
             </div>
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700">Active</div>
-                <div className="col-span-1  text-gray-900">
-                  {props.data.U_tl_cashactive === "Y" ? "Yes" : "No"}
+                <div className="col-span-1 text-gray-700 ">Joined Date</div>
+                <div className="col-span-1 text-gray-900">
+                  {dateFormat(data?.U_tl_dob) || "N/A"}
                 </div>
               </div>
+
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Description</div>
+                <div className="col-span-1 text-gray-700 ">Terminated Date</div>
                 <div className="col-span-1 text-gray-900">
-                  {props.data.Name}
+                  {dateFormat(data?.U_tl_dob) || "N/A"}
                 </div>
               </div>
             </div>

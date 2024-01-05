@@ -18,6 +18,7 @@ import BranchRepository from "@/services/actions/branchRepository";
 import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -26,9 +27,10 @@ export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
     docnum: 0,
     code: "",
-    name: "",
-    docdate: null,
-    account: -1,
+    fname: "",
+    lname: "",
+    gender: "",
+    status: "",
     bplid: -2,
   });
   const route = useNavigate();
@@ -36,7 +38,7 @@ export default function Lists() {
     () => [
       {
         accessorKey: "Code",
-        header: "Expense Code", //uses the default width from defaultColumn prop
+        header: "Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -44,40 +46,44 @@ export default function Lists() {
         // type: "number",
       },
       {
-        accessorKey: "Name",
-        header: "Name", //uses the default width from defaultColumn prop
+        accessorKey: "U_tl_fname",
+        header: "First Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return cell.row.original.U_tl_fname ?? "N/A";
         },
       },
+
       {
-        accessorKey: "U_tl_expacct",
-        header: "Account Code", //uses the default width from defaultColumn prop
+        accessorKey: "U_tl_lname",
+        header: "Last Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_tl_expacct ?? "N/A";
+          return cell.row.original.U_tl_lname ?? "N/A";
         },
       },
+
       {
-        accessorKey: "AccoutName",
-        header: "Account Name", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 100,
+        accessorKey: "U_tl_gender",
+        header: "Gender",
+        size: 40,
         visible: true,
-        Cell: (cell: any) => {
-          return (
-            new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-              ?.Name ?? "N/A"
-          );
-        },
+        // Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "status" : "Instatus"),
+      },
+
+      {
+        accessorKey: "U_tl_status",
+        header: "Active",
+        size: 40,
+        visible: true,
+        Cell: ({ cell }: any) =>
+          cell.getValue() === "y" ? "Active" : "Inactive",
       },
       {
         accessorKey: "U_tl_bplid",
@@ -92,13 +98,6 @@ export default function Lists() {
         },
       },
 
-      {
-        accessorKey: "U_tl_expactive",
-        header: "Active",
-        size: 40,
-        visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
-      },
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -158,11 +157,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_CashAcct`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_PUMP_ATTEND`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_CashAcct/$count?${filter}`
+        `${url}/TL_PUMP_ATTEND/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -176,13 +175,13 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_CashAcct",
+      "TL_PUMP_ATTEND",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_CashAcct?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_PUMP_ATTEND?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&${filter}`
       )
@@ -244,14 +243,23 @@ export default function Lists() {
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
     if (searchValues.code)
       queryFilters.push(`startswith(Code, '${searchValues.code}')`);
-    if (searchValues.name)
-      queryFilters.push(`startswith(Name, '${searchValues.name}')`);
-    if (searchValues.docdate)
-      queryFilters.push(
-        `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
-      );
-    if (searchValues.account > 0)
-      queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
+    if (searchValues.fname)
+      queryFilters.push(`startswith(U_tl_fname, '${searchValues.fname}')`);
+
+    if (searchValues.lname)
+      queryFilters.push(`startswith(U_tl_lname, '${searchValues.lname}')`);
+
+    if (searchValues.gender)
+      queryFilters.push(`startswith(U_tl_gender, '${searchValues.gender}')`);
+    if (searchValues.status)
+      queryFilters.push(`startswith(U_tl_status, '${searchValues.status}')`);
+
+    // if (searchValues.docdate)
+    //   queryFilters.push(
+    //     `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
+    //   );
+    // if (searchValues.account > 0)
+    //   queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
 
     if (searchValues.bplid > 0)
       queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
@@ -291,7 +299,7 @@ export default function Lists() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="Expese Code"
+                  label=" Code"
                   placeholder="Code"
                   className="bg-white"
                   autoComplete="off"
@@ -303,13 +311,26 @@ export default function Lists() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="Name"
-                  placeholder="Name"
+                  label="First Name"
+                  placeholder="First Name"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.name}
+                  value={searchValues.fname}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, name: e.target.value })
+                    setSearchValues({ ...searchValues, fname: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Last Name"
+                  placeholder="Last Name"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.lname}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, lname: e.target.value })
                   }
                 />
               </div>
@@ -317,13 +338,26 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Account
+                    Gender
                   </label>
                   <div className="">
-                    <CashACAutoComplete
-                      value={searchValues.account}
+                    <MUISelect
+                      value={searchValues.gender}
+                      items={[
+                        {
+                          label: "Male",
+                          value: "Male",
+                        },
+                        {
+                          label: "Female",
+                          value: "Female",
+                        },
+                      ]}
                       onChange={(e) =>
-                        setSearchValues({ ...searchValues, account: e })
+                        setSearchValues({
+                          ...searchValues,
+                          gender: e.target.value,
+                        })
                       }
                     />
                   </div>

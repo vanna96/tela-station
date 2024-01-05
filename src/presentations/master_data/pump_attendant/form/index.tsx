@@ -36,7 +36,7 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_CashAcct('${id}')`)
+      await request("GET", `TL_PUMP_ATTEND('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -64,21 +64,39 @@ class Form extends CoreFormDocument {
       this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
-
-    
-      // on Edit
       const payload = {
-        // Series: data?.Series || null,
-
         Code: data?.Code,
-        Name: data?.Name,
-        U_tl_cashacct: data?.U_tl_cashacct,
+        Name: null,
+        // DocEntry: 1,
+        // Canceled: "N",
+        // Object: "TL_PUMP_ATTEND",
+        // LogInst: null,
+        // UserSign: 125,
+        // Transfered: "N",
+        // CreateDate: "2024-01-05T00:00:00Z",
+        // CreateTime: "09:43:00",
+        // UpdateDate: "2024-01-05T00:00:00Z",
+        // UpdateTime: "09:43:00",
+        // DataSource: "I",
+        U_tl_fname: data?.U_tl_fname,
+        U_tl_lname: data?.U_tl_lname,
+        U_tl_gender: data?.U_tl_gender,
+        // U_tl_dob: data?.U_tl_dob,
+        U_tl_dob: `${formatDate(data?.U_tl_dob || new Date())}"T00:00:00Z"`,
+        U_tl_tel1: data?.U_tl_tel1,
+        U_tl_tel2: data?.U_tl_tel2,
         U_tl_bplid: data?.U_tl_bplid,
-        U_tl_cashactive: data?.U_tl_cashactive,
+        // U_tl_sdate: data?.U_tl_sdate ,
+        // U_tl_edate: data?.U_tl_edate,
+        U_tl_sdate: `${formatDate(data?.U_tl_sdate || new Date())}"T00:00:00Z"`,
+        U_tl_edate: `${formatDate(data?.U_tl_edate || new Date())}"T00:00:00Z"`,
+        U_tl_address: data?.U_tl_address,
+        U_tl_status: data?.U_tl_status,
+        U_tl_numid: data?.U_tl_numid,
       };
 
       if (id) {
-        return await request("PATCH", `/TL_CashAcct('${id}')`, payload)
+        return await request("PATCH", `/TL_PUMP_ATTEND('${id}')`, payload)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -87,7 +105,7 @@ class Form extends CoreFormDocument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/TL_CashAcct", payload)
+      await request("POST", "/TL_PUMP_ATTEND", payload)
         .then(
           (res: any) =>
             this.dialog.current?.success(

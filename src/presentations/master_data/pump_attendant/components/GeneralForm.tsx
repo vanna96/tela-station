@@ -34,7 +34,7 @@ export default function GeneralForm({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
+      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
           <h2>Pump Attendant</h2>
         </div>
@@ -62,9 +62,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.FirstName}
-                  name="FirstName"
-                  onChange={(e) => handlerChange("FirstName", e.target.value)}
+                  value={data?.U_tl_fname}
+                  name="U_tl_fname"
+                  onChange={(e) => handlerChange("U_tl_fname", e.target.value)}
                 />
               </div>
             </div>
@@ -76,9 +76,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.LastName}
-                  name="LastName"
-                  onChange={(e) => handlerChange("LastName", e.target.value)}
+                  value={data?.U_tl_lname}
+                  name="U_tl_lname"
+                  onChange={(e) => handlerChange("U_tl_lname", e.target.value)}
                 />
               </div>
             </div>
@@ -91,14 +91,14 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "M", name: "Male" },
-                    { id: "F", name: "Female" },
+                    { id: "Male", name: "Male" },
+                    { id: "Female", name: "Female" },
                   ]}
-                  onChange={(e) => handlerChange("Gender", e.target.value)}
-                  value={data?.Gender}
+                  onChange={(e) => handlerChange("U_tl_gender", e.target.value)}
+                  value={data?.U_tl_gender}
                   aliasvalue="id"
                   aliaslabel="name"
-                  name="Gender"
+                  name="U_tl_gender"
                 />
               </div>
             </div>
@@ -110,9 +110,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.DateOfBirth}
-                  name="DateOfBirth"
-                  onChange={(e: any) => handlerChange("DateOfBirth", e)}
+                  value={data?.U_tl_dob}
+                  name="U_tl_dob"
+                  onChange={(e: any) => handlerChange("U_tl_dob", e)}
                 />
               </div>
             </div>
@@ -129,16 +129,16 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "Y", name: "Active" },
-                    { id: "N", name: "Inactive" },
+                    { id: "y", name: "Active" },
+                    { id: "n", name: "Inactive" },
                   ]}
                   onChange={(e) =>
-                    handlerChange("U_tl_cashactive", e.target.value)
+                    handlerChange("U_tl_status", e.target.value)
                   }
-                  value={data?.U_tl_cashactive}
+                  value={data?.U_tl_status}
                   aliasvalue="id"
                   aliaslabel="name"
-                  name="U_tl_cashactive"
+                  name="U_tl_status"
                 />
               </div>
             </div>
@@ -165,9 +165,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.NoIDCard}
-                  name="NoIDCard"
-                  onChange={(e) => handlerChange("NoIDCard", e.target.value)}
+                  value={data?.U_tl_numid}
+                  name="U_tl_numid"
+                  onChange={(e) => handlerChange("U_tl_numid", e.target.value)}
                 />
               </div>
             </div>
@@ -184,9 +184,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.Mobile1}
-                  name="Mobile1"
-                  onChange={(e) => handlerChange("Mobile1", e.target.value)}
+                  value={data?.U_tl_tel1}
+                  name="U_tl_tel1"
+                  onChange={(e) => handlerChange("U_tl_tel1", e.target.value)}
                 />
               </div>
             </div>
@@ -198,9 +198,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.Mobile2}
-                  name="Mobile2"
-                  onChange={(e) => handlerChange("Mobile2", e.target.value)}
+                  value={data?.U_tl_tel2}
+                  name="U_tl_tel2"
+                  onChange={(e) => handlerChange("U_tl_tel2", e.target.value)}
                 />
               </div>
             </div>
@@ -216,9 +216,9 @@ export default function GeneralForm({
                   size="small"
                   fullWidth
                   multiline
-                  onChange={(e) => handlerChange("Address", e.target.value)}
+                  onChange={(e) => handlerChange("U_tl_address", e.target.value)}
                   rows={2}
-                  value={data.Address}
+                  value={data.U_tl_address}
                 />
               </div>
             </div>
@@ -234,9 +234,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.JoinedDate}
-                  name="JoinedDate"
-                  onChange={(e) => handlerChange("JoinedDate", e)}
+                  value={data?.U_tl_sdate}
+                  name="U_tl_sdate"
+                  onChange={(e) => handlerChange("U_tl_sdate", e)}
                 />
               </div>
             </div>
@@ -249,9 +249,9 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.TerminateDate}
-                  name="TerminateDate"
-                  onChange={(e) => handlerChange("TerminateDate", e)}
+                  value={data?.U_tl_edate}
+                  name="U_tl_edate"
+                  onChange={(e) => handlerChange("U_tl_edate", e)}
                 />
               </div>
             </div>
