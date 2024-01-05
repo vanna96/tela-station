@@ -122,7 +122,6 @@ class DispenserForm extends CoreFormDocument {
               })
             ),
             Edit: true,
-            TL_PUMP_ATTEND: TL_PUMP_ATTEND,
           };
         })
         .catch((err: any) => console.log(err))
