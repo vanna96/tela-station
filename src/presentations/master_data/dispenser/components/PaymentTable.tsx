@@ -115,17 +115,20 @@ export default function PaymentTable(props: any) {
       ),
     },
     {
-      accessorKey: "uom",
+      accessorKey: "UomAbsEntry",
       header: "UOM",
       Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"uom" + cell.getValue() + cell?.row?.id}
-          type="text"
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.uom || ""}
-          onBlur={(e: any) => {
+        <MUISelect
+          value={cell.getValue()}
+          items={cell.row.original.UomLists?.map((e: any) => ({
+            label: e.Name,
+            value: e.AbsEntry,
+          }))}
+          aliaslabel="label"
+          aliasvalue="value"
+          onChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
-              uom: e.target.value,
+              UomAbsEntry: e.target.value,
             });
           }}
         />

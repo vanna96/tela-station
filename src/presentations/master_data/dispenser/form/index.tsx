@@ -22,6 +22,7 @@ import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import PumpData from "../components/PumpData";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 
 class DispenserForm extends CoreFormDocument {
   constructor(props: any) {
@@ -95,16 +96,31 @@ class DispenserForm extends CoreFormDocument {
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
-            Attendant1 : data?.U_tl_attend1,
-            Attendant2 : data?.U_tl_attend2,
+            Attendant1: data?.U_tl_attend1,
+            Attendant2: data?.U_tl_attend2,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
-                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);
+                const uomGroups: any =
+                  await new UnitOfMeasurementGroupRepository().get();
+
+                const uoms = await new UnitOfMeasurementRepository().get();
+                const uomGroup: any = uomGroups.find(
+                  (row: any) => row.AbsEntry === e?.U_tl_uom
+                );
+                let uomLists: any[] = [];
+                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+                  const itemUOM = uoms.find(
+                    (record: any) => record?.AbsEntry === row?.AlternateUoM
+                  );
+                  if (itemUOM) {
+                    uomLists.push(itemUOM);
+                  }
+                });
                 let item: any = {
                   pumpCode: e?.U_tl_pumpcode,
                   itemCode: e?.U_tl_itemnum,
                   UomAbsEntry: e?.U_tl_uom,
-                  uom: uom?.Name,
+                  UomLists: uomLists,
                   registerMeeting: e?.U_tl_reg_meter,
                   updateMetering: e?.U_tl_upd_meter,
                   status: e?.U_tl_status,
