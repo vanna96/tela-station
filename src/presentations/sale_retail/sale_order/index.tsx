@@ -132,7 +132,7 @@ export default function SaleOrderLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/sale-retail/${salesType}/` + cell.row.original.DocEntry, {
+                route(`/sale-retail/sale-order/` + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -154,7 +154,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale-retail/${salesType}/` + cell.row.original.DocEntry + "/edit",
+                  `/sale-retail/sale-order/` + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -363,7 +363,7 @@ export default function SaleOrderLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/sale-retail/${salesType}`)}>
+      <span className="" onClick={() => route(`/sale-retail/sale-order`)}>
         <span className=""></span> {capitalizeHyphenatedWords(salesType)}
       </span>
     </>
@@ -516,7 +516,7 @@ export default function SaleOrderLists() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Sale Retail Lists"
-          createRoute={`/sale-retail/${salesType}/create`}
+          createRoute={`/sale-retail/sale-order/create`}
         />
       </div>
     </>

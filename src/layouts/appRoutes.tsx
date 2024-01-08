@@ -11,7 +11,6 @@ import DispenserList from "../presentations/master_data/dispenser/index";
 import CashAccountList from "@/presentations/master_data/cash_account/index";
 import ExpenseDictionaryList from "@/presentations/master_data/expense_dictionary";
 import MorphPriceLists from "@/presentations/sale/morph_price";
-import SaleOrderLists from "@/presentations/sale/sale_order";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import { MdPointOfSale, MdReceipt } from "react-icons/md";
 import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
