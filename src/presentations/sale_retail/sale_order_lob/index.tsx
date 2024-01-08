@@ -2,7 +2,7 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../sale_delivery/components/DataTable";
+import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -515,8 +515,8 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
-          createRoute={`/sale/${salesType}/create`}
+          title="Sale Retail Lists"
+          createRoute={`/sale-retail/${salesType}/create`}
         />
       </div>
     </>

@@ -15,7 +15,7 @@ export default function SaleRoute() {
     <Routes>
       <Route index element={<SaleMasterPage />} />
 
-      <Route path="/sales-order">
+      {/* <Route path="/sales-order">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
@@ -39,7 +39,7 @@ export default function SaleRoute() {
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-
+ */}
 
       <Route path="/morph-price">
         <Route index element={<MorphPriceLists />} />

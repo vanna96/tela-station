@@ -25,6 +25,7 @@ import ClearenceLists from "@/presentations/expense/clearence";
 import DirectAccountLists from "@/presentations/collection/direct_account";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AdsClickIcon from "@mui/icons-material/AdsClick";
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PaymentAccountLists from "@/presentations/collection/payment_account";
 type RouteType = {
   state: string;
@@ -120,27 +121,6 @@ const appRoutes: RouteType[] = [
     },
     child: [
       {
-        path: "/sale/fuel-sales",
-        state: "fuel-sales",
-        sidebarProps: {
-          displayText: "Fuel",
-        },
-      },
-      {
-        path: "/sale/lube-sales",
-        state: "lube-sales",
-        sidebarProps: {
-          displayText: "Lube",
-        },
-      },
-      {
-        path: "/sale/lpg-sales",
-        state: "lpg-sales",
-        sidebarProps: {
-          displayText: "LPG ",
-        },
-      },
-      {
         path: "/sale/pump-record",
         state: "pump-record",
         sidebarProps: {
@@ -152,6 +132,45 @@ const appRoutes: RouteType[] = [
         state: "morph-price",
         sidebarProps: {
           displayText: "Morph Price ",
+        },
+      },
+    ],
+  },
+
+  {
+    path: "/sale-retail",
+    state: "sale-retail",
+    sidebarProps: {
+      displayText: "Sale Retail",
+      icon: <LocalShippingIcon />,
+    },
+    child: [
+      {
+        path: "/sale-retail/fuel-sales",
+        state: "fuel-sales",
+        sidebarProps: {
+          displayText: "Fuel",
+        },
+      },
+      {
+        path: "/sale-retail/lube-sales",
+        state: "lube-sales",
+        sidebarProps: {
+          displayText: "Lube",
+        },
+      },
+      {
+        path: "/sale-retail/lpg-sales",
+        state: "lpg-sales",
+        sidebarProps: {
+          displayText: "LPG ",
+        },
+      },
+      {
+        path: "/sale-retail/sale-order",
+        state: "sale-order",
+        sidebarProps: {
+          displayText: "Sale Order ",
         },
       },
     ],
@@ -264,7 +283,7 @@ const appRoutes: RouteType[] = [
         },
       },
     ],
-  }
+  },
 ];
 
 export default appRoutes;

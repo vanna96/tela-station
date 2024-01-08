@@ -12,10 +12,10 @@ import { request } from "http";
 // import SalesQuotationRepository from "@/services/actions/SalesQuotationRepository";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
 
-const SaleMasterPage = () => {
+const SaleRetailPage = () => {
   const navigate = useNavigate();
   const [count, setCount]: any = useState();
-  const goTo = (route: string) => navigate("/sale/" + route);
+  const goTo = (route: string) => navigate("/sale-retail/" + route);
 
   const getCount = async () => {
     const order = await new SalesOrderRepository().getCount({});
@@ -38,7 +38,7 @@ const SaleMasterPage = () => {
           onClick={() => goTo("sales-order")}
           amount={count?.order || 0}
         /> */}
-        {/* <ItemCard
+        <ItemCard
           title="Fuel Sales"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("fuel-sales")}
@@ -55,24 +55,17 @@ const SaleMasterPage = () => {
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("lpg-sales")}
           amount={count?.order || 0}
-        /> */}
+        />
 
         <ItemCard
-          title="Pump Record"
+          title="Sale Order"
           icon={<AiOutlineFileSearch />}
-          onClick={() => goTo("pump-record")}
+          onClick={() => goTo("sale-order")}
           amount={count?.order || 0}
         />
-         <ItemCard
-          title="Morph Price"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("morph-price")}
-          amount={count?.order || 0}
-        />
-       
       </MainContainer>
     </>
   );
 };
 
-export default SaleMasterPage;
+export default SaleRetailPage;

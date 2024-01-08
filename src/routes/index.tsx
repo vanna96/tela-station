@@ -21,6 +21,7 @@ import CollectionRoute from "./CollectionRoute";
 import ExpenseRoute from "./ExpenseRoute";
 import StockControlRoute from "./StockControlRoute";
 import SaleTargetRoute from "./SaleTargetRoute";
+import SaleRetailRoute from "./SaleRetailRoute";
 
 const Router = () => {
   return (
@@ -65,7 +66,13 @@ const Router = () => {
             />
             <Route
               path="/sale-target/*"
-              element={<SaleTargetRoute/>}
+              element={<SaleTargetRoute />}
+              errorElement={<span>Error</span>}
+            />
+
+            <Route
+              path="/sale-retail/*"
+              element={<SaleRetailRoute />}
               errorElement={<span>Error</span>}
             />
           </Route>
