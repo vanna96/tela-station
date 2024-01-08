@@ -100,23 +100,29 @@ class DispenserForm extends CoreFormDocument {
             Attendant2: data?.U_tl_attend2,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+                const UoMGroupEntry = await request(
+                  "GET",
+                  `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
+                );
+                const UoMGroup = UoMGroupEntry
                 const uomGroups: any =
                   await new UnitOfMeasurementGroupRepository().get();
 
                 const uoms = await new UnitOfMeasurementRepository().get();
                 const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === e?.U_tl_uom
+                  (row: any) => row.AbsEntry === UoMGroup?.data?.UoMGroupEntry
                 );
                 let uomLists: any[] = [];
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
                   );
+                  console.log(itemUOM);
                   if (itemUOM) {
                     uomLists.push(itemUOM);
                   }
                 });
-                // 
+                //
                 let item: any = {
                   pumpCode: e?.U_tl_pumpcode,
                   itemCode: e?.U_tl_itemnum,
