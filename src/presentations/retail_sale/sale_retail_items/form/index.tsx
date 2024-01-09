@@ -424,7 +424,7 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc"],
+      0: ["CardCode", "U_tl_whsdesc", "DueDate"] ,
       1: ["Items"],
       2: ["U_tl_dnsuppo", "PayToCode"],
       3: [],

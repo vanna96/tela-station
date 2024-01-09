@@ -39,19 +39,19 @@ const RetailSalePage = () => {
           amount={count?.order || 0}
         /> */}
         <ItemCard
-          title="Fuel Sales"
+          title="Fuel Cash Sale"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("fuel-cash-sale")}
           amount={count?.order || 0}
         />
         <ItemCard
-          title="Lube Sales"
+          title="Lube Cash Sale"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("lube-cash-sale")}
           amount={count?.order || 0}
         />
         <ItemCard
-          title="LPG"
+          title="LPG Cash Sale"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("lpg-cash-sale")}
           amount={count?.order || 0}

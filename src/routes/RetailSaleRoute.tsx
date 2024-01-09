@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import SaleOrderLists from "@/presentations/retail_sale/sale_order";
-import SalesOrderForm from "@/presentations/retail_sale/sale_order/form/index";
-import SaleOrderDetail from "@/presentations/retail_sale/sale_order/detail";
+import SaleOrderLists from "@/presentations/retail_sale/sale_retail_items";
+import SalesOrderForm from "@/presentations/retail_sale/sale_retail_items/form/index";
+import SaleOrderDetail from "@/presentations/retail_sale/sale_retail_items/detail";
 import PumpSaleLists from "@/presentations/retail_sale/pump_sale";
 import PumpSaleForm from "@/presentations/retail_sale/pump_sale/form";
 import PumpSaleDetail from "@/presentations/retail_sale/pump_sale/detail";

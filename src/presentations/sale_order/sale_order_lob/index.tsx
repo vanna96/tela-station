@@ -189,7 +189,7 @@ export default function SaleOrderLists() {
 
       switch (salesType) {
         case "fuel-sales":
-          numAtCardFilter = "Fuel";
+          numAtCardFilter = "Oil";
           break;
         case "lube-sales":
           numAtCardFilter = "Lube";
@@ -225,7 +225,7 @@ export default function SaleOrderLists() {
 
       switch (salesType) {
         case "fuel-sales":
-          numAtCardFilter = "Fuel";
+          numAtCardFilter = "Oil";
           break;
         case "lube-sales":
           numAtCardFilter = "Lube";
