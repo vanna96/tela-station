@@ -114,7 +114,7 @@ export default function Login() {
     <>
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
         <div className="flex items-center justify-center w-full mt-4">
-          <div className="w-4/5 lg:w-3/5 xl:w-2/5 bg-white border border-gray-300 shadow-xl flex flex-col lg:flex-row rounded-xl p-2">
+          <div className="w-4/5 lg:w-4/5 xl:w-3/5 bg-white border border-gray-300 shadow-xl flex flex-col lg:flex-row rounded-xl p-2">
             <div className="lg:w-1/2 bg-cover p-4 rounded-l-lg rounded-r-sm">
               <img
                 className="w-full h-full object-cover"

@@ -378,8 +378,8 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUIDatePicker
                 disabled={data?.isStatusClose || false}
-                value={data.PostingDate}
-                onChange={(e: any) => handlerChange("PostingDate", e)}
+                value={edit ? data.TaxDate : data.TaxDate}
+                onChange={(e: any) => handlerChange("TaxDate", e)}
               />
             </div>
           </div>
@@ -396,11 +396,11 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                error={"DueDate" in data?.error}
-                helpertext={data?.error["DueDate"]}
+                error={"DocDueDate" in data?.error}
+                helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
-                value={data.DueDate ?? null}
-                onChange={(e: any) => handlerChange("DueDate", e)}
+                value={edit? data.DocDueDate : data.DocDueDate ?? null}
+                onChange={(e: any) => handlerChange("DocDueDate", e)}
               />
             </div>
           </div>
@@ -413,8 +413,8 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUIDatePicker
                 disabled={edit && data?.Status?.includes("A")}
-                value={data.DocumentDate}
-                onChange={(e: any) => handlerChange("DocumentDate", e)}
+                value={data.DocDate}
+                onChange={(e: any) => handlerChange("DocDate", e)}
               />
             </div>
           </div>

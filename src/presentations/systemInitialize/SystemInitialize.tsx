@@ -49,7 +49,7 @@ export default function SystemInitializeMasterPage() {
 
   return (
     <>
-      <div className="px-12">
+      <div className="px-6">
         <h1 className="mb-4 mt-10">Master Data</h1>
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           <ItemCard
