@@ -84,7 +84,7 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
         <h1 className="mb-4 mt-10">Sale Target</h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Sale Scenario"
             icon={<AiOutlineSolution />}
@@ -98,9 +98,9 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/sale-target/sale-target")}
           />
         </div>
-
         <h1 className="my-4">Retail Sale </h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Fuel Sales"
             icon={<AiOutlineSolution />}
@@ -134,7 +134,7 @@ export default function SystemInitializeMasterPage() {
         </div>
 
         <h1 className="mb-4 mt-10">Sale Order</h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Fuel Sales"
             icon={<AiOutlineSolution />}
@@ -156,7 +156,7 @@ export default function SystemInitializeMasterPage() {
         </div>
 
         <h1 className="mb-4 mt-10">Banking</h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Settle Receipt"
             icon={<AiOutlineSolution />}
@@ -177,7 +177,7 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
         <h1 className="mb-4 mt-10">Expense Log</h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Expense Log"
             icon={<AiOutlineSolution />}
@@ -191,8 +191,8 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/expense/clearance")}
           />
         </div>
-        <h1 className="mb-4 mt-10">Stock Control</h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+        <h1 className="mb-4 mt-10 ">Stock Control</h1>
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4 mb-10">
           <ItemCard
             title="Inventory Transfer Request"
             icon={<AiOutlineSolution />}
@@ -232,6 +232,7 @@ export default function SystemInitializeMasterPage() {
             amount={count?.logs || 0}
             onClick={() => navigate("/stock-control/fuel-level")}
           />
+
         </div>
       </div>
     </>
