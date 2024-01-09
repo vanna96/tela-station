@@ -114,17 +114,38 @@ export default function Login() {
     <>
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
         <div className="flex items-center justify-center w-full mt-4">
-          <div className="w-4/5 lg:w-4/5 xl:w-3/5 bg-white border border-gray-300 shadow-xl flex flex-col lg:flex-row rounded-xl p-2">
-            <div className="lg:w-1/2 bg-cover p-4 rounded-l-lg rounded-r-sm">
+          {/* <div className="w-4/5 lg:w-4/5 xl:w-3/5 bg-white border border-gray-300 shadow-xl flex flex-col lg:flex-row rounded-xl p-2">
+            <div className="lg:w-1/2 bg-cover p-4 rounded-l-lg rounded-r-sm"> */}
+          <div className="w-5/6 h-[60vh] lg:w-4/5 xl:w-3/5 bg-white border border-gray-300 shadow-xl flex rounded-xl p-2 lg:flex-row ">
+            <div className="w-8/12 lg:w-6/12 bg-cover p-4 rounded-xl">
               <img
                 className="w-full h-full object-cover"
                 src={TelaCover}
                 alt="Background"
               />
             </div>
-            <div className="lg:w-1/2 p-6 flex flex-col justify-center">
+            {/* <div className="lg:w-1/2 p-6 flex flex-col justify-center"> */}
+            <div className=" lg:w-6/12 p-6 flex flex-col justify-center ">
               <div className="flex flex-col space-y-4">
                 <h1 className="text-xl font-semibold">Sign In</h1>
+                {/* 
+        <div className="flex items-center justify-center w-full mt-4">
+          <div className="w-4/6 h-[60vh] bg-white border border-gray-300 shadow-xl flex rounded-xl p-2">
+            <div className="w-8/12 lg:w-6/12 md:hidden sm:hidden bg-cover p-4 rounded-xl">
+              <img
+                className="rounded-l-lg rounded-r-sm"
+                src={TelaCover}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+                alt="Background"
+              />
+            </div>
+            <div className="w-4/12 lg:w-6/12 md:w-full sm:w-full p-6 flex flex-col justify-center ">
+              <div className="flex flex-col space-y-4"> */}
                 <input
                   hidden
                   defaultValue={company.current}
