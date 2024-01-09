@@ -51,7 +51,7 @@ export default function SystemInitializeMasterPage() {
     <>
       <div className="px-6">
         <h1 className="mb-4 mt-10">Master Data</h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           <ItemCard
             title="Pump"
             icon={<AiOutlineSolution />}
@@ -84,7 +84,7 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
         <h1 className="mb-4 mt-10">Sale Target</h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Sale Scenario"
             icon={<AiOutlineSolution />}
@@ -100,7 +100,7 @@ export default function SystemInitializeMasterPage() {
         </div>
 
         <h1 className="my-4">Retail Sale </h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Fuel Sales"
             icon={<AiOutlineSolution />}
@@ -134,7 +134,7 @@ export default function SystemInitializeMasterPage() {
         </div>
 
         <h1 className="mb-4 mt-10">Sale Order</h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Fuel Sales"
             icon={<AiOutlineSolution />}
@@ -156,7 +156,7 @@ export default function SystemInitializeMasterPage() {
         </div>
 
         <h1 className="mb-4 mt-10">Banking</h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Settle Receipt"
             icon={<AiOutlineSolution />}
@@ -177,7 +177,7 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
         <h1 className="mb-4 mt-10">Expense Log</h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Expense Log"
             icon={<AiOutlineSolution />}
@@ -192,7 +192,7 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
         <h1 className="mb-4 mt-10">Stock Control</h1>
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Inventory Transfer Request"
             icon={<AiOutlineSolution />}
