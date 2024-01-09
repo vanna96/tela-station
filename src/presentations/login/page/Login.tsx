@@ -112,23 +112,17 @@ export default function Login() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-        <div className="flex items-center justify-center w-full mt-4">
-          {/* <div className="w-4/5 lg:w-4/5 xl:w-3/5 bg-white border border-gray-300 shadow-xl flex flex-col lg:flex-row rounded-xl p-2">
-            <div className="lg:w-1/2 bg-cover p-4 rounded-l-lg rounded-r-sm"> */}
-          <div className="w-5/6 h-[60vh] lg:w-4/5 xl:w-3/5 bg-white border border-gray-300 shadow-xl flex rounded-xl p-2 lg:flex-row ">
-            <div className="w-8/12 lg:w-6/12 bg-cover p-4 rounded-xl">
-              <img
-                className="w-full h-full object-cover"
-                src={TelaCover}
-                alt="Background"
-              />
-            </div>
-            {/* <div className="lg:w-1/2 p-6 flex flex-col justify-center"> */}
-            <div className=" lg:w-6/12 p-6 flex flex-col justify-center ">
-              <div className="flex flex-col space-y-4">
-                <h1 className="text-xl font-semibold">Sign In</h1>
-                {/* 
+      <div className="flex flex-col items-center justify-center h-[90vh] bg-gray-100">
+        {/* <div className="w-full">
+          <div className="ml-20 mt-0 mb-12 sticky">
+            <img
+              src={BizLogo}
+              className="w-[16%] h-[16%]"
+              alt="Business Logo"
+            />
+          </div>
+        </div> */}
+
         <div className="flex items-center justify-center w-full mt-4">
           <div className="w-4/6 h-[60vh] bg-white border border-gray-300 shadow-xl flex rounded-xl p-2">
             <div className="w-8/12 lg:w-6/12 md:hidden sm:hidden bg-cover p-4 rounded-xl">
@@ -145,7 +139,16 @@ export default function Login() {
               />
             </div>
             <div className="w-4/12 lg:w-6/12 md:w-full sm:w-full p-6 flex flex-col justify-center ">
-              <div className="flex flex-col space-y-4"> */}
+              <div className="flex flex-col space-y-4">
+                <h1 className="text-xl font-semibold">Sign In</h1>
+                {/* <MUITextField
+                  label="Company"
+                  id="outlined-size-small"
+                  size="small"
+                  hidden
+                  defaultValue={company.current}
+                  onChange={(event) => onChange(event, "company")}
+                /> */}
                 <input
                   hidden
                   defaultValue={company.current}
@@ -166,10 +169,12 @@ export default function Login() {
                   defaultValue={password.current}
                   onChange={(event) => onChange(event, "password")}
                 />
-                {message && (
+                {message ? (
                   <Alert severity="error">
                     <strong>{message}</strong> Incorrect username or password
                   </Alert>
+                ) : (
+                  ""
                 )}
                 <div className="pt-0 w-full text-green-700">
                   <LoadingButton
@@ -177,11 +182,17 @@ export default function Login() {
                     fullWidth
                     onClick={onSubmit}
                     loading={loading}
+                    // loadingIndicator="Logging In..."
                     variant="contained"
                   >
                     <span>Log In</span>
                   </LoadingButton>
                 </div>
+                {/* <div className="mt-2 text-xs text-center text-[#656565]">
+                  <p> If you forgot your Username, please call</p>
+                  <p className="font-medium "> +855 (0) 23 925 333</p>
+                </div> */}
+
                 <div className="mt-2 text-xs text-center text-[#656565]">
                   <p>© 2023 BIZDIMENSION Co., LTD. All rights reserved.</p>
                 </div>
@@ -193,3 +204,5 @@ export default function Login() {
     </>
   );
 }
+
+// test
