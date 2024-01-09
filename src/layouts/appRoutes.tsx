@@ -111,53 +111,6 @@ const appRoutes: RouteType[] = [
       },
     ],
   },
-  {
-    path: "/retail-sale",
-    state: "retail-sale",
-    sidebarProps: {
-      displayText: "Retail Sale",
-      icon: <PointOfSaleIcon />,
-    },
-    child: [
-
-      {
-        path: "/retail-sale/fuel-sales",
-        state: "fuel-sales",
-        sidebarProps: {
-          displayText: "Fuel",
-        },
-      },
-      {
-        path: "/retail-sale/lube-sales",
-        state: "lube-sales",
-        sidebarProps: {
-          displayText: "Lube",
-        },
-      },
-      {
-        path: "/retail-sale/lpg-sales",
-        state: "lpg-sales",
-        sidebarProps: {
-          displayText: "LPG ",
-        },
-      },
-
-      {
-        path: "/retail-sale/pump-record",
-        state: "pump-record",
-        sidebarProps: {
-          displayText: "Pump Record ",
-        },
-      },
-      {
-        path: "/retail-sale/morph-price",
-        state: "morph-price",
-        sidebarProps: {
-          displayText: "Morph Price ",
-        },
-      },
-    ],
-  },
 
   {
     path: "/sale-order",
@@ -190,6 +143,54 @@ const appRoutes: RouteType[] = [
       },
     ],
   },
+  {
+    path: "/retail-sale",
+    state: "retail-sale",
+    sidebarProps: {
+      displayText: "Retail Sale",
+      icon: <PointOfSaleIcon />,
+    },
+    child: [
+      {
+        path: "/retail-sale/fuel-cash-sale",
+        state: "fuel-sales",
+        sidebarProps: {
+          displayText: "Fuel Cash Sale",
+        },
+      },
+      {
+        path: "/retail-sale/lube-cash-sale",
+        state: "lube-sales",
+        sidebarProps: {
+          displayText: "Lube Cash Sale",
+        },
+      },
+      {
+        path: "/retail-sale/lpg-cash-sale",
+        state: "lpg-sales",
+        sidebarProps: {
+          displayText: "LPG Cash Sale ",
+        },
+      },
+
+      // {
+      //   path: "/retail-sale/pump-record",
+      //   state: "pump-record",
+      //   sidebarProps: {
+      //     displayText: "Pump Record ",
+      //   },
+      // },
+      // {
+      //   path: "/retail-sale/morph-price",
+      //   state: "morph-price",
+      //   sidebarProps: {
+      //     displayText: "Morph Price ",
+      //   },
+      // },
+    ],
+  },
+
+  
   {
     path: "/banking",
     state: "banking",

@@ -169,7 +169,7 @@ class SalesOrderForm extends CoreFormDocument {
                 const uomGroup: any = uomGroups.find(
                   (row: any) => row.AbsEntry === item?.UoMEntry
                 );
-                
+
                 let uomLists: any[] = [];
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
@@ -299,7 +299,8 @@ class SalesOrderForm extends CoreFormDocument {
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
-        warehouseCodeGet
+        warehouseCodeGet,
+        data.BinLocation
       );
       // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
@@ -323,14 +324,13 @@ class SalesOrderForm extends CoreFormDocument {
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
 
-    
         DocumentLines,
 
         // logistic
         PayToCode: data?.PayToCode || null,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-    
+
         AttachmentEntry,
       };
 
@@ -353,14 +353,13 @@ class SalesOrderForm extends CoreFormDocument {
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
 
-    
         DocumentLines,
 
         // logistic
         PayToCode: data?.PayToCode || null,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-    
+
         AttachmentEntry,
       };
 
@@ -446,10 +445,8 @@ class SalesOrderForm extends CoreFormDocument {
     }
   };
 
-
   HeaderTaps = () => {
-
-    console.log(this.state)
+    console.log(this.state);
     return (
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
@@ -574,7 +571,6 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
-                      
                     />
                   )}
 
@@ -640,7 +636,7 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any) =>
+const getItem = (items: any, type: any, warehouseCode: any, BinLocation:any) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
@@ -658,9 +654,9 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       DocumentLinesBinAllocations: [
         {
           BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.UnitsOfMeasurement,
-          // AllowNegativeQuantity: "tNO",
-          // SerialAndBatchNumbersBaseLine: -1,
+          Quantity: item.Quantity,
+          AllowNegativeQuantity: "tNO",
+          SerialAndBatchNumbersBaseLine: -1,
           BaseLineNumber: index,
         },
       ],

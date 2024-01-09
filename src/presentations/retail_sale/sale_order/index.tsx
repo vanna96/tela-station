@@ -188,13 +188,13 @@ export default function SaleOrderLists() {
       let numAtCardFilter = "";
 
       switch (salesType) {
-        case "fuel-sales":
+        case "fuel-cash-sale":
           numAtCardFilter = "Fuel";
           break;
-        case "lube-sales":
+        case "lube-cash-sale":
           numAtCardFilter = "Lube";
           break;
-        case "lpg-sales":
+        case "lpg-cash-sale":
           numAtCardFilter = "LPG";
           break;
         default:
@@ -217,20 +217,20 @@ export default function SaleOrderLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      "retail-sale" + salesType,
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       let numAtCardFilter = "";
 
       switch (salesType) {
-        case "fuel-sales":
+        case "fuel-cash-sale":
           numAtCardFilter = "Fuel";
           break;
-        case "lube-sales":
+        case "lube-cash-sale":
           numAtCardFilter = "Lube";
           break;
-        case "lpg-sales":
+        case "lpg-cash-sale":
           numAtCardFilter = "LPG";
           break;
         default:
@@ -348,18 +348,21 @@ export default function SaleOrderLists() {
     handlerSearchFilter(queryFilters);
   };
   const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
+ 
+function capitalizeHyphenatedWords(str: any) {
+  return str
+    .split("-")
+    .map((word: any) => {
+      if (word.toLowerCase() === "lpg") {
+        return word.toUpperCase();
+      } else if (word.toLowerCase() === "cash") {
+        return "Cash";
+      } else {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+      }
+    })
+    .join(" ");
+}
 
   const childBreadcrum = (
     <>

@@ -41,23 +41,23 @@ const RetailSalePage = () => {
         <ItemCard
           title="Fuel Sales"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("fuel-sales")}
+          onClick={() => goTo("fuel-cash-sale")}
           amount={count?.order || 0}
         />
         <ItemCard
           title="Lube Sales"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("lube-sales")}
+          onClick={() => goTo("lube-cash-sale")}
           amount={count?.order || 0}
         />
         <ItemCard
           title="LPG"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("lpg-sales")}
+          onClick={() => goTo("lpg-cash-sale")}
           amount={count?.order || 0}
         />
 
-        <ItemCard
+        {/* <ItemCard
           title="Pump Record"
           icon={<AiOutlineFileSearch />}
           onClick={() => goTo("pump-record")}
@@ -68,7 +68,7 @@ const RetailSalePage = () => {
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("morph-price")}
           amount={count?.order || 0}
-        />
+        /> */}
        
       </MainContainer>
     </>

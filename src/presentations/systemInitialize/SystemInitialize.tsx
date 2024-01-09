@@ -98,40 +98,7 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/sale-target/sale-target")}
           />
         </div>
-        <h1 className="my-4">Retail Sale </h1>
 
-        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
-          <ItemCard
-            title="Fuel Sales"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/retail-sale/fuel-sales")}
-            amount={count?.order || 0}
-          />
-          <ItemCard
-            title="Lube Sales"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/retail-sale/lube-sales")}
-            amount={count?.order || 0}
-          />
-          <ItemCard
-            title="LPG Sales"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/retail-sale/lpg-sales")}
-            amount={count?.order || 0}
-          />
-          <ItemCard
-            title="Pump Record"
-            icon={<AiOutlineSolution />}
-            amount={count?.order || 0}
-            onClick={() => navigate("/retail-sale/pump-record")}
-          />
-          <ItemCard
-            title="Morph Price"
-            icon={<AiOutlineSolution />}
-            amount={count?.order || 0}
-            onClick={() => navigate("/retail-sale/morph-price")}
-          />
-        </div>
 
         <h1 className="mb-4 mt-10">Sale Order</h1>
         <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
@@ -154,6 +121,42 @@ export default function SystemInitializeMasterPage() {
             amount={count?.order || 0}
           />
         </div>
+
+        <h1 className="my-4">Retail Sale </h1>
+
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+          <ItemCard
+            title="Fuel Cash Sale"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/retail-sale/fuel-cash-sale")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="Lube Cash Sale"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/retail-sale/lube-cash-sale")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="LPG Cash Sale"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/retail-sale/lpg-cash-sale")}
+            amount={count?.order || 0}
+          />
+          {/* <ItemCard
+            title="Pump Record"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/retail-sale/pump-record")}
+          />
+          <ItemCard
+            title="Morph Price"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/retail-sale/morph-price")}
+          /> */}
+        </div>
+
 
         <h1 className="mb-4 mt-10">Banking</h1>
         <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">

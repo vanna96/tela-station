@@ -16,19 +16,19 @@ export default function RetailSaleRoute() {
       <Route index element={<RetailSalePage />} />
 
      
-      <Route path="/fuel-sales">
+      <Route path="/fuel-cash-sale">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/lube-sales">
+      <Route path="/lube-cash-sale">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/lpg-sales">
+      <Route path="/lpg-cash-sale">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
@@ -36,7 +36,7 @@ export default function RetailSaleRoute() {
       </Route>
 
 
-      <Route path="/morph-price">
+      {/* <Route path="/morph-price">
         <Route index element={<MorphPriceLists />} />
         <Route path="create" element={<MorphPriceForm />} />
         <Route path=":id/edit" element={<MorphPriceForm edit={true} />} />
@@ -49,7 +49,7 @@ export default function RetailSaleRoute() {
         <Route path="create" element={<PumpSaleForm />} />
         <Route path=":id/edit" element={<PumpSaleForm edit={true} />} />
         <Route path=":id" element={<PumpSaleDetail />} />
-      </Route>
+      </Route> */}
     </Routes>
   );
 }

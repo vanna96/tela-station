@@ -217,7 +217,7 @@ export default function SaleOrderLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      salesType +  "sale-order",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {

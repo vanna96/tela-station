@@ -20,6 +20,7 @@ import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import { useParams } from "react-router-dom";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -181,7 +182,7 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <BinLocationAutoComplete
+              <BinLocationToAsEntry
                 value={data?.BinLocation}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
