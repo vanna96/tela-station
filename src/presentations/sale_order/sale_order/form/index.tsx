@@ -78,31 +78,31 @@ class SalesOrderForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("orders-series");
+    // let seriesList: any = this.props?.query?.find("orders-series");
 
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
-      });
-      this.props?.query?.set("orders-series", seriesList);
-    }
+    // if (!seriesList) {
+    //   seriesList = await DocumentSerieRepository.getDocumentSeries({
+    //     Document: "17",
+    //   });
+    //   this.props?.query?.set("orders-series", seriesList);
+    // }
 
-    let dnSeries: any = this.props?.query?.find("dn-series");
+    // let dnSeries: any = this.props?.query?.find("dn-series");
 
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
+    // if (!dnSeries) {
+    //   dnSeries = await DocumentSerieRepository.getDocumentSeries({
+    //     Document: "15",
+    //   });
+    //   this.props?.query?.set("dn-series", dnSeries);
+    // }
+    // let invoiceSeries: any = this.props?.query?.find("invoice-series");
 
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
-    }
+    // if (!invoiceSeries) {
+    //   invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
+    //     Document: "13",
+    //   });
+    //   this.props?.query?.set("invoice-series", invoiceSeries);
+    // }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
@@ -232,17 +232,17 @@ class SalesOrderForm extends CoreFormDocument {
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
-          state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
+          // state["SerieLists"] = seriesList;
+          // state["dnSeries"] = dnSeries;
+          // state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
-      state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
+      // state["SerieLists"] = seriesList;
+      // state["dnSeries"] = dnSeries;
+      // state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
