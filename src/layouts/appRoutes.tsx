@@ -3,14 +3,14 @@ import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
 import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
 import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import SaleMasterPage from "@/presentations/sale";
+import SaleMasterPage from "@/presentations/retail_sale";
 import ExpensePage from "@/presentations/expense";
 import { ReactNode } from "react";
 import MasterDataPage from "@/presentations/master";
 import DispenserList from "../presentations/master_data/dispenser/index";
 import CashAccountList from "@/presentations/master_data/cash_account/index";
 import ExpenseDictionaryList from "@/presentations/master_data/expense_dictionary";
-import MorphPriceLists from "@/presentations/sale/morph_price";
+import MorphPriceLists from "@/presentations/retail_sale/morph_price";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
 import { MdPointOfSale, MdReceipt } from "react-icons/md";
 import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
@@ -24,7 +24,7 @@ import ClearenceLists from "@/presentations/expense/clearence";
 import DirectAccountLists from "@/presentations/collection/direct_account";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AdsClickIcon from "@mui/icons-material/AdsClick";
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import PaymentAccountLists from "@/presentations/collection/payment_account";
 type RouteType = {
   state: string;
@@ -112,22 +112,45 @@ const appRoutes: RouteType[] = [
     ],
   },
   {
-    path: "/sale",
-    state: "sale",
+    path: "/retail-sale",
+    state: "retail-sale",
     sidebarProps: {
-      displayText: "Ordering",
+      displayText: "Retail Sale",
       icon: <PointOfSaleIcon />,
     },
     child: [
+
       {
-        path: "/sale/pump-record",
+        path: "/retail-sale/fuel-sales",
+        state: "fuel-sales",
+        sidebarProps: {
+          displayText: "Fuel",
+        },
+      },
+      {
+        path: "/retail-sale/lube-sales",
+        state: "lube-sales",
+        sidebarProps: {
+          displayText: "Lube",
+        },
+      },
+      {
+        path: "/retail-sale/lpg-sales",
+        state: "lpg-sales",
+        sidebarProps: {
+          displayText: "LPG ",
+        },
+      },
+
+      {
+        path: "/retail-sale/pump-record",
         state: "pump-record",
         sidebarProps: {
           displayText: "Pump Record ",
         },
       },
       {
-        path: "/sale/morph-price",
+        path: "/retail-sale/morph-price",
         state: "morph-price",
         sidebarProps: {
           displayText: "Morph Price ",
@@ -137,39 +160,32 @@ const appRoutes: RouteType[] = [
   },
 
   {
-    path: "/sale-retail",
-    state: "sale-retail",
+    path: "/sale-order",
+    state: "sale-order",
     sidebarProps: {
-      displayText: "Sale Retail",
+      displayText: "Sale Order",
       icon: <LocalShippingIcon />,
     },
     child: [
       {
-        path: "/sale-retail/fuel-sales",
+        path: "/sale-order/fuel-sales",
         state: "fuel-sales",
         sidebarProps: {
           displayText: "Fuel",
         },
       },
       {
-        path: "/sale-retail/lube-sales",
+        path: "/sale-order/lube-sales",
         state: "lube-sales",
         sidebarProps: {
           displayText: "Lube",
         },
       },
       {
-        path: "/sale-retail/lpg-sales",
+        path: "/sale-order/lpg-sales",
         state: "lpg-sales",
         sidebarProps: {
           displayText: "LPG ",
-        },
-      },
-      {
-        path: "/sale-retail/sale-order",
-        state: "sale-order",
-        sidebarProps: {
-          displayText: "Sale Order ",
         },
       },
     ],

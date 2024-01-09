@@ -2,7 +2,7 @@
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
-    "./node_modules/react-tailwindcss-select/dist/index.esm.js"
+    "./node_modules/react-tailwindcss-select/dist/index.esm.js",
   ],
   theme: {
     extend: {
@@ -20,12 +20,19 @@ module.exports = {
         },
       },
     },
+    // screens: {
+    //   "2xl": { max: "1535px" },
+    //   xl: { max: "1280px" },
+    //   lg: { max: "1023px" },
+    //   md: { max: "767px" },
+    //   sm: { max: "639px" },
+    // },
     screens: {
-      "2xl": { max: "1535px" },
-      xl: { max: "1280px" },
-      lg: { max: "1023px" },
-      md: { max: "767px" },
-      sm: { max: "639px" },
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
     },
   },
   plugins: [],
