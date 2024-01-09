@@ -49,48 +49,9 @@ export default function SystemInitializeMasterPage() {
 
   return (
     <>
-      <div className="p-4">
-        <h1 className="my-4">Ordering System</h1>
-        <div className="grid grid-cols-6 space-x-4">
-          {/* <ItemCard
-            title="Sales Order"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/sale/sales-order")}
-            amount={count?.order || 0}
-          /> */}
-          <ItemCard
-            title="Fuel Sales"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/sale/fuel-sales")}
-            amount={count?.order || 0}
-          />
-          <ItemCard
-            title="Lube Sales"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/sale/lube-sales")}
-            amount={count?.order || 0}
-          />
-          <ItemCard
-            title="LPG Sales"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/sale/lpg-sales")}
-            amount={count?.order || 0}
-          />
-          <ItemCard
-            title="Pump Record"
-            icon={<AiOutlineSolution />}
-            amount={count?.order || 0}
-            onClick={() => navigate("/sale/pump-record")}
-          />
-          <ItemCard
-            title="Morph Price"
-            icon={<AiOutlineSolution />}
-            amount={count?.order || 0}
-            onClick={() => navigate("/sale/morph-price")}
-          />
-        </div>
+      <div className="px-6">
         <h1 className="mb-4 mt-10">Master Data</h1>
-        <div className="grid grid-cols-6 space-x-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           <ItemCard
             title="Pump"
             icon={<AiOutlineSolution />}
@@ -104,15 +65,6 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/master-data/pump-attendant")}
           />
           <ItemCard
-            title="Expense Dictionary"
-            icon={<AiOutlineSolution />}
-            onClick={() => navigate("/master-data/expense-dictionary")}
-            amount={
-              // count?.order ||
-              0
-            }
-          />
-          <ItemCard
             title="Cash Account"
             icon={<AiOutlineSolution />}
             onClick={() => navigate("/master-data/cash-account")}
@@ -121,9 +73,93 @@ export default function SystemInitializeMasterPage() {
               0
             }
           />
+          <ItemCard
+            title="Expense Dictionary"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/master-data/expense-dictionary")}
+            amount={
+              // count?.order ||
+              0
+            }
+          />
         </div>
-        <h1 className="mb-4 mt-10">Collection</h1>
-        <div className="grid grid-cols-6 space-x-4">
+        <h1 className="mb-4 mt-10">Sale Target</h1>
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+          <ItemCard
+            title="Sale Scenario"
+            icon={<AiOutlineSolution />}
+            amount={count?.logs || 0}
+            onClick={() => navigate("sale-target/sale-scenario")}
+          />
+          <ItemCard
+            title="Sale Target "
+            icon={<AiOutlineSolution />}
+            amount={count?.clearance || 0}
+            onClick={() => navigate("/sale-target/sale-target")}
+          />
+        </div>
+
+
+        <h1 className="mb-4 mt-10">Sale Order</h1>
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+          <ItemCard
+            title="Fuel Sales"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale-order/fuel-sales")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="Lube Sales"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale-order/lube-sales")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="LPG Sales"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale-order/lpg-sales")}
+            amount={count?.order || 0}
+          />
+        </div>
+
+        <h1 className="my-4">Retail Sale </h1>
+
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+          <ItemCard
+            title="Fuel Cash Sale"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/retail-sale/fuel-cash-sale")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="Lube Cash Sale"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/retail-sale/lube-cash-sale")}
+            amount={count?.order || 0}
+          />
+          <ItemCard
+            title="LPG Cash Sale"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/retail-sale/lpg-cash-sale")}
+            amount={count?.order || 0}
+          />
+          {/* <ItemCard
+            title="Pump Record"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/retail-sale/pump-record")}
+          />
+          <ItemCard
+            title="Morph Price"
+            icon={<AiOutlineSolution />}
+            amount={count?.order || 0}
+            onClick={() => navigate("/retail-sale/morph-price")}
+          /> */}
+        </div>
+
+
+        <h1 className="mb-4 mt-10">Banking</h1>
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Settle Receipt"
             icon={<AiOutlineSolution />}
@@ -144,7 +180,7 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
         <h1 className="mb-4 mt-10">Expense Log</h1>
-        <div className="grid grid-cols-6 space-x-4">
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
             title="Expense Log"
             icon={<AiOutlineSolution />}
@@ -158,8 +194,8 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/expense/clearance")}
           />
         </div>
-        <h1 className="mb-4 mt-10">Stock Control</h1>
-        <div className="grid grid-cols-6 space-x-4">
+        <h1 className="mb-4 mt-10 ">Stock Control</h1>
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4 mb-10">
           <ItemCard
             title="Inventory Transfer Request"
             icon={<AiOutlineSolution />}
@@ -199,16 +235,7 @@ export default function SystemInitializeMasterPage() {
             amount={count?.logs || 0}
             onClick={() => navigate("/stock-control/fuel-level")}
           />
-        </div>
 
-        <h1 className="mb-4 mt-10">Sale Target</h1>
-        <div className="grid grid-cols-6 space-x-4">
-          <ItemCard
-            title="Sale Scenario"
-            icon={<AiOutlineSolution />}
-            amount={count?.logs || 0}
-            onClick={() => navigate("/sale-target/sale-scenario")}
-          />
         </div>
       </div>
     </>

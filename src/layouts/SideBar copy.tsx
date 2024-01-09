@@ -134,6 +134,49 @@ export default function SideBari(props: any) {
             title="Morph Price"
           />
         </NavButton>
+
+        <NavButton
+          onClick={() => {
+            goTo("/sale-retail");
+          }}
+          route="sale-retail"
+          collapse={props.collapse}
+          icon={<HiOutlineShoppingBag />}
+          title="sale-retail"
+          isActive={activeParent === "sale-retail"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
+        >
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/sale-retail/fuel-sales")}
+            route="fuel-sales"
+            collapse={props?.collapse}
+            title="Fuel Sales"
+          />
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("sale-retail/lube-sales")}
+            route="lube-sales"
+            collapse={props?.collapse}
+            title="Lube Sales"
+          />
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/sale-retail/lpg-sales")}
+            route="lpg-sales"
+            collapse={props?.collapse}
+            title="LPG"
+          />
+
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/sale-retail/sale-order")}
+            route="sale-order"
+            collapse={props?.collapse}
+            title="Sale Order"
+          />
+         
+        </NavButton>
         <NavButton
           onClick={() => {
             goTo("/banking");

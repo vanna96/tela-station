@@ -1,6 +1,5 @@
 import { Route, Routes } from "react-router-dom";
 import { APIContextProvider } from "@/presentations/expense/context/APIContext";
-import SaleOrderDetail from "@/presentations/sale/sale_order/detail";
 import StockControlPage from "@/presentations/stock_control";
 import InventoryTransferRequestList from "@/presentations/stock_control/inventory_transfer_request";
 import InventoryTransferRequestForm from "@/presentations/stock_control/inventory_transfer_request/form/index";
@@ -33,7 +32,7 @@ export default function StockControlRoute() {
             path=":id/edit"
             element={<InventoryTransferRequestForm edit={true} />}
           />
-          <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+          <Route path=":id" element={<InventoryTransferDetails edit={true} />} />
         </Route>
         <Route path="/stock-transfer">
           <Route index element={<InventoryTransferList />} />

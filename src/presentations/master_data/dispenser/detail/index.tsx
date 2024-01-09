@@ -69,6 +69,8 @@ class DeliveryDetail extends Component<any, any> {
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
+            U_tl_attend1 : data?.U_tl_attend1,
+            U_tl_attend2: data?.U_tl_attend2,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);                                

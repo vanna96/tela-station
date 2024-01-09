@@ -3,7 +3,7 @@
 
 import React from 'react'
 import { Route, Routes } from 'react-router-dom';
-import SaleMasterPage from '@/presentations/sale';
+import SaleMasterPage from '@/presentations/retail_sale';
 import LogisticMasterPage from '../presentations/logistic/index';
 import VehicelLists from '@/presentations/logistic/vehicel';
 import RouteMasterList from '@/presentations/logistic/route_master';

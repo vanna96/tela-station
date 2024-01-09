@@ -12,7 +12,7 @@ import Login from "../presentations/login/page/Login";
 import App from "../layouts/App";
 
 import MasterDataRoute from "./MasterDataRoute";
-import SaleRoute from "./SaleRoute";
+import SaleRoute from "./RetailSaleRoute";
 import InventoryRoute from "./InventoryRoute";
 import LogisticRoute from "./LogisticRoute";
 import { useCookies } from "react-cookie";
@@ -21,6 +21,8 @@ import CollectionRoute from "./CollectionRoute";
 import ExpenseRoute from "./ExpenseRoute";
 import StockControlRoute from "./StockControlRoute";
 import SaleTargetRoute from "./SaleTargetRoute";
+import RetailSaleRoute from "./RetailSaleRoute";
+import SaleOrderRoute from "./SaleOrderRoute";
 
 const Router = () => {
   return (
@@ -37,8 +39,8 @@ const Router = () => {
             {/* <Route path='/procument/*' element={<ProcumentRoute />} errorElement={<span>Error</span>} /> */}
             {/* <Route path='/master-data/*' element={<MasterDataRoute />} errorElement={<span>Error</span>} /> */}
             <Route
-              path="/sale/*"
-              element={<SaleRoute />}
+              path="/retail-sale/*"
+              element={<RetailSaleRoute />}
               errorElement={<span>Error</span>}
             />
             {/* <Route path='/inventory/*' element={<InventoryRoute />} errorElement={<span>Error</span>} /> */}
@@ -65,7 +67,13 @@ const Router = () => {
             />
             <Route
               path="/sale-target/*"
-              element={<SaleTargetRoute/>}
+              element={<SaleTargetRoute />}
+              errorElement={<span>Error</span>}
+            />
+
+            <Route
+              path="/sale-order/*"
+              element={<SaleOrderRoute/>}
               errorElement={<span>Error</span>}
             />
           </Route>

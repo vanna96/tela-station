@@ -51,7 +51,7 @@ export default function App() {
         <CircularProgress color="inherit" />
       </Backdrop>
       <div
-        className={` w-full flex gap-0 transition-all duration-300 bg-white`}
+        className={`h-screen w-full flex gap-0 transition-all duration-300 bg-white`}
       >
         <div className="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-green-600 to-green-700 backdrop-blur-xl">
           <SideBar collapse={collapse} />
