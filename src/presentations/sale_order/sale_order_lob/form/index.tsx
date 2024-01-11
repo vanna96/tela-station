@@ -169,7 +169,7 @@ class SalesOrderForm extends CoreFormDocument {
                 const uomGroup: any = uomGroups.find(
                   (row: any) => row.AbsEntry === item?.UoMEntry
                 );
-                
+
                 let uomLists: any[] = [];
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
@@ -222,9 +222,9 @@ class SalesOrderForm extends CoreFormDocument {
                     data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
                   Rounding: (data?.Rounding == "tYES").toString(),
                   Edit: true,
-                  PostingDate: data?.DocDate,
-                  DueDate: data?.DocDueDate,
-                  DocumentDate: data?.TaxDate,
+                  // PostingDate: data?.DocDate,
+                  // DueDate: data?.DocDueDate,
+                  // DocumentDate: data?.TaxDate,
                 };
               })
             ),
@@ -299,65 +299,72 @@ class SalesOrderForm extends CoreFormDocument {
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
-        warehouseCodeGet
+        warehouseCodeGet,
+        data.BinLocation
       );
       // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
         // general
-        SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
-        DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
-        DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
+        // SOSeries: data?.Series,
+        // DNSeries: data?.DNSeries,
+        // INSeries: data?.INSeries,
+        DocDate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
+        DocDueDate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
+        TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-
-        // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
-        // DocRate: data?.ExchangeRate || 0,
         DiscountPercent: data?.DocDiscount,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
-        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
+        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
 
-        // content
-        // DocType: data?.DocType,
-        // RoundingDiffAmount: isUSD ? roundingValue : 0,
-        // RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
-        // RoundingDiffAmountSC: isUSD ? roundingValue : 0,
-        // Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
-        // DocumentsOwner: data?.Owner || null,
-        // DiscountPercent: data?.DocDiscount,
         DocumentLines,
 
         // logistic
-        // ShipToCode: data?.ShippingTo || null,
         PayToCode: data?.PayToCode || null,
-        // TransportationCode: data?.ShippingType,
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-        // Address: data?.Address2,
 
-        // accounting
-        // FederalTaxID: data?.FederalTax || null,
-        // PaymentMethod: data?.PaymentMethod || null,
-        // CashDiscountDateOffset: data?.CashDiscount || 0,
-        // CreateQRCodeFrom: data?.QRCode || null,
-        // PaymentGroupCode: data?.PaymentTermType || null,
-        // JournalMemo: data?.JournalRemark,
-        // Project: data?.BPProject || null,
-        // attachment
+        AttachmentEntry,
+      };
+
+      const edit_payloads = {
+        // general
+        SOSeries: data?.Series,
+        DNSeries: data?.DNSeries,
+        INSeries: data?.INSeries,
+        DocDate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
+        DocDueDate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
+        TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
+        CardCode: data?.CardCode,
+        CardName: data?.CardName,
+        DiscountPercent: data?.DocDiscount,
+        ContactPersonCode: data?.ContactPersonCode || null,
+        DocumentStatus: data?.DocumentStatus,
+        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
+        U_tl_whsdesc: data?.U_tl_whsdesc,
+        SalesPersonCode: data?.SalesPersonCode,
+        Comments: data?.User_Text,
+        U_tl_arbusi: data?.U_tl_arbusi,
+
+        DocumentLines,
+
+        // logistic
+        PayToCode: data?.PayToCode || null,
+        U_tl_grsuppo: data?.U_tl_grsuppo,
+        U_tl_dnsuppo: data?.U_tl_dnsuppo,
+
         AttachmentEntry,
       };
 
       if (id) {
-        return await request("PATCH", `/Orders(${id})`, payloads)
+        return await request("PATCH", `/Orders(${id})`, edit_payloads)
           .then(
             (res: any) =>
               this.dialog.current?.success("Update Successfully.", id)
@@ -365,7 +372,7 @@ class SalesOrderForm extends CoreFormDocument {
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/script/test/SO", payloads)
+      await request("POST", "/Orders", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;
@@ -424,7 +431,7 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc"],
+      0: ["CardCode","DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
       2: ["U_tl_dnsuppo", "PayToCode"],
       3: [],
@@ -439,6 +446,7 @@ class SalesOrderForm extends CoreFormDocument {
   };
 
   HeaderTaps = () => {
+    console.log(this.state);
     return (
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
@@ -563,7 +571,6 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
-                      
                     />
                   )}
 
@@ -629,7 +636,7 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any) =>
+const getItem = (items: any, type: any, warehouseCode: any, BinLocation:any) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
@@ -647,9 +654,9 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       DocumentLinesBinAllocations: [
         {
           BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.UnitsOfMeasurement,
-          // AllowNegativeQuantity: "tNO",
-          // SerialAndBatchNumbersBaseLine: -1,
+          Quantity: item.Quantity,
+          AllowNegativeQuantity: "tNO",
+          SerialAndBatchNumbersBaseLine: -1,
           BaseLineNumber: index,
         },
       ],

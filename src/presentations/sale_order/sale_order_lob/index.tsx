@@ -2,7 +2,7 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../sale_delivery/components/DataTable";
+import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -132,7 +132,7 @@ export default function SaleOrderLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/sale/${salesType}/` + cell.row.original.DocEntry, {
+                route(`/sale-order/${salesType}/` + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -154,7 +154,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale/${salesType}/` + cell.row.original.DocEntry + "/edit",
+                  `/sale-order/${salesType}/` + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -189,7 +189,7 @@ export default function SaleOrderLists() {
 
       switch (salesType) {
         case "fuel-sales":
-          numAtCardFilter = "Fuel";
+          numAtCardFilter = "Oil";
           break;
         case "lube-sales":
           numAtCardFilter = "Lube";
@@ -217,7 +217,7 @@ export default function SaleOrderLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
+      salesType +  "sale-order",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
@@ -225,7 +225,7 @@ export default function SaleOrderLists() {
 
       switch (salesType) {
         case "fuel-sales":
-          numAtCardFilter = "Fuel";
+          numAtCardFilter = "Oil";
           break;
         case "lube-sales":
           numAtCardFilter = "Lube";
@@ -363,7 +363,7 @@ export default function SaleOrderLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/sale/${salesType}`)}>
+      <span className="" onClick={() => route(`/sale-order/${salesType}`)}>
         <span className=""></span> {capitalizeHyphenatedWords(salesType)}
       </span>
     </>
@@ -515,8 +515,8 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Order Lists"
-          createRoute={`/sale/${salesType}/create`}
+          title="Sale Order Lists"
+          createRoute={`/sale-order/${salesType}/create`}
         />
       </div>
     </>
