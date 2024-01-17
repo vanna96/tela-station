@@ -7,21 +7,12 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
+import { Button } from "@mui/material";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
@@ -71,21 +62,19 @@ export default function SaleOrderLists() {
           return <span>{formattedDate}</span>;
         },
       },
+
       {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
+        accessorKey: "DocumentStatus",
+        header: " Status",
         visible: true,
         type: "string",
-        align: "center",
         size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
+        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
+
       {
         accessorKey: "DocTotal",
-        header: " DocumentTotal",
+        header: " Document Total",
         visible: true,
         type: "string",
         size: 70,
@@ -95,23 +84,16 @@ export default function SaleOrderLists() {
           </>
         ),
       },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
-        header: "Branch",
-        enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-        size: 60,
-      },
-      {
-        accessorKey: "DocumentStatus",
-        header: " Status",
-        visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
-      },
+      // {
+      //   accessorKey: "BPL_IDAssignedToInvoice",
+      //   header: "Branch",
+      //   enableClickToCopy: true,
+      //   visible: false,
+      //   Cell: ({ cell }: any) =>
+      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
+      //   size: 60,
+      // },
+
       //
       {
         accessorKey: "DocEntry",
@@ -132,10 +114,13 @@ export default function SaleOrderLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/sale-order/${salesType}/` + cell.row.original.DocEntry, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  `/sale-order/${salesType}/` + cell.row.original.DocEntry,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
@@ -154,7 +139,9 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale-order/${salesType}/` + cell.row.original.DocEntry + "/edit",
+                  `/sale-order/${salesType}/` +
+                    cell.row.original.DocEntry +
+                    "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -174,8 +161,23 @@ export default function SaleOrderLists() {
     ],
     []
   );
+  let numAtCardFilter = "";
+  switch (salesType) {
+    case "fuel-sales":
+      numAtCardFilter = "Oil";
+      break;
+    case "lube-sales":
+      numAtCardFilter = "Lube";
+      break;
+    case "lpg-sales":
+      numAtCardFilter = "LPG";
+      break;
+    default:
+    // Handle the default case or log an error if needed
+  }
 
   const [filter, setFilter] = React.useState("");
+  const defaultFilter = `$filter=U_tl_salestype eq null and U_tl_arbusi eq '${numAtCardFilter}'`;
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -183,7 +185,7 @@ export default function SaleOrderLists() {
   });
   console.log(salesType);
   const Count: any = useQuery({
-    queryKey: ["sales-count" + (filter !== "" ? "-f" : ""), salesType, filter],
+    queryKey: ["sale-order-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
       let numAtCardFilter = "";
 
@@ -217,7 +219,7 @@ export default function SaleOrderLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      salesType +  "sale-order",
+      "sales-order-lob", 
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
@@ -243,7 +245,7 @@ export default function SaleOrderLists() {
           pagination.pageIndex * pagination.pageSize
         }&$filter=U_tl_salestype eq null${
           numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }and ${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -297,7 +299,7 @@ export default function SaleOrderLists() {
 
   const handlerSearchFilter = (queries: any) => {
     if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
+    handlerSearch("" + queries);
   };
 
   const handleAdaptFilter = () => {
@@ -309,7 +311,7 @@ export default function SaleOrderLists() {
     docnum: "",
     cardcode: "",
     cardname: "",
-    deliveryDate: null,
+    postingDate: "",
     status: "",
     bplid: "",
   });
@@ -321,18 +323,19 @@ export default function SaleOrderLists() {
     }
     if (searchValues.cardcode) {
       queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
+        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
+          ` and CardCode eq '${searchValues.cardcode}'`
+        : `CardCode eq '${searchValues.cardcode}'`;
     }
     if (searchValues.cardname) {
       queryFilters += queryFilters
         ? ` and startswith(CardName, '${searchValues.cardname}')`
         : `startswith(CardName, '${searchValues.cardname}')`;
     }
-    if (searchValues.deliveryDate) {
+    if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
+        ? ` and TaxDate ge '${searchValues.postingDate}'`
+        : `TaxDate ge '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -368,6 +371,17 @@ export default function SaleOrderLists() {
       </span>
     </>
   );
+  const getTitleBySalesType = (salesType: any) => {
+    switch (salesType) {
+      case "fuel-sales":
+        return "Fuel Sale Lists";
+      case "lpg-sales":
+        return "LPG Sale Lists";
+      // Add other cases as needed
+      default:
+        return "Unknown Sale Lists";
+    }
+  };
 
   return (
     <>
@@ -406,6 +420,19 @@ export default function SaleOrderLists() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
+                <MUIDatePicker
+                  label="Posting Date"
+                  value={searchValues.postingDate}
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
+                  onChange={(e) => {
+                    setSearchValues({
+                      ...searchValues,
+                      postingDate: e,
+                    });
+                  }}
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Branch
@@ -424,44 +451,6 @@ export default function SaleOrderLists() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Delivery Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
-                      ]}
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string,
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
-                    />
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -495,8 +484,7 @@ export default function SaleOrderLists() {
                       e?.accessorKey !== "DocNum" &&
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
+                      e?.accessorKey !== "TaxDate" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}
@@ -515,7 +503,7 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Sale Order Lists"
+          title={getTitleBySalesType(salesType)}
           createRoute={`/sale-order/${salesType}/create`}
         />
       </div>
