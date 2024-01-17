@@ -9,6 +9,8 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
 import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -20,6 +22,11 @@ export interface IGeneralFormProps {
   onWarehouseChange: (value: any) => void;
 }
 
+const fetchDispenserData = async (pump: string) => {
+  const res = await request("GET", `TL_Dispenser('${pump}')`);
+  return res;
+};
+
 export default function GeneralForm({
   data,
   onLineofBusinessChange,
@@ -27,6 +34,21 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
+  const {
+    data: dispenserData,
+    isLoading,
+    isError,
+  } = useQuery(["dispenser", data.Pump], () => fetchDispenserData(data.Pump), {
+    enabled: !!data.Pump,
+  });
+
+  console.log(dispenserData);
+
+  // Add error handling if needed
+  if (isError) {
+    console.error("Error fetching dispenser data");
+  }
+
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
@@ -77,8 +99,9 @@ export default function GeneralForm({
     data.Series = seriesSO;
     data.U_tl_arbusi = "Oil";
     data.lineofBusiness = "Oil";
+    data.DispenserData = dispenserData;
   }
-console.log(data)
+  console.log(data);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">

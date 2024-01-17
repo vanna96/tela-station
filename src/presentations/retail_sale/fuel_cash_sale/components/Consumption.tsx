@@ -14,31 +14,11 @@ export interface ConsumptionProps {
   edit?: boolean;
 }
 
-const fetchDispenserData = async (pump: string) => {
-  const res = await request("GET", `TL_Dispenser('${pump}')`);
-  return res;
-};
-
 export default function Consumption({
   data,
   handlerChange,
   edit,
 }: ConsumptionProps) {
-  const {
-    data: dispenserData,
-    isLoading,
-    isError,
-  } = useQuery(["dispenser", data.Pump], () => fetchDispenserData(data.Pump), {
-    enabled: !!data.Pump,
-  });
-
-  console.log(dispenserData);
-
-  // Add error handling if needed
-  if (isError) {
-    console.error("Error fetching dispenser data");
-  }
-
   // You c
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
