@@ -435,7 +435,7 @@ export default function Lists() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
-                  label="Delivery Date"
+                  label="Posting Date"
                   value={searchValues.deliveryDate}
                   // onChange={(e: any) => handlerChange("PostingDate", e)}
                   onChange={(e) => {

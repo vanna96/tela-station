@@ -8,7 +8,6 @@ import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
-import AttachmentForm from "../components/AttachmentForm";
 import AccountingForm from "../components/AccountingForm";
 import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
@@ -215,7 +214,7 @@ class SalesOrderForm extends CoreFormDocument {
                       };
                     }
                   ),
-                  AttachmentList,
+                  // AttachmentList,
                   disabledFields,
                   isStatusClose: data?.DocumentStatus === "bost_Close",
                   RoundingValue:
@@ -289,9 +288,9 @@ class SalesOrderForm extends CoreFormDocument {
       }
 
       // attachment
-      let AttachmentEntry = null;
-      const files = data?.AttachmentList?.map((item: any) => item);
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files);
+      // let AttachmentEntry = null;
+      // const files = data?.AttachmentList?.map((item: any) => item);
+      // if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // items
 
@@ -331,7 +330,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
-        AttachmentEntry,
+        // AttachmentEntry,
       };
 
       const edit_payloads = {
@@ -360,7 +359,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
-        AttachmentEntry,
+        // AttachmentEntry,
       };
 
       if (id) {
@@ -452,7 +451,7 @@ class SalesOrderForm extends CoreFormDocument {
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
         <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
         <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        {/* <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -584,14 +583,14 @@ class SalesOrderForm extends CoreFormDocument {
                     />
                   )}
 
-                  {this.state.tapIndex === 3 && (
+                  {/* {this.state.tapIndex === 3 && (
                     <AttachmentForm
                       data={this.state}
                       handlerChange={(key: any, value: any) => {
                         this.handlerChange(key, value);
                       }}
                     />
-                  )}
+                  )} */}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
