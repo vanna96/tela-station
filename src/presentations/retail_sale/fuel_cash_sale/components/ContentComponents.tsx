@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import MaterialReactTable from "material-react-table";
-import { Button, Checkbox, IconButton, TextField } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { AiOutlineSetting } from "react-icons/ai";
 import FormCard from "@/components/card/FormCard";
 import { TbSettings } from "react-icons/tb";
@@ -9,8 +9,6 @@ import { BiSearch } from "react-icons/bi";
 import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 
 interface ContentComponentProps {
   items: any[];
@@ -19,13 +17,11 @@ interface ContentComponentProps {
   type?: String;
   labelType?: String;
   typeLists?: any[];
-  onRemoveChange?: (record: any[]) => void;
+  // onRemoveChange?: (record: any[]) => void;
   readOnly?: boolean;
   viewOnly?: boolean;
   data: any;
-  loading: boolean;
-  isNotAccount: any;
-  handlerAddSequence: any;
+  // loading: boolean;
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
@@ -36,24 +32,24 @@ export default function ContentComponent(props: ContentComponentProps) {
   >({});
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  const handlerRemove = () => {
-    if (
-      props.onRemoveChange === undefined ||
-      Object.keys(rowSelection).length === 0
-    )
-      return;
+  // const handlerRemove = () => {
+  //   if (
+  //     props.onRemoveChange === undefined ||
+  //     Object.keys(rowSelection).length === 0
+  //   )
+  //     return;
 
-    let temps: any[] = [
-      ...props.items.filter(({ ItemCode }: any) => ItemCode != ""),
-    ];
-    Object.keys(rowSelection).forEach((index: any) => {
-      const item = props.items[index];
-      const indexWhere = temps.findIndex((e) => e?.ItemCode === item?.ItemCode);
-      if (indexWhere >= 0) temps.splice(indexWhere, 1);
-    });
-    setRowSelection({});
-    props.onRemoveChange(temps);
-  };
+  //   let temps: any[] = [
+  //     ...props.items.filter(({ ItemCode }: any) => ItemCode != ""),
+  //   ];
+  //   Object.keys(rowSelection).forEach((index: any) => {
+  //     const item = props.items[index];
+  //     const indexWhere = temps.findIndex((e) => e?.ItemCode === item?.ItemCode);
+  //     if (indexWhere >= 0) temps.splice(indexWhere, 1);
+  //   });
+  //   setRowSelection({});
+  //   props.onRemoveChange(temps);
+  // };
 
   React.useEffect(() => {
     const cols: any = {};
@@ -65,258 +61,125 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   const columns = useMemo(() => props.columns, [colVisibility]);
 
-  const onCheckRow = (event: any, index: number) => {
-    const rowSelects: any = { ...rowSelection };
-    rowSelects[index] = true;
+  // const onCheckRow = (event: any, index: number) => {
+  //   const rowSelects: any = { ...rowSelection };
+  //   rowSelects[index] = true;
 
-    if (!event.target.checked) {
-      delete rowSelects[index];
-    }
+  //   if (!event.target.checked) {
+  //     delete rowSelects[index];
+  //   }
 
-    setRowSelection(rowSelects);
-  };
+  //   setRowSelection(rowSelects);
+  // };
+
+  if (props.items.length === 0) {
+    props.onChange &&
+      props.onChange("Items", [
+        {
+          U_tl_pumpcode: "",
+          U_tl_itemnum: "",
+          U_tl_itemdesc: "",
+          U_tl_old_meter: 0,
+          U_tl_new_meter: 0,
+          U_tl_testby: -1,
+        },
+      ]);
+  }
 
   const handlerAdd = () => {
     const Items = [
       ...props?.items,
       {
-        ItemCode: "",
+        U_tl_pumpcode: "",
+        U_tl_itemnum: "",
+        U_tl_itemdesc: "",
+        U_tl_old_meter: 0,
+        U_tl_new_meter: 0,
+        U_tl_testby: -1,
       },
     ];
     if (props?.onChange) props.onChange("Items", Items);
   };
-
-  console.log(props?.data);
 
   const itemInvoicePrices =
     props?.items?.reduce((prev: number, item: any) => {
       return prev + parseFloat(item?.Amount || 0);
     }, 0) || 0;
 
-  const onChange = (key: string, value: any) => {
-    if (props.onChange) props.onChange(key, value);
-  };
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
-    props.data.Items ?? [],
-    discount,
-    // props?.data?.ExchangeRate ?? 1
-    1
-  );
-
-  console.log(props.data.Items);
-  console.log(props.data.DocDiscount)
-  const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
-    if (dataDiscount <= 0) return 0;
-    if (dataDiscount > 100) return 100;
-    return docTotal * (dataDiscount / 100);
-  }, [discount, props.data.Items]);
-
-  let TotalPaymentDue =
-    docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
-
   return (
-    <FormCard
-      title="Content"
-      action={
-        <div className="flex ">
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerRemove}>
-              Remove
-            </span>
-          </Button>
-          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerAdd}>
-              Add
-            </span>
-          </Button> */}
-          <IconButton onClick={() => columnRef.current?.onOpen()}>
-            <TbSettings className="text-2lg" />
-          </IconButton>
-        </div>
-      }
-    >
-      <>
-        <div className="col-span-2 data-table">
-          <MaterialReactTable
-            columns={[
-              {
-                accessorKey: "id",
-                size: 30,
+    <>
+      <MaterialReactTable
+        columns={[
+          // {
+          //   accessorKey: "id",
+          //   size: 30,
+          //   minSize: 30,
+          //   maxSize: 30,
+          //   enableResizing: false,
+          //   Cell: (cell) => (
+          //     <Checkbox
+          //       checked={cell.row.index in rowSelection}
+          //       size="small"
+          //       onChange={(event) => onCheckRow(event, cell.row.index)}
+          //     />
+          //   ),
+          // },
+          ...columns,
+        ]}
+        // data={
+        //   [...props?.data?.Items] ?? [
+        //     ...props?.data?.Items,
+        //     { ItemCode: "" },
+        //   ]
+        // }
+        data={props?.data?.DispenserData?.data?.TL_DISPENSER_LINESCollection ?? [...props?.data?.DispenserData?.data?.TL_DISPENSER_LINESCollection]}
+        enableStickyHeader={true}
+        enableColumnActions={false}
+        enableColumnFilters={false}
+        enablePagination={false}
+        enableSorting={false}
+        enableTopToolbar={false}
+        enableColumnResizing={true}
+        enableColumnFilterModes={false}
+        enableDensityToggle={false}
+        enableFilters={false}
+        enableFullScreenToggle={false}
+        enableGlobalFilter={false}
+        enableHiding={true}
+        enablePinning={true}
+        onColumnVisibilityChange={setColVisibility}
+        enableStickyFooter={false}
+        enableMultiRowSelection={true}
+        initialState={{
+          density: "compact",
+          columnVisibility: colVisibility,
+          rowSelection,
+        }}
+        // state={{
+        //   columnVisibility: colVisibility,
+        //   rowSelection,
+        //   isLoading: props.loading,
+        //   showProgressBars: props.loading,
+        //   showSkeletons: props.loading,
+        // }}
+        muiTableBodyRowProps={() => ({
+          sx: { cursor: "pointer" },
+        })}
+        icons={{
+          ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
+        }}
+        enableTableFooter={false}
+      />
 
-                Cell: (cell) => (
-                  <Checkbox
-                    checked={cell.row.index in rowSelection}
-                    size="small"
-                    onChange={(event) => onCheckRow(event, cell.row.index)}
-                  />
-                ),
-              },
-              ...columns,
-            ]}
-            data={[...props?.data?.Items, { ItemCode: "" }]}
-            enableRowNumbers={false}
-            enableStickyHeader={true}
-            enableColumnActions={false}
-            enableColumnFilters={false}
-            enablePagination={false}
-            enableSorting={false}
-            enableTopToolbar={false}
-            enableColumnResizing={true}
-            enableColumnFilterModes={false}
-            enableDensityToggle={false}
-            enableFilters={false}
-            enableFullScreenToggle={false}
-            enableGlobalFilter={false}
-            enableHiding={true}
-            enablePinning={true}
-            onColumnVisibilityChange={setColVisibility}
-            enableStickyFooter={false}
-            enableMultiRowSelection={true}
-            initialState={{
-              density: "compact",
-              columnVisibility: colVisibility,
-              rowSelection,
-            }}
-            state={{
-              columnVisibility: colVisibility,
-              rowSelection,
-              isLoading: props.loading,
-              showProgressBars: props.loading,
-              showSkeletons: props.loading,
-            }}
-            muiTableBodyRowProps={() => ({
-              sx: { cursor: "pointer" },
-            })}
-            icons={{
-              ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
-            }}
-            enableTableFooter={false}
-          />
-          <div className="grid grid-cols-12 mt-2">
-            <div className="col-span-5"></div>
-
-            <div className="col-span-2"></div>
-            <div className="col-span-5 ">
-              <div className="grid grid-cols-2 py-2">
-                <div className="col-span-1 text-lg font-medium">
-                  Total Summary
-                </div>
-              </div>
-              <div className="grid grid-cols-12 py-1">
-                <div className="col-span-6 text-gray-700">
-                  Total Before Discount
-                </div>
-                <div className="col-span-6 text-gray-900">
-                  <NumericFormat
-                    className="bg-white w-full"
-                    value={docTotal}
-                    thousandSeparator
-                    fixedDecimalScale
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={2}
-                    placeholder="0.00"
-                    readonly
-                    customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-12 py-1">
-                <div className="col-span-6 text-gray-700">
-                  <div className="grid grid-cols-12 gap-2">
-                    <div className="col-span-7 text-gray-700">Discount</div>
-                    <div className="col-span-5 text-gray-900 mr-2">
-                      <MUITextField
-                        disabled={props?.data?.isStatusClose || false}
-                        placeholder="0.00"
-                        type="number"
-                        startAdornment={"%"}
-                        defaultValue={discount}
-                        // value={props.data.DocDiscount || discount}
-                        onChange={(event: any) => {
-                          if (
-                            !(
-                              event.target.value <= 100 &&
-                              event.target.value >= 0
-                            )
-                          ) {
-                            event.target.value = 0;
-                          }
-                          onChange("DocDiscount", event);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col-span-6 text-gray-900 ">
-                  <div className="grid grid-cols-4">
-                    <div className="col-span-4">
-                      <NumericFormat
-                        className="bg-white w-full"
-                        value={discountAmount}
-                        thousandSeparator
-                        fixedDecimalScale
-                        startAdornment={props?.data?.Currency}
-                        decimalScale={2}
-                        placeholder="0.00"
-                        readonly
-                        customInput={MUITextField}
-                        disabled={props?.data?.isStatusClose || false}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-12 py-1">
-                <div className="col-span-6 text-gray-700">Tax</div>
-                <div className="col-span-6 text-gray-900">
-                  <NumericFormat
-                    className="bg-white w-full"
-                    value={docTaxTotal}
-                    thousandSeparator
-                    fixedDecimalScale
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={2}
-                    placeholder="0.00"
-                    readonly
-                    customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-12 py-1">
-                <div className="col-span-6 text-gray-700">Total</div>
-                <div className="col-span-6 text-gray-900">
-                  <NumericFormat
-                    className="bg-white w-full"
-                    value={TotalPaymentDue}
-                    thousandSeparator
-                    fixedDecimalScale
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={2}
-                    placeholder="0.00"
-                    readonly
-                    customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <ContentTableSelectColumn
-          ref={columnRef}
-          columns={props.columns}
-          visibles={colVisibility}
-          onSave={(value) => {
-            setColVisibility(value);
-          }}
-        />
-      </>
-    </FormCard>
+      <ContentTableSelectColumn
+        ref={columnRef}
+        columns={props.columns}
+        visibles={colVisibility}
+        onSave={(value) => {
+          setColVisibility(value);
+        }}
+      />
+    </>
   );
 }
 

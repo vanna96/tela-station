@@ -7,6 +7,8 @@ import VendorByBranch from "@/components/input/VendorByBranch";
 import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import NozzleData from "./NozzleDataTable";
+import AllocationTable from "./AllocationTable";
 
 export interface ConsumptionProps {
   handlerChange: (key: string, value: any) => void;
@@ -21,105 +23,22 @@ export default function Consumption({
 }: ConsumptionProps) {
   // You c
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
-      <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-        <h2>Basic Information</h2>
-      </div>
-
-      <div className="grid grid-cols-12 ">
-        <div className="col-span-5 ">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Branch
-              </label>
-            </div>
-            <div className="col-span-3"></div>
-          </div>
-
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Pump
-              </label>
-            </div>
-            <div className="col-span-3">
-              <DispenserAutoComplete
-                value={data?.Pump}
-                onChange={(e) => {
-                  handlerChange("Pump", e);
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 py-1">
-            <div className="col-span-2 text-gray-600 ">
-              Customer <span className="text-red-500">*</span>
-            </div>
-            <div className="col-span-3 text-gray-900">
-              <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
-                vtype="customer"
-                onChange={(vendor) => handlerChange("vendor", vendor)}
-                key={data?.CardCode}
-                error={"CardCode" in data?.error}
-                helpertext={data?.error?.CardCode}
-                autoComplete="off"
-                defaultValue={data?.CardCode}
-                name="BPCode"
-                endAdornment={!edit}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Name
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField value={data?.CardName} disabled name="BPName" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Shift Code
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUISelect
-                value={data.ShiftCode}
-                items={[{ value: "1", name: "Shift 1" }]}
-                aliaslabel="name"
-                aliasvalue="value"
-                onChange={(e) => {
-                  handlerChange("ShiftCode", e.target.value);
-                }}
-              />
-            </div>
-          </div>
+    <>
+      {/* <NozzleData data={data} onChange={handlerChange} /> */}
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Nozzle Data</h2>
         </div>
-        <div className="col-span-2 md:col-span-1"></div>
-        <div className="col-span-5 ">
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Document Date
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUIDatePicker
-                disabled={edit && data?.Status?.includes("A")}
-                value={data.DocumentDate}
-                onChange={(e: any) => handlerChange("DocumentDate", e)}
-              />
-            </div>
-          </div>
+        <NozzleData data={data} onChange={handlerChange} />
+
+        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
+          <h2>Allocation</h2>{" "}
+          <h3 className="font-thin text-base border-x-2 border-y-2 px-8 border-gray-500">
+            Generate Allocation
+          </h3>
         </div>
+        <AllocationTable data={data} onChange={handlerChange} />
       </div>
-    </div>
+    </>
   );
 }
