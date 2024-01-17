@@ -33,6 +33,7 @@ class SalesOrderForm extends CoreFormDocument {
       PostingDate: new Date(),
       DueDate: new Date(),
       error: {},
+      Branch: 1,
       BPCurrenciesCollection: [],
       CurrencyType: "L",
       Currency: "USD",

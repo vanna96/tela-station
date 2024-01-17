@@ -8,6 +8,7 @@ import VendorByBranch from "@/components/input/VendorByBranch";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
+import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -77,7 +78,7 @@ export default function GeneralForm({
     data.U_tl_arbusi = "Oil";
     data.lineofBusiness = "Oil";
   }
-
+console.log(data)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -108,7 +109,7 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <PumpAttendantAutoComplete
+              <DispenserAutoComplete
                 value={data?.Pump}
                 onChange={(e) => {
                   handlerChange("Pump", e);
