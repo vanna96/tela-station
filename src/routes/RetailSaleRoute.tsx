@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import SaleOrderLists from "@/presentations/retail_sale/sale_retail_items";
-import SalesOrderForm from "@/presentations/retail_sale/sale_retail_items/form/index";
-import SaleOrderDetail from "@/presentations/retail_sale/sale_retail_items/detail";
+import SaleOrderLists from "@/presentations/retail_sale/fuel_cash_sale";
+import SalesOrderForm from "@/presentations/retail_sale/fuel_cash_sale/form/index";
+import SaleOrderDetail from "@/presentations/retail_sale/fuel_cash_sale/detail";
 import PumpSaleLists from "@/presentations/retail_sale/pump_sale";
 import PumpSaleForm from "@/presentations/retail_sale/pump_sale/form";
 import PumpSaleDetail from "@/presentations/retail_sale/pump_sale/detail";
@@ -22,7 +22,7 @@ export default function RetailSaleRoute() {
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/lube-cash-sale">
+      {/* <Route path="/lube-cash-sale">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
@@ -33,7 +33,7 @@ export default function RetailSaleRoute() {
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
-      </Route>
+      </Route> */}
 
 
       {/* <Route path="/morph-price">
