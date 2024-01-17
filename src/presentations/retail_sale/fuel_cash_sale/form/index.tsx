@@ -22,6 +22,7 @@ import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import Consumption from "../components/Consumption";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -553,17 +554,22 @@ class SalesOrderForm extends CoreFormDocument {
                     />
                   )}
                   {this.state.tapIndex === 1 && (
-                    <ContentForm
+                    // <ContentForm
+                    //   data={this.state}
+                    //   handlerAddItem={() => {
+                    //     this.hanndAddNewItem();
+                    //   }}
+                    //   handlerRemoveItem={(items: any[]) =>
+                    //     this.setState({ ...this.state, Items: items })
+                    //   }
+                    //   handlerChangeItem={this.handlerChangeItems}
+                    //   onChangeItemByCode={this.handlerChangeItemByCode}
+                    //   onChange={this.handlerChange}
+                    // />
+                    <Consumption
                       data={this.state}
-                      handlerAddItem={() => {
-                        this.hanndAddNewItem();
-                      }}
-                      handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Items: items })
-                      }
-                      handlerChangeItem={this.handlerChangeItems}
-                      onChangeItemByCode={this.handlerChangeItemByCode}
-                      onChange={this.handlerChange}
+                      handlerChange={this.handlerChange}
+                      edit={this.props?.edit}
                     />
                   )}
 

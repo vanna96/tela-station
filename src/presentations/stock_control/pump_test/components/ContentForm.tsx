@@ -17,10 +17,7 @@ import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 import shortid from "shortid";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { APIContext } from "../../context/APIContext";
-import { ClockNumberClassKey } from "@mui/x-date-pickers";
-import { NumericFormat } from "react-number-format";
 import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import request from "@/utilies/request";
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -39,7 +36,7 @@ export default function ContentForm({
   ContentLoading,
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  const { tl_PumpTest }: any = React.useContext(APIContext);
+  const { tl_Dispener }: any = React.useContext(APIContext);
 
   const [collapseError, setCollapseError] = React.useState(false);
 
