@@ -15,6 +15,7 @@ import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -270,13 +271,9 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUISelect
-                items={[{ id: 1, name: "Retail Price (USD)" }]}
-                onChange={(e) => handlerChange("PriceList", e.target.value)}
-                value={data?.PriceList}
-                aliasvalue="id"
-                aliaslabel="name"
-                name="PriceList"
+              <PriceListAutoComplete
+                onChange={(e) => handlerChange("PriceLists", e)}
+                value={data?.PriceLists}
               />
             </div>
           </div>
