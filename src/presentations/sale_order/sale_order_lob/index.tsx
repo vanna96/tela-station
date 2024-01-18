@@ -58,7 +58,7 @@ export default function SaleOrderLists() {
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          const formattedDate = moment(cell.value).format("YYYY-MM-DD");
           return <span>{formattedDate}</span>;
         },
       },
@@ -313,7 +313,7 @@ export default function SaleOrderLists() {
     docnum: "",
     cardcode: "",
     cardname: "",
-    postingDate: "",
+    postingDate: null,
     status: "",
     bplid: "",
   });
@@ -379,6 +379,9 @@ export default function SaleOrderLists() {
         return "Fuel Sale Lists";
       case "lpg-sales":
         return "LPG Sale Lists";
+
+      case "lube-sales":
+        return "Lube Sale Lists";
       // Add other cases as needed
       default:
         return "Unknown Sale Lists";
