@@ -13,7 +13,9 @@ import { IoCreate } from "react-icons/io5";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useDocumentTotalHook } from "@/hook";
 import { NumericFormat } from "react-number-format";
-
+import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
+import ArrowCircleDownRoundedIcon from "@mui/icons-material/ArrowCircleDownRounded";
+import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 interface DocumentHeaderComponentProps {
   data: any;
   onCopyTo?: (data?: any) => void;
@@ -282,15 +284,19 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         }`}
       >
         {props?.menuTabs}
-        <div className="absolute -top-[9px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
+        <div className="absolute -top-[12px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
           <div
             title="btn-collapse"
             role="button"
-            className={`flex items-center justify-center w-6 h-6 shadow-md drop-shadow-sm rounded-md p-2 bg-slate-100 border cursor-pointer hover:cur`}
+            className={`flex items-center justify-center w-7 h-7 rounded-full p-2 bg-white border border-green-400 cursor-pointer hover:cursor-pointer`}
             onClick={handlerCollapse}
           >
-            <div className="opacity-20">
-              {!collapse ? <IoIosArrowUp /> : <IoIosArrowDown />}
+            <div className="opacity-100">
+              {!collapse ? (
+                <ArrowUpwardRoundedIcon style={{ fontSize: '15px' , color: '#16a34a'}} />
+              ) : (
+                <ArrowDownwardRoundedIcon style={{ fontSize: '15px', color : '#16a34a' }} />
+              )}
             </div>
           </div>
         </div>

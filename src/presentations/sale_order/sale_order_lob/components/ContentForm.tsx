@@ -337,7 +337,7 @@ export default function ContentForm({
               // placeholder="0.00"
               type="number"
               startAdornment={"%"}
-              defaultValue={cell.getValue()}
+              defaultValue={cell.getValue() ?? 0}
               onChange={(event: any) => {
                 if (!(event.target.value <= 100 && event.target.value >= 0)) {
                   event.target.value = 0;

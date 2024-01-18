@@ -32,6 +32,7 @@ class SalesOrderForm extends CoreFormDocument {
       DocumentDate: new Date(),
       PostingDate: new Date(),
       DueDate: new Date(),
+      Branch: 1,
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
@@ -463,7 +464,7 @@ class SalesOrderForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                <NavigateBeforeIcon/>
+                <NavigateBeforeIcon />
               </Button>
             </div>
             <div className="flex items-center">
@@ -474,7 +475,7 @@ class SalesOrderForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 3}
                 style={{ textTransform: "none" }}
               >
-                <NavigateNextIcon/>
+                <NavigateNextIcon />
               </Button>
 
               <Snackbar
