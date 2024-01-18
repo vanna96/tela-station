@@ -432,10 +432,10 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
-      1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
-      3: [],
+      // 0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
+      // 1: ["Items"],
+      // 2: ["U_tl_dnsuppo", "PayToCode"],
+      // 3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
@@ -472,7 +472,7 @@ class SalesOrderForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 2}
                 style={{ textTransform: "none" }}
               >
                 <NavigateNextIcon />

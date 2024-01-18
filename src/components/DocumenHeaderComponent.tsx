@@ -87,10 +87,12 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-    props.data.DocDiscount,
+   discount,
     1
   );
-
+console.log(docTotal)
+console.log(props.data.Items)
+console.log(props.data.DocDiscount)
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount || discount;
     if (dataDiscount <= 0) return 0;
@@ -291,7 +293,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             className={`flex items-center justify-center w-7 h-7 rounded-full p-2 bg-white border border-green-400 cursor-pointer hover:cursor-pointer`}
             onClick={handlerCollapse}
           >
-            <div className="opacity-100">
+            <div className="mb-1">
               {!collapse ? (
                 <ArrowUpwardRoundedIcon style={{ fontSize: '15px' , color: '#16a34a'}} />
               ) : (

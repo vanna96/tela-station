@@ -98,13 +98,14 @@ export default function ContentComponent(props: ContentComponentProps) {
   };
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-    discount,
+    props.data.DocDiscount ?? 0,
     // props?.data?.ExchangeRate ?? 1
     1
   );
 
   console.log(props.data.Items);
-  console.log(props.data.DocDiscount)
+  console.log(props.data.DocDiscount);
+  console.log(docTotal);
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount || discount;
     if (dataDiscount <= 0) return 0;
@@ -232,18 +233,18 @@ export default function ContentComponent(props: ContentComponentProps) {
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
-                        defaultValue={discount}
+                        defaultValue={props?.data?.DocDiscount ?? 0}
                         // value={props.data.DocDiscount || discount}
                         onChange={(event: any) => {
-                          if (
-                            !(
-                              event.target.value <= 100 &&
-                              event.target.value >= 0
-                            )
-                          ) {
-                            event.target.value = 0;
-                          }
-                          onChange("DocDiscount", event);
+                          // if (
+                          //   !(
+                          //     event.target.value <= 100 &&
+                          //     event.target.value >= 0
+                          //   )
+                          // ) {
+                          //   event.target.value = 0;
+                          // }
+                          onChange("DocDiscount", event.target.value);
                         }}
                       />
                     </div>
