@@ -21,7 +21,8 @@ import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
@@ -430,7 +431,7 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode","DocDueDate", "U_tl_whsdesc"],
+      0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
       2: ["U_tl_dnsuppo", "PayToCode"],
       3: [],
@@ -462,7 +463,7 @@ class SalesOrderForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                Previous
+                <NavigateBeforeIcon/>
               </Button>
             </div>
             <div className="flex items-center">
@@ -473,7 +474,7 @@ class SalesOrderForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 3}
                 style={{ textTransform: "none" }}
               >
-                Next
+                <NavigateNextIcon/>
               </Button>
 
               <Snackbar
@@ -635,7 +636,7 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any, BinLocation:any) =>
+const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,

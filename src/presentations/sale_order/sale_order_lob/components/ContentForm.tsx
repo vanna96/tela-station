@@ -2,7 +2,7 @@ import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton } from "@mui/material";
+import { Alert, Collapse, IconButton, TextField } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { numberWithCommas } from "@/helper/helper";
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
@@ -182,13 +182,19 @@ export default function ContentForm({
       },
 
       {
+        Header: (header: any) => (
+          <label>
+            Item Name <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "ItemName",
-        header: "Item Name",
+        header: "Item Name ",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
               value={cell.getValue()}
+              disabled
               // onBlur={(e: any) =>
               //   handlerUpdateRow(cell.row.id, ["ItemName", e.target.value])
               // }
@@ -197,6 +203,11 @@ export default function ContentForm({
         },
       },
       {
+        Header: (header: any) => (
+          <label>
+            Quantity <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "Quantity",
         header: "Quantity",
         visible: true,
@@ -242,6 +253,11 @@ export default function ContentForm({
         },
       },
       {
+        Header: (header: any) => (
+          <label>
+            UoM <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "UomAbsEntry",
         header: "UoM",
         visible: true,
@@ -270,6 +286,11 @@ export default function ContentForm({
         },
       },
       {
+        Header: (header: any) => (
+          <label>
+            Unit Price <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "GrossPrice",
         header: "Unit Price",
         visible: true,
@@ -282,17 +303,6 @@ export default function ContentForm({
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}
-              //   onChange={(event) => {
-              //     const newValue = parseFloat(
-              //       event.target.value.replace(/,/g, "")
-              //     );
-              //     handlerUpdateRow(
-              //       cell.row.id,
-              //       ["GrossPrice", newValue],
-              //       "GrossPrice"
-              //     );
-              //   }}
-              // />
               onBlur={(event) => {
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
@@ -306,6 +316,43 @@ export default function ContentForm({
                 // Update TotalGross based on the new GrossPrice
                 const quantity = cell.row.original.Quantity;
                 const totalGross = newValue * quantity;
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["TotalGross", totalGross],
+                  "TotalGross"
+                );
+              }}
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "DiscountPercent",
+        header: "Unit Discount",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              // placeholder="0.00"
+              type="number"
+              startAdornment={"%"}
+              defaultValue={cell.getValue()}
+              onChange={(event: any) => {
+                if (!(event.target.value <= 100 && event.target.value >= 0)) {
+                  event.target.value = 0;
+                }
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["DiscountPercent", event.target.value],
+                  "DiscountPercent"
+                );
+                const quantity = cell.row.original.Quantity;
+                const totalGross =
+                  cell.row.original.GrossPrice * quantity -
+                  cell.row.original.GrossPrice *
+                    quantity *
+                    (cell.row.original.DiscountPercent / 100);
                 handlerUpdateRow(
                   cell.row.id,
                   ["TotalGross", totalGross],

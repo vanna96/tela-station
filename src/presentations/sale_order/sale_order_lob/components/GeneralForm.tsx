@@ -2,15 +2,10 @@ import React, { useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
-import VendorTextField from "@/components/input/VendorTextField"; // Assuming you have this component imported
 import { ContactEmployee } from "@/models/BusinessParter";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import SalePerson from "@/components/selectbox/SalePerson";
-import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
@@ -18,7 +13,6 @@ import CurrencyRepository from "@/services/actions/currencyRepository";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
-import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 
@@ -146,7 +140,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch
+                Branch <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -177,8 +171,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Bin Location
-                {/* <span className="text-red-500">*</span> */}
+                Bin Location <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -215,22 +208,6 @@ export default function GeneralForm({
                 onLineofBusinessChange(e.target.value);
               }}
             />
-            {/* <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Line of Business
-                </label>
-              </div>
-              <div className="col-span-3">
-                <DistributionRuleSelect
-                  value={data?.U_tl_arbusi}
-                  onChange={(e) => {
-                    handlerChange("U_tl_arbusi", e.target.value);
-                    onLineofBusinessChange(e.target.value);
-                  }}
-                />
-              </div>
-            </div> */}
           </div>
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
@@ -258,11 +235,7 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
+              <MUITextField value={data?.CardName} disabled name="BPName" />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -286,6 +259,24 @@ export default function GeneralForm({
                 aliasvalue="id"
                 aliaslabel="name"
                 name="ContactPersonCode"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Price List
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={[{ id: 1, name: "Retail Price (USD)" }]}
+                onChange={(e) => handlerChange("PriceList", e.target.value)}
+                value={data?.PriceList}
+                aliasvalue="id"
+                aliaslabel="name"
+                name="PriceList"
               />
             </div>
           </div>
@@ -339,7 +330,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Series
+                Series <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -363,7 +354,7 @@ export default function GeneralForm({
                       edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
                     }
                     // value={data?.DocNum}
-                    disabled={edit}
+                    disabled
                     placeholder="Document No"
                   />
                 </div>
@@ -373,7 +364,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Posting Date
+                Posting Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -400,7 +391,7 @@ export default function GeneralForm({
                 error={"DocDueDate" in data?.error}
                 helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
-                value={edit? data.DocDueDate : data.DocDueDate ?? null}
+                value={edit ? data.DocDueDate : data.DocDueDate ?? null}
                 onChange={(e: any) => handlerChange("DocDueDate", e)}
               />
             </div>
@@ -408,7 +399,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Document Date
+                Document Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
