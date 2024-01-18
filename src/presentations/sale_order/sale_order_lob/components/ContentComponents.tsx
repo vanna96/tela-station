@@ -86,8 +86,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     if (props?.onChange) props.onChange("Items", Items);
   };
 
-  console.log(props?.data);
-
   const itemInvoicePrices =
     props?.items?.reduce((prev: number, item: any) => {
       return prev + parseFloat(item?.Amount || 0);
@@ -98,24 +96,26 @@ export default function ContentComponent(props: ContentComponentProps) {
   };
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-    props.data.DocDiscount ?? 0,
+  discount, 
     // props?.data?.ExchangeRate ?? 1
     1
   );
 
-  console.log(props.data.Items);
-  console.log(props.data.DocDiscount);
-  console.log(docTotal);
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
+    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [discount, props.data.Items]);
+  }, [props?.data?.DocDiscount, props.data.Items]);
 
-  let TotalPaymentDue =
-    docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
-
+  let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
+  if (props.data) {
+    props.data.DocTaxTotal = docTaxTotal;
+    props.data.DocTotalBeforeDiscount = docTotal;
+    props.data.DocDiscountPercent = props.data?.DocDiscount;
+    props.data.DocDiscountPrice = discountAmount;
+    props.data.DocTotal = TotalPaymentDue;
+  }
   return (
     <FormCard
       title="Content"
@@ -233,17 +233,17 @@ export default function ContentComponent(props: ContentComponentProps) {
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
-                        defaultValue={props?.data?.DocDiscount ?? 0}
+                        value={props?.data?.DocDiscount ?? 0}
                         // value={props.data.DocDiscount || discount}
                         onChange={(event: any) => {
-                          // if (
-                          //   !(
-                          //     event.target.value <= 100 &&
-                          //     event.target.value >= 0
-                          //   )
-                          // ) {
-                          //   event.target.value = 0;
-                          // }
+                          if (
+                            !(
+                              event.target.value <= 100 &&
+                              event.target.value >= 0
+                            )
+                          ) {
+                            event.target.value = 0;
+                          }
                           onChange("DocDiscount", event.target.value);
                         }}
                       />

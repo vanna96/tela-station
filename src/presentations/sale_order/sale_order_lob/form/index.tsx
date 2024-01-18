@@ -124,40 +124,7 @@ class SalesOrderForm extends CoreFormDocument {
             CurrencyType: true,
           };
 
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await requestHeader(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
+          
 
           state = {
             ...data,
@@ -189,12 +156,12 @@ class SalesOrderForm extends CoreFormDocument {
                   VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,
                   TotalGross: item.GrossTotal,
+                  LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
                   TaxCode: item.VatGroup || item.taxCode || null,
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || null,
                   UomAbsEntry: item?.UoMEntry,
-                  LineTotal: item.LineTotal,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
                   ExchangeRate: data?.DocRate || 1,

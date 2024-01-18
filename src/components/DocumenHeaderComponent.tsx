@@ -84,15 +84,13 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
     }
   };
 
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
+  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount ?? 0);
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
    discount,
     1
   );
-console.log(docTotal)
-console.log(props.data.Items)
-console.log(props.data.DocDiscount)
+
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount || discount;
     if (dataDiscount <= 0) return 0;
@@ -229,7 +227,7 @@ console.log(props.data.DocDiscount)
                 </label>
               </div>
               <div className="col-span-4">
-                {props.data?.Currency} {/* {props.data?.DocDiscount ?? 0} */}
+                {"%"} {discount} {props.data?.Currency}{" "}
                 <NumericFormat
                   value={discountAmount}
                   thousandSeparator
@@ -295,9 +293,13 @@ console.log(props.data.DocDiscount)
           >
             <div className="mb-1">
               {!collapse ? (
-                <ArrowUpwardRoundedIcon style={{ fontSize: '15px' , color: '#16a34a'}} />
+                <ArrowUpwardRoundedIcon
+                  style={{ fontSize: "15px", color: "#16a34a" }}
+                />
               ) : (
-                <ArrowDownwardRoundedIcon style={{ fontSize: '15px', color : '#16a34a' }} />
+                <ArrowDownwardRoundedIcon
+                  style={{ fontSize: "15px", color: "#16a34a" }}
+                />
               )}
             </div>
           </div>

@@ -244,8 +244,8 @@ export default function ContentForm({
                 const totalGross = newValue * gross;
                 handlerUpdateRow(
                   cell.row.id,
-                  ["TotalGross", totalGross],
-                  "TotalGross"
+                  ["LineTotal", totalGross],
+                  "LineTotal"
                 );
               }}
             />
@@ -318,8 +318,8 @@ export default function ContentForm({
                 const totalGross = newValue * quantity;
                 handlerUpdateRow(
                   cell.row.id,
-                  ["TotalGross", totalGross],
-                  "TotalGross"
+                  ["LineTotal", totalGross],
+                  "LineTotal"
                 );
               }}
             />
@@ -355,8 +355,8 @@ export default function ContentForm({
                     (cell.row.original.DiscountPercent / 100);
                 handlerUpdateRow(
                   cell.row.id,
-                  ["TotalGross", totalGross],
-                  "TotalGross"
+                  ["LineTotal", totalGross],
+                  "LineTotal"
                 );
               }}
             />
@@ -365,7 +365,7 @@ export default function ContentForm({
       },
 
       {
-        accessorKey: "TotalGross",
+        accessorKey: "LineTotal",
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -383,8 +383,8 @@ export default function ContentForm({
                 );
                 handlerUpdateRow(
                   cell.row.id,
-                  ["TotalGross", newValue],
-                  "TotalGross"
+                  ["LineTotal", newValue],
+                  "LineTotal"
                 );
               }}
             />

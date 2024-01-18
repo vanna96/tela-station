@@ -87,7 +87,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
         totalGross -
         (totalGross * parseFloat(temps["DiscountPercent"] ?? 0)) / 100;
 
-      temps["TotalGross"] = totalGross;
+      temps["LineTotal"] = totalGross;
     }
 
     if (field === "VatGroup") {
@@ -203,7 +203,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 fixedDecimalScale
                 customInput={MUITextField}
                 startAdornment={this.state.Currency}
-                value={this.state?.TotalGross}
+                value={this.state?.LineTotal}
               />
             </div>
 
