@@ -158,6 +158,7 @@ class Form extends CoreFormDocument {
           {this.state.loading ? (
             <div className="w-full h-full flex item-center justify-center">
               <LoadingProgress />
+              
             </div>
           ) : (
             <>
