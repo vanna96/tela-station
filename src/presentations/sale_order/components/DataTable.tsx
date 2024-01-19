@@ -26,7 +26,6 @@ interface DataTableProps {
   paginationChange: (value: any) => void;
   title?: string;
   createRoute?: string;
-  exportToCSV: () => void;
 }
 
 export default function DataTable(props: DataTableProps) {

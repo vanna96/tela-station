@@ -33,7 +33,7 @@ export default function IncomingPaymentForm({
 
   return (
     <>
-      <div className=" rounded-lg shadow-sm bg-white border p-6 px-8">
+      {/* <div className=" rounded-lg shadow-sm bg-white border p-6 px-8">
         <div className="mt-6">
           <div>
             <CashBankTable data={data} onChange={handlerChange} />
@@ -50,17 +50,22 @@ export default function IncomingPaymentForm({
                   Cash Account
                 </label>
               </div>
-              <div className="col-span-5 col-start-4">
-                {/* <AccountCodeAutoComplete
-                  onChange={(e: any) => onChange("GLCash", e)}
-                  value={data?.GLCash}
-                  disabled={data?.edit}
-                /> */}
-              </div>
+              <div className="col-span-5 col-start-4"></div>
             </div>
             <CheckNumberTable data={data} onChange={handlerChange} />
           </fieldset>
         </div>
+      </div> */}
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 md:px-6 xl:px-8 h-screen">
+        <CashBankTable data={data} onChange={handlerChange} />
+
+        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
+          <h2>Allocation</h2>{" "}
+          <h3 className="font-thin text-base border-x-2 border-y-2 px-8 border-gray-500">
+            Generate Allocation
+          </h3>
+        </div>
+        <CheckNumberTable data={data} onChange={handlerChange} />
       </div>
     </>
   );
