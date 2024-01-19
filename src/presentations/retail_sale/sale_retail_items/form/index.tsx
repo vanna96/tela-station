@@ -169,7 +169,7 @@ class SalesOrderForm extends CoreFormDocument {
                 const uomGroup: any = uomGroups.find(
                   (row: any) => row.AbsEntry === item?.UoMEntry
                 );
-                
+
                 let uomLists: any[] = [];
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
@@ -424,7 +424,7 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "U_tl_whsdesc", "DueDate"] ,
+      0: ["CardCode", "U_tl_whsdesc", "DueDate"],
       1: ["Items"],
       2: ["U_tl_dnsuppo", "PayToCode"],
       3: [],
@@ -563,7 +563,6 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
-                      
                     />
                   )}
 

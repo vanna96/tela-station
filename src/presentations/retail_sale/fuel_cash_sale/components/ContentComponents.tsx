@@ -32,25 +32,6 @@ export default function ContentComponent(props: ContentComponentProps) {
   >({});
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  // const handlerRemove = () => {
-  //   if (
-  //     props.onRemoveChange === undefined ||
-  //     Object.keys(rowSelection).length === 0
-  //   )
-  //     return;
-
-  //   let temps: any[] = [
-  //     ...props.items.filter(({ ItemCode }: any) => ItemCode != ""),
-  //   ];
-  //   Object.keys(rowSelection).forEach((index: any) => {
-  //     const item = props.items[index];
-  //     const indexWhere = temps.findIndex((e) => e?.ItemCode === item?.ItemCode);
-  //     if (indexWhere >= 0) temps.splice(indexWhere, 1);
-  //   });
-  //   setRowSelection({});
-  //   props.onRemoveChange(temps);
-  // };
-
   React.useEffect(() => {
     const cols: any = {};
     props.columns.forEach((e: any) => {
@@ -60,17 +41,6 @@ export default function ContentComponent(props: ContentComponentProps) {
   }, [props.columns]);
 
   const columns = useMemo(() => props.columns, [colVisibility]);
-
-  // const onCheckRow = (event: any, index: number) => {
-  //   const rowSelects: any = { ...rowSelection };
-  //   rowSelects[index] = true;
-
-  //   if (!event.target.checked) {
-  //     delete rowSelects[index];
-  //   }
-
-  //   setRowSelection(rowSelects);
-  // };
 
   if (props.items.length === 0) {
     props.onChange &&
@@ -107,79 +77,63 @@ export default function ContentComponent(props: ContentComponentProps) {
     }, 0) || 0;
 
   return (
-    <>
-      <MaterialReactTable
-        columns={[
-          // {
-          //   accessorKey: "id",
-          //   size: 30,
-          //   minSize: 30,
-          //   maxSize: 30,
-          //   enableResizing: false,
-          //   Cell: (cell) => (
-          //     <Checkbox
-          //       checked={cell.row.index in rowSelection}
-          //       size="small"
-          //       onChange={(event) => onCheckRow(event, cell.row.index)}
-          //     />
-          //   ),
-          // },
-          ...columns,
-        ]}
-        // data={
-        //   [...props?.data?.Items] ?? [
-        //     ...props?.data?.Items,
-        //     { ItemCode: "" },
-        //   ]
-        // }
-        data={props?.data?.DispenserData?.data?.TL_DISPENSER_LINESCollection ?? [...props?.data?.DispenserData?.data?.TL_DISPENSER_LINESCollection]}
-        enableStickyHeader={true}
-        enableColumnActions={false}
-        enableColumnFilters={false}
-        enablePagination={false}
-        enableSorting={false}
-        enableTopToolbar={false}
-        enableColumnResizing={true}
-        enableColumnFilterModes={false}
-        enableDensityToggle={false}
-        enableFilters={false}
-        enableFullScreenToggle={false}
-        enableGlobalFilter={false}
-        enableHiding={true}
-        enablePinning={true}
-        onColumnVisibilityChange={setColVisibility}
-        enableStickyFooter={false}
-        enableMultiRowSelection={true}
-        initialState={{
-          density: "compact",
-          columnVisibility: colVisibility,
-          rowSelection,
-        }}
-        // state={{
-        //   columnVisibility: colVisibility,
-        //   rowSelection,
-        //   isLoading: props.loading,
-        //   showProgressBars: props.loading,
-        //   showSkeletons: props.loading,
-        // }}
-        muiTableBodyRowProps={() => ({
-          sx: { cursor: "pointer" },
-        })}
-        icons={{
-          ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
-        }}
-        enableTableFooter={false}
-      />
+    <div
+      className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
+       overflow-hidden transition-height duration-300 `}
+    >
+      <>
+        <div className=" data-table">
+          <MaterialReactTable
+            columns={[...columns]}
+            data={
+              props?.data?.DispenserData?.data
+                ?.TL_DISPENSER_LINESCollection ?? [
+                ...props?.data?.DispenserData?.data
+                  ?.TL_DISPENSER_LINESCollection, 
+              ]
+            }
+            enableStickyHeader={true}
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableTopToolbar={false}
+            enableColumnResizing={true}
+            enableColumnFilterModes={false}
+            enableDensityToggle={false}
+            enableFilters={false}
+            enableFullScreenToggle={false}
+            enableGlobalFilter={false}
+            enableHiding={true}
+            enablePinning={true}
+            onColumnVisibilityChange={setColVisibility}
+            enableStickyFooter={false}
+            enableMultiRowSelection={true}
+            initialState={{
+              density: "compact",
+              columnVisibility: colVisibility,
+              rowSelection,
+            }}
+            muiTableBodyRowProps={() => ({
+              sx: { cursor: "pointer" },
+            })}
+            icons={{
+              ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
+            }}
+            enableTableFooter={false}
+          />
+        </div>
 
-      <ContentTableSelectColumn
-        ref={columnRef}
-        columns={props.columns}
-        visibles={colVisibility}
-        onSave={(value) => {
-          setColVisibility(value);
-        }}
-      />
-    </>
+        <ContentTableSelectColumn
+          ref={columnRef}
+          columns={props.columns}
+          visibles={colVisibility}
+          onSave={(value) => {
+            setColVisibility(value);
+          }}
+        />
+      </>
+    </div>
   );
 }
 

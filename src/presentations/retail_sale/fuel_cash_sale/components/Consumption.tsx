@@ -9,6 +9,7 @@ import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import NozzleData from "./NozzleDataTable";
 import AllocationTable from "./AllocationTable";
+import FormCard from "@/components/card/FormCard";
 
 export interface ConsumptionProps {
   handlerChange: (key: string, value: any) => void;
@@ -24,11 +25,7 @@ export default function Consumption({
   // You c
   return (
     <>
-      {/* <NozzleData data={data} onChange={handlerChange} /> */}
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Nozzle Data</h2>
-        </div>
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 md:px-6 xl:px-8 h-screen">
         <NozzleData data={data} onChange={handlerChange} />
 
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">

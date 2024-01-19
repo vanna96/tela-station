@@ -1,50 +1,50 @@
-import React from "react"
-import { Button } from "@mui/material"
-import { HiRefresh } from "react-icons/hi"
-import { BiFilterAlt } from "react-icons/bi"
-import { useNavigate } from "react-router-dom"
-import { AiOutlineSetting } from "react-icons/ai"
-import MaterialReactTable from "material-react-table"
-import { BsPencilSquare, BsSortDown } from "react-icons/bs"
-import MenuCompoment from "@/components/data_table/MenuComponent"
-import { ThemeContext } from "@/contexts"
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
-import ColumnSearch from "@/components/data_table/ColumnSearch"
-import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility"
-
+import React from "react";
+import { Button } from "@mui/material";
+import { HiRefresh } from "react-icons/hi";
+import { BiFilterAlt } from "react-icons/bi";
+import { useNavigate } from "react-router-dom";
+import { AiOutlineSetting } from "react-icons/ai";
+import MaterialReactTable from "material-react-table";
+import { BsPencilSquare, BsSortDown } from "react-icons/bs";
+import MenuCompoment from "@/components/data_table/MenuComponent";
+import { ThemeContext } from "@/contexts";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
+import ColumnSearch from "@/components/data_table/ColumnSearch";
+import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 interface DataTableProps {
-  columns: any[]
-  data: any[]
-  count: number
-  handlerRefresh: () => void
-  loading: boolean
-  handlerSortby: (value: string) => void
-  handlerSearch: (value: string) => void
-  pagination: any
-  paginationChange: (value: any) => void
-  title?: string
-  createRoute?: string
+  columns: any[];
+  data: any[];
+  count: number;
+  handlerRefresh: () => void;
+  loading: boolean;
+  handlerSortby: (value: string) => void;
+  handlerSearch: (value: string) => void;
+  pagination: any;
+  paginationChange: (value: any) => void;
+  title?: string;
+  createRoute?: string;
 }
 
 export default function DataTable(props: DataTableProps) {
-  const route = useNavigate()
-  const search = React.createRef<ColumnSearch>()
-  const [colVisibility, setColVisibility] = React.useState<Record<string, boolean>>(
-    {}
-  )
+  const route = useNavigate();
+  const search = React.createRef<ColumnSearch>();
+  const [colVisibility, setColVisibility] = React.useState<
+    Record<string, boolean>
+  >({});
 
   React.useEffect(() => {
-    const cols: any = {}
+    const cols: any = {};
     props.columns.forEach((e) => {
-      cols[e.accessorKey] = e?.visible ?? true
-    })
-    setColVisibility(cols)
-  }, [])
+      cols[e.accessorKey] = e?.visible ?? true;
+    });
+    setColVisibility(cols);
+  }, []);
 
   const handlerSearch = (queries: any) => {
-    if (queries === "") return
-    props.handlerSearch("&$filter=" + queries)
-  }
+    if (queries === "") return;
+    props.handlerSearch("&$filter=" + queries);
+  };
 
   return (
     <div
@@ -53,28 +53,8 @@ export default function DataTable(props: DataTableProps) {
       <div className="flex justify-between">
         <div className="flex gap-4 items-center justify-center">
           <h3 className="text-base">{props.title}</h3>
-          {/* <DataTableColumnFilter
-            handlerClearFilter={props.handlerRefresh}
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BiFilterAlt />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Filter</span>
-              </div>
-            }
-            items={props.columns?.filter((e) => e?.accessorKey !== "DocEntry")}
-            onClick={handlerSearch}
-          /> */}
         </div>
         <div className="flex justify-end gap-2 items-center text-[13px]">
-          {/* <Button size="small" variant="text" onClick={props.handlerRefresh}>
-            <span className="text-lg mr-2">
-              <HiRefresh />
-            </span>
-            <span className="capitalize text-sm">Refresh</span>
-          </Button>*/}
-          
           <Button
             size="small"
             variant="text"
@@ -97,26 +77,21 @@ export default function DataTable(props: DataTableProps) {
                 <span className="text-lg">
                   <BsSortDown />
                 </span>{" "}
-                <span className="text-[13px] capitalize">Sort By</span>
+                <span className="text-[13px] capitalize">Sort </span>
               </div>
             }
             items={props.columns}
             onClick={props.handlerSortby}
-          /> 
-          <DataTableColumnVisibility
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <AiOutlineSetting />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Columns</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={(value) => {
-              setColVisibility(value)
-            }}
           />
+
+          <Button size="small" variant="text">
+            <span className="text-sm mr-2">
+              <InsertDriveFileOutlinedIcon
+                style={{ fontSize: "18px", marginBottom: "2px" }}
+              />
+            </span>
+            <span className="capitalize text-[13px] ">Export to CSV</span>
+          </Button>
         </div>
       </div>
 
@@ -131,7 +106,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableDensityToggle={true}
           // enableColumnResizing
-        
+
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -160,5 +135,5 @@ export default function DataTable(props: DataTableProps) {
         <ColumnSearch ref={search} onOk={handlerSearch} />
       </div>
     </div>
-  )
+  );
 }

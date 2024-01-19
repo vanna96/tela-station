@@ -28,7 +28,6 @@ import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
-import ContentComponent from "../../morph_price/components/ContentComponents";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {

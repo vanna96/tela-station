@@ -187,7 +187,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
       <ContentComponent
         key={key}
         columns={itemColumns}
-        items={[tl_Dispenser?.TL_DISPENSER_LINESCollection]}
+        items={[tl_Dispenser?.TL_DISPENSER_LINESCollection ?? []]}
         data={data}
         onChange={onChange}
         // onRemoveChange={handlerRemoveItem}

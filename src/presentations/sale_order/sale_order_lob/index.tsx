@@ -220,6 +220,7 @@ export default function SaleOrderLists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "sales-order-lob",
+      salesType,
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
@@ -247,7 +248,7 @@ export default function SaleOrderLists() {
           numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
         }${filter ? ` and ${filter}` : filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }`
+        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice" }`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {

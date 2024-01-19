@@ -12,6 +12,8 @@ import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter
 import ColumnSearch from "@/components/data_table/ColumnSearch";
 import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import Papa from "papaparse";
+
 interface DataTableProps {
   columns: any[];
   data: any[];
@@ -24,9 +26,11 @@ interface DataTableProps {
   paginationChange: (value: any) => void;
   title?: string;
   createRoute?: string;
+  exportToCSV: () => void;
 }
 
 export default function DataTable(props: DataTableProps) {
+  console.log(props.data);
   const route = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
@@ -46,6 +50,58 @@ export default function DataTable(props: DataTableProps) {
     props.handlerSearch("&$filter=" + queries);
   };
 
+  const handleExportToCSV = () => {
+    const csvContent = convertToCSV(props.data);
+
+    console.log(csvContent);
+
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csvContent], { type: "text/csv" });
+
+    // Create a link element to download the CSV file
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "exported_data.csv";
+
+    // Simulate a click on the link to trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Remove the link from the DOM
+    document.body.removeChild(link);
+  };
+  const convertToCSV = (data: any[]) => {
+    // Specify the desired field names
+    const fields = [
+      "Document Number",
+      "Card Code",
+      "Card Name",
+      "Document Total",
+      "Posting Date",
+      "Document Status"
+    ];
+  
+    // Map the data to the desired field names
+    const mappedData = data.map(row => ({
+      "Document Number": row.DocNum,
+      "Card Code": row.CardCode,
+      "Card Name": row.CardName,
+      "Document Total": row.DocTotal,
+      "Posting Date": row.TaxDate.slice(0, 10), // Extract the date part
+      "Document Status": "Close" // Set a static value for Document Status
+    }));
+  
+    // Create CSV content with the specified fields
+    const csvContent = Papa.unparse({
+      fields,
+      data: mappedData
+    }, {
+      delimiter: ",", // Specify the delimiter
+      header: true,   // Include headers in the CSV
+    });
+  
+    return csvContent;
+  };
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
@@ -84,7 +140,18 @@ export default function DataTable(props: DataTableProps) {
             onClick={props.handlerSortby}
           />
 
-          <Button size="small" variant="text">
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => {
+              if (props.data && props.data.length > 0) {
+                handleExportToCSV();
+              } else {
+                // Handle the case when there is no data to export
+                console.log("No data to export");
+              }
+            }}
+          >
             <span className="text-sm mr-2">
               <InsertDriveFileOutlinedIcon
                 style={{ fontSize: "18px", marginBottom: "2px" }}

@@ -6,7 +6,7 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
+import LogisticForm from "../components/IncomingPayment";
 import ContentForm from "../components/ContentForm";
 import AttachmentForm from "../components/AttachmentForm";
 import AccountingForm from "../components/AccountingForm";
@@ -23,6 +23,7 @@ import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import Consumption from "../components/Consumption";
+import IncomingPaymentForm from "../components/IncomingPayment";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -574,7 +575,7 @@ class SalesOrderForm extends CoreFormDocument {
                   )}
 
                   {this.state.tapIndex === 2 && (
-                    <LogisticForm
+                    <IncomingPaymentForm
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) => {

@@ -7,31 +7,35 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
+import { Button } from "@mui/material";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
-export default function Lists() {
+export default function SaleOrderLists() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
-  // const salesTypes = useParams();
-  // const salesType = salesTypes["*"];
-  const salesType = "fuel-cash-sale";
-
+  const salesTypes = useParams();
+  const salesType = salesTypes["*"];
+  console.log(salesType);
+  let numAtCardFilter = "";
+  switch (salesType) {
+    case "fuel-cash-sale":
+      numAtCardFilter = "Oil";
+      break;
+    case "lube-cash-sale":
+      numAtCardFilter = "Lube";
+      break;
+    case "lpg-cash-sale":
+      numAtCardFilter = "LPG";
+      break;
+    default:
+    // Handle the default case or log an error if needed
+  }
   const columns = React.useMemo(
     () => [
       {
@@ -68,25 +72,23 @@ export default function Lists() {
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          const formattedDate = moment(cell.row.original.TaxDate).format("YYYY-MM-DD");
           return <span>{formattedDate}</span>;
         },
       },
+
       {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
+        accessorKey: "DocumentStatus",
+        header: " Status",
         visible: true,
         type: "string",
-        align: "center",
         size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
+        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
+
       {
         accessorKey: "DocTotal",
-        header: " DocumentTotal",
+        header: " Document Total",
         visible: true,
         type: "string",
         size: 70,
@@ -96,23 +98,16 @@ export default function Lists() {
           </>
         ),
       },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
-        header: "Branch",
-        enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-        size: 60,
-      },
-      {
-        accessorKey: "DocumentStatus",
-        header: " Status",
-        visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
-      },
+      // {
+      //   accessorKey: "BPL_IDAssignedToInvoice",
+      //   header: "Branch",
+      //   enableClickToCopy: true,
+      //   visible: false,
+      //   Cell: ({ cell }: any) =>
+      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
+      //   size: 60,
+      // },
+
       //
       {
         accessorKey: "DocEntry",
@@ -182,31 +177,15 @@ export default function Lists() {
   );
 
   const [filter, setFilter] = React.useState("");
+  const defaultFilter = `$filter=U_tl_salestype eq null and U_tl_arbusi eq '${numAtCardFilter}'`;
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   });
-  console.log(salesType);
   const Count: any = useQuery({
-    queryKey: ["sales-count" + (filter !== "" ? "-f" : ""), salesType, filter],
+    queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
-      let numAtCardFilter = "";
-
-      switch (salesType) {
-        case "fuel-cash-sale":
-          numAtCardFilter = "Oil";
-          break;
-        // case "lube-cash-sale":
-        //   numAtCardFilter = "Lube";
-        //   break;
-        // case "lpg-cash-sale":
-        //   numAtCardFilter = "LPG";
-          break;
-        default:
-        // Handle the default case or log an error if needed
-      }
-
       const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${
         numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : ""}`;
@@ -223,33 +202,19 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "retail-sale" + salesType,
+      "retail-sale-lob",salesType,
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
-      let numAtCardFilter = "";
-
-      switch (salesType) {
-        case "fuel-cash-sale":
-          numAtCardFilter = "Oil";
-          break;
-        // case "lube-cash-sale":
-        //   numAtCardFilter = "Lube";
-        //   break;
-        // case "lpg-cash-sale":
-        //   numAtCardFilter = "LPG";
-          break;
-        default:
-        // Handle the default case or log an error if needed
-      }
-
       const response: any = await request(
         "GET",
         `${url}/Orders?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&$filter=U_tl_salestype eq null${
           numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }${filter ? ` and ${filter}` : filter}${
+          sortBy !== "" ? "&$orderby=" + sortBy : ""
+        }`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -303,7 +268,7 @@ export default function Lists() {
 
   const handlerSearchFilter = (queries: any) => {
     if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
+    handlerSearch("" + queries);
   };
 
   const handleAdaptFilter = () => {
@@ -315,7 +280,7 @@ export default function Lists() {
     docnum: "",
     cardcode: "",
     cardname: "",
-    deliveryDate: null,
+    postingDate: null,
     status: "",
     bplid: "",
   });
@@ -327,18 +292,19 @@ export default function Lists() {
     }
     if (searchValues.cardcode) {
       queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
+        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
+          ` and CardCode eq '${searchValues.cardcode}'`
+        : `CardCode eq '${searchValues.cardcode}'`;
     }
     if (searchValues.cardname) {
       queryFilters += queryFilters
         ? ` and startswith(CardName, '${searchValues.cardname}')`
         : `startswith(CardName, '${searchValues.cardname}')`;
     }
-    if (searchValues.deliveryDate) {
+    if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
+        ? ` and TaxDate ge '${searchValues.postingDate}'`
+        : `TaxDate ge '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -354,15 +320,12 @@ export default function Lists() {
     handlerSearchFilter(queryFilters);
   };
   const { id }: any = useParams();
-
   function capitalizeHyphenatedWords(str: any) {
     return str
       .split("-")
       .map((word: any) => {
         if (word.toLowerCase() === "lpg") {
           return word.toUpperCase();
-        } else if (word.toLowerCase() === "cash") {
-          return "Cash";
         } else {
           return word.charAt(0).toUpperCase() + word.slice(1);
         }
@@ -377,6 +340,20 @@ export default function Lists() {
       </span>
     </>
   );
+  const getTitleBySalesType = (salesType: any) => {
+    switch (salesType) {
+      case "fuel-cash-sale":
+        return "Fuel Cash Sale Lists";
+      case "lpg-cash-sale":
+        return "LPG Cash Sale Lists";
+
+      case "lube-cash-sale":
+        return "Lube Cash Sale Lists";
+      // Add other cases as needed
+      default:
+        return "Unknown Sale Lists";
+    }
+  };
 
   return (
     <>
@@ -415,6 +392,19 @@ export default function Lists() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
+                <MUIDatePicker
+                  label="Posting Date"
+                  value={searchValues.postingDate}
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
+                  onChange={(e) => {
+                    setSearchValues({
+                      ...searchValues,
+                      postingDate: e,
+                    });
+                  }}
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Branch
@@ -433,44 +423,6 @@ export default function Lists() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Posting Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
-                      ]}
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string,
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
-                    />
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -504,8 +456,7 @@ export default function Lists() {
                       e?.accessorKey !== "DocNum" &&
                       e?.accessorKey !== "CardCode" &&
                       e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
+                      e?.accessorKey !== "TaxDate" &&
                       e?.accessorKey !== "BPL_IDAssignedToInvoice"
                   )}
                   onClick={handlerSearch}
@@ -524,7 +475,7 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title=" Retail Sale Lists"
+          title={getTitleBySalesType(salesType)}
           createRoute={`/retail-sale/${salesType}/create`}
         />
       </div>

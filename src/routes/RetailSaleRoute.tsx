@@ -6,8 +6,8 @@ import PumpSaleLists from "@/presentations/retail_sale/pump_sale";
 import PumpSaleForm from "@/presentations/retail_sale/pump_sale/form";
 import PumpSaleDetail from "@/presentations/retail_sale/pump_sale/detail";
 import MorphPriceLists from "@/presentations/retail_sale/morph_price";
-import MorphPriceForm from '@/presentations/retail_sale/morph_price/form';
-import MorphPriceDetail from '@/presentations/retail_sale/morph_price/detail';
+import MorphPriceForm from "@/presentations/retail_sale/morph_price/form";
+import MorphPriceDetail from "@/presentations/retail_sale/morph_price/detail";
 import RetailSalePage from "@/presentations/retail_sale";
 
 export default function RetailSaleRoute() {
@@ -15,14 +15,13 @@ export default function RetailSaleRoute() {
     <Routes>
       <Route index element={<RetailSalePage />} />
 
-     
       <Route path="/fuel-cash-sale">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      {/* <Route path="/lube-cash-sale">
+      <Route path="/lube-cash-sale">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
@@ -33,8 +32,7 @@ export default function RetailSaleRoute() {
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
-      </Route> */}
-
+      </Route>
 
       {/* <Route path="/morph-price">
         <Route index element={<MorphPriceLists />} />
