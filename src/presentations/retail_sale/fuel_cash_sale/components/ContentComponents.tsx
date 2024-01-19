@@ -42,39 +42,7 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   const columns = useMemo(() => props.columns, [colVisibility]);
 
-  if (props.items.length === 0) {
-    props.onChange &&
-      props.onChange("Items", [
-        {
-          U_tl_pumpcode: "",
-          U_tl_itemnum: "",
-          U_tl_itemdesc: "",
-          U_tl_old_meter: 0,
-          U_tl_new_meter: 0,
-          U_tl_testby: -1,
-        },
-      ]);
-  }
 
-  const handlerAdd = () => {
-    const Items = [
-      ...props?.items,
-      {
-        U_tl_pumpcode: "",
-        U_tl_itemnum: "",
-        U_tl_itemdesc: "",
-        U_tl_old_meter: 0,
-        U_tl_new_meter: 0,
-        U_tl_testby: -1,
-      },
-    ];
-    if (props?.onChange) props.onChange("Items", Items);
-  };
-
-  const itemInvoicePrices =
-    props?.items?.reduce((prev: number, item: any) => {
-      return prev + parseFloat(item?.Amount || 0);
-    }, 0) || 0;
 
   return (
     <div
@@ -86,11 +54,7 @@ export default function ContentComponent(props: ContentComponentProps) {
           <MaterialReactTable
             columns={[...columns]}
             data={
-              props?.data?.DispenserData?.data
-                ?.TL_DISPENSER_LINESCollection ?? [
-                ...props?.data?.DispenserData?.data
-                  ?.TL_DISPENSER_LINESCollection, 
-              ]
+              props?.data?.DispenserData?.TL_DISPENSER_LINESCollection ?? []
             }
             enableStickyHeader={true}
             enableColumnActions={false}

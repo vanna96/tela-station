@@ -24,7 +24,7 @@ export interface IGeneralFormProps {
 
 const fetchDispenserData = async (pump: string) => {
   const res = await request("GET", `TL_Dispenser('${pump}')`);
-  return res;
+  return res.data;
 };
 
 export default function GeneralForm({

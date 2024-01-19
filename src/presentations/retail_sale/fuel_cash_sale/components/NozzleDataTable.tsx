@@ -11,12 +11,8 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 interface NozzleDataProps {
-  //   handlerAddItem: () => void;
-  //   handlerChangeItem: (record: any) => void;
-  //   handlerRemoveItem: (record: any[]) => void;
   data: any;
   onChange: (key: any, value: any) => void;
-  //   onChangeItemByCode: (record: any) => void;
 }
 
 export default function NozzleData({ data, onChange }: NozzleDataProps) {
@@ -28,17 +24,24 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
 
-  const handlerUpdateRow = (i: number, e: any) => {
-    const items = [...data?.Items];
-    items[i] = { ...items[i], [e[0]]: e[1] };
-    onChange("Items", items);
-  };
+  const tl_Dispenser = [...data.DispenserData.TL_DISPENSER_LINESCollection];
+  if (tl_Dispenser.length > 0) {
+    data.nozzleData = tl_Dispenser;
+  }
 
-  const tl_Dispenser = data.DispenserData?.data;
+  console.log(data)
+  const handlerChangeItem = (key: number, obj: any) => {
+    const newData = tl_Dispenser?.map((item: any, index: number) => {
+      if (index.toString() !== key.toString()) return item;
+      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+      return item;
+    });
+    if (newData.length <= 0) return;
+    onChange("nozzleData", newData);
+  };
 
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    console.log(res);
     return res;
   };
 
@@ -106,25 +109,29 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
       },
 
       {
+        Header: (header: any) => (
+          <label>
+            New Meter <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "U_tl_upd_meter",
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
-            //   disabled
+              //   disabled
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(cell.row.id, ["U_tl_upd_meter", newValue]);
-              }}
+              onBlur={(e: any) =>
+                handlerChangeItem(cell?.row?.id || 0, {
+                  U_tl_upd_meter: e.target.value,
+                })
+              }
             />
           );
         },
@@ -143,12 +150,6 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(cell.row.id, ["U_tl_reg_meter", newValue]);
-              }}
             />
           );
         },
@@ -161,19 +162,18 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
-              //   disabled
+              disabled
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(cell.row.id, ["consumption", newValue]);
-              }}
+              onBlur={(e: any) =>
+                handlerChangeItem(cell?.row?.id || 0, {
+                  consumption: e.target.value,
+                })
+              }
             />
           );
         },
@@ -187,12 +187,9 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
       <ContentComponent
         key={key}
         columns={itemColumns}
-        items={[tl_Dispenser?.TL_DISPENSER_LINESCollection ?? []]}
+        items={[tl_Dispenser ?? []]}
         data={data}
         onChange={onChange}
-        // onRemoveChange={handlerRemoveItem}
-        // loading={ContentLoading}
-        // handlerAddSequence={() => {}}
       />
     </>
   );
