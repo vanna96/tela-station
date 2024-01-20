@@ -12,10 +12,10 @@ import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import CurrencyRepository from "@/services/actions/currencyRepository";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
-import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
+import { useExchangeRate } from "../../components/hook/useExchangeRate";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -239,44 +239,7 @@ export default function GeneralForm({
               <MUITextField value={data?.CardName} disabled name="BPName" />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Contact Person
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUISelect
-                items={data?.vendor?.contactEmployee?.map(
-                  (e: ContactEmployee) => ({
-                    id: e.id,
-                    name: e.name,
-                  })
-                )}
-                onChange={(e) =>
-                  handlerChange("ContactPersonCode", e.target.value)
-                }
-                value={data?.ContactPersonCode}
-                aliasvalue="id"
-                aliaslabel="name"
-                name="ContactPersonCode"
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Price List
-              </label>
-            </div>
-            <div className="col-span-3">
-              <PriceListAutoComplete
-                onChange={(e) => handlerChange("PriceLists", e)}
-                value={data?.PriceLists}
-              />
-            </div>
-          </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">

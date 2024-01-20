@@ -45,7 +45,7 @@ export default function DataTableColumnFilter(
       // } else {
       //     query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${row.filter} ${row.type === 'string' || row.type === 'date' ? "'" + row.value + "'" : row.value} and `;
       // }
-      query += `&$filter=${row.column
+      query += ` and ${row.column
         .charAt(0)
         .toUpperCase()}${row.column.slice(1)} ${row.filter} ${
         row.type === "string" || row.type === "date"

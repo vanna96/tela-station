@@ -10,7 +10,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import { useDocumentTotalHook } from "../../components/hook/useDocumentTotalHook";
 
 interface ContentComponentProps {
   items: any[];
@@ -96,7 +96,7 @@ export default function ContentComponent(props: ContentComponentProps) {
   };
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-  discount, 
+    discount,
     // props?.data?.ExchangeRate ?? 1
     1
   );
@@ -109,13 +109,13 @@ export default function ContentComponent(props: ContentComponentProps) {
   }, [props?.data?.DocDiscount, props.data.Items]);
 
   let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
-  if (props.data) {
-    props.data.DocTaxTotal = docTaxTotal;
-    props.data.DocTotalBeforeDiscount = docTotal;
-    props.data.DocDiscountPercent = props.data?.DocDiscount;
-    props.data.DocDiscountPrice = discountAmount;
-    props.data.DocTotal = TotalPaymentDue;
-  }
+  // if (props.data) {
+  //   props.data.DocTaxTotal = docTaxTotal;
+  //   props.data.DocTotalBeforeDiscount = docTotal;
+  //   props.data.DocDiscountPercent = props.data?.DocDiscount;
+  //   props.data.DocDiscountPrice = discountAmount;
+  //   props.data.DocTotal = TotalPaymentDue;
+  // }
   return (
     <FormCard
       title="Content"

@@ -248,7 +248,7 @@ export default function SaleOrderLists() {
           numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
         }${filter ? ` and ${filter}` : filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice" }`
+        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -285,42 +285,9 @@ export default function SaleOrderLists() {
       refetch();
     }, 500);
   };
+  let queryFilters = "";
 
-  const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
-
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("" + queries);
-  };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    postingDate: null,
-    status: "",
-    bplid: "",
-  });
-
-  const handleGoClick = () => {
-    let queryFilters = "";
+  const handlerSearch = (value?: string) => {
     if (searchValues.docnum) {
       queryFilters += `DocNum eq ${searchValues.docnum}`;
     }
@@ -351,8 +318,36 @@ export default function SaleOrderLists() {
         : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
-    handlerSearchFilter(queryFilters);
+    const qurey = queryFilters;
+    // console.log(qurey + value);
+    setFilter(qurey);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 10,
+    });
+
+    setTimeout(() => {
+      Count.refetch();
+      refetch();
+    }, 500);
   };
+
+  // console.log(queryFilters);
+
+  const handleAdaptFilter = () => {
+    setOpen(true);
+  };
+  const [cookies] = useCookies(["user"]);
+
+  const [searchValues, setSearchValues] = React.useState({
+    docnum: "",
+    cardcode: "",
+    cardname: "",
+    postingDate: null,
+    status: "",
+    bplid: "",
+  });
+
   const { id }: any = useParams();
   function capitalizeHyphenatedWords(str: any) {
     return str
@@ -465,7 +460,8 @@ export default function SaleOrderLists() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  // onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>

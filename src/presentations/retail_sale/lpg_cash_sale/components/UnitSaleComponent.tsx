@@ -10,7 +10,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import { useDocumentTotalHook } from "../../components/hook/useDocumentTotalHook";
 
 interface UnitSaleComponentProps {
   items: any[];
@@ -104,7 +104,7 @@ export default function UnitSaleComponent(props: UnitSaleComponentProps) {
   );
 
   console.log(props.data.Items);
-  console.log(props.data.DocDiscount)
+  console.log(props.data.DocDiscount);
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount || discount;
     if (dataDiscount <= 0) return 0;

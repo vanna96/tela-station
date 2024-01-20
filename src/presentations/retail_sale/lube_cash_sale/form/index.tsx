@@ -23,6 +23,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import IncomingPaymentForm from "../components/IncomingPayment";
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
@@ -49,6 +50,8 @@ class SalesOrderForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      cashBankData: [],
+      checkNumberData:[],
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -123,8 +126,6 @@ class SalesOrderForm extends CoreFormDocument {
           let disabledFields: any = {
             CurrencyType: true,
           };
-
-          
 
           state = {
             ...data,
@@ -478,20 +479,7 @@ class SalesOrderForm extends CoreFormDocument {
   }
 
   FormRender = () => {
-    const getGroupByLineofBusiness = (lineofBusiness: any) => {
-      switch (lineofBusiness) {
-        case "Oil":
-          return 100;
-        case "Lube":
-          return 101;
-        case "LPG":
-          return 102;
-        default:
-          return 0;
-      }
-    };
-
-    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+    const itemGroupCode = 101;
 
     return (
       <>
@@ -543,7 +531,7 @@ class SalesOrderForm extends CoreFormDocument {
                   )}
 
                   {this.state.tapIndex === 2 && (
-                    <LogisticForm
+                    <IncomingPaymentForm
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) => {
