@@ -14,6 +14,7 @@ const Finance = ({
   const [staticSelect, setStaticSelect] = useState({
     salaryUnit: "",
   });
+
   return (
     <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
       <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
