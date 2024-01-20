@@ -72,7 +72,9 @@ export default function SaleOrderLists() {
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.TaxDate).format("YYYY-MM-DD");
+          const formattedDate = moment(cell.row.original.TaxDate).format(
+            "YYYY-MM-DD"
+          );
           return <span>{formattedDate}</span>;
         },
       },
@@ -202,7 +204,8 @@ export default function SaleOrderLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "retail-sale-lob",salesType,
+      "retail-sale-lob",
+      salesType,
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
@@ -214,7 +217,7 @@ export default function SaleOrderLists() {
           numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
         }${filter ? ` and ${filter}` : filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice" }`
+        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {

@@ -1,13 +1,13 @@
-import React, { useMemo } from "react";
+import React from "react";
 import MaterialReactTable, { type MRT_ColumnDef } from "material-react-table";
 import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
-import { MdDeleteOutline } from "react-icons/md";
 import MUITextField from "@/components/input/MUITextField";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BankSelect from "@/components/selectbox/bank";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import MUISelect from "@/components/selectbox/MUISelect";
-
+import ClearIcon from "@mui/icons-material/Clear";
+import CurrencySelect from "@/components/selectbox/Currency";
+import { IconButton } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -23,14 +23,15 @@ export default function CashBankTable(props: any) {
     ]);
   };
 
-  const handlerRemoveCheck = () => {
-    const rows = Object.keys(rowSelection);
-    if (rows.length <= 0) return;
-    const newData = data?.cashBankData?.filter(
-      (item: any, index: number) => !rows.includes(index.toString())
+  console.log(data);
+
+  const handlerRemoveCheck = (key: number) => {
+    const newData = (data?.cashBankData || []).filter(
+      (item: any, index: number) => index !== key
     );
+    console.log(newData.length);
+    if (newData.length < 1) return;
     onChange("cashBankData", newData);
-    setRowSelection({});
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
@@ -45,34 +46,48 @@ export default function CashBankTable(props: any) {
 
   const columns = [
     {
+      size: 25,
+      minSize: 25,
+      maxSize: 25,
+      accessorKey: "deleteButton", // New accessor key for the delete button column
+      header: "", // Empty header for the delete button column
+      Cell: ({ cell }: any) => (
+        <ClearIcon
+          className="text-red-500 cursor-pointer"
+          onClick={() => handlerRemoveCheck(cell?.row?.index)}
+        />
+      ),
+    },
+    {
       accessorKey: "type",
       header: "Type",
       Cell: ({ cell }: any) => (
-        <MUISelect
-          key={"type" + cell.getValue() + cell?.row?.id}
-          value={cell.row.original?.type || ""}
-          disabled={data?.edit}
-          onChange={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              bank: e.target.value,
-            });
-          }}
-          items={[
-            { value: "cash", label: "Cash" },
-            { value: "bank", label: "Bank" },
-          ]}
-        />
+        <>
+          <MUISelect
+            key={"type" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.type || ""}
+            disabled={data?.edit}
+            onChange={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                type: e.target.value,
+              });
+            }}
+            items={[
+              { value: "cash", label: "Cash" },
+              { value: "bank", label: "Bank" },
+            ]}
+          />
+        </>
       ),
     },
     {
       accessorKey: "currency",
       header: "Currency",
       Cell: ({ cell }: any) => (
-        <MUITextField
+        <CurrencySelect
           key={"currency" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.currency || 0}
-          onBlur={(e: any) => {
+          value={cell.row.original?.currency || 0}
+          onChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               currency: e.target.value,
             });
@@ -95,6 +110,7 @@ export default function CashBankTable(props: any) {
           }}
           name={"amount"}
           value={cell.row.original?.amount || ""}
+          startAdornment={cell.row.original?.currency}
         />
       ),
     },
@@ -109,42 +125,46 @@ export default function CashBankTable(props: any) {
               className="text-blue-700 cursor-pointer"
               onClick={handlerAddCheck}
             />
-            <MdDeleteOutline
-              className="text-red-500 cursor-pointer"
-              onClick={handlerRemoveCheck}
-            />
           </>
         )}
-        <AiOutlineSetting className="cursor-pointer" />
       </div>
       <MaterialReactTable
-        columns={columns}
-        data={data?.cashBankData || []}
+        columns={[...columns]}
+        data={[...data?.cashBankData]}
         enableStickyHeader={true}
-        enableHiding={true}
-        enablePinning={true}
-        enableSelectAll={true}
-        enableMultiRowSelection={true}
         enableColumnActions={false}
         enableColumnFilters={false}
         enablePagination={false}
         enableSorting={false}
-        enableBottomToolbar={false}
         enableTopToolbar={false}
         enableColumnResizing={true}
-        enableTableFooter={false}
-        enableRowSelection
-        onRowSelectionChange={setRowSelection}
+        enableColumnFilterModes={false}
+        enableDensityToggle={false}
+        enableFilters={false}
+        enableFullScreenToggle={false}
+        enableGlobalFilter={false}
+        enableHiding={true}
+        enablePinning={true}
+        enableStickyFooter={false}
+        enableMultiRowSelection={true}
         initialState={{
           density: "compact",
           rowSelection,
         }}
         state={{
           rowSelection,
+          isLoading: props.loading,
+          showProgressBars: props.loading,
+          showSkeletons: props.loading,
         }}
-        muiTableProps={{
-          sx: { cursor: "pointer", height: "60px" },
+        muiTableBodyRowProps={() => ({
+          sx: { cursor: "pointer" },
+        })}
+        icons={{
+          ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
         }}
+        enableTableFooter={true}
+        // muiTableFooter= {<AddIcon />}
       />
     </>
   );

@@ -53,6 +53,7 @@ class SalesOrderForm extends CoreFormDocument {
       warehouseCode: "",
       nozzleData: [],
       allocationData: [],
+      cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
       isDialogOpen: false,
     } as any;
 
