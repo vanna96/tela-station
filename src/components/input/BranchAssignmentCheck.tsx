@@ -45,7 +45,7 @@ export default function BranchAssignmentCheck(props:any) {
           input={
             <OutlinedInput
               sx={{
-                fontSize: "small",
+                fontSize: "17px",
                 height: 33,
                 padding: "10px", // Adjust padding as needed
               }}

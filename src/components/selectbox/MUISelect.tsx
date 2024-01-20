@@ -51,13 +51,20 @@ const MUISelect: React.FC<MUISelectProps> = ({ error, items, disabled, loading, 
   return (
     <FormControl error={error} fullWidth>
       <div className="w-full mui-select bg-inherit flex flex-col gap-2">
-        {label && <label htmlFor={label} className={`text-inherit text-[14px] xl:text-[13px] ${error ? 'text-red-700' : 'text-[#656565]'} `}>
-          {label}
-        </label>}
+        {label && (
+          <label
+            htmlFor={label}
+            className={`text-inherit text-[14px] xl:text-[13px] ${
+              error ? "text-red-700" : "text-[#656565]"
+            } `}
+          >
+            {label}
+          </label>
+        )}
         <Select
-          value={value === -1 ? '-1' : (value ?? '')}
-          defaultValue={defaultValue ?? ''}
-          className={`w-full ${className} ${disabled ? 'bg-gray-100' : ''} `}
+          value={value === -1 ? "-1" : value ?? ""}
+          defaultValue={defaultValue ?? ""}
+          className={`w-full ${className} ${disabled ? "bg-gray-100" : ""} `}
           name={name}
           onChange={onChange}
           disabled={disabled}
@@ -75,9 +82,9 @@ const MUISelect: React.FC<MUISelectProps> = ({ error, items, disabled, loading, 
               return (
                 <MenuItem
                   key={shortid.generate()}
-                  value={e?.value ?? e?.[aliasvalue ?? '']}
+                  value={e?.value ?? e?.[aliasvalue ?? ""]}
                 >
-                  {e?.label ?? e?.[aliaslabel ?? '']}
+                  {e?.label ?? e?.[aliaslabel ?? ""]}
                 </MenuItem>
               );
             })
@@ -86,7 +93,7 @@ const MUISelect: React.FC<MUISelectProps> = ({ error, items, disabled, loading, 
           )}
         </Select>
       </div>
-    </FormControl >
+    </FormControl>
   );
 }
 

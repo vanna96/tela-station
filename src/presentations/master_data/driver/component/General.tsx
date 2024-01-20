@@ -14,7 +14,7 @@ import { formatDate } from "@/helper/helper";
 import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
-import BranchAssignmentCheck from './../../../../components/input/BranchAssignmentCheck';
+import BranchAssignmentCheck from "./../../../../components/input/BranchAssignmentCheck";
 
 const General = ({
   register,
@@ -255,14 +255,26 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUIDatePicker
-                  inputProps={{ ...register("StartDate") }}
-                  value={staticSelect.startDate ?? defaultValues?.StartDate}
-                  onChange={(e: any) => {
-                    if (e) {
-                      setValue("StartDate", ` ${formatDate(e)}"T00:00:00Z"`);
-                    }
-                    setStaticSelect({ ...staticSelect, startDate: e });
+                <Controller
+                  name="StartDate"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        {...field}
+                        value={defaultValues?.StartDate || staticSelect.startDate}
+                        onChange={(e: any) => {
+                            setValue(
+                              "StartDate",
+                              ` ${formatDate(e)}"T00:00:00Z"`
+                            );
+                          setStaticSelect({
+                            ...staticSelect,
+                            startDate: e,
+                          });
+                        }}
+                      />
+                    );
                   }}
                 />
               </div>
@@ -307,17 +319,26 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUIDatePicker
-                  inputProps={{ ...register("TerminationDate") }}
-                  value={
-                    staticSelect.termination ?? defaultValues?.TerminationDate
-                  }
-                  onChange={(e: any) => {
-                    setValue(
-                      "TerminationDate",
-                      ` ${formatDate(e)}"T00:00:00Z"`
+                <Controller
+                  name="TerminationDate"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        {...field}
+                        value={
+                          defaultValues?.TerminationDate ||
+                          staticSelect?.termination
+                        }
+                        onChange={(e: any) => {
+                          setValue(
+                            "TerminationDate",
+                            ` ${formatDate(e)}"T00:00:00Z"`
+                          );
+                          setStaticSelect({ ...staticSelect, termination: e });
+                        }}
+                      />
                     );
-                    setStaticSelect({ ...staticSelect, termination: e });
                   }}
                 />
               </div>

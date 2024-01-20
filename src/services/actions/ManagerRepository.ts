@@ -18,10 +18,9 @@ export default class ManagerRepository extends Repository<Manager> {
     const manager = await request('GET', this.url).then((res: any) => res?.data?.value);
     const enc = Encryption.encrypt(this.key, JSON.stringify(manager));
     localStorage.setItem(this.key, enc);
-
+console.log(manager)
     return manager;
   }
-
 
   find<Manager>(code: number | undefined | null): any {
     const data = localStorage.getItem(this.key);

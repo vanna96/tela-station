@@ -5,7 +5,7 @@ import request from "@/utilies/request";
 
 export default class BranchBPLRepository extends Repository<BranchBPL> {
    
-    url = '/BusinessPlaces?top=10';
+    url = '/BusinessPlaces';
     
     // specific key
     key = 'BusinessPlaces';
