@@ -2,12 +2,11 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import DataTable from "./components/DataTable";
+
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
-import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
@@ -18,86 +17,74 @@ import BranchRepository from "@/services/actions/branchRepository";
 import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
+import DataTable from "./component/DataTableD";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
   const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
-    docnum: 0,
     code: "",
-    name: "",
-    docdate: null,
-    account: -1,
-    bplid: -2,
+    firstName: "",
+    lastName: "",
+    jobTitle: "",
+    active: "",
   });
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
-      {
-        accessorKey: "Code",
-        header: "Expense Code", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-        // type: "number",
-      },
-      {
-        accessorKey: "Name",
-        header: "Name", //uses the default width from defaultColumn prop
+            {
+        accessorKey: "EmployeeCode",
+        header: "Employee Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return cell.row.original.EmployeeCode ?? "N/A";
         },
       },
       {
-        accessorKey: "U_tl_expacct",
-        header: "Account Code", //uses the default width from defaultColumn prop
+        accessorKey: "FirstName",
+        header: "FirstName", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_tl_expacct ?? "N/A";
+          return cell.row.original.FirstName ?? "N/A";
         },
       },
       {
-        accessorKey: "AccoutName",
-        header: "Account Name", //uses the default width from defaultColumn prop
+        accessorKey: "LastName",
+        header: "LastName", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.LastName ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "JobTitle",
+        header: "JobTitle", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 100,
         visible: true,
-        Cell: (cell: any) => {
-          return (
-            new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-              ?.Name ?? "N/A"
-          );
+       Cell: (cell: any) => {
+          return cell.row.original.JobTitle ?? "N/A";
         },
       },
+     
       {
-        accessorKey: "U_tl_bplid",
-        header: "Branch",
-        size: 100,
-        visible: true,
-        Cell: (cell: any) => {
-          return (
-            new BranchBPLRepository().find(cell.row.original.U_tl_bplid)
-              ?.BPLName ?? "N/A"
-          );
-        },
-      },
-
-      {
-        accessorKey: "U_tl_expactive",
+        accessorKey: "Active",
         header: "Active",
         size: 40,
         visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
+        Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Yes" : "No"),
       },
       {
         accessorKey: "DocEntry",
@@ -116,7 +103,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/cash-account/" + cell.row.original.Code, {
+                route("/master-data/driver/" + cell.row.original.EmployeeID, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -129,7 +116,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/master-data/cash-account/${cell.row.original.Code}/edit`,
+                  `/master-data/driver/${cell.row.original.EmployeeID}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -158,11 +145,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_CashAcct`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`Driver`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_CashAcct/$count?${filter}`
+        `${url}/EmployeesInfo/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -174,15 +161,16 @@ export default function Lists() {
     staleTime: 0,
   });
 
+
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_CashAcct",
+      "Driver",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_CashAcct?$top=${pagination.pageSize}&$skip=${
+        `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&${filter}`
       )
@@ -195,8 +183,7 @@ export default function Lists() {
     cacheTime: 0,
     staleTime: 0,
   });
-
-
+console.log(data);
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -241,21 +228,17 @@ export default function Lists() {
 
   const handleGoClick = () => {
     let queryFilters: any = [];
-    if (searchValues.docnum)
-      queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
     if (searchValues.code)
-      queryFilters.push(`startswith(Code, '${searchValues.code}')`);
-    if (searchValues.name)
-      queryFilters.push(`startswith(Name, '${searchValues.name}')`);
-    if (searchValues.docdate)
-      queryFilters.push(
-        `startswith(CreateDate, '${searchValues.docdate}T00:00:00Z')`
-      );
-    if (searchValues.account > 0)
-      queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
+      queryFilters.push(`startswith(EmployeeCode, '${searchValues.code}')`);
+    if (searchValues.firstName)
+      queryFilters.push(`startswith(FirstName, '${searchValues.firstName}')`);
+    if (searchValues.lastName)
+      queryFilters.push(`startswith(LastName, '${searchValues.lastName}')`);
+     if (searchValues.jobTitle)
+      queryFilters.push(`startswith(JobTitle, '${searchValues.jobTitle}')`);
 
-    if (searchValues.bplid > 0)
-      queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
+   if (searchValues.active)
+      queryFilters.push(`startswith(Active, '${searchValues.active}')`);
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
@@ -264,14 +247,15 @@ export default function Lists() {
 
   return (
     <>
-      <ModalAdaptFilter
+      {/* <ModalAdaptFilter
         isOpen={open}
         handleClose={() => setOpen(false)}
-      ></ModalAdaptFilter>
+      ></ModalAdaptFilter> */}
+     
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Cash Account{" "}
+            Master Data / Driver{" "}
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -280,20 +264,8 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   type="number"
-                  label="Document No."
-                  placeholder="Document No."
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.docnum}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, docnum: e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Expese Code"
-                  placeholder="Code"
+                  label="Employee Code"
+                  placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.code}
@@ -304,47 +276,62 @@ export default function Lists() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="Name"
-                  placeholder="Name"
+                  label="FirstName"
+                  placeholder="FirstName"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.name}
+                  value={searchValues.firstName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, name: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      firstName: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="LastName"
+                  placeholder="LastName"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.lastName}
+                  onChange={(e) =>
+                    setSearchValues({
+                      ...searchValues,
+                      lastName: e.target.value,
+                    })
                   }
                 />
               </div>
 
               <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Account
-                  </label>
-                  <div className="">
-                    <CashACAutoComplete
-                      value={searchValues.account}
-                      onChange={(e) =>
-                        setSearchValues({ ...searchValues, account: e })
-                      }
-                    />
-                  </div>
-                </div>
+                <MUITextField
+                  label="JobTitle"
+                  placeholder="JobTitle"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.jobTitle}
+                  onChange={(e) =>
+                    setSearchValues({
+                      ...searchValues,
+                      jobTitle: e.target.value,
+                    })
+                  }
+                />
               </div>
 
               <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Branch
-                  </label>
-                  <div className="">
-                    <BranchAutoComplete
-                      value={searchValues.bplid}
-                      onChange={(e) =>
-                        setSearchValues({ ...searchValues, bplid: e })
-                      }
-                    />
-                  </div>
-                </div>
+                <MUITextField
+                  label="Active"
+                  placeholder="Active"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.active}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, active: e.target.value })
+                  }
+                />
               </div>
               {/*  */}
 
@@ -401,7 +388,7 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Cash Account"
+          title="Driver"
         />
       </div>
     </>

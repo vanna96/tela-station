@@ -75,6 +75,15 @@ const MasterDataPage = () => {
             0
           }
         />
+         <ItemCard
+          title="Driver"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("driver")}
+          amount={
+            // count?.order ||
+            0
+          }
+        />
       </MainContainer>
     </>
   );
