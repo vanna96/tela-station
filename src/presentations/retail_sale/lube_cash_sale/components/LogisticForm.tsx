@@ -141,7 +141,7 @@ export default function LogisticForm({
                         )
                       : getShippingAddress(
                           data?.PayToCode,
-                          data?.vendor.bpAddress?.filter(
+                          data?.vendor?.bpAddress?.filter(
                             ({ addressType }: any) =>
                               addressType === "bo_BillTo"
                           )

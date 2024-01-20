@@ -12,7 +12,7 @@ import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 
-interface ContentComponentProps {
+interface UnitSaleComponentProps {
   items: any[];
   onChange?: (key: any, value: any) => void;
   columns: any[];
@@ -28,7 +28,7 @@ interface ContentComponentProps {
   handlerAddSequence: any;
 }
 
-export default function ContentComponent(props: ContentComponentProps) {
+export default function UnitSaleComponent(props: UnitSaleComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [colVisibility, setColVisibility] = React.useState<
@@ -86,6 +86,8 @@ export default function ContentComponent(props: ContentComponentProps) {
     if (props?.onChange) props.onChange("Items", Items);
   };
 
+  console.log(props?.data);
+
   const itemInvoicePrices =
     props?.items?.reduce((prev: number, item: any) => {
       return prev + parseFloat(item?.Amount || 0);
@@ -96,26 +98,23 @@ export default function ContentComponent(props: ContentComponentProps) {
   };
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-  discount, 
+    discount,
     // props?.data?.ExchangeRate ?? 1
     1
   );
 
+  console.log(props.data.Items);
+  console.log(props.data.DocDiscount)
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
+    const dataDiscount: number = props?.data?.DocDiscount || discount;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [props?.data?.DocDiscount, props.data.Items]);
+  }, [discount, props.data.Items]);
 
-  let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
-  if (props.data) {
-    props.data.DocTaxTotal = docTaxTotal;
-    props.data.DocTotalBeforeDiscount = docTotal;
-    props.data.DocDiscountPercent = props.data?.DocDiscount;
-    props.data.DocDiscountPrice = discountAmount;
-    props.data.DocTotal = TotalPaymentDue;
-  }
+  let TotalPaymentDue =
+    docTotal - (docTotal * discount) / 100 + docTaxTotal || 0;
+
   return (
     <FormCard
       title="Content"
@@ -233,7 +232,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
-                        value={props?.data?.DocDiscount ?? 0}
+                        defaultValue={discount}
                         // value={props.data.DocDiscount || discount}
                         onChange={(event: any) => {
                           if (
@@ -244,7 +243,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           ) {
                             event.target.value = 0;
                           }
-                          onChange("DocDiscount", event.target.value);
+                          onChange("DocDiscount", event);
                         }}
                       />
                     </div>

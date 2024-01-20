@@ -10,6 +10,9 @@ import MorphPriceForm from "@/presentations/retail_sale/morph_price/form";
 import MorphPriceDetail from "@/presentations/retail_sale/morph_price/detail";
 import RetailSalePage from "@/presentations/retail_sale";
 
+import LPGForm from "@/presentations/retail_sale/lpg_cash_sale/form/index";
+import LPGDetail from "@/presentations/retail_sale/lpg_cash_sale/detail";
+
 export default function RetailSaleRoute() {
   return (
     <Routes>
@@ -27,11 +30,12 @@ export default function RetailSaleRoute() {
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
+
       <Route path="/lpg-cash-sale">
         <Route index element={<SaleOrderLists />} />
-        <Route path="create" element={<SalesOrderForm />} />
-        <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
-        <Route path=":id" element={<SaleOrderDetail edit={true} />} />
+        <Route path="create" element={<LPGForm />} />
+        <Route path=":id/edit" element={<LPGForm edit={true} />} />
+        <Route path=":id" element={<LPGDetail edit={true} />} />
       </Route>
 
       {/* <Route path="/morph-price">

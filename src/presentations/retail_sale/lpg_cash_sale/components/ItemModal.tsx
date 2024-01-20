@@ -15,7 +15,6 @@ import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import { TextField } from "@mui/material";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
-import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -87,7 +86,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
         totalGross -
         (totalGross * parseFloat(temps["DiscountPercent"] ?? 0)) / 100;
 
-      temps["LineTotal"] = totalGross;
+      temps["TotalGross"] = totalGross;
     }
 
     if (field === "VatGroup") {
@@ -140,16 +139,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
             key={this.state.key}
           >
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <MUITextField
-                label="Item Code"
-                value={this.state?.ItemCode}
-                disabled
-              />
-              <MUITextField
-                label="Description"
-                value={this.state?.ItemName}
-                disabled
-              />
+              <MUITextField label="Item Code" value={this.state?.ItemCode} />
+              <MUITextField label="Description" value={this.state?.ItemName} />
             </div>
             <div className=" border-b pb-2 mt-3 uppercase font-medium text-gray-600">
               Item Pricing
@@ -203,7 +194,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 fixedDecimalScale
                 customInput={MUITextField}
                 startAdornment={this.state.Currency}
-                value={this.state?.LineTotal}
+                value={this.state?.TotalGross}
               />
             </div>
 
@@ -211,20 +202,18 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
+              <MUITextField
+                label="UOM Code"
+                disabled
+                value={this.state?.UomGroupCode}
+              />
               <UOMSelect
                 label="UOM Code"
                 value={this.state?.UomAbsEntry}
                 filterAbsEntry={this.state.SaleUOMLists}
                 onChange={(event) => this.handChange(event, "UomAbsEntry")}
               />
-              <MUITextField
-                label="UOM Name"
-                disabled
-                value={this.state?.UomGroupCode}
-              />
-
-              <WarehouseAutoComplete
-                Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
+              <WarehouseSelect
                 label="Warehouse Code"
                 value={this.state?.WarehouseCode}
                 onChange={(event) => this.handChange(event, "WarehouseCode")}

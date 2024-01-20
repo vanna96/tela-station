@@ -2,15 +2,10 @@ import React, { useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
-import VendorTextField from "@/components/input/VendorTextField"; // Assuming you have this component imported
 import { ContactEmployee } from "@/models/BusinessParter";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import SalePerson from "@/components/selectbox/SalePerson";
-import DistributionRuleSelect from "@/components/selectbox/DistributionRule";
 import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
@@ -18,9 +13,9 @@ import CurrencyRepository from "@/services/actions/currencyRepository";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
 import { useExchangeRate } from "../hook/useExchangeRate";
-import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -87,11 +82,11 @@ export default function GeneralForm({
   const salesType = route["*"];
   const getValueBasedOnFactor = () => {
     switch (salesType) {
-      case "fuel-cash-sale/create":
+      case "fuel-sales/create":
         return "Oil";
-      case "lube-cash-sale/create":
+      case "lube-sales/create":
         return "Lube";
-      case "lpg-cash-sale/create":
+      case "lpg-sales/create":
         return "LPG";
       default:
         return ""; // Set a default value if needed
@@ -146,7 +141,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch
+                Branch <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -177,8 +172,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Bin Location
-                {/* <span className="text-red-500">*</span> */}
+                Bin Location <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -215,22 +209,6 @@ export default function GeneralForm({
                 onLineofBusinessChange(e.target.value);
               }}
             />
-            {/* <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Line of Business
-                </label>
-              </div>
-              <div className="col-span-3">
-                <DistributionRuleSelect
-                  value={data?.U_tl_arbusi}
-                  onChange={(e) => {
-                    handlerChange("U_tl_arbusi", e.target.value);
-                    onLineofBusinessChange(e.target.value);
-                  }}
-                />
-              </div>
-            </div> */}
           </div>
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
@@ -258,11 +236,7 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField
-                value={data?.CardName}
-                disabled={edit}
-                name="BPName"
-              />
+              <MUITextField value={data?.CardName} disabled name="BPName" />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -286,6 +260,20 @@ export default function GeneralForm({
                 aliasvalue="id"
                 aliaslabel="name"
                 name="ContactPersonCode"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Price List
+              </label>
+            </div>
+            <div className="col-span-3">
+              <PriceListAutoComplete
+                onChange={(e) => handlerChange("PriceLists", e)}
+                value={data?.PriceLists}
               />
             </div>
           </div>
@@ -339,7 +327,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Series
+                Series <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -363,7 +351,7 @@ export default function GeneralForm({
                       edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
                     }
                     // value={data?.DocNum}
-                    disabled={edit}
+                    disabled
                     placeholder="Document No"
                   />
                 </div>
@@ -373,14 +361,14 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Posting Date
+                Posting Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <MUIDatePicker
                 disabled={data?.isStatusClose || false}
-                value={data.PostingDate}
-                onChange={(e: any) => handlerChange("PostingDate", e)}
+                value={edit ? data.TaxDate : data.TaxDate}
+                onChange={(e: any) => handlerChange("TaxDate", e)}
               />
             </div>
           </div>
@@ -397,25 +385,25 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                error={"DueDate" in data?.error}
-                helpertext={data?.error["DueDate"]}
+                error={"DocDueDate" in data?.error}
+                helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
-                value={data.DueDate ?? null}
-                onChange={(e: any) => handlerChange("DueDate", e)}
+                value={edit ? data.DocDueDate : data.DocDueDate ?? null}
+                onChange={(e: any) => handlerChange("DocDueDate", e)}
               />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Document Date
+                Document Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <MUIDatePicker
                 disabled={edit && data?.Status?.includes("A")}
-                value={data.DocumentDate}
-                onChange={(e: any) => handlerChange("DocumentDate", e)}
+                value={data.DocDate}
+                onChange={(e: any) => handlerChange("DocDate", e)}
               />
             </div>
           </div>

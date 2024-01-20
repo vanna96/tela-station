@@ -24,6 +24,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import Consumption from "../components/Consumption";
 import IncomingPaymentForm from "../components/IncomingPayment";
+import StockAllocationForm from "../components/StockAllocation";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -54,6 +55,14 @@ class SalesOrderForm extends CoreFormDocument {
       nozzleData: [],
       allocationData: [],
       cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
+      checkNumberData: [
+        {
+          check_no: "",
+          check_date: new Date(),
+          bank: "",
+          check_amount: 0,
+        },
+      ],
       isDialogOpen: false,
     } as any;
 
@@ -332,10 +341,20 @@ class SalesOrderForm extends CoreFormDocument {
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        <div className="w-full flex justify-start">
+          <MenuButton active={this.state.tapIndex === 0}>
+            <span className="flex">Basic Information</span>
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 1}>
+            Consumption
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 2}>
+            <span> Incoming Payment</span>
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 3}>
+            <span> Stock Allocation</span>
+          </MenuButton>
+        </div>
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -473,9 +492,10 @@ class SalesOrderForm extends CoreFormDocument {
                   )}
 
                   {this.state.tapIndex === 3 && (
-                    <AttachmentForm
+                    <StockAllocationForm
                       data={this.state}
-                      handlerChange={(key: any, value: any) => {
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
                     />

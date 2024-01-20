@@ -1,8 +1,8 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import ContentComponent from "./ContentComponents";
+import UnitSaleComponent from "./UnitSaleComponent";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
+import { Alert, Collapse, IconButton } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import { numberWithCommas } from "@/helper/helper";
 import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
@@ -18,7 +18,7 @@ import BinLocationTo from "@/components/input/BinLocationTo";
 import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import { TbEdit } from "react-icons/tb";
-interface ContentFormProps {
+interface UnitSaleFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
   handlerRemoveItem: (record: any[]) => void;
@@ -29,7 +29,7 @@ interface ContentFormProps {
   edit: boolean;
 }
 
-export default function ContentForm({
+export default function UnitSaleForm({
   data,
   handlerChangeItem,
   handlerAddItem,
@@ -38,7 +38,7 @@ export default function ContentForm({
   onChangeItemByCode,
   edit,
   ContentLoading,
-}: ContentFormProps) {
+}: UnitSaleFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
   // const { tlExpDic }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
@@ -182,19 +182,13 @@ export default function ContentForm({
       },
 
       {
-        Header: (header: any) => (
-          <label>
-            Item Name <span className="text-red-500">*</span>
-          </label>
-        ),
         accessorKey: "ItemName",
-        header: "Item Name ",
+        header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
               value={cell.getValue()}
-              disabled
               // onBlur={(e: any) =>
               //   handlerUpdateRow(cell.row.id, ["ItemName", e.target.value])
               // }
@@ -203,11 +197,6 @@ export default function ContentForm({
         },
       },
       {
-        Header: (header: any) => (
-          <label>
-            Quantity <span className="text-red-500">*</span>
-          </label>
-        ),
         accessorKey: "Quantity",
         header: "Quantity",
         visible: true,
@@ -244,8 +233,8 @@ export default function ContentForm({
                 const totalGross = newValue * gross;
                 handlerUpdateRow(
                   cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
+                  ["TotalGross", totalGross],
+                  "TotalGross"
                 );
               }}
             />
@@ -253,11 +242,6 @@ export default function ContentForm({
         },
       },
       {
-        Header: (header: any) => (
-          <label>
-            UoM <span className="text-red-500">*</span>
-          </label>
-        ),
         accessorKey: "UomAbsEntry",
         header: "UoM",
         visible: true,
@@ -286,11 +270,6 @@ export default function ContentForm({
         },
       },
       {
-        Header: (header: any) => (
-          <label>
-            Unit Price <span className="text-red-500">*</span>
-          </label>
-        ),
         accessorKey: "GrossPrice",
         header: "Unit Price",
         visible: true,
@@ -303,6 +282,17 @@ export default function ContentForm({
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}
+              //   onChange={(event) => {
+              //     const newValue = parseFloat(
+              //       event.target.value.replace(/,/g, "")
+              //     );
+              //     handlerUpdateRow(
+              //       cell.row.id,
+              //       ["GrossPrice", newValue],
+              //       "GrossPrice"
+              //     );
+              //   }}
+              // />
               onBlur={(event) => {
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
@@ -318,8 +308,8 @@ export default function ContentForm({
                 const totalGross = newValue * quantity;
                 handlerUpdateRow(
                   cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
+                  ["TotalGross", totalGross],
+                  "TotalGross"
                 );
               }}
             />
@@ -328,44 +318,7 @@ export default function ContentForm({
       },
 
       {
-        accessorKey: "DiscountPercent",
-        header: "Unit Discount",
-        visible: true,
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              // placeholder="0.00"
-              type="number"
-              startAdornment={"%"}
-              defaultValue={cell.getValue() ?? 0}
-              onChange={(event: any) => {
-                if (!(event.target.value <= 100 && event.target.value >= 0)) {
-                  event.target.value = 0;
-                }
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["DiscountPercent", event.target.value],
-                  "DiscountPercent"
-                );
-                const quantity = cell.row.original.Quantity;
-                const totalGross =
-                  cell.row.original.GrossPrice * quantity -
-                  cell.row.original.GrossPrice *
-                    quantity *
-                    (cell.row.original.DiscountPercent / 100);
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
-        },
-      },
-
-      {
-        accessorKey: "LineTotal",
+        accessorKey: "TotalGross",
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -383,8 +336,8 @@ export default function ContentForm({
                 );
                 handlerUpdateRow(
                   cell.row.id,
-                  ["LineTotal", newValue],
-                  "LineTotal"
+                  ["TotalGross", newValue],
+                  "TotalGross"
                 );
               }}
             />
@@ -417,7 +370,7 @@ export default function ContentForm({
           {data?.error["Items"]}
         </Alert>
       </Collapse>
-      <ContentComponent
+      <UnitSaleComponent
         key={key}
         columns={itemColumns}
         items={[...data?.Items]}
