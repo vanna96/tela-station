@@ -29,7 +29,6 @@ interface DataTableProps {
 }
 
 export default function DataTable(props: DataTableProps) {
-  console.log(props.data);
   const route = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
@@ -49,11 +48,6 @@ export default function DataTable(props: DataTableProps) {
     props.handlerSearch("&$filter=" + queries);
   };
 
-  console.log(props.handlerSearch);
-  console.log(handlerSearch);
-  console.log(props.createRoute);
-
-  console.log(props.dataUrl);
   const [exportButtonClicked, setExportButtonClicked] = useState(false);
 
   const {
@@ -70,7 +64,6 @@ export default function DataTable(props: DataTableProps) {
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-      console.log(response);
       return response;
     },
   });
