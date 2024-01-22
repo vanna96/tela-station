@@ -183,7 +183,6 @@ export default function SaleOrderLists() {
     pageIndex: 0,
     pageSize: 10,
   });
-  console.log(salesType);
   const Count: any = useQuery({
     queryKey: ["sale-order-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
@@ -240,21 +239,6 @@ export default function SaleOrderLists() {
         // Handle the default case or log an error if needed
       }
 
-      // const response: any = await request(
-      //   "GET",
-      //   `${url}/Orders?$top=${pagination.pageSize}&$skip=${
-      //     pagination.pageIndex * pagination.pageSize
-      //   }&$filter=U_tl_salestype eq null${
-      //     numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-      //   }${filter ? ` and ${filter}` : filter}${
-      //     sortBy !== "" ? "&$orderby=" + sortBy : ""
-      //   }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
-      // )
-      //   .then((res: any) => res?.data?.value)
-      //   .catch((e: Error) => {
-      //     throw new Error(e.message);
-      //   });
-
       const Url = `${url}/Orders?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_salestype eq null${
@@ -306,9 +290,7 @@ export default function SaleOrderLists() {
     }, 500);
   };
   let queryFilters = "";
-  console.log(queryFilters);
   const handlerSearch = (value: string) => {
-    console.log(value);
     if (searchValues.docnum) {
       queryFilters += `DocNum eq ${searchValues.docnum}`;
     }
@@ -358,8 +340,6 @@ export default function SaleOrderLists() {
       refetch();
     }, 500);
   };
-
-  console.log(queryFilters);
 
   const handleAdaptFilter = () => {
     setOpen(true);

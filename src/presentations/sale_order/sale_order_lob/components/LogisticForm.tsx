@@ -64,34 +64,16 @@ export default function LogisticForm({
 
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <div className="grid grid-cols-5">
-                  <div className="col-span-4">
-                    <label htmlFor="Code" className="text-gray-500 ">
-                      Attention Terminal
-                    </label>
-                  </div>
-                  <div className="col-span-1">
-                    <Checkbox
-                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
-                      value={data?.U_tl_attn_ter}
-                      checked={isChecked}
-                      onChange={handleCheckboxChange}
-                    />
-                  </div>
-                </div>
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Attention Terminal
+                </label>
               </div>
-
               <div className="col-span-3">
-                <div className="grid grid-cols-1 ">
-                  <div className="-mt-1">
-                    <WarehouseAttendTo
-                      U_tl_attn_ter={true}
-                      value={data.U_tl_grsuppo}
-                      onChange={(e) => handlerChange("U_tl_grsuppo", e)}
-                      disabled={!isChecked}
-                    />
-                  </div>
-                </div>
+                <WarehouseAttendTo
+                  U_tl_attn_ter={true}
+                  value={data.U_tl_grsuppo}
+                  onChange={(e) => handlerChange("U_tl_grsuppo", e)}
+                />
               </div>
             </div>
           </div>
