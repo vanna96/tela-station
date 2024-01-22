@@ -23,6 +23,11 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import {
+  StatusCustomerBranchCurrencyInfo,
+  StatusCustomerBranchCurrencyInfoLeftSide,
+  TotalSummaryRightSide,
+} from "@/components/DocumenHeaderComponent";
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
@@ -412,7 +417,7 @@ class SalesOrderForm extends CoreFormDocument {
   };
 
   HeaderTaps = () => {
-    console.log(this.state);
+    // console.log(this.state);
     return (
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
@@ -464,6 +469,17 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
+  LeftSideField = () => {
+    return <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />;
+  };
+
+  RightSideField = () => {
+    return (
+      <div>
+        <TotalSummaryRightSide data={this.state} />
+      </div>
+    );
+  };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")

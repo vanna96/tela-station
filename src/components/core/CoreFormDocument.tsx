@@ -85,7 +85,7 @@ export interface CoreFormDocumentState {
     logistic: boolean;
     attachment: boolean;
   };
-  isDialogOpen: boolean
+  isDialogOpen: boolean;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -165,7 +165,7 @@ export default abstract class CoreFormDocument extends React.Component<
         general: false,
         attachment: false,
       },
-      isDialogOpen: false
+      isDialogOpen: false,
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);
@@ -178,6 +178,10 @@ export default abstract class CoreFormDocument extends React.Component<
   abstract FormRender(): JSX.Element;
 
   abstract HeaderTaps(): JSX.Element;
+
+  abstract LeftSideField(): JSX.Element | React.ReactNode;
+
+  abstract RightSideField(): JSX.Element | React.ReactNode;
 
   render() {
     return (
@@ -204,6 +208,8 @@ export default abstract class CoreFormDocument extends React.Component<
           <DocumentHeaderComponent
             data={this.state}
             menuTabs={<this.HeaderTaps />}
+            leftSideField={<this.LeftSideField />}
+            rightSideField={<this.RightSideField />}
           />
           <div className={`grow  flex flex-col px-4 py-3 gap-2 w-full `}>
             <this.FormRender />
@@ -413,7 +419,7 @@ export default abstract class CoreFormDocument extends React.Component<
     }
   }
 
-  protected handlerChangeObject(value: Record<string, any>){
+  protected handlerChangeObject(value: Record<string, any>) {
     this.setState({ ...this.state, ...value });
   }
 }
