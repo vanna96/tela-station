@@ -286,8 +286,9 @@ export default function SaleOrderLists() {
     }, 500);
   };
   let queryFilters = "";
-
-  const handlerSearch = (value?: string) => {
+  console.log(queryFilters);
+  const handlerSearch = (value: string) => {
+    console.log(value);
     if (searchValues.docnum) {
       queryFilters += `DocNum eq ${searchValues.docnum}`;
     }
@@ -318,9 +319,15 @@ export default function SaleOrderLists() {
         : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
-    const qurey = queryFilters;
+    // console.log(qurey);
+    console.log(queryFilters);
+    console.log(searchValues);
+
+    let qurey = queryFilters + value;
     // console.log(qurey + value);
-    setFilter(qurey);
+    // qurey === {}? setFilter(qurey) : setFilter(value);
+    Object.keys(qurey).length === 0 ? setFilter(value) : setFilter(qurey);
+
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -332,7 +339,7 @@ export default function SaleOrderLists() {
     }, 500);
   };
 
-  // console.log(queryFilters);
+  console.log(queryFilters);
 
   const handleAdaptFilter = () => {
     setOpen(true);
