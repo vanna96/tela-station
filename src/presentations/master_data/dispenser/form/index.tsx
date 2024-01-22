@@ -90,14 +90,15 @@ class DispenserForm extends CoreFormDocument {
         .then(async (res: any) => {
           const data: any = res?.data;
           state = {
-            DispenserCode: data?.Code,
-            DispenserName: data?.Name,
+            PumpCode: data?.Code,
+            PumpName: data?.Name,
             NumOfPump: data?.U_tl_pumpnum,
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
             Attendant1: data?.U_tl_attend1,
             Attendant2: data?.U_tl_attend2,
+            U_tl_bplid: data?.U_tl_bplid,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const UoMGroupEntry = await request(
@@ -117,7 +118,6 @@ class DispenserForm extends CoreFormDocument {
                   const itemUOM = uoms.find(
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
                   );
-                  console.log(itemUOM);
                   if (itemUOM) {
                     uomLists.push(itemUOM);
                   }
@@ -181,14 +181,14 @@ class DispenserForm extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.DispenserCode) {
-        data["error"] = { DispenserCode: "Dispenser Code is Required!" };
-        throw new FormValidateException("Dispenser Code is Required!", 0);
+      if (!data.PumpCode) {
+        data["error"] = { PumpCode: "Pump Code is Required!" };
+        throw new FormValidateException("Pump Code is Required!", 0);
       }
 
-      if (!data?.DispenserName) {
-        data["error"] = { DispenserName: "Dispenser Name is Required!" };
-        throw new FormValidateException("Dispenser Name is Required!", 0);
+      if (!data?.PumpName) {
+        data["error"] = { PumpName: "Pump Name is Required!" };
+        throw new FormValidateException("Pump Name is Required!", 0);
       }
 
       if (!data?.NumOfPump) {
@@ -204,12 +204,10 @@ class DispenserForm extends CoreFormDocument {
       }
 
       const payloads = {
-        Code: this.state?.DispenserCode,
-        Name: this.state?.DispenserName,
+        Code: this.state?.PumpCode,
+        Name: this.state?.PumpName,
         U_tl_pumpnum: this.state?.NumOfPump,
-        U_tl_empid: this.state?.SalesPersonCode,
-        U_tl_attend1: this.state?.Attendant1,
-        U_tl_attend2: this.state?.Attendant2,
+        U_tl_bplid: `${this.state?.U_tl_bplid}`,
         U_tl_type: this.state?.lineofBusiness,
         U_tl_status: this.state?.Status,
         TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
@@ -295,7 +293,7 @@ class DispenserForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["DispenserCode", "DispenserName", "NumOfPump"],
+      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness"],
       // 1: ["Items"]
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -312,7 +310,7 @@ class DispenserForm extends CoreFormDocument {
       <>
         <div className="w-full mt-2">
           <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
+          <MenuButton active={this.state.tapIndex === 1}>Nozzle</MenuButton>
         </div>
 
         <div className="sticky w-full bottom-4">
@@ -325,9 +323,11 @@ class DispenserForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                Previous
+                <svg width="20" height="20" viewBox="0 0 2048 2048" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="currentColor" d="M256 1792V256h128v1536zm448-768l1088-768v1536zm960 521V503l-738 521z"/>
+                </svg>
               </Button>
-            </div>
+            </div> 
             <div className="flex items-center">
               <Button
                 size="small"
@@ -336,7 +336,9 @@ class DispenserForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
-                Next
+                <svg width="20" height="20" viewBox="0 0 2048 2048" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="currentColor" d="M1664 256h128v1536h-128zM256 1792V256l1088 768zM384 503v1042l738-521z"/>
+                </svg>
               </Button>
 
               <Snackbar
@@ -385,8 +387,6 @@ class DispenserForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-
-    console.log(this.state);
 
     return (
       <>
@@ -456,15 +456,20 @@ class DispenserForm extends CoreFormDocument {
                   )}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                       <div className="flex ">
                         <LoadingButton
                           size="small"
                           sx={{ height: "25px" }}
-                          variant="contained"
+                          variant="outlined"
+                          style={{
+                            background: 'white',
+                            border: '1px solid red'
+                          }}
                           disableElevation
+                          onClick={() => window.location.href = '/master-data/pump'}
                         >
-                          <span className="px-3 text-[11px] py-1 text-white">
+                          <span className="px-3 text-[11px] py-1 text-red-500">
                             Cancel
                           </span>
                         </LoadingButton>
