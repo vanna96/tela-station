@@ -205,12 +205,6 @@ class DeliveryDetail extends Component<any, any> {
             >
               Logistics
             </MenuButton>
-            <MenuButton
-              active={this.state.tapIndex === 3}
-              onClick={() => this.handlerChangeMenu(3)}
-            >
-              Attachment
-            </MenuButton>
           </div>
         </div>
       </>
@@ -242,12 +236,6 @@ class DeliveryDetail extends Component<any, any> {
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
 
                   {this.state.tapIndex === 2 && <Logistic data={this.state} />}
-
-                  {this.state.tapIndex === 3 && (
-                    <PreviewAttachment
-                      attachmentEntry={this.state.AttachmentEntry}
-                    />
-                  )}
                 </div>
               </div>
             </>
@@ -549,32 +537,14 @@ function Logistic(props: any) {
               </div>
             </div>
 
-            <div className="grid grid-cols-12 py-2">
-              <div className="col-span-6">
-                <div className="grid grid-cols-12">
-                  <div className="col-span-9">
-                    <label htmlFor="Code" className="text-gray-700 ">
-                      Attention Terminal
-                    </label>
-                  </div>
-                  <div className="col-span-3">
-                    <Checkbox
-                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
-                      checked={props?.data?.U_tl_grsuppo ? true : false}
-                    />
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 py-1">
+              <div className="col-span-1 text-gray-700 ">
+                {" "}
+                Attention Terminal
               </div>
-              {/* <div className="col-span-1">
-               
-              </div> */}
-              <div className="col-span-6">
-                <div className="grid grid-cols-1 ">
-                  <div className="-mt-1">
-                    {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                      ?.WarehouseName ?? "N/A"}
-                  </div>
-                </div>
+              <div className="col-span-1 text-gray-900">
+                {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
+                  ?.WarehouseName ?? "N/A"}
               </div>
             </div>
           </div>
