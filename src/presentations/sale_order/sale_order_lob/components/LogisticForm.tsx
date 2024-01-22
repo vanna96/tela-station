@@ -23,11 +23,7 @@ export default function LogisticForm({
   edit,
   ref,
 }: ILogisticFormProps) {
-  const [isChecked, setIsChecked] = useState(false);
 
-  const handleCheckboxChange = (e: any) => {
-    setIsChecked(e.target.checked);
-  };
 
   return (
     <>
