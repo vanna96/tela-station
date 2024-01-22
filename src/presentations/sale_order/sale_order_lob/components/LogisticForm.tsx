@@ -23,8 +23,6 @@ export default function LogisticForm({
   edit,
   ref,
 }: ILogisticFormProps) {
-
-
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
