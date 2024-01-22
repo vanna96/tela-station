@@ -8,7 +8,6 @@ import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
-import AttachmentForm from "../components/AttachmentForm";
 import AccountingForm from "../components/AccountingForm";
 import React from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
@@ -22,7 +21,8 @@ import useState from "react";
 import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
@@ -32,6 +32,7 @@ class SalesOrderForm extends CoreFormDocument {
       DocumentDate: new Date(),
       PostingDate: new Date(),
       DueDate: new Date(),
+      Branch: 1,
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
@@ -123,40 +124,7 @@ class SalesOrderForm extends CoreFormDocument {
             CurrencyType: true,
           };
 
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await requestHeader(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
+          
 
           state = {
             ...data,
@@ -188,12 +156,12 @@ class SalesOrderForm extends CoreFormDocument {
                   VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,
                   TotalGross: item.GrossTotal,
+                  LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
                   TaxCode: item.VatGroup || item.taxCode || null,
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || null,
                   UomAbsEntry: item?.UoMEntry,
-                  LineTotal: item.LineTotal,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
                   ExchangeRate: data?.DocRate || 1,
@@ -215,7 +183,7 @@ class SalesOrderForm extends CoreFormDocument {
                       };
                     }
                   ),
-                  AttachmentList,
+                  // AttachmentList,
                   disabledFields,
                   isStatusClose: data?.DocumentStatus === "bost_Close",
                   RoundingValue:
@@ -289,9 +257,9 @@ class SalesOrderForm extends CoreFormDocument {
       }
 
       // attachment
-      let AttachmentEntry = null;
-      const files = data?.AttachmentList?.map((item: any) => item);
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files);
+      // let AttachmentEntry = null;
+      // const files = data?.AttachmentList?.map((item: any) => item);
+      // if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // items
 
@@ -331,7 +299,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
-        AttachmentEntry,
+        // AttachmentEntry,
       };
 
       const edit_payloads = {
@@ -360,7 +328,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_grsuppo: data?.U_tl_grsuppo,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
-        AttachmentEntry,
+        // AttachmentEntry,
       };
 
       if (id) {
@@ -431,7 +399,7 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode","DocDueDate", "U_tl_whsdesc"],
+      0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
       2: ["U_tl_dnsuppo", "PayToCode"],
       3: [],
@@ -452,7 +420,7 @@ class SalesOrderForm extends CoreFormDocument {
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
         <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
         <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton>
+        {/* <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">
@@ -463,7 +431,7 @@ class SalesOrderForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                Previous
+                <NavigateBeforeIcon />
               </Button>
             </div>
             <div className="flex items-center">
@@ -471,10 +439,10 @@ class SalesOrderForm extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 2}
                 style={{ textTransform: "none" }}
               >
-                Next
+                <NavigateNextIcon />
               </Button>
 
               <Snackbar
@@ -584,14 +552,14 @@ class SalesOrderForm extends CoreFormDocument {
                     />
                   )}
 
-                  {this.state.tapIndex === 3 && (
+                  {/* {this.state.tapIndex === 3 && (
                     <AttachmentForm
                       data={this.state}
                       handlerChange={(key: any, value: any) => {
                         this.handlerChange(key, value);
                       }}
                     />
-                  )}
+                  )} */}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
@@ -636,7 +604,7 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any, BinLocation:any) =>
+const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
