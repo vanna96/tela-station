@@ -296,15 +296,10 @@ export default function SaleOrderLists() {
     }
     if (searchValues.cardcode) {
       queryFilters += queryFilters
-        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
-          ` and CardCode eq '${searchValues.cardcode}'`
-        : `CardCode eq '${searchValues.cardcode}'`;
+        ? ` and (contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`
+        : `(contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`;
     }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
+
     if (searchValues.postingDate) {
       queryFilters += queryFilters
         ? ` and TaxDate ge '${searchValues.postingDate}'`
@@ -349,7 +344,6 @@ export default function SaleOrderLists() {
   const [searchValues, setSearchValues] = React.useState({
     docnum: "",
     cardcode: "",
-    cardname: "",
     postingDate: null,
     status: "",
     bplid: "",
@@ -415,7 +409,7 @@ export default function SaleOrderLists() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
+                {/* <BPAutoComplete
                   type="Customer"
                   label="Customer"
                   value={searchValues.cardcode}
@@ -423,6 +417,20 @@ export default function SaleOrderLists() {
                     setSearchValues({
                       ...searchValues,
                       cardcode: selectedValue,
+                    })
+                  }
+                /> */}
+                <MUITextField
+                  label="Customer"
+                  placeholder="Customer Code/Name"
+                  className="bg-white"
+                  autoComplete="off"
+                  type="string"
+                  value={searchValues.cardcode}
+                  onChange={(e) =>
+                    setSearchValues({
+                      ...searchValues,
+                      cardcode: e.target.value,
                     })
                   }
                 />
