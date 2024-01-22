@@ -51,7 +51,7 @@ const SaleOrderPage = () => {
           amount={count?.order || 0}
         />
         <ItemCard
-          title="LPG"
+          title="LPG Sales"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("lpg-sales")}
           amount={count?.order || 0}
