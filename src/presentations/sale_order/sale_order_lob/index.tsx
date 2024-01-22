@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -21,7 +21,7 @@ export default function SaleOrderLists() {
   const route = useNavigate();
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
-
+  const [dataUrl, setDataUrl] = useState("");
   const columns = React.useMemo(
     () => [
       {
@@ -240,21 +240,41 @@ export default function SaleOrderLists() {
         // Handle the default case or log an error if needed
       }
 
-      const response: any = await request(
-        "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_salestype eq null${
-          numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-        }${filter ? ` and ${filter}` : filter}${
-          sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
-      )
+      // const response: any = await request(
+      //   "GET",
+      //   `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+      //     pagination.pageIndex * pagination.pageSize
+      //   }&$filter=U_tl_salestype eq null${
+      //     numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      //   }${filter ? ` and ${filter}` : filter}${
+      //     sortBy !== "" ? "&$orderby=" + sortBy : ""
+      //   }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
+      // )
+      //   .then((res: any) => res?.data?.value)
+      //   .catch((e: Error) => {
+      //     throw new Error(e.message);
+      //   });
+
+      const Url = `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }&$filter=U_tl_salestype eq null${
+        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+
+      const dataUrl = `${url}/Orders?$filter=U_tl_salestype eq null${
+        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+
+      setDataUrl(dataUrl);
+      const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-
       return response;
     },
     // staleTime: Infinity,
@@ -505,6 +525,7 @@ export default function SaleOrderLists() {
         <DataTable
           columns={columns}
           data={data}
+          dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}
