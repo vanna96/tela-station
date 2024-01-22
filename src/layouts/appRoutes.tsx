@@ -242,7 +242,7 @@ const appRoutes: RouteType[] = [
         path: "/expense/clearance",
         state: "expense/clearance",
         sidebarProps: {
-          displayText: "Expense Clearnace",
+          displayText: "Expense Posting",
         },
       },
     ],

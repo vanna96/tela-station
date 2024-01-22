@@ -765,6 +765,7 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 density: "compact",
                 //   columnVisibility: colVisibility,
                 //   rowSelection,
+                columnPinning: { left: ['id', 'saleName', 'lob', 'saleCode', 'itemCode', 'description', 'uom'], right: [] }
               }}
               state={
                 {

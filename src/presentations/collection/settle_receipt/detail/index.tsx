@@ -197,12 +197,12 @@ class FormDetail extends Component<any, any> {
             >
               Content
             </MenuButton>
-            <MenuButton
+            {/* <MenuButton
               active={this.state.tapIndex === 3}
               onClick={() => this.handlerChangeMenu(3)}
             >
               Attachment
-            </MenuButton>
+            </MenuButton> */}
           </div>
         </div>
       </>
