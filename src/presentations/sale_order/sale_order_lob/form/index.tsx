@@ -469,6 +469,16 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
+  // LeftSideField = () => {
+  //   return <>'hello left side </>;
+  // };
+  // RightSideField = () => {
+  //   return (
+  //     <div>
+  //      'Hello Right Side
+  //     </div>
+  //   );
+  // };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
