@@ -82,7 +82,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/driver/" + cell.row.original.EmployeeID, {
+                route("/master-data/driver/" + cell.row.original.EmployeeCode, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -95,7 +95,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/master-data/driver/${cell.row.original.EmployeeID}/edit`,
+                  `/master-data/driver/${cell.row.original.EmployeeCode}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
