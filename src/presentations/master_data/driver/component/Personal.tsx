@@ -70,14 +70,24 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUIDatePicker
-                inputProps={{ ...register("DateOfBirth") }}
-                value={staticSelect.dateOfbirth ?? defaultValues?.DateOfBirth}
-                onChange={(e: any) => {
-                  if (e) {
-                    setValue("DateOfBirth", ` ${formatDate(e)}"T00:00:00Z"`);
-                  }
-                  setStaticSelect({ ...staticSelect, dateOfbirth: e });
+              <Controller
+                name="DateOfBirth"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <MUIDatePicker
+                      value={
+                        defaultValues?.DateOfBirth || staticSelect.dateOfbirth
+                      }
+                      onChange={(e: any) => {
+                        setValue(
+                          "DateOfBirth",
+                          ` ${formatDate(e)}"T00:00:00Z"`
+                        );
+                        setStaticSelect({ ...staticSelect, dateOfbirth: e });
+                      }}
+                    />
+                  );
                 }}
               />
             </div>
@@ -187,25 +197,33 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUIDatePicker
-                inputProps={{
-                  ...register("PassportExpirationDate"),
-                }}
-                value={
-                  staticSelect.passportExpirationDate ??
-                  defaultValues?.PassportExpirationDate
-                }
-                onChange={(e: any) => {
-                  if (e) {
-                    setValue(
-                      "PassportExpirationDate",
-                      ` ${formatDate(e)}"T00:00:00Z"`
-                    );
-                  }
-                  setStaticSelect({
-                    ...staticSelect,
-                    passportExpirationDate: e,
-                  });
+              <Controller
+                name="DateOfBirth"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <MUIDatePicker
+                      inputProps={{
+                        ...register("PassportExpirationDate"),
+                      }}
+                      value={
+                        defaultValues?.PassportExpirationDate ||
+                        staticSelect.passportExpirationDate
+                      }
+                      onChange={(e: any) => {
+                        if (e) {
+                          setValue(
+                            "PassportExpirationDate",
+                            ` ${formatDate(e)}"T00:00:00Z"`
+                          );
+                        }
+                        setStaticSelect({
+                          ...staticSelect,
+                          passportExpirationDate: e,
+                        });
+                      }}
+                    />
+                  );
                 }}
               />
             </div>
@@ -217,22 +235,33 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUIDatePicker
-                inputProps={{
-                  ...register("PassportIssueDate"),
-                }}
-                value={
-                  staticSelect.passportIssuedDate ??
-                  defaultValues?.PassportIssueDate
-                }
-                onChange={(e: any) => {
-                  if (e) {
-                    setValue(
-                      "PassportIssueDate",
-                      ` ${formatDate(e)}"T00:00:00Z"`
-                    );
-                  }
-                  setStaticSelect({ ...staticSelect, passportIssuedDate: e });
+              <Controller
+                name="DateOfBirth"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <MUIDatePicker
+                      inputProps={{
+                        ...register("PassportIssueDate"),
+                      }}
+                      value={
+                        defaultValues?.PassportIssueDate ||
+                        staticSelect.passportIssuedDate
+                      }
+                      onChange={(e: any) => {
+                        if (e) {
+                          setValue(
+                            "PassportIssueDate",
+                            ` ${formatDate(e)}"T00:00:00Z"`
+                          );
+                        }
+                        setStaticSelect({
+                          ...staticSelect,
+                          passportIssuedDate: e,
+                        });
+                      }}
+                    />
+                  );
                 }}
               />
             </div>

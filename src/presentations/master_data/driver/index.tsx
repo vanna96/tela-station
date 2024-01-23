@@ -31,10 +31,11 @@ export default function Lists() {
     jobTitle: "",
     active: "",
   });
+
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
-            {
+      {
         accessorKey: "EmployeeCode",
         header: "Employee Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
@@ -74,11 +75,11 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 100,
         visible: true,
-       Cell: (cell: any) => {
+        Cell: (cell: any) => {
           return cell.row.original.JobTitle ?? "N/A";
         },
       },
-     
+
       {
         accessorKey: "Active",
         header: "Active",
@@ -139,6 +140,7 @@ export default function Lists() {
 
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
+
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
@@ -161,7 +163,6 @@ export default function Lists() {
     staleTime: 0,
   });
 
-
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "Driver",
@@ -172,7 +173,7 @@ export default function Lists() {
         "GET",
         `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&${filter}`
+        }&$filter=U_tl_driver eq 'Y'&${filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -183,7 +184,7 @@ export default function Lists() {
     cacheTime: 0,
     staleTime: 0,
   });
-console.log(data);
+
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -229,16 +230,16 @@ console.log(data);
   const handleGoClick = () => {
     let queryFilters: any = [];
     if (searchValues.code)
-      queryFilters.push(`startswith(EmployeeCode, '${searchValues.code}')`);
+      queryFilters.push(`contains(EmployeeCode, '${searchValues.code}')`);
     if (searchValues.firstName)
-      queryFilters.push(`startswith(FirstName, '${searchValues.firstName}')`);
+      queryFilters.push(`contains(FirstName, '${searchValues.firstName}')`);
     if (searchValues.lastName)
-      queryFilters.push(`startswith(LastName, '${searchValues.lastName}')`);
-     if (searchValues.jobTitle)
-      queryFilters.push(`startswith(JobTitle, '${searchValues.jobTitle}')`);
+      queryFilters.push(`contains(LastName, '${searchValues.lastName}')`);
+    if (searchValues.jobTitle)
+      queryFilters.push(`contains(JobTitle, '${searchValues.jobTitle}')`);
 
-   if (searchValues.active)
-      queryFilters.push(`startswith(Active, '${searchValues.active}')`);
+    if (searchValues.active)
+      queryFilters.push(`contains(Active, '${searchValues.active}')`);
 
     if (queryFilters.length > 0)
       return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
@@ -251,7 +252,7 @@ console.log(data);
         isOpen={open}
         handleClose={() => setOpen(false)}
       ></ModalAdaptFilter> */}
-     
+
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
@@ -322,16 +323,7 @@ console.log(data);
               </div>
 
               <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Active"
-                  placeholder="Active"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.active}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, active: e.target.value })
-                  }
-                />
+               
               </div>
               {/*  */}
 

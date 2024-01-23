@@ -10,6 +10,12 @@ import DocumentHeader from "@/components/DocumenHeader";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import { useQuery } from "react-query";
+import PositionRepository from "@/services/actions/positionRepository";
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import  ManagerRepository from '@/services/actions/ManagerRepository';
+import TerminationReasonRepository from "@/services/actions/terminationReason";
+import CountryRepository from "@/services/actions/countryReporitory";
 
 function FormDetail(props: any) {
   const [state, setState] = useState({
@@ -116,6 +122,22 @@ export default withRouter(FormDetail);
 
 function General(props: any) {
   const { data }: any = props;
+     const position:any = useQuery({
+       queryKey: ["position"],
+       queryFn: () => new PositionRepository().get(),
+       staleTime: Infinity,
+     });
+  const manager: any = useQuery({
+    queryKey: ["manager"],
+    queryFn: () => new ManagerRepository().get(),
+    staleTime: Infinity,
+  });
+  const reason: any = useQuery({
+    queryKey: ["terminationReason"],
+    queryFn: () => new TerminationReasonRepository().get(),
+    staleTime: Infinity,
+  });
+
   return (
     <>
       <div className="overflow-auto w-full bg-white shadow-lg border p-[30px] rounded-lg mb-6">
@@ -152,25 +174,34 @@ function General(props: any) {
                   Employees Code{" "}
                 </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.EmployeesCode || "N/A"}
+                  {data?.EmployeeCode || "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 "> Position </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Position || "N/A"}
+                  {position?.data?.find(
+                    (e: any) => e?.PositionID == data?.Position
+                  ).Name || "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 "> Department </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Department || "N/A"}
+                  {new DepartmentRepository().find(data.Department)?.Name ||
+                    "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 "> Manager </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Manager || "N/A"}
+                  {manager?.data?.find(
+                    (e: any) => e?.EmployeeID === data?.Manager
+                  )?.LastName +
+                    " " +
+                    manager?.data?.find(
+                      (e: any) => e?.EmployeeID === data?.Manager
+                    )?.FirstName}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
@@ -179,7 +210,9 @@ function General(props: any) {
                   Branch Assignment{" "}
                 </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.EmployeeBranchAssignment?.map((e:any)=> e?.BPLID).join(" , ") || "N/A"}
+                  {data?.EmployeeBranchAssignment?.map(
+                    (e: any) => e?.BPLID
+                  ).join(" , ") || "N/A"}
                 </div>
               </div>
             </div>
@@ -214,7 +247,7 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 ">Active</div>
                 <div className="col-span-1 text-gray-900">
-                  {(data.Active).replace("t","") ?? "N/A"}
+                  {data.Active.replace("t", "") ?? "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
@@ -225,10 +258,12 @@ function General(props: any) {
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 ">
-                  TreminationReason
+                  Termination Reason
                 </div>
                 <div className="col-span-1 text-gray-900">
-                  {data.TreminationReason ?? "N/A"}
+                  {reason?.data?.find(
+                    (e: any) => e?.ReasonID === data.TreminationReason
+                  )?.Name ?? "N/A"}
                 </div>
               </div>
             </div>
@@ -314,6 +349,12 @@ function Address(props: any) {
 
 function Personal(props: any) {
   const { data }: any = props;
+    const country: any = useQuery({
+      queryKey: ["country"],
+      queryFn: () => new CountryRepository().get(),
+      staleTime: Infinity,
+    });
+
   return (
     <>
       <div className="overflow-auto w-full bg-white shadow-lg border p-[30px] rounded-lg mb-6">
@@ -326,7 +367,7 @@ function Personal(props: any) {
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 ">Gender</div>
                 <div className="col-span-1 text-gray-900">
-                  {(data?.Gender)?.replace("gt_","") ?? "N/A"}
+                  {data?.Gender?.replace("gt_", "") ?? "N/A"}
                 </div>
               </div>
 
@@ -347,7 +388,7 @@ function Personal(props: any) {
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 "> Martial Status</div>
                 <div className="col-span-1 text-gray-900">
-                  {(data?.MartialStatus).replace("mts_","") || "N/A"}
+                  {(data?.MartialStatus).replace("mts_", "") || "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
@@ -362,7 +403,9 @@ function Personal(props: any) {
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700">Citizenship</div>
                 <div className="col-span-1  text-gray-900">
-                  {data.CitizenshipCountryCode ?? "N/A"}
+                  {country?.data?.find(
+                    (e: any) => e?.Code === data.CitizenshipCountryCode
+                  )?.Name ?? "N/A"}
                 </div>
               </div>
 
@@ -398,7 +441,6 @@ function Personal(props: any) {
                   {data.PassportIssuer ?? "N/A"}
                 </div>
               </div>
-             
             </div>
           </div>
         </div>
@@ -428,7 +470,7 @@ function Finance(props: any) {
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 ">SalaryUnit</div>
                 <div className="col-span-1 text-gray-900">
-                  {(data?.SalaryUnit)?.replace("scu_","") ?? "N/A"}
+                  {data?.SalaryUnit?.replace("scu_", "") ?? "N/A"}
                 </div>
               </div>
 
@@ -439,8 +481,12 @@ function Finance(props: any) {
                 </div>
               </div>
 
-            
-             
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Account No.</div>
+                <div className="col-span-1 text-gray-900">
+                  {data?.BankAccount ?? "N/A"}
+                </div>
+              </div>
             </div>
           </div>
         </div>

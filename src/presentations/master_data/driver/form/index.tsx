@@ -93,6 +93,7 @@ const Form = (props: any) => {
     );
     const payload = {
       ...data,
+      U_tl_driver: "Y",
       EmployeeBranchAssignment: branchAss?.map((e: any) => {
         return {
           BPLID: e?.BPLID,
