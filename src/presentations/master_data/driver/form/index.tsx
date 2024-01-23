@@ -185,7 +185,6 @@ const Form = (props: any) => {
       reset({ ...driver });
     }
   }, [driver]);
-console.log(driver);
 
   return (
     <>
