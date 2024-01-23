@@ -86,6 +86,14 @@ const appRoutes: RouteType[] = [
           displayText: "Expense Dictionary",
         },
       },
+
+      {
+        path: "/master-data/driver",
+        state: "driver",
+        sidebarProps: {
+          displayText: "Driver",
+        },
+      },
     ],
   },
   {
