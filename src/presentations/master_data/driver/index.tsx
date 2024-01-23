@@ -19,6 +19,7 @@ import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
 import DataTable from "./component/DataTableD";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -66,17 +67,6 @@ export default function Lists() {
         visible: true,
         Cell: (cell: any) => {
           return cell.row.original.LastName ?? "N/A";
-        },
-      },
-      {
-        accessorKey: "JobTitle",
-        header: "JobTitle", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 100,
-        visible: true,
-        Cell: (cell: any) => {
-          return cell.row.original.JobTitle ?? "N/A";
         },
       },
 
@@ -173,7 +163,7 @@ export default function Lists() {
         "GET",
         `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_driver eq 'Y'&${filter}`
+        }&$filter=U_tl_driver eq 'Y'${filter===''? '' :'&'+filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -235,8 +225,7 @@ export default function Lists() {
       queryFilters.push(`contains(FirstName, '${searchValues.firstName}')`);
     if (searchValues.lastName)
       queryFilters.push(`contains(LastName, '${searchValues.lastName}')`);
-    if (searchValues.jobTitle)
-      queryFilters.push(`contains(JobTitle, '${searchValues.jobTitle}')`);
+  
 
     if (searchValues.active)
       queryFilters.push(`contains(Active, '${searchValues.active}')`);
@@ -290,13 +279,12 @@ export default function Lists() {
                   }
                 />
               </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="LastName"
                   placeholder="LastName"
                   className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.lastName}
                   onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
@@ -305,26 +293,8 @@ export default function Lists() {
                   }
                 />
               </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="JobTitle"
-                  placeholder="JobTitle"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.jobTitle}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      jobTitle: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-               
-              </div>
+   
+              <div className="col-span-2 2xl:col-span-3"></div>
               {/*  */}
 
               <div className="col-span-2 2xl:col-span-3"></div>

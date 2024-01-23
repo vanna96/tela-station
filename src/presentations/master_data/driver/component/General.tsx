@@ -196,8 +196,7 @@ const General = ({
                 <BranchAssignmentAuto
                   // branchAss={branchAss}
                   // setBranchAss={setBranchAss}
-                  onChange={(e: any) => setBranchAss([e])
-                  }
+                  onChange={(e: any) => setBranchAss([e])}
                   value={staticSelect?.branchASS}
                 />
               </div>
@@ -302,7 +301,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="MartialStatus"
+                  name="Active"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -312,7 +311,7 @@ const General = ({
                           { value: "tNO", label: "No" },
                         ]}
                         onChange={(e: any) => {
-                          setValue("MartialStatus", e.target.value);
+                          setValue("Active", e.target.value);
                           setStaticSelect({
                             ...staticSelect,
                             status: e.target.value,
