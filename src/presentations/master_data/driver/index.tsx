@@ -2,29 +2,16 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import BranchRepository from "@/services/actions/branchRepository";
-import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
 import DataTable from "./component/DataTableD";
-import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
-  const [open, setOpen] = React.useState<boolean>(false);
-  const { branchBPL }: any = React.useContext(APIContext);
-  const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
     code: "",
     firstName: "",
@@ -141,7 +128,9 @@ export default function Lists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/EmployeesInfo/$count?${filter}`
+        `${url}/EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'${
+          filter ? ` and ${filter}` : ""
+        }`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -159,12 +148,13 @@ export default function Lists() {
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_driver eq 'Y'${filter===''? '' :'&'+filter}`
-      )
+      const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }&$filter=U_tl_driver eq 'Y'${
+        filter ? ` and ${filter}` : filter
+      }${"&$select =FirstName,LastName,EmployeeCode,Active"}`;
+
+      const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -200,8 +190,27 @@ export default function Lists() {
     }, 500);
   };
 
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    setFilter(value);
+    if (searchValues.code) {
+      queryFilters += queryFilters
+        ? ` and (contains(EmployeeCode, '${searchValues.code}'))`
+        : `(contains(EmployeeCode, '${searchValues.code}'))`;
+    }
+    if (searchValues.firstName) {
+      queryFilters += queryFilters
+        ? ` and (contains(FirstName, '${searchValues.firstName}'))`
+        : `(contains(FirstName, '${searchValues.firstName}'))`;
+    }
+    if (searchValues.lastName) {
+      queryFilters += queryFilters
+        ? ` and (contains(LastName, '${searchValues.lastName}'))`
+        : `(contains(LastName, '${searchValues.lastName}'))`;
+    }
+
+    let qurey = queryFilters + value;
+    setFilter(qurey);
+
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -213,35 +222,8 @@ export default function Lists() {
     }, 500);
   };
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-
-  const handleGoClick = () => {
-    let queryFilters: any = [];
-    if (searchValues.code)
-      queryFilters.push(`contains(EmployeeCode, '${searchValues.code}')`);
-    if (searchValues.firstName)
-      queryFilters.push(`contains(FirstName, '${searchValues.firstName}')`);
-    if (searchValues.lastName)
-      queryFilters.push(`contains(LastName, '${searchValues.lastName}')`);
-  
-
-    if (searchValues.active)
-      queryFilters.push(`contains(Active, '${searchValues.active}')`);
-
-    if (queryFilters.length > 0)
-      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
-    return handlerSearch("");
-  };
-
   return (
     <>
-      {/* <ModalAdaptFilter
-        isOpen={open}
-        handleClose={() => setOpen(false)}
-      ></ModalAdaptFilter> */}
-
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
@@ -293,7 +275,7 @@ export default function Lists() {
                   }
                 />
               </div>
-   
+
               <div className="col-span-2 2xl:col-span-3"></div>
               {/*  */}
 
@@ -306,7 +288,7 @@ export default function Lists() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>
@@ -319,7 +301,6 @@ export default function Lists() {
                       <Button
                         variant="outlined"
                         size="small"
-                        // onClick={handleGoClick}
                       >
                         Adapt Filter
                       </Button>
