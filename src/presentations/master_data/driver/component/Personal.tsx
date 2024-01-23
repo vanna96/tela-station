@@ -44,8 +44,7 @@ const Personal = ({
                   return (
                     <MUISelect
                       items={[
-                        { label: "Not Specified", value: "E" },
-                        { label: "Female", value: "F" },
+                        { label: "Female", value: "gt_Female" },
                         { label: "Male", value: "gt_Male" },
                       ]}
                       onChange={(e: any) => {
