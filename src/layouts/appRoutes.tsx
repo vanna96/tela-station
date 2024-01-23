@@ -85,6 +85,21 @@ const appRoutes: RouteType[] = [
           displayText: "Expense Dictionary",
         },
       },
+      
+      {
+        path: "/master-data/stops",
+        state: "stops",
+        sidebarProps: {
+          displayText: "Stops",
+        },
+      },
+      {
+        path: "/master-data/route",
+        state: "route",
+        sidebarProps: {
+          displayText: "Route",
+        },
+      },
     ],
   },
   {
