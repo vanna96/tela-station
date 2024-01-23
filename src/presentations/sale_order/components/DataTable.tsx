@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@mui/material";
 import { HiRefresh } from "react-icons/hi";
 import { BiFilterAlt } from "react-icons/bi";
@@ -7,12 +7,11 @@ import { AiOutlineSetting } from "react-icons/ai";
 import MaterialReactTable from "material-react-table";
 import { BsPencilSquare, BsSortDown } from "react-icons/bs";
 import MenuCompoment from "@/components/data_table/MenuComponent";
-import { ThemeContext } from "@/contexts";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import ColumnSearch from "@/components/data_table/ColumnSearch";
-import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import Papa from "papaparse";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
 interface DataTableProps {
   columns: any[];
@@ -26,10 +25,10 @@ interface DataTableProps {
   paginationChange: (value: any) => void;
   title?: string;
   createRoute?: string;
+  dataUrl: string;
 }
 
 export default function DataTable(props: DataTableProps) {
-  console.log(props.data);
   const route = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
@@ -49,14 +48,35 @@ export default function DataTable(props: DataTableProps) {
     props.handlerSearch("&$filter=" + queries);
   };
 
+  const [exportButtonClicked, setExportButtonClicked] = useState(false);
+
+  const {
+    data: dataCSV,
+    isLoading,
+    refetch,
+    isFetching,
+  }: any = useQuery({
+    queryKey: ["export-to-csv", props.dataUrl, exportButtonClicked],
+    enabled: exportButtonClicked,
+    queryFn: async () => {
+      const response: any = await request("GET", props.dataUrl)
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+  });
+
   const handleExportToCSV = () => {
-    const csvContent = convertToCSV(props.data);
+    setExportButtonClicked(true); // Set the exportButtonClicked state to true when the button is clicked
 
-    console.log(csvContent);
+    const csvContent = convertToCSV(dataCSV);
 
-    // Create a Blob containing the CSV data
-    const blob = new Blob([csvContent], { type: "text/csv" });
-
+    // const blob = new Blob([csvContent], { type: "text/csv" });
+    const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csvContent], {
+      type: "text/csv;charset=utf-16le;", // or use utf-16le or utf-8
+    });
     // Create a link element to download the CSV file
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -77,28 +97,31 @@ export default function DataTable(props: DataTableProps) {
       "Card Name",
       "Document Total",
       "Posting Date",
-      "Document Status"
+      "Document Status",
     ];
-  
+
     // Map the data to the desired field names
-    const mappedData = data.map(row => ({
+    const mappedData = data?.map((row) => ({
       "Document Number": row.DocNum,
       "Card Code": row.CardCode,
       "Card Name": row.CardName,
       "Document Total": row.DocTotal,
       "Posting Date": row.TaxDate.slice(0, 10), // Extract the date part
-      "Document Status": "Close" // Set a static value for Document Status
+      "Document Status": row.DocumentStatus.replace("bost_", ""),
     }));
-  
+
     // Create CSV content with the specified fields
-    const csvContent = Papa.unparse({
-      fields,
-      data: mappedData
-    }, {
-      delimiter: ",", // Specify the delimiter
-      header: true,   // Include headers in the CSV
-    });
-  
+    const csvContent = Papa.unparse(
+      {
+        fields,
+        data: mappedData,
+      },
+      {
+        delimiter: ",", // Specify the delimiter
+        header: true, // Include headers in the CSV
+      }
+    );
+
     return csvContent;
   };
   return (

@@ -23,6 +23,11 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import {
+  StatusCustomerBranchCurrencyInfo,
+  StatusCustomerBranchCurrencyInfoLeftSide,
+  TotalSummaryRightSide,
+} from "@/components/DocumenHeaderComponent";
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
     super(props);
@@ -123,8 +128,6 @@ class SalesOrderForm extends CoreFormDocument {
           let disabledFields: any = {
             CurrencyType: true,
           };
-
-          
 
           state = {
             ...data,
@@ -414,7 +417,7 @@ class SalesOrderForm extends CoreFormDocument {
   };
 
   HeaderTaps = () => {
-    console.log(this.state);
+    // console.log(this.state);
     return (
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
@@ -466,6 +469,16 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
+  // LeftSideField = () => {
+  //   return <>'hello left side </>;
+  // };
+  // RightSideField = () => {
+  //   return (
+  //     <div>
+  //      'Hello Right Side
+  //     </div>
+  //   );
+  // };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
@@ -562,31 +575,44 @@ class SalesOrderForm extends CoreFormDocument {
                   )} */}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <div className="flex ">
+                    <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                      <div className="flex gap-2">
                         <LoadingButton
+                          variant="outlined"
                           size="small"
-                          sx={{ height: "25px" }}
-                          variant="contained"
+                          sx={{ height: "30px", textTransform: "none" }}
                           disableElevation
                         >
-                          <span className="px-3 text-[11px] py-1 text-white">
+                          <span className="px-3 text-[13px] py-1 text-red-500 font-no">
                             Cancel
+                          </span>
+                        </LoadingButton>
+                      </div>
+
+                      <div>
+                        <LoadingButton
+                          variant="outlined"
+                          size="small"
+                          sx={{ height: "30px", textTransform: "none" }}
+                          disableElevation
+                        >
+                          <span className="px-3 text-[13px] py-1 text-green-500">
+                            Copy to Invoice
                           </span>
                         </LoadingButton>
                       </div>
                       <div className="flex items-center space-x-4">
                         <LoadingButton
                           type="submit"
-                          sx={{ height: "25px" }}
+                          sx={{ height: "30px", textTransform: "none" }}
                           className="bg-white"
                           loading={false}
                           size="small"
                           variant="contained"
                           disableElevation
                         >
-                          <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Save"}
+                          <span className="px-6 text-[13px] py-4 text-white">
+                            {this.props.edit ? "Update" : "Post"}
                           </span>
                         </LoadingButton>
                       </div>

@@ -124,21 +124,21 @@ const appRoutes: RouteType[] = [
         path: "/sale-order/fuel-sales",
         state: "fuel-sales",
         sidebarProps: {
-          displayText: "Fuel",
+          displayText: "Fuel Sales",
         },
       },
       {
         path: "/sale-order/lube-sales",
         state: "lube-sales",
         sidebarProps: {
-          displayText: "Lube",
+          displayText: "Lube Sales",
         },
       },
       {
         path: "/sale-order/lpg-sales",
         state: "lpg-sales",
         sidebarProps: {
-          displayText: "LPG ",
+          displayText: "LPG Sales",
         },
       },
     ],
