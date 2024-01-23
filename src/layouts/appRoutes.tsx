@@ -25,7 +25,8 @@ import DirectAccountLists from "@/presentations/collection/direct_account";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AdsClickIcon from "@mui/icons-material/AdsClick";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import PaymentAccountLists from "@/presentations/collection/payment_account";
+import SwitchAccountIcon from "@mui/icons-material/SwitchAccount";
+
 type RouteType = {
   state: string;
   index?: boolean;
@@ -143,6 +144,38 @@ const appRoutes: RouteType[] = [
       },
     ],
   },
+
+  {
+    path: "/sale-invoice",
+    state: "sale-invoice",
+    sidebarProps: {
+      displayText: "Sale Invoice",
+      icon: <SwitchAccountIcon />,
+    },
+    child: [
+      {
+        path: "/sale-invoice/fuel-sales",
+        state: "fuel-sales",
+        sidebarProps: {
+          displayText: "Fuel Sales",
+        },
+      },
+      {
+        path: "/sale-invoice/lube-sales",
+        state: "lube-sales",
+        sidebarProps: {
+          displayText: "Lube Sales",
+        },
+      },
+      {
+        path: "/sale-invoice/lpg-sales",
+        state: "lpg-sales",
+        sidebarProps: {
+          displayText: "LPG Sales",
+        },
+      },
+    ],
+  },
   {
     path: "/retail-sale",
     state: "retail-sale",
@@ -190,7 +223,6 @@ const appRoutes: RouteType[] = [
     ],
   },
 
-  
   {
     path: "/banking",
     state: "banking",
