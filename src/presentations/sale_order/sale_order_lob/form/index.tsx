@@ -588,19 +588,21 @@ class SalesOrderForm extends CoreFormDocument {
                           </span>
                         </LoadingButton>
                       </div>
+                      {this.props.edit && (
+                        <div>
+                          <LoadingButton
+                            variant="outlined"
+                            size="small"
+                            sx={{ height: "30px", textTransform: "none" }}
+                            disableElevation
+                          >
+                            <span className="px-3 text-[13px] py-1 text-green-500">
+                              Copy to Invoice
+                            </span>
+                          </LoadingButton>
+                        </div>
+                      )}
 
-                      <div>
-                        <LoadingButton
-                          variant="outlined"
-                          size="small"
-                          sx={{ height: "30px", textTransform: "none" }}
-                          disableElevation
-                        >
-                          <span className="px-3 text-[13px] py-1 text-green-500">
-                            Copy to Invoice
-                          </span>
-                        </LoadingButton>
-                      </div>
                       <div className="flex items-center space-x-4">
                         <LoadingButton
                           type="submit"
