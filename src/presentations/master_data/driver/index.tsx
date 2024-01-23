@@ -10,6 +10,7 @@ import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter
 import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import DataTable from "./component/DataTableD";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
@@ -207,7 +208,11 @@ export default function Lists() {
         ? ` and (contains(LastName, '${searchValues.lastName}'))`
         : `(contains(LastName, '${searchValues.lastName}'))`;
     }
-
+ if (searchValues.active) {
+   queryFilters += queryFilters
+     ? ` and Active eq '${searchValues.active}'`
+     : `Active eq '${searchValues.active}'`;
+ }
     let qurey = queryFilters + value;
     setFilter(qurey);
 
@@ -221,6 +226,7 @@ export default function Lists() {
       refetch();
     }, 500);
   };
+console.log(searchValues);
 
   return (
     <>
@@ -237,7 +243,7 @@ export default function Lists() {
                 <MUITextField
                   type="number"
                   label="Employee Code"
-                  placeholder="Employee Code"
+                  // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.code}
@@ -246,10 +252,11 @@ export default function Lists() {
                   }
                 />
               </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="FirstName"
-                  placeholder="FirstName"
+                  // placeholder="FirstName"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.firstName}
@@ -265,7 +272,7 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="LastName"
-                  placeholder="LastName"
+                  // placeholder="LastName"
                   className="bg-white"
                   onChange={(e) =>
                     setSearchValues({
@@ -273,6 +280,34 @@ export default function Lists() {
                       lastName: e.target.value,
                     })
                   }
+                />
+              </div>
+
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="">
+                  <label
+                    htmlFor="Code"
+                    className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
+                  >
+                    Active
+                  </label>
+                </div>
+                <MUISelect
+                  items={[
+                    { value: "tYES", label: "Yes" },
+                    { value: "tNO", label: "No" },
+                    { value: "", label: "None" },
+                  ]}
+                  onChange={(e: any) =>
+                    setSearchValues({
+                      ...searchValues,
+                      active: e.target.value,
+                    })
+                  }
+                  value={searchValues.active}
+                  aliasvalue="value"
+                  aliaslabel="label"
+                
                 />
               </div>
 
@@ -298,10 +333,7 @@ export default function Lists() {
                   handlerClearFilter={handlerRefresh}
                   title={
                     <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                      >
+                      <Button variant="outlined" size="small">
                         Adapt Filter
                       </Button>
                     </div>
