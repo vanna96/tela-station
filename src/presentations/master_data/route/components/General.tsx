@@ -10,6 +10,7 @@ import { APIContext } from "../../context/APIContext";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -17,6 +18,7 @@ export interface IGeneralFormProps {
   handlerOpenProject?: () => void;
   edit?: boolean;
   hanndResetState?: any;
+  onWarehouseChange: (value: any) => void;
 }
 
 export default function GeneralForm({
@@ -24,6 +26,7 @@ export default function GeneralForm({
   handlerChange,
   edit,
   hanndResetState,
+  onWarehouseChange
 }: IGeneralFormProps) {
   const { CurrencyAPI, sysInfo }: any = useContext(APIContext);
   const [cookies, setCookie] = useCookies(["user"]);
@@ -45,12 +48,13 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <div className="col-span-3">
-                  <BranchAutoComplete
-                    BPdata={cookies?.user?.U_BaseStation}
-                    onChange={(e) => handlerChange("Branch", e)}
-                    value={branchId || 0}
-                    disabled={data?.edit}
-                    name="Branch"
+                  <WarehouseAutoComplete
+                    Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                    value={data?.U_BaseStation}
+                    onChange={(e) => {
+                      handlerChange("U_BaseStation", e);
+                      onWarehouseChange(e);
+                    }}
                   />
                 </div>
               </div>
@@ -62,12 +66,13 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <BranchAutoComplete
-                  BPdata={cookies?.user?.U_Destination}
-                  onChange={(e) => handlerChange("Branch", e)}
-                  value={branchId || 0}
-                  disabled={data?.edit}
-                  name="Branch"
+                <WarehouseAutoComplete
+                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                  value={data?.U_Destination}
+                  onChange={(e) => {
+                    handlerChange("U_Destination", e);
+                    onWarehouseChange(e);
+                  }}
                 />
               </div>
             </div>
@@ -116,76 +121,76 @@ export default function GeneralForm({
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2">
-                  <label htmlFor="Code" className="text-gray-500 ">
-                    Status
-                  </label>
-                </div>
-                <div className="col-span-3">
-                  <MUISelect
-                    items={[
-                      { id: "Y", name: "Yes" },
-                      { id: "N", name: "No" },
-                    ]}
-                    onChange={(e) => handlerChange("U_Status", e.target.value)}
-                    value={data?.U_Status}
-                    aliasvalue="id"
-                    aliaslabel="name"
-                    name="U_Status"
-                  />
-                </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Status
+                </label>
               </div>
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2">
-                  <label htmlFor="Latitude" className="text-gray-500 ">
-                    Distance
-                  </label>
-                </div>
-                <div className="col-span-3">
-                  <MUITextField
-                    value={data?.U_Distance}
-                    name="U_Distance"
-                    onChange={(e) =>
-                      handlerChange("U_Distance", e.target.value)
-                    }
-                  />
-                </div>
+              <div className="col-span-3">
+                <MUISelect
+                  items={[
+                    { id: "Y", name: "Yes" },
+                    { id: "N", name: "No" },
+                  ]}
+                  onChange={(e) => handlerChange("U_Status", e.target.value)}
+                  value={data?.U_Status}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="U_Status"
+                />
               </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Latitude" className="text-gray-500 ">
+                  Distance
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  value={data?.U_Distance}
+                  name="U_Distance"
+                  onChange={(e) =>
+                    handlerChange("U_Distance", e.target.value)
+                  }
+                />
+              </div>
+            </div>
 
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2">
-                  <label htmlFor="Latitude" className="text-gray-500 ">
-                    Travel Hour
-                  </label>
-                </div>
-                <div className="col-span-3">
-                  <MUITextField
-                    value={data?.U_Duration}
-                    name="U_Duration"
-                    onChange={(e) =>
-                      handlerChange("U_Duration", e.target.value)
-                    }
-                  />
-                </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Latitude" className="text-gray-500 ">
+                  Travel Hour
+                </label>
               </div>
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2">
-                  <label htmlFor="Code" className="text-gray-500 ">
-                    Extra Remarks
-                  </label>
-                </div>
-                <div className="col-span-3">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    multiline
-                    onChange={(e) => handlerChange("U_Remark", e.target.value)}
-                    rows={2}
-                    value={data.U_Remark}
-                  />
-                </div>
+              <div className="col-span-3">
+                <MUITextField
+                  value={data?.U_Duration}
+                  name="U_Duration"
+                  onChange={(e) =>
+                    handlerChange("U_Duration", e.target.value)
+                  }
+                />
               </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Extra Remarks
+                </label>
+              </div>
+              <div className="col-span-3">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  onChange={(e) => handlerChange("U_Remark", e.target.value)}
+                  rows={2}
+                  value={data.U_Remark}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
