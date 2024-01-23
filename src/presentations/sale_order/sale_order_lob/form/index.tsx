@@ -469,17 +469,6 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
-  LeftSideField = () => {
-    return <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />;
-  };
-
-  RightSideField = () => {
-    return (
-      <div>
-        <TotalSummaryRightSide data={this.state} />
-      </div>
-    );
-  };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")

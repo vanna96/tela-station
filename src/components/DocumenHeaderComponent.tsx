@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import BackButton from "./button/BackButton";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button, IconButton } from "@mui/material";
@@ -31,7 +31,8 @@ interface DocumentHeaderComponentProps {
 const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   props: DocumentHeaderComponentProps
 ) => {
-  const [collapse, setCollapse] = React.useState<boolean>(true);
+  // const [collapse, setCollapse] = React.useState<boolean>(true);
+  const [collapse, setCollapse] = useState<boolean>(false);
   const { theme } = React.useContext(ThemeContext);
 
   const location = useLocation();
@@ -136,10 +137,10 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       >
         {/* left side fields  */}
 
-        {props?.leftSideField ?? <StatusCustomerBranchCurrencyInfoLeftSide />}
+        {props?.leftSideField}
 
         {/* right side fields */}
-        {props?.rightSideField ?? <TotalSummaryRightSide />}
+        {props?.rightSideField}
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
@@ -232,7 +233,7 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
 export const TotalSummaryRightSide = (props: any) => {
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount ?? 0);
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
-    props.data.Items ?? [],
+    props.data?.Items ?? [],
     discount,
     1
   );
