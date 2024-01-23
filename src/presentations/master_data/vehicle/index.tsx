@@ -226,7 +226,6 @@ export default function Lists() {
       refetch();
     }, 500);
   };
-  console.log(searchValues);
 
   return (
     <>

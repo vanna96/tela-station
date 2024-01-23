@@ -82,7 +82,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/driver/" + cell.row.original.EmployeeCode, {
+                route("/master-data/driver/" + cell.row.original.EmployeeID, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -95,7 +95,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/master-data/driver/${cell.row.original.EmployeeCode}/edit`,
+                  `/master-data/driver/${cell.row.original.EmployeeID}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -153,7 +153,7 @@ export default function Lists() {
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_driver eq 'Y'${
         filter ? ` and ${filter}` : filter
-      }&$orderby=EmployeeCode${"&$select =FirstName,LastName,EmployeeCode,Active"}`;
+      }&$orderby=EmployeeID${"&$select =EmployeeID,FirstName,LastName,EmployeeCode,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -226,7 +226,6 @@ export default function Lists() {
       refetch();
     }, 500);
   };
-console.log(searchValues);
 
   return (
     <>

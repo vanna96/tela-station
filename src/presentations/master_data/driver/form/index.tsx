@@ -185,8 +185,7 @@ const Form = (props: any) => {
       reset({ ...driver });
     }
   }, [driver]);
-
-
+console.log(driver);
 
   return (
     <>
@@ -196,7 +195,7 @@ const Form = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent data={state} menuTabs={<HeaderTaps />} />
+          <DocumentHeaderComponent data={state} menuTabs={<HeaderTaps />} leftSideField={undefined} rightSideField={undefined} />
           <Backdrop
             sx={{
               color: "#fff",

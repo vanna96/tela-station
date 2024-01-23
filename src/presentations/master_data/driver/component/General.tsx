@@ -38,7 +38,6 @@ const General = ({
     }
   }, [defaultValues]);
 
-  console.log(staticSelect);
 
   return (
     <>
