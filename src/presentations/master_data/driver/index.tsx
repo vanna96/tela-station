@@ -152,7 +152,7 @@ export default function Lists() {
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_driver eq 'Y'${
         filter ? ` and ${filter}` : filter
-      }${"&$select =FirstName,LastName,EmployeeCode,Active"}`;
+      }&$orderby=EmployeeCode${"&$select =FirstName,LastName,EmployeeCode,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
