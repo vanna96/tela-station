@@ -140,6 +140,7 @@ const Form = (props: any) => {
     tapIndex: index,
   }));
     }, [state]);
+  
   const HeaderTaps = () => {
     return (
       <>
