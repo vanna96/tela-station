@@ -94,6 +94,13 @@ const appRoutes: RouteType[] = [
           displayText: "Driver",
         },
       },
+      {
+        path: "/master-data/vehicle",
+        state: "vehicle",
+        sidebarProps: {
+          displayText: "vehicle",
+        },
+      },
     ],
   },
   {

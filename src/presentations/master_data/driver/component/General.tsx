@@ -104,7 +104,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Position
@@ -130,7 +130,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Department
@@ -156,7 +156,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Manager
@@ -260,7 +260,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Start Date
@@ -326,7 +326,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Termination

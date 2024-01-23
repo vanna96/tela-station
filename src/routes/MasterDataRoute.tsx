@@ -37,6 +37,8 @@ import DriverList from "@/presentations/master_data/driver/index";
 import DriverForm from "@/presentations/master_data/driver/form/index";
 import DriverDetail from "@/presentations/master_data/driver/detail/index";
 
+import VehicleList from "@/presentations/master_data/vehicle/index";
+
 export default function MasterDataRoute() {
   return (
     <Routes>
@@ -73,6 +75,12 @@ export default function MasterDataRoute() {
 
       <Route path="/driver">
         <Route index element={<DriverList />} />
+        <Route path=":id" element={<DriverDetail />} />
+        <Route path="create" element={<DriverForm />} />
+        <Route path=":id/edit" element={<DriverForm edit={true} />} />
+      </Route>
+      <Route path="/vehicle">
+        <Route index element={<VehicleList />} />
         <Route path=":id" element={<DriverDetail />} />
         <Route path="create" element={<DriverForm />} />
         <Route path=":id/edit" element={<DriverForm edit={true} />} />
