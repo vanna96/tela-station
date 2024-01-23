@@ -220,7 +220,7 @@ export default abstract class CoreFormDocument extends React.Component<
             }
             rightSideField={
               this.RightSideField?.() ?? (
-                <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />
+                <TotalSummaryRightSide data={this.state} />
               )
             }
           />
