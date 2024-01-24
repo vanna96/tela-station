@@ -220,7 +220,7 @@ export default function SaleOrderLists() {
     queryKey: [
       "sales-order-lob",
       salesType,
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""}` , pagination.pageSize
     ],
     queryFn: async () => {
       let numAtCardFilter = "";
