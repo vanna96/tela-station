@@ -31,6 +31,8 @@ export type UseFormProps = {
     | undefined;
   setBranchAss?: any;
   branchAss?: any;
+  header?: any;
+  setHeader?: any;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -51,7 +53,13 @@ const Form = (props: any) => {
     isError: false,
     message: "",
   });
-
+ const [header, setHeader] = useState({
+   firstName: '',
+   lastName: '',
+   gender: '',
+   department: '',
+   branch: '',
+ });
   const [branchAss, setBranchAss] = useState([]);
   const [driver, setDriver] = React.useState<any>();
 
@@ -60,18 +68,16 @@ const Form = (props: any) => {
     fetchData();
   }, []);
 
-
   const fetchData = async () => {
     const { id }: any = props?.match?.params || 0;
     if (id) {
-     
       setState({
         ...state,
         loading: true,
       });
       await request("GET", `EmployeesInfo(${id})`)
         .then((res: any) => {
-           setBranchAss(res?.data?.EmployeeBranchAssignment);
+          setBranchAss(res?.data?.EmployeeBranchAssignment);
           setDriver(res?.data);
           setState({
             ...state,
@@ -87,8 +93,7 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
-        ([key, value]): any =>
-           value !== null && value !== undefined
+        ([key, value]): any => value !== null && value !== undefined
       )
     );
     const payload = {
@@ -111,7 +116,6 @@ const Form = (props: any) => {
                 "Update Successfully.",
                 res?.data?.EmployeeID
               )
-            
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -134,13 +138,16 @@ const Form = (props: any) => {
     }
   };
 
-    const handlerChangeMenu = useCallback((index: number) => {
-        setState((prevState) => ({
-    ...prevState,
-    tapIndex: index,
-  }));
-    }, [state]);
-  
+  const handlerChangeMenu = useCallback(
+    (index: number) => {
+      setState((prevState) => ({
+        ...prevState,
+        tapIndex: index,
+      }));
+    },
+    [state]
+  );
+
   const HeaderTaps = () => {
     return (
       <>
@@ -186,6 +193,56 @@ const Form = (props: any) => {
     }
   }, [driver]);
 
+  const Left = ({header}:any) => {
+    return (
+      <div className="w-[100%] h-[170px] flex py-5 px-4">
+        <div className="w-[25%] text-[16px] text-gray-600 flex flex-col justify-between h-full">
+          <div>
+            <span className="">First Name </span>
+          </div>
+          <div>
+            <span className="">Last Name </span>
+          </div>
+          <div>
+            <span className="">Gender </span>
+          </div>
+        </div>
+        <div className="w-[70%] flex flex-col justify-between h-full">
+          <div>
+            <span>{ header?.firstName}</span>
+          </div>
+          <div>
+            <span>Mony</span>
+          </div>
+          <div>
+            <span>Mony Reaksmey</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  const right = () => {
+    return (
+      <div className="w-[100%] h-[170px] flex py-5 px-4">
+        <div className="w-[65%] text-[16px] text-gray-600 flex items-end flex-col h-full">
+          <div>
+            <span className="mr-10 mb-[27px] inline-block">Department </span>
+          </div>
+          <div>
+            <span className="mr-10">Branch</span>
+          </div>
+        </div>
+        <div className="w-[15%] items-end flex flex-col h-full">
+          <div>
+            <span className="mb-[27px] inline-block">Reaksmey</span>
+          </div>
+          <div>
+            <span>Mony</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <>
       {state.loading ? (
@@ -194,7 +251,12 @@ const Form = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent data={state} menuTabs={<HeaderTaps />} leftSideField={undefined} rightSideField={undefined} />
+          <DocumentHeaderComponent
+            data={state}
+            menuTabs={<HeaderTaps />}
+            leftSideField={<Left header={header} />}
+            rightSideField={right()}
+          />
           <Backdrop
             sx={{
               color: "#fff",
@@ -218,8 +280,10 @@ const Form = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
-                    setBranchAss={setBranchAss}
+                  setBranchAss={setBranchAss}
                     branchAss={branchAss}
+                    header={header}
+                    setHeader={setHeader}
                 />
               </h1>
             )}

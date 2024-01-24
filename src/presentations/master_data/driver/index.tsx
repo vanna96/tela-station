@@ -38,7 +38,7 @@ export default function Lists() {
       },
       {
         accessorKey: "FirstName",
-        header: "FirstName", //uses the default width from defaultColumn prop
+        header: "First Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -50,7 +50,7 @@ export default function Lists() {
       },
       {
         accessorKey: "LastName",
-        header: "LastName", //uses the default width from defaultColumn prop
+        header: "Last Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -67,7 +67,7 @@ export default function Lists() {
         size: 40,
         visible: true,
         type: "string",
-        Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Yes" : "No"),
+        Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Active" : "Inactive"),
       },
       {
         accessorKey: "DocEntry",
@@ -212,14 +212,18 @@ export default function Lists() {
         ? ` and (contains(LastName, '${searchValues.lastName}'))`
         : `(contains(LastName, '${searchValues.lastName}'))`;
     }
- if (searchValues.active) {
-   queryFilters += queryFilters
-     ? ` and Active eq '${searchValues.active}'`
-     : `Active eq '${searchValues.active}'`;
- }
-    let qurey = queryFilters + value;
-    setFilter(qurey);
+    if (searchValues.active) {
+      queryFilters += queryFilters
+        ? ` and Active eq '${searchValues.active}'`
+        : `Active eq '${searchValues.active}'`;
+    }
 
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + `and ${value}`
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -292,7 +296,7 @@ export default function Lists() {
                     htmlFor="Code"
                     className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
                   >
-                    Active
+                    Status
                   </label>
                 </div>
                 {/* {searchValues.active === null && (
@@ -313,8 +317,8 @@ export default function Lists() {
                 <MUISelect
                   items={[
                     { value: "", label: "All" },
-                    { value: "tYES", label: "Yes" },
-                    { value: "tNO", label: "No" },
+                    { value: "tYES", label: "Active" },
+                    { value: "tNO", label: "Inactive" },
                   ]}
                   onChange={(e: any) =>
                     setSearchValues({

@@ -22,6 +22,8 @@ const General = ({
   setValue,
   setBranchAss,
   branchAss,
+  header,
+  setHeader
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     startDate: null,
@@ -56,6 +58,8 @@ const General = ({
                 <MUITextField
                   inputProps={{
                     ...register("FirstName"),
+                    onBlur: (e) =>
+                      setHeader({ ...header, firstName: e.target.value }),
                   }}
                 />
               </div>
@@ -187,32 +191,12 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {/* <BranchAssignmentAuto
-                  value={branchAss}
-                  onChange={(e) => setBranchAss([e])}
-                /> */}
                 <BranchAssignmentAuto
-                  // branchAss={branchAss}
-                  // setBranchAss={setBranchAss}
                   onChange={(e: any) => setBranchAss([e])}
                   value={staticSelect?.branchASS}
                 />
               </div>
             </div>
-            {/* <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Terminal
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                inputProps={{
-                  ...register("FirstName"),
-                }}
-              />
-            </div>
-          </div> */}
           </div>
 
           <div className="col-span-5 w-[50%]">
@@ -297,7 +281,7 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Active
+                  Status
                 </label>
               </div>
               <div className="col-span-3">
@@ -318,8 +302,8 @@ const General = ({
                     return (
                       <MUISelect
                         items={[
-                          { value: "tYES", label: "Yes" },
-                          { value: "tNO", label: "No" },
+                          { value: "tYES", label: "Active" },
+                          { value: "tNO", label: "Inactive" },
                         ]}
                         onChange={(e: any) => {
                           setValue("Active", e.target.value);
