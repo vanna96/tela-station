@@ -88,7 +88,7 @@ const Form = (props: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
         ([key, value]): any =>
-          value !== "" && value !== null && value !== undefined
+           value !== null && value !== undefined
       )
     );
     const payload = {
