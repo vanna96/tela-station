@@ -51,7 +51,7 @@ export default function ContentForm({
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "ExpenseCode",
+        accessorKey: "U_tl_expcode",
         header: "Expense Code",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -69,14 +69,14 @@ export default function ContentForm({
               aliaslabel="label"
               aliasvalue="Code"
               onChange={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["ExpenseCode", e.target.value])
+                handlerUpdateRow(cell.row.id, ["U_tl_expcode", e.target.value])
               }
             />
           );
         },
       },
       {
-        accessorKey: "ExpenseName",
+        accessorKey: "U_tl_expdesc",
         header: "Expense Name",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -84,7 +84,7 @@ export default function ContentForm({
             <MUITextField
               value={
                 tlExpDic?.find(
-                  (e: any) => e.Code === cell.row.original.ExpenseCode
+                  (e: any) => e.Code === cell.row.original.U_tl_expdesc
                 )?.Name
               }
               // onBlur={(e: any) =>
@@ -95,7 +95,7 @@ export default function ContentForm({
         },
       },
       {
-        accessorKey: "Amount",
+        accessorKey: "U_tl_linetotal",
         header: "Amount",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -111,14 +111,14 @@ export default function ContentForm({
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
                 );
-                handlerUpdateRow(cell.row.id, ["Amount", newValue]);
+                handlerUpdateRow(cell.row.id, ["U_tl_linetotal", newValue]);
               }}
             />
           );
         },
       },
       {
-        accessorKey: "Remark",
+        accessorKey: "U_tl_remark",
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -126,7 +126,7 @@ export default function ContentForm({
             <MUITextField
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
-                handlerUpdateRow(cell.row.id, ["Remark", e.target.value])
+                handlerUpdateRow(cell.row.id, ["U_tl_remark", e.target.value])
               }
             />
           );

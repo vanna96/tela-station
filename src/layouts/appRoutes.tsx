@@ -72,17 +72,17 @@ const appRoutes: RouteType[] = [
         },
       },
       {
-        path: "/master-data/cash-account",
-        state: "cash-account",
-        sidebarProps: {
-          displayText: "Cash Account",
-        },
-      },
-      {
         path: "/master-data/expense-dictionary",
         state: "expense-dictionary",
         sidebarProps: {
           displayText: "Expense Dictionary",
+        },
+      },
+      {
+        path: "/master-data/cash-account",
+        state: "cash-account",
+        sidebarProps: {
+          displayText: "Cash Account",
         },
       },
     ],
@@ -242,7 +242,7 @@ const appRoutes: RouteType[] = [
         path: "/expense/clearance",
         state: "expense/clearance",
         sidebarProps: {
-          displayText: "Expense Clearnace",
+          displayText: "Expense Posting",
         },
       },
     ],

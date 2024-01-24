@@ -519,9 +519,9 @@ class Form extends CoreFormDocument {
               <span> Payment Means</span>
             </MenuButton>
             <MenuButton active={this.state.tapIndex === 2}>Content</MenuButton>
-            <MenuButton active={this.state.tapIndex === 3}>
+            {/* <MenuButton active={this.state.tapIndex === 3}>
               Attachment
-            </MenuButton>
+            </MenuButton> */}
           </div>
 
           <div className="">

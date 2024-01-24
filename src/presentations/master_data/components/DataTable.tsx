@@ -103,7 +103,7 @@ export default function DataTable(props: DataTableProps) {
             items={props.columns}
             onClick={props.handlerSortby}
           /> 
-          <DataTableColumnVisibility
+          {/* <DataTableColumnVisibility
             title={
               <div className="flex gap-2">
                 <span className="text-lg">
@@ -116,7 +116,7 @@ export default function DataTable(props: DataTableProps) {
             onClick={(value) => {
               setColVisibility(value)
             }}
-          />
+          /> */}
         </div>
       </div>
 

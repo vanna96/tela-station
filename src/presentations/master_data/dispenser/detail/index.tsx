@@ -31,6 +31,7 @@ import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
 import ContentComponent from "../../morph_price/components/ContentComponents";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -40,6 +41,7 @@ class DeliveryDetail extends Component<any, any> {
       isError: false,
       message: "",
       tapIndex: 0,
+      Status: "New"
     };
 
     this.fetchData = this.fetchData.bind(this);
@@ -63,14 +65,15 @@ class DeliveryDetail extends Component<any, any> {
         .then(async (res: any) => {
           const data: any = res?.data;
           state = {
-            DispenserCode: data?.Code,
-            DispenserName: data?.Name,
+            PumpCode: data?.Code,
+            PumpName: data?.Name,
             NumOfPump: data?.U_tl_pumpnum,
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
             U_tl_attend1 : data?.U_tl_attend1,
             U_tl_attend2: data?.U_tl_attend2,
+            U_tl_bplid: data?.U_tl_bplid,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);                                
@@ -132,7 +135,7 @@ class DeliveryDetail extends Component<any, any> {
               active={this.state.tapIndex === 1}
               onClick={() => this.handlerChangeMenu(1)}
             >
-              <span>Pump Data</span>
+              <span>Nozzle</span>
             </MenuButton>
           </div>
         </div>
@@ -176,6 +179,7 @@ class DeliveryDetail extends Component<any, any> {
 export default withRouter(DeliveryDetail);
 
 function General(props: any) {
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -185,40 +189,28 @@ function General(props: any) {
       <div className="py-4 px-8">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Dispenser Code</div>
+          <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700 ">Branch</div>
               <div className="col-span-1 text-gray-900">
-                { props?.data?.DispenserCode ?? "N/A" }
+                { new BranchBPLRepository().find(1)?.BPLName }
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Dispenser Name</div>
+              <div className="col-span-1 text-gray-700 ">Pump Code</div>
               <div className="col-span-1 text-gray-900">
-                { props?.data?.DispenserName ?? "N/A" }
+                { props?.data?.PumpCode ?? "N/A" }
+              </div>
+            </div>
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700 ">Pump Name</div>
+              <div className="col-span-1 text-gray-900">
+                { props?.data?.PumpName ?? "N/A" }
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Number of Pump</div>
               <div className="col-span-1 text-gray-900">
                 {props.data?.NumOfPump}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Employee</div>
-              <div className="col-span-1 text-gray-900">
-                {new SalePersonRepository().find(props.data?.SalesPersonCode)?.name}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Pump Attendant 1</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data?.U_tl_attend1?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Pump Attendant 2</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data?.U_tl_attend2 ?? "N/A"}
               </div>
             </div>
           </div>
@@ -253,7 +245,7 @@ function Content(props: any) {
     () => [
       {
         accessorKey: "pumpCode",
-        header: "Pump Code",
+        header: "Nozzle Code",
       },
       {
         accessorKey: "itemCode",
