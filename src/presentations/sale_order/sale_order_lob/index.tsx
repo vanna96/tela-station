@@ -319,19 +319,12 @@ export default function SaleOrderLists() {
         : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
-    // console.log(qurey);
-    console.log(queryFilters);
-    console.log(searchValues);
-    console.log(value);
     let query = queryFilters;
 
     if (value) {
       query = queryFilters + ` and ${value}`;
-    } else {
     }
-
     setFilter(query);
-
     setPagination({
       pageIndex: 0,
       pageSize: 10,
