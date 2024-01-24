@@ -18,7 +18,8 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
-      Type: "Expense"
+      Type: "Expense",
+      U_tl_expactive:"Y"
     } as any;
 
     this.onInit = this.onInit.bind(this);

@@ -18,6 +18,8 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
+      U_tl_cashtype: "Payment Method",
+      U_tl_cashactive: "Y",
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -73,8 +75,8 @@ class Form extends CoreFormDocument {
         Code: data?.Code,
         Name: data?.Name,
         U_tl_cashacct: data?.U_tl_cashacct,
-        U_tl_bplid: data?.U_tl_bplid,
-        U_tl_cashactive: data?.U_tl_cashactive,
+        U_tl_cashtype: data?.U_tl_cashtype,
+        U_tl_cashactive: data?.U_tl_cashactive
       };
 
       if (id) {
