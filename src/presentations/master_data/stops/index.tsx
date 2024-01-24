@@ -33,7 +33,7 @@ export default function Stopslistpage() {
                 enableFilterMatchHighlighting: true,
                 size: 88,
                 visible: true,
-                // type: "number",
+                type: "string",
             },
             {
                 accessorKey: "Name",
@@ -42,6 +42,7 @@ export default function Stopslistpage() {
                 enableFilterMatchHighlighting: true,
                 size: 88,
                 visible: true,
+                type: "string",
                 Cell: (cell: any) => {
                     return cell.row.original.Name ?? "N/A";
                 },
@@ -54,6 +55,7 @@ export default function Stopslistpage() {
                 enableFilterMatchHighlighting: true,
                 size: 88,
                 visible: true,
+                type: "number",
                 Cell: (cell: any) => {
                     return cell.row.original.U_lat ?? "N/A";
                 },
@@ -63,6 +65,7 @@ export default function Stopslistpage() {
                 header: "Longitude",
                 size: 40,
                 visible: true,
+                type: "number",
                 Cell: (cell: any) => {
                     return cell.row.original.U_lng ?? "N/A";
                 },
@@ -73,7 +76,7 @@ export default function Stopslistpage() {
                 size: 40,
                 visible: true,
                 Cell: (cell: any) => {
-                    return cell.row.original.U_active ?? "N/A";
+                    return cell.row.original.U_active === "Y" ? "Yes" : "No" ?? "N/A";
                 },
             },
             {
@@ -160,7 +163,7 @@ export default function Stopslistpage() {
             const response: any = await request(
                 "GET",
                 `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
-                }&${filter}`
+                }&$orderby= DocEntry desc &${filter}`
             )
                 .then((res: any) => res?.data?.value)
                 .catch((e: Error) => {
@@ -221,11 +224,9 @@ export default function Stopslistpage() {
         if (searchValues.active)
             queryFilters.push(`startswith(U_active, '${searchValues.active}')`);
         if (searchValues.code)
-            // queryFilters.push(`startswith(Code, '${searchValues.code}')`);
-            queryFilters.push(`Code eq '${searchValues.code}'`);
+            queryFilters.push(`contains(Code, '${searchValues.code}')`)
         if (searchValues.active)
-            // queryFilters.push(`startswith(Code, '${searchValues.code}')`);
-            queryFilters.push(`U_active eq '${searchValues.active}'`);
+        queryFilters.push(`contains(U_active, '${searchValues.active}')`)
         if (queryFilters.length > 0)
             return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
         return handlerSearch("");

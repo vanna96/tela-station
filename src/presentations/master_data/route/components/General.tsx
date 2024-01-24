@@ -84,6 +84,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={edit}
                   value={data?.Code}
                   name="Code"
                   onChange={(e) => handlerChange("Code", e.target.value)}

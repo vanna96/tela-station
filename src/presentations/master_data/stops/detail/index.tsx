@@ -96,6 +96,7 @@ export default withRouter(StopsDetail);
 
 function General(props: any) {
     const { data }: any = props;
+
     return (
         <>
             <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
@@ -121,7 +122,7 @@ function General(props: any) {
                             <div className="grid grid-cols-2 py-1">
                                 <div className="col-span-1 text-gray-700 ">Active</div>
                                 <div className="col-span-1 text-gray-900">
-                                    {data?.U_active ?? "N/A"}
+                                    {data?.U_active === "Y" ? "Yes" : "No"}
                                 </div>
                             </div>
                         </div>
