@@ -23,6 +23,8 @@ import requestHeader from "@/utilies/requestheader";
 import PumpData from "../components/PumpData";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 class DispenserForm extends CoreFormDocument {
   constructor(props: any) {
@@ -30,6 +32,7 @@ class DispenserForm extends CoreFormDocument {
     this.state = {
       ...this.state,
       loading: true,
+      showCollapse: false,
       DocumentDate: new Date(),
       PostingDate: new Date(),
       DueDate: new Date(),
@@ -47,7 +50,6 @@ class DispenserForm extends CoreFormDocument {
       AttachmentList: [],
       VatGroup: "S1",
       type: "sale", // Initialize type with a default value
-      lineofBusiness: "",
       warehouseCode: "",
       tabErrors: {
         // Initialize error flags for each tab
@@ -57,6 +59,8 @@ class DispenserForm extends CoreFormDocument {
         attachment: false,
       },
       isDialogOpen: false,
+      Status: "New",
+      lineofBusiness: "Oil"
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -215,8 +219,8 @@ class DispenserForm extends CoreFormDocument {
             U_tl_pumpcode: e?.pumpCode,
             U_tl_itemnum: e?.itemCode,
             U_tl_uom: e?.UomAbsEntry,
-            U_tl_reg_meter: e?.registerMeeting,
-            U_tl_upd_meter: e?.updateMetering,
+            U_tl_reg_meter: parseFloat((e?.registerMeeting ?? "0.00").toString().replace(/,/g, '')),
+            U_tl_upd_meter: parseFloat((e?.updateMetering ?? "0.00").toString().replace(/,/g, '')),
             U_tl_status: e?.status,
           };
         }),
@@ -323,9 +327,7 @@ class DispenserForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                <svg width="20" height="20" viewBox="0 0 2048 2048" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="currentColor" d="M256 1792V256h128v1536zm448-768l1088-768v1536zm960 521V503l-738 521z"/>
-                </svg>
+                <NavigateBeforeIcon />
               </Button>
             </div> 
             <div className="flex items-center">
@@ -336,9 +338,7 @@ class DispenserForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
-                <svg width="20" height="20" viewBox="0 0 2048 2048" xmlns="http://www.w3.org/2000/svg">
-                    <path fill="currentColor" d="M1664 256h128v1536h-128zM256 1792V256l1088 768zM384 503v1042l738-521z"/>
-                </svg>
+                <NavigateNextIcon />
               </Button>
 
               <Snackbar
@@ -485,7 +485,7 @@ class DispenserForm extends CoreFormDocument {
                           disableElevation
                         >
                           <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Save"}
+                            {this.props.edit ? "Update" : "Add"}
                           </span>
                         </LoadingButton>
                       </div>

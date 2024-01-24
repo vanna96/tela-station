@@ -44,7 +44,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Expense Code
+                  Expense Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -58,7 +58,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Type" className="text-gray-500 ">
-                  Expense Type
+                  Expense Type <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -72,7 +72,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account Name
+                  GL Account <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -94,7 +94,7 @@ export default function GeneralForm({
                 <MUITextField
                   value={data?.U_tl_expacct ?? ""}
                   name="Type"
-                  readOnly={true}
+                  disabled={true}
                 />
               </div>
             </div>
@@ -122,19 +122,19 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Active
+                  Status
                 </label>
               </div>
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "Y", name: "Yes" },
-                    { id: "N", name: "No" },
+                    { id: "Y", name: "Active" },
+                    { id: "N", name: "Inactive" },
                   ]}
                   onChange={(e) =>
                     handlerChange("U_tl_expactive", e.target.value)
                   }
-                  value={data?.U_tl_expactive}
+                  value={data?.U_tl_expactive ?? "Y"}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_tl_expactive"

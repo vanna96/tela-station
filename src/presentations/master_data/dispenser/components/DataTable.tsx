@@ -69,7 +69,7 @@ export default function DataTable(props: DataTableProps) {
     // Create a link element to download the CSV file
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "Pump_list.csv";
+    link.download = "pump_list.csv";
 
     // Simulate a click on the link to trigger the download
     document.body.appendChild(link);

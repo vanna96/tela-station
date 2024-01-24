@@ -21,6 +21,7 @@ export default function Lists() {
   const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
+    search: "",
     docnum: 0,
     code: "",
     name: "",
@@ -41,7 +42,7 @@ export default function Lists() {
       },
       {
         accessorKey: "Name",
-        header: "Name", //uses the default width from defaultColumn prop
+        header: "Description", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -49,46 +50,49 @@ export default function Lists() {
       },
       {
         accessorKey: "U_tl_expacct",
-        header: "Account Code", //uses the default width from defaultColumn prop
+        header: "G/L Account", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-      },
-      {
-        accessorKey: "AccoutName",
-        header: "Account Name", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 100,
-        visible: true,
-        Cell: (cell: any) => {
-          return new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-            ?.Name;
+          Cell: ({ cell }:any) => {
+          return ` ${cell.getValue() ?? "N/A"} - ${new GLAccountRepository().find(cell.row.original.U_tl_expacct)
+            ?.Name ?? 'N/A'}`;
         },
       },
-      {
-        accessorKey: "CreateDate",
-        header: "Document Date", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-        Cell: (cell: any) => {
-          if (!cell.row.original?.CreateDate) return;
-          return cell.row.original?.CreateDate.toString().replace(
-            "T00:00:00Z",
-            ""
-          );
-        },
-      },
-
+      // {
+      //   accessorKey: "AccoutName",
+      //   header: "Account Name", //uses the default width from defaultColumn prop
+      //   enableClickToCopy: true,
+      //   enableFilterMatchHighlighting: true,
+      //   size: 100,
+      //   visible: true,
+      //   Cell: (cell: any) => {
+      //     return new GLAccountRepository().find(cell.row.original.U_tl_expacct)
+      //       ?.Name;
+      //   },
+      // },
+      // {
+      //   accessorKey: "CreateDate",
+      //   header: "Document Date", //uses the default width from defaultColumn prop
+      //   enableClickToCopy: true,
+      //   enableFilterMatchHighlighting: true,
+      //   size: 88,
+      //   visible: true,
+      //   Cell: (cell: any) => {
+      //     if (!cell.row.original?.CreateDate) return;
+      //     return cell.row.original?.CreateDate.toString().replace(
+      //       "T00:00:00Z",
+      //       ""
+      //     );
+      //   },
+      // },
       {
         accessorKey: "U_tl_expactive",
-        header: "Active",
+        header: "Status",
         size: 40,
         visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
+        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Active" : "Inactive"),
       },
       {
         accessorKey: "DocEntry",
@@ -156,7 +160,7 @@ export default function Lists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ExpDic/$count?${filter}`
+        `${url}/TL_ExpDic/$count?${filter.replace('&', '')}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -178,7 +182,7 @@ export default function Lists() {
         "GET",
         `${url}/TL_ExpDic?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&${filter}`
+        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -234,6 +238,8 @@ export default function Lists() {
 
   const handleGoClick = () => {
     let queryFilters: any = [];
+    if (searchValues.search)
+      queryFilters.push(`contains(Code, '${searchValues.search}') or contains(Name, '${searchValues.search}') or contains(U_tl_expacct, '${searchValues.search}')`);
     if (searchValues.docnum)
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
     if (searchValues.code)
@@ -248,7 +254,7 @@ export default function Lists() {
       queryFilters.push(`startswith(U_tl_expacct, '${searchValues.account}')`);
 
     if (queryFilters.length > 0)
-      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+      return handlerSearch(`&$filter=${queryFilters.join(" and ")}`);
     return handlerSearch("");
   };
 
@@ -267,20 +273,19 @@ export default function Lists() {
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <div className="col-span-10">
             <div className="grid grid-cols-12  space-x-4">
-              <div className="col-span-2 2xl:col-span-3">
+              <div className="col-span-3 2xl:col-span-3">
                 <MUITextField
-                  type="number"
-                  label="Document No."
-                  placeholder="Document No."
+                  label="Search"
+                  placeholder="Search"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.docnum}
+                  value={searchValues.search}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, docnum: e.target.value })
+                    setSearchValues({ ...searchValues, search: e.target.value })
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Expese Code"
                   placeholder="Code"
@@ -319,7 +324,6 @@ export default function Lists() {
                   </div>
                 </div>
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
                   label="Create Date"
@@ -331,7 +335,7 @@ export default function Lists() {
                     });
                   }}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -345,7 +349,7 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              <div className="">
+              {/* <div className="">
                 <DataTableColumnFilter
                   handlerClearFilter={handlerRefresh}
                   title={
@@ -370,7 +374,7 @@ export default function Lists() {
                   )}
                   onClick={handlerSearch}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -384,7 +388,8 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Expense Dictionary"
+          title="Expense Dictionary Lists"
+          filter={filter}
         />
       </div>
     </>

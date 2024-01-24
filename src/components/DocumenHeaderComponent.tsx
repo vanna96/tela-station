@@ -26,6 +26,7 @@ interface DocumentHeaderComponentProps {
   onPreviousPage?: () => void;
   onNextPage?: () => void;
   menuTabs: JSX.Element | React.ReactNode;
+  HeaderCollapeMenu?: JSX.Element | React.ReactNode;
 }
 
 const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
@@ -132,23 +133,26 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       </div>
       <div
         className={`w-full  grid grid-cols-2 duration-300 ease-in overflow-hidden  ${
-          !collapse ? "h-[10rem]" : "h-0"
+          collapse ? "h-[10rem]" : "h-0"
         }`}
       >
         {/* left side fields  */}
 
-        {props?.leftSideField}
+        {/* {props?.leftSideField} */}
 
         {/* right side fields */}
-        {props?.rightSideField}
+        {/* {props?.rightSideField} */}
+
+        { props?.HeaderCollapeMenu }
+
       </div>
       <div
-        className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
+        className={`w-full flex gap-2 px-4 text-sm border-t-gray-200 py-0 sticky ${
           !collapse ? "mt-0" : ""
-        }`}
+        } ${props?.data.showCollapse ? `border-t`:`mt-[-22px]`}`}
       >
         {props?.menuTabs}
-        <div className="absolute -top-[12px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
+        {props?.data.showCollapse && (<div className="absolute -top-[12px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
           <div
             title="btn-collapse"
             role="button"
@@ -156,7 +160,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
             onClick={handlerCollapse}
           >
             <div className="mb-1">
-              {!collapse ? (
+              { collapse ? (
                 <ArrowUpwardRoundedIcon
                   style={{ fontSize: "15px", color: "#16a34a" }}
                 />
@@ -167,7 +171,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
               )}
             </div>
           </div>
-        </div>
+        </div>)}
       </div>
     </div>
   );

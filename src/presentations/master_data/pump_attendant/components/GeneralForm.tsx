@@ -43,7 +43,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  PA Code
+                  PA Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -57,7 +57,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  First Name
+                  First Name <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -71,7 +71,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Last Name
+                  Last Name <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -145,7 +145,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch
+                  Branch <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -160,7 +160,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  No. ID Card
+                  No. ID Card <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -179,7 +179,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Mobile 1
+                  Mobile 1 <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">

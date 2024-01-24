@@ -1,20 +1,17 @@
 import { withRouter } from "@/routes/withRouter";
-import { Component, useContext } from "react";
-import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import { Component } from "react";
+import { dateFormat } from "@/utilies";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
-import shortid from "shortid";
 import request from "@/utilies/request";
-import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper";
 import DocumentHeader from "@/components/DocumenHeader";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      showCollapse: false,
       loading: true,
       isError: false,
       message: "",
@@ -71,7 +68,7 @@ class FormDetail extends Component<any, any> {
   render() {
     return (
       <>
-        <DocumentHeader data={this.state} menuTabs={this.HeaderTabs} />
+        <DocumentHeader data={this.state} menuTabs={this.HeaderTabs} HeaderCollapeMenu={<></>} />
 
         <form
           id="formData"

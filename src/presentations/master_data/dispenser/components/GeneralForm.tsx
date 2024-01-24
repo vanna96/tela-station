@@ -108,14 +108,15 @@ export default function GeneralForm({
                       index < parseInt(e.target.value ?? 0);
                       index++
                     ) {
+                      const formattedIndex = `${(index + 1)}`.padStart(3, '0');
                       PumpData.push({
-                        pumpCode: `${data?.DispenserCode || ""}p${index + 1}`,
+                        pumpCode: `${data?.PumpCode || ""} - ${formattedIndex}`,
                         itemCode: "",
                         itemName: "",
                         uom: "",
                         registerMeeting: "",
                         updateMetering: "",
-                        status: "",
+                        status: "New",
                       });
                     }
                     handlerChangeObject({
@@ -180,9 +181,8 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "", name: "Type" },
                     { id: "Oil", name: "Oil" },
-                    { id: "Lube", name: "Lube" },
+                    // { id: "Lube", name: "Lube" },
                     { id: "LPG", name: "LPG" },
                   ]}
                   onChange={(e) =>
@@ -210,7 +210,7 @@ export default function GeneralForm({
                     { id: "Inactive", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("Status", e.target.value)}
-                  value={data?.Status}
+                  value={data?.Status ?? "New"}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="Status"

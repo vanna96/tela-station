@@ -99,7 +99,7 @@ export default function DispenserList() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2" key={`${cell.row.original.Code}`}>
-            <Button
+            <button
               variant="outlined"
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
@@ -111,10 +111,10 @@ export default function DispenserList() {
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              <span style={{ textTransform: "none" }}>View</span>
-            </Button>
-            <Button
-              variant="outlined"
+              View
+            </button>
+            <button
+              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               size="small"
               disabled={
                 cell.row.original.DocumentStatus === "bost_Close" ?? false
@@ -133,8 +133,8 @@ export default function DispenserList() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              <span style={{ textTransform: "none" }}> Edit</span>
-            </Button>
+              Edit
+            </button>
           </div>
         ),
       },
@@ -162,11 +162,13 @@ export default function DispenserList() {
       return response;
     },
   });
-
+  
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "pa",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""}`,
+      pagination.pageIndex, //refetch when pagination.pageIndex changes
+      pagination.pageSize,
     ],
     queryFn: async () => {
       const response: any = await request(
@@ -181,6 +183,7 @@ export default function DispenserList() {
         });
       return response;
     },
+    keepPreviousData: true
   });
 
   const handlerRefresh = React.useCallback(() => {
