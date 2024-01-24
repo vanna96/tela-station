@@ -220,7 +220,10 @@ export default function SaleOrderLists() {
     queryKey: [
       "sales-order-lob",
       salesType,
-      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""}` , pagination.pageSize
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       let numAtCardFilter = "";
@@ -319,11 +322,15 @@ export default function SaleOrderLists() {
     // console.log(qurey);
     console.log(queryFilters);
     console.log(searchValues);
+    console.log(value);
+    let query = queryFilters;
 
-    let qurey = queryFilters + value;
-    // console.log(qurey + value);
-    // qurey === {}? setFilter(qurey) : setFilter(value);
-    Object.keys(qurey).length === 0 ? setFilter(value) : setFilter(qurey);
+    if (value) {
+      query = queryFilters + ` and ${value}`;
+    } else {
+    }
+
+    setFilter(query);
 
     setPagination({
       pageIndex: 0,
