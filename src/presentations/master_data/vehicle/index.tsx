@@ -15,55 +15,85 @@ import DataTable from "./component/DatatableV";
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
     code: "",
-    firstName: "",
-    lastName: "",
-    jobTitle: "",
-    active: "",
+    name: "",
+    status: "",
   });
 
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "EmployeeCode",
-        header: "Employee Code", //uses the default width from defaultColumn prop
+        accessorKey: "Code",
+        header: "Vehicle Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.EmployeeCode ?? "N/A";
+          return cell.row.original.Code ?? "N/A";
         },
       },
       {
-        accessorKey: "FirstName",
-        header: "FirstName", //uses the default width from defaultColumn prop
+        accessorKey: "Name",
+        header: "Vehicle Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.FirstName ?? "N/A";
+          return cell.row.original.Name ?? "N/A";
         },
       },
       {
-        accessorKey: "LastName",
-        header: "LastName", //uses the default width from defaultColumn prop
+        accessorKey: "U_Type",
+        header: "Type", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.LastName ?? "N/A";
+          return cell.row.original.U_Type ?? "N/A";
         },
       },
 
       {
-        accessorKey: "Active",
-        header: "Active",
-        size: 40,
+        accessorKey: "U_Driver",
+        header: "Driver",
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
         visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Yes" : "No"),
+        type: "number",
+        Cell: (cell: any) => {
+          return cell.row.original.U_Driver ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "U_BaseStation",
+        header: "Base Station",
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return cell.row.original.U_BaseStation ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "U_Status",
+        header: "Status",
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return cell.row.original.U_Status ?? "N/A";
+        },
       },
       {
         accessorKey: "DocEntry",
@@ -82,7 +112,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/driver/" + cell.row.original.EmployeeID, {
+                route("/master-data/vehicle/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -95,7 +125,7 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/master-data/driver/${cell.row.original.EmployeeID}/edit`,
+                  `/master-data/vehicle/${cell.row.original.Code}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -125,11 +155,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`Driver`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`vehicle`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'${
+        `${url}/TL_VEHICLE/$count${
           filter ? ` and ${filter}` : ""
         }`
       )
@@ -145,15 +175,15 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "Driver",
+      "vehicle",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
-      const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }&$filter=U_tl_driver eq 'Y'${
-        filter ? ` and ${filter}` : filter
-      }&$orderby=EmployeeCode${"&$select =FirstName,LastName,EmployeeCode,Active"}`;
+      }${
+        filter ? `and ${filter}` : filter
+      }&$orderby=DocEntry${"&$select = DocEntry,Code,Name,U_Type,U_Driver,U_BaseStation,U_Status"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -193,26 +223,23 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
+    
     if (searchValues.code) {
       queryFilters += queryFilters
-        ? ` and (contains(EmployeeCode, '${searchValues.code}'))`
-        : `(contains(EmployeeCode, '${searchValues.code}'))`;
+        ? ` and (contains(Code, '${searchValues.code}'))`
+        : `(contains(Code, '${searchValues.code}'))`;
     }
-    if (searchValues.firstName) {
+    if (searchValues.name) {
       queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.firstName}'))`
-        : `(contains(FirstName, '${searchValues.firstName}'))`;
+        ? ` and (contains(Name, '${searchValues.name}'))`
+        : `(contains(Name, '${searchValues.name}'))`;
     }
-    if (searchValues.lastName) {
+    if (searchValues.status) {
       queryFilters += queryFilters
-        ? ` and (contains(LastName, '${searchValues.lastName}'))`
-        : `(contains(LastName, '${searchValues.lastName}'))`;
+        ? ` and (contains(U_Status, '${searchValues.status}'))`
+        : `(contains(U_Status, '${searchValues.status}'))`;
     }
-    if (searchValues.active) {
-      queryFilters += queryFilters
-        ? ` and Active eq '${searchValues.active}'`
-        : `Active eq '${searchValues.active}'`;
-    }
+   
     let qurey = queryFilters + value;
     setFilter(qurey);
 
@@ -232,7 +259,7 @@ export default function Lists() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Driver{" "}
+            Master Data / Vehicle{" "}
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -240,8 +267,7 @@ export default function Lists() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  type="number"
-                  label="Employee Code"
+                  label="Code"
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
@@ -254,41 +280,26 @@ export default function Lists() {
 
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="FirstName"
+                  label="Name"
                   // placeholder="FirstName"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.firstName}
+                  value={searchValues.name}
                   onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
-                      firstName: e.target.value,
+                      name: e.target.value,
                     })
                   }
                 />
               </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="LastName"
-                  // placeholder="LastName"
-                  className="bg-white"
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      lastName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
                   <label
                     htmlFor="Code"
                     className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
                   >
-                    Active
+                    Status
                   </label>
                 </div>
                 <MUISelect
@@ -300,10 +311,10 @@ export default function Lists() {
                   onChange={(e: any) =>
                     setSearchValues({
                       ...searchValues,
-                      active: e.target.value,
+                      status: e.target.value,
                     })
                   }
-                  value={searchValues.active}
+                  value={searchValues.status}
                   aliasvalue="value"
                   aliaslabel="label"
                 />
@@ -361,7 +372,7 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Driver"
+          title="Vehicle"
         />
       </div>
     </>
