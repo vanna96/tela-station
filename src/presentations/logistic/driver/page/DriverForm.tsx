@@ -12,8 +12,8 @@ import Finance from "../components/Finance";
 import Administration from "../components/Administration";
 import Personal from "../components/Personal";
 import Remark from "../components/Remark";
-import DriverRepository from "@/services/actions/driverRepository";
-import Driver from '@/models/Driver';
+import DriverRepository from "@/services/actions/DriverRepository";
+import Driver from "@/models/Driver";
 
 class DriverForm extends CoreFormDocument {
   constructor(props: any) {

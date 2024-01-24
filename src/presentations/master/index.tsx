@@ -100,6 +100,31 @@ const MasterDataPage = () => {
             count[3]?.data || 0
           }
         />
+        <ItemCard
+          title="Driver"
+          amount={0}
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("driver")}
+        />
+
+        <ItemCard
+          title="Stops"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("stops")}
+          amount={
+            // count?.order ||
+            0
+          }
+        />
+        <ItemCard
+          title="Route"
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("route")}
+          amount={
+            // count?.order ||
+            0
+          }
+        />
       </MainContainer>
     </>
   );

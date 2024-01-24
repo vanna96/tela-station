@@ -33,6 +33,21 @@ import PumpAttendantList from "@/presentations/master_data/pump_attendant/index"
 import PumpAttendantForm from "@/presentations/master_data/pump_attendant/form/index";
 import PumpAttendantDetail from "@/presentations/master_data/pump_attendant/detail/index";
 
+import DriverList from "@/presentations/master_data/driver/index";
+import DriverForm from "@/presentations/master_data/driver/form/index";
+import DriverDetail from "@/presentations/master_data/driver/detail/index";
+
+import VehicleList from "@/presentations/master_data/vehicle/index";
+
+import Stopslistpage from "@/presentations/master_data/stops";
+import StopsForm from "@/presentations/master_data/stops/form/index"
+import StopsDetail from "@/presentations/master_data/stops/detail/index"
+
+import Routelistpage from "@/presentations/master_data/route";
+import RouteForm from "@/presentations/master_data/route/form/index"
+import RouteDetail from "@/presentations/master_data/route/detail/index"
+
+
 export default function MasterDataRoute() {
   return (
     <Routes>
@@ -65,6 +80,34 @@ export default function MasterDataRoute() {
         <Route path=":id" element={<PumpAttendantDetail />} />
         <Route path="create" element={<PumpAttendantForm />} />
         <Route path=":id/edit" element={<PumpAttendantForm edit={true} />} />
+      </Route>
+
+      <Route path="/driver">
+        <Route index element={<DriverList />} />
+        <Route path=":id" element={<DriverDetail />} />
+        <Route path="create" element={<DriverForm />} />
+        <Route path=":id/edit" element={<DriverForm edit={true} />} />
+      </Route>
+
+      <Route path="/vehicle">
+        <Route index element={<VehicleList />} />
+        <Route path=":id" element={<DriverDetail />} />
+        <Route path="create" element={<DriverForm />} />
+        <Route path=":id/edit" element={<DriverForm edit={true} />} />
+      </Route>
+
+      <Route path="/stops">
+        <Route index element={<Stopslistpage />} />
+        <Route path=":id" element={<StopsDetail />} />
+        <Route path="create" element={<StopsForm />} />
+        <Route path=":id/edit" element={<StopsForm edit={true} />} />
+      </Route>
+
+      <Route path="/route">
+        <Route index element={<Routelistpage />} />
+        <Route path=":id" element={<RouteDetail />} />
+        <Route path="create" element={<RouteForm />} />
+        <Route path=":id/edit" element={<RouteForm edit={true} />} />
       </Route>
       {/* <Route path='/warehouse' >
                 <Route index element={<WarehoseLists />} />

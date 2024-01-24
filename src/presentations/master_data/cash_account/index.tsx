@@ -196,6 +196,7 @@ export default function Lists() {
     staleTime: 0,
   });
 
+
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");

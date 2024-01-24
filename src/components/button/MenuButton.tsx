@@ -4,6 +4,7 @@ import { Button, ButtonProps } from "@mui/material";
 interface MenuButtonProps extends ButtonProps {
   active?: boolean;
   children?: React.ReactNode;
+  onClick?: () => void;
 }
 
 const MenuButton = (props: MenuButtonProps) => {

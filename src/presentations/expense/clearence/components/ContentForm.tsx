@@ -135,6 +135,7 @@ export default function ContentForm({
     ],
     [data?.Items]
   );
+console.log(data);
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
   const isNotAccount = data?.DocType !== "rAccount";

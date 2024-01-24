@@ -99,7 +99,6 @@ export default function SystemInitializeMasterPage() {
           />
         </div>
 
-
         <h1 className="mb-4 mt-10">Sale Order</h1>
         <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
           <ItemCard
@@ -119,6 +118,28 @@ export default function SystemInitializeMasterPage() {
             icon={<AiOutlineSolution />}
             onClick={() => navigate("/sale-order/lpg-sales")}
             amount={count?.order || 0}
+          />
+        </div>
+
+        <h1 className="mb-4 mt-10">Sale Invoice</h1>
+        <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
+          <ItemCard
+            title="Fuel Sales"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale-invoice/fuel-sales")}
+              amount={count?.order || 0}
+          />
+          <ItemCard
+            title="Lube Sales"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale-invoice/lube-sales")}
+              amount={count?.order || 0}
+          />
+          <ItemCard
+            title="LPG Sales"
+            icon={<AiOutlineSolution />}
+            onClick={() => navigate("/sale-invoice/lpg-sales")}
+              amount={count?.order || 0}
           />
         </div>
 
@@ -156,7 +177,6 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/retail-sale/morph-price")}
           /> */}
         </div>
-
 
         <h1 className="mb-4 mt-10">Banking</h1>
         <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5  gap-4">
@@ -235,7 +255,6 @@ export default function SystemInitializeMasterPage() {
             amount={count?.logs || 0}
             onClick={() => navigate("/stock-control/fuel-level")}
           />
-
         </div>
       </div>
     </>
