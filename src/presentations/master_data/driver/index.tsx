@@ -18,7 +18,7 @@ export default function Lists() {
     firstName: "",
     lastName: "",
     jobTitle: "",
-    active: null,
+    active: "tYES",
   });
 
   const route = useNavigate();
@@ -295,6 +295,21 @@ export default function Lists() {
                     Active
                   </label>
                 </div>
+                {/* {searchValues.active === null && (
+                  <div>
+                    <MUITextField
+                      label="LastName"
+                      // placeholder="LastName"
+                      className="bg-white"
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          lastName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )} */}
                 <MUISelect
                   items={[
                     { value: "", label: "All" },
@@ -308,7 +323,8 @@ export default function Lists() {
                     })
                   }
                   value={
-                    searchValues.active === null ? "tYES" : searchValues.active
+                    // searchValues.active === null ? "tYES" : searchValues.active
+                    searchValues.active
                   }
                   aliasvalue="value"
                   aliaslabel="label"
@@ -342,15 +358,7 @@ export default function Lists() {
                       </Button>
                     </div>
                   }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus"
-                  )}
+                  items={columns?.filter((e) => e?.accessorKey !== "DocEntry")}
                   onClick={handlerSearch}
                 />
               </div>
