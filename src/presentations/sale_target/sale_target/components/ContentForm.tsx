@@ -3,14 +3,16 @@ import MaterialReactTable from "material-react-table"
 import FormCard from "@/components/card/FormCard"
 import { Button, IconButton } from "@mui/material"
 import { TbEdit, TbSettings } from "react-icons/tb"
-import { AiOutlineFileAdd } from "react-icons/ai"
+import { AiOutlineDelete, AiOutlineFileAdd } from "react-icons/ai"
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete"
 import MUISelect from "@/components/selectbox/MUISelect"
 import SalePersonRepository from "@/services/actions/salePersonRepository"
 import { useQuery } from "react-query"
 import Select from "react-tailwindcss-select"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import DistributionRuleSelect from "@/components/selectbox/DistributionRule"
+import itemRepository from "@/services/actions/itemRepostory"
+import { fontSize } from "@mui/system"
 
 const ContentForm = function ContentForm({ data, handlerChange }: any) {
   const handlerAddNewLob = (index: any) => {
@@ -123,7 +125,27 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
     queryFn: () => new SalePersonRepository().get(),
   })
 
+  const { data:Items }: any = useQuery({
+    queryKey: ["items_group"],
+    queryFn: () => new itemRepository().getSaleItem(
+      ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
+    )
+  });
+
   const itemColumns: any = [
+    {
+      accessorKey: "id",
+      header: "Action",
+      visible: true,
+      size: 80,
+      Cell: ({ cell }: any) => {
+        return <Button size="small">
+        <span className="capitalize text-sm" onClick={() => {}}>
+          <AiOutlineDelete className="text-red-500 text-[22px]"/>
+        </span>
+      </Button>
+      },
+    },
     {
       accessorKey: "saleCode",
       header: "Sale Code",
@@ -198,33 +220,38 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
       header: "Item Code",
       visible: true,
       Cell: ({ cell }: any) => {
+
+        let dataItems:any = useMemo(() => {
+          switch (cell.row.original.lob) {
+            case 'Oil':
+                return Items?.filter((e:any) => e.ItemsGroupCode === 100)
+            case 'Lube':
+                return Items?.filter((e:any) => e.ItemsGroupCode === 101)
+            case 'LPG':
+                return Items?.filter((e:any) => e.ItemsGroupCode === 102)
+            default:
+              return Items
+          }
+        }, [Items, cell.row.original.lob]);
+
         return (
-          // <div className="flex" style={{ position: "relative" }}>
-          //   {cell.row.original.isLob && <MUITextField value={cell.getValue()} />}
-          // </div>
           <div>
-            {cell.row.original.isLob && (
-              <MUITextField
-                value={cell.getValue()}
-                disabled={data?.isStatusClose || false}
-                // onBlur={(event) =>
-                //   handlerChangeInput(event, cell?.row?.original, "ItemCode")
-                // }
-                endAdornment={!(data?.isStatusClose || false)}
-                onClick={() => {
-                  if (cell.getValue() === "") {
-                    // handlerAddItem();
-                    alert();
-                  } else {
-                    // updateRef.current?.onOpen(cell.row.original);
-                  }
-                }}
-                endIcon={
-                  cell.getValue() === "" ? null : <TbEdit className="text-lg" />
+            { cell.row.original.isLob &&
+              <Select
+                value={cell.row.original.itemCode}
+                isSearchable={true}
+                onChange={(e: any) => handlerChangeField(cell.row.index, "itemCode", e)}
+                options={
+                  dataItems?.map((e: any) => {
+                    return {
+                      value: e.ItemCode,
+                      label: `${e.ItemCode} - ${e.ItemName}`,
+                    }
+                  }) ?? []
                 }
-                readOnly={true}
+                primaryColor={""}
               />
-            )}
+            }
           </div>
         )
       },
@@ -237,7 +264,7 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
         return (
           <div>
             {cell.row.original.isLob && (
-              <MUITextField value={cell.getValue()} readOnly />
+              <MUITextField value={Items?.find((e:any) => e.ItemCode === cell.row.original.itemCode.value)?.ItemName} readOnly />
             )}{" "}
           </div>
         )
@@ -265,8 +292,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Jan_qty}
+                defaultValue={cell.row.original.Jan_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Jan_qty", e.target.value)}
               />
               <div
                 style={{
@@ -279,6 +307,7 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
               <MUITextField
                 value={cell.row.original.Jan_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Jan_amount", e.target.value)}
               />
             </div>
           </>
@@ -295,8 +324,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Feb_qty}
+                defaultValue={cell.row.original.Feb_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Feb_qty", e.target.value)}
               />
               <div
                 style={{
@@ -307,8 +337,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Feb_amount}
+                defaultValue={cell.row.original.Feb_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Feb_amount", e.target.value)}
               />
             </div>
           </>
@@ -325,8 +356,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Mar_qty}
+                defaultValue={cell.row.original.Mar_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Mar_qty", e.target.value)}
               />
               <div
                 style={{
@@ -337,8 +369,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Mar_amount}
+                defaultValue={cell.row.original.Mar_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Mar_amount", e.target.value)}
               />
             </div>
           </>
@@ -355,8 +388,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Apr_qty}
+                defaultValue={cell.row.original.Apr_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Apr_qty", e.target.value)}
               />
               <div
                 style={{
@@ -367,8 +401,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Apr_amount}
+                defaultValue={cell.row.original.Apr_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Apr_amount", e.target.value)}
               />
             </div>
           </>
@@ -385,8 +420,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.May_qty}
+                defaultValue={cell.row.original.May_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "May_qty", e.target.value)}
               />
               <div
                 style={{
@@ -397,8 +433,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.May_amount}
+                defaultValue={cell.row.original.May_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "May_amount", e.target.value)}
               />
             </div>
           </>
@@ -415,8 +452,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Jun_qty}
+                defaultValue={cell.row.original.Jun_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Jun_qty", e.target.value)}
               />
               <div
                 style={{
@@ -427,8 +465,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Jun_amount}
+                defaultValue={cell.row.original.Jun_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Jun_amount", e.target.value)}
               />
             </div>
           </>
@@ -445,8 +484,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Jul_qty}
+                defaultValue={cell.row.original.Jul_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Jul_qty", e.target.value)}
               />
               <div
                 style={{
@@ -457,8 +497,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Jul_amount}
+                defaultValue={cell.row.original.Jul_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Jul_amount", e.target.value)}
               />
             </div>
           </>
@@ -475,8 +516,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Aug_qty}
+                defaultValue={cell.row.original.Aug_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Aug_qty", e.target.value)}
               />
               <div
                 style={{
@@ -487,8 +529,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Aug_amount}
+                defaultValue={cell.row.original.Aug_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Aug_amount", e.target.value)}
               />
             </div>
           </>
@@ -505,8 +548,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Sep_qty}
+                defaultValue={cell.row.original.Sep_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Sep_qty", e.target.value)}
               />
               <div
                 style={{
@@ -517,8 +561,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Sep_amount}
+                defaultValue={cell.row.original.Sep_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Sep_amount", e.target.value)}
               />
             </div>
           </>
@@ -535,8 +580,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Oct_qty}
+                defaultValue={cell.row.original.Oct_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Oct_qty", e.target.value)}
               />
               <div
                 style={{
@@ -547,8 +593,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Oct_amount}
+                defaultValue={cell.row.original.Oct_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Oct_amount", e.target.value)}
               />
             </div>
           </>
@@ -565,8 +612,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Nov_qty}
+                defaultValue={cell.row.original.Nov_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Nov_qty", e.target.value)}
               />
               <div
                 style={{
@@ -577,8 +625,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Nov_amount}
+                defaultValue={cell.row.original.Nov_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Nov_amount", e.target.value)}
               />
             </div>
           </>
@@ -595,8 +644,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
           <>
             <div className="flex">
               <MUITextField
-                value={cell.row.original.Dec_qty}
+                defaultValue={cell.row.original.Dec_qty}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Dec_qty", e.target.value)}
               />
               <div
                 style={{
@@ -607,8 +657,9 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 }}
               ></div>
               <MUITextField
-                value={cell.row.original.Dec_amount}
+                defaultValue={cell.row.original.Dec_amount}
                 className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "Dec_amount", e.target.value)}
               />
             </div>
           </>
@@ -617,14 +668,33 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
     },
     {
       accessorKey: "Total",
-      header: "Total",
+      header: "Total (QTY | Amount)",
       visible: true,
+      size: 450,
       Cell: ({ cell }: any) => {
         return (
-          <MUITextField
-            value={cell.getValue()}
-            className="text-xs text-field pr-0"
-          />
+          <>
+            <div className="flex">
+              <MUITextField
+                defaultValue={cell.row.original.total_qty}
+                className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "total_qty", e.target.value)}
+              />
+              <div
+                style={{
+                  margin: "6px 9px 0px 9px",
+                  height: "28px",
+                  background: "#00000057",
+                  width: "1px",
+                }}
+              ></div>
+              <MUITextField
+                defaultValue={cell.row.original.total_amount}
+                className="text-xs text-field pr-0"
+                onBlur={(e: any) => handlerChangeField(cell.row.index, "total_amount", e.target.value)}
+              />
+            </div>
+          </>
         )
       },
     },
@@ -695,6 +765,7 @@ const ContentForm = function ContentForm({ data, handlerChange }: any) {
                 density: "compact",
                 //   columnVisibility: colVisibility,
                 //   rowSelection,
+                columnPinning: { left: ['id', 'saleName', 'lob', 'saleCode', 'itemCode', 'description', 'uom'], right: [] }
               }}
               state={
                 {

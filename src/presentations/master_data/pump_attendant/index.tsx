@@ -8,21 +8,13 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
 import { ModalAdaptFilter } from "./components/ModalAdaptFilter";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
-import { APIContext } from "../context/APIContext";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import BranchRepository from "@/services/actions/branchRepository";
 import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
-  const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
     docnum: 0,
@@ -68,16 +60,8 @@ export default function Lists() {
       },
 
       {
-        accessorKey: "U_tl_gender",
-        header: "Gender",
-        size: 40,
-        visible: true,
-        // Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "status" : "Instatus"),
-      },
-
-      {
         accessorKey: "U_tl_status",
-        header: "Active",
+        header: "Status",
         size: 40,
         visible: true,
         Cell: ({ cell }: any) =>
@@ -148,7 +132,7 @@ export default function Lists() {
   );
 
   const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("DocEntry desc");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
@@ -159,7 +143,7 @@ export default function Lists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_PUMP_ATTEND/$count?${filter}`
+        `${url}/TL_PUMP_ATTEND/$count?${filter.replace('&', '')}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -174,14 +158,16 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "TL_PUMP_ATTEND",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""}`,
+      pagination.pageIndex,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
         `${url}/TL_PUMP_ATTEND?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&${filter}`
+        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -191,6 +177,7 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+    keepPreviousData: true
   });
 
   const handlerRefresh = React.useCallback(() => {
@@ -245,13 +232,13 @@ export default function Lists() {
    
 
     if (searchValues.fname)
-      queryFilters.push(`startswith(U_tl_fname, '${searchValues.fname}') or startswith(U_tl_lname,'${searchValues.fname}')`);
+      queryFilters.push(`contains(U_tl_fname, '${searchValues.fname}') or contains(U_tl_lname,'${searchValues.fname}')`);
 
     if (searchValues.bplid > 0)
-      queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
+      queryFilters.push(` U_tl_bplid eq '${searchValues.bplid}'`);
 
     if (queryFilters.length > 0)
-      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+      return handlerSearch(`&$filter=${queryFilters.join(" and ")}`);
     return handlerSearch("");
   };
 
@@ -326,7 +313,7 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              <div className="">
+              {/* <div className="">
                 <DataTableColumnFilter
                   handlerClearFilter={handlerRefresh}
                   title={
@@ -334,7 +321,6 @@ export default function Lists() {
                       <Button
                         variant="outlined"
                         size="small"
-                        // onClick={handleGoClick}
                       >
                         Adapt Filter
                       </Button>
@@ -351,7 +337,7 @@ export default function Lists() {
                   )}
                   onClick={handlerSearch}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -365,7 +351,8 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Pump Attendant"
+          title="Pump Attendant Lists"
+          filter={filter}
         />
       </div>
     </>

@@ -57,7 +57,7 @@ export default function PaymentTable(props: any) {
   const columns = [
     {
       accessorKey: "pumpCode",
-      header: "Pump Code",
+      header: "Nozzle Code",
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"pumpCode" + cell.getValue() + cell?.row?.id}
@@ -198,7 +198,7 @@ export default function PaymentTable(props: any) {
 
   return (
     <>
-      <FormCard title="Pump Data">
+      <FormCard title="Nozzle Data">
         <div className="col-span-2 data-table">
           <MaterialReactTable
             columns={columns}

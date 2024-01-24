@@ -8,7 +8,10 @@ import FormMessageModal from "../modal/FormMessageModal";
 import EmployeesInfo from "@/models/EmployeesInfo";
 import Users from "../../models/User";
 import Formular from "@/utilies/formular";
-import DocumentHeaderComponent from "../DocumenHeaderComponent";
+import DocumentHeaderComponent, {
+  StatusCustomerBranchCurrencyInfoLeftSide,
+  TotalSummaryRightSide,
+} from "../DocumenHeaderComponent";
 import shortid from "shortid";
 import { documentType } from "@/constants";
 import LoadingProgress from "../LoadingProgress";
@@ -85,7 +88,8 @@ export interface CoreFormDocumentState {
     logistic: boolean;
     attachment: boolean;
   };
-  isDialogOpen: boolean
+  isDialogOpen: boolean;
+  showCollapse: boolean;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -98,7 +102,8 @@ export default abstract class CoreFormDocument extends React.Component<
   protected constructor(props: any) {
     super(props);
     this.state = {
-      collapse: true,
+      showCollapse: true,
+      collapse: false,
       CardCode: "",
       CardName: "",
       ContactPersonCode: undefined,
@@ -165,7 +170,7 @@ export default abstract class CoreFormDocument extends React.Component<
         general: false,
         attachment: false,
       },
-      isDialogOpen: false
+      isDialogOpen: false,
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);
@@ -179,7 +184,14 @@ export default abstract class CoreFormDocument extends React.Component<
 
   abstract HeaderTaps(): JSX.Element;
 
+  abstract LeftSideField?(): JSX.Element | React.ReactNode;
+
+  abstract RightSideField?(): JSX.Element | React.ReactNode;
+
+  abstract HeaderCollapeMenu?(): JSX.Element | React.ReactNode;
+
   render() {
+
     return (
       <div className="grow flex flex-col">
         <FormMessageModal ref={this.dialog} />
@@ -204,6 +216,25 @@ export default abstract class CoreFormDocument extends React.Component<
           <DocumentHeaderComponent
             data={this.state}
             menuTabs={<this.HeaderTaps />}
+            HeaderCollapeMenu={
+              this.HeaderCollapeMenu?.() ??
+                <>
+                  <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />
+                  <TotalSummaryRightSide data={this.state} />
+                </>
+            }
+            leftSideField={
+              <>
+                {this.LeftSideField?.() ?? (
+                  <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />
+                )}
+              </>
+            }
+            rightSideField={
+              this.RightSideField?.() ?? (
+                <TotalSummaryRightSide data={this.state} />
+              )
+            }
           />
           <div className={`grow  flex flex-col px-4 py-3 gap-2 w-full `}>
             <this.FormRender />
@@ -413,7 +444,7 @@ export default abstract class CoreFormDocument extends React.Component<
     }
   }
 
-  protected handlerChangeObject(value: Record<string, any>){
+  protected handlerChangeObject(value: Record<string, any>) {
     this.setState({ ...this.state, ...value });
   }
 }

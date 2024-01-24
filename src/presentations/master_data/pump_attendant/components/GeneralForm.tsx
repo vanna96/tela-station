@@ -43,7 +43,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  PA Code
+                  PA Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -57,7 +57,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  First Name
+                  First Name <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -71,7 +71,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Last Name
+                  Last Name <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -110,7 +110,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.U_tl_dob}
+                  value={data?.U_tl_dob || null}
                   name="U_tl_dob"
                   onChange={(e: any) => handlerChange("U_tl_dob", e)}
                 />
@@ -145,7 +145,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch
+                  Branch <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -160,7 +160,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  No. ID Card
+                  No. ID Card <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -179,7 +179,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Mobile 1
+                  Mobile 1 <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -234,7 +234,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.U_tl_sdate}
+                  value={data?.U_tl_sdate || null}
                   name="U_tl_sdate"
                   onChange={(e) => handlerChange("U_tl_sdate", e)}
                 />
@@ -249,7 +249,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.U_tl_edate}
+                  value={data?.U_tl_edate || null}
                   name="U_tl_edate"
                   onChange={(e) => handlerChange("U_tl_edate", e)}
                 />

@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -21,7 +21,7 @@ export default function SaleOrderLists() {
   const route = useNavigate();
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
-
+  const [dataUrl, setDataUrl] = useState("");
   const columns = React.useMemo(
     () => [
       {
@@ -183,7 +183,6 @@ export default function SaleOrderLists() {
     pageIndex: 0,
     pageSize: 10,
   });
-  console.log(salesType);
   const Count: any = useQuery({
     queryKey: ["sale-order-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
@@ -240,21 +239,26 @@ export default function SaleOrderLists() {
         // Handle the default case or log an error if needed
       }
 
-      const response: any = await request(
-        "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_salestype eq null${
-          numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-        }${filter ? ` and ${filter}` : filter}${
-          sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
-      )
+      const Url = `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }&$filter=U_tl_salestype eq null${
+        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+
+      const dataUrl = `${url}/Orders?$filter=U_tl_salestype eq null${
+        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+
+      setDataUrl(dataUrl);
+      const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-
       return response;
     },
     // staleTime: Infinity,
@@ -286,22 +290,16 @@ export default function SaleOrderLists() {
     }, 500);
   };
   let queryFilters = "";
-
-  const handlerSearch = (value?: string) => {
+  const handlerSearch = (value: string) => {
     if (searchValues.docnum) {
       queryFilters += `DocNum eq ${searchValues.docnum}`;
     }
     if (searchValues.cardcode) {
       queryFilters += queryFilters
-        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
-          ` and CardCode eq '${searchValues.cardcode}'`
-        : `CardCode eq '${searchValues.cardcode}'`;
+        ? ` and (contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`
+        : `(contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`;
     }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
+
     if (searchValues.postingDate) {
       queryFilters += queryFilters
         ? ` and TaxDate ge '${searchValues.postingDate}'`
@@ -318,9 +316,15 @@ export default function SaleOrderLists() {
         : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
-    const qurey = queryFilters;
+    // console.log(qurey);
+    console.log(queryFilters);
+    console.log(searchValues);
+
+    let qurey = queryFilters + value;
     // console.log(qurey + value);
-    setFilter(qurey);
+    // qurey === {}? setFilter(qurey) : setFilter(value);
+    Object.keys(qurey).length === 0 ? setFilter(value) : setFilter(qurey);
+
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -332,8 +336,6 @@ export default function SaleOrderLists() {
     }, 500);
   };
 
-  // console.log(queryFilters);
-
   const handleAdaptFilter = () => {
     setOpen(true);
   };
@@ -342,7 +344,6 @@ export default function SaleOrderLists() {
   const [searchValues, setSearchValues] = React.useState({
     docnum: "",
     cardcode: "",
-    cardname: "",
     postingDate: null,
     status: "",
     bplid: "",
@@ -408,7 +409,7 @@ export default function SaleOrderLists() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
+                {/* <BPAutoComplete
                   type="Customer"
                   label="Customer"
                   value={searchValues.cardcode}
@@ -416,6 +417,20 @@ export default function SaleOrderLists() {
                     setSearchValues({
                       ...searchValues,
                       cardcode: selectedValue,
+                    })
+                  }
+                /> */}
+                <MUITextField
+                  label="Customer"
+                  placeholder="Customer Code/Name"
+                  className="bg-white"
+                  autoComplete="off"
+                  type="string"
+                  value={searchValues.cardcode}
+                  onChange={(e) =>
+                    setSearchValues({
+                      ...searchValues,
+                      cardcode: e.target.value,
                     })
                   }
                 />
@@ -498,6 +513,7 @@ export default function SaleOrderLists() {
         <DataTable
           columns={columns}
           data={data}
+          dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}
