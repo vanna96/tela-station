@@ -80,15 +80,13 @@ const Personal = ({
                       defaultValue={
                         defaultValues?.DateOfBirth || staticSelect.dateOfbirth
                       }
+                      key={`date_birth_${staticSelect.dateOfbirth}`}
                       onChange={(e: any) => {
                         const val =
                           e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
                             ? ""
                             : e;
-                        setValue(
-                          "DateOfBirth",
-                          `   ${val == "" ? "" : val}`
-                        );
+                        setValue("DateOfBirth", `   ${val == "" ? "" : val}`);
                         setStaticSelect({ ...staticSelect, dateOfbirth: e });
                       }}
                     />
@@ -239,11 +237,12 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
-                    {...field}
+                      {...field}
                       defaultValue={
                         defaultValues?.PassportExpirationDate ||
                         staticSelect.passportExpirationDate
                       }
+                      key={`passport_ex_${staticSelect.passportExpirationDate}`}
                       onChange={(e: any) => {
                         if (e) {
                           const val =
@@ -253,14 +252,13 @@ const Personal = ({
                               : e;
                           setValue(
                             "PassportExpirationDate",
-                            `  ${val == "" ? "" :val}`
+                            `  ${val == "" ? "" : val}`
                           );
-                            setStaticSelect({
-                              ...staticSelect,
-                              passportExpirationDate: e,
-                            });
+                          setStaticSelect({
+                            ...staticSelect,
+                            passportExpirationDate: e,
+                          });
                         }
-                      
                       }}
                     />
                   );
@@ -281,11 +279,12 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
-                    {...field}
+                      {...field}
                       defaultValue={
                         defaultValues?.PassportIssueDate ||
                         staticSelect.passportIssuedDate
                       }
+                      key={`passport_${staticSelect.passportIssuedDate}`}
                       onChange={(e: any) => {
                         if (e) {
                           const val =
@@ -297,12 +296,11 @@ const Personal = ({
                             "PassportIssueDate",
                             ` ${val == "" ? "" : val}`
                           );
-                              setStaticSelect({
-                                ...staticSelect,
-                                passportIssuedDate: e,
-                              });
+                          setStaticSelect({
+                            ...staticSelect,
+                            passportIssuedDate: e,
+                          });
                         }
-                    
                       }}
                     />
                   );
