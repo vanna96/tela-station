@@ -38,7 +38,6 @@ const General = ({
     }
   }, [defaultValues]);
 
-
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -273,14 +272,12 @@ const General = ({
                     return (
                       <MUIDatePicker
                         {...field}
-                        value={
+                        defaultValue={
                           defaultValues?.StartDate || staticSelect.startDate
                         }
+                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
-                          setValue(
-                            "StartDate",
-                            ` ${formatDate(e)}"T00:00:00Z"`
-                          );
+                          setValue("StartDate", e);
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
@@ -299,6 +296,16 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
+                {staticSelect?.status === "" && (
+                  <div className="hidden">
+                    <MUITextField
+                      inputProps={{
+                        ...register("Active"),
+                      }}
+                      value={"tYES"}
+                    />
+                  </div>
+                )}
                 <Controller
                   name="Active"
                   control={control}
@@ -316,7 +323,9 @@ const General = ({
                             status: e.target.value,
                           });
                         }}
-                        value={staticSelect.status || defaultValues?.Active}
+                        value={
+                          staticSelect.status || defaultValues?.Active || "tYES"
+                        }
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -339,15 +348,12 @@ const General = ({
                     return (
                       <MUIDatePicker
                         {...field}
-                        value={
+                        defaultValue={
                           defaultValues?.TerminationDate ||
                           staticSelect?.termination
                         }
                         onChange={(e: any) => {
-                          setValue(
-                            "TerminationDate",
-                            ` ${formatDate(e)}"T00:00:00Z"`
-                          );
+                          setValue("TerminationDate", e);
                           setStaticSelect({ ...staticSelect, termination: e });
                         }}
                       />

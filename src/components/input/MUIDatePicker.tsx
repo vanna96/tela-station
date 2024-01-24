@@ -21,7 +21,7 @@ interface MUIDatePickerProps extends Omit<OutlinedInputProps, "onChange"> {
 const MUIDatePicker: React.FC<MUIDatePickerProps> = (
   props: MUIDatePickerProps
 ) => {
-  const { error, value,  name, onChange, disabled, addOnDay, label } = props;
+  const { error, value, name, onChange, disabled, addOnDay, label } = props;
   const { theme } = React.useContext(ThemeContext);
 
   const dateVal = React.useMemo(() => {
@@ -68,7 +68,6 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
             }}
             inputFormat="DD-MM-YYYY"
             value={dateVal}
-            
             disabled={disabled}
             className={` ${disabled ? "bg-gray-100" : ""}`}
             onChange={(e: any, inputVal: any) =>

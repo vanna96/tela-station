@@ -18,7 +18,7 @@ export default function Lists() {
     firstName: "",
     lastName: "",
     jobTitle: "",
-    active: "",
+    active: null,
   });
 
   const route = useNavigate();
@@ -31,6 +31,7 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "number",
         Cell: (cell: any) => {
           return cell.row.original.EmployeeCode ?? "N/A";
         },
@@ -42,6 +43,7 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
           return cell.row.original.FirstName ?? "N/A";
         },
@@ -53,6 +55,7 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
           return cell.row.original.LastName ?? "N/A";
         },
@@ -63,6 +66,7 @@ export default function Lists() {
         header: "Active",
         size: 40,
         visible: true,
+        type: "string",
         Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Yes" : "No"),
       },
       {
@@ -293,9 +297,9 @@ export default function Lists() {
                 </div>
                 <MUISelect
                   items={[
+                    { value: "", label: "All" },
                     { value: "tYES", label: "Yes" },
                     { value: "tNO", label: "No" },
-                    { value: "", label: "None" },
                   ]}
                   onChange={(e: any) =>
                     setSearchValues({
@@ -303,10 +307,11 @@ export default function Lists() {
                       active: e.target.value,
                     })
                   }
-                  value={searchValues.active}
+                  value={
+                    searchValues.active === null ? "tYES" : searchValues.active
+                  }
                   aliasvalue="value"
                   aliaslabel="label"
-                
                 />
               </div>
 
