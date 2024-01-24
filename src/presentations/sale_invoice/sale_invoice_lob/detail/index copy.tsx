@@ -9,7 +9,6 @@ import {
 } from "@/utilies";
 import PreviewAttachment from "@/components/attachment/PreviewAttachment";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import DocumentHeader from "@/components/DocumenHeader";
 import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository";
 import ShippingTypeRepository from "@/services/actions/shippingTypeRepository";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
@@ -28,6 +27,7 @@ import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
+import DocumentHeader from "@/components/DocumentHeader";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -182,42 +182,15 @@ class DeliveryDetail extends Component<any, any> {
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
-  HeaderTabs = () => {
-    return (
-      <>
-        <div className="w-full flex justify-between">
-          <div className="">
-            <MenuButton
-              active={this.state.tapIndex === 0}
-              onClick={() => this.handlerChangeMenu(0)}
-            >
-              General
-            </MenuButton>
-            <MenuButton
-              active={this.state.tapIndex === 1}
-              onClick={() => this.handlerChangeMenu(1)}
-            >
-              <span>Content</span>
-            </MenuButton>
-            <MenuButton
-              active={this.state.tapIndex === 2}
-              onClick={() => this.handlerChangeMenu(2)}
-            >
-              Logistics
-            </MenuButton>
-          </div>
-        </div>
-      </>
-    );
-  };
 
   render() {
     return (
       <>
         <DocumentHeader
           data={this.state}
-          menuTabs={this.HeaderTabs}
-          handlerChangeMenu={this.handlerChangeMenu}
+          menuTabs
+          type="Sale"
+          handlerChangeMenu={(index) => this.handlerChangeMenu(index)}
         />
 
         <form
@@ -236,6 +209,12 @@ class DeliveryDetail extends Component<any, any> {
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
 
                   {this.state.tapIndex === 2 && <Logistic data={this.state} />}
+
+                  {this.state.tapIndex === 3 && (
+                    <PreviewAttachment
+                      attachmentEntry={this.state.AttachmentEntry}
+                    />
+                  )}
                 </div>
               </div>
             </>
@@ -537,14 +516,32 @@ function Logistic(props: any) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">
-                {" "}
-                Attention Terminal
+            <div className="grid grid-cols-12 py-2">
+              <div className="col-span-6">
+                <div className="grid grid-cols-12">
+                  <div className="col-span-9">
+                    <label htmlFor="Code" className="text-gray-700 ">
+                      Attention Terminal
+                    </label>
+                  </div>
+                  <div className="col-span-3">
+                    <Checkbox
+                      sx={{ "& .MuiSvgIcon-root": { fontSize: 20 } }}
+                      checked={props?.data?.U_tl_grsuppo ? true : false}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                  ?.WarehouseName ?? "N/A"}
+              {/* <div className="col-span-1">
+               
+              </div> */}
+              <div className="col-span-6">
+                <div className="grid grid-cols-1 ">
+                  <div className="-mt-1">
+                    {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
+                      ?.WarehouseName ?? "N/A"}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

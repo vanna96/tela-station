@@ -17,6 +17,7 @@ const Personal = ({
   const [staticSelect, setStaticSelect] = useState({
     gender: "",
     status: "",
+    checkList:"",
     dateOfbirth: null,
     passportExpirationDate: null,
     passportIssuedDate: null,
@@ -43,8 +44,7 @@ const Personal = ({
                   return (
                     <MUISelect
                       items={[
-                        { label: "Not Specified", value: "E" },
-                        { label: "Female", value: "F" },
+                        { label: "Female", value: "gt_Female" },
                         { label: "Male", value: "gt_Male" },
                       ]}
                       onChange={(e: any) => {
@@ -148,7 +148,36 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_CheckList") }} />
+              <Controller
+                name="U_CheckList"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <MUISelect
+                      items={[
+                        { label: "A+", value: "A+" },
+                        { label: "A-", value: "A-" },
+                        { label: "B+", value: "B+" },
+                        { label: "B-", value: "B-" },
+                        { label: "AB+", value: "AB+" },
+                        { label: "AB-", value: "AB-" },
+                        { label: "O+", value: "O+" },
+                        { label: "O-", value: "O-" },
+                      ]}
+                      onChange={(e: any) => {
+                        setValue("U_CheckList", e.target.value);
+                        setStaticSelect({
+                          ...staticSelect,
+                          checkList: e.target.value,
+                        });
+                      }}
+                      value={staticSelect.checkList || defaultValues?.U_CheckList}
+                      aliasvalue="value"
+                      aliaslabel="label"
+                    />
+                  );
+                }}
+              />
             </div>
           </div>
         </div>

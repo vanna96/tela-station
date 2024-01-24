@@ -25,7 +25,8 @@ import DirectAccountLists from "@/presentations/collection/direct_account";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AdsClickIcon from "@mui/icons-material/AdsClick";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import PaymentAccountLists from "@/presentations/collection/payment_account";
+import SwitchAccountIcon from "@mui/icons-material/SwitchAccount";
+
 type RouteType = {
   state: string;
   index?: boolean;
@@ -85,6 +86,21 @@ const appRoutes: RouteType[] = [
           displayText: "Expense Dictionary",
         },
       },
+
+      {
+        path: "/master-data/driver",
+        state: "driver",
+        sidebarProps: {
+          displayText: "Driver",
+        },
+      },
+      {
+        path: "/master-data/vehicle",
+        state: "vehicle",
+        sidebarProps: {
+          displayText: "vehicle",
+        },
+      },
     ],
   },
   {
@@ -124,21 +140,53 @@ const appRoutes: RouteType[] = [
         path: "/sale-order/fuel-sales",
         state: "fuel-sales",
         sidebarProps: {
-          displayText: "Fuel",
+          displayText: "Fuel Sales",
         },
       },
       {
         path: "/sale-order/lube-sales",
         state: "lube-sales",
         sidebarProps: {
-          displayText: "Lube",
+          displayText: "Lube Sales",
         },
       },
       {
         path: "/sale-order/lpg-sales",
         state: "lpg-sales",
         sidebarProps: {
-          displayText: "LPG ",
+          displayText: "LPG Sales",
+        },
+      },
+    ],
+  },
+
+  {
+    path: "/sale-invoice",
+    state: "sale-invoice",
+    sidebarProps: {
+      displayText: "Sale Invoice",
+      icon: <SwitchAccountIcon />,
+    },
+    child: [
+      {
+        path: "/sale-invoice/fuel-sales",
+        state: "fuel-sales",
+        sidebarProps: {
+          displayText: "Fuel Sales",
+        },
+      },
+      {
+        path: "/sale-invoice/lube-sales",
+        state: "lube-sales",
+        sidebarProps: {
+          displayText: "Lube Sales",
+        },
+      },
+      {
+        path: "/sale-invoice/lpg-sales",
+        state: "lpg-sales",
+        sidebarProps: {
+          displayText: "LPG Sales",
         },
       },
     ],
@@ -190,7 +238,6 @@ const appRoutes: RouteType[] = [
     ],
   },
 
-  
   {
     path: "/banking",
     state: "banking",

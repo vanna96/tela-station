@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import BackButton from "./button/BackButton";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Button, IconButton } from "@mui/material";
@@ -17,6 +17,8 @@ import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
 import ArrowCircleDownRoundedIcon from "@mui/icons-material/ArrowCircleDownRounded";
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 interface DocumentHeaderComponentProps {
+  leftSideField: JSX.Element | React.ReactNode;
+  rightSideField: JSX.Element | React.ReactNode;
   data: any;
   onCopyTo?: (data?: any) => void;
   onFirstPage?: () => void;
@@ -84,22 +86,6 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
     }
   };
 
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount ?? 0);
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
-    props.data.Items ?? [],
-   discount,
-    1
-  );
-
-  const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
-    if (dataDiscount <= 0) return 0;
-    if (dataDiscount > 100) return 100;
-    return docTotal * (dataDiscount / 100);
-  }, [discount, props?.data?.DocDiscount]);
-
-  let TotalPaymentDue =
-    docTotal - (docTotal * props.data.DocDiscount) / 100 + docTaxTotal || 0;
   return (
     <div
       className={`w-full flex flex-col rounded ${
@@ -148,135 +134,12 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
           !collapse ? "h-[10rem]" : "h-0"
         }`}
       >
-        <div className=" grid grid-cols-1 text-left w-full px-12">
-          <div className="col-span-5  col-start-1">
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-2 ">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Status
-                </label>
-              </div>
-              <div className="col-span-4 ">
-                {" "}
-                <span className="text-green-500">{"OPEN"}</span>
-              </div>
-            </div>
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Customer
-                </label>
-              </div>
-              <div className="col-span-4">
-                {props.data?.CardCode} {" - "} {props.data.CardName}
-              </div>
-            </div>
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Branch
-                </label>
-              </div>
-              <div className="col-span-4">
-                {new BranchBPLRepository().find(
-                  props?.data?.BPL_IDAssignedToInvoice || 1
-                )?.BPLName ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Currency
-                </label>
-              </div>
-              <div className="col-span-4">
-                <span>
-                  {props?.data?.Currency || 1}
-                  {" - "} {props.data.ExchangeRate}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 px-12 text-right w-full">
-          <div className="col-span-5  col-start-3">
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-3">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  <span> Total Before Discount</span>
-                </label>
-              </div>
-              <div className="col-span-4">
-                {props.data?.Currency}{" "}
-                {
-                  <NumericFormat
-                    value={docTotal}
-                    thousandSeparator
-                    fixedDecimalScale
-                    disabled
-                    className="bg-white w-1/2"
-                    decimalScale={2}
-                  />
-                }
-              </div>
-            </div>
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-3">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Discount
-                </label>
-              </div>
-              <div className="col-span-4">
-                {"%"} {discount} {props.data?.Currency}{" "}
-                <NumericFormat
-                  value={discountAmount}
-                  thousandSeparator
-                  fixedDecimalScale
-                  disabled
-                  className="bg-white w-1/2"
-                  decimalScale={2}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-3">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Tax
-                </label>
-              </div>
-              <div className="col-span-4">
-                {props.data?.Currency}{" "}
-                <NumericFormat
-                  value={docTaxTotal}
-                  thousandSeparator
-                  fixedDecimalScale
-                  disabled
-                  className="bg-white w-1/2"
-                  decimalScale={2}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-7 py-2">
-              <div className="col-span-3">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Total
-                </label>
-              </div>
-              <div className="col-span-4">
-                {" "}
-                {props.data?.Currency}{" "}
-                <NumericFormat
-                  value={TotalPaymentDue}
-                  thousandSeparator
-                  fixedDecimalScale
-                  disabled
-                  className="bg-white w-1/2"
-                  decimalScale={2}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* left side fields  */}
+
+        {props?.leftSideField}
+
+        {/* right side fields */}
+        {props?.rightSideField}
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t border-t-gray-200 py-0 sticky ${
@@ -310,3 +173,158 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
 };
 
 export default DocumentHeaderComponent;
+
+export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
+  // console.log(props.data);
+  return (
+    <div className=" grid grid-cols-1 text-left w-full px-12">
+      <div className="col-span-5  col-start-1">
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-2 ">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Status
+            </label>
+          </div>
+          <div className="col-span-4 ">
+            <span className="text-green-500">{"OPEN"}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-2">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Customer
+            </label>
+          </div>
+          <div className="col-span-4">
+            {props.data?.CardCode} {" - "} {props.data?.CardName}
+          </div>
+        </div>
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-2">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Branch
+            </label>
+          </div>
+          <div className="col-span-4">
+            {new BranchBPLRepository().find(
+              props.data?.BPL_IDAssignedToInvoice || 1
+            )?.BPLName ?? "N/A"}
+          </div>
+        </div>
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-2">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Currency
+            </label>
+          </div>
+          <div className="col-span-4">
+            <span>
+              {props.data?.Currency || 1}
+              {" - "} {props.data?.ExchangeRate}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export const TotalSummaryRightSide = (props: any) => {
+  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount ?? 0);
+  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+    props.data?.Items ?? [],
+    discount,
+    1
+  );
+
+  const discountAmount = useMemo(() => {
+    const dataDiscount: number = props?.data?.DocDiscount || discount;
+    if (dataDiscount <= 0) return 0;
+    if (dataDiscount > 100) return 100;
+    return docTotal * (dataDiscount / 100);
+  }, [discount, props?.data?.DocDiscount]);
+
+  let TotalPaymentDue =
+    docTotal - (docTotal * props.data?.DocDiscount) / 100 + docTaxTotal || 0;
+  return (
+    <div className="grid grid-cols-1 px-12 text-right w-full">
+      <div className="col-span-5  col-start-3">
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-3">
+            <label htmlFor="Code" className="text-gray-600 ">
+              <span> Total Before Discount</span>
+            </label>
+          </div>
+          <div className="col-span-4">
+            {props.data?.Currency}{" "}
+            {
+              <NumericFormat
+                value={docTotal}
+                thousandSeparator
+                fixedDecimalScale
+                disabled
+                className="bg-white w-1/2"
+                decimalScale={2}
+              />
+            }
+          </div>
+        </div>
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-3">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Discount
+            </label>
+          </div>
+          <div className="col-span-4">
+            {"%"} {discount} {props.data?.Currency}{" "}
+            <NumericFormat
+              value={discountAmount}
+              thousandSeparator
+              fixedDecimalScale
+              disabled
+              className="bg-white w-1/2"
+              decimalScale={2}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-3">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Tax
+            </label>
+          </div>
+          <div className="col-span-4">
+            {props.data?.Currency}{" "}
+            <NumericFormat
+              value={docTaxTotal}
+              thousandSeparator
+              fixedDecimalScale
+              disabled
+              className="bg-white w-1/2"
+              decimalScale={2}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-7 py-2">
+          <div className="col-span-3">
+            <label htmlFor="Code" className="text-gray-600 ">
+              Total
+            </label>
+          </div>
+          <div className="col-span-4">
+            {" "}
+            {props.data?.Currency}{" "}
+            <NumericFormat
+              value={TotalPaymentDue}
+              thousandSeparator
+              fixedDecimalScale
+              disabled
+              className="bg-white w-1/2"
+              decimalScale={2}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

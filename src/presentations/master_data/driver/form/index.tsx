@@ -140,6 +140,7 @@ const Form = (props: any) => {
     tapIndex: index,
   }));
     }, [state]);
+  
   const HeaderTaps = () => {
     return (
       <>
@@ -185,8 +186,6 @@ const Form = (props: any) => {
     }
   }, [driver]);
 
-
-
   return (
     <>
       {state.loading ? (
@@ -195,7 +194,7 @@ const Form = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent data={state} menuTabs={<HeaderTaps />} />
+          <DocumentHeaderComponent data={state} menuTabs={<HeaderTaps />} leftSideField={undefined} rightSideField={undefined} />
           <Backdrop
             sx={{
               color: "#fff",

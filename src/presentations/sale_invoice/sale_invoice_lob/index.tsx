@@ -115,7 +115,7 @@ export default function SaleOrderLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/sale-order/${salesType}/` + cell.row.original.DocEntry,
+                  `/sale-invoice/${salesType}/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -139,7 +139,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale-order/${salesType}/` +
+                  `/sale-invoice/${salesType}/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -184,7 +184,7 @@ export default function SaleOrderLists() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["sale-order-lob", filter !== "" ? "-f" : "", salesType, filter],
+    queryKey: ["sale-invoice-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
       let numAtCardFilter = "";
 
@@ -365,7 +365,7 @@ export default function SaleOrderLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/sale-order/${salesType}`)}>
+      <span className="" onClick={() => route(`/sale-invoice/${salesType}`)}>
         <span className=""></span> {capitalizeHyphenatedWords(salesType)}
       </span>
     </>
@@ -522,7 +522,7 @@ export default function SaleOrderLists() {
           pagination={pagination}
           paginationChange={setPagination}
           title={getTitleBySalesType(salesType)}
-          createRoute={`/sale-order/${salesType}/create`}
+          createRoute={`/sale-invoice/${salesType}/create`}
         />
       </div>
     </>

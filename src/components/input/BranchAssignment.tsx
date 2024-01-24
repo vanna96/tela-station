@@ -5,8 +5,7 @@ import { useQuery } from "react-query";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
-import CountryRepository from "@/services/actions/CountryRepository";
-import BranchRepository from "@/services/actions/branchRepository";
+import ManagerRepository from "@/services/actions/ManagerRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 interface Type {
@@ -21,11 +20,11 @@ export default function BranchAssignmentAuto(props: {
   name?: any;
   disabled?: any;
 }) {
-    const { data, isLoading }: any = useQuery({
-      queryKey: ["branch"],
-      queryFn: () => new BranchBPLRepository().get(),
-      staleTime: Infinity,
-    });
+  const { data, isLoading }: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
@@ -46,8 +45,8 @@ export default function BranchAssignmentAuto(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedCode = newValue ? newValue.BPLID : null;
-      props.onChange(selectedCode);
+      const selectedV = newValue ? newValue : null;
+      props.onChange(selectedV);
     }
   };
   const disabled = props.disabled;

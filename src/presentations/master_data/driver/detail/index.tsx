@@ -121,6 +121,7 @@ console.log(driver);
 export default withRouter(FormDetail);
 
 function General(props: any) {
+  const [branchId , setBranhId] = useState();
   const { data }: any = props;
      const position:any = useQuery({
        queryKey: ["position"],
@@ -137,6 +138,15 @@ function General(props: any) {
     queryFn: () => new TerminationReasonRepository().get(),
     staleTime: Infinity,
   });
+   const branchAss: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
+useEffect(() => {
+    data?.EmployeeBranchAssignment?.forEach((e:any)=> setBranhId(e?.BPLID))
+}, [data])
+console.log(branchAss);
 
   return (
     <>
@@ -210,9 +220,7 @@ function General(props: any) {
                   Branch Assignment{" "}
                 </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.EmployeeBranchAssignment?.map(
-                    (e: any) => e?.BPLID
-                  ).join(" , ") || "N/A"}
+                  {branchAss?.data?.find((e:any)=>e?.BPLID === branchId)?.BPLName || "N/A"}
                 </div>
               </div>
             </div>

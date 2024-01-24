@@ -9,8 +9,8 @@ import { Button } from "@mui/material";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
-import DataTable from "./component/DataTableD";
 import MUISelect from "@/components/selectbox/MUISelect";
+import DataTable from "./component/DatatableV";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
@@ -153,7 +153,7 @@ export default function Lists() {
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_driver eq 'Y'${
         filter ? ` and ${filter}` : filter
-      }&$orderby=EmployeeID${"&$select =EmployeeID,FirstName,LastName,EmployeeCode,Active"}`;
+      }&$orderby=EmployeeCode${"&$select =FirstName,LastName,EmployeeCode,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -208,11 +208,11 @@ export default function Lists() {
         ? ` and (contains(LastName, '${searchValues.lastName}'))`
         : `(contains(LastName, '${searchValues.lastName}'))`;
     }
- if (searchValues.active) {
-   queryFilters += queryFilters
-     ? ` and Active eq '${searchValues.active}'`
-     : `Active eq '${searchValues.active}'`;
- }
+    if (searchValues.active) {
+      queryFilters += queryFilters
+        ? ` and Active eq '${searchValues.active}'`
+        : `Active eq '${searchValues.active}'`;
+    }
     let qurey = queryFilters + value;
     setFilter(qurey);
 
@@ -306,7 +306,6 @@ export default function Lists() {
                   value={searchValues.active}
                   aliasvalue="value"
                   aliaslabel="label"
-                
                 />
               </div>
 

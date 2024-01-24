@@ -37,6 +37,12 @@ const SaleTargetPage = () => {
           onClick={() => goTo("sale-scenario")}
           amount={count?.order || 0}
         />
+        <ItemCard
+          title="Sale Target "
+          icon={<AiOutlineFileAdd />}
+          onClick={() => goTo("sale-target")}
+          amount={count?.order || 0}
+        />
       </MainContainer>
     </>
   );

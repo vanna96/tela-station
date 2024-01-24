@@ -7,14 +7,13 @@ import PositionAutoComplete from "@/components/input/PositionAutoComplete";
 import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
 import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
-import BranchAssignmentCheck from "./../../../../components/input/BranchAssignmentCheck";
 
 const General = ({
   register,
@@ -28,7 +27,17 @@ const General = ({
     startDate: null,
     status: "",
     termination: null,
+    branchASS: null,
   });
+
+  useEffect(() => {
+    if (defaultValues) {
+      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
+        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
+      );
+    }
+  }, [defaultValues]);
+
 
   return (
     <>
@@ -94,7 +103,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Position
@@ -120,7 +129,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Department
@@ -146,7 +155,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Manager
@@ -183,9 +192,11 @@ const General = ({
                   value={branchAss}
                   onChange={(e) => setBranchAss([e])}
                 /> */}
-                <BranchAssignmentCheck
-                  branchAss={branchAss}
-                  setBranchAss={setBranchAss}
+                <BranchAssignmentAuto
+                  // branchAss={branchAss}
+                  // setBranchAss={setBranchAss}
+                  onChange={(e: any) => setBranchAss([e])}
+                  value={staticSelect?.branchASS}
                 />
               </div>
             </div>
@@ -248,7 +259,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Start Date
@@ -262,12 +273,14 @@ const General = ({
                     return (
                       <MUIDatePicker
                         {...field}
-                        value={defaultValues?.StartDate || staticSelect.startDate}
+                        value={
+                          defaultValues?.StartDate || staticSelect.startDate
+                        }
                         onChange={(e: any) => {
-                            setValue(
-                              "StartDate",
-                              ` ${formatDate(e)}"T00:00:00Z"`
-                            );
+                          setValue(
+                            "StartDate",
+                            ` ${formatDate(e)}"T00:00:00Z"`
+                          );
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
@@ -287,7 +300,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="MartialStatus"
+                  name="Active"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -297,7 +310,7 @@ const General = ({
                           { value: "tNO", label: "No" },
                         ]}
                         onChange={(e: any) => {
-                          setValue("MartialStatus", e.target.value);
+                          setValue("Active", e.target.value);
                           setStaticSelect({
                             ...staticSelect,
                             status: e.target.value,
@@ -312,7 +325,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Termination

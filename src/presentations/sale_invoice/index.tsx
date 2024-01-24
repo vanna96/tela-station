@@ -12,10 +12,10 @@ import { request } from "http";
 // import SalesQuotationRepository from "@/services/actions/SalesQuotationRepository";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
 
-const SaleOrderPage = () => {
+const SaleInvoicePage = () => {
   const navigate = useNavigate();
   const [count, setCount]: any = useState();
-  const goTo = (route: string) => navigate("/sale-order/" + route);
+  const goTo = (route: string) => navigate("/sale-invoice/" + route);
 
   const getCount = async () => {
     const order = await new SalesOrderRepository().getCount({});
@@ -31,7 +31,7 @@ const SaleOrderPage = () => {
 
   return (
     <>
-      <MainContainer title="Sale Order">
+      <MainContainer title="Sale Invoice">
         {/* <ItemCard
           title="Sales Order"
           icon={<AiOutlineFileAdd />}
@@ -62,4 +62,4 @@ const SaleOrderPage = () => {
   );
 };
 
-export default SaleOrderPage;
+export default SaleInvoicePage;
