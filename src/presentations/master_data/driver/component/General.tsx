@@ -282,10 +282,7 @@ const General = ({
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue(
-                            "StartDate",
-                            `${val == "" ? "" : val}`
-                          );
+                          setValue("StartDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
@@ -358,8 +355,9 @@ const General = ({
                         {...field}
                         defaultValue={
                           defaultValues?.TerminationDate ||
-                          staticSelect?.termination
+                          staticSelect.termination
                         }
+                        key={`termination_date_${staticSelect.termination}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -368,14 +366,18 @@ const General = ({
                               : e;
                           setValue(
                             "TerminationDate",
-                            ` ${val == "" ? "" : val})`
+                            `${val == "" ? "" : val}`
                           );
-                          setStaticSelect({ ...staticSelect, termination: e });
+                          setStaticSelect({
+                            ...staticSelect,
+                            termination: e,
+                          });
                         }}
                       />
                     );
                   }}
                 />
+               
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
