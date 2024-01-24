@@ -136,6 +136,17 @@ class StopsForm extends CoreFormDocument {
     );
   };
 
+  HeaderCollapeMenu = () => {
+    return <> </>;
+  };
+  RightSideField = () => {
+    return (
+      <div>
+       
+      </div>
+    );
+  };
+
   FormRender = () => {
     return (
       <>
