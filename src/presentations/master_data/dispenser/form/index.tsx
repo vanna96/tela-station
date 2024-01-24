@@ -23,6 +23,8 @@ import requestHeader from "@/utilies/requestheader";
 import PumpData from "../components/PumpData";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 class DispenserForm extends CoreFormDocument {
   constructor(props: any) {
@@ -30,6 +32,7 @@ class DispenserForm extends CoreFormDocument {
     this.state = {
       ...this.state,
       loading: true,
+      showCollapse: false,
       DocumentDate: new Date(),
       PostingDate: new Date(),
       DueDate: new Date(),
@@ -47,7 +50,6 @@ class DispenserForm extends CoreFormDocument {
       AttachmentList: [],
       VatGroup: "S1",
       type: "sale", // Initialize type with a default value
-      lineofBusiness: "",
       warehouseCode: "",
       tabErrors: {
         // Initialize error flags for each tab
@@ -57,6 +59,8 @@ class DispenserForm extends CoreFormDocument {
         attachment: false,
       },
       isDialogOpen: false,
+      Status: "New",
+      lineofBusiness: "Oil"
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -90,14 +94,15 @@ class DispenserForm extends CoreFormDocument {
         .then(async (res: any) => {
           const data: any = res?.data;
           state = {
-            DispenserCode: data?.Code,
-            DispenserName: data?.Name,
+            PumpCode: data?.Code,
+            PumpName: data?.Name,
             NumOfPump: data?.U_tl_pumpnum,
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
             Attendant1: data?.U_tl_attend1,
             Attendant2: data?.U_tl_attend2,
+            U_tl_bplid: data?.U_tl_bplid,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const UoMGroupEntry = await request(
@@ -117,7 +122,6 @@ class DispenserForm extends CoreFormDocument {
                   const itemUOM = uoms.find(
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
                   );
-                  console.log(itemUOM);
                   if (itemUOM) {
                     uomLists.push(itemUOM);
                   }
@@ -181,14 +185,14 @@ class DispenserForm extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.DispenserCode) {
-        data["error"] = { DispenserCode: "Dispenser Code is Required!" };
-        throw new FormValidateException("Dispenser Code is Required!", 0);
+      if (!data.PumpCode) {
+        data["error"] = { PumpCode: "Pump Code is Required!" };
+        throw new FormValidateException("Pump Code is Required!", 0);
       }
 
-      if (!data?.DispenserName) {
-        data["error"] = { DispenserName: "Dispenser Name is Required!" };
-        throw new FormValidateException("Dispenser Name is Required!", 0);
+      if (!data?.PumpName) {
+        data["error"] = { PumpName: "Pump Name is Required!" };
+        throw new FormValidateException("Pump Name is Required!", 0);
       }
 
       if (!data?.NumOfPump) {
@@ -204,12 +208,10 @@ class DispenserForm extends CoreFormDocument {
       }
 
       const payloads = {
-        Code: this.state?.DispenserCode,
-        Name: this.state?.DispenserName,
+        Code: this.state?.PumpCode,
+        Name: this.state?.PumpName,
         U_tl_pumpnum: this.state?.NumOfPump,
-        U_tl_empid: this.state?.SalesPersonCode,
-        U_tl_attend1: this.state?.Attendant1,
-        U_tl_attend2: this.state?.Attendant2,
+        U_tl_bplid: `${this.state?.U_tl_bplid}`,
         U_tl_type: this.state?.lineofBusiness,
         U_tl_status: this.state?.Status,
         TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
@@ -217,8 +219,8 @@ class DispenserForm extends CoreFormDocument {
             U_tl_pumpcode: e?.pumpCode,
             U_tl_itemnum: e?.itemCode,
             U_tl_uom: e?.UomAbsEntry,
-            U_tl_reg_meter: e?.registerMeeting,
-            U_tl_upd_meter: e?.updateMetering,
+            U_tl_reg_meter: parseFloat((e?.registerMeeting ?? "0.00").toString().replace(/,/g, '')),
+            U_tl_upd_meter: parseFloat((e?.updateMetering ?? "0.00").toString().replace(/,/g, '')),
             U_tl_status: e?.status,
           };
         }),
@@ -295,7 +297,7 @@ class DispenserForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["DispenserCode", "DispenserName", "NumOfPump"],
+      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness"],
       // 1: ["Items"]
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -312,7 +314,7 @@ class DispenserForm extends CoreFormDocument {
       <>
         <div className="w-full mt-2">
           <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>Pump Data</MenuButton>
+          <MenuButton active={this.state.tapIndex === 1}>Nozzle</MenuButton>
         </div>
 
         <div className="sticky w-full bottom-4">
@@ -325,9 +327,9 @@ class DispenserForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                Previous
+                <NavigateBeforeIcon />
               </Button>
-            </div>
+            </div> 
             <div className="flex items-center">
               <Button
                 size="small"
@@ -336,7 +338,7 @@ class DispenserForm extends CoreFormDocument {
                 disabled={this.state.tapIndex === 1}
                 style={{ textTransform: "none" }}
               >
-                Next
+                <NavigateNextIcon />
               </Button>
 
               <Snackbar
@@ -385,8 +387,6 @@ class DispenserForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-
-    console.log(this.state);
 
     return (
       <>
@@ -456,15 +456,20 @@ class DispenserForm extends CoreFormDocument {
                   )}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                       <div className="flex ">
                         <LoadingButton
                           size="small"
                           sx={{ height: "25px" }}
-                          variant="contained"
+                          variant="outlined"
+                          style={{
+                            background: 'white',
+                            border: '1px solid red'
+                          }}
                           disableElevation
+                          onClick={() => window.location.href = '/master-data/pump'}
                         >
-                          <span className="px-3 text-[11px] py-1 text-white">
+                          <span className="px-3 text-[11px] py-1 text-red-500">
                             Cancel
                           </span>
                         </LoadingButton>
@@ -480,7 +485,7 @@ class DispenserForm extends CoreFormDocument {
                           disableElevation
                         >
                           <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Save"}
+                            {this.props.edit ? "Update" : "Add"}
                           </span>
                         </LoadingButton>
                       </div>

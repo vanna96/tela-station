@@ -393,7 +393,7 @@ class Form extends CoreFormDocument {
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
         <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2}>Attachment</MenuButton>
+        {/* <MenuButton active={this.state.tapIndex === 2}>Attachment</MenuButton> */}
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
             <div className="flex ">

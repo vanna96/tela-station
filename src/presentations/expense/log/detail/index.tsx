@@ -144,7 +144,7 @@ class FormDetail extends Component<any, any> {
               active={this.state.tapIndex === 1}
               onClick={() => this.handlerChangeMenu(1)}
             >
-              <span>Payment Means</span>
+              <span>Content</span>
             </MenuButton>
             {/* <MenuButton
               active={this.state.tapIndex === 2}
@@ -152,12 +152,12 @@ class FormDetail extends Component<any, any> {
             >
               Content
             </MenuButton> */}
-            <MenuButton
+            {/* <MenuButton
               active={this.state.tapIndex === 2}
               onClick={() => this.handlerChangeMenu(2)}
             >
               Attachment
-            </MenuButton>
+            </MenuButton> */}
           </div>
         </div>
       </>

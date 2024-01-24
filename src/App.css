@@ -231,7 +231,8 @@ MuiButton-contained {
   position: fixed;
   z-index: 9999;
   background-color: white;
-  width: 160px;
+  /* width: 160px; */
+  width: auto !important;
 }
 
 .flex.text-sm.text-gray-500.border.border-gray-300.rounded.shadow-sm.transition-all {

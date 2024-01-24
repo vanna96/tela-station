@@ -1,51 +1,79 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AiOutlineShopping,
-  AiOutlineFileAdd,
-  AiOutlineFileUnknown,
-  AiOutlineSolution,
-  AiOutlineSnippets,
-  AiOutlineFileExcel,
-  AiOutlineFileProtect,
-} from "react-icons/ai";
-import Item from "@/models/Item";
+import { AiOutlineFileProtect } from "react-icons/ai";
+import { useQueries } from "react-query";
+import request, { url } from "@/utilies/request";
 
 const MasterDataPage = () => {
   const navigate = useNavigate();
 
   const goTo = (route: string) => navigate("/master-data/" + route);
 
-  //   const getCount = async () => {
-  //     const order = await new SalesOrderRepository().getCount({});
-  //     setCount({
-  //       ...count,
-  //       order,
-  //     });
-  //   };
-
-  //   useEffect(() => {
-  //     getCount();
-  //   }, []);
+  const count = useQueries([
+    {
+      queryKey: ['count_pump'], queryFn: async () => {
+        const response: any = await request(
+          "GET",
+          `${url}/TL_Dispenser/$count`
+        )
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      }
+    },
+    {
+      queryKey: ['count_pump_attendant'], queryFn: async () => {
+        const response: any = await request(
+          "GET",
+          `${url}/TL_PUMP_ATTEND/$count`
+        )
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      }
+    },
+    {
+      queryKey: ['count_exp_dic'], queryFn: async () => {
+        const response: any = await request(
+          "GET",
+          `${url}/TL_ExpDic/$count`
+        )
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      }
+    },
+    {
+      queryKey: ['count_caash_acct'], queryFn: async () => {
+        const response: any = await request(
+          "GET",
+          `${url}/TL_CashAcct/$count`
+        )
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      }
+    }
+  ])
 
   return (
     <>
       <MainContainer title="Master Data">
-        {/* <ItemCard title='Item Master Data' onClick={() => goTo('item-master-data')} icon={<AiOutlineFileProtect />} />
-            <ItemCard title='Employees' onClick={() => goTo('employee')} icon={<AiOutlineFileProtect />} />
-            <ItemCard title='Suppliers' onClick={() => goTo('supplier')} icon={<AiOutlineFileProtect />} />
-            <ItemCard title='Customers' icon={<AiOutlineFileUnknown />} />
-            <ItemCard title='Warehouses' onClick={() => goTo('warehouse')} icon={<AiOutlineSnippets />} />
-            <ItemCard title='Bin Location' onClick={() => goTo('binlocation')} icon={<AiOutlineSolution />} /> */}
         <ItemCard
           title="Pump"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("pump")}
           amount={
-            // count?.order ||
-            0
+            count[0]?.data || 0
           }
         />
         <ItemCard
@@ -53,8 +81,7 @@ const MasterDataPage = () => {
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("pump-attendant")}
           amount={
-            // count?.order ||
-            0
+            count[1]?.data || 0
           }
         />
         <ItemCard
@@ -62,8 +89,7 @@ const MasterDataPage = () => {
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("expense-dictionary")}
           amount={
-            // count?.order ||
-            0
+            count[2]?.data || 0
           }
         />
         <ItemCard
@@ -71,8 +97,7 @@ const MasterDataPage = () => {
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("cash-account")}
           amount={
-            // count?.order ||
-            0
+            count[3]?.data || 0
           }
         />
         <ItemCard

@@ -5,6 +5,8 @@ import { useState } from "react";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import { Autocomplete, TextField } from "@mui/material";
 import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
+import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import { useCookies } from "react-cookie";
 
 export interface IGeneralFormProps {
   data: any;
@@ -22,10 +24,14 @@ export default function GeneralForm({
   handlerChangeObject,
 }: IGeneralFormProps) {
   const [isChecked, setIsChecked] = useState(false);
-
+  const [cookies] = useCookies(["user"]);
   const handleCheckboxChange = (e: any) => {
     setIsChecked(e.target.checked);
   };
+
+  const userData = cookies.user;
+
+  const BPL = data?.U_tl_bplid || (cookies.user?.Branch <= 0 && 1) || 1;
 
   return (
     <>
@@ -38,16 +44,30 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Dispenser Code <span className="text-red-500">*</span>
+                  Branch <span className="text-red-500">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <BranchAutoComplete
+                  BPdata={userData?.UserBranchAssignment}
+                  onChange={(e) => handlerChange("U_tl_bplid", e)}
+                  value={parseInt(BPL)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Pump Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   size="small"
-                  value={data?.DispenserCode}
-                  placeholder="Dispenser Code"
+                  value={data?.PumpCode}
+                  placeholder="Pump  Code"
                   onChange={(e) =>
-                    handlerChange("DispenserCode", e.target.value)
+                    handlerChange("PumpCode", e.target.value)
                   }
                 />
               </div>
@@ -55,16 +75,16 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Dispenser Name <span className="text-red-500">*</span>
+                  Pump Name <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   size="small"
-                  value={data?.DispenserName}
-                  placeholder="Dispenser Name"
+                  value={data?.PumpName}
+                  placeholder="Pump Name"
                   onChange={(e) =>
-                    handlerChange("DispenserName", e.target.value)
+                    handlerChange("PumpName", e.target.value)
                   }
                 />
               </div>
@@ -72,7 +92,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500">
-                  Number of Pump <span className="text-red-500">*</span>
+                  No. of Nozzle <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -88,14 +108,15 @@ export default function GeneralForm({
                       index < parseInt(e.target.value ?? 0);
                       index++
                     ) {
+                      const formattedIndex = `${(index + 1)}`.padStart(3, '0');
                       PumpData.push({
-                        pumpCode: `${data?.DispenserCode || ""}p${index + 1}`,
+                        pumpCode: `${data?.PumpCode || ""} - ${formattedIndex}`,
                         itemCode: "",
                         itemName: "",
                         uom: "",
                         registerMeeting: "",
                         updateMetering: "",
-                        status: "",
+                        status: "New",
                       });
                     }
                     handlerChangeObject({
@@ -106,7 +127,7 @@ export default function GeneralForm({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            {/* <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Employee
@@ -146,7 +167,7 @@ export default function GeneralForm({
                   onChange={(e) => handlerChange("Attendant2", e)}
                 />
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="col-span-2"></div>
@@ -154,15 +175,14 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Type
+                  Type <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "", name: "Type" },
                     { id: "Oil", name: "Oil" },
-                    { id: "Lube", name: "Lube" },
+                    // { id: "Lube", name: "Lube" },
                     { id: "LPG", name: "LPG" },
                   ]}
                   onChange={(e) =>
@@ -190,7 +210,7 @@ export default function GeneralForm({
                     { id: "Inactive", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("Status", e.target.value)}
-                  value={data?.Status}
+                  value={data?.Status ?? "New"}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="Status"

@@ -67,7 +67,7 @@ export default function CashACAutoComplete(props: {
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             <BsDot />
-            {option.Name}
+            {option.Code} - {option.Name}
           </Box>
         )}
         renderInput={(params) => (
