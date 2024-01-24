@@ -80,7 +80,6 @@ export default function SequenceTable(props: any) {
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"U_Duration" + cell.getValue() + cell?.row?.id}
-          type="number"
           disabled={data?.edit}
           defaultValue={cell.row.original?.U_Duration || ""}
           onBlur={(e: any) => {
@@ -97,7 +96,6 @@ export default function SequenceTable(props: any) {
         Cell: ({ cell }: any) => (
           <MUITextField
             key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
-            type="number"
             disabled={data?.edit}
             defaultValue={cell.row.original?.U_Stop_Duration || ""}
             onBlur={(e: any) => {

@@ -171,18 +171,18 @@ function General(props: any) {
                   {data?.U_Incentive ?? "N/A"}
                 </div>
               </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Status</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_Status ?? "N/A"}
-                </div>
-              </div>
             </div>
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700">Distance</div>
+                <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
+                  {data?.U_Status ?? "N/A"}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Distance</div>
+                <div className="col-span-1 text-gray-900">
                   {data?.U_Distance ?? "N/A"}
                 </div>
               </div>
@@ -193,13 +193,7 @@ function General(props: any) {
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Extra Distance</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.a ?? "N/A"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Remarks</div>
+                <div className="col-span-1 text-gray-700 ">Extra Remarks</div>
                 <div className="col-span-1 text-gray-900">
                   {data?.U_Remark ?? "N/A"}
                 </div>

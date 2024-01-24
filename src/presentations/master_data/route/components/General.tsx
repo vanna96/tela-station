@@ -11,6 +11,7 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -32,6 +33,9 @@ export default function GeneralForm({
   const [cookies, setCookie] = useCookies(["user"]);
   const branchId =
     data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
+
+
+    console.log(data.U_BaseStation)
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
@@ -48,14 +52,12 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <div className="col-span-3">
-                  <WarehouseAutoComplete
-                    Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                    value={data?.U_BaseStation}
-                    onChange={(e) => {
-                      handlerChange("U_BaseStation", e);
-                      onWarehouseChange(e);
-                    }}
-                  />
+                <WarehouseAttendTo
+                  value={data?.U_BaseStation}
+                  onChange={(e) => {
+                    handlerChange("U_BaseStation", e);
+                  }}
+                />
                 </div>
               </div>
             </div>
@@ -66,12 +68,10 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseAutoComplete
-                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                <WarehouseAttendTo
                   value={data?.U_Destination}
                   onChange={(e) => {
                     handlerChange("U_Destination", e);
-                    onWarehouseChange(e);
                   }}
                 />
               </div>
