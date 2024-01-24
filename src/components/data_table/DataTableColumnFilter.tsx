@@ -39,6 +39,22 @@ export default function DataTableColumnFilter(
   const handlerConfirm = () => {
     setAnchorEl(null);
     let query = "";
+    // filterList.forEach((row) => {
+    //   if (row.filter.includes('with') || row.filter.includes('contains')) {
+    //       query += `${row.filter.replace('value', `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${row.value}'`)} and `;
+    //   } else {
+    //       query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${row.filter} ${row.type === 'string' || row.type === 'date' ? "'" + row.value + "'" : row.value} and `;
+    //   }
+
+    //   query += ` and ${row.column.charAt(0).toUpperCase()}${row.column.slice(
+    //     1
+    //   )} ${row.filter} ${
+    //     row.type === "string" || row.type === "date"
+    //       ? "'" + row.value + "'"
+    //       : row.value
+    //   } and `;
+    // });
+
     filterList.forEach((row) => {
       if (row.filter.includes('with') || row.filter.includes('contains')) {
         query += `${row.filter.replace('value', `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${row.value}'`)} and `;

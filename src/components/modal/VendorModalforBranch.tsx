@@ -51,19 +51,22 @@ const VendorModalBranch: FC<VendorModalProps> = ({
     queryFn: () =>
       new BranchQueryRepository().get(`?$filter=BPLId eq ${branch}`),
     // staleTime: 10000,
+    enabled: branch !== "",
   });
 
   const { data: businessPartnerData, isLoading: isLoadingBP } = useQuery({
     queryKey: ["business_partner", selectedCardCode],
     queryFn: () => new BusinessPartnerRepository().find(selectedCardCode),
-    enabled: selectedCardCode !== null,
+    enabled: selectedCardCode !== "",
   });
+
   useEffect(() => {
     if (businessPartnerData) {
       const businessPartner = new BusinessPartner(businessPartnerData, 0);
       onOk(businessPartner);
     }
   }, [businessPartnerData]);
+
 
   const [rowSelection, setRowSelection] = React.useState({});
   const columns = React.useMemo(

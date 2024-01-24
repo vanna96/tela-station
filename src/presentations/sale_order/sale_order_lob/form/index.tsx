@@ -24,7 +24,6 @@ import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasureme
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import {
-  StatusCustomerBranchCurrencyInfo,
   StatusCustomerBranchCurrencyInfoLeftSide,
   TotalSummaryRightSide,
 } from "@/components/DocumenHeaderComponent";
@@ -109,7 +108,6 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
-
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -290,7 +288,6 @@ class SalesOrderForm extends CoreFormDocument {
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
-        U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
@@ -299,8 +296,8 @@ class SalesOrderForm extends CoreFormDocument {
 
         // logistic
         PayToCode: data?.PayToCode || null,
-        U_tl_grsuppo: data?.U_tl_grsuppo,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
+        U_tl_whsdesc: data?.U_tl_whsdesc,
+        U_tl_attn_ter: data?.U_tl_attn_ter,
 
         // AttachmentEntry,
       };
