@@ -110,7 +110,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.U_tl_dob}
+                  value={data?.U_tl_dob || null}
                   name="U_tl_dob"
                   onChange={(e: any) => handlerChange("U_tl_dob", e)}
                 />
@@ -234,7 +234,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.U_tl_sdate}
+                  value={data?.U_tl_sdate || null}
                   name="U_tl_sdate"
                   onChange={(e) => handlerChange("U_tl_sdate", e)}
                 />
@@ -249,7 +249,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUIDatePicker
-                  value={data?.U_tl_edate}
+                  value={data?.U_tl_edate || null}
                   name="U_tl_edate"
                   onChange={(e) => handlerChange("U_tl_edate", e)}
                 />

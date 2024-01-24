@@ -18,6 +18,7 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
+      Type: "Expense"
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -39,10 +40,10 @@ class Form extends CoreFormDocument {
       await request("GET", `TL_ExpDic('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
-       console.log(data)
 
           state = {
             ...data,
+            Type: data?.U_tl_type
             // Code: data?.Code,
             // Name: data?.Name,
             // U_tl_expacct: data?.U_tl_expacct,
@@ -81,6 +82,7 @@ class Form extends CoreFormDocument {
         Name: data?.Name,
         U_tl_expacct: data?.U_tl_expacct,
         U_tl_expactive: data?.U_tl_expactive,
+        U_tl_type: data?.Type
       };
 
       if (id) {

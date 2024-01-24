@@ -1,13 +1,11 @@
 import { withRouter } from "@/routes/withRouter";
-import { Component, useContext } from "react";
-import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import { Component } from "react";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
-import shortid from "shortid";
 import request from "@/utilies/request";
-import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper";
 import DocumentHeader from "@/components/DocumenHeader";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import MUITextField from "@/components/input/MUITextField";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -110,31 +108,65 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Expense Code</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Code ?? "N/A"}
+                  <MUITextField
+                    fullWidth
+                    value={data?.Code ?? "N/A"}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Expense Type</div>
+                <div className="col-span-1 text-gray-900">
+                  <MUITextField
+                    fullWidth
+                    value={data?.U_tl_type ?? "N/A"}
+                    disabled={true}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">GL Account </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_expacct ?? "N/A"}
-                  {" - "}
-                  {new GLAccountRepository().find(data?.U_tl_expacct)?.Name ??
+                <MUITextField
+                  fullWidth
+                  value={new GLAccountRepository().find(data?.U_tl_expacct)?.Name ??
                     "N/A"}
+                  disabled={true}
+                />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">GL Account Code </div>
+                <div className="col-span-1 text-gray-900">
+                  <MUITextField
+                    fullWidth
+                    value={data?.U_tl_expacct ?? "N/A"}
+                    disabled={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Description </div>
+                <div className="col-span-1 text-gray-900">
+                  <MUITextField
+                    fullWidth
+                    value={data?.Name ?? "N/A"}
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700">Active</div>
+                <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
-                  {props.data.U_tl_expactive == 'Y' ?"Yes " : "No"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Description</div>
-                <div className="col-span-1 text-gray-900">
-                  {props.data.Name}
+                  <MUITextField
+                    fullWidth
+                    value={props.data.U_tl_expactive == 'Y' ?"Active" : "Inactive"}
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>

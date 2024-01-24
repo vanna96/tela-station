@@ -142,7 +142,7 @@ export default function DispenserList() {
     []
   );
   const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("DocEntry desc");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
