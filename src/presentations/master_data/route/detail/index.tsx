@@ -177,7 +177,7 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
-                  {data?.U_Status ?? "N/A"}
+                  {data?.U_Status === "Y" ? "Yes" : "No"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">

@@ -30,7 +30,7 @@ export default function Routelistpage() {
                 enableFilterMatchHighlighting: true,
                 size: 88,
                 visible: true,
-                // type: "number",
+                type: "string",
             },
             {
                 accessorKey: "Name",
@@ -39,6 +39,7 @@ export default function Routelistpage() {
                 enableFilterMatchHighlighting: true,
                 size: 88,
                 visible: true,
+                type: "string",
                 Cell: (cell: any) => {
                     return cell.row.original.Name ?? "N/A";
                 },
@@ -51,6 +52,7 @@ export default function Routelistpage() {
                 enableFilterMatchHighlighting: true,
                 size: 88,
                 visible: true,
+                type: "string",
                 Cell: (cell: any) => {
                     return cell.row.original.U_BaseStation ?? "N/A";
                 },
@@ -61,6 +63,7 @@ export default function Routelistpage() {
                 header: "Destination",
                 size: 40,
                 visible: true,
+                type: "string",
                 Cell: (cell: any) => {
                     return cell.row.original.U_Destination ?? "N/A";
                 },
@@ -70,6 +73,7 @@ export default function Routelistpage() {
                 header: "Distance",
                 size: 40,
                 visible: true,
+                type: "string",
                 Cell: (cell: any) => {
                     return cell.row.original.U_Distance ?? "N/A";
                 },
@@ -79,8 +83,9 @@ export default function Routelistpage() {
                 header: "Status",
                 size: 40,
                 visible: true,
+                type: "string",
                 Cell: (cell: any) => {
-                    return cell.row.original.U_Status ?? "N/A";
+                    return cell.row.original.U_Status === "Y" ? "Yes" : "No";
                 },
             },
             {
@@ -167,7 +172,7 @@ export default function Routelistpage() {
             const response: any = await request(
                 "GET",
                 `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
-                }&${filter}`
+                }&$orderby= DocEntry desc &${filter}`
             )
                 .then((res: any) => res?.data?.value)
                 .catch((e: Error) => {
@@ -205,7 +210,14 @@ export default function Routelistpage() {
     };
 
     const handlerSearch = (value: string) => {
-        setFilter(value);
+        const str = value.slice(0, 4);
+        const query = str.includes('and') ? value.substring(4) : value;
+
+        setFilter(`$filter=${query}`);
+        setPagination({
+            pageIndex: 0,
+            pageSize: 10,
+        });
         setPagination({
             pageIndex: 0,
             pageSize: 10,
@@ -222,16 +234,14 @@ export default function Routelistpage() {
     };
     const handleGoClick = () => {
         console.log(searchValues);
-        
+
         let queryFilters: any = [];
         if (searchValues.status)
-            queryFilters.push(`startswith(U_Status, '${searchValues.status}')`);
-        if (searchValues.code)
-            queryFilters.push(`Code eq '${searchValues.code}'`);
-        if (searchValues.status)
             queryFilters.push(`U_Status eq '${searchValues.status}'`);
+        if (searchValues.code)
+            queryFilters.push(`contains(Code, '${searchValues.code}')`)
         if (queryFilters.length > 0)
-            return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+            return handlerSearch(`${queryFilters.join(" and ")}`);
         return handlerSearch("");
     };
     return (
@@ -250,7 +260,7 @@ export default function Routelistpage() {
                     <div className="col-span-10">
                         <div className="grid grid-cols-12  space-x-4">
                             <div className="col-span-2 2xl:col-span-3">
-                                
+
                                 <MUITextField
                                     label=" Code"
                                     placeholder="Code"
@@ -268,18 +278,18 @@ export default function Routelistpage() {
                                         Status
                                     </label>
                                     <div className="">
-                                    <MUISelect
-                                    items={[
-                                        { id: "Y", name: "Yes" },
-                                        { id: "N", name: "No" },
-                                    ]}
-                                    onChange={(e) => setSearchValues({...searchValues, status:e?.target?.value})
-                                    }
-                                    value={searchValues.status}
-                                    aliasvalue="id"
-                                    aliaslabel="name"
-                                    name="U_Status"
-                                />
+                                        <MUISelect
+                                            items={[
+                                                { id: "Y", name: "Yes" },
+                                                { id: "N", name: "No" },
+                                            ]}
+                                            onChange={(e) => setSearchValues({ ...searchValues, status: e?.target?.value })
+                                            }
+                                            value={searchValues.status}
+                                            aliasvalue="id"
+                                            aliaslabel="name"
+                                            name="U_Status"
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -291,7 +301,7 @@ export default function Routelistpage() {
                     <div className="col-span-2">
                         <div className="flex justify-end items-center align-center space-x-2 mt-4">
                             <div className="">
-                            <Button
+                                <Button
                                     variant="contained"
                                     size="small"
                                     onClick={handleGoClick}
