@@ -214,6 +214,8 @@ export default function Routelistpage() {
         const query = str.includes('and') ? value.substring(4) : value;
 
         setFilter(`$filter=${query}`);
+        // 
+
         setPagination({
             pageIndex: 0,
             pageSize: 10,
@@ -232,6 +234,8 @@ export default function Routelistpage() {
     const handleAdaptFilter = () => {
         setOpen(true);
     };
+
+
     const handleGoClick = () => {
         console.log(searchValues);
 
@@ -244,6 +248,8 @@ export default function Routelistpage() {
             return handlerSearch(`${queryFilters.join(" and ")}`);
         return handlerSearch("");
     };
+
+
     return (
         <>
             <ModalAdaptFilter
