@@ -195,6 +195,14 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
+              {defaultValues == undefined && (
+                <div className="hidden">
+                  <MUITextField
+                    inputProps={{ ...register("CitizenshipCountryCode") }}
+                    value={"KH"}
+                  />
+                </div>
+              )}
               <Controller
                 name="CitizenshipCountryCode"
                 control={control}
@@ -202,7 +210,7 @@ const Personal = ({
                   return (
                     <CountryAutoComplete
                       {...field}
-                      value={defaultValues?.CitizenshipCountryCode}
+                      value={defaultValues?.CitizenshipCountryCode || "KH"}
                       onChange={(e: any) => {
                         setValue("CitizenshipCountryCode", e);
 
