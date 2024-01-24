@@ -62,10 +62,17 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
+              <MUISelect
+                  items={[
+                    { id: "Expense", name: "Expense" },
+                  ]}
+                  onChange={(e) =>
+                    handlerChange("Type", e.target.value)
+                  }
                   value={data?.Type}
+                  aliasvalue="id"
+                  aliaslabel="name"
                   name="Type"
-                  onChange={(e) => handlerChange("Type", e.target.value)}
                 />
               </div>
             </div>
