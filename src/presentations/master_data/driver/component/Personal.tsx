@@ -81,7 +81,14 @@ const Personal = ({
                         defaultValues?.DateOfBirth || staticSelect.dateOfbirth
                       }
                       onChange={(e: any) => {
-                        setValue("DateOfBirth", e);
+                        const val =
+                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
+                            ? ""
+                            : e;
+                        setValue(
+                          "DateOfBirth",
+                          `   ${val == "" ? "" : val}`
+                        );
                         setStaticSelect({ ...staticSelect, dateOfbirth: e });
                       }}
                     />
@@ -239,12 +246,21 @@ const Personal = ({
                       }
                       onChange={(e: any) => {
                         if (e) {
-                          setValue("PassportExpirationDate", e);
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue(
+                            "PassportExpirationDate",
+                            `  ${val == "" ? "" :val}`
+                          );
+                            setStaticSelect({
+                              ...staticSelect,
+                              passportExpirationDate: e,
+                            });
                         }
-                        setStaticSelect({
-                          ...staticSelect,
-                          passportExpirationDate: e,
-                        });
+                      
                       }}
                     />
                   );
@@ -272,12 +288,21 @@ const Personal = ({
                       }
                       onChange={(e: any) => {
                         if (e) {
-                          setValue("PassportIssueDate", e);
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue(
+                            "PassportIssueDate",
+                            ` ${val == "" ? "" : val}`
+                          );
+                              setStaticSelect({
+                                ...staticSelect,
+                                passportIssuedDate: e,
+                              });
                         }
-                        setStaticSelect({
-                          ...staticSelect,
-                          passportIssuedDate: e,
-                        });
+                    
                       }}
                     />
                   );

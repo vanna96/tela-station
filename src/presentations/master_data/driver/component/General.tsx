@@ -277,7 +277,15 @@ const General = ({
                         }
                         key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
-                          setValue("StartDate", e);
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue(
+                            "StartDate",
+                            `${val == "" ? "" : val}`
+                          );
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
@@ -353,7 +361,15 @@ const General = ({
                           staticSelect?.termination
                         }
                         onChange={(e: any) => {
-                          setValue("TerminationDate", e);
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue(
+                            "TerminationDate",
+                            ` ${val == "" ? "" : val})`
+                          );
                           setStaticSelect({ ...staticSelect, termination: e });
                         }}
                       />
