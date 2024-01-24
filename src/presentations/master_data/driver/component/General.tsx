@@ -377,7 +377,6 @@ const General = ({
                     );
                   }}
                 />
-               
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
