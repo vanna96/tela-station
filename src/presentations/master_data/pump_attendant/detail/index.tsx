@@ -1,20 +1,17 @@
 import { withRouter } from "@/routes/withRouter";
-import { Component, useContext } from "react";
-import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import { Component } from "react";
+import { dateFormat } from "@/utilies";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
-import shortid from "shortid";
 import request from "@/utilies/request";
-import { fetchSAPFile, numberWithCommas, sysInfo } from "@/helper/helper";
 import DocumentHeader from "@/components/DocumenHeader";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
     this.state = {
+      showCollapse: false,
       loading: true,
       isError: false,
       message: "",
@@ -71,7 +68,7 @@ class FormDetail extends Component<any, any> {
   render() {
     return (
       <>
-        <DocumentHeader data={this.state} menuTabs={this.HeaderTabs} />
+        <DocumentHeader data={this.state} menuTabs={this.HeaderTabs} HeaderCollapeMenu={<></>} />
 
         <form
           id="formData"
@@ -161,7 +158,7 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
-                  {data.U_tl_cashaU_tl_statusctive === "y"
+                  {data.U_tl_status === "y"
                     ? "Active"
                     : "Inactive"}
                 </div>
@@ -188,14 +185,14 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Mobile 1</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Code ?? "N/A"}
+                  {data?.U_tl_tel1 ?? "N/A"}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Mobile 2</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_fname ?? "N/A"}
+                  {data?.U_tl_tel2 ?? "N/A"}
                 </div>
               </div>
 
@@ -204,7 +201,7 @@ function General(props: any) {
                   Residential Address
                 </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_fname ?? "N/A"}
+                  {data?.U_tl_address ?? "N/A"}
                 </div>
               </div>
             </div>
@@ -213,14 +210,14 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Joined Date</div>
                 <div className="col-span-1 text-gray-900">
-                  {dateFormat(data?.U_tl_dob) || "N/A"}
+                  {dateFormat(data?.U_tl_sdate) || "N/A"}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Terminated Date</div>
                 <div className="col-span-1 text-gray-900">
-                  {dateFormat(data?.U_tl_dob) || "N/A"}
+                  {dateFormat(data?.U_tl_edate) || "N/A"}
                 </div>
               </div>
             </div>

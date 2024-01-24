@@ -65,18 +65,18 @@ export default function SystemInitializeMasterPage() {
             onClick={() => navigate("/master-data/pump-attendant")}
           />
           <ItemCard
-            title="Cash Account"
+            title="Expense Dictionary"
             icon={<AiOutlineSolution />}
-            onClick={() => navigate("/master-data/cash-account")}
+            onClick={() => navigate("/master-data/expense-dictionary")}
             amount={
               // count?.order ||
               0
             }
           />
           <ItemCard
-            title="Expense Dictionary"
+            title="Cash Account"
             icon={<AiOutlineSolution />}
-            onClick={() => navigate("/master-data/expense-dictionary")}
+            onClick={() => navigate("/master-data/cash-account")}
             amount={
               // count?.order ||
               0

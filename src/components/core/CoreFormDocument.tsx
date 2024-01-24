@@ -89,6 +89,7 @@ export interface CoreFormDocumentState {
     attachment: boolean;
   };
   isDialogOpen: boolean;
+  showCollapse: boolean;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -101,7 +102,8 @@ export default abstract class CoreFormDocument extends React.Component<
   protected constructor(props: any) {
     super(props);
     this.state = {
-      collapse: true,
+      showCollapse: true,
+      collapse: false,
       CardCode: "",
       CardName: "",
       ContactPersonCode: undefined,
@@ -186,7 +188,10 @@ export default abstract class CoreFormDocument extends React.Component<
 
   abstract RightSideField?(): JSX.Element | React.ReactNode;
 
+  abstract HeaderCollapeMenu?(): JSX.Element | React.ReactNode;
+
   render() {
+
     return (
       <div className="grow flex flex-col">
         <FormMessageModal ref={this.dialog} />
@@ -211,6 +216,13 @@ export default abstract class CoreFormDocument extends React.Component<
           <DocumentHeaderComponent
             data={this.state}
             menuTabs={<this.HeaderTaps />}
+            HeaderCollapeMenu={
+              this.HeaderCollapeMenu?.() ??
+                <>
+                  <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />
+                  <TotalSummaryRightSide data={this.state} />
+                </>
+            }
             leftSideField={
               <>
                 {this.LeftSideField?.() ?? (
