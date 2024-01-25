@@ -1,27 +1,34 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AiOutlineFileAdd,
   AiOutlineFileExcel,
   AiOutlineFileProtect,
-  AiOutlineFileSearch,
 } from "react-icons/ai";
-import { request } from "http";
-// import SalesQuotationRepository from "@/services/actions/SalesQuotationRepository";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
 
 const SaleInvoicePage = () => {
   const navigate = useNavigate();
   const [count, setCount]: any = useState();
-  const goTo = (route: string) => navigate("/sale-invoice/" + route);
+  const goTo = (route: string) => navigate("/sale-order/" + route);
 
   const getCount = async () => {
-    const order = await new SalesOrderRepository().getCount({});
+    const fuel = await new SalesOrderRepository().getCount({
+      defaultFilter: `$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
+    });
+    const lube = await new SalesOrderRepository().getCount({
+      defaultFilter: `$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
+    });
+    const lpg = await new SalesOrderRepository().getCount({
+      defaultFilter: `$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
+    });
     setCount({
       ...count,
-      order,
+      lube,
+      fuel,
+      lpg,
     });
   };
 
@@ -31,32 +38,25 @@ const SaleInvoicePage = () => {
 
   return (
     <>
-      <MainContainer title="Sale Invoice">
-        {/* <ItemCard
-          title="Sales Order"
-          icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("sales-order")}
-          amount={count?.order || 0}
-        /> */}
+      <MainContainer title="Sale Order">
         <ItemCard
           title="Fuel Sales"
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("fuel-sales")}
-          amount={count?.order || 0}
+          amount={count?.fuel || 0}
         />
         <ItemCard
           title="Lube Sales"
-          icon={<AiOutlineFileAdd />}
+          icon={<AiOutlineFileExcel />}
           onClick={() => goTo("lube-sales")}
-          amount={count?.order || 0}
+          amount={count?.lube || 0}
         />
         <ItemCard
           title="LPG Sales"
-          icon={<AiOutlineFileAdd />}
+          icon={<AiOutlineFileProtect />}
           onClick={() => goTo("lpg-sales")}
-          amount={count?.order || 0}
+          amount={count?.lpg || 0}
         />
-
       </MainContainer>
     </>
   );
