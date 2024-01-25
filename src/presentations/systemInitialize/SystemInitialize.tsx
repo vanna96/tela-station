@@ -6,10 +6,14 @@ import request from "@/utilies/request";
 import IncomingPaymentRepository from "@/services/actions/IncomingPaymentRepository";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
 import { useNavigate } from "react-router-dom";
+import DispenserRepository from "@/services/actions/dispenserRepository";
 
 export default function SystemInitializeMasterPage() {
   const [count, setCount]: any = React.useState();
   const navigate = useNavigate();
+
+  // master data
+  const dispenser = new DispenserRepository().getCount({});
 
   const getCount: any = async () => {
     const logs = await request("GET", "TL_ExpLog/$count").then(
@@ -32,14 +36,34 @@ export default function SystemInitializeMasterPage() {
     });
 
     const order = await new SalesOrderRepository().getCount({});
+    const fuel = await new SalesOrderRepository().getCount({
+      params: {
+        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
+      },
+    });
+    const lube = await new SalesOrderRepository().getCount({
+      params: {
+        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
+      },
+    });
+
+    const lpg = await new SalesOrderRepository().getCount({
+      params: {
+        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
+      },
+    });
 
     setCount({
       ...count,
+      dispenser,
       logs,
       order,
       clearance,
       incomingAR,
       directAccount,
+      fuel,
+      lube,
+      lpg,
     });
   };
 
@@ -55,7 +79,7 @@ export default function SystemInitializeMasterPage() {
           <ItemCard
             title="Pump"
             icon={<AiOutlineSolution />}
-            amount={count?.order || 0}
+            amount={count?.dispenser || 0}
             onClick={() => navigate("/master-data/pump")}
           />
           <ItemCard
@@ -127,19 +151,19 @@ export default function SystemInitializeMasterPage() {
             title="Fuel Sales"
             icon={<AiOutlineSolution />}
             onClick={() => navigate("/sale-invoice/fuel-sales")}
-              amount={count?.order || 0}
+            amount={count?.order || 0}
           />
           <ItemCard
             title="Lube Sales"
             icon={<AiOutlineSolution />}
             onClick={() => navigate("/sale-invoice/lube-sales")}
-              amount={count?.order || 0}
+            amount={count?.order || 0}
           />
           <ItemCard
             title="LPG Sales"
             icon={<AiOutlineSolution />}
             onClick={() => navigate("/sale-invoice/lpg-sales")}
-              amount={count?.order || 0}
+            amount={count?.order || 0}
           />
         </div>
 

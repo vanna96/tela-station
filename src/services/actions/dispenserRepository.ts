@@ -1,6 +1,6 @@
 import Repository from "@/astractions/repository";
 import Encryption from "@/utilies/encryption";
-import request from "@/utilies/request";
+import request, { axiosInstance } from "@/utilies/request";
 
 export default class DispenserRepository extends Repository<any> {
 
@@ -41,5 +41,15 @@ export default class DispenserRepository extends Repository<any> {
 
     delete(id: any): Promise<any> {
         throw new Error("Method not implemented.");
+    }
+
+    async getCount(query?: any): Promise<number> {
+        const { params } = query;
+        return await axiosInstance
+            .get(`${this.url}/$count`, { params })
+            .then((res: any) => res?.data)
+            .catch((e) => {
+                throw new Error(e);
+            });
     }
 }

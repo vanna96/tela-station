@@ -16,13 +16,20 @@ const SaleOrderPage = () => {
 
   const getCount = async () => {
     const fuel = await new SalesOrderRepository().getCount({
-      defaultFilter: `$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
+      params: {
+        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
+      },
     });
     const lube = await new SalesOrderRepository().getCount({
-      defaultFilter: `$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
+      params: {
+        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
+      },
     });
+
     const lpg = await new SalesOrderRepository().getCount({
-      defaultFilter: `$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
+      params: {
+        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
+      },
     });
     setCount({
       ...count,
