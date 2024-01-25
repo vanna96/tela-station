@@ -10,6 +10,7 @@ import DocumentHeader from "@/components/DocumenHeader";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ChartOfAccountsRepository from "@/services/actions/ChartOfAccountsRepository";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import MUITextField from "@/components/input/MUITextField";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -110,41 +111,67 @@ function General(props: any) {
           <div className="grid grid-cols-12 ">
             <div className="col-span-5">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Expense Code</div>
+                <div className="col-span-1 text-gray-700 ">Cash Account Type</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Code ?? "N/A"}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">GL Account </div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_cashacct ?? "N/A"}
-                  {" - "}
-                  {new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ??
-                    "N/A"}
+                  <MUITextField
+                    value={data?.U_tl_cashtype ?? "N/A"}
+                    name="U_tl_cashacct"
+                    disabled={true}
+                />
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Branch </div>
+                <div className="col-span-1 text-gray-700 ">Cash Code</div>
                 <div className="col-span-1 text-gray-900">
-                  {new BranchBPLRepository().find(data?.U_tl_bplid)?.BPLName ??
-                    "N/A"}
+                  <MUITextField
+                    value={data?.Code ?? "N/A"}
+                    name="U_tl_cashacct"
+                    disabled={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">G/L Account </div>
+                <div className="col-span-1 text-gray-900">
+                  <MUITextField
+                    value={new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ??
+                      "N/A"}
+                    name="U_tl_cashacct"
+                    disabled={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">G/L Account Code </div>
+                <div className="col-span-1 text-gray-900">
+                  <MUITextField
+                    value={data?.U_tl_cashacct ?? "N/A"}
+                    name="U_tl_cashacct"
+                    disabled={true}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 py-1">
+                <div className="col-span-1 text-gray-700 ">Description</div>
+                <div className="col-span-1 text-gray-900">
+                  <MUITextField
+                    value={data?.Name}
+                    name="U_tl_cashacct"
+                    disabled={true} 
+                  />
                 </div>
               </div>
             </div>
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700">Active</div>
+                <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
-                  {props.data.U_tl_cashactive === "Y" ? "Yes" : "No"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Description</div>
-                <div className="col-span-1 text-gray-900">
-                  {props.data.Name}
+                  <MUITextField
+                    value={data?.U_tl_cashactive === "Y" ? "Active" : "Inactive"}
+                    name="U_tl_cashacct"
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>

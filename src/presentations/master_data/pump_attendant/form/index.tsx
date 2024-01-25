@@ -18,7 +18,8 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
-      showCollapse: false
+      showCollapse: false,
+      U_tl_status: "y"
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -115,14 +116,14 @@ class Form extends CoreFormDocument {
         U_tl_lname: data?.U_tl_lname,
         U_tl_gender: data?.U_tl_gender,
         // U_tl_dob: data?.U_tl_dob,
-        U_tl_dob: `${formatDate(data?.U_tl_dob || new Date())}"T00:00:00Z"`,
+        U_tl_dob: data?.U_tl_dob ? `${formatDate(data?.U_tl_dob)}"T00:00:00Z"`:null,
         U_tl_tel1: data?.U_tl_tel1,
         U_tl_tel2: data?.U_tl_tel2,
         U_tl_bplid: data?.U_tl_bplid,
         // U_tl_sdate: data?.U_tl_sdate ,
         // U_tl_edate: data?.U_tl_edate,
-        U_tl_sdate: `${formatDate(data?.U_tl_sdate || new Date())}"T00:00:00Z"`,
-        U_tl_edate: `${formatDate(data?.U_tl_edate || new Date())}"T00:00:00Z"`,
+        U_tl_sdate: data?.U_tl_sdate ? `${formatDate(data?.U_tl_sdate)}"T00:00:00Z"`:null,
+        U_tl_edate: data?.U_tl_sdate ? `${formatDate(data?.U_tl_edate)}"T00:00:00Z"`:null,
         U_tl_address: data?.U_tl_address,
         U_tl_status: data?.U_tl_status,
         U_tl_numid: data?.U_tl_numid,
