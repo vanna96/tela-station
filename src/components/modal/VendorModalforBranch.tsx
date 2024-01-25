@@ -6,12 +6,20 @@ import { currencyFormat } from "../../utilies/index";
 import BusinessPartner from "../../models/BusinessParter";
 import { useMemo } from "react";
 import { ThemeContext } from "@/contexts";
-import { IconButton, OutlinedInput } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  IconButton,
+  LinearProgress,
+  OutlinedInput,
+} from "@mui/material";
 import { HiSearch, HiX } from "react-icons/hi";
 import { Transition, Dialog } from "@headlessui/react";
 import shortid from "shortid";
 import BranchQuery from "@/models/BranchQuery";
 import BranchQueryRepository from "@/services/actions/BranchQueryRepository";
+import { TableCell } from "@mui/material";
+import LoadingProgress from "../LoadingProgress";
 
 export type VendorModalType = "supplier" | "customer" | null;
 
@@ -37,37 +45,28 @@ const VendorModalBranch: FC<VendorModalProps> = ({
     pageIndex: 0,
     pageSize: 10,
   });
-  const [selectedCardCode, setSelectedCardCode] = useState<string | null>(null);
-  const [businessPartnerData, setBusinessPartnerData] = useState<any | null>(
-    null
-  );
-
+  const [selectedCardCode, setSelectedCardCode] = useState<string>("");
   const { data, isLoading }: any = useQuery({
     queryKey: ["venders_branch", branch],
     queryFn: () =>
       new BranchQueryRepository().get(`?$filter=BPLId eq ${branch}`),
-    staleTime: 10000,
+    // staleTime: 10000,
+    enabled: branch !== "",
+  });
+
+  const { data: businessPartnerData, isLoading: isLoadingBP } = useQuery({
+    queryKey: ["business_partner", selectedCardCode],
+    queryFn: () => new BusinessPartnerRepository().find(selectedCardCode),
+    enabled: selectedCardCode !== "",
   });
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (selectedCardCode && !businessPartnerData) {
-          const data = await new BusinessPartnerRepository().find(
-            selectedCardCode
-          );
+    if (businessPartnerData) {
+      const businessPartner = new BusinessPartner(businessPartnerData, 0);
+      onOk(businessPartner);
+    }
+  }, [businessPartnerData]);
 
-          if (data) {
-            setBusinessPartnerData(data);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error); // Debugging line
-      }
-    };
-
-    fetchData();
-  }, [selectedCardCode, businessPartnerData]);
 
   const [rowSelection, setRowSelection] = React.useState({});
   const columns = React.useMemo(
@@ -75,23 +74,23 @@ const VendorModalBranch: FC<VendorModalProps> = ({
       {
         accessorKey: "CardCode",
         header: "Card Code",
-        size: 150,
+        size: 120,
       },
       {
         accessorKey: "CardName",
         header: "Card Name",
-        size: 160,
+        size: 400,
       },
       {
         accessorKey: "Currency",
         header: "Currency",
-        size: 100,
+        size: 120,
       },
 
       {
         accessorKey: "Balance",
         header: "Balance",
-        size: 140,
+        size: 120,
         Cell: ({ cell }: any) => {
           return (
             <div
@@ -101,7 +100,7 @@ const VendorModalBranch: FC<VendorModalProps> = ({
                   : "text-red-500"
               }
             >
-              {(cell.getValue()?.toFixed(2))}
+              {cell.getValue()?.toFixed(2)}
             </div>
           );
         },
@@ -117,13 +116,6 @@ const VendorModalBranch: FC<VendorModalProps> = ({
     setGlobalFilter("");
     setFilterKey(shortid.generate());
   }, [globalFilter]);
-
-  useEffect(() => {
-    if (businessPartnerData) {
-      const businessPartner = new BusinessPartner(businessPartnerData, 0);
-      onOk(businessPartner);
-    }
-  }, [businessPartnerData]);
 
   return (
     <Transition appear show={open} as={Fragment}>
@@ -152,13 +144,13 @@ const VendorModalBranch: FC<VendorModalProps> = ({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className={`flex flex-col w-[60vw] min-h-[70vh] px-[2.5rem] border shadow-lg relative transform overflow-hidden rounded-lg ${
+                className={`flex flex-col w-fit p-12 sm:p-10 border shadow-lg relative transform overflow-hidden rounded-lg ${
                   theme === "light" ? "bg-white" : "bg-white"
-                } py-1 px-5 text-left align-middle  transition-all`}
+                } text-left align-middle transition-all`}
               >
                 <div className={`grow text-inherit `}>
                   <div className={`data-grid `}>
-                    <div className="w-full flex justify-between items-center px-4 pb-2 pt-6">
+                    <div className="w-full flex justify-between items-center ">
                       <h2 className="font-medium text-lg">Business Partners</h2>
                       <OutlinedInput
                         size="small"
@@ -169,7 +161,7 @@ const VendorModalBranch: FC<VendorModalProps> = ({
                           fontSize: "14px",
                           // backgroundColor: theme === "light" ? "" : "#64748b",
                         }}
-                        placeholder="Search..."
+                        placeholder="Card Code /Name"
                         endAdornment={
                           <IconButton size="small" onClick={clearFilter}>
                             {globalFilter !== "" ? (
@@ -202,8 +194,8 @@ const VendorModalBranch: FC<VendorModalProps> = ({
                       positionToolbarAlertBanner="none"
                       muiTablePaginationProps={{
                         rowsPerPageOptions: [5, 10, 15],
-                        showFirstButton: false,
-                        showLastButton: false,
+                        showFirstButton: true,
+                        showLastButton: true,
                       }}
                       muiTableBodyRowProps={({ row }) => ({
                         // onClick: () => {
@@ -221,9 +213,16 @@ const VendorModalBranch: FC<VendorModalProps> = ({
                         rowSelection,
                       }}
                       layoutMode="grid" //instead of the default "semantic" layout mode
-                     
                     />
                   </div>
+                  {isLoadingBP && (
+                    <div className=" absolute inset-0 flex items-center justify-center bg-white bg-opacity-80">
+                      <CircularProgress
+                        color="primary"
+                        variant="indeterminate"
+                      />
+                    </div>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
