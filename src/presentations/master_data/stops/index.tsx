@@ -76,7 +76,7 @@ export default function Stopslistpage() {
                 size: 40,
                 visible: true,
                 Cell: (cell: any) => {
-                    return cell.row.original.U_active === "Y" ? "Yes" : "No" ?? "N/A";
+                    return cell.row.original.U_active === "Y" ? "Active" : "Inactive" ?? "N/A";
                 },
             },
             {
