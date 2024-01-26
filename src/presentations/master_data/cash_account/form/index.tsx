@@ -181,35 +181,40 @@ class Form extends CoreFormDocument {
           )}
           {this.state.DocumentStatus !== "Closed" && (
             <div className="sticky w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                <div className="flex ">
-                  <LoadingButton
-                    size="small"
-                    sx={{ height: "25px" }}
-                    variant="contained"
-                    disableElevation
-                  >
-                    <span className="px-3 text-[11px] py-1 text-white">
-                      Cancel
-                    </span>
-                  </LoadingButton>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <LoadingButton
-                    type="submit"
-                    sx={{ height: "25px" }}
-                    className="bg-white"
-                    loading={false}
-                    size="small"
-                    variant="contained"
-                    disableElevation
-                  >
-                    <span className="px-6 text-[11px] py-4 text-white">
-                      {this.props.edit ? "Update" : "Save"}
-                    </span>
-                  </LoadingButton>
-                </div>
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+              <div className="flex ">
+                <LoadingButton
+                  size="small"
+                  sx={{ height: "25px" }}
+                  variant="outlined"
+                  style={{
+                    background: 'white',
+                    border: '1px solid red'
+                  }}
+                  disableElevation
+                  onClick={() => window.location.href = '/master-data/cash-account'}
+                >
+                  <span className="px-3 text-[11px] py-1 text-red-500">
+                    Cancel
+                  </span>
+                </LoadingButton>
               </div>
+              <div className="flex items-center space-x-4">
+                <LoadingButton
+                  type="submit"
+                  sx={{ height: "25px" }}
+                  className="bg-white"
+                  loading={false}
+                  size="small"
+                  variant="contained"
+                  disableElevation
+                >
+                  <span className="px-6 text-[11px] py-4 text-white">
+                    {this.props.edit ? "Update" : "Add"}
+                  </span>
+                </LoadingButton>
+              </div>
+            </div>
             </div>
           )}
         </form>
