@@ -20,6 +20,7 @@ class Form extends CoreFormDocument {
       ...this.state,
       U_tl_cashtype: "Payment Method",
       U_tl_cashactive: "Y",
+      showCollapse: false
     } as any;
 
     this.onInit = this.onInit.bind(this);

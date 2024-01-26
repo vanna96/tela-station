@@ -19,7 +19,8 @@ class Form extends CoreFormDocument {
     this.state = {
       ...this.state,
       Type: "Expense",
-      U_tl_expactive:"Y"
+      U_tl_expactive:"Y",
+      showCollapse: false
     } as any;
 
     this.onInit = this.onInit.bind(this);
