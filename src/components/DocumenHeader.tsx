@@ -33,7 +33,7 @@ interface DocumentHeaderProps {
 const DocumentHeader: React.FC<DocumentHeaderProps> = (
   props: DocumentHeaderProps
 ) => {
-  const [collapse, setCollapse] = React.useState<boolean>(true);
+  const [collapse, setCollapse] = React.useState<boolean>(props?.collapse);
   const { theme } = React.useContext(ThemeContext);
 
   const location = useLocation();
