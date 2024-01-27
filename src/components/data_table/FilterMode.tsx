@@ -39,4 +39,4 @@ const getFilterCondition = (type: any) => {
         { label: 'Greater Than or Equal To', value: 'ge', type: 'number|date' },
     ];
     return typeString.filter((e) => e.type.includes(type));
-}
+}  

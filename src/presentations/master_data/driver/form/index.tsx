@@ -19,6 +19,9 @@ import { useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useQuery } from "react-query";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -45,6 +48,7 @@ const Form = (props: any) => {
 
     formState: { errors, defaultValues },
   } = useForm();
+  const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
     loading: false,
@@ -52,14 +56,17 @@ const Form = (props: any) => {
     tapIndex: 0,
     isError: false,
     message: "",
+    showCollapse: true,
+    DocNum: id,
   });
- const [header, setHeader] = useState({
-   firstName: '',
-   lastName: '',
-   gender: '',
-   department: '',
-   branch: '',
- });
+  const [header, setHeader] = useState({
+    firstName: null,
+    lastName: null,
+    gender: null,
+    department: null,
+    branch: null,
+  });
+
   const [branchAss, setBranchAss] = useState([]);
   const [driver, setDriver] = React.useState<any>();
 
@@ -69,7 +76,6 @@ const Form = (props: any) => {
   }, []);
 
   const fetchData = async () => {
-    const { id }: any = props?.match?.params || 0;
     if (id) {
       setState({
         ...state,
@@ -193,10 +199,10 @@ const Form = (props: any) => {
     }
   }, [driver]);
 
-  const Left = ({header}:any) => {
+  const Left = ({ header, data }: any) => {
     return (
-      <div className="w-[100%] h-[170px] flex py-5 px-4">
-        <div className="w-[25%] text-[16px] text-gray-600 flex flex-col justify-between h-full">
+      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+        <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
             <span className="">First Name </span>
           </div>
@@ -207,24 +213,33 @@ const Form = (props: any) => {
             <span className="">Gender </span>
           </div>
         </div>
-        <div className="w-[70%] flex flex-col justify-between h-full">
+        <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
-            <span>{ header?.firstName}</span>
+            <span>{data?.FirstName || header?.firstName || "_"}</span>
           </div>
           <div>
-            <span>Mony</span>
+            <span>{data?.LastName || header?.lastName || "_"}</span>
           </div>
           <div>
-            <span>Mony Reaksmey</span>
+            <span>
+              {data?.Gender?.replace("gt_", "") ||
+                header?.gender?.replace("gt_", "") ||
+                "_"}
+            </span>
           </div>
         </div>
       </div>
     );
   };
-  const right = () => {
+  const Right = ({ header, data }: any) => {
+    const branchAss: any = useQuery({
+      queryKey: ["branchAss"],
+      queryFn: () => new BranchBPLRepository().get(),
+      staleTime: Infinity,
+    });
     return (
-      <div className="w-[100%] h-[170px] flex py-5 px-4">
-        <div className="w-[65%] text-[16px] text-gray-600 flex items-end flex-col h-full">
+      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
+        <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
             <span className="mr-10 mb-[27px] inline-block">Department </span>
           </div>
@@ -232,17 +247,29 @@ const Form = (props: any) => {
             <span className="mr-10">Branch</span>
           </div>
         </div>
-        <div className="w-[15%] items-end flex flex-col h-full">
+        <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
-            <span className="mb-[27px] inline-block">Reaksmey</span>
+            <span className="mb-[27px] inline-block">
+              {new DepartmentRepository()?.find(data?.Department)?.Name ||
+                header?.department ||
+                "_"}
+            </span>
           </div>
           <div>
-            <span>Mony</span>
+            <span>
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
+                ?.BPLName ||
+                header?.branch ||
+                "_"}
+            </span>
           </div>
         </div>
       </div>
     );
   };
+
+  // console.log(state)
+
   return (
     <>
       {state.loading ? (
@@ -254,8 +281,15 @@ const Form = (props: any) => {
           <DocumentHeaderComponent
             data={state}
             menuTabs={<HeaderTaps />}
-            leftSideField={<Left header={header} />}
-            rightSideField={right()}
+            HeaderCollapeMenu={
+              <>
+                <Left header={header} data={driver} />
+                <Right header={header} data={driver} />
+                {/* <TotalSummaryRightSide data={this.state} /> */}
+              </>
+            }
+            leftSideField={undefined}
+            rightSideField={undefined}
           />
           <Backdrop
             sx={{
@@ -281,9 +315,9 @@ const Form = (props: any) => {
                   control={control}
                   defaultValues={defaultValues}
                   setBranchAss={setBranchAss}
-                    branchAss={branchAss}
-                    header={header}
-                    setHeader={setHeader}
+                  branchAss={branchAss}
+                  header={header}
+                  setHeader={setHeader}
                 />
               </h1>
             )}
@@ -299,6 +333,8 @@ const Form = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  header={header}
+                  setHeader={setHeader}
                 />
               </h1>
             )}

@@ -11,6 +11,8 @@ import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import DataTable from "./component/DataTableD";
 import MUISelect from "@/components/selectbox/MUISelect";
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
@@ -20,54 +22,81 @@ export default function Lists() {
     jobTitle: "",
     active: "tYES",
   });
-
+   const branchAss: any = useQuery({
+     queryKey: ["branchAss"],
+     queryFn: () => new BranchBPLRepository().get(),
+     staleTime: Infinity,
+   });
+  // console.log(branchAss);
+  
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "EmployeeCode",
-        header: "Employee Code", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-        type: "number",
-        Cell: (cell: any) => {
-          return cell.row.original.EmployeeCode ?? "N/A";
-        },
-      },
-      {
-        accessorKey: "FirstName",
-        header: "First Name", //uses the default width from defaultColumn prop
+        accessorKey: "Name",
+        header: "Driver Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.FirstName ?? "N/A";
+          return (
+            cell.row.original.FirstName + " " + cell.row.original.LastName ??
+            "N/A"
+          );
         },
       },
       {
-        accessorKey: "LastName",
-        header: "Last Name", //uses the default width from defaultColumn prop
+        accessorKey: "Gender",
+        header: "Gender", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 60,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return (cell.row.original.Gender)?.replace('gt_','') ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "Department",
+        header: "Department", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.LastName ?? "N/A";
+          return (
+            new DepartmentRepository().find(cell.row.original.Department)
+              ?.Name ?? "N/A"
+          );
         },
       },
-
+      {
+        accessorKey: "BPLID",
+        header: "Branch", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 100,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return (
+            branchAss?.data?.find((e: any) => e?.BPLID === cell.row.original.BPLID)?.BPLName??
+            "N/A"
+          );
+        },
+      },
       {
         accessorKey: "Active",
         header: "Active",
-        size: 40,
+        size: 60,
         visible: true,
         type: "string",
-        Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Active" : "Inactive"),
+        Cell: ({ cell }: any) =>
+          cell.getValue() === "tYES" ? "Active" : "Inactive",
       },
       {
         accessorKey: "DocEntry",
@@ -157,7 +186,7 @@ export default function Lists() {
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_driver eq 'Y'${
         filter ? ` and ${filter}` : filter
-      }&$orderby=EmployeeID${"&$select =EmployeeID,FirstName,LastName,EmployeeCode,Active"}`;
+      }&$orderby=EmployeeID asc${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -248,8 +277,8 @@ export default function Lists() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  type="number"
-                  label="Employee Code"
+                  type="string"
+                  label="Driver Name"
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
@@ -257,38 +286,11 @@ export default function Lists() {
                   onChange={(e) =>
                     setSearchValues({ ...searchValues, code: e.target.value })
                   }
+                  
                 />
               </div>
 
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="FirstName"
-                  // placeholder="FirstName"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.firstName}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      firstName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="LastName"
-                  // placeholder="LastName"
-                  className="bg-white"
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      lastName: e.target.value,
-                    })
-                  }
-                />
-              </div>
+           
 
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
@@ -299,21 +301,6 @@ export default function Lists() {
                     Status
                   </label>
                 </div>
-                {/* {searchValues.active === null && (
-                  <div>
-                    <MUITextField
-                      label="LastName"
-                      // placeholder="LastName"
-                      className="bg-white"
-                      onChange={(e) =>
-                        setSearchValues({
-                          ...searchValues,
-                          lastName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                )} */}
                 <MUISelect
                   items={[
                     { value: "", label: "All" },

@@ -3,7 +3,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UseFormProps } from "../form";
 import { Controller } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
@@ -13,6 +13,8 @@ const Personal = ({
   control,
   defaultValues,
   setValue,
+  header,
+  setHeader
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     gender: "",
@@ -22,7 +24,11 @@ const Personal = ({
     passportExpirationDate: null,
     passportIssuedDate: null,
   });
-
+  useEffect(() => {
+    if (staticSelect) {
+      setHeader({ ...header, gender: staticSelect.gender });
+    }
+  }, [staticSelect]);
   return (
     <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
       <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
@@ -49,10 +55,12 @@ const Personal = ({
                       ]}
                       onChange={(e: any) => {
                         setValue("Gender", e.target.value);
+                        
                         setStaticSelect({
                           ...staticSelect,
                           gender: e.target.value,
                         });
+                        //  setHeader({ ...header, branch: e?.e.target.label });
                       }}
                       value={staticSelect.gender || defaultValues?.Gender}
                       aliasvalue="value"

@@ -36,41 +36,32 @@ export default function DataTableColumnFilter(
     // props.handlerClearFilter();
   };
 
-  const handlerConfirm = () => {
-    setAnchorEl(null);
-    let query = "";
-    filterList.forEach((row) => {
-      if (row.filter.includes('with') || row.filter.includes('contains')) {
-        query += `${row.filter.replace('value', `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${row.value}'`)} and `;
-      } else {
-        query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${row.filter} ${row.type === 'string' || row.type === 'date' ? "'" + row.value + "'" : row.value} and `;
-      }
-      // query += ` and ${row.column
-      //   .charAt(0)
-      //   .toUpperCase()}${row.column.slice(1)} ${row.filter} ${
-      //   row.type === "string" || row.type === "date"
-      //     ? "'" + row.value + "'"
-      //     : row.value
-      // } and `;
-    });
+const handlerConfirm = () => {
+  setAnchorEl(null);
+  let query = "";
 
-    query = query.slice(0, query.length - 4);
-    props.onClick(query);
-  };
+  filterList.forEach((row) => {
+    if (row.filter.includes("with") || row.filter.includes("contains")) {
+      query += `${row.filter.replace(
+        "value",
+        `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${
+          row.value
+        }'`
+      )} and `;
+    } else {
+      query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${
+        row.filter
+      } ${
+        row.type === "string" || row.type === "date"
+          ? "'" + row.value + "'"
+          : row.value
+      } and `;
+    }
+  });
 
-  const handlerAdd = (e: any) => {
-    const exist = filterList.find((record) => record.column === e.target.value);
-    if (exist) return;
-    //
-    const record = props.items.find(
-      (row: any) => row?.accessorKey === e.target.value
-    );
-    setFilterList([
-      ...filterList,
-      { column: e.target.value, filter: "eq", value: null, type: record?.type },
-    ]);
-  };
-
+  query = query.slice(0, query.length - 4);
+  props.onClick(query);
+};
   const handlerChange = (record: any, field: string, event: any) => {
     let filters = [...filterList];
     const index = filters.findIndex(
@@ -171,7 +162,7 @@ export default function DataTableColumnFilter(
               <div className="w-4/12 ">
                 <MUISelect
                   items={props.items}
-                  onChange={handlerAdd}
+                  onChange={undefined}
                   aliaslabel="header"
                   aliasvalue="accessorKey"
                   className="mt-1"

@@ -39,6 +39,7 @@ const General = ({
       );
     }
   }, [defaultValues]);
+console.log(header);
 
   return (
     <>
@@ -74,6 +75,8 @@ const General = ({
                 <MUITextField
                   inputProps={{
                     ...register("LastName"),
+                    onBlur: (e) =>
+                      setHeader({ ...header, lastName: e.target.value }),
                   }}
                 />
               </div>
@@ -148,8 +151,13 @@ const General = ({
                         {...field}
                         value={defaultValues?.Department}
                         onChange={(e: any) => {
-                          setValue("Department", e);
-
+                       
+                             setValue("Department", e?.Code);
+                             setHeader({ ...header, department: e?.Name });
+                      
+                            
+                          
+                         
                           // setHeader({ ...header, data5: e?.Name })
                         }}
                       />
@@ -192,7 +200,12 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <BranchAssignmentAuto
-                  onChange={(e: any) => setBranchAss([e])}
+                  onChange={(e: any) =>
+                  {
+                    setBranchAss([e]);
+                    setHeader({ ...header, branch: e?.BPLName });
+                    }
+                  }
                   value={staticSelect?.branchASS}
                 />
               </div>

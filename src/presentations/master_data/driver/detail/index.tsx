@@ -192,19 +192,20 @@ console.log(branchAss);
                 <div className="col-span-1 text-gray-900">
                   {position?.data?.find(
                     (e: any) => e?.PositionID == data?.Position
-                  ).Name || "N/A"}
+                  )?.Name || "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 "> Department </div>
                 <div className="col-span-1 text-gray-900">
-                  {new DepartmentRepository().find(data.Department)?.Name ||
+                  {new DepartmentRepository()?.find(data?.Department)?.Name ||
                     "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 "> Manager </div>
                 <div className="col-span-1 text-gray-900">
+
                   {manager?.data?.find(
                     (e: any) => e?.EmployeeID === data?.Manager
                   )?.LastName +
@@ -255,7 +256,7 @@ console.log(branchAss);
               <div className="grid grid-cols-2 py-1 mb-2">
                 <div className="col-span-1 text-gray-700 ">Active</div>
                 <div className="col-span-1 text-gray-900">
-                  {data.Active.replace("t", "") ?? "N/A"}
+                  {data.Active === "tYES" ? "Active":"Inactive" ?? "N/A"}
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1 mb-2">
