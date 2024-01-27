@@ -32,7 +32,7 @@ interface DocumentHeaderComponentProps {
 const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
   props: DocumentHeaderComponentProps
 ) => {
-  const [collapse, setCollapse] = React.useState<boolean>(true);
+  const [collapse, setCollapse] = React.useState<boolean>(props?.collapse);
   const { theme } = React.useContext(ThemeContext);
 
   const location = useLocation();
@@ -280,7 +280,7 @@ export const TotalSummaryRightSide = (props: any) => {
             </label>
           </div>
           <div className="col-span-4">
-            {"%"} {discount} {props.data?.Currency}{" "}
+            {"%"} {props?.data?.DocDiscount} {props.data?.Currency}{" "}
             <NumericFormat
               value={discountAmount}
               thousandSeparator

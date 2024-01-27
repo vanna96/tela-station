@@ -79,7 +79,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account <span className="text-red-500">*</span>
+                  G/L Account <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -141,7 +141,7 @@ export default function GeneralForm({
                   onChange={(e) =>
                     handlerChange("U_tl_expactive", e.target.value)
                   }
-                  value={data?.U_tl_expactive ?? "Y"}
+                  value={data?.U_tl_expactive}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_tl_expactive"

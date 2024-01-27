@@ -24,19 +24,20 @@ export default function Lists() {
   const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState({
+    search: "",
     docnum: 0,
     code: "",
     name: "",
     docdate: null,
     account: -1,
-    bplid: -2,
+    bplid: -2
   });
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "Code",
-        header: "Expense Code", //uses the default width from defaultColumn prop
+        header: "Cash Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -45,7 +46,7 @@ export default function Lists() {
       },
       {
         accessorKey: "Name",
-        header: "Name", //uses the default width from defaultColumn prop
+        header: "Description", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -55,19 +56,8 @@ export default function Lists() {
         },
       },
       {
-        accessorKey: "U_tl_expacct",
-        header: "Account Code", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-        Cell: (cell: any) => {
-          return cell.row.original.U_tl_expacct ?? "N/A";
-        },
-      },
-      {
         accessorKey: "AccoutName",
-        header: "Account Name", //uses the default width from defaultColumn prop
+        header: "G/L Account", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 100,
@@ -80,24 +70,11 @@ export default function Lists() {
         },
       },
       {
-        accessorKey: "U_tl_bplid",
-        header: "Branch",
-        size: 100,
-        visible: true,
-        Cell: (cell: any) => {
-          return (
-            new BranchBPLRepository().find(cell.row.original.U_tl_bplid)
-              ?.BPLName ?? "N/A"
-          );
-        },
-      },
-
-      {
-        accessorKey: "U_tl_expactive",
-        header: "Active",
+        accessorKey: "U_tl_cashactive",
+        header: "Status",
         size: 40,
         visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "Y" ? "Yes" : "No"),
+        Cell: ({ cell }: any) => (cell.getValue() == "Y" ? "Active" : "Inactive"),
       },
       {
         accessorKey: "DocEntry",
@@ -151,7 +128,7 @@ export default function Lists() {
   );
 
   const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("DocEntry desc");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
@@ -177,14 +154,16 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "TL_CashAcct",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""}`,
+      pagination.pageIndex,
+      pagination.pageSize
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
         `${url}/TL_CashAcct?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&${filter}`
+        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -241,6 +220,8 @@ export default function Lists() {
 
   const handleGoClick = () => {
     let queryFilters: any = [];
+    if (searchValues.search)
+      queryFilters.push(`contains(Code, '${searchValues.search}') or contains(Code, '${searchValues.search}')`);
     if (searchValues.docnum)
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
     if (searchValues.code)
@@ -258,7 +239,7 @@ export default function Lists() {
       queryFilters.push(`startswith(U_tl_bplid, '${searchValues.bplid}')`);
 
     if (queryFilters.length > 0)
-      return handlerSearch(`$filter=${queryFilters.join(" and ")}`);
+      return handlerSearch(`&$filter=${queryFilters.join(" and ")}`);
     return handlerSearch("");
   };
 
@@ -277,20 +258,19 @@ export default function Lists() {
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <div className="col-span-10">
             <div className="grid grid-cols-12  space-x-4">
-              <div className="col-span-2 2xl:col-span-3">
+              <div className="col-span-3 2xl:col-span-3">
                 <MUITextField
-                  type="number"
-                  label="Document No."
-                  placeholder="Document No."
+                  label="Search"
+                  placeholder="Search"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.docnum}
+                  value={searchValues.search}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, docnum: e.target.value })
+                    setSearchValues({ ...searchValues, search: e.target.value })
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
+              {/* <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Expese Code"
                   placeholder="Code"
@@ -314,7 +294,6 @@ export default function Lists() {
                   }
                 />
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -330,7 +309,6 @@ export default function Lists() {
                   </div>
                 </div>
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -345,7 +323,7 @@ export default function Lists() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
               {/*  */}
 
               <div className="col-span-2 2xl:col-span-3"></div>
@@ -362,7 +340,7 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              <div className="">
+              {/* <div className="">
                 <DataTableColumnFilter
                   handlerClearFilter={handlerRefresh}
                   title={
@@ -387,7 +365,7 @@ export default function Lists() {
                   )}
                   onClick={handlerSearch}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -401,7 +379,8 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Cash Account"
+          title="Cash Account Lists"
+          filter={filter}
         />
       </div>
     </>

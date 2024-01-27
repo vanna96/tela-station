@@ -41,7 +41,8 @@ class DeliveryDetail extends Component<any, any> {
       isError: false,
       message: "",
       tapIndex: 0,
-      Status: "New"
+      Status: "New",
+      showCollapse: false,
     };
 
     this.fetchData = this.fetchData.bind(this);

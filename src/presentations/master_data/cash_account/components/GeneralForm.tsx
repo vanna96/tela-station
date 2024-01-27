@@ -42,8 +42,30 @@ export default function GeneralForm({
           <div className="col-span-5">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
+                <label htmlFor="Cash Account Type" className="text-gray-500 ">
+                  Cash Account Type <span className="text-red-500">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUISelect
+                  items={[
+                    { id: "Payment Method", name: "Payment Method" },
+                    { id: "Cash Account", name: "Cash Account" },
+                  ]}
+                  onChange={(e) =>
+                    handlerChange("U_tl_cashtype", e.target.value)
+                  }
+                  value={data?.U_tl_cashtype}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="U_tl_cashtype"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Cash Code
+                  Cash Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -57,7 +79,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account
+                  G/L Account <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -70,40 +92,15 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch
+                  G/L Account Code 
                 </label>
               </div>
               <div className="col-span-3">
-                <BranchAutoComplete
-                  onChange={(e) => handlerChange("U_tl_bplid", e)}
-                  value={parseInt(data?.U_tl_bplid ?? 0)}
-                  BPdata={cookies?.user?.UserBranchAssignment}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Active
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: "Y", name: "Yes" },
-                    { id: "N", name: "No" },
-                  ]}
-                  onChange={(e) =>
-                    handlerChange("U_tl_cashactive", e.target.value)
-                  }
-                  value={data?.U_tl_cashactive}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="U_tl_cashactive"
+                <MUITextField
+                  value={data?.U_tl_cashacct}
+                  name="U_tl_cashacct"
+                  onChange={(e) => handlerChange("U_tl_cashacct", e.target.value)}
+                  disabled={true}
                 />
               </div>
             </div>
@@ -124,6 +121,33 @@ export default function GeneralForm({
                 />
               </div>
             </div>
+          </div>
+
+          <div className="col-span-2"></div>
+          <div className="col-span-5">
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Status
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUISelect
+                  items={[
+                    { id: "Y", name: "Active" },
+                    { id: "N", name: "Inactive" },
+                  ]}
+                  onChange={(e) =>
+                    handlerChange("U_tl_cashactive", e.target.value)
+                  }
+                  value={data?.U_tl_cashactive}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="U_tl_cashactive"
+                />
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>
