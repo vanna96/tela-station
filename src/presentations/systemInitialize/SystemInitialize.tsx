@@ -7,13 +7,19 @@ import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
 import { useNavigate } from "react-router-dom";
 import DispenserRepository from "@/services/actions/dispenserRepository";
 import request from "@/utilies/request";
+import { useQuery } from "react-query";
+
+const fetchModuleCount = async (endpoint: string): Promise<number> => {
+  const response = (await request("GET", endpoint)) as { data: number }; // Assuming response.data is of type number
+  return response.data;
+};
 
 const SystemInitializeMasterPage = () => {
-  const [count, setCount] = useState<any>({});
   const navigate = useNavigate();
 
-  const getCount = async () => {
-    try {
+  const { data: count, error } = useQuery(
+    "moduleCount",
+    async () => {
       const [
         // master data
         pump,
@@ -25,35 +31,24 @@ const SystemInitializeMasterPage = () => {
         stops,
         route,
 
-        //sale targets
+        // sale targets
         saleTarget,
         saleScenario,
 
-        //sale orders
+        // sale orders
         fuelOrders,
         lubeOrders,
         lpgOrders,
 
-        //sale invoices
-        // fuelInvoices,
-        // lubeInvoices,
-        // lpgInvoices,
-
-        //sale retail sale
-        // fuelCashSale,
-        // lubeCashSale,
-        // lpgCashSale,
-
-        //banking
+        // banking
         settleReceipt,
-        // paymentAccount,
         directAccount,
 
-        //expense
+        // expense
         expenseLog,
         expenseClearance,
 
-        //stock control
+        // stock control
         inventoryTransferRequest,
         stockTransfer,
         goodIssue,
@@ -62,41 +57,20 @@ const SystemInitializeMasterPage = () => {
         fuelLevel,
       ] = await Promise.all([
         // master data
-        request("GET", "TL_Dispenser/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_PUMP_ATTEND/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_ExpDic/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_CashAcct/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "EmployeesInfo/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_VEHICLE/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_STOPS/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_ROUTE/$count").then(
-          (response: any) => response.data
-        ),
+        fetchModuleCount("TL_Dispenser/$count"),
+        fetchModuleCount("TL_PUMP_ATTEND/$count"),
+        fetchModuleCount("TL_ExpDic/$count"),
+        fetchModuleCount("TL_CashAcct/$count"),
+        fetchModuleCount("EmployeesInfo/$count"),
+        fetchModuleCount("TL_VEHICLE/$count"),
+        fetchModuleCount("TL_STOPS/$count"),
+        fetchModuleCount("TL_ROUTE/$count"),
 
-        //sale targets
-        request("GET", "TL_SALES_SCENARIO/$count").then(
-          (response: any) => response.data
-        ),
-        request("GET", "TL_SALES_SCENARIO/$count").then(
-          (response: any) => response.data
-        ),
+        // sale targets
+        fetchModuleCount("TL_SALES_SCENARIO/$count"),
+        fetchModuleCount("TL_SALES_SCENARIO/$count"),
 
-        //sale orders
-
+        // sale orders
         new SalesOrderRepository().getCount({
           params: {
             $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
@@ -113,39 +87,28 @@ const SystemInitializeMasterPage = () => {
           },
         }),
 
-        //sale invoce
-        //retail sale
-
-        //banking
-        // settleReceipt,
-        // paymentAccount,
+        // banking
         new IncomingPaymentRepository().getCount({
           params: { $filter: `DocType eq 'rCustomer'` },
         }),
-        // directAccount,
         new IncomingPaymentRepository().getCount({
           params: { $filter: `DocType eq 'rAccount'` },
         }),
 
-        //expense
-        request("GET", "TL_ExpLog/$count").then((res: any) => res.data),
-        request("GET", "TL_ExpClear/$count").then((res: any) => res.data),
+        // expense
+        fetchModuleCount("TL_ExpLog/$count"),
+        fetchModuleCount("TL_ExpClear/$count"),
 
-        //stock control
-        request("GET", "InventoryTransferRequests/$count").then(
-          (res: any) => res.data
-        ),
-        request("GET", "StockTransfers/$count").then((res: any) => res.data),
-        request("GET", "InventoryGenEntries/$count").then(
-          (res: any) => res.data
-        ),
-        request("GET", "InventoryGenExits/$count").then((res: any) => res.data),
-        request("GET", "tl_PumpTest/$count").then((res: any) => res.data),
-        request("GET", "TL_FUEL_LEVEL/$count").then((res: any) => res.data),
+        // stock control
+        fetchModuleCount("InventoryTransferRequests/$count"),
+        fetchModuleCount("StockTransfers/$count"),
+        fetchModuleCount("InventoryGenEntries/$count"),
+        fetchModuleCount("InventoryGenExits/$count"),
+        fetchModuleCount("tl_PumpTest/$count"),
+        fetchModuleCount("TL_FUEL_LEVEL/$count"),
       ]);
 
-      setCount({
-        ...count,
+      return {
         // master data
         pump,
         pumpAttendant,
@@ -156,51 +119,41 @@ const SystemInitializeMasterPage = () => {
         stops,
         route,
 
-        //sale targets
+        // sale targets
         saleTarget,
         saleScenario,
 
-        //sale orders
+        // sale orders
         fuelOrders,
         lubeOrders,
         lpgOrders,
 
-        //sale invoices
-        // fuelInvoices,
-        // lubeInvoices,
-        // lpgInvoices,
-
-        //sale retail sale
-        // fuelCashSale,
-        // lubeCashSale,
-        // lpgCashSale,
-
-        //banking
+        // banking
         settleReceipt,
-        // paymentAccount,
         directAccount,
 
-        //expense
+        // expense
         expenseLog,
         expenseClearance,
 
-        //stock control
+        // stock control
         inventoryTransferRequest,
         stockTransfer,
         goodIssue,
         goodReceipt,
         pumpTest,
         fuelLevel,
-      });
-    } catch (error) {
-      // Handle errors if needed
-      console.error("Error fetching data:", error);
+      };
+    },
+    {
+      refetchOnWindowFocus: false, // Set to true if you want to refetch data when the window regains focus
     }
-  };
+  );
 
-  useEffect(() => {
-    getCount();
-  }, []);
+  if (error) {
+    // Handle error if needed
+    console.error("Error fetching data:", error);
+  }
 
   const renderCards = (cards: any[]) => {
     return cards.map((card) => (
@@ -208,13 +161,12 @@ const SystemInitializeMasterPage = () => {
         key={card.title}
         title={card.title}
         icon={<AiOutlineSolution />}
-        amount={count?.[card.amountKey] || 0}
+        amount={count?.[card.amountKey as keyof typeof count] || 0}
         onClick={() => navigate(card.route)}
       />
     ));
   };
 
-  // console.log(count);
 
   const masterDataCards = renderCards([
     { title: "Pump", amountKey: "pump", route: "/master-data/pump" },
@@ -385,6 +337,7 @@ const SystemInitializeMasterPage = () => {
           <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
             {section.cards}
           </div>
+          <div className="mb-10" />
         </div>
       ))}
     </div>

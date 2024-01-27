@@ -44,7 +44,7 @@ const SaleInvoicePage = () => {
 
   return (
     <>
-      <MainContainer title="Sale Order">
+      <MainContainer title="Sale Invoice">
         <ItemCard
           title="Fuel Sales"
           icon={<AiOutlineFileAdd />}

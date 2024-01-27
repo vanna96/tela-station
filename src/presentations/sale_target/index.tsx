@@ -1,32 +1,28 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AiOutlineFileAdd,
-  AiOutlineFileExcel,
-  AiOutlineFileProtect,
-  AiOutlineFileSearch,
-} from "react-icons/ai";
-import { request } from "http";
-import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
+import { AiOutlineFileAdd, AiOutlineFileSearch } from "react-icons/ai";
+import request from "@/utilies/request";
+import { useQuery } from "react-query";
 
 const SaleTargetPage = () => {
   const navigate = useNavigate();
-  const [count, setCount]: any = useState();
+
+  const { data, isLoading }: any = useQuery({
+    queryKey: ["saleTarget"],
+    queryFn: async () => {
+      try {
+        const response = await request("GET", "TL_SALES_SCENARIO/$count");
+        return (response as { data?: number })?.data as number;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        throw error;
+      }
+    },
+    staleTime: Infinity,
+  });
+
   const goTo = (route: string) => navigate("/sale-target/" + route);
-
-  const getCount = async () => {
-    const order = await new SalesOrderRepository().getCount({});
-    setCount({
-      ...count,
-      order,
-    });
-  };
-
-  useEffect(() => {
-    getCount();
-  }, []);
 
   return (
     <>
@@ -35,13 +31,13 @@ const SaleTargetPage = () => {
           title="Sale Scenario "
           icon={<AiOutlineFileAdd />}
           onClick={() => goTo("sale-scenario")}
-          amount={count?.order || 0}
+          amount={data || 0}
         />
         <ItemCard
           title="Sale Target "
-          icon={<AiOutlineFileAdd />}
+          icon={<AiOutlineFileSearch />}
           onClick={() => goTo("sale-target")}
-          amount={count?.order || 0}
+          amount={data || 0}
         />
       </MainContainer>
     </>

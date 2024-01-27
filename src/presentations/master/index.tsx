@@ -12,20 +12,20 @@ const MasterDataPage = () => {
 
   const count = useQueries([
     {
-      queryKey: ['count_pump'], queryFn: async () => {
-        const response: any = await request(
-          "GET",
-          `${url}/TL_Dispenser/$count`
-        )
+      queryKey: ["count_pump"],
+      queryFn: async () => {
+        const response: any = await request("GET", `${url}/TL_Dispenser/$count`)
           .then(async (res: any) => res?.data)
           .catch((e: Error) => {
             throw new Error(e.message);
           });
         return response;
-      }
+      },
+      staleTime: Infinity,
     },
     {
-      queryKey: ['count_pump_attendant'], queryFn: async () => {
+      queryKey: ["count_pump_attendant"],
+      queryFn: async () => {
         const response: any = await request(
           "GET",
           `${url}/TL_PUMP_ATTEND/$count`
@@ -35,35 +35,89 @@ const MasterDataPage = () => {
             throw new Error(e.message);
           });
         return response;
-      }
+      },
+      staleTime: Infinity,
     },
     {
-      queryKey: ['count_exp_dic'], queryFn: async () => {
+      queryKey: ["count_exp_dic"],
+      queryFn: async () => {
+        const response: any = await request("GET", `${url}/TL_ExpDic/$count`)
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      },
+      staleTime: Infinity,
+    },
+    {
+      queryKey: ["count_caash_acct"],
+      queryFn: async () => {
+        const response: any = await request("GET", `${url}/TL_CashAcct/$count`)
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      },
+      staleTime: Infinity,
+    },
+
+    {
+      queryKey: ["count_driver"],
+      queryFn: async () => {
         const response: any = await request(
           "GET",
-          `${url}/TL_ExpDic/$count`
+          `${url}/EmployeesInfo/$count`
         )
           .then(async (res: any) => res?.data)
           .catch((e: Error) => {
             throw new Error(e.message);
           });
         return response;
-      }
+      },
+      staleTime: Infinity,
     },
+
     {
-      queryKey: ['count_caash_acct'], queryFn: async () => {
-        const response: any = await request(
-          "GET",
-          `${url}/TL_CashAcct/$count`
-        )
+      queryKey: ["count_vehicle"],
+      queryFn: async () => {
+        const response: any = await request("GET", `${url}/TL_VEHICLE/$count`)
           .then(async (res: any) => res?.data)
           .catch((e: Error) => {
             throw new Error(e.message);
           });
         return response;
-      }
-    }
-  ])
+      },
+      staleTime: Infinity,
+    },
+
+    {
+      queryKey: ["count_stops"],
+      queryFn: async () => {
+        const response: any = await request("GET", `${url}/TL_STOPS/$count`)
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      },
+      staleTime: Infinity,
+    },
+
+    {
+      queryKey: ["count_route"],
+      queryFn: async () => {
+        const response: any = await request("GET", `${url}/TL_ROUTE/$count`)
+          .then(async (res: any) => res?.data)
+          .catch((e: Error) => {
+            throw new Error(e.message);
+          });
+        return response;
+      },
+      staleTime: Infinity,
+    },
+  ]);
 
   return (
     <>
@@ -72,58 +126,49 @@ const MasterDataPage = () => {
           title="Pump"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("pump")}
-          amount={
-            count[0]?.data || 0
-          }
+          amount={count[0]?.data || 0}
         />
         <ItemCard
           title="Pump Attendant"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("pump-attendant")}
-          amount={
-            count[1]?.data || 0
-          }
+          amount={count[1]?.data || 0}
         />
         <ItemCard
           title="Expense Dictionary"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("expense-dictionary")}
-          amount={
-            count[2]?.data || 0
-          }
+          amount={count[2]?.data || 0}
         />
         <ItemCard
           title="Cash Account"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("cash-account")}
-          amount={
-            count[3]?.data || 0
-          }
+          amount={count[3]?.data || 0}
         />
         <ItemCard
           title="Driver"
-          amount={0}
+          amount={count[4]?.data || 0}
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("driver")}
         />
-
+        <ItemCard
+          title="Vehicle"
+          amount={count[5]?.data || 0}
+          icon={<AiOutlineFileProtect />}
+          onClick={() => goTo("vehicle")}
+        />
         <ItemCard
           title="Stops"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("stops")}
-          amount={
-            // count?.order ||
-            0
-          }
+          amount={count[6]?.data || 0}
         />
         <ItemCard
           title="Route"
           icon={<AiOutlineFileProtect />}
           onClick={() => goTo("route")}
-          amount={
-            // count?.order ||
-            0
-          }
+          amount={count[7]?.data || 0}
         />
       </MainContainer>
     </>

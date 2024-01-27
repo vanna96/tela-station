@@ -45,23 +45,23 @@ const RetailSalePage = () => {
 
   return (
     <>
-      <MainContainer title="Sale Order">
+      <MainContainer title="Retail Sale ">
         <ItemCard
           title="Fuel Sales"
           icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("fuel-sales")}
+          onClick={() => goTo("fuel-cash-sale")}
           amount={count?.fuel || 0}
         />
         <ItemCard
           title="Lube Sales"
           icon={<AiOutlineFileExcel />}
-          onClick={() => goTo("lube-sales")}
+          onClick={() => goTo("lube-cash-sale")}
           amount={count?.lube || 0}
         />
         <ItemCard
           title="LPG Sales"
           icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("lpg-sales")}
+          onClick={() => goTo("lpg-cash-sale")}
           amount={count?.lpg || 0}
         />
       </MainContainer>
