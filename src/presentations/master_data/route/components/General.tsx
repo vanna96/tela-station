@@ -16,20 +16,14 @@ import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
-  handlerOpenProject?: () => void;
   edit?: boolean;
-  hanndResetState?: any;
-  onWarehouseChange: (value: any) => void;
 }
 
 export default function GeneralForm({
   data,
   handlerChange,
   edit,
-  hanndResetState,
-  onWarehouseChange
 }: IGeneralFormProps) {
-  const { CurrencyAPI, sysInfo }: any = useContext(APIContext);
   const [cookies, setCookie] = useCookies(["user"]);
   const branchId =
     data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
@@ -131,8 +125,8 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "Y", name: "Yes" },
-                    { id: "N", name: "No" },
+                    { id: "Y", name: "Active" },
+                    { id: "N", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("U_Status", e.target.value)}
                   value={data?.U_Status}
