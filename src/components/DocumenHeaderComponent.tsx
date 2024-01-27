@@ -86,20 +86,19 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       // Maybe log an error or show a message to the user
     }
   };
-  const pathSegments: string[] = location.pathname.split("-");
+  const pathSegments: string = location.pathname
+    .split("/")[2]
+    .replace("-", " ");
 
   const formattedText: string = pathSegments
+    .split("-")
     .map((segment: string) => {
       const lowerCaseSegment: string = segment.toLowerCase();
-      if (lowerCaseSegment === "lpg") {
-        return "LPG";
-      } else {
-        return segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase();
-      }
+      return lowerCaseSegment === "lpg"
+        ? "LPG"
+        : `${segment.charAt(0).toUpperCase()}${segment.slice(1).toLowerCase()}`;
     })
     .join(" ");
-
-  console.log(formattedText);
 
   return (
     <div
@@ -114,9 +113,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       >
         <div className="flex gap-2 items-center">
           <h1 className="text-md  capitalize">
-            {location.pathname.split("/")[2].replace("-", " ")} -{" "}
-            {/* {formattedText} */}
-            {props?.data?.DocNum}
+            {formattedText} - {props?.data?.DocNum}
           </h1>
           {props.data.DocumentStatus === "bost_Close" ||
             (!(location.pathname.includes("edit") || !id) && (
