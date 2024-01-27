@@ -12,6 +12,7 @@ import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import { useQuery } from "react-query";
+import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -83,7 +84,7 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <CashACAutoComplete
+                <GLAccountAutoComplete
                   onChange={(e) =>
                     handlerChange("U_tl_expacct", e)
                   }
