@@ -149,7 +149,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = (
       </div>
       <div
         className={`w-full  grid grid-cols-2 duration-300 ease-in overflow-hidden  ${
-          !collapse ? "h-[10rem]" : "h-0"
+          collapse ? "h-[10rem]" : "h-0"
         }`}
       >
         { props?.HeaderCollapeMenu ?? 
