@@ -22,7 +22,7 @@ const CollectionPage = () => {
         try {
           const response = await request(
             "GET",
-            `IncomingPayments$count?$filter=${filter}`
+            `IncomingPayments/$count?$filter=${filter}`
           );
           return (response as { data?: number })?.data as number;
         } catch (error) {
