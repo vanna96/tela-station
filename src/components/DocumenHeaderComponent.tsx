@@ -86,6 +86,20 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       // Maybe log an error or show a message to the user
     }
   };
+  const pathSegments: string[] = location.pathname.split("-");
+
+  const formattedText: string = pathSegments
+    .map((segment: string) => {
+      const lowerCaseSegment: string = segment.toLowerCase();
+      if (lowerCaseSegment === "lpg") {
+        return "LPG";
+      } else {
+        return segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase();
+      }
+    })
+    .join(" ");
+
+  console.log(formattedText);
 
   return (
     <div
@@ -101,6 +115,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         <div className="flex gap-2 items-center">
           <h1 className="text-md  capitalize">
             {location.pathname.split("/")[2].replace("-", " ")} -{" "}
+            {/* {formattedText} */}
             {props?.data?.DocNum}
           </h1>
           {props.data.DocumentStatus === "bost_Close" ||
@@ -142,35 +157,36 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         {/* right side fields */}
         {/* {props?.rightSideField} */}
 
-        { props?.HeaderCollapeMenu }
-
+        {props?.HeaderCollapeMenu}
       </div>
       <div
         className={`w-full flex gap-2 px-4 text-sm border-t-gray-200 py-0 sticky ${
           !collapse ? "mt-0" : ""
-        } ${props?.data.showCollapse ? `border-t`:`mt-[-22px]`}`}
+        } ${props?.data.showCollapse ? `border-t` : `mt-[-22px]`}`}
       >
         {props?.menuTabs}
-        {props?.data.showCollapse && (<div className="absolute -top-[12px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
-          <div
-            title="btn-collapse"
-            role="button"
-            className={`flex items-center justify-center w-7 h-7 rounded-full p-2 bg-white border border-green-400 cursor-pointer hover:cursor-pointer`}
-            onClick={handlerCollapse}
-          >
-            <div className="mb-1">
-              { collapse ? (
-                <ArrowUpwardRoundedIcon
-                  style={{ fontSize: "15px", color: "#16a34a" }}
-                />
-              ) : (
-                <ArrowDownwardRoundedIcon
-                  style={{ fontSize: "15px", color: "#16a34a" }}
-                />
-              )}
+        {props?.data.showCollapse && (
+          <div className="absolute -top-[12px] w-full flex justify-center gap-2 cursor-pointer hover:cursor-pointer">
+            <div
+              title="btn-collapse"
+              role="button"
+              className={`flex items-center justify-center w-7 h-7 rounded-full p-2 bg-white border border-green-400 cursor-pointer hover:cursor-pointer`}
+              onClick={handlerCollapse}
+            >
+              <div className="mb-1">
+                {collapse ? (
+                  <ArrowUpwardRoundedIcon
+                    style={{ fontSize: "15px", color: "#16a34a" }}
+                  />
+                ) : (
+                  <ArrowDownwardRoundedIcon
+                    style={{ fontSize: "15px", color: "#16a34a" }}
+                  />
+                )}
+              </div>
             </div>
           </div>
-        </div>)}
+        )}
       </div>
     </div>
   );
