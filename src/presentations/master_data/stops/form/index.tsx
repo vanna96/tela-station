@@ -89,7 +89,7 @@ const StopsForm = (props: any) => {
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/TL_STOPS(${id})`, payload)
+        await request("PATCH", `/TL_STOPS('${id}')`, payload)
           .then(
             (res: any) =>
               dialog.current?.success(
