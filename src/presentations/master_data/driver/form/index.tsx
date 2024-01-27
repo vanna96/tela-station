@@ -66,7 +66,13 @@ const Form = (props: any) => {
     department: null,
     branch: null,
   });
-
+ const [header, setHeader] = useState({
+   firstName: '',
+   lastName: '',
+   gender: '',
+   department: '',
+   branch: '',
+ });
   const [branchAss, setBranchAss] = useState([]);
   const [driver, setDriver] = React.useState<any>();
 
