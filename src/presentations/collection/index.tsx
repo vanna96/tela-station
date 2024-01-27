@@ -1,79 +1,80 @@
-import MainContainer from "@/components/MainContainer"
-import ItemCard from "@/components/card/ItemCart"
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { AiOutlineFileProtect } from "react-icons/ai"
-import IncomingPaymentRepository from "@/services/actions/IncomingPaymentRepository"
+import MainContainer from "@/components/MainContainer";
+import ItemCard from "@/components/card/ItemCart";
+import { AiOutlineFileProtect } from "react-icons/ai";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
-const SaleMasterPage = () => {
-  const navigate = useNavigate()
-  const [count, setCount]: any = useState()
-  const goTo = (route: string) => navigate("/banking/" + route)
-  const getCount = async () => {
-    const settleReceipt = await new IncomingPaymentRepository().getCount({
-      params: {
-        $filter: `DocType eq 'rCustomer'`,
-      },
-    })
-    const paymentAccount = await new IncomingPaymentRepository().getCount({
-      params: {
-        $filter: `DocType eq 'rCustomer'`,
-      },
-    })
-    const directAccount = await new IncomingPaymentRepository().getCount({
-      params: {
-        $filter: `DocType eq 'rAccount'`,
-      },
-    })
-
-    setCount({
-      ...count,
-      settleReceipt,
-      paymentAccount,
-      directAccount
-    })
-  }
-
-  useEffect(() => {
-    getCount()
-  }, [])
-
-  return (
-    <>
-      <MainContainer title="Collection">
-        {/* <ItemCard
-          title="Incoming Payments"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("incoming-payments")}
-          amount={count?.incomingPayment || 0}
-        />
-        <ItemCard
-          title="Outgoing Payments"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("outgoing-payment")}
-          amount={count?.incomingPayment || 0}
-        /> */}
-        <ItemCard
-          title="Settle Receipt"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("settle-receipt")}
-          amount={count?.settleReceipt || 0}
-        />
-        <ItemCard
-          title="Payment on Account"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("payment-account")}
-          amount={count?.paymentAccount || 0}
-        />
-        <ItemCard
-          title="Direct to Account"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("direct-account")}
-          amount={count?.directAccount || 0}
-        />
-      </MainContainer>
-    </>
-  )
+interface CollectionItem {
+  title: string;
+  icon: React.ReactNode;
+  queryKey: string;
+  filter: string;
 }
 
-export default SaleMasterPage
+const CollectionPage = () => {
+  const navigate = useNavigate();
+
+  const createUseQuery = (queryKey: string, filter: string) => {
+    return useQuery({
+      queryKey: [queryKey],
+      queryFn: async () => {
+        try {
+          const response = await request(
+            "GET",
+            `IncomingPayments$count?$filter=${filter}`
+          );
+          return (response as { data?: number })?.data as number;
+        } catch (error) {
+          console.error(`Error fetching data for ${queryKey}:`, error);
+          throw error;
+        }
+      },
+      staleTime: Infinity,
+    });
+  };
+
+  const goTo = (route: string) => navigate(`/banking/${route}`);
+
+  const collectionItems: CollectionItem[] = [
+    {
+      title: "Settle Receipt",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "settleReceipt",
+      filter: "DocType eq 'rCustomer'",
+    },
+    {
+      title: "Payment on Account",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "paymentAccount",
+      filter: "DocType eq 'rCustomer'",
+    },
+    {
+      title: "Direct to Account",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "directAccount",
+      filter: "DocType eq 'rAccount'",
+    },
+  ];
+
+  return (
+    <MainContainer title="Collection">
+      {collectionItems.map(({ title, icon, queryKey, filter }, index) => {
+        const formattedTitle = title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase and replace spaces with dashes
+        const { data, isLoading } = createUseQuery(queryKey, filter);
+        return (
+          <ItemCard
+            key={index}
+            title={title}
+            icon={icon}
+            onClick={() => goTo(`${formattedTitle}`)}
+            amount={data || 0}
+            isLoading={isLoading}
+          />
+        );
+      })}
+    </MainContainer>
+  );
+};
+
+export default CollectionPage;

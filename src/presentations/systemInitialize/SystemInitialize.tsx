@@ -17,7 +17,11 @@ const fetchModuleCount = async (endpoint: string): Promise<number> => {
 const SystemInitializeMasterPage = () => {
   const navigate = useNavigate();
 
-  const { data: count, error } = useQuery(
+  const {
+    data: count,
+    error,
+    isLoading,
+  } = useQuery(
     "moduleCount",
     async () => {
       const [
@@ -146,8 +150,10 @@ const SystemInitializeMasterPage = () => {
       };
     },
     {
-      refetchOnWindowFocus: false, // Set to true if you want to refetch data when the window regains focus
+      refetchOnWindowFocus: false, 
+     staleTime: 2000 
     }
+    
   );
 
   if (error) {
@@ -158,15 +164,15 @@ const SystemInitializeMasterPage = () => {
   const renderCards = (cards: any[]) => {
     return cards.map((card) => (
       <ItemCard
-        key={card.title}
+        key={card.amountKey}
         title={card.title}
         icon={<AiOutlineSolution />}
         amount={count?.[card.amountKey as keyof typeof count] || 0}
         onClick={() => navigate(card.route)}
+        isLoading={card.isLoading}
       />
     ));
   };
-
 
   const masterDataCards = renderCards([
     { title: "Pump", amountKey: "pump", route: "/master-data/pump" },
