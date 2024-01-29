@@ -201,7 +201,7 @@ const SystemInitializeMasterPage = () => {
     {
       title: "Sale Scenario",
       amountKey: "saleScenario",
-      route: "sale-target/sale-scenario",
+      route: "/sale-target/sale-scenario",
     },
     {
       title: "Sale Target",
