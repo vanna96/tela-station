@@ -22,12 +22,13 @@ import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
 import { Breadcrumb } from "../../components/Breadcrumn";
 import { useNavigate } from "react-router-dom";
-import { Checkbox, CircularProgress, darken } from "@mui/material";
+import { Checkbox, CircularProgress, TextField, darken } from "@mui/material";
 import WarehouseRepository from "@/services/warehouseRepository";
 import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
+import MUITextField from "@/components/input/MUITextField";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -212,6 +213,7 @@ class DeliveryDetail extends Component<any, any> {
   };
 
   render() {
+    console.log(this.state)
     return (
       <>
         <DocumentHeader
@@ -248,116 +250,60 @@ class DeliveryDetail extends Component<any, any> {
 
 export default withRouter(DeliveryDetail);
 
+function renderKeyValue(label: string, value: any) {
+  return (
+    <div className="grid grid-cols-2 py-2">
+      <div className="col-span-1 text-gray-700">{label}</div>
+      <div className="col-span-1 text-gray-900">
+        <MUITextField disabled value={value ?? "N/A"} />
+      </div>
+    </div>
+  );
+}
+
 function General(props: any) {
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
-      {/*  */}
       <div className="py-4 px-8">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Branch</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.BPLName ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Warehouse</div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Bin Location</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Customer</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Name</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardName}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Contact Person</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Currency</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.Currency ?? props.data.DocCurrency}
-              </div>
-            </div>
+            {renderKeyValue("Branch", props?.data?.BPLName)}
+            {renderKeyValue(
+              "Warehouse",
+              new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
+                ?.WarehouseName
+            )}
+            {renderKeyValue("Bin Location", props.data.CardCode)}
+            {renderKeyValue("Customer", props.data.CardCode)}
+            {renderKeyValue("Name", props.data.CardName)}
+            {renderKeyValue(
+              "Contact Person",
+              props?.data?.vendor?.contactEmployee?.find(
+                (e: any) => e.id == props.data.ContactPersonCode
+              )?.name ?? "N/A"
+            )}
+            {renderKeyValue(
+              "Currency",
+              props.data.Currency ?? props.data.DocCurrency
+            )}
           </div>
-          {/*  */}
           <div className="col-span-2"></div>
-          {/*  */}
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700">Series</div>
-              <div className="col-span-1  text-gray-900">
-                {props.data.Series}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700">DocNum</div>
-              <div className="col-span-1  text-gray-900">
-                {props.data.DocNum}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Posting Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.TaxDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Delivery Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDueDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Document Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Sale Employee</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Remark</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Comments ?? "N/A"}
-              </div>
-            </div>
-            {/* <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Line of Business</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.U_tl_arbusi ?? "N/A"}
-              </div>
-            </div> */}
+          <div className="col-span-5">
+            {renderKeyValue("Series", props.data.Series)}
+            {renderKeyValue("DocNum", props.data.DocNum)}
+            {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
+            {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
+            {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
+            {renderKeyValue(
+              "Sale Employee",
+              props?.data?.vendor?.contactEmployee?.find(
+                (e: any) => e.id == props.data.ContactPersonCode
+              )?.name ?? "N/A"
+            )}
+            {renderKeyValue("Remark", props?.data?.Comments ?? "N/A")}
           </div>
         </div>
       </div>
@@ -392,7 +338,7 @@ function Content(props: any) {
       },
       {
         accessorKey: "GrossPrice",
-        header: "Gross Price",
+        header: "Unit Price",
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
@@ -448,12 +394,7 @@ function Content(props: any) {
         Cell: ({ cell }: any) =>
           new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
       },
-      // {
-      //   accessorKey: "UnitsOfMeasurement",
-      //   header: "Item Per Units",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => cell.getValue(),
-      // },
+
       {
         accessorKey: "GrossTotal",
         header: "Total(LC)",
@@ -503,16 +444,6 @@ function Content(props: any) {
                 border: "1px solid rgba(211,211,211)",
               },
             }}
-            // muiTableHeadCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
-            // muiTableBodyCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
           />
         </div>
       </div>
@@ -524,50 +455,32 @@ function Logistic(props: any) {
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-        <h2>Basic Information</h2>
+        <h2>Logistic Information</h2>
       </div>
       <div className="py-2 px-4">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship From Address</div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">
-                {" "}
-                Attention Terminal
-              </div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
+            {renderKeyValue(
+              "Ship From Address",
+              new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
+                ?.WarehouseName ?? "N/A"
+            )}
+            {renderKeyValue(
+              "Attention Terminal",
+              new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
+                ?.WarehouseName ?? "N/A"
+            )}
           </div>
           <div className="col-span-2"></div>
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship-To Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToCode ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Address2 ?? "N/A"}
-              </div>
-            </div>
+          <div className="col-span-5">
+            {renderKeyValue(
+              "Ship-To Address",
+              props?.data?.ShipToCode ?? "N/A"
+            )}
+            {renderKeyValue("Shipping Address", props?.data?.Address2 ?? "N/A")}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-//test
