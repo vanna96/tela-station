@@ -53,6 +53,7 @@ export default function GeneralForm({
                   value={data?.Code}
                   name="Code"
                   onChange={(e) => handlerChange("Code", e.target.value)}
+                  disabled={edit}
                 />
               </div>
             </div>
