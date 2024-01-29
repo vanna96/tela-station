@@ -28,7 +28,7 @@ export default function ItemCard({
         <div className="flex items-center text-2xl gap-3 2xl:text-xl xl:text-base">
           <span className="text-green-500">{icon}</span>
           <span className={"text-gray-500"}>
-            {isLoading ? "Loading..." : amount}
+            {isLoading ? <div className="text-base"> Loading...</div> : amount}
           </span>
         </div>
       </div>
