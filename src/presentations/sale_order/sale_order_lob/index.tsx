@@ -177,7 +177,6 @@ export default function SaleOrderLists() {
   }
 
   const [filter, setFilter] = React.useState("");
-  const defaultFilter = `$filter=U_tl_salestype eq null and U_tl_arbusi eq '${numAtCardFilter}'`;
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
