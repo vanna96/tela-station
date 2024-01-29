@@ -3,9 +3,7 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import { UpdateDataSuccess } from "./ClientError";
 
-// export const url = "https://103.120.133.234:50000/b1s/v1";
-// export const url = "https://192.168.1.11:50000/b1s/v1";
-export const url = "https://svr11.biz-dimension.com:50000/b1s/v1";
+export const url = `${import.meta.env.VITE_URL || "https://192.168.1.11:50000"}/b1s/v1`;
 
 export const axiosInstance = axios.create({
   withCredentials: true,

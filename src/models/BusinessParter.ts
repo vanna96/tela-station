@@ -32,7 +32,7 @@ export default class BusinessPartner extends Model {
     shippingType?: number | null | undefined;;
     indicator?: string | null | undefined;
     paymentMethod?: string | null | undefined;
-    shipToDefault?: string | null | undefined;
+    ShipToDefault?: string | null | undefined;
     billToDefault?: string | null | undefined;
     website?: string | null | undefined;
     bpAddress?: BPAddress[] | null | undefined;;
@@ -78,7 +78,7 @@ export default class BusinessPartner extends Model {
         this.shippingType = json?.ShippingType;
         this.indicator = json?.Indicator;
         this.paymentMethod = json?.PeymentMethodCode;
-        this.shipToDefault = json?.ShipToDefault;
+        this.ShipToDefault = json?.ShipToDefault;
         this.billToDefault = json?.BilltoDefault;
         this.website = json?.Website;
         this.bpAddress = json?.BPAddresses?.map((e: any) => new BPAddress(e));
@@ -115,7 +115,7 @@ export default class BusinessPartner extends Model {
     }
 
     public getShipTo(): string {
-        const shipAddress = this.bpAddress?.find((e: BPAddress) => e.addressName === this.shipToDefault);
+        const shipAddress = this.bpAddress?.find((e: BPAddress) => e.addressName === this.ShipToDefault);
 
         if (!shipAddress) return '';
 

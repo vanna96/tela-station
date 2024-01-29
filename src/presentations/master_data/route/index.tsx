@@ -85,7 +85,7 @@ export default function Routelistpage() {
                 visible: true,
                 type: "string",
                 Cell: (cell: any) => {
-                    return cell.row.original.U_Status === "Y" ? "Yes" : "No";
+                    return cell.row.original.U_Status === "Y" ? "Active" : "Inactive";
                 },
             },
             {
@@ -286,8 +286,8 @@ export default function Routelistpage() {
                                     <div className="">
                                         <MUISelect
                                             items={[
-                                                { id: "Y", name: "Yes" },
-                                                { id: "N", name: "No" },
+                                                { id: "Y", name: "Active" },
+                                                { id: "N", name: "Inactive" },
                                             ]}
                                             onChange={(e) => setSearchValues({ ...searchValues, status: e?.target?.value })
                                             }

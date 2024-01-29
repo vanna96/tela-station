@@ -79,6 +79,13 @@ const appRoutes: RouteType[] = [
           displayText: "Expense Dictionary",
         },
       },
+      {
+        path: "/master-data/cash-account",
+        state: "cash-account",
+        sidebarProps: {
+          displayText: "Cash Account",
+        },
+      },
 
       {
         path: "/master-data/driver",

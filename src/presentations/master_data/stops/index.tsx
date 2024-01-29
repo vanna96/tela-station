@@ -76,7 +76,7 @@ export default function Stopslistpage() {
                 size: 40,
                 visible: true,
                 Cell: (cell: any) => {
-                    return cell.row.original.U_active === "Y" ? "Yes" : "No" ?? "N/A";
+                    return cell.row.original.U_active === "Y" ? "Active" : "Inactive" ?? "N/A";
                 },
             },
             {
@@ -269,8 +269,8 @@ export default function Stopslistpage() {
                                     <div className="">
                                         <MUISelect
                                             items={[
-                                                { id: "Y", name: "Yes" },
-                                                { id: "N", name: "No" },
+                                                { id: "Y", name: "Active" },
+                                                { id: "N", name: "Inactive" },
                                             ]}
                                             onChange={(e) => setSearchValues({ ...searchValues, active: e?.target?.value })
                                             }

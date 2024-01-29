@@ -220,7 +220,10 @@ export default function SaleOrderLists() {
     queryKey: [
       "sales-order-lob",
       salesType,
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       let numAtCardFilter = "";
@@ -316,15 +319,12 @@ export default function SaleOrderLists() {
         : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
-    // console.log(qurey);
-    console.log(queryFilters);
-    console.log(searchValues);
+    let query = queryFilters;
 
-    let qurey = queryFilters + value;
-    // console.log(qurey + value);
-    // qurey === {}? setFilter(qurey) : setFilter(value);
-    Object.keys(qurey).length === 0 ? setFilter(value) : setFilter(qurey);
-
+    if (value) {
+      query = queryFilters + ` and ${value}`;
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,

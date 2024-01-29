@@ -149,6 +149,12 @@ class RouteForm extends CoreFormDocument {
     }
   };
 
+  LeftSideField() {
+      return (
+        <div>a</div>
+      )
+  }
+
   HeaderTaps = () => {
     return (
       <>
@@ -178,7 +184,6 @@ class RouteForm extends CoreFormDocument {
               <div className="grow">
                 {this.state.tapIndex === 0 && (
                   <GeneralForm
-                    hanndResetState={this.hanndResetState}
                     data={this.state}
                     edit={this.props?.edit}
                     handlerChange={(key, value) =>
