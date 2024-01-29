@@ -11,6 +11,7 @@ import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import MUISelect from "@/components/selectbox/MUISelect";
 import DataTable from "./component/DatatableV";
+import DriverRepository from "@/services/actions/DriverRepository";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
@@ -20,6 +21,14 @@ export default function Lists() {
   });
 
   const route = useNavigate();
+    const driver: any = useQuery({
+      queryKey: ["drivers"],
+      queryFn: () => new DriverRepository().get(),
+      staleTime: Infinity,
+    });
+  console.log(driver);
+  
+  
   const columns = React.useMemo(
     () => [
       {
@@ -68,7 +77,15 @@ export default function Lists() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_Driver ?? "N/A";
+          return (
+            driver?.data?.find(
+              (e: any) => e?.EmployeeID === cell.row.original.U_Driver
+            )?.FirstName +
+              " " +
+              driver?.data?.find(
+                (e: any) => e?.EmployeeID === cell.row.original.U_Driver
+              )?.FirstName
+          );
         },
       },
       {
@@ -274,22 +291,6 @@ export default function Lists() {
                   value={searchValues.code}
                   onChange={(e) =>
                     setSearchValues({ ...searchValues, code: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Name"
-                  // placeholder="FirstName"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.name}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      name: e.target.value,
-                    })
                   }
                 />
               </div>

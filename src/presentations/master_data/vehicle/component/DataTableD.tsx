@@ -1,45 +1,45 @@
-import React from "react";
-import { Button } from "@mui/material";
-import { HiRefresh } from "react-icons/hi";
-import { useNavigate } from "react-router-dom";
-import { AiOutlineSetting } from "react-icons/ai";
-import MaterialReactTable from "material-react-table";
-import { BsPencilSquare } from "react-icons/bs";
-import ColumnSearch from "@/components/data_table/ColumnSearch";
-import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility";
+import React from "react"
+import { Button } from "@mui/material"
+import { HiRefresh } from "react-icons/hi"
+import { useNavigate } from "react-router-dom"
+import { AiOutlineSetting } from "react-icons/ai"
+import MaterialReactTable from "material-react-table"
+import { BsPencilSquare } from "react-icons/bs"
+import ColumnSearch from "@/components/data_table/ColumnSearch"
+import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility"
 
 interface DataTableProps {
-  columns: any[];
-  data: any[];
-  count: number;
-  handlerRefresh: () => void;
-  loading: boolean;
-  handlerSortby: (value: string) => void;
-  handlerSearch: (value: string) => void;
-  pagination: any;
-  paginationChange: (value: any) => void;
-  title?: string;
+  columns: any[]
+  data: any[]
+  count: number
+  handlerRefresh: () => void
+  loading: boolean
+  handlerSortby: (value: string) => void
+  handlerSearch: (value: string) => void
+  pagination: any
+  paginationChange: (value: any) => void
+  title?: string
 }
 
 export default function DataTable(props: DataTableProps) {
-  const route = useNavigate();
-  const search = React.createRef<ColumnSearch>();
-  const [colVisibility, setColVisibility] = React.useState<
-    Record<string, boolean>
-  >({});
+  const route = useNavigate()
+  const search = React.createRef<ColumnSearch>()
+  const [colVisibility, setColVisibility] = React.useState<Record<string, boolean>>(
+    {}
+  )
 
   React.useEffect(() => {
-    const cols: any = {};
+    const cols: any = {}
     props.columns.forEach((e) => {
-      cols[e.accessorKey] = e?.visible ?? true;
-    });
-    setColVisibility(cols);
-  }, []);
+      cols[e.accessorKey] = e?.visible ?? true
+    })
+    setColVisibility(cols)
+  }, [])
 
   const handlerSearch = (queries: any) => {
-    if (queries === "") return;
-    props.handlerSearch("&$filter=" + queries);
-  };
+    if (queries === "") return
+    props.handlerSearch("&$filter=" + queries)
+  }
 
   return (
     <div
@@ -53,7 +53,7 @@ export default function DataTable(props: DataTableProps) {
           <Button
             size="small"
             variant="text"
-            onClick={() => route("/master-data/vehicle/create")}
+            onClick={() => route("/master-data/driver/create")}
           >
             <span className="text-lg mr-2">
               <BsPencilSquare />
@@ -77,7 +77,7 @@ export default function DataTable(props: DataTableProps) {
             }
             items={props.columns}
             onClick={(value) => {
-              setColVisibility(value);
+              setColVisibility(value)
             }}
           />
         </div>
@@ -123,5 +123,5 @@ export default function DataTable(props: DataTableProps) {
         <ColumnSearch ref={search} onOk={handlerSearch} />
       </div>
     </div>
-  );
+  )
 }

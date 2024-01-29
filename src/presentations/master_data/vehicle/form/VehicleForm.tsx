@@ -10,18 +10,18 @@ import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import General from "../component/General";
-import Address from "../component/Address";
-import Personal from "../component/Personal";
-import Finance from "../component/Finance";
-import Remarks from "../component/Remaks";
-import { useParams } from "react-router-dom";
+
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import Address from "../component/Address";
+import General from "../component/General";
+import Personal from "../component/Personal";
+import Finance from "../component/Finance";
+import Remarks from "../component/Remaks";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -38,7 +38,7 @@ export type UseFormProps = {
   setHeader?: any;
 };
 // const { id } = useParams();
-const Form = (props: any) => {
+const VehicleForm = (props: any) => {
   const {
     handleSubmit,
     register,
@@ -241,7 +241,9 @@ const Form = (props: any) => {
       <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department </span>
+            <span className="mr-10 mb-[27px] inline-block">
+              Department aaaaaaa
+            </span>
           </div>
           <div>
             <span className="mr-10">Branch</span>
@@ -392,4 +394,4 @@ const Form = (props: any) => {
   );
 };
 
-export default withRouter(Form);
+export default VehicleForm;

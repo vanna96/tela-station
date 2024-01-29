@@ -42,7 +42,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   const company = React.useRef("TLTELA_DEVELOPER");
-  const username = React.useRef("manager");
+  const username = React.useRef("T010");
   // const password = React.useRef("Admin@tela");
   const password = React.useRef("1234");
 

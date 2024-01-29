@@ -46,6 +46,8 @@ import StopsDetail from "@/presentations/master_data/stops/detail/index"
 import Routelistpage from "@/presentations/master_data/route";
 import RouteForm from "@/presentations/master_data/route/form/index"
 import RouteDetail from "@/presentations/master_data/route/detail/index"
+import VehicelForm from "@/presentations/logistic/vehicel/page/VehicelForm";
+import VehicleForm from "@/presentations/master_data/vehicle/form/VehicleForm";
 
 
 export default function MasterDataRoute() {
@@ -92,7 +94,7 @@ export default function MasterDataRoute() {
       <Route path="/vehicle">
         <Route index element={<VehicleList />} />
         <Route path=":id" element={<DriverDetail />} />
-        <Route path="create" element={<DriverForm />} />
+        <Route path="create" element={< VehicleForm/>} />
         <Route path=":id/edit" element={<DriverForm edit={true} />} />
       </Route>
 

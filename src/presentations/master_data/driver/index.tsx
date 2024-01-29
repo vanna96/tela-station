@@ -16,10 +16,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
-    code: "",
-    firstName: "",
-    lastName: "",
-    jobTitle: "",
+    name: "",
     active: "tYES",
   });
    const branchAss: any = useQuery({
@@ -226,21 +223,13 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.code) {
+
+    if (searchValues.name) {
       queryFilters += queryFilters
-        ? ` and (contains(EmployeeCode, '${searchValues.code}'))`
-        : `(contains(EmployeeCode, '${searchValues.code}'))`;
+        ? ` and (contains(FirstName, '${searchValues.name}')) or (contains(LastName, '${searchValues.name}'))`
+        : `(contains(FirstName, '${searchValues.name}')) or (contains(LastName, '${searchValues.name}'))`;
     }
-    if (searchValues.firstName) {
-      queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.firstName}'))`
-        : `(contains(FirstName, '${searchValues.firstName}'))`;
-    }
-    if (searchValues.lastName) {
-      queryFilters += queryFilters
-        ? ` and (contains(LastName, '${searchValues.lastName}'))`
-        : `(contains(LastName, '${searchValues.lastName}'))`;
-    }
+
     if (searchValues.active) {
       queryFilters += queryFilters
         ? ` and Active eq '${searchValues.active}'`
@@ -282,9 +271,9 @@ export default function Lists() {
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.code}
+                  value={searchValues.name}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, code: e.target.value })
+                    setSearchValues({ ...searchValues, name: e.target.value })
                   }
                   
                 />
