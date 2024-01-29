@@ -224,9 +224,11 @@ const ItemModal: FC<ItemModalProps> = ({
         revenueLine: "202001",
         REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
-        GrossPrice:
-          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-          0,
+        // GrossPrice:
+        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+        //   0,
+       GrossPrice : defaultPrice,  
+       ItemPrices : e.ItemPrices,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,

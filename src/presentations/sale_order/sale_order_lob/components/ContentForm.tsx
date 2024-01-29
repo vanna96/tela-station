@@ -68,31 +68,35 @@ export default function ContentForm({
 
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
-
-      const items: any = data?.Items?.map((item: any, indexItem: number) => {
-        if (i.toString() === indexItem.toString()) {
-          item.ItemCode = itemDetails.ItemCode;
-          item.ItemName = itemDetails.ItemName;
-          item.UnitPrice = itemDetails.MovingAveragePrice;
-          item.Quantity = itemDetails.Quantity ?? 1;
-          item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-          item.FromWarehouseCode = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.WhsCode;
-          item.WarehouseCode = data.ToWarehouse;
-          item.FromBin = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.BinAbsEntry;
-          item.BinQty = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.OnHandQty;
-          item.ToBin = data.ToBinItems?.find(
-            (e: any) => e.WhsCode === item.WarehouseCode
-          )?.BinAbsEntry;
-          item.UoMList = uomLists;
+      const vendorPriceList = data.PriceLists;
+      const items: any = data?.Items?.map(
+        (item: any, indexItem: number, vendorPriceList: any) => {
+          if (i.toString() === indexItem.toString()) {
+            item.ItemCode = itemDetails.ItemCode;
+            item.ItemName = itemDetails.ItemName;
+            // item.UnitPrice = itemDetails.MovingAveragePrice;
+            item.GrossPrice = item.UnitPrice;
+            item.Quantity = itemDetails.Quantity ?? 1;
+            item.UomAbsEntry = itemDetails.InventoryUoMEntry;
+            item.FromWarehouseCode = data.FromBinItems?.find(
+              (e: any) => e.ItemCode === item.ItemCode
+            )?.WhsCode;
+            item.WarehouseCode = data.ToWarehouse;
+            item.FromBin = data.FromBinItems?.find(
+              (e: any) => e.ItemCode === item.ItemCode
+            )?.BinAbsEntry;
+            item.BinQty = data.FromBinItems?.find(
+              (e: any) => e.ItemCode === item.ItemCode
+            )?.OnHandQty;
+            item.ToBin = data.ToBinItems?.find(
+              (e: any) => e.WhsCode === item.WarehouseCode
+            )?.BinAbsEntry;
+            item.UoMList = uomLists;
+            item.ItemPrices = itemDetails.ItemPrices;
+          }
+          return item;
         }
-        return item;
-      });
+      );
 
       onChange("Items", items);
     } else {
@@ -120,34 +124,6 @@ export default function ContentForm({
 
   const itemColumns = React.useMemo(
     () => [
-      // {
-      //   accessorKey: "ItemCode",
-      //   header: "Item Code",
-      //   visible: true,
-      //   Cell: ({ cell }: any) => {
-      //     return edit ? (
-      //       <MUITextField value={cell.getValue()} disabled />
-      //     ) : (
-      //       <MUISelect
-      //         value={cell.getValue()}
-      //         items={data.FromBinItems?.map((e: any) => ({
-      //           label: e.ItemCode,
-      //           value: e.ItemCode,
-      //         }))}
-      //         aliaslabel="label"
-      //         aliasvalue="Code"
-      //         onChange={(e: any) =>
-      //           handlerUpdateRow(
-      //             cell.row.id,
-      //             ["ItemCode", e.target.value],
-      //             "ItemCode"
-      //           )
-      //         }
-      //       />
-      //     );
-      //   },
-      // },
-
       {
         accessorKey: "ItemCode",
         Header: (header: any) => (
@@ -220,16 +196,6 @@ export default function ContentForm({
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
-              // onBlur={(event) => {
-              //   const newValue = parseFloat(
-              //     event.target.value.replace(/,/g, "")
-              //   );
-              //   handlerUpdateRow(
-              //     cell.row.id,
-              //     ["Quantity", newValue],
-              //     "Quantity"
-              //   );
-              // }}
               onBlur={(event) => {
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
@@ -265,22 +231,67 @@ export default function ContentForm({
           return (
             <MUISelect
               value={cell.getValue()}
-              items={// edit
-              //   ? []
-              //   :
-              cell.row.original.UomLists?.map((e: any) => ({
+              items={cell.row.original.UomLists?.map((e: any) => ({
                 label: e.Name,
                 value: e.AbsEntry,
               }))}
               aliaslabel="label"
               aliasvalue="value"
-              onChange={(e: any) =>
+              onChange={(event: any) => {
+                let itemPrices = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === data.PriceLists
+                )?.UoMPrices;
+
+                let uomPrice = itemPrices?.find(
+                  (e: any) => e.PriceList === data.PriceLists
+                );
+
                 handlerUpdateRow(
                   cell.row.id,
-                  ["UomAbsEntry", e.target.value],
+                  ["UomAbsEntry", event.target.value],
                   "UomAbsEntry"
-                )
-              }
+                );
+
+                if (event.target.value === uomPrice.UoMEntry) {
+                  const grossPrice = uomPrice.Price;
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
+
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", grossPrice],
+                    "GrossPrice"
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                } else {
+                  const grossPrice = cell.row.original.UnitPrice;
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
+
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", grossPrice],
+                    "GrossPrice"
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }
+              }}
             />
           );
         },
@@ -297,6 +308,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
+              disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
