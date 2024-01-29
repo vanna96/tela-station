@@ -6,6 +6,7 @@ import LoadingProgress from "@/components/LoadingProgress";
 import request from "@/utilies/request";
 import DocumentHeader from "@/components/DocumenHeader";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import MUITextField from "@/components/input/MUITextField";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -121,35 +122,59 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Code</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.Code ?? "N/A"}
+                  <MUITextField
+                    value={data?.Code ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> First Name</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_fname ?? "N/A"}
+
+                  <MUITextField
+                    value={data?.U_tl_fname ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Last Name</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_lname ?? "N/A"}
+
+                  <MUITextField
+                    value={data?.U_tl_lname ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Gender</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_gender ?? "N/A"}
+
+                  <MUITextField
+                    value={data?.U_tl_gender ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Date of Birth </div>
                 <div className="col-span-1 text-gray-900">
-                  {dateFormat(data?.U_tl_dob) || "N/A"}
+
+                  <MUITextField
+                    value={dateFormat(data?.U_tl_dob) || "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>
@@ -158,24 +183,39 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700">Status</div>
                 <div className="col-span-1  text-gray-900">
-                  {data.U_tl_status === "y"
-                    ? "Active"
-                    : "Inactive"}
+
+                  <MUITextField
+                    value={data.U_tl_status === "y"
+                      ? "Active"
+                      : "Inactive"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Branch </div>
                 <div className="col-span-1 text-gray-900">
-                  {new BranchBPLRepository().find(data?.U_tl_bplid)?.BPLName ??
-                    "N/A"}
+
+                  <MUITextField
+                    value={new BranchBPLRepository().find(data?.U_tl_bplid)?.BPLName ??
+                      "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">No. ID Card</div>
                 <div className="col-span-1 text-gray-900">
-                  {data.U_tl_numid ?? "N/A"}
+
+                  <MUITextField
+                    value={data.U_tl_numid ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>
@@ -185,14 +225,24 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Mobile 1</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_tel1 ?? "N/A"}
+
+                  <MUITextField
+                    value={data?.U_tl_tel1 ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 "> Mobile 2</div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_tel2 ?? "N/A"}
+
+                  <MUITextField
+                    value={data?.U_tl_tel2 ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
@@ -201,7 +251,12 @@ function General(props: any) {
                   Residential Address
                 </div>
                 <div className="col-span-1 text-gray-900">
-                  {data?.U_tl_address ?? "N/A"}
+
+                  <MUITextField
+                    value={data?.U_tl_address ?? "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>
@@ -210,14 +265,24 @@ function General(props: any) {
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Joined Date</div>
                 <div className="col-span-1 text-gray-900">
-                  {dateFormat(data?.U_tl_sdate) || "N/A"}
+
+                  <MUITextField
+                    value={dateFormat(data?.U_tl_sdate) || "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 py-1">
                 <div className="col-span-1 text-gray-700 ">Terminated Date</div>
                 <div className="col-span-1 text-gray-900">
-                  {dateFormat(data?.U_tl_edate) || "N/A"}
+
+                  <MUITextField
+                    value={dateFormat(data?.U_tl_edate) || "N/A"}
+                    name="U_tl_fname"
+                    disabled={true}
+                  />
                 </div>
               </div>
             </div>
