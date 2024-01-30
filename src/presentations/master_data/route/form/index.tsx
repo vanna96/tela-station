@@ -11,13 +11,25 @@ import { ServiceModalComponent } from "@/presentations/collection/outgoing_payme
 import ContentForm from "../components/ExpenseTable";
 import { APIContext } from "../context/APIContext";
 import Sequence from "../components/Sequence";
+import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
+import Left from "../components/LeftHeader";
+import Right from "../components/RightHeader";
 class RouteForm extends CoreFormDocument {
+
   serviceRef = React.createRef<ServiceModalComponent>();
 
   constructor(props: any) {
     super(props);
     this.state = {
       ...this.state,
+      Code: null,
+      Name: null,
+      U_BaseStation: null,
+      U_Destination: null,
+      U_Distance: null,
+      U_Duration: null,
+      headerRoute: true,
+
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -26,7 +38,25 @@ class RouteForm extends CoreFormDocument {
     this.hanndResetState = this.hanndResetState.bind(this);
     this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
     this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
+  }
 
+  RightSideField?(): JSX.Element | React.ReactNode {
+    return <div></div>;
+  }
+  HeaderCollapeMenu?(): JSX.Element | React.ReactNode {
+    return (
+      <>
+        <div>
+          <Left data={this.state}/>
+        </div>
+        <div>
+          <Right data={this.state}/>
+        </div>
+      </>
+    );
+  }
+  LeftSideField?() {
+    return <div></div>;
   }
 
   componentDidMount(): void {
@@ -57,9 +87,29 @@ class RouteForm extends CoreFormDocument {
       state["loading"] = false;
       this.setState(state);
     }
-    
+
+    if (this.props.detail) {
+      const { id }: any = this.props?.match?.params || 0;
+      await request("GET", `TL_ROUTE('${id}')`)
+        .then(async (res: any) => {
+          const data: any = res?.data;
+          // vendor
+
+          state = {
+            ...data,
+          };
+        })
+        .catch((err: any) => console.log(err))
+        .finally(() => {
+          state["loading"] = false;
+          this.setState(state);
+        });
+    } else {
+      state["loading"] = false;
+      this.setState(state);
+    }
   }
- 
+
   async handlerSubmit(event: any) {
     event.preventDefault();
     const data: any = { ...this.state };
@@ -79,26 +129,21 @@ class RouteForm extends CoreFormDocument {
         U_Status: data?.U_Status,
         U_Remark: data?.U_Remark,
         TL_RM_EXPENSCollection: data.TL_RM_EXPENSCollection,
-        TL_RM_SEQUENCECollection: data.TL_RM_SEQUENCECollection
+        TL_RM_SEQUENCECollection: data.TL_RM_SEQUENCECollection,
       };
 
       if (id) {
         return await request("PATCH", `/TL_ROUTE('${id}')`, payload)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
       await request("POST", "/TL_ROUTE", payload)
-        .then(
-          (res: any) =>
-            this.dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.Code
-            )
+        .then((res: any) =>
+          this.dialog.current?.success("Create Successfully.", res?.data?.Code)
         )
         .catch((err: any) => this.dialog.current?.error(err.message))
         .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -149,25 +194,34 @@ class RouteForm extends CoreFormDocument {
     }
   };
 
-  LeftSideField() {
-      return (
-        <div>a</div>
-      )
-  }
-
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={this.state.tapIndex === 0} onClick={() => this.handlerChangeMenu(0)}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1} onClick={() => this.handlerChangeMenu(1)}>Expense</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2} onClick={() => this.handlerChangeMenu(2)}>Sequence</MenuButton>
+        <MenuButton
+          active={this.state.tapIndex === 0}
+          onClick={() => this.handlerChangeMenu(0)}
+        >
+          General
+        </MenuButton>
+        <MenuButton
+          active={this.state.tapIndex === 1}
+          onClick={() => this.handlerChangeMenu(1)}
+        >
+          Expense
+        </MenuButton>
+        <MenuButton
+          active={this.state.tapIndex === 2}
+          onClick={() => this.handlerChangeMenu(2)}
+        >
+          Sequence
+        </MenuButton>
       </>
     );
   };
   hanndAddNewItem() {
     // this.serviceRef.current?.onOpen(this.state?.CardCode)
   }
-    FormRender = () => {
+  FormRender = () => {
     return (
       <>
         <form
@@ -185,45 +239,45 @@ class RouteForm extends CoreFormDocument {
                 {this.state.tapIndex === 0 && (
                   <GeneralForm
                     data={this.state}
+                    setData={this.setState}
                     edit={this.props?.edit}
+                    detail={this.props?.detail}
                     handlerChange={(key, value) =>
                       this.handlerChange(key, value)
                     }
                   />
-                )
-                }
+                )}
                 {this.state.tapIndex === 1 && (
                   <ContentForm
-                  data={this.state}
-                  handlerAddItem={() => {
-                    this.hanndAddNewItem();
-                  }}
-                  handlerRemoveItem={(items: any[]) =>
-                    this.setState({ ...this.state, Items: items })
-                  }
-                  handlerChangeItem={this.handlerChangeItems}
-                  onChangeItemByCode={this.handlerChangeItemByCode}
-                  onChange={this.handlerChange}
-                  ContentLoading={this.state.ContentLoading}
-                />
-                )
-                }
+                    data={this.state}
+                    detail={this.props?.detail}
+                    handlerAddItem={() => {
+                      this.hanndAddNewItem();
+                    }}
+                    handlerRemoveItem={(items: any[]) =>
+                      this.setState({ ...this.state, Items: items })
+                    }
+                    handlerChangeItem={this.handlerChangeItems}
+                    onChangeItemByCode={this.handlerChangeItemByCode}
+                    onChange={this.handlerChange}
+                    ContentLoading={this.state.ContentLoading}
+                  />
+                )}
                 {this.state.tapIndex === 2 && (
                   <Sequence
-                  data={this.state}
-                  handlerAddItem={() => {
-                    this.hanndAddNewItem();
-                  }}
-                  handlerRemoveItem={(items: any[]) =>
-                    this.setState({ ...this.state, Items: items })
-                  }
-                  handlerChangeItem={this.handlerChangeItems}
-                  onChangeItemByCode={this.handlerChangeItemByCode}
-                  onChange={this.handlerChange}
-                  ContentLoading={this.state.ContentLoading}
-                />
-                )
-                }
+                    data={this.state}
+                    handlerAddItem={() => {
+                      this.hanndAddNewItem();
+                    }}
+                    handlerRemoveItem={(items: any[]) =>
+                      this.setState({ ...this.state, Items: items })
+                    }
+                    handlerChangeItem={this.handlerChangeItems}
+                    onChangeItemByCode={this.handlerChangeItemByCode}
+                    onChange={this.handlerChange}
+                    ContentLoading={this.state.ContentLoading}
+                  />
+                )}
               </div>
             </>
           )}

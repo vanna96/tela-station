@@ -19,6 +19,8 @@ export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
+  edit?: boolean;
+  detail:boolean;
   defaultValues?:
     | Readonly<{
         [x: string]: any;
@@ -32,7 +34,6 @@ const StopsForm = (props: any) => {
     setValue,
     control,
     reset,
-
     formState: { errors, defaultValues },
   } = useForm();
 
@@ -51,11 +52,9 @@ const StopsForm = (props: any) => {
     fetchData();
   }, []);
 
-
   const fetchData = async () => {
     const { id }: any = props?.match?.params || 0;
     if (id) {
-
       setState({
         ...state,
         loading: true,
@@ -74,7 +73,6 @@ const StopsForm = (props: any) => {
     }
   };
 
-
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
@@ -85,30 +83,27 @@ const StopsForm = (props: any) => {
     const payload = {
       ...data,
     };
+
     const { id } = props?.match?.params || 0;
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
         await request("PATCH", `/TL_STOPS('${id}')`, payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Update Successfully.",
-                res?.data?.Code
-              )
-            
+          .then((res: any) =>
+            dialog.current?.success("Update Successfully.", res?.data?.Code)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/TL_STOPS", payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Create Successfully.",
-                res?.data?.Code
-              )
-          )
+        .then(async (res: any) => {
+          if ((res && res.status === 200) || 201) {
+            const docEntry = res.data.Code;
+           dialog.current?.success("Create Successfully.", docEntry);
+          } else {
+            console.error("Error in POST request:", res.statusText);
+          }
+        })
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       }
@@ -119,13 +114,16 @@ const StopsForm = (props: any) => {
     }
   };
 
-    const handlerChangeMenu = useCallback((index: number) => {
-        setState((prevState) => ({
-    ...prevState,
-    tapIndex: index,
-  }));
-    }, [state]);
-  
+  const handlerChangeMenu = useCallback(
+    (index: number) => {
+      setState((prevState) => ({
+        ...prevState,
+        tapIndex: index,
+      }));
+    },
+    [state]
+  );
+
   const HeaderTaps = () => {
     return (
       <>
@@ -173,10 +171,12 @@ const StopsForm = (props: any) => {
             {state.tapIndex === 0 && (
               <h1>
                 <GeneralForm
+                detail={props.detail}
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  edit={props?.edit}
                 />
               </h1>
             )}

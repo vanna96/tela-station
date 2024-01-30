@@ -4,7 +4,7 @@ import request from "@/utilies/request";
 import ExpDic from "@/models/ExpDic";
 export default class ExpdicRepository extends Repository<ExpDic> {
    
-    url = '/TL_ExpDic';
+    url = '/TL_ExpDic?$select=Code, Name';
     
     // specific key
     key = 'ExpDic';
