@@ -4,19 +4,12 @@ import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
 import { Alert, Collapse, IconButton, TextField } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import { numberWithCommas } from "@/helper/helper";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 import shortid from "shortid";
 import MUISelect from "@/components/selectbox/MUISelect";
-// import { APIContext } from "../../context/APIContext";
-import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-import BinLocationTo from "@/components/input/BinLocationTo";
-import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
-import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import { TbEdit } from "react-icons/tb";
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -40,7 +33,6 @@ export default function ContentForm({
   ContentLoading,
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  // const { tlExpDic }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
@@ -228,6 +220,7 @@ export default function ContentForm({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
+        
           return (
             <MUISelect
               value={cell.getValue()}
