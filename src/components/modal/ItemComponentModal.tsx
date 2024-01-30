@@ -52,7 +52,7 @@ const ItemModal: FC<ItemModalProps> = ({
       new itemRepository().getSaleItem(
         ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    staleTime: 2000,
+    staleTime: 180000,
   });
 
   const [pagination, setPagination] = React.useState({
