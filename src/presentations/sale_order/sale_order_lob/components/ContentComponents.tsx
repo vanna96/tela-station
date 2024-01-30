@@ -96,7 +96,7 @@ export default function ContentComponent(props: ContentComponentProps) {
   };
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-  discount, 
+    discount,
     // props?.data?.ExchangeRate ?? 1
     1
   );

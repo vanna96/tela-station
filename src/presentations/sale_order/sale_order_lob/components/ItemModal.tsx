@@ -156,6 +156,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
               <NumericFormat
+                disabled
                 onChange={(event) => {
                   const newValue = parseFloat(
                     event.target.value.replace(/,/g, "")
@@ -165,7 +166,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                     "GrossPrice"
                   );
                 }}
-                label="Gross Price"
+                label="Unit Price"
                 value={this.state?.GrossPrice}
                 startAdornment={this.state.Currency}
                 type="text"

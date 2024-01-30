@@ -15,6 +15,7 @@ interface SaleOrderItem {
   icon: React.ReactNode;
   queryKey: string;
   filter: string;
+  route: string;
 }
 
 const SaleOrderPage = () => {
@@ -44,40 +45,45 @@ const SaleOrderPage = () => {
       icon: <AiOutlineFileAdd />,
       queryKey: "fuelOrder",
       filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      route: "fuel-sales",
     },
     {
       title: "Lube Sales",
       icon: <AiOutlineFileExcel />,
       queryKey: "lubeOrder",
       filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Lube'",
+      route: "lube-sales",
     },
     {
       title: "LPG Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lpgOrder",
       filter: "U_tl_salestype eq null and U_tl_arbusi eq 'LPG'",
+      route: "lpg-sales",
     },
   ];
 
   return (
     <>
       <MainContainer title="Sale Order">
-        {saleOrderItems.map(({ title, icon, queryKey, filter }, index) => {
-          const { data, isLoading } = createUseQuery(
-            queryKey,
-            `Orders/$count?$filter=${filter}`
-          );
-          return (
-            <ItemCard
-              key={index}
-              title={title}
-              icon={icon}
-              onClick={() => goTo(`${queryKey.toLowerCase()}-sales`)}
-              amount={data || 0}
-              isLoading={isLoading}
-            />
-          );
-        })}
+        {saleOrderItems.map(
+          ({ title, icon, queryKey, filter, route }, index) => {
+            const { data, isLoading } = createUseQuery(
+              queryKey,
+              `Orders/$count?$filter=${filter}`
+            );
+            return (
+              <ItemCard
+                key={index}
+                title={title}
+                icon={icon}
+                onClick={() => goTo(`${route}`)}
+                amount={data || 0}
+                isLoading={isLoading}
+              />
+            );
+          }
+        )}
       </MainContainer>
     </>
   );

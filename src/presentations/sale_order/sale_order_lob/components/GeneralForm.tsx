@@ -274,6 +274,7 @@ export default function GeneralForm({
               <PriceListAutoComplete
                 onChange={(e) => handlerChange("PriceLists", e)}
                 value={data?.PriceLists}
+                isActiveAndGross={true}
               />
             </div>
           </div>

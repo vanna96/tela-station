@@ -10,6 +10,7 @@ interface CollectionItem {
   icon: React.ReactNode;
   queryKey: string;
   filter: string;
+  route: string
 }
 
 const CollectionPage = () => {
@@ -42,32 +43,34 @@ const CollectionPage = () => {
       icon: <AiOutlineFileProtect />,
       queryKey: "settleReceipt",
       filter: "DocType eq 'rCustomer'",
+      route: 'settle-receipt'
     },
     {
       title: "Payment on Account",
       icon: <AiOutlineFileProtect />,
       queryKey: "paymentAccount",
       filter: "DocType eq 'rCustomer'",
+      route: 'payment-account'
     },
     {
       title: "Direct to Account",
       icon: <AiOutlineFileProtect />,
       queryKey: "directAccount",
       filter: "DocType eq 'rAccount'",
+      route: 'direct-account'
     },
   ];
 
   return (
     <MainContainer title="Collection">
-      {collectionItems.map(({ title, icon, queryKey, filter }, index) => {
-        const formattedTitle = title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase and replace spaces with dashes
+      {collectionItems.map(({ title, icon, queryKey, filter,route }, index) => {
         const { data, isLoading } = createUseQuery(queryKey, filter);
         return (
           <ItemCard
             key={index}
             title={title}
             icon={icon}
-            onClick={() => goTo(`${formattedTitle}`)}
+            onClick={() => goTo(`${route}`)}
             amount={data || 0}
             isLoading={isLoading}
           />

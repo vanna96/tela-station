@@ -52,7 +52,7 @@ const ItemModal: FC<ItemModalProps> = ({
       new itemRepository().getSaleItem(
         ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    staleTime: 2000,
+    staleTime: 180000,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -224,9 +224,11 @@ const ItemModal: FC<ItemModalProps> = ({
         revenueLine: "202001",
         REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
-        GrossPrice:
-          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-          0,
+        // GrossPrice:
+        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+        //   0,
+       GrossPrice : defaultPrice,  
+       ItemPrices : e.ItemPrices,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,

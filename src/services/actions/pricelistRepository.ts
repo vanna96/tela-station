@@ -5,7 +5,7 @@ import request from "@/utilies/request";
 
 export default class PriceListRepository extends Repository<PriceList> {
 
-  url = '/PriceLists';
+  url = '/PriceLists?$select=BasePriceList,PriceListNo,PriceListName,IsGrossPrice,Active';
 
   // specific key
   key = 'PriceLists';
