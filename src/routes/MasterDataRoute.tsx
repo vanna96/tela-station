@@ -85,7 +85,7 @@ export default function MasterDataRoute() {
 
       <Route path="/driver">
         <Route index element={<DriverList />} />
-        <Route path=":id" element={<DriverDetail />} />
+        <Route path=":id" element={<DriverDetail detail={ true} />} />
         <Route path="create" element={<DriverForm />} />
         <Route path=":id/edit" element={<DriverForm edit={true} />} />
       </Route>

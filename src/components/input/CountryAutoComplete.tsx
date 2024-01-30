@@ -61,6 +61,7 @@ export default function CountryAutoComplete(props: {
       </label>
 
       <Autocomplete
+        disabled={props?.disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}

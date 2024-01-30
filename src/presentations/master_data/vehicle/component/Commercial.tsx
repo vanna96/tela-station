@@ -1,137 +1,20 @@
-// import React, { useMemo } from "react";
-// import MaterialReactTable, { type MRT_ColumnDef } from "material-react-table";
-// import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
-// import { MdDeleteOutline } from "react-icons/md";
-// import MUITextField from "@/components/input/MUITextField";
-// import MUIDatePicker from "@/components/input/MUIDatePicker";
-// import BankSelect from "@/components/selectbox/bank";
-// import ExpDicSelect from "@/components/selectbox/ExpDic";
-
-// export default function Commercial(props: any) {
-//   const { data, commer, setCommer }: any = props;
-//   const [rowSelection, setRowSelection] = React.useState<any>({});
-//   const addNewRow = () => {
-//     // Assuming commer is initially set to an empty array or some array
-//     let newRow: any = {
-//       U_Type: "",
-//       U_Name: "",
-//       U_Ref: "",
-//       U_IssueDate: "",
-//       U_ExpiredDate: "",
-//       U_Fee: 0,
-//     };
-
-//     // Make sure commer is initialized as an array
-//     setCommer((prevCommer: any) => {
-//       if (!Array.isArray(prevCommer)) {
-//         // If commer is not an array, initialize it as an empty array
-//         return [newRow];
-//       }
-
-//       // Spread the previous commer array and add the new row
-//       return [...prevCommer, newRow];
-//     });
-//   };
-//   const handlerRemoveCheck = () => {
-//     const rows = Object.keys(rowSelection);
-//     if (rows.length <= 0) return;
-//     const newData = commer?.filter(
-//       (item: any, index: number) => !rows.includes(index.toString())
-//     );
-//     setCommer(newData);
-//     setRowSelection({});
-//   };
-
-//   const handleChange = (index: number, key: string, value: any) => {
-//     const updated = commer?.map((item: any, idx: number) => {
-//       if (idx === index) {
-//         return {
-//           ...item,
-//           [key]: value,
-//         };
-//       }
-//       return item;
-//     });
-
-//     setCommer(updated);
-
-//   };
-//   const columns = [
-//     {
-//       accessorKey: "U_Type",
-//       header: "Type",
-//       Cell: ({ cell }: any) => (
-//         <MUITextField
-//           key={"U_Type" + cell?.row?.id}
-//           defaultValue={cell.row.original?.U_Description || ""}
-//           onBlur={(e: any) => {
-//             handleChange(cell?.row?.id, "U_Type", e?.target?.value);
-//           }}
-//         />
-//       ),
-//     },
-//   ];
-
-//   return (
-//     <div className="">
-//       <div className="flex space-x-4 text-[25px] justify-end mb-2">
-//         {!data?.edit && (
-//           <>
-//             <AiOutlinePlus
-//               className="text-blue-700 cursor-pointer"
-//               onClick={addNewRow}
-//             />
-//             <MdDeleteOutline
-//               className="text-red-500 cursor-pointer"
-//               onClick={handlerRemoveCheck}
-//             />
-//           </>
-//         )}
-//         <AiOutlineSetting className="cursor-pointer" />
-//       </div>
-//       <MaterialReactTable
-//         columns={columns}
-//         data={commer || []}
-//         enableStickyHeader={true}
-//         enableHiding={true}
-//         enablePinning={true}
-//         enableSelectAll={true}
-//         enableMultiRowSelection={true}
-//         enableColumnActions={false}
-//         enableColumnFilters={false}
-//         enablePagination={false}
-//         enableSorting={false}
-//         enableBottomToolbar={false}
-//         enableTopToolbar={false}
-//         enableColumnResizing={true}
-//         enableTableFooter={false}
-//         enableRowSelection
-//         onRowSelectionChange={setRowSelection}
-//         initialState={{
-//           density: "compact",
-//           rowSelection,
-//         }}
-//         state={{
-//           rowSelection,
-//         }}
-//         muiTableProps={{
-//           sx: { cursor: "pointer", height: "60px" },
-//         }}
-//       />
-//     </div>
-//   );
-// }
-
+import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
+import { Controller } from "react-hook-form";
 export default function Commercial({
   register,
   defaultValue,
   setValue,
   commer,
   setCommer,
+  control,
 }: any) {
+  const [staticSelect, setStaticSelect] = useState({
+    u_IssueDate: null,
+    u_ExpiredDate: null,
+  });
   const addNewRow = () => {
     let newRow: any = {};
     setCommer([...(commer ?? []), newRow]);
@@ -159,7 +42,7 @@ export default function Commercial({
     });
     setCommer(updated);
   };
-  console.log(commer);
+  console.log(staticSelect);
 
   return (
     <>
@@ -230,6 +113,31 @@ export default function Commercial({
                   />
                 </td>
                 <td className="pr-4">
+                  <Controller
+                    name="U_IssueDate"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <MUIDatePicker
+                          {...field}
+                          value={staticSelect?.u_IssueDate}
+                          key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
+                          onChange={(e: any) => {
+                            const val =
+                              e.toLowerCase() ===
+                              "Invalid Date".toLocaleLowerCase()
+                                ? ""
+                                : e;
+                            setStaticSelect({
+                              ...staticSelect,
+                              u_IssueDate: e,
+                            });
+                            handlerChangeCommer("U_IssueDate", val, index);
+                          }}
+                        />
+                      );
+                    }}
+                  />
                   {/* <DatePicker
                     onChange={(value: any) => {
                       if (value) {
@@ -257,6 +165,31 @@ export default function Commercial({
   
                     key={e?.U_ExpiredDate}
                   /> */}
+                  <Controller
+                    name="U_ExpiredDate"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <MUIDatePicker
+                          {...field}
+                          value={staticSelect.u_ExpiredDate}
+                          key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
+                          onChange={(e: any) => {
+                            const val =
+                              e.toLowerCase() ===
+                              "Invalid Date".toLocaleLowerCase()
+                                ? ""
+                                : e;
+                            setStaticSelect({
+                              ...staticSelect,
+                              u_ExpiredDate: e,
+                            });
+                            handlerChangeCommer("U_ExpiredDate", val, index);
+                          }}
+                        />
+                      );
+                    }}
+                  />
                 </td>
 
                 <td className="pr-4">

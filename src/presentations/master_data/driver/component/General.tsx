@@ -23,7 +23,8 @@ const General = ({
   setBranchAss,
   branchAss,
   header,
-  setHeader
+  setHeader,
+  detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     startDate: null,
@@ -56,6 +57,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("FirstName"),
                     onBlur: (e) =>
@@ -72,6 +74,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("LastName"),
                     onBlur: (e) =>
@@ -88,6 +91,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("MiddleName"),
                   }}
@@ -102,6 +106,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("EmployeeCode"),
                   }}
@@ -121,6 +126,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <PositionAutoComplete
+                        disabled={detail}
                         {...field}
                         value={defaultValues?.Position}
                         onChange={(e: any) => {
@@ -147,16 +153,12 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <DepartmentAutoComplete
+                        disabled={detail}
                         {...field}
                         value={defaultValues?.Department}
                         onChange={(e: any) => {
-                       
-                             setValue("Department", e?.Code);
-                             setHeader({ ...header, department: e?.Name });
-                      
-                            
-                          
-                         
+                          setValue("Department", e?.Code);
+                          setHeader({ ...header, department: e?.Name });
                           // setHeader({ ...header, data5: e?.Name })
                         }}
                       />
@@ -178,6 +180,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ManagerAutoComplete
+                        disabled={detail}
                         {...field}
                         value={defaultValues?.Manager}
                         onChange={(e: any) => {
@@ -199,12 +202,11 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <BranchAssignmentAuto
-                  onChange={(e: any) =>
-                  {
+                  disabled={detail}
+                  onChange={(e: any) => {
                     setBranchAss([e]);
                     setHeader({ ...header, branch: e?.BPLName });
-                    }
-                  }
+                  }}
                   value={staticSelect?.branchASS}
                 />
               </div>
@@ -220,6 +222,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("MobilePhone"),
                   }}
@@ -234,6 +237,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("HomePhone"),
                   }}
@@ -248,6 +252,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("eMail"),
                   }}
@@ -267,6 +272,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
+                      disabled={detail}
                         {...field}
                         defaultValue={
                           defaultValues?.StartDate || staticSelect.startDate
@@ -313,6 +319,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
+                        disabled={detail}
                         items={[
                           { value: "tYES", label: "Active" },
                           { value: "tNO", label: "Inactive" },
@@ -348,6 +355,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
+                      disabled={detail}
                         {...field}
                         defaultValue={
                           defaultValues?.TerminationDate ||
@@ -388,6 +396,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ReasonAutoComplete
+                      disabled={detail}
                         {...field}
                         value={defaultValues?.TreminationReason}
                         onChange={(e: any) => {

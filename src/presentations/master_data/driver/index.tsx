@@ -16,7 +16,8 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
-    name: "",
+    FirstName: "",
+    LastName:"",
     active: "tYES",
   });
    const branchAss: any = useQuery({
@@ -190,7 +191,7 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "Driver",
-      `${pagination.pageIndex * pagination.pageSize}__${
+      `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
@@ -241,12 +242,16 @@ export default function Lists() {
   let queryFilters = "";
   const handlerSearch = (value: string) => {
 
-    if (searchValues.name) {
+    if (searchValues.FirstName) {
       queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.name}'))`
-        : `(contains(FirstName, '${searchValues.name}'))`;
+        ? ` and (contains(FirstName, '${searchValues.FirstName}'))`
+        : `(contains(FirstName, '${searchValues.FirstName}'))`;
     }
-
+  if (searchValues.LastName) {
+    queryFilters += queryFilters
+      ? ` and (contains(LastName, '${searchValues.LastName}'))`
+      : `(contains(LastName, '${searchValues.LastName}'))`;
+  }
     if (searchValues.active) {
       queryFilters += queryFilters
         ? ` and Active eq '${searchValues.active}'`
@@ -288,13 +293,25 @@ export default function Lists() {
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.name}
+                  value={searchValues.FirstName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, name: e.target.value })
+                    setSearchValues({ ...searchValues, FirstName: e.target.value })
                   }
                 />
               </div>
-
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  type="string"
+                  label="Last Name"
+                  // placeholder="Employee Code"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.LastName}
+                  onChange={(e) =>
+                    setSearchValues({ ...searchValues, LastName: e.target.value })
+                  }
+                />
+              </div>
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
                   <label
@@ -357,7 +374,7 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              <div className="">
+              {/* <div className="">
                 <DataTableColumnFilter
                   handlerClearFilter={handlerRefresh}
                   title={
@@ -374,7 +391,7 @@ export default function Lists() {
                   )}
                   onClick={handlerSearch}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

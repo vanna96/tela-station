@@ -3,7 +3,9 @@ import { TextField } from "@mui/material";
 import React from "react";
 import { UseFormProps } from "../form";
 
-const Address = ({register}:UseFormProps) => {
+const Address = ({ register, detail }: UseFormProps) => {
+  console.log(detail);
+  
   return (
     <div>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -19,7 +21,10 @@ const Address = ({register}:UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("WorkStreet") }} />
+                <MUITextField
+                  inputProps={{ ...register("WorkStreet") }}
+                  disabled={detail}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -31,6 +36,7 @@ const Address = ({register}:UseFormProps) => {
               <div className="col-span-3">
                 <MUITextField
                   inputProps={{ ...register("WorkStreetNumber") }}
+                  disabled={detail}
                 />
               </div>
             </div>
@@ -41,10 +47,12 @@ const Address = ({register}:UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("WorkCity") }} />
+                <MUITextField
+                  inputProps={{ ...register("WorkCity") }}
+                  disabled={detail}
+                />
               </div>
             </div>
-            
           </div>
         </div>
       </div>
@@ -55,8 +63,6 @@ const Address = ({register}:UseFormProps) => {
         </div>
         <div className="  flex gap-[100px]">
           <div className="col-span-5  w-[50%]">
-           
-
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -64,7 +70,10 @@ const Address = ({register}:UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("HomeStreet") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("HomeStreet") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -76,6 +85,7 @@ const Address = ({register}:UseFormProps) => {
               <div className="col-span-3">
                 <MUITextField
                   inputProps={{ ...register("HomeStreetNumber") }}
+                  disabled={detail}
                 />
               </div>
             </div>
@@ -86,7 +96,10 @@ const Address = ({register}:UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("HomeCity") }} />
+                <MUITextField
+                  inputProps={{ ...register("HomeCity") }}
+                  disabled={detail}
+                />
               </div>
             </div>
           </div>

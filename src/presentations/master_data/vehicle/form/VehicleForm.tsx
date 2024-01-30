@@ -355,7 +355,7 @@ const VehicleForm = (props: any) => {
             )}
             {state.tapIndex === 4 && (
               <div className="m-5">
-                  <Commercial commer={commer} setCommer={setCommer} data={vehicle} />
+                  <Commercial commer={commer} control={control} setCommer={setCommer} data={vehicle} />
               </div>
             )}
             {/* ... Other form fields ... */}

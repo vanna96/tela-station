@@ -14,7 +14,8 @@ const Personal = ({
   defaultValues,
   setValue,
   header,
-  setHeader
+  setHeader,
+detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     gender: "",
@@ -50,13 +51,14 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
                         { label: "Female", value: "gt_Female" },
                         { label: "Male", value: "gt_Male" },
                       ]}
                       onChange={(e: any) => {
                         setValue("Gender", e.target.value);
-                        
+
                         setStaticSelect({
                           ...staticSelect,
                           gender: e.target.value,
@@ -85,6 +87,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
+                      disabled={detail}
                       {...field}
                       defaultValue={
                         defaultValues?.DateOfBirth || staticSelect.dateOfbirth
@@ -111,7 +114,10 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("IdNumber") }} />
+              <MUITextField
+                inputProps={{ ...register("IdNumber") }}
+                disabled={detail}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -127,6 +133,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
                         { label: "Divorced", value: "D" },
                         { label: "Married", value: "mts_Married" },
@@ -166,6 +173,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
                         { label: "A+", value: "A+" },
                         { label: "A-", value: "A-" },
@@ -207,6 +215,7 @@ const Personal = ({
               {defaultValues == undefined && (
                 <div className="hidden">
                   <MUITextField
+                    disabled={detail}
                     inputProps={{ ...register("CitizenshipCountryCode") }}
                     value={"KH"}
                   />
@@ -218,6 +227,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <CountryAutoComplete
+                      disabled={detail}
                       {...field}
                       value={defaultValues?.CitizenshipCountryCode || "KH"}
                       onChange={(e: any) => {
@@ -238,7 +248,10 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("PassportNumber") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("PassportNumber") }}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -254,6 +267,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
+                      disabled={detail}
                       {...field}
                       defaultValue={
                         defaultValues?.PassportExpirationDate ||
@@ -296,6 +310,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
+                      disabled={detail}
                       {...field}
                       defaultValue={
                         defaultValues?.PassportIssueDate ||
@@ -332,7 +347,10 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("PassportIssuer") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("PassportIssuer") }}
+              />
             </div>
           </div>
         </div>

@@ -193,7 +193,7 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "vehicle",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination?.pageSize}_${filter !== "" ? "f" : ""}`,pagination?.pageSize
     ],
     queryFn: async () => {
       const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
@@ -338,7 +338,7 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              <div className="">
+              {/* <div className="">
                 <DataTableColumnFilter
                   handlerClearFilter={handlerRefresh}
                   title={
@@ -359,7 +359,7 @@ export default function Lists() {
                   )}
                   onClick={handlerSearch}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

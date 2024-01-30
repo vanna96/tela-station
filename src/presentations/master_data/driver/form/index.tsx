@@ -36,6 +36,7 @@ export type UseFormProps = {
   branchAss?: any;
   header?: any;
   setHeader?: any;
+  detail?: boolean;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -323,7 +324,7 @@ const Form = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Address setValue={setValue} register={register} />
+                  <Address setValue={setValue} register={register}  />
               </h1>
             )}
             {state.tapIndex === 2 && (
