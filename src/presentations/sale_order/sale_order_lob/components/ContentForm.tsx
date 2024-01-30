@@ -230,8 +230,14 @@ export default function ContentForm({
               aliaslabel="label"
               aliasvalue="value"
               onChange={(event: any) => {
-                console.log(cell.row.original.ItemPrices);
-                console.log(data.U_tl_sopricelist);
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["UomAbsEntry", event.target.value],
+                  "UomAbsEntry"
+                );
+                let defaultPrice = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.Price;
                 let itemPrices = cell.row.original.ItemPrices?.find(
                   (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
                 )?.UoMPrices;
@@ -240,13 +246,7 @@ export default function ContentForm({
                   (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
                 );
 
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["UomAbsEntry", event.target.value],
-                  "UomAbsEntry"
-                );
-
-                if (event.target.value === uomPrice.UoMEntry) {
+                if (uomPrice && event.target.value === uomPrice.UoMEntry) {
                   const grossPrice = uomPrice.Price;
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
@@ -266,7 +266,7 @@ export default function ContentForm({
                     "LineTotal"
                   );
                 } else {
-                  const grossPrice = cell.row.original.UnitPrice;
+                  const grossPrice = defaultPrice;
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
                     grossPrice * quantity -
