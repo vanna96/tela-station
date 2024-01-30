@@ -288,9 +288,9 @@ class SalesOrderForm extends CoreFormDocument {
         data?.Items || [],
         data?.DocType,
         warehouseCodeGet,
-        data.BinLocation
+        data.BinLocation,
+        data.LineOfBusiness
       );
-      // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
@@ -484,16 +484,6 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
-  // LeftSideField = () => {
-  //   return <>'hello left side </>;
-  // };
-  // RightSideField = () => {
-  //   return (
-  //     <div>
-  //      'Hello Right Side
-  //     </div>
-  //   );
-  // };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
@@ -582,15 +572,6 @@ class SalesOrderForm extends CoreFormDocument {
                     />
                   )}
 
-                  {/* {this.state.tapIndex === 3 && (
-                    <AttachmentForm
-                      data={this.state}
-                      handlerChange={(key: any, value: any) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
-
                   <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                       <div className="flex gap-2">
@@ -649,7 +630,13 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
+const getItem = (
+  items: any,
+  type: any,
+  warehouseCode: any,
+  BinLocation: any,
+  LineOfBussiness: any
+) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
@@ -660,7 +647,7 @@ const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       UomAbsEntry: item.UomAbsEntry,
-      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
+      LineOfBussiness: LineOfBussiness,
       RevenueLine: item.revenueLine ?? "202001",
       ProductLine: item.REV ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,

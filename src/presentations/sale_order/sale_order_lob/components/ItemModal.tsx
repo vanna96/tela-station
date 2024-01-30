@@ -16,11 +16,14 @@ import { TextField } from "@mui/material";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
   onSave?: (value: any) => void;
   columns: any[];
+  priceList: any;
 }
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
@@ -29,6 +32,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.state = {
       open: false,
+      priceList: props.priceList,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -123,13 +127,14 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
+    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
         titleClass="pt-3 px-4 font-bold w-full"
         open={this.state.open}
         widthClass="w-[70vw] sm:w-[90vw]"
-        heightClass="h-[90vh]"
+        // heightClass="h-[90vh]"
         onClose={this.onClose}
         onOk={this.onSave}
         okLabel="Save"
@@ -212,24 +217,75 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <UOMSelect
-                label="UOM Code"
-                value={this.state?.UomAbsEntry}
-                filterAbsEntry={this.state.SaleUOMLists}
-                onChange={(event) => this.handChange(event, "UomAbsEntry")}
-              />
               <MUITextField
-                label="UOM Name"
+                label="UOM Code"
                 disabled
-                value={this.state?.UomGroupCode}
+                value={
+                  new UnitOfMeasurementRepository().find(
+                    this.state?.UomAbsEntry
+                  )?.Code
+                }
+              />
+              <MUISelect
+                label="UOM Name"
+                value={this.state?.UomAbsEntry}
+                items={this.state.UomLists?.map((e: any) => ({
+                  label: e.Name,
+                  value: e.AbsEntry,
+                }))}
+                onChange={(event) => {
+                  this.handChange(event, "UomAbsEntry");
+
+                  const selectedUomAbsEntry = event.target.value;
+                  const priceList = this.props.priceList;
+                  let itemPrices = this.state.ItemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(priceList)
+                  )?.UoMPrices;
+
+                  let uomPrice = itemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(priceList)
+                  );
+
+                  if (uomPrice && selectedUomAbsEntry === uomPrice.UoMEntry) {
+                    const grossPrice = uomPrice.Price;
+                    const quantity = this.state.Quantity ?? 1;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (this.state.DiscountPercent / 100);
+
+                    this.setState({
+                      GrossPrice: grossPrice,
+                      LineTotal: totalGross,
+                    });
+                  } else {
+                    const grossPrice = this.state.UnitPrice ?? 0;
+                    const quantity = this.state.Quantity ?? 1;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (this.state.DiscountPercent / 100);
+
+                    this.setState({
+                      GrossPrice: grossPrice,
+                      LineTotal: totalGross,
+                    });
+                  }
+                }}
               />
 
-              <WarehouseAutoComplete
-                Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
-                label="Warehouse Code"
-                value={this.state?.WarehouseCode}
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
-              />
+              <div className="flex flex-col">
+                <div className="text-sm">Warehouse</div>
+                <div className="mb-2"></div>
+                <WarehouseAutoComplete
+                  Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
+                  value={this.state?.WarehouseCode}
+                  onChange={(event) => this.handChange(event, "WarehouseCode")}
+                />
+              </div>
+
               <WareBinLocation
                 itemCode={this.state.ItemCode}
                 Whse={this.state.WarehouseCode}

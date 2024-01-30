@@ -38,6 +38,7 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
+  const vendorPriceList = data.U_tl_sopricelist;
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -60,7 +61,6 @@ export default function ContentForm({
 
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
-      const vendorPriceList = data.U_tl_sopricelist;
       const items: any = data?.Items?.map(
         (item: any, indexItem: number, vendorPriceList: any) => {
           if (i.toString() === indexItem.toString()) {
@@ -438,6 +438,7 @@ export default function ContentForm({
         }}
       />
       <ItemModal
+        priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
         columns={itemColumns}
