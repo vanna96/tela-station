@@ -40,16 +40,12 @@ import DriverDetail from "@/presentations/master_data/driver/detail/index";
 import VehicleList from "@/presentations/master_data/vehicle/index";
 
 import Stopslistpage from "@/presentations/master_data/stops";
-import StopsForm from "@/presentations/master_data/stops/form/index"
-import StopsDetail from "@/presentations/master_data/stops/detail/index"
+import StopsForm from "@/presentations/master_data/stops/form/index";
+import StopsDetail from "@/presentations/master_data/stops/detail/index";
 
 import Routelistpage from "@/presentations/master_data/route";
-import RouteForm from "@/presentations/master_data/route/form/index"
-import RouteDetail from "@/presentations/master_data/route/detail/index"
-import VehicelForm from "@/presentations/logistic/vehicel/page/VehicelForm";
-import VehicleForm from "@/presentations/master_data/vehicle/form/VehicleForm";
-import VehicleDetail from "@/presentations/master_data/vehicle/detail";
-
+import RouteForm from "@/presentations/master_data/route/form/index";
+import RouteDetail from "@/presentations/master_data/route/detail/index";
 
 export default function MasterDataRoute() {
   return (

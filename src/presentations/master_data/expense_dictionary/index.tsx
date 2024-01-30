@@ -175,7 +175,9 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "TL_ExpDic",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""}`,
+      pagination.pageSize,
+      pagination.pageIndex
     ],
     queryFn: async () => {
       const response: any = await request(

@@ -58,7 +58,6 @@ export const APIContextProvider = ({ children }: GeneralProps) => {
         .catch((err: any) => console.log(err)),
     // staleTime: Infinity,
   })
-console.log(tlExpDic);
 
   return (
     <>

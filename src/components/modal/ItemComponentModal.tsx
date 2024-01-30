@@ -40,7 +40,7 @@ const ItemModal: FC<ItemModalProps> = ({
   CardCode,
   WarehouseCode,
   Currency,
-  multipleSelect
+  multipleSelect,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -52,7 +52,7 @@ const ItemModal: FC<ItemModalProps> = ({
       new itemRepository().getSaleItem(
         ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    // staleTime: Infinity,
+    staleTime: 180000,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -75,16 +75,18 @@ const ItemModal: FC<ItemModalProps> = ({
       {
         accessorKey: "ItemName",
         header: "Name",
+        size: 100,
       },
       {
         accessorKey: "ForeignName",
         header: "Foreign Name",
         size: 90,
+        Cell: ({ cell }: any) => {
+          return (
+            <div>{cell.getValue() === null ? "N/A" : cell.getValue()}</div>
+          );
+        },
       },
-      // {
-      //   accessorKey: "Description",
-      //   header: "Description",
-      // },
     ],
     []
   );
@@ -222,9 +224,11 @@ const ItemModal: FC<ItemModalProps> = ({
         revenueLine: "202001",
         REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
-        GrossPrice:
-          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-          0,
+        // GrossPrice:
+        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+        //   0,
+       GrossPrice : defaultPrice,  
+       ItemPrices : e.ItemPrices,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,
@@ -266,7 +270,7 @@ const ItemModal: FC<ItemModalProps> = ({
         </Transition.Child> */}
 
         <div className="fixed inset-0 overflow-y-auto w-full bg-black bg-opacity-30">
-          <div className="flex min-h-full items-center justify-center  text-center ">
+          <div className="flex w-full h-full items-center justify-center  text-center ">
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -277,12 +281,12 @@ const ItemModal: FC<ItemModalProps> = ({
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel
-                className={`flex flex-col bg-white w-[70vw] min-h-[75vh] px-[2.5rem] border shadow-lg relative transform overflow-hidden rounded-lg  py-1 text-left align-middle  transition-all`}
+                className={`flex flex-col bg-white w-[50vw] px-12 py-12 border shadow-lg relative transform overflow-hidden rounded-lg  text-left align-middle  transition-all`}
               >
                 <div className={`grow text-inherit`}>
                   <div className={`data-grid`}>
                     <div className="w-full flex justify-between items-center  ">
-                      <h2 className="font-bold text-xl mt-12">
+                      <h2 className="font-medium text-lg ">
                         {"List of Items"}
                       </h2>
                       <OutlinedInput
@@ -291,7 +295,7 @@ const ItemModal: FC<ItemModalProps> = ({
                         onChange={handlerSearch}
                         className="text-sm"
                         sx={{ fontSize: "14px" }}
-                        placeholder="Search..."
+                        placeholder="Item Code/Name"
                         endAdornment={
                           <IconButton size="small" onClick={clearFilter}>
                             {globalFilter !== "" ? (
@@ -346,19 +350,19 @@ const ItemModal: FC<ItemModalProps> = ({
                     <div className="w-full flex justify-end items-center border-t pt-3 gap-3">
                       <Button
                         size="small"
-                        disableElevation
-                        variant="text"
+                        // disableElevation
+                        variant="outlined"
                         onClick={onClose}
                       >
-                        <span className="capitalize px-6   text-xs">Close</span>
+                        <span className="capitalize px-4  text-sm">Close</span>
                       </Button>
                       <Button
                         size="small"
-                        disableElevation
+                        // disableElevation
                         variant="contained"
                         onClick={handlerConfirm}
                       >
-                        <span className="capitalize px-6 text-white text-xs">
+                        <span className="capitalize px-6 text-white text-sm">
                           Ok
                         </span>
                       </Button>
@@ -427,7 +431,7 @@ export class ItemModalComponent extends React.Component<
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}
-        Currency = {this.state.Currency}
+        Currency={this.state.Currency}
         multipleSelect={this.props.multipleSelect}
       />
     );

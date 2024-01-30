@@ -42,7 +42,7 @@ export default function BPAutoComplete(props: {
         getOptionLabel={(option: any) => `${option.CardCode} - ${option.CardName}`}
         filterOptions={(options, state) => {
           const inputValue = state.inputValue.toLowerCase();
-          return options.filter(
+          return options?.filter(
             (option) =>
               option.CardCode.toLowerCase().includes(inputValue) ||
               option.CardName.toLowerCase().includes(inputValue)

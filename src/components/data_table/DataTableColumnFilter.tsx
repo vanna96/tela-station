@@ -45,7 +45,7 @@ export default function DataTableColumnFilter(
     setAnchorEl(null);
     let query = "";
 
-    filterList.forEach((row) => { 
+    filterList.forEach((row) => {
       if (row.filter.includes("with") || row.filter.includes("contains")) {
         query += `${row.filter.replace(
           "value",

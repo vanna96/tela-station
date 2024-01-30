@@ -23,6 +23,9 @@ export default function LogisticForm({
   edit,
   ref,
 }: ILogisticFormProps) {
+  if (data.vendor) {
+    data.ShipToCode === data.ShipToDefault;
+  }
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
@@ -65,8 +68,8 @@ export default function LogisticForm({
               <div className="col-span-3">
                 <WarehouseAttendTo
                   U_tl_attn_ter={true}
-                  value={data.U_tl_grsuppo}
-                  onChange={(e) => handlerChange("U_tl_grsuppo", e)}
+                  value={data.U_tl_attn_ter}
+                  onChange={(e) => handlerChange("U_tl_attn_ter", e)}
                 />
               </div>
             </div>
@@ -83,13 +86,13 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <MUISelect
-                  value={data?.PayToCode}
+                  value={data?.ShipToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"
                   items={data?.BPAddresses?.filter(
-                    ({ addressType }: any) => addressType === "bo_BillTo"
+                    ({ addressType }: any) => addressType === "bo_ShipTo"
                   )}
-                  onChange={(e) => handlerChange("PayToCode", e.target.value)}
+                  onChange={(e) => handlerChange("ShipToCode", e.target.value)}
                 />
               </div>
             </div>
@@ -108,18 +111,18 @@ export default function LogisticForm({
                   value={
                     !edit
                       ? getShippingAddress(
-                          data?.PayToCode,
+                          data?.ShipToCode,
 
                           data?.BPAddresses?.filter(
                             ({ addressType }: any) =>
-                              addressType === "bo_BillTo"
+                              addressType === "bo_ShipTo"
                           )
                         )
                       : getShippingAddress(
-                          data?.PayToCode,
+                          data?.ShipToCode,
                           data?.vendor?.bpAddress?.filter(
                             ({ addressType }: any) =>
-                              addressType === "bo_BillTo"
+                              addressType === "bo_ShipTo"
                           )
                         )
                   }

@@ -12,6 +12,7 @@ import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import { useQuery } from "react-query";
+import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -52,6 +53,7 @@ export default function GeneralForm({
                   value={data?.Code}
                   name="Code"
                   onChange={(e) => handlerChange("Code", e.target.value)}
+                  disabled={edit}
                 />
               </div>
             </div>
@@ -79,11 +81,11 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account <span className="text-red-500">*</span>
+                  G/L Account <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <CashACAutoComplete
+                <GLAccountAutoComplete
                   onChange={(e) =>
                     handlerChange("U_tl_expacct", e)
                   }
@@ -141,7 +143,7 @@ export default function GeneralForm({
                   onChange={(e) =>
                     handlerChange("U_tl_expactive", e.target.value)
                   }
-                  value={data?.U_tl_expactive ?? "Y"}
+                  value={data?.U_tl_expactive}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_tl_expactive"

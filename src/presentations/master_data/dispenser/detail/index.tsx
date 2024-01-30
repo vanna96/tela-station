@@ -32,6 +32,7 @@ import ContentComponent from "../../morph_price/components/ContentComponents";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import MUITextField from "@/components/input/MUITextField";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -41,7 +42,8 @@ class DeliveryDetail extends Component<any, any> {
       isError: false,
       message: "",
       tapIndex: 0,
-      Status: "New"
+      Status: "New",
+      showCollapse: false,
     };
 
     this.fetchData = this.fetchData.bind(this);
@@ -178,8 +180,8 @@ class DeliveryDetail extends Component<any, any> {
 
 export default withRouter(DeliveryDetail);
 
-function General(props: any) {
-
+function General(props: any) { 
+  
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -192,25 +194,41 @@ function General(props: any) {
           <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Branch</div>
               <div className="col-span-1 text-gray-900">
-                { new BranchBPLRepository().find(1)?.BPLName }
+                <MUITextField
+                  value={ new BranchBPLRepository().find(props?.data?.U_tl_bplid)?.BPLName }
+                  placeholder="Pump Name"
+                  disabled={true}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Pump Code</div>
               <div className="col-span-1 text-gray-900">
-                { props?.data?.PumpCode ?? "N/A" }
+                <MUITextField
+                  value={ props?.data?.PumpCode ?? "N/A" }
+                  placeholder="Pump Name"
+                  disabled={true}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Pump Name</div>
               <div className="col-span-1 text-gray-900">
-                { props?.data?.PumpName ?? "N/A" }
+                <MUITextField
+                  value={ props?.data?.PumpName ?? "N/A" }
+                  placeholder="Pump Name"
+                  disabled={true}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Number of Pump</div>
               <div className="col-span-1 text-gray-900">
-                {props.data?.NumOfPump}
+                <MUITextField
+                  value={props.data?.NumOfPump}
+                  placeholder="Pump Name"
+                  disabled={true}
+                />
               </div>
             </div>
           </div>
@@ -221,13 +239,21 @@ function General(props: any) {
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700">Type</div>
               <div className="col-span-1  text-gray-900">
-                {props.data?.lineofBusiness}
+                <MUITextField
+                  value={props.data?.lineofBusiness}
+                  placeholder="Pump Name"
+                  disabled={true}
+                />
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700">Status</div>
               <div className="col-span-1  text-gray-900">
-                {props.data?.Status}
+                <MUITextField
+                  value={props.data?.Status}
+                  placeholder="Pump Name"
+                  disabled={true}
+                />
               </div>
             </div>
           </div>

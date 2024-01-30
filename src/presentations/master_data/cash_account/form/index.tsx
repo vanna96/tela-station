@@ -18,6 +18,9 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
+      U_tl_cashtype: "Payment Method",
+      U_tl_cashactive: "Y",
+      showCollapse: false
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -65,16 +68,27 @@ class Form extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-    
-      // on Edit
-      const payload = {
-        // Series: data?.Series || null,
+      if (!data.Code) {
+        data["error"] = { Code: "Code is Required!" };
+        throw new FormValidateException("Code is Required!", 0);
+      }
 
+      if (!data.Name) {
+        data["error"] = { Name: "Name is Required!" };
+        throw new FormValidateException("Name is Required!", 0);
+      }
+      
+      if (!data.U_tl_cashacct) {
+        data["error"] = { U_tl_cashacct: "G/L Account is Required!" };
+        throw new FormValidateException("G/L Account is Required!", 0);
+      }
+      
+      const payload = {
         Code: data?.Code,
         Name: data?.Name,
         U_tl_cashacct: data?.U_tl_cashacct,
-        U_tl_bplid: data?.U_tl_bplid,
-        U_tl_cashactive: data?.U_tl_cashactive,
+        U_tl_cashtype: data?.U_tl_cashtype,
+        U_tl_cashactive: data?.U_tl_cashactive
       };
 
       if (id) {
@@ -178,35 +192,40 @@ class Form extends CoreFormDocument {
           )}
           {this.state.DocumentStatus !== "Closed" && (
             <div className="sticky w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                <div className="flex ">
-                  <LoadingButton
-                    size="small"
-                    sx={{ height: "25px" }}
-                    variant="contained"
-                    disableElevation
-                  >
-                    <span className="px-3 text-[11px] py-1 text-white">
-                      Cancel
-                    </span>
-                  </LoadingButton>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <LoadingButton
-                    type="submit"
-                    sx={{ height: "25px" }}
-                    className="bg-white"
-                    loading={false}
-                    size="small"
-                    variant="contained"
-                    disableElevation
-                  >
-                    <span className="px-6 text-[11px] py-4 text-white">
-                      {this.props.edit ? "Update" : "Save"}
-                    </span>
-                  </LoadingButton>
-                </div>
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+              <div className="flex ">
+                <LoadingButton
+                  size="small"
+                  sx={{ height: "25px" }}
+                  variant="outlined"
+                  style={{
+                    background: 'white',
+                    border: '1px solid red'
+                  }}
+                  disableElevation
+                  onClick={() => window.location.href = '/master-data/cash-account'}
+                >
+                  <span className="px-3 text-[11px] py-1 text-red-500">
+                    Cancel
+                  </span>
+                </LoadingButton>
               </div>
+              <div className="flex items-center space-x-4">
+                <LoadingButton
+                  type="submit"
+                  sx={{ height: "25px" }}
+                  className="bg-white"
+                  loading={false}
+                  size="small"
+                  variant="contained"
+                  disableElevation
+                >
+                  <span className="px-6 text-[11px] py-4 text-white">
+                    {this.props.edit ? "Update" : "Add"}
+                  </span>
+                </LoadingButton>
+              </div>
+            </div>
             </div>
           )}
         </form>

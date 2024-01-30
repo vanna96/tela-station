@@ -18,7 +18,9 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
-      Type: "Expense"
+      Type: "Expense",
+      U_tl_expactive:"Y",
+      showCollapse: false
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -73,6 +75,16 @@ class Form extends CoreFormDocument {
       let TL_ATTECHCollection = null;
       const files = data?.AttachmentList?.map((item: any) => item);
       if (files?.length > 0) TL_ATTECHCollection = await getAttachment(files);
+
+      if (!data.Code) {
+        data["error"] = { Code: "Code is Required!" };
+        throw new FormValidateException("Code is Required!", 0);
+      }
+
+      if (!data.U_tl_expacct) {
+        data["error"] = { U_tl_expacct: "G/L Account is Required!" };
+        throw new FormValidateException("G/L Account is Required!", 0);
+      }
 
       // on Edit
       const payload = {

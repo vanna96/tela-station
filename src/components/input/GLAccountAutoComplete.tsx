@@ -1,55 +1,41 @@
-import React, { useState, useEffect } from "react";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
+import React, { useState, useEffect } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import PriceListRepository from "@/services/actions/pricelistRepository";
+import request from "@/utilies/request";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
 
-interface Type {
-  PriceListNo: string;
-  PriceListName: string;
-  IsGrossPrice: boolean;
-  Active: boolean;
-}
-
-export default function PriceListAutoComplete(props: {
+export default function GLAccountAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
-  name?: any;
+  BPdata?: any;
   disabled?: any;
-  isActiveAndGross?: boolean;
+  name?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["priceList"],
-    queryFn: () => new PriceListRepository().get(),
+    queryKey: ["gl_account_6"],
+    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
   });
-  let dataFilter = data?.filter(
-    (item: Type) => item.IsGrossPrice && item.Active
-  );
-  useEffect(() => {
-    if (props.value) {
-      const selectedSalePerson = data?.find(
-        (salePerson: any) => salePerson.PriceListNo === props.value
-      );
-      if (selectedSalePerson) {
-        setSelectedValue(selectedSalePerson);
-      }
-    }
-  }, [props.value, data]);
 
+  // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
+    // Update the local state
     setSelectedValue(newValue);
 
     if (props.onChange) {
-      const selectedCode = newValue ? newValue.PriceListNo : null;
-      props.onChange(selectedCode);
+      // Notify the parent component with the selected value
+      const selectedId = newValue ? newValue.Code : null;
+      props.onChange(selectedId);
     }
   };
   const disabled = props.disabled;
+
   return (
-    <div className="block text-[14px] xl:text-[13px]">
+    <div className="block text-[14px] xl:text-[13px] ">
       <label
         htmlFor=""
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
@@ -58,15 +44,17 @@ export default function PriceListAutoComplete(props: {
       </label>
 
       <Autocomplete
-        options={props.isActiveAndGross ? dataFilter : data}
+        disabled={disabled}
+        options={data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(e: Type) => e.PriceListName}
-        renderOption={(props, e: Type) => (
+        getOptionLabel={(option: any) => option.Name}
+        renderOption={(props, option) => (
           <Box component="li" {...props}>
-            {e.PriceListName}
+            <BsDot />
+            {option.Code} - {option.Name}
           </Box>
         )}
         renderInput={(params) => (

@@ -4,9 +4,14 @@ import { HiRefresh } from "react-icons/hi"
 import { useNavigate } from "react-router-dom"
 import { AiOutlineSetting } from "react-icons/ai"
 import MaterialReactTable from "material-react-table"
-import { BsPencilSquare } from "react-icons/bs"
+import { BsPencilSquare, BsSortDown } from "react-icons/bs"
 import ColumnSearch from "@/components/data_table/ColumnSearch"
 import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility"
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import request, { url } from "@/utilies/request"
+import GLAccountRepository from "@/services/actions/GLAccountRepository"
+import MenuCompoment from "@/components/data_table/MenuComponent"
+import Papa from "papaparse"
 
 interface DataTableProps {
   columns: any[]
@@ -18,7 +23,8 @@ interface DataTableProps {
   handlerSearch: (value: string) => void
   pagination: any
   paginationChange: (value: any) => void
-  title?: string
+  title?: string,
+  filter?:any
 }
 
 export default function DataTable(props: DataTableProps) {
@@ -40,6 +46,67 @@ export default function DataTable(props: DataTableProps) {
     if (queries === "") return
     props.handlerSearch("&$filter=" + queries)
   }
+
+  const handleExportToCSV = async () => {
+    const response: any = await request(
+      "GET",
+      `${url}/TL_CashAcct/?${props?.filter.replace('&', '')}`
+    )
+      .then(async (res: any) => res?.data)
+      .catch((e: Error) => {
+        throw new Error(e.message);
+      });
+    
+    const csvContent = convertToCSV(response?.value);
+
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csvContent], { type: "text/csv" });
+
+    // Create a link element to download the CSV file
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "cash_account_lists.csv";
+
+    // Simulate a click on the link to trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Remove the link from the DOM
+    document.body.removeChild(link);
+  };
+
+  const convertToCSV = (data: any[]) => {
+    // Specify the desired field names
+    const fields = [
+      "Cash Code",
+      "Description",
+      "G/L Account",
+      "Status",
+    ];
+
+    // Map the data to the desired field names
+    const mappedData = data.map((row) => ({
+      "Cash Code": row.Code,
+      "Description": row.Name,
+      "G/L Account": ` ${row.U_tl_expacct ?? "N/A"} - ${new GLAccountRepository().find(row.U_tl_expacct)
+        ?.Name ?? 'N/A'}`,
+      "Status": row.U_tl_expactive == 'Y' ? "Active": "Inactive",
+    }));
+
+    // Create CSV content with the specified fields
+    const csvContent = Papa.unparse(
+      {
+        fields,
+        data: mappedData,
+      },
+      {
+        delimiter: ",", // Specify the delimiter
+        header: true, // Include headers in the CSV
+      }
+    );
+
+    return csvContent;
+  };
 
   return (
     <div
@@ -66,20 +133,34 @@ export default function DataTable(props: DataTableProps) {
             </span>
             <span className="capitalize text-sm">Refresh</span>
           </Button>
-          <DataTableColumnVisibility
+          <MenuCompoment
             title={
               <div className="flex gap-2">
                 <span className="text-lg">
-                  <AiOutlineSetting />
+                  <BsSortDown />
                 </span>{" "}
-                <span className="text-[13px] capitalize">Columns</span>
+                <span className="text-[13px] capitalize">Sort By</span>
               </div>
             }
             items={props.columns}
-            onClick={(value) => {
-              setColVisibility(value)
+            onClick={props.handlerSortby}
+          /> 
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => {
+              if (props.data && props.data.length > 0) {
+                handleExportToCSV();
+              }
             }}
-          />
+          >
+            <span className="text-sm mr-2">
+              <InsertDriveFileOutlinedIcon
+                style={{ fontSize: "18px", marginBottom: "2px" }}
+              />
+            </span>
+            <span className="capitalize text-[13px] ">Export to CSV</span>
+          </Button>
         </div>
       </div>
 
