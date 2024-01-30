@@ -100,7 +100,10 @@ export default function GeneralForm({
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
   }
-
+  if (!edit) {
+    data.U_tl_sopricelist = data.vendor?.priceLists;
+  }
+  console.log(data);
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),
@@ -177,10 +180,10 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                value={data?.BinLocation}
+                value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
+                  handlerChange("U_tl_sobincode", e);
                   // onWarehouseChange(e);
                 }}
               />
@@ -272,8 +275,8 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
-                onChange={(e) => handlerChange("PriceLists", e)}
-                value={data?.PriceLists}
+                onChange={(e) => handlerChange("U_tl_sopricelist", e)}
+                value={data?.U_tl_sopricelist}
                 isActiveAndGross={true}
               />
             </div>
@@ -292,13 +295,13 @@ export default function GeneralForm({
                       value={data?.Currency || sysInfo?.SystemCurrency}
                       items={
                         dataCurrency?.length > 0
-                          ? CurrencyAPI?.map((c: any) => {
+                          ? dataCurrency
+                          : CurrencyAPI?.map((c: any) => {
                               return {
                                 value: c.Code,
                                 name: c.Name,
                               };
                             })
-                          : dataCurrency
                       }
                       aliaslabel="name"
                       aliasvalue="value"
@@ -434,10 +437,10 @@ export default function GeneralForm({
                 fullWidth
                 multiline
                 rows={2}
-                name="User_Text"
-                value={data?.User_Text}
+                name="Comments"
+                value={data?.Comments}
                 onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
+                  handlerChange("Comments", e.target.value)
                 }
               />
             </div>

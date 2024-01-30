@@ -89,9 +89,15 @@ export default function LogisticForm({
                   value={data?.ShipToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"
-                  items={data?.BPAddresses?.filter(
-                    ({ addressType }: any) => addressType === "bo_ShipTo"
-                  )}
+                  items={
+                    edit
+                      ? data.vendor?.bpAddress?.filter(
+                          ({ addressType }: any) => addressType === "bo_ShipTo"
+                        )
+                      : data?.BPAddresses?.filter(
+                          ({ addressType }: any) => addressType === "bo_ShipTo"
+                        )
+                  }
                   onChange={(e) => handlerChange("ShipToCode", e.target.value)}
                 />
               </div>

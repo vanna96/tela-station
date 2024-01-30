@@ -31,7 +31,6 @@ export default function BinLocationToAsEntry(props: {
     (warebin: any) => warebin.WhsCode === props?.Warehouse
   );
 
-  // Use a Set to keep track of unique BinCode values
   const uniqueBinCodes = new Set<string>();
   const uniqueWarehouses = filteredWarehouses?.filter((warebin: any) => {
     if (!uniqueBinCodes.has(warebin.BinCode)) {
@@ -40,15 +39,25 @@ export default function BinLocationToAsEntry(props: {
     }
     return false;
   });
-
   useEffect(() => {
     if (props.value) {
-      const selectedWarehouse = uniqueWarehouses?.find(
-        (warebin: any) => warebin.BinAbsEntry === props.value
-      );
-      if (selectedWarehouse) {
-        setSelectedValue(selectedWarehouse);
+      let selectedValue: number | null = null;
+
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
+
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
       }
+
+      const selectedBinLocation = uniqueWarehouses?.find(
+        (warebin: any) => warebin.BinAbsEntry === selectedValue
+      );
+
+      setSelectedValue(selectedBinLocation);
     }
   }, [props.value, uniqueWarehouses]);
 
