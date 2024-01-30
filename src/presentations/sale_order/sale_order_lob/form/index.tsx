@@ -315,7 +315,7 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentLines,
 
         // logistic
-        PayToCode: data?.PayToCode || null,
+        ShipToCode: data?.ShipToCode || null,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
@@ -343,7 +343,7 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentLines,
 
         // logistic
-        PayToCode: data?.PayToCode || null,
+        ShipToCode: data?.ShipToCode || null,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
         U_tl_sobincode: data?.U_tl_sobincode,
@@ -420,7 +420,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
+      2: ["U_tl_dnsuppo", "ShipToCode"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
