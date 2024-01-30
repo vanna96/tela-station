@@ -26,17 +26,27 @@ export default function PriceListAutoComplete(props: {
   let dataFilter = data?.filter(
     (item: Type) => item.IsGrossPrice && item.Active
   );
+
   useEffect(() => {
     if (props.value) {
-      const selectedSalePerson = data?.find(
-        (salePerson: any) => salePerson.PriceListNo === props.value
-      );
-      if (selectedSalePerson) {
-        setSelectedValue(selectedSalePerson);
+      let selectedValue: number | null = null;
+
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
+
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
       }
+
+      const selectedPriceList = data?.find(
+        (priceList: any) => priceList.PriceListNo === selectedValue
+      );
+      setSelectedValue(selectedPriceList);
     }
   }, [props.value, data]);
-
   const [selectedValue, setSelectedValue] = useState(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {

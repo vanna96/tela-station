@@ -110,6 +110,7 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
+    console.log(this.state);
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -156,7 +157,6 @@ class SalesOrderForm extends CoreFormDocument {
                 const uomGroup: any = uomGroups.find(
                   (row: any) => row.AbsEntry === apiResponse.InventoryUoMEntry
                 );
-
 
                 let uomLists: any[] = [];
                 console.log(uomGroup?.UoMGroupDefinitionCollection);
@@ -280,6 +280,9 @@ class SalesOrderForm extends CoreFormDocument {
       // if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // items
+      if (data.vendor) {
+        data.tI_sopricelist === data.vendor.PriceLists;
+      }
 
       const warehouseCodeGet = this.state.warehouseCode;
       const DocumentLines = getItem(
@@ -308,7 +311,8 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
-
+        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_sopricelist: data?.U_tl_sopricelist,
         DocumentLines,
 
         // logistic
@@ -343,7 +347,8 @@ class SalesOrderForm extends CoreFormDocument {
         PayToCode: data?.PayToCode || null,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-
+        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_sopricelist: data?.U_tl_sopricelist,
         // AttachmentEntry,
       };
 

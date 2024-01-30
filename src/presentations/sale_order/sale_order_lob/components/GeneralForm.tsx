@@ -177,10 +177,10 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                value={data?.BinLocation}
+                value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
+                  handlerChange("U_tl_sobincode", e);
                   // onWarehouseChange(e);
                 }}
               />
@@ -272,8 +272,8 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
-                onChange={(e) => handlerChange("PriceLists", e)}
-                value={data?.PriceLists}
+                onChange={(e) => handlerChange("U_tl_sopricelist", e)}
+                value={data?.U_tl_sopricelist}
                 isActiveAndGross={true}
               />
             </div>
