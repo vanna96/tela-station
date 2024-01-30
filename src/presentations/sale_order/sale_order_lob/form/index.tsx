@@ -298,7 +298,7 @@ class SalesOrderForm extends CoreFormDocument {
         PayToCode: data?.PayToCode || null,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-
+        U_tl_dnsuppo: data?.U_tl_dnsuppo,
         // AttachmentEntry,
       };
 
@@ -320,12 +320,11 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
-
         DocumentLines,
 
         // logistic
         PayToCode: data?.PayToCode || null,
-        U_tl_grsuppo: data?.U_tl_grsuppo,
+        U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
         // AttachmentEntry,

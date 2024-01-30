@@ -58,7 +58,7 @@ export default function SaleOrderLists() {
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YYYY-MM-DD");
+          const formattedDate = moment(cell.row.original.TaxDate).format("YYYY-MM-DD");
           return <span>{formattedDate}</span>;
         },
       },

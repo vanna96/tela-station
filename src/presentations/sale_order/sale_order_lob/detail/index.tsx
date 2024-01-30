@@ -3,15 +3,9 @@ import { Component } from "react";
 import { useMemo } from "react";
 import {
   arrayBufferToBlob,
-  currencyDetailFormat,
-  currencyFormat,
   dateFormat,
 } from "@/utilies";
-import PreviewAttachment from "@/components/attachment/PreviewAttachment";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import DocumentHeader from "@/components/DocumenHeader";
-import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository";
-import ShippingTypeRepository from "@/services/actions/shippingTypeRepository";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
@@ -20,14 +14,9 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
-import { Breadcrumb } from "../../components/Breadcrumn";
-import { useNavigate } from "react-router-dom";
-import { Checkbox, CircularProgress, TextField, darken } from "@mui/material";
 import WarehouseRepository from "@/services/warehouseRepository";
-import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
-import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
 import MUITextField from "@/components/input/MUITextField";
 
 class DeliveryDetail extends Component<any, any> {
@@ -68,45 +57,11 @@ class DeliveryDetail extends Component<any, any> {
             .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = [];
           let disabledFields: any = {
             CurrencyType: true,
           };
 
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
+      
           this.setState({
             ...data,
             Description: data?.Comments,
@@ -134,12 +89,6 @@ class DeliveryDetail extends Component<any, any> {
               };
             }),
             ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
             vendor,
             DocDiscount: data?.DiscountPercent,
@@ -148,20 +97,13 @@ class DeliveryDetail extends Component<any, any> {
                 return { addressName: addressName, addressType: addressType };
               }
             ),
-            AttachmentList,
             disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
+           
             Edit: true,
             PostingDate: data?.DocDate,
             DueDate: data?.DocDueDate,
             DocumentDate: data?.TaxDate,
             loading: false,
-            BPProject: data?.Project,
-            QRCode: data?.CreateQRCodeFrom,
-            CashDiscount: data?.CashDiscountDateOffset,
           });
         })
         .catch((err: any) =>
@@ -236,7 +178,6 @@ class DeliveryDetail extends Component<any, any> {
                 <div className="grow  px-16 py-4 ">
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
-
                   {this.state.tapIndex === 2 && <Logistic data={this.state} />}
                 </div>
               </div>
@@ -363,24 +304,24 @@ function Content(props: any) {
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
       },
-      {
-        accessorKey: "ItemsGroupCode",
-        header: "Item Group",
-        size: 60,
-        Cell: ({ cell }: any) => {
-          const value = cell.getValue();
-          switch (value) {
-            case "201001":
-              return "Oil";
-            case "201002":
-              return "Lube";
-            case "201003":
-              return "LPG";
-            default:
-              return value;
-          }
-        },
-      },
+      // {
+      //   accessorKey: "ItemsGroupCode",
+      //   header: "Item Group",
+      //   size: 60,
+      //   Cell: ({ cell }: any) => {
+      //     const value = cell.getValue();
+      //     switch (value) {
+      //       case "201001":
+      //         return "Oil";
+      //       case "201002":
+      //         return "Lube";
+      //       case "201003":
+      //         return "LPG";
+      //       default:
+      //         return value;
+      //     }
+      //   },
+      // },
       {
         accessorKey: "MeasureUnit",
         header: "UoM Group",
@@ -467,7 +408,7 @@ function Logistic(props: any) {
             )}
             {renderKeyValue(
               "Attention Terminal",
-              new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
+              new WarehouseRepository().find(props?.data?.U_tl_attn_ter)
                 ?.WarehouseName ?? "N/A"
             )}
           </div>
