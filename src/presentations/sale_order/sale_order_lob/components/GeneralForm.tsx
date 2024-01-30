@@ -99,8 +99,9 @@ export default function GeneralForm({
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
+    data.U_tl_sopricelist = data.vendor?.priceLists;
   }
-
+  console.log(data);
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),

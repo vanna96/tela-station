@@ -283,7 +283,6 @@ class SalesOrderForm extends CoreFormDocument {
       if (data.vendor) {
         data.tI_sopricelist === data.vendor.PriceLists;
       }
-
       const warehouseCodeGet = this.state.warehouseCode;
       const DocumentLines = getItem(
         data?.Items || [],
