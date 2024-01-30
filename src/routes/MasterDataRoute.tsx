@@ -46,6 +46,8 @@ import StopsDetail from "@/presentations/master_data/stops/detail/index";
 import Routelistpage from "@/presentations/master_data/route";
 import RouteForm from "@/presentations/master_data/route/form/index";
 import RouteDetail from "@/presentations/master_data/route/detail/index";
+import VehicleDetail from "@/presentations/master_data/vehicle/detail";
+import VehicleForm from "@/presentations/master_data/vehicle/form/VehicleForm";
 
 export default function MasterDataRoute() {
   return (

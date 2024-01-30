@@ -30,6 +30,19 @@ export default function Lists() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "No",
+        header: "No", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        Cell: (cell: any,index:number) => {
+          return (
+            <span>{parseInt(cell?.row?.id)+1}</span>
+          );
+        },
+      },
+      {
         accessorKey: "Name",
         header: "Driver Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
@@ -53,7 +66,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return (cell.row.original.Gender)?.replace('gt_','') ?? "N/A";
+          return cell.row.original.Gender?.replace("gt_", "") ?? "N/A";
         },
       },
       {
@@ -81,8 +94,9 @@ export default function Lists() {
         type: "number",
         Cell: (cell: any) => {
           return (
-            branchAss?.data?.find((e: any) => e?.BPLID === cell.row.original.BPLID)?.BPLName??
-            "N/A"
+            branchAss?.data?.find(
+              (e: any) => e?.BPLID === cell.row.original.BPLID
+            )?.BPLName ?? "N/A"
           );
         },
       },
@@ -176,7 +190,10 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "Driver",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}__${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
@@ -275,11 +292,8 @@ export default function Lists() {
                   onChange={(e) =>
                     setSearchValues({ ...searchValues, name: e.target.value })
                   }
-                  
                 />
               </div>
-
-           
 
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
@@ -353,7 +367,11 @@ export default function Lists() {
                       </Button>
                     </div>
                   }
-                  items={columns?.filter((e) => e?.accessorKey !== "DocEntry")}
+                  items={columns?.filter(
+                    (e) =>
+                      e?.accessorKey !== "DocEntry" &&
+                      e?.accessorKey !== "No"
+                  )}
                   onClick={handlerSearch}
                 />
               </div>

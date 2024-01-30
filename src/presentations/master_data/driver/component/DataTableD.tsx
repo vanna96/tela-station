@@ -77,7 +77,7 @@ export default function DataTable(props: DataTableProps) {
             }
             items={props.columns}
             onClick={(value) => {
-              setColVisibility(value)
+              setColVisibility(value);
             }}
           />
         </div>
@@ -92,8 +92,9 @@ export default function DataTable(props: DataTableProps) {
             density: "compact",
             columnVisibility: colVisibility,
           }}
-          enableDensityToggle={false}
-          enableColumnResizing
+          enableDensityToggle={true}
+          // enableColumnResizing
+
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -117,11 +118,10 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
-          enableRowNumbers={true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />
       </div>
     </div>
-  )
+  );
 }
