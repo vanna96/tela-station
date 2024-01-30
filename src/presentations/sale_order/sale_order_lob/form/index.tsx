@@ -111,6 +111,7 @@ class SalesOrderForm extends CoreFormDocument {
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
     console.log(this.state);
+    console.log(this.props.edit);
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -132,6 +133,7 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
+            vendor,
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
                 let apiResponse: any;
@@ -280,9 +282,7 @@ class SalesOrderForm extends CoreFormDocument {
       // if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // items
-      if (data.vendor) {
-        data.tI_sopricelist === data.vendor.PriceLists;
-      }
+
       const warehouseCodeGet = this.state.warehouseCode;
       const DocumentLines = getItem(
         data?.Items || [],
@@ -568,7 +568,7 @@ class SalesOrderForm extends CoreFormDocument {
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
                       ContentLoading={undefined}
-                      edit={false}
+                      edit={this.props?.edit}
                     />
                   )}
 

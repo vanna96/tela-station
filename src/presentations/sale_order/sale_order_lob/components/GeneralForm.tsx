@@ -99,6 +99,8 @@ export default function GeneralForm({
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
+  }
+  if (!edit) {
     data.U_tl_sopricelist = data.vendor?.priceLists;
   }
   console.log(data);
