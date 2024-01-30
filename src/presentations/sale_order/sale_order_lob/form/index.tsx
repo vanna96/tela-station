@@ -308,7 +308,7 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
+        Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
@@ -338,7 +338,7 @@ class SalesOrderForm extends CoreFormDocument {
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
+        Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
         DocumentLines,
 

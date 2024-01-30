@@ -295,13 +295,13 @@ export default function GeneralForm({
                       value={data?.Currency || sysInfo?.SystemCurrency}
                       items={
                         dataCurrency?.length > 0
-                          ? CurrencyAPI?.map((c: any) => {
+                          ? dataCurrency
+                          : CurrencyAPI?.map((c: any) => {
                               return {
                                 value: c.Code,
                                 name: c.Name,
                               };
                             })
-                          : dataCurrency
                       }
                       aliaslabel="name"
                       aliasvalue="value"
@@ -437,10 +437,10 @@ export default function GeneralForm({
                 fullWidth
                 multiline
                 rows={2}
-                name="User_Text"
-                value={data?.User_Text}
+                name="Comments"
+                value={data?.Comments}
                 onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
+                  handlerChange("Comments", e.target.value)
                 }
               />
             </div>
