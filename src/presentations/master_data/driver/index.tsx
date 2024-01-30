@@ -63,7 +63,7 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        type: "string",
+        type: "number",
         Cell: (cell: any) => {
           return (
             new DepartmentRepository().find(cell.row.original.Department)
@@ -78,7 +78,7 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 100,
         visible: true,
-        type: "string",
+        type: "number",
         Cell: (cell: any) => {
           return (
             branchAss?.data?.find((e: any) => e?.BPLID === cell.row.original.BPLID)?.BPLName??
@@ -226,8 +226,8 @@ export default function Lists() {
 
     if (searchValues.name) {
       queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.name}')) or (contains(LastName, '${searchValues.name}'))`
-        : `(contains(FirstName, '${searchValues.name}')) or (contains(LastName, '${searchValues.name}'))`;
+        ? ` and (contains(FirstName, '${searchValues.name}'))`
+        : `(contains(FirstName, '${searchValues.name}'))`;
     }
 
     if (searchValues.active) {
@@ -267,7 +267,7 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   type="string"
-                  label="Driver Name"
+                  label="First Name"
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"

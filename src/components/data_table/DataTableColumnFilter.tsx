@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -8,6 +9,10 @@ import { IconButton } from "@mui/material";
 import { AiFillDelete } from "react-icons/ai";
 import shortid from "shortid";
 import MUIDatePicker from "../input/MUIDatePicker";
+import DepartmentAutoComplete from "../input/DepartmentAutoComplete";
+import DepartmentSelectByFilter from "@/presentations/master_data/driver/component/DepartmentSelectByFilter";
+import BranchAutoComplete from "../input/BranchAutoComplete";
+import BranchSelectByFilter from "@/presentations/master_data/driver/component/BranchSelectByFilter";
 
 interface DataTableColumnFilterProps {
   title: JSX.Element;
@@ -36,32 +41,46 @@ export default function DataTableColumnFilter(
     // props.handlerClearFilter();
   };
 
-const handlerConfirm = () => {
-  setAnchorEl(null);
-  let query = "";
+  const handlerConfirm = () => {
+    setAnchorEl(null);
+    let query = "";
 
-  filterList.forEach((row) => {
-    if (row.filter.includes("with") || row.filter.includes("contains")) {
-      query += `${row.filter.replace(
-        "value",
-        `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${
-          row.value
-        }'`
-      )} and `;
-    } else {
-      query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${
-        row.filter
-      } ${
-        row.type === "string" || row.type === "date"
-          ? "'" + row.value + "'"
-          : row.value
-      } and `;
-    }
-  });
+    filterList.forEach((row) => { 
+      if (row.filter.includes("with") || row.filter.includes("contains")) {
+        query += `${row.filter.replace(
+          "value",
+          `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)}, '${
+            row.value
+          }'`
+        )} and `;
+      } else {
+        query += `${row.column.charAt(0).toUpperCase()}${row.column.slice(1)} ${
+          row.filter
+        } ${
+          row.type === "string" || row.type === "date"
+            ? "'" + row.value + "'"
+            : row.value
+        } and `;
+      }
+    });
 
-  query = query.slice(0, query.length - 4);
-  props.onClick(query);
-};
+    query = query.slice(0, query.length - 4);
+    props.onClick(query);
+  };
+
+  const handlerAdd = (e: any) => {
+    const exist = filterList.find((record) => record.column === e.target.value);
+    if (exist) return;
+    //
+    const record = props.items.find(
+      (row: any) => row?.accessorKey === e.target.value
+    );
+    setFilterList([
+      ...filterList,
+      { column: e.target.value, filter: "eq", value: null, type: record?.type },
+    ]);
+  };
+
   const handlerChange = (record: any, field: string, event: any) => {
     let filters = [...filterList];
     const index = filters.findIndex(
@@ -85,7 +104,8 @@ const handlerConfirm = () => {
     setFilterList(newFilterList);
   };
 
-  return (
+
+return (
     <div>
       <Button
         id="basic-button"
@@ -162,14 +182,14 @@ const handlerConfirm = () => {
               <div className="w-4/12 ">
                 <MUISelect
                   items={props.items}
-                  onChange={undefined}
+                  onChange={handlerAdd}
                   aliaslabel="header"
                   aliasvalue="accessorKey"
                   className="mt-1"
                 />
               </div>
               <div className="w-3/12">
-                <FilterMode value={""} type="string" onChange={(e) => { }} />
+                <FilterMode value={""} type="string" onChange={(e) => {}} />
               </div>
               <div className="w-5/12 flex gap-2">
                 <MUITextField />
@@ -229,7 +249,59 @@ const FilterValue = (props: any) => {
         <MUIDatePicker value={props?.value ?? null} onChange={props.onChange} />
       </div>
     );
-
+  if (props.column === "Gender")
+    
+    return (
+      <MUISelect
+        items={[
+          { name: "Not Specified", value: "E" },
+          { name: "Female", value: "gt_Female" },
+          { name: "Male", value: "gt_Male" },
+        ]}
+        aliaslabel="name"
+        aliasvalue="value"
+        name="Gender"
+        className="mt-1"
+        value={props?.value}
+        onChange={props?.onChange}
+      />
+     
+      
+    );
+  if (props.column === "Department")
+    return (
+      <div className="mt-1 w-full">
+        <DepartmentSelectByFilter
+          value={props?.value}
+          onChange={props?.onChange
+          }
+        />
+      </div>
+    );
+  if (props.column === "BPLID")
+      return (
+        <div className="mt-1 w-full">
+          <BranchSelectByFilter
+            value={props?.value}
+            onChange={props?.onChange}
+          />
+        </div>
+    );
+   if (props.column === "Active")
+     return (
+       <div className="mt-1 w-full">
+         <MUISelect
+           items={[
+             { value: "tYES", label: "Active" },
+             { value: "tNO", label: "Inactive" },
+           ]}
+           value={props?.value}
+           onChange={props?.onChange}
+           aliasvalue="value"
+           aliaslabel="label"
+         />
+       </div>
+     );
   return (
     <MUITextField
       defaultValue={props?.value}
