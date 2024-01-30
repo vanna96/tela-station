@@ -26,7 +26,7 @@ import SpecDetail from "../component/SpecDetail";
 import Engine from "../component/Engine";
 import Tyres from "../component/Tyres";
 import Commercial from "../component/Commercial";
-import { log } from "util";
+import Compartment from "../component/Compartment";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -196,7 +196,12 @@ const VehicleForm = (props: any) => {
         >
           Commercial
         </MenuButton>
-
+        <MenuButton
+          active={state.tapIndex === 5}
+          onClick={() => handlerChangeMenu(5)}
+        >
+          Compartment
+        </MenuButton>
         {/* ... Other menu buttons ... */}
       </>
     );
@@ -355,7 +360,22 @@ const VehicleForm = (props: any) => {
             )}
             {state.tapIndex === 4 && (
               <div className="m-5">
-                  <Commercial commer={commer} control={control} setCommer={setCommer} data={vehicle} />
+                <Commercial
+                  commer={commer}
+                  control={control}
+                  setCommer={setCommer}
+                  data={vehicle}
+                />
+              </div>
+            )}
+            {state.tapIndex === 5 && (
+              <div className="m-5">
+                <Compartment
+                  commer={commer}
+                  control={control}
+                  setCommer={setCommer}
+                  data={vehicle}
+                />
               </div>
             )}
             {/* ... Other form fields ... */}

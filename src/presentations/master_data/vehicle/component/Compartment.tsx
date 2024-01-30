@@ -3,7 +3,7 @@ import MUITextField from "@/components/input/MUITextField";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
-export default function Commercial({
+export default function Compartment({
   register,
   defaultValue,
   setValue,
@@ -52,22 +52,16 @@ export default function Commercial({
             <th className="w-[100px] "></th>
 
             <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Type
+              Compart. No
             </th>
             <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Name
+              Volume (Litre)
             </th>
             <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Issue Date
+              Top Hatch
             </th>
             <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Expire Date
-            </th>
-            <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
-              Fee
-            </th>
-            <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
-              Referance
+              Bottom Hatch
             </th>
           </tr>
           {commer?.length === undefined && (
@@ -92,7 +86,6 @@ export default function Commercial({
                   </div>
                   <span className="text-gray-500">{index + 1}</span>
                 </td>
-     
                 <td className="pr-4">
                   <MUITextField
                     placeholder="Type"
@@ -114,78 +107,22 @@ export default function Commercial({
                   />
                 </td>
                 <td className="pr-4">
-                  <Controller
-                    name="U_IssueDate"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <MUIDatePicker
-                          {...field}
-                          value={staticSelect?.u_IssueDate || undefined}
-                          key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
-                          onChange={(e: any) => {
-                            const val =
-                              e.toLowerCase() ===
-                              "Invalid Date".toLocaleLowerCase()
-                                ? ""
-                                : e;
-                            setStaticSelect({
-                              ...staticSelect,
-                              u_IssueDate: e,
-                            });
-                            handlerChangeCommer("U_IssueDate", val, index);
-                          }}
-                        />
-                      );
-                    }}
-                  />
-                </td>
-                <td className="pr-4">
-
-                  <Controller
-                    name="U_ExpiredDate"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <MUIDatePicker
-                          {...field}
-                          value={staticSelect.u_ExpiredDate || undefined}
-                          key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
-                          onChange={(e: any) => {
-                            const val =
-                              e.toLowerCase() ===
-                              "Invalid Date".toLocaleLowerCase()
-                                ? ""
-                                : e;
-                            setStaticSelect({
-                              ...staticSelect,
-                              u_ExpiredDate: e,
-                            });
-                            handlerChangeCommer("U_ExpiredDate", val, index);
-                          }}
-                        />
-                      );
-                    }}
-                  />
-                </td>
-
-                <td className="pr-4">
                   <MUITextField
-                    placeholder="Fee"
+                    placeholder="Name"
                     inputProps={{
-                      defaultValue: e?.U_Fee,
+                      defaultValue: e?.U_Name,
                       onChange: (e: any) =>
-                        handlerChangeCommer("U_Fee", e?.target?.value, index),
+                        handlerChangeCommer("U_Name", e?.target?.value, index),
                     }}
                   />
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    placeholder="Referance"
+                    placeholder="Name"
                     inputProps={{
-                      defaultValue: e?.U_Ref,
+                      defaultValue: e?.U_Name,
                       onChange: (e: any) =>
-                        handlerChangeCommer("U_Ref", e?.target?.value, index),
+                        handlerChangeCommer("U_Name", e?.target?.value, index),
                     }}
                   />
                 </td>
@@ -195,7 +132,7 @@ export default function Commercial({
         </table>
         <span
           onClick={addNewRow}
-          className="p-1 rounded-sm text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
+          className="p-1 text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
         >
          + Add
         </span>
