@@ -18,6 +18,7 @@ import BranchRepository from "@/services/actions/branchRepository";
 import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -30,7 +31,8 @@ export default function Lists() {
     name: "",
     docdate: null,
     account: -1,
-    bplid: -2
+    bplid: -2,
+    status
   });
   const route = useNavigate();
   const columns = React.useMemo(
@@ -139,7 +141,7 @@ export default function Lists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_CashAcct/$count?${filter}`
+        `${url}/TL_CashAcct/$count?${filter.replace('&', '')}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -224,6 +226,8 @@ export default function Lists() {
       queryFilters.push(`contains(Code, '${searchValues.search}') or contains(Code, '${searchValues.search}')`);
     if (searchValues.docnum)
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
+    if (searchValues.status)
+      queryFilters.push(`U_tl_cashactive eq '${searchValues.status}'`);
     if (searchValues.code)
       queryFilters.push(`startswith(Code, '${searchValues.code}')`);
     if (searchValues.name)
@@ -269,6 +273,31 @@ export default function Lists() {
                     setSearchValues({ ...searchValues, search: e.target.value })
                   }
                 />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { label: "None", value: "" },
+                        { label: "Active", value: "Y" },
+                        { label: "Inactive", value: "N"}
+                      ]}
+                      onChange={(e) => {
+                        if (e) {
+                          setSearchValues({
+                            ...searchValues,
+                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                          });
+                        }
+                      }}
+                      value={searchValues.status}
+                    />
+                  </div>
+                </div>
               </div>
               {/* <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
