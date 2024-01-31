@@ -39,6 +39,7 @@ export default function ContentForm({
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
   const vendorPriceList = data.U_tl_sopricelist;
+  const wh = data.U_tl_whsdesc;
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -438,6 +439,7 @@ export default function ContentForm({
         }}
       />
       <ItemModal
+        wh={wh}
         priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}

@@ -23,8 +23,11 @@ interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
   onSave?: (value: any) => void;
   columns: any[];
+  wh: any;
+
   priceList: any;
 }
+
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
   constructor(props: any) {
@@ -33,6 +36,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     this.state = {
       open: false,
       priceList: props.priceList,
+      wh: props.wh
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -281,7 +285,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="mb-2"></div>
                 <WarehouseAutoComplete
                   Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
-                  value={this.state?.WarehouseCode}
+                  value={this.props.wh}
                   onChange={(event) => this.handChange(event, "WarehouseCode")}
                 />
               </div>
