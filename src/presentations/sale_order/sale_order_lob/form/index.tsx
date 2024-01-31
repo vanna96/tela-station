@@ -549,6 +549,9 @@ class SalesOrderForm extends CoreFormDocument {
     const itemGroupCode = getGroupByLineofBusiness(
       this.props.edit ? this.state.lob : this.state.lineofBusiness
     );
+
+    const priceList = parseInt(this.state.U_tl_sopricelist);
+    console.log(priceList);
     return (
       <>
         <ItemModalComponent
@@ -556,6 +559,7 @@ class SalesOrderForm extends CoreFormDocument {
           group={itemGroupCode}
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
+          priceList={priceList}
         />
         <form
           id="formData"

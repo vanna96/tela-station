@@ -29,6 +29,7 @@ interface ItemModalProps {
   AbsEntry?: any;
   Currency?: any;
   multipleSelect?: any;
+  priceList?: number;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -41,6 +42,7 @@ const ItemModal: FC<ItemModalProps> = ({
   WarehouseCode,
   Currency,
   multipleSelect,
+  priceList,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -147,7 +149,7 @@ const ItemModal: FC<ItemModalProps> = ({
         return null;
       }
     }
-    const globalPriceListNum = await getPriceListNum(CardCode);
+    const globalPriceListNum = priceList ?? (await getPriceListNum(CardCode));
     selectItems = selectItems.map((e: any) => {
       const defaultPrice = e?.ItemPrices?.find(
         (row: any) => row?.PriceList === globalPriceListNum
@@ -434,6 +436,7 @@ export class ItemModalComponent extends React.Component<
         WarehouseCode={this.state.WarehouseCode}
         Currency={this.state.Currency}
         multipleSelect={this.props.multipleSelect}
+        priceList={this.props.priceList}
       />
     );
   }
