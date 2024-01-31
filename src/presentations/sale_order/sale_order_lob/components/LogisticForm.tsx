@@ -132,6 +132,7 @@ export default function LogisticForm({
                           )
                         )
                   }
+                  InputProps={{ readOnly: true }}
                 />
               </div>
             </div>
