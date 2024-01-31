@@ -4,7 +4,7 @@ import React from "react";
 import { UseFormProps } from "../form";
 
 const Remarks = ({
-  register,
+  register,detail
 }: UseFormProps) => {
   return (
     <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -14,6 +14,7 @@ const Remarks = ({
       <div className="  flex gap-[100px]">
         <div className="col-span-5  w-[50%]">
           <TextField
+            disabled={detail}
             size="small"
             fullWidth
             multiline

@@ -16,6 +16,7 @@ export default function WarehouseAttendTo(props: {
   Warehouse?: Warehouse[];
   disabled?: any;
   U_tl_attn_ter?: boolean;
+  onBlur?:any
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
@@ -70,6 +71,7 @@ export default function WarehouseAttendTo(props: {
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
+        onBlur={props?.onBlur}
         loading={isLoading}
         getOptionLabel={(option: Warehouse) => option.WarehouseName}
         renderOption={(props, option: Warehouse) => (

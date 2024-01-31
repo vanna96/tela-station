@@ -63,6 +63,7 @@ class SalesOrderForm extends CoreFormDocument {
         attachment: false,
       },
       isDialogOpen: false,
+    
     } as any;
 
     this.onInit = this.onInit.bind(this);

@@ -46,6 +46,8 @@ import StopsDetail from "@/presentations/master_data/stops/detail/index";
 import Routelistpage from "@/presentations/master_data/route";
 import RouteForm from "@/presentations/master_data/route/form/index";
 import RouteDetail from "@/presentations/master_data/route/detail/index";
+import VehicleDetail from "@/presentations/master_data/vehicle/detail";
+import VehicleForm from "@/presentations/master_data/vehicle/form/VehicleForm";
 
 export default function MasterDataRoute() {
   return (
@@ -83,28 +85,28 @@ export default function MasterDataRoute() {
 
       <Route path="/driver">
         <Route index element={<DriverList />} />
-        <Route path=":id" element={<DriverDetail />} />
+        <Route path=":id" element={<DriverDetail detail={ true} />} />
         <Route path="create" element={<DriverForm />} />
         <Route path=":id/edit" element={<DriverForm edit={true} />} />
       </Route>
 
       <Route path="/vehicle">
         <Route index element={<VehicleList />} />
-        <Route path=":id" element={<DriverDetail />} />
-        <Route path="create" element={<DriverForm />} />
-        <Route path=":id/edit" element={<DriverForm edit={true} />} />
+        <Route path=":id" element={<VehicleDetail />} />
+        <Route path="create" element={<VehicleForm />} />
+        <Route path=":id/edit" element={<VehicleForm edit={true} />} />
       </Route>
 
       <Route path="/stops">
         <Route index element={<Stopslistpage />} />
-        <Route path=":id" element={<StopsDetail />} />
+        <Route path=":id" element={<StopsDetail detail={true}/>} />
         <Route path="create" element={<StopsForm />} />
         <Route path=":id/edit" element={<StopsForm edit={true} />} />
       </Route>
 
       <Route path="/route">
         <Route index element={<Routelistpage />} />
-        <Route path=":id" element={<RouteDetail />} />
+        <Route path=":id" element={<RouteDetail detail={true}/>} />
         <Route path="create" element={<RouteForm />} />
         <Route path=":id/edit" element={<RouteForm edit={true} />} />
       </Route>

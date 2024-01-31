@@ -4,12 +4,12 @@ import FactoringIndicator from "@/models/FactoringIndicator";
 import Encryption from "@/utilies/encryption";
 import request from "@/utilies/request";
 
-export default class CountryRepository extends Repository<Country> {
+export default class DriverRepository extends Repository<Country> {
 
-  url = '/Countries?$select=Code,Name';
+  url = '/EmployeesInfo';
 
   // specific key
-  key = 'countries';
+  key = 'drivers';
 
   async get<Country>(query?: string | undefined): Promise<Country[]> {
     const data = localStorage.getItem(this.key);

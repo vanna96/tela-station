@@ -58,12 +58,13 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
         {props.label}{" "}
         {props.required && <span className="text-red-500 font-bold">*</span>}
       </label>
-      <div className={`date-picker ${error ? "date-picker-error" : ""} `}>
+      <div className={`date-picker ${false ? "date-picker-error" : ""} `}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DesktopDatePicker
             PopperProps={{
               style: {
                 color: theme === "light" ? "" : "#FFFFFF",
+                backgroundColor: 'red'
               },
             }}
             inputFormat="DD-MM-YYYY"
@@ -78,7 +79,7 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
                 inputProps={{ ...props.inputProps }}
                 sx={{
                   "& .MuiFormhelpertext-root": {
-                    color: "#ef4444",
+                    // color: "#ef4444",
                     marginLeft: "8px",
                   },
                   ...props.sx,
@@ -87,13 +88,13 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
                 name={name}
                 autoComplete="off"
                 onBlur={onChangeInput}
-                error={(!dayjs(value).isValid()) || props.error}
-                helperText={
-                  props.helpertext ??
-                  (!dayjs(value).isValid() && (value || value !== "")
-                    ? "invalid date format"
-                    : "")
-                }
+              // error={(!dayjs(value).isValid()) || props.error}
+              // helperText={
+              //   props.helpertext ??
+              //   (!dayjs(value).isValid() && (value || value !== "")
+              //     ? "invalid date format"
+              //     : "")
+              // }
               />
             )}
           />

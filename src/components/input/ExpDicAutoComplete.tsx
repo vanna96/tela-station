@@ -1,37 +1,30 @@
-import React, { useState, useEffect } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
+import React, { useState, useEffect } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
-import PositionRepository from "@/services/actions/positionRepository";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import ManagerRepository from "@/services/actions/ManagerRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-
-interface Type {
-  BPLID: number;
-  BPLName: string;
-}
-
-export default function BranchAssignmentAuto(props: {
+import ExpdicRepository from "@/services/actions/ExpDicRepository";
+export default function ExpDicAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
-  name?: any;
+  BPdata?: any;
   disabled?: any;
+  name?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
+    queryKey: ["expdic"],
+    queryFn: () => new ExpdicRepository().get(),
+    // staleTime: Infinity,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.BPLID === props.value);
-      if (selected) {
-        setSelectedValue(selected);
+      const selectedBranch = data?.find(
+        (branch: any) => branch?.Code === props.value
+      );
+      if (selectedBranch) {
+        setSelectedValue(selectedBranch);
       }
     }
   }, [props.value, data]);
@@ -45,13 +38,14 @@ export default function BranchAssignmentAuto(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedV = newValue ? newValue : null;
-      props.onChange(selectedV);
+      const selectedId = newValue ? newValue.Code : null;
+      props.onChange(selectedId);
     }
   };
   const disabled = props.disabled;
+
   return (
-    <div className="block text-[14px] xl:text-[13px]">
+    <div className="block text-[14px] xl:text-[13px] ">
       <label
         htmlFor=""
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
@@ -60,16 +54,17 @@ export default function BranchAssignmentAuto(props: {
       </label>
 
       <Autocomplete
-        disabled={props?.disabled}
-        options={data ?? []}
+        disabled={disabled}
+        options={data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.BPLName}
-        renderOption={(props, option: Type) => (
+        getOptionLabel={(option: any) => option.Code}
+        renderOption={(props, option) => (
           <Box component="li" {...props}>
-            {option.BPLName}
+            <BsDot />
+            {option.Code} - {option.Name}
           </Box>
         )}
         renderInput={(params) => (

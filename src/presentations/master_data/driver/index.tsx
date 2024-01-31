@@ -11,59 +11,104 @@ import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import DataTable from "./component/DataTableD";
 import MUISelect from "@/components/selectbox/MUISelect";
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
-    code: "",
-    firstName: "",
-    lastName: "",
-    jobTitle: "",
-    active: "",
+    FirstName: "",
+    LastName:"",
+    active: "tYES",
   });
-
+   const branchAss: any = useQuery({
+     queryKey: ["branchAss"],
+     queryFn: () => new BranchBPLRepository().get(),
+     staleTime: Infinity,
+   });
+  // console.log(branchAss);
+  
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "EmployeeCode",
-        header: "Employee Code", //uses the default width from defaultColumn prop
+        accessorKey: "No",
+        header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        Cell: (cell: any) => {
-          return cell.row.original.EmployeeCode ?? "N/A";
+        Cell: (cell: any,index:number) => {
+          return (
+            <span>{parseInt(cell?.row?.id)+1}</span>
+          );
         },
       },
       {
-        accessorKey: "FirstName",
-        header: "FirstName", //uses the default width from defaultColumn prop
+        accessorKey: "Name",
+        header: "Driver Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.FirstName ?? "N/A";
+          return (
+            cell.row.original.FirstName + " " + cell.row.original.LastName ??
+            "N/A"
+          );
         },
       },
       {
-        accessorKey: "LastName",
-        header: "LastName", //uses the default width from defaultColumn prop
+        accessorKey: "Gender",
+        header: "Gender", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 60,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return cell.row.original.Gender?.replace("gt_", "") ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "Department",
+        header: "Department", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.LastName ?? "N/A";
+          return (
+            new DepartmentRepository().find(cell.row.original.Department)
+              ?.Name ?? "N/A"
+          );
         },
       },
-
+      {
+        accessorKey: "BPLID",
+        header: "Branch", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 100,
+        visible: true,
+        type: "number",
+        Cell: (cell: any) => {
+          return (
+            branchAss?.data?.find(
+              (e: any) => e?.BPLID === cell.row.original.BPLID
+            )?.BPLName ?? "N/A"
+          );
+        },
+      },
       {
         accessorKey: "Active",
         header: "Active",
-        size: 40,
+        size: 60,
         visible: true,
-        Cell: ({ cell }: any) => (cell.getValue() === "tYES" ? "Yes" : "No"),
+        type: "string",
+        Cell: ({ cell }: any) =>
+          cell.getValue() === "tYES" ? "Active" : "Inactive",
       },
       {
         accessorKey: "DocEntry",
@@ -146,14 +191,17 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "Driver",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_driver eq 'Y'${
         filter ? ` and ${filter}` : filter
-      }&$orderby=EmployeeID${"&$select =EmployeeID,FirstName,LastName,EmployeeCode,Active"}`;
+      }&$orderby=EmployeeID asc${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -193,29 +241,29 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.code) {
-      queryFilters += queryFilters
-        ? ` and (contains(EmployeeCode, '${searchValues.code}'))`
-        : `(contains(EmployeeCode, '${searchValues.code}'))`;
-    }
-    if (searchValues.firstName) {
-      queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.firstName}'))`
-        : `(contains(FirstName, '${searchValues.firstName}'))`;
-    }
-    if (searchValues.lastName) {
-      queryFilters += queryFilters
-        ? ` and (contains(LastName, '${searchValues.lastName}'))`
-        : `(contains(LastName, '${searchValues.lastName}'))`;
-    }
- if (searchValues.active) {
-   queryFilters += queryFilters
-     ? ` and Active eq '${searchValues.active}'`
-     : `Active eq '${searchValues.active}'`;
- }
-    let qurey = queryFilters + value;
-    setFilter(qurey);
 
+    if (searchValues.FirstName) {
+      queryFilters += queryFilters
+        ? ` and (contains(FirstName, '${searchValues.FirstName}'))`
+        : `(contains(FirstName, '${searchValues.FirstName}'))`;
+    }
+  if (searchValues.LastName) {
+    queryFilters += queryFilters
+      ? ` and (contains(LastName, '${searchValues.LastName}'))`
+      : `(contains(LastName, '${searchValues.LastName}'))`;
+  }
+    if (searchValues.active) {
+      queryFilters += queryFilters
+        ? ` and Active eq '${searchValues.active}'`
+        : `Active eq '${searchValues.active}'`;
+    }
+
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + `and ${value}`
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -240,62 +288,59 @@ export default function Lists() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  type="number"
-                  label="Employee Code"
+                  type="string"
+                  label="First Name"
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.code}
+                  value={searchValues.FirstName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, code: e.target.value })
+                    setSearchValues({ ...searchValues, FirstName: e.target.value })
                   }
                 />
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="FirstName"
-                  // placeholder="FirstName"
+                  type="string"
+                  label="Last Name"
+                  // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.firstName}
+                  value={searchValues.LastName}
                   onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      firstName: e.target.value,
-                    })
+                    setSearchValues({ ...searchValues, LastName: e.target.value })
                   }
                 />
               </div>
-
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="LastName"
-                  // placeholder="LastName"
-                  className="bg-white"
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      lastName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
                   <label
                     htmlFor="Code"
                     className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
                   >
-                    Active
+                    Status
                   </label>
                 </div>
+                {/* {searchValues.active === null && (
+                  <div>
+                    <MUITextField
+                      label="LastName"
+                      // placeholder="LastName"
+                      className="bg-white"
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          lastName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )} */}
                 <MUISelect
                   items={[
-                    { value: "tYES", label: "Yes" },
-                    { value: "tNO", label: "No" },
-                    { value: "", label: "None" },
+                    { value: "", label: "All" },
+                    { value: "tYES", label: "Active" },
+                    { value: "tNO", label: "Inactive" },
                   ]}
                   onChange={(e: any) =>
                     setSearchValues({
@@ -303,10 +348,12 @@ export default function Lists() {
                       active: e.target.value,
                     })
                   }
-                  value={searchValues.active}
+                  value={
+                    // searchValues.active === null ? "tYES" : searchValues.active
+                    searchValues.active
+                  }
                   aliasvalue="value"
                   aliaslabel="label"
-                
                 />
               </div>
 
@@ -327,7 +374,7 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              <div className="">
+              {/* <div className="">
                 <DataTableColumnFilter
                   handlerClearFilter={handlerRefresh}
                   title={
@@ -340,15 +387,11 @@ export default function Lists() {
                   items={columns?.filter(
                     (e) =>
                       e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus"
+                      e?.accessorKey !== "No"
                   )}
                   onClick={handlerSearch}
                 />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

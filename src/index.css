@@ -44,10 +44,9 @@ body,
   /* font-family: "calibri", sans-serif, "Hanuman", serif;
 
    */
-   font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   /* font-family: "Roboto Condensed", sans-serif; */
   /* font-family: "IBM Plex Sans", sans-serif; */
-
 }
 
 /* width */
@@ -108,4 +107,9 @@ input {
 
 .MuiCircularProgress-root.MuiCircularProgress-indeterminate.MuiCircularProgress-colorInherit.css-62e83j-MuiCircularProgress-root {
   margin-top: -12px;
+}
+
+.css-7lm97p-MuiInputBase-root-MuiOutlinedInput-root.Mui-error
+  .MuiOutlinedInput-notchedOutline {
+  border-color: #c0c0c0 !important;
 }

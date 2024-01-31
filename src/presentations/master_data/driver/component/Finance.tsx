@@ -10,6 +10,7 @@ const Finance = ({
   control,
   defaultValues,
   setValue,
+  detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     salaryUnit: "",
@@ -30,6 +31,7 @@ const Finance = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                disabled={detail}
                 inputProps={{
                   ...register("Salary"),
                 }}
@@ -49,6 +51,7 @@ const Finance = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
                         { label: "Biweekly", value: "B" },
                         { label: "Day", value: "D" },
@@ -66,7 +69,9 @@ const Finance = ({
                           salaryUnit: e.target.value,
                         });
                       }}
-                      value={staticSelect.salaryUnit || defaultValues?.SalaryUnit}
+                      value={
+                        staticSelect.salaryUnit || defaultValues?.SalaryUnit
+                      }
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -83,6 +88,7 @@ const Finance = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                disabled={detail}
                 inputProps={{
                   ...register("BankCode"),
                 }}
@@ -97,6 +103,7 @@ const Finance = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                disabled={detail}
                 inputProps={{
                   ...register("BankAccount"),
                 }}

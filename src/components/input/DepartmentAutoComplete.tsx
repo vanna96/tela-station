@@ -43,8 +43,8 @@ export default function DepartmentAutoComplete(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedCode = newValue ? newValue.Code : null;
-      props.onChange(selectedCode);
+      const selected = newValue ? newValue : null;
+      props.onChange(selected);
     }
   };
   const disabled = props.disabled;
@@ -58,6 +58,7 @@ export default function DepartmentAutoComplete(props: {
       </label>
 
       <Autocomplete
+        disabled={props?.disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}

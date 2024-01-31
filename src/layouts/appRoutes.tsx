@@ -98,7 +98,7 @@ const appRoutes: RouteType[] = [
         path: "/master-data/vehicle",
         state: "vehicle",
         sidebarProps: {
-          displayText: "vehicle",
+          displayText: "Vehicle",
         }
       },
       {
@@ -113,6 +113,13 @@ const appRoutes: RouteType[] = [
         state: "route",
         sidebarProps: {
           displayText: "Route",
+        }
+      },
+      {
+        path: "/master-data/cash-account",
+        state: "cash-account",
+        sidebarProps: {
+          displayText: "Cash Account",
         },
       },
     ],
