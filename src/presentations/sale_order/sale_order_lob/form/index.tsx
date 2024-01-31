@@ -137,6 +137,9 @@ class SalesOrderForm extends CoreFormDocument {
             ...data,
 
             vendor,
+            warehouseCode: data.U_tl_whsdesc,
+            lob: data.U_tl_arbusi,
+
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
                 let apiResponse: any;
@@ -187,7 +190,7 @@ class SalesOrderForm extends CoreFormDocument {
                   DiscountPercent: item.DiscountPercent || 0,
                   TaxCode: item.VatGroup || item.taxCode || null,
                   UoMEntry: item.UomAbsEntry || null,
-                  WarehouseCode: item?.WarehouseCode || null,
+                  WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
                   UomAbsEntry: item?.UoMEntry,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
@@ -323,7 +326,7 @@ class SalesOrderForm extends CoreFormDocument {
         }
       });
 
-      const warehouseCodeGet = this.state.warehouseCode;
+      const warehouseCodeGet = data.U_tl_whsdesc;
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
@@ -355,7 +358,7 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentLines,
 
         // logistic
-        ShipToCode: data?.ShipToCode || null,
+        ShipToCode: data?.ShipToCode || "",
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
@@ -544,12 +547,13 @@ class SalesOrderForm extends CoreFormDocument {
           return 101;
         case "LPG":
           return 102;
-        default:
-          return 0;
       }
     };
 
-    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+    const itemGroupCode = getGroupByLineofBusiness(
+      this.props.edit ? this.state.lob : this.state.lineofBusiness
+    );
+    console.log(itemGroupCode);
 
     return (
       <>
@@ -693,8 +697,8 @@ const getItem = (
       COGSCostingCode: item.COGSCostingCode ?? "201001",
       COGSCostingCode2: item.COGSCostingCode2 ?? "202001",
       COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
-      BinAbsEntry: item.BinAbsEntry ?? 65,
-      WarehouseCode: item?.WarehouseCode || null,
+      // BinAbsEntry: item.BinAbsEntry ?? 65,
+      WarehouseCode: item?.WarehouseCode || warehouseCode,
       DocumentLinesBinAllocations: [
         {
           BinAbsEntry: item.BinAbsEntry,

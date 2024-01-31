@@ -9,7 +9,7 @@ interface Warehouse {
   WarehouseName: string;
 }
 
-export default function WarehouseAutoComplete(props: {
+export default function zWarehouseAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
@@ -27,10 +27,21 @@ export default function WarehouseAutoComplete(props: {
   );
 
   useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
     if (props.value) {
+      let selectedValue: number | null = null;
+
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
+
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
+      }
+
       const selectedWarehouse = filteredWarehouses?.find(
-        (warehouse:any) => warehouse.WarehouseCode === props.value
+        (warehouse: any) => warehouse.WarehouseCode === props.value
       );
       if (selectedWarehouse) {
         setSelectedValue(selectedWarehouse);
@@ -38,10 +49,9 @@ export default function WarehouseAutoComplete(props: {
     }
   }, [props.value, filteredWarehouses]);
 
-  // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
-  const handleAutocompleteChange = (event:any, newValue:any) => {
+  const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
     setSelectedValue(newValue);
 

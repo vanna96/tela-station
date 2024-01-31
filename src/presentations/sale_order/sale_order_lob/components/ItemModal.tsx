@@ -37,6 +37,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       priceList: props.priceList,
       lineofbusiness: props.lineofbusiness,
       wh: props.wh,
+      WarehouseCode: props.wh,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -62,7 +63,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ open: false });
   }
-
+  handlerChange(event: any, field: string) {
+    const temps = { ...this.state };
+    temps[field] = event;
+    this.setState({ ...temps });
+  }
   handChange(event: any, field: string) {
     const temps = { ...this.state };
     temps[field] = event.target.value;
@@ -286,7 +291,9 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <WarehouseAutoComplete
                   Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
                   value={this.state.WarehouseCode}
-                  onChange={(event) => this.handChange(event, "WarehouseCode")}
+                  onChange={(event) =>
+                    this.handlerChange(event, "WarehouseCode")
+                  }
                 />
               </div>
 
