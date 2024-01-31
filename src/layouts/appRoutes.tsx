@@ -361,6 +361,37 @@ const appRoutes: RouteType[] = [
       },
     ],
   },
+  {
+    path: "/trip-management",
+    state: "trip-management",
+    sidebarProps: {
+      displayText: "Trip Management",
+      icon: <PaymentIcon />,
+    },
+    child: [
+      {
+        path: "/transportation/request",
+        state: "transportation/request",
+        sidebarProps: {
+          displayText: "Transportation Request",
+        },
+      },
+      {
+        path: "/transportation/order",
+        state: "transportation/order",
+        sidebarProps: {
+          displayText: "Transportation Order",
+        },
+      },
+      {
+        path: "/bulk/seal/allocation",
+        state: "bulk/seal/allocation",
+        sidebarProps: {
+          displayText: "Bulk Seal Allocation",
+        },
+      },
+    ],
+  },
 ];
 
 export default appRoutes;

@@ -22,8 +22,6 @@ export default function GeneralForm({
   const [cookies, setCookie] = useCookies(["user"]);
   const branchId =
     data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
-
-  console.log(data.U_BaseStation);
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
@@ -40,28 +38,13 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <div className="col-span-3">
-                  {edit ? (
-                    <WarehouseAttendTo
-                      value={data?.U_BaseStation}
-                      onChange={(e) => {
-                        handlerChange("U_BaseStation", e);
-                      }}
-                      onBlur={(e: any) =>
-                        setData({ ...data, U_BaseStation: e })
-                      }
-                    />
-                  ) : (
-                    <WarehouseAttendTo
-                      value={data?.U_BaseStation}
-                      onChange={(e) => {
-                        handlerChange("U_BaseStation", e);
-                      }}
-                      onBlur={(e: any) =>
-                        setData({ ...data, U_BaseStation: e })
-                      }
-                      disabled={detail}
-                    />
-                  )}
+                  <WarehouseAttendTo
+                    value={data?.U_BaseStation}
+                    onChange={(e) => {
+                      handlerChange("U_BaseStation", e);
+                    }}
+                    onBlur={(e: any) => setData({ ...data, U_BaseStation: e })}
+                  />
                 </div>
               </div>
             </div>
@@ -72,24 +55,13 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {edit ? (
-                  <WarehouseAttendTo
-                    value={data?.U_Destination}
-                    onChange={(e) => {
-                      handlerChange("U_Destination", e);
-                    }}
-                    onBlur={(e: any) => setData({ ...data, U_Destination: e })}
-                  />
-                ) : (
-                  <WarehouseAttendTo
-                    value={data?.U_Destination}
-                    onChange={(e) => {
-                      handlerChange("U_Destination", e);
-                    }}
-                    onBlur={(e: any) => setData({ ...data, U_Destination: e })}
-                    disabled={detail}
-                  />
-                )}
+                <WarehouseAttendTo
+                  value={data?.U_Destination}
+                  onChange={(e) => {
+                    handlerChange("U_Destination", e);
+                  }}
+                  onBlur={(e: any) => setData({ ...data, U_Destination: e })}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -114,20 +86,11 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {edit ? (
-                  <MUITextField
-                    value={data?.Name}
-                    name="Name"
-                    onChange={(e) => handlerChange("Name", e.target.value)}
-                  />
-                ) : (
-                  <MUITextField
-                    value={data?.Name}
-                    name="Name"
-                    onChange={(e) => handlerChange("Name", e.target.value)}
-                    disabled={detail}
-                  />
-                )}
+                <MUITextField
+                  value={data?.Name}
+                  name="Name"
+                  onChange={(e) => handlerChange("Name", e.target.value)}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -137,24 +100,11 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {edit ? (
-                  <MUITextField
-                    value={data?.U_Incentive}
-                    name="U_Incentive"
-                    onChange={(e) =>
-                      handlerChange("U_Incentive", e.target.value)
-                    }
-                  />
-                ) : (
-                  <MUITextField
-                    value={data?.U_Incentive}
-                    name="U_Incentive"
-                    onChange={(e) =>
-                      handlerChange("U_Incentive", e.target.value)
-                    }
-                    disabled={detail}
-                  />
-                )}
+                <MUITextField
+                  value={data?.U_Incentive}
+                  name="U_Incentive"
+                  onChange={(e) => handlerChange("U_Incentive", e.target.value)}
+                />
               </div>
             </div>
           </div>
@@ -167,32 +117,17 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {edit ? (
-                  <MUISelect
-                    items={[
-                      { id: "Y", name: "Active" },
-                      { id: "N", name: "Inactive" },
-                    ]}
-                    onChange={(e) => handlerChange("U_Status", e.target.value)}
-                    value={data?.U_Status}
-                    aliasvalue="id"
-                    aliaslabel="name"
-                    name="U_Status"
-                  />
-                ) : (
-                  <MUISelect
-                    items={[
-                      { id: "Y", name: "Active" },
-                      { id: "N", name: "Inactive" },
-                    ]}
-                    onChange={(e) => handlerChange("U_Status", e.target.value)}
-                    value={data?.U_Status}
-                    aliasvalue="id"
-                    aliaslabel="name"
-                    name="U_Status"
-                    disabled={detail}
-                  />
-                )}
+                <MUISelect
+                  items={[
+                    { id: "Y", name: "Active" },
+                    { id: "N", name: "Inactive" },
+                  ]}
+                  onChange={(e) => handlerChange("U_Status", e.target.value)}
+                  value={data?.U_Status}
+                  aliasvalue="id"
+                  aliaslabel="name"
+                  name="U_Status"
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -202,24 +137,11 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {edit ? (
-                  <MUITextField
-                    value={data?.U_Distance}
-                    name="U_Distance"
-                    onChange={(e) =>
-                      handlerChange("U_Distance", e.target.value)
-                    }
-                  />
-                ) : (
-                  <MUITextField
-                    value={data?.U_Distance}
-                    name="U_Distance"
-                    onChange={(e) =>
-                      handlerChange("U_Distance", e.target.value)
-                    }
-                    disabled={detail}
-                  />
-                )}
+                <MUITextField
+                  value={data?.U_Distance}
+                  name="U_Distance"
+                  onChange={(e) => handlerChange("U_Distance", e.target.value)}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -229,24 +151,11 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {edit ? (
-                  <MUITextField
-                    value={data?.U_Duration}
-                    name="U_Duration"
-                    onChange={(e) =>
-                      handlerChange("U_Duration", e.target.value)
-                    }
-                  />
-                ) : (
-                  <MUITextField
-                    value={data?.U_Duration}
-                    name="U_Duration"
-                    onChange={(e) =>
-                      handlerChange("U_Duration", e.target.value)
-                    }
-                    disabled={detail}
-                  />
-                )}
+                <MUITextField
+                  value={data?.U_Duration}
+                  name="U_Duration"
+                  onChange={(e) => handlerChange("U_Duration", e.target.value)}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -256,14 +165,14 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    multiline
-                    onChange={(e) => handlerChange("U_Remark", e.target.value)}
-                    rows={2}
-                    value={data.U_Remark}
-                  />
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  onChange={(e) => handlerChange("U_Remark", e.target.value)}
+                  rows={2}
+                  value={data.U_Remark}
+                />
               </div>
             </div>
           </div>

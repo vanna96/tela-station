@@ -48,11 +48,6 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
             <legend className="text-md px-2 font-bold">
               Payment Means - Check
             </legend>
-
-            <div className="grid grid-cols-12 py-2 ">
-              <div className="col-span-2 col-start-2">
-              </div>
-            </div>
             <ExpenseTable data={data} onChange={onChange} />
           </fieldset>
         </div>

@@ -52,45 +52,70 @@ export default function ExpenseTable(
 
   const columns = [
     {
-      accessorKey: "Code",
+      accessorKey: "U_Code",
       header: "Expense Code",
       Cell: ({ cell }: any) => (
         <>
-            <ExpDicAutoComplete
-              key={"Code" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.Code || 0}
-              disabled={data?.edit}
-              onChange={(e: any) => {
-                console.log(e )
-                handlerChangeItem(cell?.row?.id || 0, {
-                  Code: e,
-                });
-               
-              }}
-            />  
+          <ExpDicAutoComplete
+            key={"U_Code" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_Code || 0}
+            disabled={data?.edit}
+            onChange={(e: any) => {
+              console.log(e);
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_Code: e,
+              });
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_Description: new ExpdicRepository().find(e)?.Name
+              });
 
+            }}
+          />
         </>
       ),
     },
+    // {
+    //   accessorKey: "U_Description",
+    //   header: "Description",
+    //   Cell: ({ cell }: any) => (
+    //     <MUITextField
+    //       key={"U_Description" + cell.getValue() + cell?.row?.id}
+    //       // value={ new ExpdicRepository().find(cell.row.original.U_Code)?.Name}
+    //       // value={cell.row.original.U_Description}
+    //       defaultValue={cell.row.original?.U_Description || ""}
+    //       onChange={(e: any) => {
+    //         // console.log(e);
+    //         handlerChangeItem(cell?.row?.id , {
+    //           U_Description: e.target.value,
+    //         });
+    //       }}
+    //     />
+    //   ),
+    // },
     {
-      accessorKey: "Name",
+      accessorKey: "U_Description",
       header: "Description",
       Cell: ({ cell }: any) => (
         <MUITextField
-          key={"Name" + cell.getValue() + cell?.row?.id}
-          value={new ExpdicRepository().find(cell.row.original.Code)?.Name}
+          key={"U_Description" + cell.getValue() + cell?.row?.id}
+          disabled={data?.edit}
+          defaultValue={cell.row.original?.U_Description || ""}
+          onBlur={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              U_Description: e.target.value,
+            });
+          }}
         />
       ),
     },
-
     {
       accessorKey: "U_Amount",
       header: "Expense Amount",
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"U_Amount" + cell.getValue() + cell?.row?.id}
-          type="number"
           disabled={data?.edit}
+          type="number"
           defaultValue={cell.row.original?.U_Amount || ""}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -105,7 +130,7 @@ export default function ExpenseTable(
 
   return (
     <>
-      <div className="flex space-x-4 text-[25px] justify-end mb-2">
+      <div className="flex text-[25px] justify-end mb-2">
         {!data?.edit && (
           <>
             <AiOutlinePlus

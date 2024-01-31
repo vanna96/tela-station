@@ -102,17 +102,17 @@ class RouteDetail extends Component<any, any> {
           ) : (
             <>
               <div className="relative">
-                <div className="grow  px-5 py-4 ">
+                <div className="px-4">
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                 </div>
               </div>
               <div className="relative">
-                <div className="grow  px-5 py-4 ">
+                <div className="px-4">
                   {this.state.tapIndex === 1 && <Expense data={this.state} />}
                 </div>
               </div>
               <div className="relative">
-                <div className="grow  px-5 py-4 ">
+                <div className="px-4">
                   {this.state.tapIndex === 2 && <Sequence data={this.state} />}
                 </div>
               </div>
@@ -143,7 +143,7 @@ function General(props: any) {
 
   return (
     <>
-      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
+      <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6 py-6 mt-4">
         <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
           General
         </h2>
@@ -194,7 +194,7 @@ function Expense(props: any) {
   const itemColumn: any = useMemo(
     () => [
       {
-        accessorKey: "Code",
+        accessorKey: "U_Code",
         header: "Expense Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -218,7 +218,7 @@ function Expense(props: any) {
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm bg-white border p-8 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-10">
           <h2>Expense</h2>
         </div>
@@ -281,8 +281,8 @@ function Sequence(props: any) {
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+      <div className="rounded-lg shadow-sm bg-white border p-8 h-full">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-10">
           <h2>Sequence</h2>
         </div>
         <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
