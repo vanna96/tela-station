@@ -20,6 +20,10 @@ export default function App() {
   );
   const [loading, setLoading] = React.useState(false);
 
+  let originalPath = history?.pathname;
+  let pathSegments = originalPath?.split('/');
+  let modifiedUrl = pathSegments?.slice(0, 3).join('/');
+
   const signOut = () => {
     setLoading(true);
     localStorage.clear();
@@ -71,15 +75,11 @@ export default function App() {
               >
                 <HiMenu />
               </IconButton>
-              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={() => {
-                
-                const originalPath = history.pathname;
-                const pathSegments = originalPath.split('/');
-                const modifiedUrl = pathSegments.slice(0, 3).join('/');
-                navigate(modifiedUrl)
-              }} className="text-[#168f43]">
+              { originalPath !== modifiedUrl && (
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={() => navigate(modifiedUrl)} className="text-[#168f43]">
                 <path fill="currentColor" d="M17.51 3.87L15.73 2.1L5.84 12l9.9 9.9l1.77-1.77L9.38 12z"/>
-              </svg>
+              </svg>) }
+              
             </div>
             <div>
               <p className="font-medium text-gray-800">TELA Station</p>
