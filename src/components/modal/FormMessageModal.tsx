@@ -1,18 +1,18 @@
-import React, { FC, RefObject } from "react"
+import React, { FC, RefObject } from "react";
 
-import { Dialog, Transition } from "@headlessui/react"
-import { Fragment } from "react"
-import { BsCheckCircle, BsExclamationCircle } from "react-icons/bs"
-import { HiDocumentCheck } from "react-icons/hi2"
-import { Button } from "@mui/material"
-import { useLocation, useNavigate } from "react-router-dom"
+import { Dialog, Transition } from "@headlessui/react";
+import { Fragment } from "react";
+import { BsCheckCircle, BsExclamationCircle } from "react-icons/bs";
+import { HiDocumentCheck } from "react-icons/hi2";
+import { Button } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface FormMessageModalProps {
-  ref?: RefObject<FormMessageModal>
+  ref?: RefObject<FormMessageModal>;
 }
 
 class FormMessageModal extends React.Component<FormMessageModalProps> {
-  state = { open: false, message: "", title: "", isError: false, id: null }
+  state = { open: false, message: "", title: "", isError: false, id: null };
 
   success(message: string, id: number) {
     this.setState({
@@ -21,7 +21,7 @@ class FormMessageModal extends React.Component<FormMessageModalProps> {
       title: "Success",
       message: message,
       id: id,
-    })
+    });
   }
 
   error(message: string, title?: string) {
@@ -30,11 +30,11 @@ class FormMessageModal extends React.Component<FormMessageModalProps> {
       isError: true,
       title: title ?? "Invalid",
       message: message,
-    })
+    });
   }
 
   onClose() {
-    this.setState({ open: false })
+    this.setState({ open: false });
   }
 
   render() {
@@ -133,33 +133,30 @@ class FormMessageModal extends React.Component<FormMessageModalProps> {
           </div>
         </Dialog>
       </Transition>
-    )
+    );
   }
 }
 
-export default FormMessageModal
+export default FormMessageModal;
 
 const ReplaceRouteButton = (props: any) => {
-  const route = useNavigate()
-  const history = useLocation()
+  const route = useNavigate();
+  const history = useLocation();
 
   const navigateTo = () => {
     if (props.flag === 0) {
-      route(-1) // Navigates back
+      route(-1); // Navigates back
     }
-    const id = props.id
-    const isEdit = history.pathname.includes("edit")
+    const id = props.id;
+    const isEdit = history.pathname.includes("edit");
 
     if (isEdit) {
-      console.log(history.pathname)
-      const baseUrl = history.pathname.replace(`/edit`, "")
-      console.log(baseUrl)
-      const url = isEdit ? baseUrl : `${baseUrl}`
-      console.log(url)
-      route(url)
+      const baseUrl = history.pathname.replace(`/edit`, "");
+      const url = isEdit ? baseUrl : `${baseUrl}`;
+      route(url);
     }
-    if (!isEdit) route(history.pathname.replace("create", "") + id)
-  }
+    if (!isEdit) route(history.pathname.replace("create", "") + id);
+  };
 
   return (
     <Button
@@ -174,21 +171,23 @@ const ReplaceRouteButton = (props: any) => {
       }}
       onClick={navigateTo}
     >
-      <span className="capitalize text-white text-[12px]">{props?.children}</span>
+      <span className="capitalize text-white text-[12px]">
+        {props?.children}
+      </span>
     </Button>
-  )
-}
+  );
+};
 
 const BackToList = () => {
-  const route = useNavigate()
-  const history = useLocation()
+  const route = useNavigate();
+  const history = useLocation();
 
   const navigateTo = () => {
     const originalPath = history.pathname;
-    const pathSegments = originalPath.split('/');
-    const modifiedUrl = pathSegments.slice(0, 3).join('/');
+    const pathSegments = originalPath.split("/");
+    const modifiedUrl = pathSegments.slice(0, 3).join("/");
     route(modifiedUrl);
-  }
+  };
 
   return (
     <Button
@@ -205,5 +204,5 @@ const BackToList = () => {
     >
       <span className="capitalize text-white text-[12px]">Back to List</span>
     </Button>
-  )
-}
+  );
+};

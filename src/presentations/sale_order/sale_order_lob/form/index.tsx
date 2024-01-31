@@ -111,9 +111,7 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
-    console.log(this.state);
 
-    console.log(this.props.edit);
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -152,7 +150,6 @@ class SalesOrderForm extends CoreFormDocument {
                     );
 
                     apiResponse = response.data;
-                    console.log(response);
                   } catch (error) {
                     console.error("Error fetching data:", error);
                   }
@@ -167,7 +164,6 @@ class SalesOrderForm extends CoreFormDocument {
                 );
 
                 let uomLists: any[] = [];
-                console.log(uomGroup?.UoMGroupDefinitionCollection);
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
@@ -553,8 +549,6 @@ class SalesOrderForm extends CoreFormDocument {
     const itemGroupCode = getGroupByLineofBusiness(
       this.props.edit ? this.state.lob : this.state.lineofBusiness
     );
-    console.log(itemGroupCode);
-
     return (
       <>
         <ItemModalComponent
