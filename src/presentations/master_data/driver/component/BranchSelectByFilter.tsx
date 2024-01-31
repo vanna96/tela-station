@@ -13,7 +13,7 @@ interface Type {
   BPLName: string;
 }
 
-export default function BranchAssignmentAuto(props: {
+export default function BranchSelectByFilter(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
@@ -45,7 +45,7 @@ export default function BranchAssignmentAuto(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedV = newValue ? newValue : null;
+      const selectedV = newValue ? newValue?.BPLID : null;
       props.onChange(selectedV);
     }
   };
@@ -60,7 +60,6 @@ export default function BranchAssignmentAuto(props: {
       </label>
 
       <Autocomplete
-        disabled={props?.disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}

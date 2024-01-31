@@ -19,6 +19,9 @@ import { useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useQuery } from "react-query";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -31,6 +34,9 @@ export type UseFormProps = {
     | undefined;
   setBranchAss?: any;
   branchAss?: any;
+  header?: any;
+  setHeader?: any;
+  detail?: boolean;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -43,6 +49,7 @@ const Form = (props: any) => {
 
     formState: { errors, defaultValues },
   } = useForm();
+  const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
     loading: false,
@@ -50,6 +57,15 @@ const Form = (props: any) => {
     tapIndex: 0,
     isError: false,
     message: "",
+    showCollapse: true,
+    DocNum: id,
+  });
+  const [header, setHeader] = useState({
+    firstName: null,
+    lastName: null,
+    gender: null,
+    department: null,
+    branch: null,
   });
 
   const [branchAss, setBranchAss] = useState([]);
@@ -60,18 +76,15 @@ const Form = (props: any) => {
     fetchData();
   }, []);
 
-
   const fetchData = async () => {
-    const { id }: any = props?.match?.params || 0;
     if (id) {
-     
       setState({
         ...state,
         loading: true,
       });
       await request("GET", `EmployeesInfo(${id})`)
         .then((res: any) => {
-           setBranchAss(res?.data?.EmployeeBranchAssignment);
+          setBranchAss(res?.data?.EmployeeBranchAssignment);
           setDriver(res?.data);
           setState({
             ...state,
@@ -87,8 +100,7 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
-        ([key, value]): any =>
-          value !== "" && value !== null && value !== undefined
+        ([key, value]): any => value !== null && value !== undefined
       )
     );
     const payload = {
@@ -111,7 +123,6 @@ const Form = (props: any) => {
                 "Update Successfully.",
                 res?.data?.EmployeeID
               )
-            
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -134,13 +145,16 @@ const Form = (props: any) => {
     }
   };
 
-    const handlerChangeMenu = useCallback((index: number) => {
-        setState((prevState) => ({
-    ...prevState,
-    tapIndex: index,
-  }));
-    }, [state]);
-  
+  const handlerChangeMenu = useCallback(
+    (index: number) => {
+      setState((prevState) => ({
+        ...prevState,
+        tapIndex: index,
+      }));
+    },
+    [state]
+  );
+
   const HeaderTaps = () => {
     return (
       <>
@@ -186,6 +200,77 @@ const Form = (props: any) => {
     }
   }, [driver]);
 
+  const Left = ({ header, data }: any) => {
+    return (
+      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+        <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
+          <div>
+            <span className="">First Name </span>
+          </div>
+          <div>
+            <span className="">Last Name </span>
+          </div>
+          <div>
+            <span className="">Gender </span>
+          </div>
+        </div>
+        <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
+          <div>
+            <span>{data?.FirstName || header?.firstName || "_"}</span>
+          </div>
+          <div>
+            <span>{data?.LastName || header?.lastName || "_"}</span>
+          </div>
+          <div>
+            <span>
+              {data?.Gender?.replace("gt_", "") ||
+                header?.gender?.replace("gt_", "") ||
+                "_"}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  const Right = ({ header, data }: any) => {
+    const branchAss: any = useQuery({
+      queryKey: ["branchAss"],
+      queryFn: () => new BranchBPLRepository().get(),
+      staleTime: Infinity,
+    });
+    return (
+      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
+        <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
+          <div>
+            <span className="mr-10 mb-[27px] inline-block">Department </span>
+          </div>
+          <div>
+            <span className="mr-10">Branch</span>
+          </div>
+        </div>
+        <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
+          <div>
+            <span className="mb-[27px] inline-block">
+              {new DepartmentRepository()?.find(data?.Department)?.Name ||
+                header?.department ||
+                "_"}
+            </span>
+          </div>
+          <div>
+            <span>
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
+                ?.BPLName ||
+                header?.branch ||
+                "_"}
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // console.log(state)
+
   return (
     <>
       {state.loading ? (
@@ -194,7 +279,19 @@ const Form = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent data={state} menuTabs={<HeaderTaps />} leftSideField={undefined} rightSideField={undefined} />
+          <DocumentHeaderComponent
+            data={state}
+            menuTabs={<HeaderTaps />}
+            HeaderCollapeMenu={
+              <>
+                <Left header={header} data={driver} />
+                <Right header={header} data={driver} />
+                {/* <TotalSummaryRightSide data={this.state} /> */}
+              </>
+            }
+            leftSideField={undefined}
+            rightSideField={undefined}
+          />
           <Backdrop
             sx={{
               color: "#fff",
@@ -218,14 +315,16 @@ const Form = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
-                    setBranchAss={setBranchAss}
-                    branchAss={branchAss}
+                  setBranchAss={setBranchAss}
+                  branchAss={branchAss}
+                  header={header}
+                  setHeader={setHeader}
                 />
               </h1>
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Address setValue={setValue} register={register} />
+                  <Address setValue={setValue} register={register}  />
               </h1>
             )}
             {state.tapIndex === 2 && (
@@ -235,6 +334,8 @@ const Form = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  header={header}
+                  setHeader={setHeader}
                 />
               </h1>
             )}

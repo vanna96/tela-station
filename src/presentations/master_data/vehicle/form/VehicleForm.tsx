@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
@@ -12,22 +10,40 @@ import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import General from "../component/General";
-import Address from "../component/Address";
-import Personal from "../component/Personal";
-import Finance from "../component/Finance";
-import Remarks from "../component/Remaks";
-import { useParams } from "react-router-dom";
+
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import Address from "../component/SpecDetail";
+import General from "../component/General";
+import Personal from "../component/Engine";
+import Finance from "../component/Tyres";
+import Remarks from "../component/Commercial";
+import SpecDetail from "../component/SpecDetail";
+import Engine from "../component/Engine";
+import Tyres from "../component/Tyres";
+import Commercial from "../component/Commercial";
+import Compartment from "../component/Compartment";
 let dialog = React.createRef<FormMessageModal>();
-
+export type UseFormProps = {
+  register: UseFormRegister<FieldValues>;
+  setValue: UseFormSetValue<FieldValues>;
+  control?: any;
+  defaultValues?:
+    | Readonly<{
+        [x: string]: any;
+      }>
+    | undefined;
+  setBranchAss?: any;
+  branchAss?: any;
+  header?: any;
+  setHeader?: any;
+};
 // const { id } = useParams();
-const FormDetail = (props: any) => {
+const VehicleForm = (props: any) => {
   const {
     handleSubmit,
     register,
@@ -57,12 +73,19 @@ const FormDetail = (props: any) => {
   });
 
   const [branchAss, setBranchAss] = useState([]);
-  const [driver, setDriver] = React.useState<any>();
+  const [vehicle, setVehicle] = React.useState<any>();
+  React.useEffect(() => {
+     fetchData();
+    if (vehicle) {
+      reset({ ...vehicle });
+    }
+  }, [vehicle]);
 
-  useEffect(() => {
-    // Fetch initial data if needed
-    fetchData();
-  }, []);
+
+  const arr = vehicle?.TL_VH_COMMERCIALCollection;
+  const [commer, setCommer] = useState<any[]>([arr]);
+
+
 
   const fetchData = async () => {
     if (id) {
@@ -70,10 +93,9 @@ const FormDetail = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `EmployeesInfo(${id})`)
+      await request("GET", `TL_VEHICLE(${id})`)
         .then((res: any) => {
-          setBranchAss(res?.data?.EmployeeBranchAssignment);
-          setDriver(res?.data);
+          setVehicle(res?.data);
           setState({
             ...state,
             loading: false,
@@ -85,53 +107,51 @@ const FormDetail = (props: any) => {
     }
   };
 
-  // const onSubmit = async (e: any) => {
-  //   const data: any = Object.fromEntries(
-  //     Object.entries(e).filter(
-  //       ([key, value]): any => value !== null && value !== undefined
-  //     )
-  //   );
-  //   const payload = {
-  //     ...data,
-  //     U_tl_driver: "Y",
-  //     EmployeeBranchAssignment: branchAss?.map((e: any) => {
-  //       return {
-  //         BPLID: e?.BPLID,
-  //       };
-  //     }),
-  //   };
-  //   const { id } = props?.match?.params || 0;
-  //   try {
-  //     setState({ ...state, isSubmitting: true });
-  //     if (props.edit) {
-  //       await request("PATCH", `/EmployeesInfo(${id})`, payload)
-  //         .then(
-  //           (res: any) =>
-  //             dialog.current?.success(
-  //               "Update Successfully.",
-  //               res?.data?.EmployeeID
-  //             )
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     } else {
-  //       await request("POST", "/EmployeesInfo", payload)
-  //         .then(
-  //           (res: any) =>
-  //             dialog.current?.success(
-  //               "Create Successfully.",
-  //               res?.data?.EmployeeID
-  //             )
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     setState({ ...state, isSubmitting: false });
-  //   }
-  // };
+  const onSubmit = async (e: any) => {
+    const data: any = Object.fromEntries(
+      Object.entries(e).filter(
+        ([key, value]): any => value !== null && value !== undefined
+      )
+    );
+    const payload = {
+      ...data,
+      TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
+        return {
+          U_IssueDate: e?.U_IssueDate,
+          U_ExpiredDate: e?.U_ExpiredDate,
+          U_Type: e?.U_Type,
+          U_Name: e?.U_Name,
+          U_Fee: e?.U_Fee,
+          U_Ref: e?.U_Ref,
+        };
+      }),
+    };
+    const { id } = props?.match?.params || 0;
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request("PATCH", `/TL_VEHICLE(${id})`, payload)
+          .then(
+            (res: any) =>
+              dialog.current?.success("Update Successfully.", res?.data?.Code)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/TL_VEHICLE", payload)
+          .then(
+            (res: any) =>
+              dialog.current?.success("Create Successfully.", res?.data?.Code)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
+    }
+  };
 
   const handlerChangeMenu = useCallback(
     (index: number) => {
@@ -156,38 +176,39 @@ const FormDetail = (props: any) => {
           active={state.tapIndex === 1}
           onClick={() => handlerChangeMenu(1)}
         >
-          Address
+          Spac Detail
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 2}
           onClick={() => handlerChangeMenu(2)}
         >
-          Personal
+          Engine / Transmission
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 3}
           onClick={() => handlerChangeMenu(3)}
         >
-          Finance
+          Tyres
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 4}
           onClick={() => handlerChangeMenu(4)}
         >
-          Remarks
+          Commercial
         </MenuButton>
-
+        <MenuButton
+          active={state.tapIndex === 5}
+          onClick={() => handlerChangeMenu(5)}
+        >
+          Compartment
+        </MenuButton>
         {/* ... Other menu buttons ... */}
       </>
     );
   };
 
-  React.useEffect(() => {
-    if (driver) {
-      reset({ ...driver });
-    }
-  }, [driver]);
 
+  
   const Left = ({ header, data }: any) => {
     return (
       <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
@@ -230,7 +251,7 @@ const FormDetail = (props: any) => {
       <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department </span>
+            <span className="mr-10 mb-[27px] inline-block">Department</span>
           </div>
           <div>
             <span className="mr-10">Branch</span>
@@ -272,8 +293,8 @@ const FormDetail = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={driver} />
-                <Right header={header} data={driver} />
+                <Left header={header} data={vehicle} />
+                <Right header={header} data={vehicle} />
                 {/* <TotalSummaryRightSide data={this.state} /> */}
               </>
             }
@@ -294,11 +315,11 @@ const FormDetail = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
+            onSubmit={handleSubmit(onSubmit)}
           >
             {state.tapIndex === 0 && (
               <h1>
                 <General
-                  detail={props?.detail}
                   register={register}
                   setValue={setValue}
                   control={control}
@@ -312,44 +333,83 @@ const FormDetail = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Address
-                  setValue={setValue}
-                  register={register}
-                  detail={props.detail}
-                />
+                <SpecDetail setValue={setValue} register={register} />
               </h1>
             )}
             {state.tapIndex === 2 && (
               <h1>
-                <Personal
+                <Engine
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
                   header={header}
-                    setHeader={setHeader}
-                    detail={props?.detail}
+                  setHeader={setHeader}
                 />
               </h1>
             )}
             {state.tapIndex === 3 && (
               <h1>
-                <Finance
+                <Tyres
                   register={register}
                   setValue={setValue}
                   control={control}
-                    defaultValues={defaultValues}
-                    detail={props?.detail}
+                  defaultValues={defaultValues}
                 />
               </h1>
             )}
             {state.tapIndex === 4 && (
-              <h1>
-                <Remarks setValue={setValue} detail={props?.detail} register={register} />
-              </h1>
+              <div className="m-5">
+                <Commercial
+                  commer={commer}
+                  control={control}
+                  setCommer={setCommer}
+                  data={vehicle}
+                />
+              </div>
+            )}
+            {state.tapIndex === 5 && (
+              <div className="m-5">
+                <Compartment
+                  commer={commer}
+                  control={control}
+                  setCommer={setCommer}
+                  data={vehicle}
+                />
+              </div>
             )}
             {/* ... Other form fields ... */}
-           
+            <div className="absolute w-full bottom-4  mt-2 ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                <div className="flex ">
+                  <LoadingButton
+                    size="small"
+                    sx={{ height: "25px" }}
+                    variant="contained"
+                    disableElevation
+                  >
+                    <span className="px-3 text-[11px] py-1 text-white">
+                      Cancel
+                    </span>
+                  </LoadingButton>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <LoadingButton
+                    type="submit"
+                    sx={{ height: "25px" }}
+                    className="bg-white"
+                    loading={state.isSubmitting}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      {props.edit ? "Update" : "Save"}
+                    </span>
+                  </LoadingButton>
+                </div>
+              </div>
+            </div>
           </form>
         </>
       )}
@@ -357,4 +417,4 @@ const FormDetail = (props: any) => {
   );
 };
 
-export default withRouter(FormDetail);
+export default VehicleForm;

@@ -40,13 +40,14 @@ import DriverDetail from "@/presentations/master_data/driver/detail/index";
 import VehicleList from "@/presentations/master_data/vehicle/index";
 
 import Stopslistpage from "@/presentations/master_data/stops";
-import StopsForm from "@/presentations/master_data/stops/form/index"
-import StopsDetail from "@/presentations/master_data/stops/detail/index"
+import StopsForm from "@/presentations/master_data/stops/form/index";
+import StopsDetail from "@/presentations/master_data/stops/detail/index";
 
 import Routelistpage from "@/presentations/master_data/route";
-import RouteForm from "@/presentations/master_data/route/form/index"
-import RouteDetail from "@/presentations/master_data/route/detail/index"
-
+import RouteForm from "@/presentations/master_data/route/form/index";
+import RouteDetail from "@/presentations/master_data/route/detail/index";
+import VehicleDetail from "@/presentations/master_data/vehicle/detail";
+import VehicleForm from "@/presentations/master_data/vehicle/form/VehicleForm";
 
 export default function MasterDataRoute() {
   return (
@@ -84,16 +85,16 @@ export default function MasterDataRoute() {
 
       <Route path="/driver">
         <Route index element={<DriverList />} />
-        <Route path=":id" element={<DriverDetail />} />
+        <Route path=":id" element={<DriverDetail detail={ true} />} />
         <Route path="create" element={<DriverForm />} />
         <Route path=":id/edit" element={<DriverForm edit={true} />} />
       </Route>
 
       <Route path="/vehicle">
         <Route index element={<VehicleList />} />
-        <Route path=":id" element={<DriverDetail />} />
-        <Route path="create" element={<DriverForm />} />
-        <Route path=":id/edit" element={<DriverForm edit={true} />} />
+        <Route path=":id" element={<VehicleDetail />} />
+        <Route path="create" element={<VehicleForm />} />
+        <Route path=":id/edit" element={<VehicleForm edit={true} />} />
       </Route>
 
       <Route path="/stops">

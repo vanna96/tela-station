@@ -3,7 +3,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { TextField } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UseFormProps } from "../form";
 import { Controller } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
@@ -13,6 +13,9 @@ const Personal = ({
   control,
   defaultValues,
   setValue,
+  header,
+  setHeader,
+detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     gender: "",
@@ -22,7 +25,12 @@ const Personal = ({
     passportExpirationDate: null,
     passportIssuedDate: null,
   });
-
+  useEffect(() => {
+    if (staticSelect) {
+      setHeader({ ...header, gender: staticSelect.gender });
+    }
+  }, [staticSelect]);
+  
   return (
     <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
       <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
@@ -43,16 +51,19 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
                         { label: "Female", value: "gt_Female" },
                         { label: "Male", value: "gt_Male" },
                       ]}
                       onChange={(e: any) => {
                         setValue("Gender", e.target.value);
+
                         setStaticSelect({
                           ...staticSelect,
                           gender: e.target.value,
                         });
+                        //  setHeader({ ...header, branch: e?.e.target.label });
                       }}
                       value={staticSelect.gender || defaultValues?.Gender}
                       aliasvalue="value"
@@ -76,14 +87,18 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
-                      value={
+                      disabled={detail}
+                      {...field}
+                      defaultValue={
                         defaultValues?.DateOfBirth || staticSelect.dateOfbirth
                       }
+                      key={`date_birth_${staticSelect.dateOfbirth}`}
                       onChange={(e: any) => {
-                        setValue(
-                          "DateOfBirth",
-                          ` ${formatDate(e)}"T00:00:00Z"`
-                        );
+                        const val =
+                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
+                            ? ""
+                            : e;
+                        setValue("DateOfBirth", `   ${val == "" ? "" : val}`);
                         setStaticSelect({ ...staticSelect, dateOfbirth: e });
                       }}
                     />
@@ -99,7 +114,10 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("IdNumber") }} />
+              <MUITextField
+                inputProps={{ ...register("IdNumber") }}
+                disabled={detail}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -115,12 +133,10 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
-                        { label: "Divorced", value: "D" },
                         { label: "Married", value: "mts_Married" },
-                        { label: "Not Specified", value: "N" },
                         { label: "Single", value: "mts_Single" },
-                        { label: "Widowed", value: "w" },
                       ]}
                       onChange={(e: any) => {
                         setValue("MartialStatus", e.target.value);
@@ -154,6 +170,7 @@ const Personal = ({
                 render={({ field }) => {
                   return (
                     <MUISelect
+                      disabled={detail}
                       items={[
                         { label: "A+", value: "A+" },
                         { label: "A-", value: "A-" },
@@ -171,7 +188,9 @@ const Personal = ({
                           checkList: e.target.value,
                         });
                       }}
-                      value={staticSelect.checkList || defaultValues?.U_CheckList}
+                      value={
+                        staticSelect.checkList || defaultValues?.U_CheckList
+                      }
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -190,14 +209,24 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
+              {defaultValues == undefined && (
+                <div className="hidden">
+                  <MUITextField
+                    disabled={detail}
+                    inputProps={{ ...register("CitizenshipCountryCode") }}
+                    value={"KH"}
+                  />
+                </div>
+              )}
               <Controller
                 name="CitizenshipCountryCode"
                 control={control}
                 render={({ field }) => {
                   return (
                     <CountryAutoComplete
+                      disabled={detail}
                       {...field}
-                      value={defaultValues?.CitizenshipCountryCode}
+                      value={defaultValues?.CitizenshipCountryCode || "KH"}
                       onChange={(e: any) => {
                         setValue("CitizenshipCountryCode", e);
 
@@ -216,7 +245,10 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("PassportNumber") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("PassportNumber") }}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -227,29 +259,34 @@ const Personal = ({
             </div>
             <div className="col-span-3">
               <Controller
-                name="DateOfBirth"
+                name="PassportExpirationDate"
                 control={control}
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
-                      inputProps={{
-                        ...register("PassportExpirationDate"),
-                      }}
-                      value={
+                      disabled={detail}
+                      {...field}
+                      defaultValue={
                         defaultValues?.PassportExpirationDate ||
                         staticSelect.passportExpirationDate
                       }
+                      key={`passport_ex_${staticSelect.passportExpirationDate}`}
                       onChange={(e: any) => {
                         if (e) {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
                           setValue(
                             "PassportExpirationDate",
-                            ` ${formatDate(e)}"T00:00:00Z"`
+                            `  ${val == "" ? "" : val}`
                           );
+                          setStaticSelect({
+                            ...staticSelect,
+                            passportExpirationDate: e,
+                          });
                         }
-                        setStaticSelect({
-                          ...staticSelect,
-                          passportExpirationDate: e,
-                        });
                       }}
                     />
                   );
@@ -265,29 +302,34 @@ const Personal = ({
             </div>
             <div className="col-span-3">
               <Controller
-                name="DateOfBirth"
+                name="PassportIssueDate"
                 control={control}
                 render={({ field }) => {
                   return (
                     <MUIDatePicker
-                      inputProps={{
-                        ...register("PassportIssueDate"),
-                      }}
-                      value={
+                      disabled={detail}
+                      {...field}
+                      defaultValue={
                         defaultValues?.PassportIssueDate ||
                         staticSelect.passportIssuedDate
                       }
+                      key={`passport_${staticSelect.passportIssuedDate}`}
                       onChange={(e: any) => {
                         if (e) {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
                           setValue(
                             "PassportIssueDate",
-                            ` ${formatDate(e)}"T00:00:00Z"`
+                            ` ${val == "" ? "" : val}`
                           );
+                          setStaticSelect({
+                            ...staticSelect,
+                            passportIssuedDate: e,
+                          });
                         }
-                        setStaticSelect({
-                          ...staticSelect,
-                          passportIssuedDate: e,
-                        });
                       }}
                     />
                   );
@@ -302,7 +344,10 @@ const Personal = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("PassportIssuer") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("PassportIssuer") }}
+              />
             </div>
           </div>
         </div>

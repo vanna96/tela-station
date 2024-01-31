@@ -5,15 +5,13 @@ import { useQuery } from "react-query";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
-import ManagerRepository from "@/services/actions/ManagerRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 interface Type {
-  BPLID: number;
-  BPLName: string;
+  Code: number;
+  Name: string;
 }
 
-export default function BranchAssignmentAuto(props: {
+export default function DepartmentSelectByFilter(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
@@ -21,15 +19,15 @@ export default function BranchAssignmentAuto(props: {
   disabled?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
+    queryKey: ["department1"],
+    queryFn: () => new DepartmentRepository().get(),
     staleTime: Infinity,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.BPLID === props.value);
+      const selected = data?.find((e: Type) => e.Code === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -45,8 +43,8 @@ export default function BranchAssignmentAuto(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedV = newValue ? newValue : null;
-      props.onChange(selectedV);
+      const selected = newValue ? newValue?.Code : null;
+      props.onChange(selected);
     }
   };
   const disabled = props.disabled;
@@ -60,16 +58,15 @@ export default function BranchAssignmentAuto(props: {
       </label>
 
       <Autocomplete
-        disabled={props?.disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.BPLName}
+        getOptionLabel={(option: Type) => option.Name}
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.BPLName}
+            {option.Name}
           </Box>
         )}
         renderInput={(params) => (

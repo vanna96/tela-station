@@ -68,11 +68,22 @@ class Form extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-    
-      // on Edit
-      const payload = {
-        // Series: data?.Series || null,
+      if (!data.Code) {
+        data["error"] = { Code: "Code is Required!" };
+        throw new FormValidateException("Code is Required!", 0);
+      }
 
+      if (!data.Name) {
+        data["error"] = { Name: "Name is Required!" };
+        throw new FormValidateException("Name is Required!", 0);
+      }
+      
+      if (!data.U_tl_cashacct) {
+        data["error"] = { U_tl_cashacct: "G/L Account is Required!" };
+        throw new FormValidateException("G/L Account is Required!", 0);
+      }
+      
+      const payload = {
         Code: data?.Code,
         Name: data?.Name,
         U_tl_cashacct: data?.U_tl_cashacct,

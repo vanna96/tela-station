@@ -4,30 +4,32 @@ import { LoadingButton } from "@mui/lab";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
-import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
+import { formatDate } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
 import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
-import useState from "react";
-import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import {
-  StatusCustomerBranchCurrencyInfoLeftSide,
-  TotalSummaryRightSide,
-} from "@/components/DocumenHeaderComponent";
+import { ReactNode } from "react";
+
 class SalesOrderForm extends CoreFormDocument {
+  LeftSideField?(): JSX.Element | ReactNode {
+    return null;
+  }
+
+  RightSideField?(): JSX.Element | ReactNode {
+    return null;
+  }
+
+  HeaderCollapeMenu?(): JSX.Element | ReactNode {
+    return null;
+  }
   constructor(props: any) {
     super(props);
     this.state = {
@@ -61,6 +63,7 @@ class SalesOrderForm extends CoreFormDocument {
         attachment: false,
       },
       isDialogOpen: false,
+    
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -131,15 +134,33 @@ class SalesOrderForm extends CoreFormDocument {
             ...data,
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
+                let apiResponse: any;
+
+                if (item.ItemCode) {
+                  try {
+                    const response = await request(
+                      "GET",
+                      `/Items('${item.ItemCode}')?$select=InventoryUoMEntry, ItemPrices`
+                    );
+
+                    apiResponse = response.data;
+                    console.log(response);
+                  } catch (error) {
+                    console.error("Error fetching data:", error);
+                  }
+                }
+
                 const uomGroups: any =
                   await new UnitOfMeasurementGroupRepository().get();
 
                 const uoms = await new UnitOfMeasurementRepository().get();
                 const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === item?.UoMEntry
+                  (row: any) => row.AbsEntry === apiResponse.InventoryUoMEntry
                 );
 
+
                 let uomLists: any[] = [];
+                console.log(uomGroup?.UoMGroupDefinitionCollection);
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
@@ -148,6 +169,7 @@ class SalesOrderForm extends CoreFormDocument {
                     uomLists.push(itemUOM);
                   }
                 });
+                item.ItemPrices === apiResponse.ItemPrices;
                 return {
                   ItemCode: item.ItemCode || null,
                   ItemName: item.ItemDescription || item.Name || null,
@@ -165,13 +187,9 @@ class SalesOrderForm extends CoreFormDocument {
                   UomAbsEntry: item?.UoMEntry,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
+                  ItemPrices: apiResponse.ItemPrices,
                   ExchangeRate: data?.DocRate || 1,
-                  // ShippingTo: data?.ShipToCode || null,
-                  // BillingTo: data?.PayToCode || null,
                   JournalMemo: data?.JournalMemo,
-                  // PaymentTermType: data?.PaymentGroupCode,
-                  // ShippingType: data?.TransportationCode,
-                  // FederalTax: data?.FederalTaxID || null,
                   CurrencyType: "B",
                   vendor,
                   warehouseCode: data?.U_tl_whsdesc,
@@ -298,7 +316,7 @@ class SalesOrderForm extends CoreFormDocument {
         PayToCode: data?.PayToCode || null,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-
+        U_tl_dnsuppo: data?.U_tl_dnsuppo,
         // AttachmentEntry,
       };
 
@@ -320,12 +338,11 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
-
         DocumentLines,
 
         // logistic
         PayToCode: data?.PayToCode || null,
-        U_tl_grsuppo: data?.U_tl_grsuppo,
+        U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
 
         // AttachmentEntry,
@@ -333,9 +350,8 @@ class SalesOrderForm extends CoreFormDocument {
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, edit_payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -414,7 +430,6 @@ class SalesOrderForm extends CoreFormDocument {
   };
 
   HeaderTaps = () => {
-    // console.log(this.state);
     return (
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
@@ -549,6 +564,8 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
+                      ContentLoading={undefined}
+                      edit={false}
                     />
                   )}
 
@@ -639,6 +656,7 @@ const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
       TaxCode: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
+      UomAbsEntry: item.UomAbsEntry,
       LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
       RevenueLine: item.revenueLine ?? "202001",
       ProductLine: item.REV ?? "203004",
