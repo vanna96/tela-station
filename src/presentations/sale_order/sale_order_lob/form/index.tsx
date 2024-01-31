@@ -373,7 +373,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
-        U_tl_arbusi: data?.U_tl_arbusi,
+        // U_tl_arbusi: data?.U_tl_arbusi,
         DocumentLines,
 
         // logistic
