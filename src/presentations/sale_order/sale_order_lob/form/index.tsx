@@ -35,9 +35,9 @@ class SalesOrderForm extends CoreFormDocument {
     this.state = {
       ...this.state,
       loading: true,
-      DocumentDate: new Date(),
-      PostingDate: new Date(),
-      DueDate: new Date(),
+      DocDate: new Date(),
+      TaxDate: new Date(),
+      DocDueDate: new Date(),
       Branch: 1,
       error: {},
       BPCurrenciesCollection: [],
@@ -260,22 +260,62 @@ class SalesOrderForm extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" };
-        throw new FormValidateException("Vendor is Required!", 0);
-      }
+      const validations = [
+        {
+          field: "U_tl_whsdesc",
+          message: "Warehouse is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_sobincode",
+          message: "Bin Location is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "CardCode",
+          message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "DocDueDate",
+          message: "Delivery date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "TaxDate",
+          message: "Posting date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "DocDate",
+          message: "Document date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Items",
+          message: "Items is missing and must have at least one record!",
+          isArray: true,
+          getTabIndex: () => 1,
+        },
+        {
+          field: "ShipToCode",
+          message: "Ship To Address is Required!",
+          getTabIndex: () => 2,
+        },
+        {
+          field: "U_tl_dnsuppo",
+          message: "Ship From Address is Required!",
+          getTabIndex: () => 2,
+        },
+      ];
 
-      if (!data?.DueDate) {
-        data["error"] = { DueDate: "End date is Required!" };
-        throw new FormValidateException("End date is Required!", 0);
-      }
-
-      if (!data?.Items || data?.Items?.length === 0) {
-        data["error"] = {
-          Items: "Items is missing and must at least one record!",
-        };
-        throw new FormValidateException("Items is missing", 1);
-      }
+      validations.forEach(({ field, message, isArray, getTabIndex }) => {
+        const value = isArray ? data[field] : data[field];
+        if (!value || (isArray && value.length === 0)) {
+          data.error = { [field]: message };
+          throw new FormValidateException(message, getTabIndex());
+        }
+      });
 
       const warehouseCodeGet = this.state.warehouseCode;
       const DocumentLines = getItem(
@@ -504,7 +544,6 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-    this.state.PriceLists = this.state.PriceLists;
     return (
       <>
         <ItemModalComponent
@@ -512,7 +551,6 @@ class SalesOrderForm extends CoreFormDocument {
           group={itemGroupCode}
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
-          priceListNo={this.state.PriceLists}
         />
         <form
           id="formData"

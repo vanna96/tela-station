@@ -379,19 +379,12 @@ export default function GeneralForm({
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label
-                htmlFor="Code"
-                className={`${
-                  !("DueDate" in data?.error) ? "text-gray-600" : "text-red-500"
-                } `}
-              >
+              <label htmlFor="Code" className="text-gray-600 ">
                 Delivery Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                error={"DocDueDate" in data?.error}
-                helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
                 value={edit ? data.DocDueDate : data.DocDueDate ?? null}
                 onChange={(e: any) => handlerChange("DocDueDate", e)}
