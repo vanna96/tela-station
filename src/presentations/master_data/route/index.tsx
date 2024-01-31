@@ -162,16 +162,14 @@ export default function Routelistpage() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "TL_ROUTE",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
+        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
         }&$orderby= DocEntry desc &${filter}`
       )
         .then((res: any) => res?.data?.value)
@@ -320,7 +318,7 @@ export default function Routelistpage() {
                       <Button
                         variant="outlined"
                         size="small"
-                        // onClick={handleGoClick}
+                      // onClick={handleGoClick}
                       >
                         Adapt Filter
                       </Button>
