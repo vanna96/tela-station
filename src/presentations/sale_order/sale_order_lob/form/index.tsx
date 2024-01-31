@@ -277,13 +277,6 @@ class SalesOrderForm extends CoreFormDocument {
         throw new FormValidateException("Items is missing", 1);
       }
 
-      // attachment
-      // let AttachmentEntry = null;
-      // const files = data?.AttachmentList?.map((item: any) => item);
-      // if (files?.length > 0) AttachmentEntry = await getAttachment(files);
-
-      // items
-
       const warehouseCodeGet = this.state.warehouseCode;
       const DocumentLines = getItem(
         data?.Items || [],
@@ -511,7 +504,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-
+    this.state.PriceLists = this.state.PriceLists;
     return (
       <>
         <ItemModalComponent
@@ -519,6 +512,7 @@ class SalesOrderForm extends CoreFormDocument {
           group={itemGroupCode}
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
+          priceListNo={this.state.PriceLists}
         />
         <form
           id="formData"

@@ -100,9 +100,10 @@ export default function GeneralForm({
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
   }
-  if (!edit) {
-    data.U_tl_sopricelist = data.vendor?.priceLists;
+  if (!edit && data.vendor) {
+    data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
   }
+
   console.log(data);
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
@@ -439,9 +440,7 @@ export default function GeneralForm({
                 rows={2}
                 name="Comments"
                 value={data?.Comments}
-                onChange={(e: any) =>
-                  handlerChange("Comments", e.target.value)
-                }
+                onChange={(e: any) => handlerChange("Comments", e.target.value)}
               />
             </div>
           </div>
