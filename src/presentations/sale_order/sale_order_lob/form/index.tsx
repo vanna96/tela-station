@@ -111,6 +111,8 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
+    console.log(this.state);
+    console.log(this.props.edit);
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -132,6 +134,7 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
+            vendor,
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
                 let apiResponse: any;
@@ -157,7 +160,6 @@ class SalesOrderForm extends CoreFormDocument {
                 const uomGroup: any = uomGroups.find(
                   (row: any) => row.AbsEntry === apiResponse.InventoryUoMEntry
                 );
-
 
                 let uomLists: any[] = [];
                 console.log(uomGroup?.UoMGroupDefinitionCollection);
@@ -287,9 +289,9 @@ class SalesOrderForm extends CoreFormDocument {
         data?.Items || [],
         data?.DocType,
         warehouseCodeGet,
-        data.BinLocation
+        data.BinLocation,
+        data.LineOfBusiness
       );
-      // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
@@ -307,13 +309,14 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
+        Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
-
+        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_sopricelist: data?.U_tl_sopricelist,
         DocumentLines,
 
         // logistic
-        PayToCode: data?.PayToCode || null,
+        ShipToCode: data?.ShipToCode || null,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
@@ -336,15 +339,16 @@ class SalesOrderForm extends CoreFormDocument {
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
+        Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
         DocumentLines,
 
         // logistic
-        PayToCode: data?.PayToCode || null,
+        ShipToCode: data?.ShipToCode || null,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-
+        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_sopricelist: data?.U_tl_sopricelist,
         // AttachmentEntry,
       };
 
@@ -417,7 +421,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
+      2: ["U_tl_dnsuppo", "ShipToCode"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -481,16 +485,6 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
-  // LeftSideField = () => {
-  //   return <>'hello left side </>;
-  // };
-  // RightSideField = () => {
-  //   return (
-  //     <div>
-  //      'Hello Right Side
-  //     </div>
-  //   );
-  // };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
@@ -565,7 +559,7 @@ class SalesOrderForm extends CoreFormDocument {
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
                       ContentLoading={undefined}
-                      edit={false}
+                      edit={this.props?.edit}
                     />
                   )}
 
@@ -578,15 +572,6 @@ class SalesOrderForm extends CoreFormDocument {
                       }}
                     />
                   )}
-
-                  {/* {this.state.tapIndex === 3 && (
-                    <AttachmentForm
-                      data={this.state}
-                      handlerChange={(key: any, value: any) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
@@ -646,7 +631,13 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
+const getItem = (
+  items: any,
+  type: any,
+  warehouseCode: any,
+  BinLocation: any,
+  LineOfBussiness: any
+) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
@@ -657,7 +648,7 @@ const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       UomAbsEntry: item.UomAbsEntry,
-      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
+      LineOfBussiness: LineOfBussiness,
       RevenueLine: item.revenueLine ?? "202001",
       ProductLine: item.REV ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,
