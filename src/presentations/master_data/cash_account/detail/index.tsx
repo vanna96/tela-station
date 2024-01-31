@@ -131,21 +131,21 @@ function General(props: any) {
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">G/L Account </div>
+                <div className="col-span-1 text-gray-700 ">G/L Account Code </div>
                 <div className="col-span-1 text-gray-900">
                   <MUITextField
-                    value={new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ??
-                      "N/A"}
+                    value={data?.U_tl_cashacct ?? "N/A"}
                     name="U_tl_cashacct"
                     disabled={true}
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">G/L Account Code </div>
+                <div className="col-span-1 text-gray-700 ">G/L Account Name </div>
                 <div className="col-span-1 text-gray-900">
                   <MUITextField
-                    value={data?.U_tl_cashacct ?? "N/A"}
+                    value={new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ??
+                      "N/A"}
                     name="U_tl_cashacct"
                     disabled={true}
                   />

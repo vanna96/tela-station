@@ -65,9 +65,10 @@ export default function Lists() {
         size: 100,
         visible: true,
         Cell: (cell: any) => {
+          console.log(cell.row.original);
           return (
-            new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-              ?.Name ?? "N/A"
+            `${cell.row.original.U_tl_cashacct ?? "N/A"} - ${new GLAccountRepository().find(cell.row.original.U_tl_cashacct)
+              ?.Name ?? "N/A"}`
           );
         },
       },

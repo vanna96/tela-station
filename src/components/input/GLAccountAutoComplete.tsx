@@ -19,6 +19,18 @@ export default function GLAccountAutoComplete(props: {
     queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
   });
 
+  useEffect(() => {
+    // Ensure that the selected value is set when the component is mounted
+    if (props.value) {
+      const selectedBranch = data?.find(
+        (branch: any) => branch?.Code === props.value
+      );
+      if (selectedBranch) {
+        setSelectedValue(selectedBranch);
+      }
+    }
+  }, [props.value, data]);
+
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
@@ -50,7 +62,7 @@ export default function GLAccountAutoComplete(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option.Name}
+        getOptionLabel={(option: any) => option.Code}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             <BsDot />

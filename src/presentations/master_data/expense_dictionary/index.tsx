@@ -58,8 +58,7 @@ export default function Lists() {
         size: 88,
         visible: true,
           Cell: ({ cell }:any) => {
-          return ` ${cell.getValue() ?? "N/A"} - ${new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-            ?.Name ?? 'N/A'}`;
+          return ` ${cell.getValue() ?? "N/A"} - ${gl6?.find((e:any) => cell.getValue() === e.Code)?.Name ?? "N/A"}`;
         },
       },
       // {
@@ -196,6 +195,11 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+  });
+
+  const { data:gl6 }: any = useQuery({
+    queryKey: ["gl_account_6"],
+    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
   });
 
   const handlerRefresh = React.useCallback(() => {

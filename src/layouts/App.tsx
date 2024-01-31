@@ -1,5 +1,5 @@
 import React from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import SideBar from "./SideBar";
 import { useCookies } from "react-cookie";
 import { Backdrop, Button, Chip, CircularProgress } from "@mui/material";
@@ -11,6 +11,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 export default function App() {
   const [cookies]: any = useCookies(["sessionId"]);
   const navigate = useNavigate();
+  const history = useLocation()
 
   if (!cookies.sessionId) return <Navigate to={"/login"} />;
 
@@ -61,7 +62,7 @@ export default function App() {
           <div
             className={`sticky z-50 top-0 px-2 pr-4 py-1 w-full shadow flex justify-between items-center bg-white`}
           >
-            <div>
+            <div className="flex justify-center items-center">
               <IconButton
                 color="primary"
                 aria-label="menu"
@@ -70,6 +71,15 @@ export default function App() {
               >
                 <HiMenu />
               </IconButton>
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" onClick={() => {
+                
+                const originalPath = history.pathname;
+                const pathSegments = originalPath.split('/');
+                const modifiedUrl = pathSegments.slice(0, 3).join('/');
+                navigate(modifiedUrl)
+              }} className="text-[#168f43]">
+                <path fill="currentColor" d="M17.51 3.87L15.73 2.1L5.84 12l9.9 9.9l1.77-1.77L9.38 12z"/>
+              </svg>
             </div>
             <div>
               <p className="font-medium text-gray-800">TELA Station</p>
