@@ -63,7 +63,7 @@ export default function CashACAutoComplete(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option.Name}
+        getOptionLabel={(option: any) => option.Code}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             <BsDot />

@@ -10,6 +10,7 @@ import { APIContext } from "../../context/APIContext";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { TextField } from "@mui/material";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -80,7 +81,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  G/L Account <span className="text-red-500">*</span>
+                  G/L Account Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -93,14 +94,13 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  G/L Account Code 
+                  G/L Account Name 
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.U_tl_cashacct}
+                  value={new GLAccountRepository().find(data?.U_tl_cashacct)?.Name ?? "N/A"}
                   name="U_tl_cashacct"
-                  onChange={(e) => handlerChange("U_tl_cashacct", e.target.value)}
                   disabled={true}
                 />
               </div>
