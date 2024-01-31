@@ -104,7 +104,6 @@ export default function GeneralForm({
     data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
   }
 
-  console.log(data);
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),

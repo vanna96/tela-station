@@ -551,7 +551,6 @@ class SalesOrderForm extends CoreFormDocument {
     );
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
-    console.log(priceList);
     return (
       <>
         <ItemModalComponent

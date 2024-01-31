@@ -136,7 +136,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
-    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -287,7 +286,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
               <div className="flex flex-col">
                 <div className="text-sm">Warehouse</div>
-                <div className="mb-2"></div>
+                <div className="mb-1"></div>
                 <WarehouseAutoComplete
                   Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
                   value={this.state.WarehouseCode}
