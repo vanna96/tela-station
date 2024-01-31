@@ -236,7 +236,7 @@ export default function Lists() {
   let queryFilters = "";
   const handlerSearch = (value: string) => {
     if (searchValues.code) {
-      queryFilters += queryFilters ?"":""
+      queryFilters += queryFilters 
         ? ` and (contains(Code, '${searchValues.code}'))`
         : `(contains(Code, '${searchValues.code}'))`;
     }
@@ -244,7 +244,7 @@ export default function Lists() {
 
     if (searchValues.status) {
       searchValues.status === "All"
-        ? (queryFilters += queryFilters)
+        ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
             ? ` and U_Status eq '${searchValues.status}'`
             : `U_Status eq '${searchValues.status}'`);
