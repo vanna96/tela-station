@@ -135,11 +135,8 @@ detail
                     <MUISelect
                       disabled={detail}
                       items={[
-                        { label: "Divorced", value: "D" },
                         { label: "Married", value: "mts_Married" },
-                        { label: "Not Specified", value: "N" },
                         { label: "Single", value: "mts_Single" },
-                        { label: "Widowed", value: "w" },
                       ]}
                       onChange={(e: any) => {
                         setValue("MartialStatus", e.target.value);
