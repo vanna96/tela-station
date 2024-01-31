@@ -7,31 +7,29 @@ export default function Compartment({
   register,
   defaultValue,
   setValue,
-  commer,
-  setCommer,
+  compart,
+  setCompart,
   control,
+  detail
 }: any) {
-  const [staticSelect, setStaticSelect] = useState({
-    u_IssueDate: null,
-    u_ExpiredDate: null,
-  });
+
   const addNewRow = () => {
     let newRow: any = {};
-    setCommer([...(commer ?? []), newRow]);
+    setCompart([...(compart ?? []), newRow]);
   };
 
   const handlerDelete = (index: number) => {
-    if (index) {
-      const state: any[] = [...commer];
+    if (index >= 0 && detail !== true) {
+      const state: any[] = [...compart];
       state.splice(index, 1);
-      setCommer(state);
+      setCompart(state);
     } else {
       return;
     }
   };
 
-  const handlerChangeCommer = (key: string, value: any, index: number) => {
-    const updated = commer.map((item: any, idx: number) => {
+  const handlerChangeCompart = (key: string, value: any, index: number) => {
+    const updated = compart.map((item: any, idx: number) => {
       if (idx === index) {
         return {
           ...item,
@@ -40,9 +38,8 @@ export default function Compartment({
       }
       return item;
     });
-    setCommer(updated);
+    setCompart(updated);
   };
-  console.log(staticSelect);
 
   return (
     <>
@@ -64,7 +61,7 @@ export default function Compartment({
               Bottom Hatch
             </th>
           </tr>
-          {commer?.length === undefined && (
+          {compart?.length === undefined && (
             <tr>
               <td
                 colSpan={6}
@@ -74,13 +71,17 @@ export default function Compartment({
               </td>
             </tr>
           )}
-          {commer?.map((e: any, index: number) => {
+          {compart?.map((e: any, index: number) => {
             return (
               <tr key={index}>
                 <td className="py-5 flex justify-center gap-5 items-center">
                   <div
                     onClick={() => handlerDelete(index)}
-                    className="w-[17px] shadow-lg shadow-[#878484] h-[17px] bg-red-500 rounded-sm text-white flex justify-center items-center cursor-pointer"
+                    className={`w-[17px] shadow-lg shadow-[#878484] h-[17px] ${
+                      detail
+                        ? "bg-gray-100 text-gray-600 "
+                        : "bg-red-500 cursor-pointer text-white"
+                    }  rounded-sm flex justify-center items-center `}
                   >
                     -
                   </div>
@@ -88,41 +89,61 @@ export default function Compartment({
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    placeholder="Type"
+                    disabled={detail}
+                    placeholder="No"
                     inputProps={{
-                      defaultValue: e?.U_Type,
+                      defaultValue: e?.U_CM_NO,
                       onChange: (e: any) =>
-                        handlerChangeCommer("U_Type", e?.target?.value, index),
+                        handlerChangeCompart(
+                          "U_CM_NO",
+                          e?.target?.value,
+                          index
+                        ),
                     }}
                   />
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    placeholder="Name"
+                    disabled={detail}
+                    placeholder="Volume"
                     inputProps={{
-                      defaultValue: e?.U_Name,
+                      defaultValue: e?.U_VOLUME,
                       onChange: (e: any) =>
-                        handlerChangeCommer("U_Name", e?.target?.value, index),
+                        handlerChangeCompart(
+                          "U_VOLUME",
+                          e?.target?.value,
+                          index
+                        ),
                     }}
                   />
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    placeholder="Name"
+                    disabled={detail}
+                    placeholder="Top Hatch"
                     inputProps={{
-                      defaultValue: e?.U_Name,
+                      defaultValue: e?.U_TOP_HATCH,
                       onChange: (e: any) =>
-                        handlerChangeCommer("U_Name", e?.target?.value, index),
+                        handlerChangeCompart(
+                          "U_TOP_HATCH",
+                          e?.target?.value,
+                          index
+                        ),
                     }}
                   />
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    placeholder="Name"
+                    disabled={detail}
+                    placeholder="Bottom Hatch"
                     inputProps={{
-                      defaultValue: e?.U_Name,
+                      defaultValue: e?.U_BOTTOM_HATCH,
                       onChange: (e: any) =>
-                        handlerChangeCommer("U_Name", e?.target?.value, index),
+                        handlerChangeCompart(
+                          "U_BOTTOM_HATCH",
+                          e?.target?.value,
+                          index
+                        ),
                     }}
                   />
                 </td>
@@ -130,12 +151,20 @@ export default function Compartment({
             );
           })}
         </table>
-        <span
-          onClick={addNewRow}
-          className="p-1 text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
-        >
-         + Add
-        </span>
+        {detail ? (
+          <span
+            className="p-1 text-sm bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md"
+          >
+            + Add
+          </span>
+        ) : (
+          <span
+            onClick={addNewRow}
+            className="p-1 text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
+          >
+            + Add
+          </span>
+        )}
       </div>
     </>
   );

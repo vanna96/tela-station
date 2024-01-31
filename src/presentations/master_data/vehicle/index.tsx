@@ -76,15 +76,15 @@ export default function Lists() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return (
-            driver?.data?.find(
-              (e: any) => e?.EmployeeID === cell.row.original.U_Driver
-            )?.FirstName +
-              " " +
-              driver?.data?.find(
-                (e: any) => e?.EmployeeID === cell.row.original.U_Driver
-              )?.FirstName
+          const driverInfo = driver?.data?.find(
+            (e: any) => e?.EmployeeID === cell.row.original.U_Driver
           );
+
+          if (driverInfo) {
+            return driverInfo.FirstName + " " + driverInfo.LastName;
+          } else {
+            return "N/A";
+          }
         },
       },
       {
@@ -140,13 +140,10 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  `/master-data/vehicle/${cell.row.original.Code}/edit`,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                route(`/master-data/vehicle/${cell.row.original.Code}/edit`, {
+                  state: cell.row.original,
+                  replace: true,
+                });
               }}
             >
               <DriveFileRenameOutlineIcon

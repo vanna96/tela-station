@@ -27,6 +27,7 @@ import Engine from "../component/Engine";
 import Tyres from "../component/Tyres";
 import Commercial from "../component/Commercial";
 import Compartment from "../component/Compartment";
+import { useParams } from "react-router-dom";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -41,6 +42,7 @@ export type UseFormProps = {
   branchAss?: any;
   header?: any;
   setHeader?: any;
+  detail?: boolean;
 };
 // const { id } = useParams();
 const VehicleForm = (props: any) => {
@@ -53,8 +55,7 @@ const VehicleForm = (props: any) => {
 
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = props?.match?.params || 0;
-
+  const { id }: any = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -65,27 +66,33 @@ const VehicleForm = (props: any) => {
     DocNum: id,
   });
   const [header, setHeader] = useState({
-    firstName: null,
-    lastName: null,
-    gender: null,
-    department: null,
-    branch: null,
+    code: null,
+    name: null,
+    number: null,
+    model: null,
+    owner: null,
+    base: null,
+    status: "tYES",
   });
 
-  const [branchAss, setBranchAss] = useState([]);
   const [vehicle, setVehicle] = React.useState<any>();
+
+  const commers = vehicle?.TL_VH_COMMERCIALCollection;
+  const comparts = vehicle?.TL_VH_COMPARTMENTCollection;
+  const [commer, setCommer] = useState<any[]>(commers);
+  const [compart, setCompart] = useState<any[]>(comparts);
+
   React.useEffect(() => {
-     fetchData();
-    if (vehicle) {
+    if (vehicle && commers && comparts) {
       reset({ ...vehicle });
+      setCommer(commers);
+      setCompart(comparts);
     }
-  }, [vehicle]);
+  }, [vehicle, commers, comparts]);
 
-
-  const arr = vehicle?.TL_VH_COMMERCIALCollection;
-  const [commer, setCommer] = useState<any[]>([arr]);
-
-
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     if (id) {
@@ -93,7 +100,7 @@ const VehicleForm = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `TL_VEHICLE(${id})`)
+      await request("GET", `TL_VEHICLE('${id}')`)
         .then((res: any) => {
           setVehicle(res?.data);
           setState({
@@ -125,12 +132,20 @@ const VehicleForm = (props: any) => {
           U_Ref: e?.U_Ref,
         };
       }),
+      TL_VH_COMPARTMENTCollection: compart?.map((e: any) => {
+        return {
+          U_CM_NO: e?.U_CM_NO,
+          U_TOP_HATCH: e?.U_TOP_HATCH,
+          U_VOLUME: e?.U_VOLUME,
+          U_BOTTOM_HATCH: e?.U_BOTTOM_HATCH,
+        };
+      }),
     };
-    const { id } = props?.match?.params || 0;
+
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/TL_VEHICLE(${id})`, payload)
+        await request("PATCH", `/TL_VEHICLE('${id}')`, payload)
           .then(
             (res: any) =>
               dialog.current?.success("Update Successfully.", res?.data?.Code)
@@ -207,8 +222,6 @@ const VehicleForm = (props: any) => {
     );
   };
 
-
-  
   const Left = ({ header, data }: any) => {
     return (
       <div className="w-[100%] mt-0 pl-[25px] h-[165px] flex py-5 px-4">
@@ -228,20 +241,16 @@ const VehicleForm = (props: any) => {
         </div>
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
-            <span>{data?.FirstName || header?.firstName || "_"}</span>
+            <span>{data?.Code || header?.code || "_"}</span>
           </div>
           <div>
-            <span>{data?.LastName || header?.lastName || "_"}</span>
+            <span>{data?.Name || header?.name || "_"}</span>
           </div>
           <div>
-            <span>
-              {data?.Gender?.replace("gt_", "") ||
-                header?.gender?.replace("gt_", "") ||
-                "_"}
-            </span>
+            <span>{data?.U_PlateNumber || header?.number || "_"}</span>
           </div>
           <div>
-            <span>{data?.LastName || header?.lastName || "_"}</span>
+            <span>{data?.U_Model || header?.model || "_"}</span>
           </div>
         </div>
       </div>
@@ -269,33 +278,23 @@ const VehicleForm = (props: any) => {
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
             <span className="mb-[20px] inline-block">
-              {new DepartmentRepository()?.find(data?.Department)?.Name ||
-                header?.department ||
-                "_"}
+              {data?.U_Owner || header?.owner || "_"}
             </span>
           </div>
           <div className="mb-[20px] inline-block">
-            <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.branch ||
-                "_"}
-            </span>
+            <span>{data?.U_BaseStation || header?.base || "_"}</span>
           </div>
           <div>
             <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.branch ||
-                "_"}
+              {data?.U_Status || header?.status == "tYES"
+                ? "Active"
+                : "Inactive" || "_"}
             </span>
           </div>
         </div>
       </div>
     );
   };
-
-  // console.log(state)
 
   return (
     <>
@@ -341,8 +340,6 @@ const VehicleForm = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
                   header={header}
                   setHeader={setHeader}
                 />
@@ -350,7 +347,12 @@ const VehicleForm = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <SpecDetail setValue={setValue} register={register} />
+                <SpecDetail
+                  setValue={setValue}
+                  header={header}
+                  setHeader={setHeader}
+                  register={register}
+                />
               </h1>
             )}
             {state.tapIndex === 2 && (
@@ -388,10 +390,11 @@ const VehicleForm = (props: any) => {
             {state.tapIndex === 5 && (
               <div className="m-5">
                 <Compartment
-                  commer={commer}
+                  compart={compart}
+                  setCompart={setCompart}
                   control={control}
-                  setCommer={setCommer}
-                  data={vehicle}
+                    data={vehicle}
+                    detail={props?.detail}
                 />
               </div>
             )}

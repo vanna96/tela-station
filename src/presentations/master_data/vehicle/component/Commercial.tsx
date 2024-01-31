@@ -11,10 +11,11 @@ export default function Commercial({
   commer,
   setCommer,
   control,
+  detail
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
-    u_IssueDate: null,
-    u_ExpiredDate: null,
+    u_IssueDate: undefined,
+    u_ExpiredDate: undefined,
     u_Type:""
   });
   const addNewRow = () => {
@@ -23,7 +24,7 @@ export default function Commercial({
   };
 
   const handlerDelete = (index: number) => {
-    if (index) {
+    if (index >= 0 && detail !== true) {
       const state: any[] = [...commer];
       state.splice(index, 1);
       setCommer(state);
@@ -88,7 +89,11 @@ export default function Commercial({
                 <td className="py-5 flex justify-center gap-5 items-center">
                   <div
                     onClick={() => handlerDelete(index)}
-                    className="w-[17px] shadow-lg shadow-[#878484] h-[17px] bg-red-500 rounded-sm text-white flex justify-center items-center cursor-pointer"
+                    className={`w-[17px] shadow-lg shadow-[#878484] h-[17px] ${
+                      detail
+                        ? "bg-gray-100 text-gray-600 "
+                        : "bg-red-500 cursor-pointer text-white"
+                    }  rounded-sm flex justify-center items-center `}
                   >
                     -
                   </div>
@@ -102,6 +107,7 @@ export default function Commercial({
                     render={({ field }) => {
                       return (
                         <MUISelect
+                          disabled={detail}
                           items={[
                             { label: "Truck", value: "Truck" },
                             { label: "Train", value: "Train" },
@@ -118,7 +124,7 @@ export default function Commercial({
                                 u_Type: e.target.value,
                               });
                           }}
-                          value={staticSelect.u_Type || e?.U_Type}
+                          value={e?.U_Type || staticSelect.u_Type}
                           aliasvalue="value"
                           aliaslabel="label"
                         />
@@ -128,6 +134,7 @@ export default function Commercial({
                 </td>
                 <td className="pr-4">
                   <MUITextField
+                    disabled={detail}
                     placeholder="Name"
                     inputProps={{
                       defaultValue: e?.U_Name,
@@ -143,8 +150,9 @@ export default function Commercial({
                     render={({ field }) => {
                       return (
                         <MUIDatePicker
+                          disabled={detail}
                           {...field}
-                          value={staticSelect?.u_IssueDate || undefined}
+                          value={e?.U_IssueDate || staticSelect?.u_IssueDate}
                           key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
                           onChange={(e: any) => {
                             const val =
@@ -170,8 +178,9 @@ export default function Commercial({
                     render={({ field }) => {
                       return (
                         <MUIDatePicker
+                          disabled={detail}
                           {...field}
-                          value={staticSelect.u_ExpiredDate || undefined}
+                          value={e?.U_ExpiredDate || staticSelect.u_ExpiredDate}
                           key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
                           onChange={(e: any) => {
                             const val =
@@ -193,6 +202,7 @@ export default function Commercial({
 
                 <td className="pr-4">
                   <MUITextField
+                    disabled={detail}
                     placeholder="Fee"
                     inputProps={{
                       defaultValue: e?.U_Fee,
@@ -203,6 +213,7 @@ export default function Commercial({
                 </td>
                 <td className="pr-4">
                   <MUITextField
+                    disabled={detail}
                     placeholder="Referance"
                     inputProps={{
                       defaultValue: e?.U_Ref,
@@ -215,12 +226,18 @@ export default function Commercial({
             );
           })}
         </table>
-        <span
-          onClick={addNewRow}
-          className="p-1 rounded-sm text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
-        >
-          + Add
-        </span>
+        {detail ? (
+          <span className="p-1 text-sm bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md">
+            + Add
+          </span>
+        ) : (
+          <span
+            onClick={addNewRow}
+            className="p-1 text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
+          >
+            + Add
+          </span>
+        )}
       </div>
     </>
   );
