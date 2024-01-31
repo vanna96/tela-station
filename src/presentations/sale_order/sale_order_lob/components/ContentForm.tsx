@@ -40,6 +40,7 @@ export default function ContentForm({
   }, [data?.error]);
   const vendorPriceList = data.U_tl_sopricelist;
   const wh = data.U_tl_whsdesc;
+  const lineofbusiness = data.U_tl_arbusi;
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -443,6 +444,7 @@ export default function ContentForm({
         priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
+        lineofbusiness={lineofbusiness}
         columns={itemColumns}
       />
     </>

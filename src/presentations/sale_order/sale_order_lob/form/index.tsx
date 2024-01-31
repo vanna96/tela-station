@@ -112,6 +112,7 @@ class SalesOrderForm extends CoreFormDocument {
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
     console.log(this.state);
+
     console.log(this.props.edit);
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
@@ -134,6 +135,7 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
+
             vendor,
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
@@ -192,7 +194,11 @@ class SalesOrderForm extends CoreFormDocument {
                   ItemPrices: apiResponse.ItemPrices,
                   ExchangeRate: data?.DocRate || 1,
                   JournalMemo: data?.JournalMemo,
+                  COGSCostingCode: item?.COGSCostingCode,
+                  COGSCostingCode2: item?.COGSCostingCode2,
+                  COGSCostingCode3: item?.COGSCostingCode3,
                   CurrencyType: "B",
+                  DocumentLinesBinAllocations: item.DocumentLinesBinAllocations,
                   vendor,
                   warehouseCode: data?.U_tl_whsdesc,
                   DocDiscount: data?.DiscountPercent,
@@ -544,6 +550,7 @@ class SalesOrderForm extends CoreFormDocument {
     };
 
     const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+
     return (
       <>
         <ItemModalComponent
@@ -681,8 +688,11 @@ const getItem = (
       UoMEntry: item.UomAbsEntry || null,
       UomAbsEntry: item.UomAbsEntry,
       LineOfBussiness: LineOfBussiness,
-      RevenueLine: item.revenueLine ?? "202001",
-      ProductLine: item.REV ?? "203004",
+      // RevenueLine: item.revenueLine ?? "202001",
+      // ProductLine: item.REV ?? "203004",
+      COGSCostingCode: item.COGSCostingCode ?? "201001",
+      COGSCostingCode2: item.COGSCostingCode2 ?? "202001",
+      COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
       BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || null,
       DocumentLinesBinAllocations: [
