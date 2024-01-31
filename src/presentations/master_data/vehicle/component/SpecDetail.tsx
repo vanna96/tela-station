@@ -56,16 +56,19 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
                 />
               </div>
             </div>
-            {/* <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Color
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("WorkStreet") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_COLOR") }}
+                />
               </div>
-            </div> */}
+            </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -79,16 +82,19 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
                 />
               </div>
             </div>
-            {/* <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   VIN Number
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("WorkCity") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_VIN") }}
+                />
               </div>
-            </div> */}
+            </div>
           </div>
 
           <div className="col-span-5  w-[50%]">
