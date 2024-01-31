@@ -380,7 +380,7 @@ const VehicleForm = (props: any) => {
             )}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
                   <LoadingButton
                     size="small"

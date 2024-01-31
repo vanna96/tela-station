@@ -356,13 +356,13 @@ const Form = (props: any) => {
             )}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                <div className="flex ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                <div className="flex">
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
                     variant="contained"
-                    disableElevation
+                      disableElevation
                   >
                     <span className="px-3 text-[11px] py-1 text-white">
                       Cancel
