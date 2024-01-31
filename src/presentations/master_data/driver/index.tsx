@@ -18,7 +18,7 @@ export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
     FirstName: "",
     LastName:"",
-    active: "tYES",
+    active: "All",
   });
    const branchAss: any = useQuery({
      queryKey: ["branchAss"],
@@ -251,11 +251,14 @@ export default function Lists() {
     queryFilters += queryFilters
       ? ` and (contains(LastName, '${searchValues.LastName}'))`
       : `(contains(LastName, '${searchValues.LastName}'))`;
-  }
+    }
+    
     if (searchValues.active) {
-      queryFilters += queryFilters
-        ? ` and Active eq '${searchValues.active}'`
-        : `Active eq '${searchValues.active}'`;
+      searchValues.active === "All"
+        ? (queryFilters += queryFilters)
+        : (queryFilters += queryFilters
+            ? ` and Active eq '${searchValues.active}'`
+            : `Active eq '${searchValues.active}'`);
     }
 
     let query = queryFilters;
@@ -295,7 +298,10 @@ export default function Lists() {
                   autoComplete="off"
                   value={searchValues.FirstName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, FirstName: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      FirstName: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -308,7 +314,10 @@ export default function Lists() {
                   autoComplete="off"
                   value={searchValues.LastName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, LastName: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      LastName: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -338,16 +347,16 @@ export default function Lists() {
                 )} */}
                 <MUISelect
                   items={[
-                    { value: "", label: "All" },
+                    { value: "All", label: "All" },
                     { value: "tYES", label: "Active" },
                     { value: "tNO", label: "Inactive" },
                   ]}
-                  onChange={(e: any) =>
+                  onChange={(e: any) => {
                     setSearchValues({
                       ...searchValues,
                       active: e.target.value,
-                    })
-                  }
+                    });
+                  }}
                   value={
                     // searchValues.active === null ? "tYES" : searchValues.active
                     searchValues.active

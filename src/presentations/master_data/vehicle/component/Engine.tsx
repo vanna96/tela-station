@@ -17,18 +17,9 @@ const Engine = ({
   setHeader
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
-    gender: "",
-    status: "",
-    checkList:"",
-    dateOfbirth: null,
-    passportExpirationDate: null,
-    passportIssuedDate: null,
+    U_HeadlampType: "",
+
   });
-  useEffect(() => {
-    if (staticSelect) {
-      setHeader({ ...header, gender: staticSelect.gender });
-    }
-  }, [staticSelect]);
   
   return (
     <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -101,7 +92,33 @@ const Engine = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_HeadlampType") }} />
+              <Controller
+                name="U_HeadlampType"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <MUISelect
+                      items={[
+                        { label: "LED", value: "LED" },
+                        { label: "HID", value: "HID" },
+                      ]}
+                      onChange={(e: any) => {
+                        setValue("U_HeadlampType", e.target.value);
+
+                        setStaticSelect({
+                          ...staticSelect,
+                          U_HeadlampType: e.target.value,
+                        });
+                      }}
+                      value={
+                        staticSelect.U_HeadlampType || defaultValues?.U_Type
+                      }
+                      aliasvalue="value"
+                      aliaslabel="label"
+                    />
+                  );
+                }}
+              />
             </div>
           </div>
         </div>

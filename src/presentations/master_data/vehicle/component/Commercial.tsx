@@ -1,5 +1,6 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
+import MUISelect from "@/components/selectbox/MUISelect";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
@@ -14,6 +15,7 @@ export default function Commercial({
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: null,
     u_ExpiredDate: null,
+    u_Type:""
   });
   const addNewRow = () => {
     let newRow: any = {};
@@ -92,14 +94,35 @@ export default function Commercial({
                   </div>
                   <span className="text-gray-500">{index + 1}</span>
                 </td>
-     
+
                 <td className="pr-4">
-                  <MUITextField
-                    placeholder="Type"
-                    inputProps={{
-                      defaultValue: e?.U_Type,
-                      onChange: (e: any) =>
-                        handlerChangeCommer("U_Type", e?.target?.value, index),
+                  <Controller
+                    name="U_Type"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <MUISelect
+                          items={[
+                            { label: "Truck", value: "Truck" },
+                            { label: "Train", value: "Train" },
+                            { label: "Van", value: "Van" },
+                          ]}
+                          onChange={(e: any) => {
+                            handlerChangeCommer(
+                              "U_Type",
+                              e?.target?.value,
+                              index
+                            ),
+                              setStaticSelect({
+                                ...staticSelect,
+                                u_Type: e.target.value,
+                              });
+                          }}
+                          value={staticSelect.u_Type || e?.U_Type}
+                          aliasvalue="value"
+                          aliaslabel="label"
+                        />
+                      );
                     }}
                   />
                 </td>
@@ -141,7 +164,6 @@ export default function Commercial({
                   />
                 </td>
                 <td className="pr-4">
-
                   <Controller
                     name="U_ExpiredDate"
                     control={control}
@@ -197,7 +219,7 @@ export default function Commercial({
           onClick={addNewRow}
           className="p-1 rounded-sm text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
         >
-         + Add
+          + Add
         </span>
       </div>
     </>
