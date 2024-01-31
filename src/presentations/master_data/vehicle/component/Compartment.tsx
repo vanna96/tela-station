@@ -67,7 +67,7 @@ export default function Compartment({
                 colSpan={6}
                 className="text-center p-10 text-[16px] text-gray-400"
               >
-                No Record For Commercial
+                No Record For Compartment
               </td>
             </tr>
           )}
