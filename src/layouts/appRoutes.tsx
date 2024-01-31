@@ -115,13 +115,6 @@ const appRoutes: RouteType[] = [
           displayText: "Route",
         }
       },
-      {
-        path: "/master-data/cash-account",
-        state: "cash-account",
-        sidebarProps: {
-          displayText: "Cash Account",
-        },
-      },
     ],
   },
   {
