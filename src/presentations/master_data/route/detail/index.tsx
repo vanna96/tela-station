@@ -6,6 +6,8 @@ import LoadingProgress from "@/components/LoadingProgress";
 import request from "@/utilies/request";
 import DocumentHeader from "@/components/DocumenHeader";
 import MaterialReactTable from "material-react-table";
+import MUITextField from "@/components/input/MUITextField";
+import { TextField } from "@mui/material";
 
 class RouteDetail extends Component<any, any> {
   constructor(props: any) {
@@ -41,11 +43,10 @@ class RouteDetail extends Component<any, any> {
             loading: false,
           });
         })
-        
+
         .catch((err: any) =>
           this.setState({ isError: true, message: err.message })
         );
-        
     } else {
       this.setState({ ...data, loading: false });
     }
@@ -53,7 +54,7 @@ class RouteDetail extends Component<any, any> {
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
-  
+
   HeaderTabs = () => {
     return (
       <>
@@ -101,17 +102,17 @@ class RouteDetail extends Component<any, any> {
           ) : (
             <>
               <div className="relative">
-                <div className="grow  px-16 py-4 ">
+                <div className="grow  px-5 py-4 ">
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                 </div>
               </div>
               <div className="relative">
-                <div className="grow  px-16 py-4 ">
+                <div className="grow  px-5 py-4 ">
                   {this.state.tapIndex === 1 && <Expense data={this.state} />}
                 </div>
               </div>
               <div className="relative">
-                <div className="grow  px-16 py-4 ">
+                <div className="grow  px-5 py-4 ">
                   {this.state.tapIndex === 2 && <Sequence data={this.state} />}
                 </div>
               </div>
@@ -125,79 +126,61 @@ class RouteDetail extends Component<any, any> {
 
 export default withRouter(RouteDetail);
 
+function renderKeyValue(label: string, value: any) {
+  return (
+    <div className="grid grid-cols-2 py-2">
+      <div className="col-span-1 text-gray-700">{label}</div>
+      <div className="col-span-1 text-gray-900">
+        <MUITextField disabled value={value ?? "N/A"} />
+      </div>
+    </div>
+  );
+}
+
 function General(props: any) {
   const { data }: any = props;
   console.log(data);
-  
+
   return (
     <>
       <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
         <h2 className="col-span-2 border-b pb-2 mb-4 font-bold text-lg">
           General
         </h2>
-        <div className="py-4 px-8">
+        <div className="">
           <div className="grid grid-cols-12 ">
             <div className="col-span-5">
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Base Station</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_BaseStation ?? "N/A"}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Destination</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_Destination ?? "N/A"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Route Code</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.Code ?? "N/A"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Route Name</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.Name ?? "N/A"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">
-                  Driver Incentive
-                </div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_Incentive ?? "N/A"}
-                </div>
-              </div>
+              {renderKeyValue("Base Station", props?.data?.U_BaseStation)}
+              {renderKeyValue("Destination", props.data.U_Destination)}
+              {renderKeyValue("Route Code", props.data.Code)}
+              {renderKeyValue("Route Name", props.data.Name)}
+              {renderKeyValue("Driver Incentive", props.data.U_Incentive)}
             </div>
             <div className="col-span-2"></div>
-            <div className="col-span-5 ">
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700">Status</div>
-                <div className="col-span-1  text-gray-900">
-                  {data?.U_Status === "Y" ? "Yes" : "No"}
-                </div>
+            <div className="col-span-5">
+              {renderKeyValue(
+                "Status",
+                props.data.U_active === "Y" ? "Active" : "Inactive"
+              )}
+              {renderKeyValue("Distance", props.data.U_Distance)}
+              {renderKeyValue("Travel Hour", props.data.U_Duration)}
+              <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Extra Remarks
+                </label>
               </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Distance</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_Distance ?? "N/A"}
-                </div>
+              <div className="col-span-3">
+                  <TextField
+                    size="small"
+                    fullWidth
+                    multiline
+                    rows={2}
+                    value={data.U_Remark}
+                    disabled={true}
+                  />
               </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Travel Hour</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_Duration ?? "N/A"}
-                </div>
-              </div>
-              <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">Extra Remarks</div>
-                <div className="col-span-1 text-gray-900">
-                  {data?.U_Remark ?? "N/A"}
-                </div>
-              </div>
+            </div>
             </div>
           </div>
         </div>
@@ -236,7 +219,7 @@ function Expense(props: any) {
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-10">
           <h2>Expense</h2>
         </div>
         <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
@@ -263,64 +246,64 @@ function Expense(props: any) {
 }
 
 function Sequence(props: any) {
-    const { data } = props;
-  
-    const itemColumn: any = useMemo(
-      () => [
-        {
-          accessorKey: "U_Code",
-          header: "Stops", //uses the default width from defaultColumn prop
-          enableClickToCopy: true,
-          enableFilterMatchHighlighting: true,
-          size: 150,
-        },
-        {
-          accessorKey: "U_Distance",
-          header: "Distance",
-          enableClickToCopy: true,
-          size: 200,
-        },
-        {
-          accessorKey: "U_Duration",
-          header: "Travel Duration",
-          size: 60,
-          Cell: ({ cell }: any) => cell.getValue(),
-        },
-        {
-            accessorKey: "U_Stop_Duration",
-            header: "Stops Duration",
-            size: 60,
-            Cell: ({ cell }: any) => cell.getValue(),
-          },
-      ],
-      [data]
-    );
-  
-    return (
-      <>
-        <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
-          <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-            <h2>Sequence</h2>
-          </div>
-          <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
-            <MaterialReactTable
-              enableColumnActions={false}
-              enableColumnFilters={false}
-              enablePagination={false}
-              enableSorting={false}
-              enableBottomToolbar={false}
-              enableTopToolbar={false}
-              muiTableBodyRowProps={{ hover: false }}
-              columns={itemColumn}
-              data={data?.TL_RM_SEQUENCECollection || []}
-              muiTableProps={{
-                sx: {
-                  border: "1px solid rgba(211,211,211)",
-                },
-              }}
-            />
-          </div>
+  const { data } = props;
+
+  const itemColumn: any = useMemo(
+    () => [
+      {
+        accessorKey: "U_Code",
+        header: "Stops", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 150,
+      },
+      {
+        accessorKey: "U_Distance",
+        header: "Distance",
+        enableClickToCopy: true,
+        size: 200,
+      },
+      {
+        accessorKey: "U_Duration",
+        header: "Travel Duration",
+        size: 60,
+        Cell: ({ cell }: any) => cell.getValue(),
+      },
+      {
+        accessorKey: "U_Stop_Duration",
+        header: "Stops Duration",
+        size: 60,
+        Cell: ({ cell }: any) => cell.getValue(),
+      },
+    ],
+    [data]
+  );
+
+  return (
+    <>
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Sequence</h2>
         </div>
-      </>
-    );
-  }
+        <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
+          <MaterialReactTable
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            muiTableBodyRowProps={{ hover: false }}
+            columns={itemColumn}
+            data={data?.TL_RM_SEQUENCECollection || []}
+            muiTableProps={{
+              sx: {
+                border: "1px solid rgba(211,211,211)",
+              },
+            }}
+          />
+        </div>
+      </div>
+    </>
+  );
+}

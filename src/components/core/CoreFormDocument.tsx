@@ -90,6 +90,12 @@ export interface CoreFormDocumentState {
   };
   isDialogOpen: boolean;
   showCollapse: boolean;
+  Code: string | null;
+  Name: string | null;
+  U_BaseStation: string | null;
+  U_Destination: string | null;
+  U_Distance: string | null;
+  U_Duration: string | null;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -171,6 +177,12 @@ export default abstract class CoreFormDocument extends React.Component<
         attachment: false,
       },
       isDialogOpen: false,
+      Code: null,
+      Name: null,
+      U_BaseStation: null,
+      U_Destination: null,
+      U_Distance: null,
+      U_Duration: null,
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);
@@ -191,7 +203,6 @@ export default abstract class CoreFormDocument extends React.Component<
   abstract HeaderCollapeMenu?(): JSX.Element | React.ReactNode;
 
   render() {
-
     return (
       <div className="grow flex flex-col">
         <FormMessageModal ref={this.dialog} />
@@ -217,11 +228,12 @@ export default abstract class CoreFormDocument extends React.Component<
             data={this.state}
             menuTabs={<this.HeaderTaps />}
             HeaderCollapeMenu={
-              this.HeaderCollapeMenu?.() ??
+              this.HeaderCollapeMenu?.() ?? (
                 <>
                   <StatusCustomerBranchCurrencyInfoLeftSide data={this.state} />
                   <TotalSummaryRightSide data={this.state} />
                 </>
+              )
             }
             leftSideField={
               <>

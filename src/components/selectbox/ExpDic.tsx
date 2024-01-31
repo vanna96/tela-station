@@ -19,7 +19,7 @@ function ExpDicSelect(props: ExpDicProps) {
     {...props}
     items={data ?? []}
     aliaslabel="Code"
-    aliasvalue="Code"
+    aliasvalue="Name"
     loading={isLoading}
   />
 }

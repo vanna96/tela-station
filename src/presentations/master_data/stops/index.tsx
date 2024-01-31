@@ -37,7 +37,7 @@ export default function Stopslistpage() {
             },
             {
                 accessorKey: "Name",
-                header: "Name", //uses the default width from defaultColumn prop
+                header: "Description", //uses the default width from defaultColumn prop
                 enableClickToCopy: true,
                 enableFilterMatchHighlighting: true,
                 size: 88,
@@ -102,7 +102,7 @@ export default function Stopslistpage() {
                                 });
                             }}
                         >
-                            <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
+                            <VisibilityIcon fontSize="small" className="text-gray-600 " />
                             View
                         </button>
                         <button
@@ -157,8 +157,11 @@ export default function Stopslistpage() {
     const { data, isLoading, refetch, isFetching }: any = useQuery({
         queryKey: [
             "TL_STOPS",
-            `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
-        ],
+            `${pagination.pageIndex * pagination.pageSize}_${
+              filter !== "" ? "f" : ""
+            }`,
+            pagination.pageSize,
+          ],
         queryFn: async () => {
             const response: any = await request(
                 "GET",
