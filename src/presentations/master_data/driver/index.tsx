@@ -255,7 +255,7 @@ export default function Lists() {
     
     if (searchValues.active) {
       searchValues.active === "All"
-        ? (queryFilters += queryFilters)
+        ? (queryFilters += queryFilters ?"":"")
         : (queryFilters += queryFilters
             ? ` and Active eq '${searchValues.active}'`
             : `Active eq '${searchValues.active}'`);

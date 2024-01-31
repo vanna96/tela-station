@@ -16,8 +16,7 @@ import DriverRepository from "@/services/actions/DriverRepository";
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
     code: "",
-    name: "",
-    status: "",
+    status: "All",
   });
 
   const route = useNavigate();
@@ -162,7 +161,6 @@ export default function Lists() {
     ],
     []
   );
-
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
 
@@ -172,13 +170,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`vehicle`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`vehicles`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_VEHICLE/$count${
-          filter ? ` and ${filter}` : ""
-        }`
+        `${url}/TL_VEHICLE/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -192,15 +188,16 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "vehicle",
-      `${pagination.pageIndex * pagination?.pageSize}_${filter !== "" ? "f" : ""}`,pagination?.pageSize
+      "vehicles",
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }${
-        filter ? `and ${filter}` : filter
-      }&$orderby=DocEntry${"&$select = DocEntry,Code,Name,U_Type,U_Driver,U_BaseStation,U_Status"}`;
+      }${filter ? `&$filter=${filter}` : filter}&$orderby=DocEntry asc`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -212,7 +209,17 @@ export default function Lists() {
     cacheTime: 0,
     staleTime: 0,
   });
+ const handlerSortby = (value: any) => {
+   setSortBy(value);
+   setPagination({
+     pageIndex: 0,
+     pageSize: 10,
+   });
 
+   setTimeout(() => {
+     refetch();
+   }, 500);
+ };
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -226,40 +233,29 @@ export default function Lists() {
     }, 500);
   }, []);
 
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    
     if (searchValues.code) {
-      queryFilters += queryFilters
+      queryFilters += queryFilters ?"":""
         ? ` and (contains(Code, '${searchValues.code}'))`
         : `(contains(Code, '${searchValues.code}'))`;
     }
-    if (searchValues.name) {
-      queryFilters += queryFilters
-        ? ` and (contains(Name, '${searchValues.name}'))`
-        : `(contains(Name, '${searchValues.name}'))`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and (contains(U_Status, '${searchValues.status}'))`
-        : `(contains(U_Status, '${searchValues.status}'))`;
-    }
-   
-    let qurey = queryFilters + value;
-    setFilter(qurey);
+ 
 
+    if (searchValues.status) {
+      searchValues.status === "All"
+        ? (queryFilters += queryFilters)
+        : (queryFilters += queryFilters
+            ? ` and U_Status eq '${searchValues.status}'`
+            : `U_Status eq '${searchValues.status}'`);
+    }
+
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + `and ${value}`;
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -284,16 +280,21 @@ export default function Lists() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
+                  type="string"
                   label="Code"
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.code}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, code: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      code: e.target.value,
+                    })
                   }
                 />
               </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
                   <label
@@ -303,19 +304,37 @@ export default function Lists() {
                     Status
                   </label>
                 </div>
+                {/* {searchValues.active === null && (
+                  <div>
+                    <MUITextField
+                      label="LastName"
+                      // placeholder="LastName"
+                      className="bg-white"
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          lastName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )} */}
                 <MUISelect
                   items={[
-                    { value: "tYES", label: "Yes" },
-                    { value: "tNO", label: "No" },
-                    { value: "", label: "None" },
+                    { value: "All", label: "All" },
+                    { value: "Active", label: "Active" },
+                    { value: "Inactive", label: "Inactive" },
                   ]}
-                  onChange={(e: any) =>
+                  onChange={(e: any) => {
                     setSearchValues({
                       ...searchValues,
                       status: e.target.value,
-                    })
+                    });
+                  }}
+                  value={
+                    // searchValues.active === null ? "tYES" : searchValues.active
+                    searchValues.status
                   }
-                  value={searchValues.status}
                   aliasvalue="value"
                   aliaslabel="label"
                 />
@@ -351,11 +370,7 @@ export default function Lists() {
                   items={columns?.filter(
                     (e) =>
                       e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus"
+                      e?.accessorKey !== "No"
                   )}
                   onClick={handlerSearch}
                 />
@@ -373,7 +388,7 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Vehicle"
+          title="Driver"
         />
       </div>
     </>

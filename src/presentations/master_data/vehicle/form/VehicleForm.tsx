@@ -211,16 +211,19 @@ const VehicleForm = (props: any) => {
   
   const Left = ({ header, data }: any) => {
     return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+      <div className="w-[100%] mt-0 pl-[25px] h-[165px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
-            <span className="">First Name </span>
+            <span className="">Vehicle Code </span>
           </div>
           <div>
-            <span className="">Last Name </span>
+            <span className="">Vehicle Name </span>
           </div>
           <div>
-            <span className="">Gender </span>
+            <span className="">Plate Number </span>
+          </div>
+          <div>
+            <span className="">Model</span>
           </div>
         </div>
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
@@ -237,6 +240,9 @@ const VehicleForm = (props: any) => {
                 "_"}
             </span>
           </div>
+          <div>
+            <span>{data?.LastName || header?.lastName || "_"}</span>
+          </div>
         </div>
       </div>
     );
@@ -248,20 +254,31 @@ const VehicleForm = (props: any) => {
       staleTime: Infinity,
     });
     return (
-      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
+      <div className="w-[100%] h-[165px] mt-0 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department</span>
+            <span className="mr-10 mb-[20px] inline-block">Ownership</span>
           </div>
           <div>
-            <span className="mr-10">Branch</span>
+            <span className="mr-10 mb-[20px] inline-block">Base Station</span>
+          </div>
+          <div>
+            <span className="mr-10">Status</span>
           </div>
         </div>
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
-            <span className="mb-[27px] inline-block">
+            <span className="mb-[20px] inline-block">
               {new DepartmentRepository()?.find(data?.Department)?.Name ||
                 header?.department ||
+                "_"}
+            </span>
+          </div>
+          <div className="mb-[20px] inline-block">
+            <span>
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
+                ?.BPLName ||
+                header?.branch ||
                 "_"}
             </span>
           </div>

@@ -18,7 +18,7 @@ const Engine = ({
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     U_HeadlampType: "",
-
+    U_BatteryType:"",
   });
   
   return (
@@ -55,7 +55,34 @@ const Engine = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_BatteryType") }} />
+              <Controller
+                name="U_BatteryType"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <MUISelect
+                      items={[
+                        { label: "12V", value: "12V" },
+                        { label: "24V", value: "24V" },
+                      ]}
+                      onChange={(e: any) => {
+                        setValue("U_BatteryType", e.target.value);
+
+                        setStaticSelect({
+                          ...staticSelect,
+                          U_BatteryType: e.target.value,
+                        });
+                      }}
+                      value={
+                        staticSelect.U_BatteryType ||
+                        defaultValues?.U_BatteryType
+                      }
+                      aliasvalue="value"
+                      aliaslabel="label"
+                    />
+                  );
+                }}
+              />
             </div>
           </div>
         </div>
