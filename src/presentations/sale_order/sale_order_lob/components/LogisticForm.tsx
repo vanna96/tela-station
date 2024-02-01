@@ -24,8 +24,9 @@ export default function LogisticForm({
   ref,
 }: ILogisticFormProps) {
   if (data.vendor) {
-    data.ShipToCode === data.ShipToDefault;
+    data.ShipToCode = data.vendor?.ShipToDefault;
   }
+
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
@@ -132,6 +133,7 @@ export default function LogisticForm({
                           )
                         )
                   }
+                  InputProps={{ readOnly: true }}
                 />
               </div>
             </div>

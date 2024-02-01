@@ -100,10 +100,10 @@ export default function GeneralForm({
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
   }
-  if (!edit) {
-    data.U_tl_sopricelist = data.vendor?.priceLists;
+  if (!edit && data.vendor) {
+    data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
   }
-  console.log(data);
+
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),
@@ -378,19 +378,12 @@ export default function GeneralForm({
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label
-                htmlFor="Code"
-                className={`${
-                  !("DueDate" in data?.error) ? "text-gray-600" : "text-red-500"
-                } `}
-              >
+              <label htmlFor="Code" className="text-gray-600 ">
                 Delivery Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                error={"DocDueDate" in data?.error}
-                helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
                 value={edit ? data.DocDueDate : data.DocDueDate ?? null}
                 onChange={(e: any) => handlerChange("DocDueDate", e)}
@@ -439,9 +432,7 @@ export default function GeneralForm({
                 rows={2}
                 name="Comments"
                 value={data?.Comments}
-                onChange={(e: any) =>
-                  handlerChange("Comments", e.target.value)
-                }
+                onChange={(e: any) => handlerChange("Comments", e.target.value)}
               />
             </div>
           </div>

@@ -65,7 +65,7 @@ const SystemInitializeMasterPage = () => {
         fetchModuleCount("TL_PUMP_ATTEND/$count"),
         fetchModuleCount("TL_ExpDic/$count"),
         fetchModuleCount("TL_CashAcct/$count"),
-        fetchModuleCount("EmployeesInfo/$count"),
+        fetchModuleCount("EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'"),
         fetchModuleCount("TL_VEHICLE/$count"),
         fetchModuleCount("TL_STOPS/$count"),
         fetchModuleCount("TL_ROUTE/$count"),
@@ -150,10 +150,9 @@ const SystemInitializeMasterPage = () => {
       };
     },
     {
-      refetchOnWindowFocus: false, 
-     staleTime: 2000 
+      refetchOnWindowFocus: false,
+      staleTime: 2000,
     }
-    
   );
 
   if (error) {

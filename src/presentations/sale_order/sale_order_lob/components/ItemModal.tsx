@@ -23,6 +23,8 @@ interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
   onSave?: (value: any) => void;
   columns: any[];
+  wh: any;
+  lineofbusiness: any;
   priceList: any;
 }
 
@@ -33,6 +35,9 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     this.state = {
       open: false,
       priceList: props.priceList,
+      lineofbusiness: props.lineofbusiness,
+      wh: props.wh,
+      WarehouseCode: props.wh,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -58,7 +63,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ open: false });
   }
-
+  handlerChange(event: any, field: string) {
+    const temps = { ...this.state };
+    temps[field] = event;
+    this.setState({ ...temps });
+  }
   handChange(event: any, field: string) {
     const temps = { ...this.state };
     temps[field] = event.target.value;
@@ -127,7 +136,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
   }
 
   render() {
-    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -278,11 +286,13 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
               <div className="flex flex-col">
                 <div className="text-sm">Warehouse</div>
-                <div className="mb-2"></div>
+                <div className="mb-1"></div>
                 <WarehouseAutoComplete
                   Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
-                  value={this.state?.WarehouseCode}
-                  onChange={(event) => this.handChange(event, "WarehouseCode")}
+                  value={this.state.WarehouseCode}
+                  onChange={(event) =>
+                    this.handlerChange(event, "WarehouseCode")
+                  }
                 />
               </div>
 
@@ -296,25 +306,26 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
               <DistributionRuleText
                 label="Line Of Business"
+                disabled
                 inWhichNum={1}
                 aliasvalue="FactorCode"
-                value={this.state.LineOfBussiness}
-                onChange={(event) => this.handChange(event, "LineOfBussiness")}
+                value={this.state.COGSCostingCode}
+                onChange={(event) => this.handChange(event, "COGSCostingCode")}
               />
 
               <DistributionRuleText
                 label="Revenue Line"
                 inWhichNum={2}
                 aliasvalue="FactorCode"
-                value={this.state?.revenueLine ?? "202001"}
-                onChange={(event) => this.handChange(event, "revenueLine")}
+                value={this.state?.COGSCostingCode2 ?? "202001"}
+                onChange={(event) => this.handChange(event, "COGSCostingCode2")}
               />
               <DistributionRuleText
                 label="Product Line"
                 inWhichNum={3}
                 aliasvalue="FactorCode"
-                value={this.state?.REV}
-                onChange={(event) => this.handChange(event, "REV")}
+                value={this.state?.COGSCostingCode3}
+                onChange={(event) => this.handChange(event, "COGSCostingCode3")}
               />
             </div>
           </div>
