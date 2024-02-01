@@ -34,12 +34,13 @@ export default function GeneralForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Code
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   inputProps={{
-                    ...register("Code"),
+                    ...register("Code", { required: 'Code is required' })
                   }}
                 />
               </div>
@@ -47,7 +48,8 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Name
+                  Description
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -65,7 +67,7 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-              <Controller
+                <Controller
                   name="U_active"
                   control={control}
                   render={({ field }) => {
@@ -82,10 +84,29 @@ export default function GeneralForm({
                             status: e.target.value,
                           });
                         }}
-                        value={staticSelect.status || defaultValues?.U_active}
+                        value={
+                          staticSelect.status || defaultValues?.U_active || "Y"
+                        }
                         aliasvalue="value"
                         aliaslabel="label"
                       />
+                      // <MUISelect
+                      //   items={[
+                      //     { id: "Y", name: "Active" },
+                      //     { id: "N", name: "Inactive" },
+                      //   ]}
+                      //   onChange={(e: any) => {
+                      //     setValue("U_active", e.target.value);
+                      //     setStaticSelect({
+                      //       ...staticSelect,
+                      //       status: e.target.value,
+                      //     });
+                      //   }}
+                      //   value={staticSelect.status || defaultValues?.U_active}
+                      //   aliasvalue="id"
+                      //   aliaslabel="name"
+                      //   name="U_active"
+                      // />
                     );
                   }}
                 />
@@ -99,6 +120,7 @@ export default function GeneralForm({
                 <div className="col-span-2">
                   <label htmlFor="Latitude" className="text-gray-500 ">
                     Latitude
+                    <span className="text-red-500">*</span>
                   </label>
                 </div>
                 <div className="col-span-3">
@@ -113,6 +135,7 @@ export default function GeneralForm({
                 <div className="col-span-2">
                   <label htmlFor="Latitude" className="text-gray-500 ">
                     Longitude
+                    <span className="text-red-500">*</span>
                   </label>
                 </div>
                 <div className="col-span-3">

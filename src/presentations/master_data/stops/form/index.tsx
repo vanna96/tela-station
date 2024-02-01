@@ -142,7 +142,13 @@ const StopsForm = (props: any) => {
       reset({ ...stop });
     }
   }, [stop]);
-
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
+};
   return (
     <>
       {state.loading ? (
@@ -166,7 +172,7 @@ const StopsForm = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>

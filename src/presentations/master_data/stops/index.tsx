@@ -2,7 +2,6 @@ import request, { url } from "@/utilies/request";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -12,7 +11,7 @@ import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
 import MUISelect from "@/components/selectbox/MUISelect";
-
+import DataTable from "./components/DataTable";
 export default function Stopslistpage() {
   const [open, setOpen] = React.useState<boolean>(false);
   const { branchBPL }: any = React.useContext(APIContext);
@@ -323,7 +322,7 @@ export default function Stopslistpage() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Stops"
-          createRoute="/master-data/stops/create"
+          // createRoute="/master-data/stops/create"
         />
       </div>
     </>
