@@ -11,12 +11,12 @@ export default function Commercial({
   commer,
   setCommer,
   control,
-  detail
+  detail,
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: undefined,
     u_ExpiredDate: undefined,
-    u_Type:""
+    u_Type: "",
   });
   const addNewRow = () => {
     let newRow: any = {};
@@ -52,8 +52,7 @@ export default function Commercial({
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Commercial</h2>
-        </div>
-        {" "}
+        </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
@@ -78,7 +77,7 @@ export default function Commercial({
                 Referance
               </th>
             </tr>
-            {commer?.length === undefined && (
+            {commer?.length === 0 && (
               <tr>
                 <td
                   colSpan={6}

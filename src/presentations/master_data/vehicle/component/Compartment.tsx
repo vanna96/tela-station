@@ -65,7 +65,7 @@ export default function Compartment({
                 Bottom Hatch
               </th>
             </tr>
-            {compart?.length === undefined && (
+            {compart?.length === 0 && (
               <tr>
                 <td
                   colSpan={6}

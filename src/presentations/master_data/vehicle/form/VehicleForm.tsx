@@ -17,11 +17,7 @@ import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
-import Address from "../component/SpecDetail";
 import General from "../component/General";
-import Personal from "../component/Engine";
-import Finance from "../component/Tyres";
-import Remarks from "../component/Commercial";
 import SpecDetail from "../component/SpecDetail";
 import Engine from "../component/Engine";
 import Tyres from "../component/Tyres";
@@ -79,8 +75,8 @@ const VehicleForm = (props: any) => {
 
   const commers = vehicle?.TL_VH_COMMERCIALCollection;
   const comparts = vehicle?.TL_VH_COMPARTMENTCollection;
-  const [commer, setCommer] = useState<any[]>(commers);
-  const [compart, setCompart] = useState<any[]>(comparts);
+  const [commer, setCommer] = useState<any[]>(commers ?? []);
+  const [compart, setCompart] = useState<any[]>(comparts ?? []);
 
   React.useEffect(() => {
     if (vehicle && commers && comparts) {

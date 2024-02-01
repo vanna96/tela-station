@@ -80,6 +80,8 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
                   disabled={detail}
                   inputProps={{ ...register("U_EngineNumber") }}
                 />
+
+                
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
