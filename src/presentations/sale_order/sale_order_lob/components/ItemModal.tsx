@@ -297,6 +297,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               </div>
 
               <WareBinLocation
+                disabled
                 itemCode={this.state.ItemCode}
                 Whse={this.state.WarehouseCode}
                 value={this.state.BinAbsEntry}
