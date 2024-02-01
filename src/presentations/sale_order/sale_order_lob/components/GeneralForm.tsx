@@ -163,6 +163,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
+              isSOWarehouse= {true}
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {

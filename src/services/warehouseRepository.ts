@@ -1,5 +1,4 @@
 import Repository from "@/astractions/repository";
-import Warehouse from "@/models/Warehouse";
 import Encryption from "@/utilies/encryption";
 import request from "@/utilies/request";
 
@@ -8,7 +7,7 @@ export default class WarehouseRepository extends Repository<Warehouse> {
       throw new Error("Method not implemented.");
     }
    
-    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter';
+    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter, U_tl_whsclear';
     
     // specific key
     key = 'warehouse';

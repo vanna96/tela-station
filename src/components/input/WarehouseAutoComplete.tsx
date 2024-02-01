@@ -16,6 +16,7 @@ export default function zWarehouseAutoComplete(props: {
   Branch?: any;
   Warehouse?: Warehouse[];
   disabled?: boolean;
+  isSOWarehouse?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
@@ -23,9 +24,14 @@ export default function zWarehouseAutoComplete(props: {
     staleTime: Infinity,
   });
 
-  const filteredWarehouses = data?.filter(
+  let filteredWarehouses = data?.filter(
     (warehouse: any) => warehouse.BusinessPlaceID === props?.Branch
   );
+  if (props.isSOWarehouse) {
+    filteredWarehouses = filteredWarehouses?.filter(
+      (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Yes"
+    );
+  }
 
   useEffect(() => {
     if (props.value) {
@@ -75,7 +81,7 @@ export default function zWarehouseAutoComplete(props: {
       <Autocomplete
         options={filteredWarehouses ?? data}
         autoHighlight
-        disabled = {props.disabled}
+        disabled={props.disabled}
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
