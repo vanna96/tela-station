@@ -78,7 +78,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
       const unitPrice = parseFloat(value) / (1 + vatRate / 100);
       temps["GrossPrice"] = value;
-      // console.log(value);
       temps["UnitPrice"] = unitPrice;
     }
     if (
@@ -288,6 +287,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Warehouse</div>
                 <div className="mb-1"></div>
                 <WarehouseAutoComplete
+                  disabled
                   Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
                   value={this.state.WarehouseCode}
                   onChange={(event) =>
@@ -297,6 +297,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               </div>
 
               <WareBinLocation
+                disabled
                 itemCode={this.state.ItemCode}
                 Whse={this.state.WarehouseCode}
                 value={this.state.BinAbsEntry}

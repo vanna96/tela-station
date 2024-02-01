@@ -15,6 +15,7 @@ export default function zWarehouseAutoComplete(props: {
   onChange?: (value: any) => void;
   Branch?: any;
   Warehouse?: Warehouse[];
+  disabled?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
@@ -87,7 +88,7 @@ export default function zWarehouseAutoComplete(props: {
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={`w-full ${props.disabled ? "bg-gray-100 text-xs text-field" : "text-xs text-field bg-white"}`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

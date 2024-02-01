@@ -92,10 +92,10 @@ function WareBinLocation(props: WarehouseProps) {
         </Select> */}
         <Select
           value={props.value}
-          className={`w-full ${disabled ? "bg-gray-100" : ""}`}
+          className={`w-full ${props.disabled ? "bg-gray-100" : ""}`}
           name={props.name}
           onChange={props.onChange}
-          disabled={disabled}
+          disabled={props.disabled}
         >
           {filteredData?.length > 0 ? (
             filteredData?.map((entry: any) => {
