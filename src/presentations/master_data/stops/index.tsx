@@ -140,7 +140,7 @@ export default function Stopslistpage() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_STOPS/$count?${filter}`
+        `${url}/TL_STOPS/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -165,7 +165,7 @@ export default function Stopslistpage() {
         "GET",
         `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc &${filter}`
+        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}`:filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -202,42 +202,43 @@ export default function Stopslistpage() {
     }, 500);
   };
 
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    const str = value.slice(0, 4);
-    const query = str.includes("and") ? value.substring(4) : value;
+    if (searchValues.code) {
+      queryFilters += queryFilters
+        ? ` and (contains(Code, '${searchValues.code}'))`
+        : `contains(Code, '${searchValues.code}')`;
+    }
+  
+    if (searchValues.active) {
+      searchValues.active === "All"
+        ? (queryFilters += queryFilters ? "" : "")
+        : (queryFilters += queryFilters
+            ? ` and U_active eq '${searchValues.active}'`
+            : `U_active eq '${searchValues.active}'`);
+    }
+  console.log(queryFilters);
+  
+    let query = queryFilters;
+  
+    if (value) {
+      query = queryFilters + ` and ${value}`;
 
-    setFilter(`$filter=${query}`);
+      
+    }
+    console.log(queryFilters);
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
     });
-
+  
     setTimeout(() => {
       Count.refetch();
       refetch();
     }, 500);
   };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-
-  const handleGoClick = () => {
-    console.log(searchValues);
-    let queryFilters: any = [];
-    if (searchValues.active)
-      queryFilters.push(`startswith(U_active, '${searchValues.active}')`);
-    if (searchValues.code)
-      queryFilters.push(`contains(Code, '${searchValues.code}')`);
-    if (queryFilters.length > 0)
-      return handlerSearch(`${queryFilters.join(" and ")}`);
-      if (searchValues.U_active) {
-        searchValues.U_active === "All"
-          ? (queryFilters += queryFilters)
-          : (queryFilters += queryFilters ? ` and Active eq '${searchValues.U_active}'` : `Active eq '${searchValues.U_active}'`);
-      }
-    return handlerSearch("");
-  };
+  
 
   return (
     <>
@@ -300,10 +301,10 @@ export default function Stopslistpage() {
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
-                <Button
+              <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>

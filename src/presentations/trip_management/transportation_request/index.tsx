@@ -2,7 +2,7 @@ import request, { url } from "@/utilies/request";
 import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import DataTable from "@/components/data_table/DataTable";
+import DataTable from "@/presentations/master_data/components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -10,11 +10,12 @@ import { Button } from "@mui/material";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
 // import { APIContext } from "../context/APIContext";
-// import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
+import { APIContext } from "@/presentations/master_data/context/APIContext";
 import MUISelect from "@/components/selectbox/MUISelect";
 
-export default function TransportationRequestpage() {
+export default function TransportationRequestList() {
   const [open, setOpen] = React.useState<boolean>(false);
+  const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
   const [searchValues, setSearchValues] = React.useState<any>({
     active: "",
@@ -26,7 +27,7 @@ export default function TransportationRequestpage() {
     () => [
       {
         accessorKey: "Code",
-        header: "Code", //uses the default width from defaultColumn prop
+        header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -35,7 +36,7 @@ export default function TransportationRequestpage() {
       },
       {
         accessorKey: "Name",
-        header: "Description", //uses the default width from defaultColumn prop
+        header: "Document Number", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -48,7 +49,7 @@ export default function TransportationRequestpage() {
 
       {
         accessorKey: "U_lat",
-        header: "Latitude", //uses the default width from defaultColumn prop
+        header: "Branch", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -60,7 +61,7 @@ export default function TransportationRequestpage() {
       },
       {
         accessorKey: "U_lng",
-        header: "Longitude",
+        header: "Terminal",
         size: 40,
         visible: true,
         type: "number",
@@ -70,7 +71,29 @@ export default function TransportationRequestpage() {
       },
       {
         accessorKey: "U_active",
-        header: "Active",
+        header: "Requester",
+        size: 40,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "sad",
+        header: "Request Date",
+        size: 40,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "U_active",
+        header: "Status",
         size: 40,
         visible: true,
         Cell: (cell: any) => {
@@ -96,7 +119,7 @@ export default function TransportationRequestpage() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/stops/" + cell.row.original.Code, {
+                route("/trip-management/transportation-request/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -108,7 +131,7 @@ export default function TransportationRequestpage() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/master-data/stops/${cell.row.original.Code}/edit`, {
+                route(`/trip-management/transportation-request/${cell.row.original.Code}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -243,7 +266,7 @@ export default function TransportationRequestpage() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Stops Master{" "}
+            Trip Management / Transportation Request{" "}
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -251,8 +274,8 @@ export default function TransportationRequestpage() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label=" Code"
-                  placeholder="Code"
+                  label="Document Number"
+                  placeholder="Document Number"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.code}
@@ -316,8 +339,8 @@ export default function TransportationRequestpage() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Stops"
-          createRoute="/master-data/stops/create"
+          title="Transportation Request"
+          createRoute="/trip-management/transportation-request/create"
         />
       </div>
     </>

@@ -235,17 +235,39 @@ export default function Routelistpage() {
   const handleGoClick = () => {
     console.log(searchValues);
 
-    let queryFilters: any = [];
-    if (searchValues.status)
-      queryFilters.push(`U_Status eq '${searchValues.status}'`);
-    if (searchValues.code)
-      queryFilters.push(`contains(Code, '${searchValues.code}')`);
-    if (queryFilters.length > 0)
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and U_Status eq '${searchValues.status === "All" ? "" : searchValues.status}'`
-        : `U_Status eq '${searchValues.status === "All" ? "" : searchValues.status}'`;
-    }
+    let queryFilters = "";
+const handlerSearch = (value: string) => {
+  if (searchValues.code) {
+    queryFilters += queryFilters
+      ? ` and (contains(Code, '${searchValues.code}'))`
+      : `contains(Code, '${searchValues.code}')`;
+  }
+
+  if (searchValues.status) {
+    searchValues.status === "All"
+      ? (queryFilters += queryFilters ? "" : "")
+      : (queryFilters += queryFilters
+          ? ` and U_Status eq '${searchValues.status}'`
+          : `U_Status eq '${searchValues.status}'`);
+  }
+
+  let query = queryFilters;
+
+  if (value) {
+    query = queryFilters + ` and ${value}`;
+  }
+  setFilter(query);
+  setPagination({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  setTimeout(() => {
+    Count.refetch();
+    refetch();
+  }, 500);
+};
+
     return handlerSearch("");
   };
   return (
