@@ -287,6 +287,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Warehouse</div>
                 <div className="mb-1"></div>
                 <WarehouseAutoComplete
+                  disabled
                   Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
                   value={this.state.WarehouseCode}
                   onChange={(event) =>
