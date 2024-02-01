@@ -220,7 +220,7 @@ const VehicleForm = (props: any) => {
 
   const Left = ({ header, data }: any) => {
     return (
-      <div className="w-[100%] mt-0 pl-[25px] h-[165px] flex py-5 px-4">
+      <div className="w-[100%] mt-0 pl-[25px] h-[170px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
             <span className="">Vehicle Code </span>
@@ -262,10 +262,10 @@ const VehicleForm = (props: any) => {
       <div className="w-[100%] h-[165px] mt-0 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[20px] inline-block">Ownership</span>
+            <span className="mr-10 mb-[18px] inline-block">Ownership</span>
           </div>
           <div>
-            <span className="mr-10 mb-[20px] inline-block">Base Station</span>
+            <span className="mr-10 mb-[18px] inline-block">Base Station</span>
           </div>
           <div>
             <span className="mr-10">Status</span>
@@ -273,11 +273,11 @@ const VehicleForm = (props: any) => {
         </div>
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
-            <span className="mb-[20px] inline-block">
+            <span className="mb-[18px] inline-block">
               {data?.U_Owner || header?.owner || "_"}
             </span>
           </div>
-          <div className="mb-[20px] inline-block">
+          <div className="mb-[18px] inline-block">
             <span>{data?.U_BaseStation || header?.base || "_"}</span>
           </div>
           <div>
