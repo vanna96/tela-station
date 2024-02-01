@@ -22,6 +22,9 @@ const General = ({
   setValue,
   setBranchAss,
   branchAss,
+  header,
+  setHeader,
+  detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     startDate: null,
@@ -37,8 +40,9 @@ const General = ({
       );
     }
   }, [defaultValues]);
+ 
 
-
+  
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -55,8 +59,11 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("FirstName"),
+                    onBlur: (e) =>
+                      setHeader({ ...header, firstName: e.target.value }),
                   }}
                 />
               </div>
@@ -69,8 +76,11 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("LastName"),
+                    onBlur: (e) =>
+                      setHeader({ ...header, lastName: e.target.value }),
                   }}
                 />
               </div>
@@ -83,6 +93,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("MiddleName"),
                   }}
@@ -97,6 +108,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("EmployeeCode"),
                   }}
@@ -116,6 +128,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <PositionAutoComplete
+                        disabled={detail}
                         {...field}
                         value={defaultValues?.Position}
                         onChange={(e: any) => {
@@ -142,11 +155,12 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <DepartmentAutoComplete
+                        disabled={detail}
                         {...field}
                         value={defaultValues?.Department}
                         onChange={(e: any) => {
-                          setValue("Department", e);
-
+                          setValue("Department", e?.Code);
+                          setHeader({ ...header, department: e?.Name });
                           // setHeader({ ...header, data5: e?.Name })
                         }}
                       />
@@ -168,6 +182,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ManagerAutoComplete
+                        disabled={detail}
                         {...field}
                         value={defaultValues?.Manager}
                         onChange={(e: any) => {
@@ -188,32 +203,16 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {/* <BranchAssignmentAuto
-                  value={branchAss}
-                  onChange={(e) => setBranchAss([e])}
-                /> */}
                 <BranchAssignmentAuto
-                  // branchAss={branchAss}
-                  // setBranchAss={setBranchAss}
-                  onChange={(e: any) => setBranchAss([e])}
+                  disabled={detail}
+                  onChange={(e: any) => {
+                    setBranchAss([e]);
+                    setHeader({ ...header, branch: e?.BPLName });
+                  }}
                   value={staticSelect?.branchASS}
                 />
               </div>
             </div>
-            {/* <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Terminal
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                inputProps={{
-                  ...register("FirstName"),
-                }}
-              />
-            </div>
-          </div> */}
           </div>
 
           <div className="col-span-5 w-[50%]">
@@ -225,6 +224,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("MobilePhone"),
                   }}
@@ -239,6 +239,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("HomePhone"),
                   }}
@@ -253,6 +254,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("eMail"),
                   }}
@@ -272,15 +274,19 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
+                      disabled={detail}
                         {...field}
-                        value={
+                        defaultValue={
                           defaultValues?.StartDate || staticSelect.startDate
                         }
+                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
-                          setValue(
-                            "StartDate",
-                            ` ${formatDate(e)}"T00:00:00Z"`
-                          );
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue("StartDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
@@ -295,19 +301,30 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Active
+                  Status
                 </label>
               </div>
               <div className="col-span-3">
+                {staticSelect?.status === "" && (
+                  <div className="hidden">
+                    <MUITextField
+                      inputProps={{
+                        ...register("Active"),
+                      }}
+                      value={"tYES"}
+                    />
+                  </div>
+                )}
                 <Controller
                   name="Active"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUISelect
+                        disabled={detail}
                         items={[
-                          { value: "tYES", label: "Yes" },
-                          { value: "tNO", label: "No" },
+                          { value: "tYES", label: "Active" },
+                          { value: "tNO", label: "Inactive" },
                         ]}
                         onChange={(e: any) => {
                           setValue("Active", e.target.value);
@@ -316,7 +333,9 @@ const General = ({
                             status: e.target.value,
                           });
                         }}
-                        value={staticSelect.status || defaultValues?.Active}
+                        value={
+                          staticSelect.status || defaultValues?.Active || "tYES"
+                        }
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -338,17 +357,27 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
+                      disabled={detail}
                         {...field}
-                        value={
+                        defaultValue={
                           defaultValues?.TerminationDate ||
-                          staticSelect?.termination
+                          staticSelect.termination
                         }
+                        key={`termination_date_${staticSelect.termination}`}
                         onChange={(e: any) => {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
                           setValue(
                             "TerminationDate",
-                            ` ${formatDate(e)}"T00:00:00Z"`
+                            `${val == "" ? "" : val}`
                           );
-                          setStaticSelect({ ...staticSelect, termination: e });
+                          setStaticSelect({
+                            ...staticSelect,
+                            termination: e,
+                          });
                         }}
                       />
                     );
@@ -369,6 +398,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ReasonAutoComplete
+                      disabled={detail}
                         {...field}
                         value={defaultValues?.TreminationReason}
                         onChange={(e: any) => {

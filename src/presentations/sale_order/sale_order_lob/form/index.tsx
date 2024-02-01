@@ -4,38 +4,40 @@ import { LoadingButton } from "@mui/lab";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
-import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
+import { formatDate } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
 import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
-import useState from "react";
-import requestHeader from "@/utilies/requestheader";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import {
-  StatusCustomerBranchCurrencyInfoLeftSide,
-  TotalSummaryRightSide,
-} from "@/components/DocumenHeaderComponent";
+import { ReactNode } from "react";
+
 class SalesOrderForm extends CoreFormDocument {
+  LeftSideField?(): JSX.Element | ReactNode {
+    return null;
+  }
+
+  RightSideField?(): JSX.Element | ReactNode {
+    return null;
+  }
+
+  HeaderCollapeMenu?(): JSX.Element | ReactNode {
+    return null;
+  }
   constructor(props: any) {
     super(props);
     this.state = {
       ...this.state,
       loading: true,
-      DocumentDate: new Date(),
-      PostingDate: new Date(),
-      DueDate: new Date(),
+      DocDate: new Date(),
+      TaxDate: new Date(),
+      DocDueDate: new Date(),
       Branch: 1,
       error: {},
       BPCurrenciesCollection: [],
@@ -61,6 +63,7 @@ class SalesOrderForm extends CoreFormDocument {
         attachment: false,
       },
       isDialogOpen: false,
+    
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -108,6 +111,7 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
+
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -129,14 +133,34 @@ class SalesOrderForm extends CoreFormDocument {
 
           state = {
             ...data,
+
+            vendor,
+            warehouseCode: data.U_tl_whsdesc,
+            lob: data.U_tl_arbusi,
+
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
+                let apiResponse: any;
+
+                if (item.ItemCode) {
+                  try {
+                    const response = await request(
+                      "GET",
+                      `/Items('${item.ItemCode}')?$select=InventoryUoMEntry, ItemPrices`
+                    );
+
+                    apiResponse = response.data;
+                  } catch (error) {
+                    console.error("Error fetching data:", error);
+                  }
+                }
+
                 const uomGroups: any =
                   await new UnitOfMeasurementGroupRepository().get();
 
                 const uoms = await new UnitOfMeasurementRepository().get();
                 const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === item?.UoMEntry
+                  (row: any) => row.AbsEntry === apiResponse.InventoryUoMEntry
                 );
 
                 let uomLists: any[] = [];
@@ -148,6 +172,7 @@ class SalesOrderForm extends CoreFormDocument {
                     uomLists.push(itemUOM);
                   }
                 });
+                item.ItemPrices === apiResponse.ItemPrices;
                 return {
                   ItemCode: item.ItemCode || null,
                   ItemName: item.ItemDescription || item.Name || null,
@@ -161,18 +186,18 @@ class SalesOrderForm extends CoreFormDocument {
                   DiscountPercent: item.DiscountPercent || 0,
                   TaxCode: item.VatGroup || item.taxCode || null,
                   UoMEntry: item.UomAbsEntry || null,
-                  WarehouseCode: item?.WarehouseCode || null,
+                  WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
                   UomAbsEntry: item?.UoMEntry,
                   VatRate: item.TaxPercentagePerRow,
                   UomLists: uomLists,
+                  ItemPrices: apiResponse.ItemPrices,
                   ExchangeRate: data?.DocRate || 1,
-                  // ShippingTo: data?.ShipToCode || null,
-                  // BillingTo: data?.PayToCode || null,
                   JournalMemo: data?.JournalMemo,
-                  // PaymentTermType: data?.PaymentGroupCode,
-                  // ShippingType: data?.TransportationCode,
-                  // FederalTax: data?.FederalTaxID || null,
+                  COGSCostingCode: item?.COGSCostingCode,
+                  COGSCostingCode2: item?.COGSCostingCode2,
+                  COGSCostingCode3: item?.COGSCostingCode3,
                   CurrencyType: "B",
+                  DocumentLinesBinAllocations: item.DocumentLinesBinAllocations,
                   vendor,
                   warehouseCode: data?.U_tl_whsdesc,
                   DocDiscount: data?.DiscountPercent,
@@ -240,38 +265,71 @@ class SalesOrderForm extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" };
-        throw new FormValidateException("Vendor is Required!", 0);
-      }
+      const validations = [
+        {
+          field: "U_tl_whsdesc",
+          message: "Warehouse is Required!",
+          getTabIndex: () => 0,
+        },
+        // {
+        //   field: "U_tl_sobincode",
+        //   message: "Bin Location is Required!",
+        //   getTabIndex: () => 0,
+        // },
+        {
+          field: "CardCode",
+          message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "DocDueDate",
+          message: "Delivery date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "TaxDate",
+          message: "Posting date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "DocDate",
+          message: "Document date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Items",
+          message: "Items is missing and must have at least one record!",
+          isArray: true,
+          getTabIndex: () => 1,
+        },
+        {
+          field: "ShipToCode",
+          message: "Ship To Address is Required!",
+          getTabIndex: () => 2,
+        },
+        {
+          field: "U_tl_dnsuppo",
+          message: "Ship From Address is Required!",
+          getTabIndex: () => 2,
+        },
+      ];
 
-      if (!data?.DueDate) {
-        data["error"] = { DueDate: "End date is Required!" };
-        throw new FormValidateException("End date is Required!", 0);
-      }
+      validations.forEach(({ field, message, isArray, getTabIndex }) => {
+        const value = isArray ? data[field] : data[field];
+        if (!value || (isArray && value.length === 0)) {
+          data.error = { [field]: message };
+          throw new FormValidateException(message, getTabIndex());
+        }
+      });
 
-      if (!data?.Items || data?.Items?.length === 0) {
-        data["error"] = {
-          Items: "Items is missing and must at least one record!",
-        };
-        throw new FormValidateException("Items is missing", 1);
-      }
-
-      // attachment
-      // let AttachmentEntry = null;
-      // const files = data?.AttachmentList?.map((item: any) => item);
-      // if (files?.length > 0) AttachmentEntry = await getAttachment(files);
-
-      // items
-
-      const warehouseCodeGet = this.state.warehouseCode;
+      const warehouseCodeGet = data.U_tl_whsdesc;
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
         warehouseCodeGet,
-        data.BinLocation
+        data.BinLocation,
+        data.LineOfBusiness
       );
-      // console.log(this.state.lineofBusiness);
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
       const payloads = {
@@ -289,16 +347,17 @@ class SalesOrderForm extends CoreFormDocument {
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
+        Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
-
+        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_sopricelist: data?.U_tl_sopricelist,
         DocumentLines,
 
         // logistic
-        PayToCode: data?.PayToCode || null,
+        ShipToCode: data?.ShipToCode || "",
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-
+        U_tl_dnsuppo: data?.U_tl_dnsuppo,
         // AttachmentEntry,
       };
 
@@ -318,24 +377,23 @@ class SalesOrderForm extends CoreFormDocument {
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
-        U_tl_arbusi: data?.U_tl_arbusi,
-
+        Comments: data?.Comments,
+        // U_tl_arbusi: data?.U_tl_arbusi,
         DocumentLines,
 
         // logistic
-        PayToCode: data?.PayToCode || null,
-        U_tl_grsuppo: data?.U_tl_grsuppo,
+        ShipToCode: data?.ShipToCode || null,
+        U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_dnsuppo,
-
+        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_sopricelist: data?.U_tl_sopricelist,
         // AttachmentEntry,
       };
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, edit_payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -401,7 +459,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
+      2: ["U_tl_dnsuppo", "ShipToCode"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -414,7 +472,6 @@ class SalesOrderForm extends CoreFormDocument {
   };
 
   HeaderTaps = () => {
-    // console.log(this.state);
     return (
       <>
         <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
@@ -466,16 +523,6 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
-  // LeftSideField = () => {
-  //   return <>'hello left side </>;
-  // };
-  // RightSideField = () => {
-  //   return (
-  //     <div>
-  //      'Hello Right Side
-  //     </div>
-  //   );
-  // };
   hanndAddNewItem() {
     if (!this.state?.CardCode) return;
     if (this.state.DocType === "dDocument_Items")
@@ -496,13 +543,14 @@ class SalesOrderForm extends CoreFormDocument {
           return 101;
         case "LPG":
           return 102;
-        default:
-          return 0;
       }
     };
 
-    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
+    const itemGroupCode = getGroupByLineofBusiness(
+      this.props.edit ? this.state.lob : this.state.lineofBusiness
+    );
 
+    const priceList = parseInt(this.state.U_tl_sopricelist);
     return (
       <>
         <ItemModalComponent
@@ -510,6 +558,7 @@ class SalesOrderForm extends CoreFormDocument {
           group={itemGroupCode}
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
+          priceList={priceList}
         />
         <form
           id="formData"
@@ -549,6 +598,8 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChangeItem={this.handlerChangeItems}
                       onChangeItemByCode={this.handlerChangeItemByCode}
                       onChange={this.handlerChange}
+                      ContentLoading={undefined}
+                      edit={this.props?.edit}
                     />
                   )}
 
@@ -561,15 +612,6 @@ class SalesOrderForm extends CoreFormDocument {
                       }}
                     />
                   )}
-
-                  {/* {this.state.tapIndex === 3 && (
-                    <AttachmentForm
-                      data={this.state}
-                      handlerChange={(key: any, value: any) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )} */}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
                     <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
@@ -629,7 +671,13 @@ class SalesOrderForm extends CoreFormDocument {
 
 export default withRouter(SalesOrderForm);
 
-const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
+const getItem = (
+  items: any,
+  type: any,
+  warehouseCode: any,
+  BinLocation: any,
+  LineOfBussiness: any
+) =>
   items?.map((item: any, index: number) => {
     return {
       ItemCode: item.ItemCode || null,
@@ -639,11 +687,15 @@ const getItem = (items: any, type: any, warehouseCode: any, BinLocation: any) =>
       TaxCode: item.VatGroup || item.taxCode || null,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
-      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
-      RevenueLine: item.revenueLine ?? "202001",
-      ProductLine: item.REV ?? "203004",
-      BinAbsEntry: item.BinAbsEntry ?? 65,
-      WarehouseCode: item?.WarehouseCode || null,
+      UomAbsEntry: item.UomAbsEntry,
+      LineOfBussiness: LineOfBussiness,
+      // RevenueLine: item.revenueLine ?? "202001",
+      // ProductLine: item.REV ?? "203004",
+      COGSCostingCode: item.COGSCostingCode ?? "201001",
+      COGSCostingCode2: item.COGSCostingCode2 ?? "202001",
+      COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
+      // BinAbsEntry: item.BinAbsEntry ?? 65,
+      WarehouseCode: item?.WarehouseCode || warehouseCode,
       DocumentLinesBinAllocations: [
         {
           BinAbsEntry: item.BinAbsEntry,

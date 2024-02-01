@@ -1,17 +1,8 @@
 import { withRouter } from "@/routes/withRouter";
 import { Component } from "react";
 import { useMemo } from "react";
-import {
-  arrayBufferToBlob,
-  currencyDetailFormat,
-  currencyFormat,
-  dateFormat,
-} from "@/utilies";
-import PreviewAttachment from "@/components/attachment/PreviewAttachment";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
+import { arrayBufferToBlob, dateFormat } from "@/utilies";
 import DocumentHeader from "@/components/DocumenHeader";
-import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository";
-import ShippingTypeRepository from "@/services/actions/shippingTypeRepository";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
@@ -20,14 +11,14 @@ import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
 import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
-import { Breadcrumb } from "../../components/Breadcrumn";
-import { useNavigate } from "react-router-dom";
-import { Checkbox, CircularProgress, darken } from "@mui/material";
 import WarehouseRepository from "@/services/warehouseRepository";
-import Attachment from "@/models/Attachment";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
-import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
+import MUITextField from "@/components/input/MUITextField";
+import PriceListRepository from "@/services/actions/pricelistRepository";
+import SalePersonRepository from "@/services/actions/salePersonRepository";
+import BinlocationRepository from "@/services/actions/BinlocationRepository";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -67,45 +58,10 @@ class DeliveryDetail extends Component<any, any> {
             .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = [];
           let disabledFields: any = {
             CurrencyType: true,
           };
 
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await request(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
           this.setState({
             ...data,
             Description: data?.Comments,
@@ -133,12 +89,6 @@ class DeliveryDetail extends Component<any, any> {
               };
             }),
             ExchangeRate: data?.DocRate || 1,
-            ShippingTo: data?.ShipToCode || null,
-            BillingTo: data?.PayToCode || null,
-            JournalRemark: data?.JournalMemo,
-            PaymentTermType: data?.PaymentGroupCode,
-            ShippingType: data?.TransportationCode,
-            FederalTax: data?.FederalTaxID || null,
             CurrencyType: "B",
             vendor,
             DocDiscount: data?.DiscountPercent,
@@ -147,20 +97,13 @@ class DeliveryDetail extends Component<any, any> {
                 return { addressName: addressName, addressType: addressType };
               }
             ),
-            AttachmentList,
             disabledFields,
-            isStatusClose: data?.DocumentStatus === "bost_Close",
-            RoundingValue:
-              data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-            Rounding: (data?.Rounding == "tYES").toString(),
+
             Edit: true,
             PostingDate: data?.DocDate,
             DueDate: data?.DocDueDate,
             DocumentDate: data?.TaxDate,
             loading: false,
-            BPProject: data?.Project,
-            QRCode: data?.CreateQRCodeFrom,
-            CashDiscount: data?.CashDiscountDateOffset,
           });
         })
         .catch((err: any) =>
@@ -234,7 +177,6 @@ class DeliveryDetail extends Component<any, any> {
                 <div className="grow  px-16 py-4 ">
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
-
                   {this.state.tapIndex === 2 && <Logistic data={this.state} />}
                 </div>
               </div>
@@ -248,116 +190,69 @@ class DeliveryDetail extends Component<any, any> {
 
 export default withRouter(DeliveryDetail);
 
+function renderKeyValue(label: string, value: any) {
+  return (
+    <div className="grid grid-cols-2 py-2">
+      <div className="col-span-1 text-gray-700">{label}</div>
+      <div className="col-span-1 text-gray-900">
+        <MUITextField disabled value={value ?? "N/A"} />
+      </div>
+    </div>
+  );
+}
+
 function General(props: any) {
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
-      {/*  */}
       <div className="py-4 px-8">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Branch</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.BPLName ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Warehouse</div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Bin Location</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Customer</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardCode}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Name</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.CardName}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Contact Person</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Currency</div>
-              <div className="col-span-1 text-gray-900">
-                {props.data.Currency ?? props.data.DocCurrency}
-              </div>
-            </div>
+            {renderKeyValue("Branch", props?.data?.BPLName)}
+            {renderKeyValue(
+              "Warehouse",
+              new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
+                ?.WarehouseName
+            )}
+            {renderKeyValue(
+              "Bin Location",
+              new WareBinLocationRepository().find(props.data?.U_tl_sobincode)
+                ?.BinCode
+            )}
+            {renderKeyValue("Customer", props.data.CardCode)}
+            {renderKeyValue("Name", props.data.CardName)}
+            {renderKeyValue(
+              "Contact Person",
+              props?.data?.vendor?.contactEmployee?.find(
+                (e: any) => e.id == props.data.ContactPersonCode
+              )?.name ?? "N/A"
+            )}
+            {renderKeyValue(
+              "Price List",
+              new PriceListRepository().find(parseInt(props.data.U_tl_sopricelist))
+                ?.PriceListName ?? "N/A"
+            )}
+            {renderKeyValue(
+              "Currency",
+              props.data.Currency ?? props.data.DocCurrency
+            )}
           </div>
-          {/*  */}
           <div className="col-span-2"></div>
-          {/*  */}
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700">Series</div>
-              <div className="col-span-1  text-gray-900">
-                {props.data.Series}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700">DocNum</div>
-              <div className="col-span-1  text-gray-900">
-                {props.data.DocNum}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Posting Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.TaxDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Delivery Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDueDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Document Date</div>
-              <div className="col-span-1 text-gray-900">
-                {dateFormat(props.data.DocDate)}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Sale Employee</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.vendor?.contactEmployee?.find(
-                  (e: any) => e.id == props.data.ContactPersonCode
-                )?.name ?? "N/A"}
-              </div>
-            </div>
-            <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Remark</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Comments ?? "N/A"}
-              </div>
-            </div>
-            {/* <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Line of Business</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.U_tl_arbusi ?? "N/A"}
-              </div>
-            </div> */}
+          <div className="col-span-5">
+            {renderKeyValue("Series", props.data.Series)}
+            {renderKeyValue("DocNum", props.data.DocNum)}
+            {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
+            {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
+            {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
+            {renderKeyValue(
+              "Sale Employee",
+              new SalePersonRepository().find(
+                props.data?.vendor?.salePersonCode
+              )?.name
+            )}
+            {renderKeyValue("Remark", props?.data?.Comments ?? "N/A")}
           </div>
         </div>
       </div>
@@ -392,7 +287,7 @@ function Content(props: any) {
       },
       {
         accessorKey: "GrossPrice",
-        header: "Gross Price",
+        header: "Unit Price",
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
@@ -417,24 +312,24 @@ function Content(props: any) {
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
       },
-      {
-        accessorKey: "ItemsGroupCode",
-        header: "Item Group",
-        size: 60,
-        Cell: ({ cell }: any) => {
-          const value = cell.getValue();
-          switch (value) {
-            case "201001":
-              return "Oil";
-            case "201002":
-              return "Lube";
-            case "201003":
-              return "LPG";
-            default:
-              return value;
-          }
-        },
-      },
+      // {
+      //   accessorKey: "ItemsGroupCode",
+      //   header: "Item Group",
+      //   size: 60,
+      //   Cell: ({ cell }: any) => {
+      //     const value = cell.getValue();
+      //     switch (value) {
+      //       case "201001":
+      //         return "Oil";
+      //       case "201002":
+      //         return "Lube";
+      //       case "201003":
+      //         return "LPG";
+      //       default:
+      //         return value;
+      //     }
+      //   },
+      // },
       {
         accessorKey: "MeasureUnit",
         header: "UoM Group",
@@ -448,12 +343,7 @@ function Content(props: any) {
         Cell: ({ cell }: any) =>
           new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
       },
-      // {
-      //   accessorKey: "UnitsOfMeasurement",
-      //   header: "Item Per Units",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => cell.getValue(),
-      // },
+
       {
         accessorKey: "GrossTotal",
         header: "Total(LC)",
@@ -503,16 +393,6 @@ function Content(props: any) {
                 border: "1px solid rgba(211,211,211)",
               },
             }}
-            // muiTableHeadCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
-            // muiTableBodyCellProps={{
-            //   sx: {
-            //     border: "1px solid rgba(211,211,211)",
-            //   },
-            // }}
           />
         </div>
       </div>
@@ -524,50 +404,32 @@ function Logistic(props: any) {
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-        <h2>Basic Information</h2>
+        <h2>Logistic Information</h2>
       </div>
       <div className="py-2 px-4">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship From Address</div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">
-                {" "}
-                Attention Terminal
-              </div>
-              <div className="col-span-1 text-gray-900">
-                {new WarehouseRepository().find(props?.data?.U_tl_grsuppo)
-                  ?.WarehouseName ?? "N/A"}
-              </div>
-            </div>
+            {renderKeyValue(
+              "Ship From Address",
+              new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
+                ?.WarehouseName ?? "N/A"
+            )}
+            {renderKeyValue(
+              "Attention Terminal",
+              new WarehouseRepository().find(props?.data?.U_tl_attn_ter)
+                ?.WarehouseName ?? "N/A"
+            )}
           </div>
           <div className="col-span-2"></div>
-          <div className="col-span-5 ">
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Ship-To Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.ShipToCode ?? "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 py-1">
-              <div className="col-span-1 text-gray-700 ">Shipping Address</div>
-              <div className="col-span-1 text-gray-900">
-                {props?.data?.Address2 ?? "N/A"}
-              </div>
-            </div>
+          <div className="col-span-5">
+            {renderKeyValue(
+              "Ship-To Address",
+              props?.data?.ShipToCode ?? "N/A"
+            )}
+            {renderKeyValue("Shipping Address", props?.data?.Address2 ?? "N/A")}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-//test

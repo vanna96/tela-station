@@ -162,8 +162,7 @@ export default function Routelistpage() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "TL_ROUTE",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],

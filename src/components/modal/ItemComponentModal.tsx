@@ -29,6 +29,7 @@ interface ItemModalProps {
   AbsEntry?: any;
   Currency?: any;
   multipleSelect?: any;
+  priceList?: number;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -41,6 +42,7 @@ const ItemModal: FC<ItemModalProps> = ({
   WarehouseCode,
   Currency,
   multipleSelect,
+  priceList,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -52,7 +54,7 @@ const ItemModal: FC<ItemModalProps> = ({
       new itemRepository().getSaleItem(
         ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    staleTime: 2000,
+    staleTime: 180000,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -147,7 +149,7 @@ const ItemModal: FC<ItemModalProps> = ({
         return null;
       }
     }
-    const globalPriceListNum = await getPriceListNum(CardCode);
+    const globalPriceListNum = priceList ?? (await getPriceListNum(CardCode));
     selectItems = selectItems.map((e: any) => {
       const defaultPrice = e?.ItemPrices?.find(
         (row: any) => row?.PriceList === globalPriceListNum
@@ -215,18 +217,21 @@ const ItemModal: FC<ItemModalProps> = ({
         LineTotal: total,
         Total: total,
         TotalGross: 0,
-        WarehouseCode: WarehouseCode,
+        WarehouseCode: e?.WarehouseCode || WarehouseCode,
 
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
-        revenueLine: "202001",
-        REV: e?.U_tl_dim2,
         // ProductLine: item.ProductLine ?? "203004",
-        GrossPrice:
-          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-          0,
+        // GrossPrice:
+        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+        //   0,
+        COGSCostingCode: e?.U_tl_dim1,
+        OGSCostingCode2: "202001",
+        COGSCostingCode3: e?.U_tl_dim2,
+        GrossPrice: defaultPrice,
+        ItemPrices: e.ItemPrices,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,
@@ -431,6 +436,7 @@ export class ItemModalComponent extends React.Component<
         WarehouseCode={this.state.WarehouseCode}
         Currency={this.state.Currency}
         multipleSelect={this.props.multipleSelect}
+        priceList={this.props.priceList}
       />
     );
   }

@@ -82,7 +82,7 @@ const request = async (
             let error = e?.response?.data?.error?.message?.value;
             reject(new Error(error ?? "Invalid request"));
           });
-      } catch (e) {}
+      } catch (e) { }
     }, 1000);
   });
 };

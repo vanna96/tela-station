@@ -100,6 +100,9 @@ export default function GeneralForm({
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
   }
+  if (!edit && data.vendor) {
+    data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
+  }
 
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
@@ -160,6 +163,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
+              isSOWarehouse= {true}
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
@@ -172,15 +176,15 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Bin Location <span className="text-red-500">*</span>
+                Bin Location
               </label>
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                value={data?.BinLocation}
+                value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
+                  handlerChange("U_tl_sobincode", e);
                   // onWarehouseChange(e);
                 }}
               />
@@ -272,8 +276,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
-                onChange={(e) => handlerChange("PriceLists", e)}
-                value={data?.PriceLists}
+                onChange={(e) => handlerChange("U_tl_sopricelist", e)}
+                value={data?.U_tl_sopricelist}
+                isActiveAndGross={true}
               />
             </div>
           </div>
@@ -291,13 +296,13 @@ export default function GeneralForm({
                       value={data?.Currency || sysInfo?.SystemCurrency}
                       items={
                         dataCurrency?.length > 0
-                          ? CurrencyAPI?.map((c: any) => {
+                          ? dataCurrency
+                          : CurrencyAPI?.map((c: any) => {
                               return {
                                 value: c.Code,
                                 name: c.Name,
                               };
                             })
-                          : dataCurrency
                       }
                       aliaslabel="name"
                       aliasvalue="value"
@@ -374,19 +379,12 @@ export default function GeneralForm({
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label
-                htmlFor="Code"
-                className={`${
-                  !("DueDate" in data?.error) ? "text-gray-600" : "text-red-500"
-                } `}
-              >
+              <label htmlFor="Code" className="text-gray-600 ">
                 Delivery Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                error={"DocDueDate" in data?.error}
-                helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
                 value={edit ? data.DocDueDate : data.DocDueDate ?? null}
                 onChange={(e: any) => handlerChange("DocDueDate", e)}
@@ -433,11 +431,9 @@ export default function GeneralForm({
                 fullWidth
                 multiline
                 rows={2}
-                name="User_Text"
-                value={data?.User_Text}
-                onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
-                }
+                name="Comments"
+                value={data?.Comments}
+                onChange={(e: any) => handlerChange("Comments", e.target.value)}
               />
             </div>
           </div>

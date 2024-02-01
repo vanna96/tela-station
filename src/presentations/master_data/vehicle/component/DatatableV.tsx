@@ -53,7 +53,7 @@ export default function DataTable(props: DataTableProps) {
           <Button
             size="small"
             variant="text"
-            onClick={() => route("/master-data/driver/create")}
+            onClick={() => route("/master-data/vehicle/create")}
           >
             <span className="text-lg mr-2">
               <BsPencilSquare />

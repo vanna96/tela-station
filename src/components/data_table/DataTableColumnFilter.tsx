@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Menu from "@mui/material/Menu";
@@ -8,6 +9,10 @@ import { IconButton } from "@mui/material";
 import { AiFillDelete } from "react-icons/ai";
 import shortid from "shortid";
 import MUIDatePicker from "../input/MUIDatePicker";
+import DepartmentAutoComplete from "../input/DepartmentAutoComplete";
+import DepartmentSelectByFilter from "@/presentations/master_data/driver/component/DepartmentSelectByFilter";
+import BranchAutoComplete from "../input/BranchAutoComplete";
+import BranchSelectByFilter from "@/presentations/master_data/driver/component/BranchSelectByFilter";
 
 interface DataTableColumnFilterProps {
   title: JSX.Element;
@@ -99,7 +104,8 @@ export default function DataTableColumnFilter(
     setFilterList(newFilterList);
   };
 
-  return (
+
+return (
     <div>
       <Button
         id="basic-button"
@@ -243,7 +249,59 @@ const FilterValue = (props: any) => {
         <MUIDatePicker value={props?.value ?? null} onChange={props.onChange} />
       </div>
     );
-
+  if (props.column === "Gender")
+    
+    return (
+      <MUISelect
+        items={[
+          { name: "Not Specified", value: "E" },
+          { name: "Female", value: "gt_Female" },
+          { name: "Male", value: "gt_Male" },
+        ]}
+        aliaslabel="name"
+        aliasvalue="value"
+        name="Gender"
+        className="mt-1"
+        value={props?.value}
+        onChange={props?.onChange}
+      />
+     
+      
+    );
+  if (props.column === "Department")
+    return (
+      <div className="mt-1 w-full">
+        <DepartmentSelectByFilter
+          value={props?.value}
+          onChange={props?.onChange
+          }
+        />
+      </div>
+    );
+  if (props.column === "BPLID")
+      return (
+        <div className="mt-1 w-full">
+          <BranchSelectByFilter
+            value={props?.value}
+            onChange={props?.onChange}
+          />
+        </div>
+    );
+   if (props.column === "Active")
+     return (
+       <div className="mt-1 w-full">
+         <MUISelect
+           items={[
+             { value: "tYES", label: "Active" },
+             { value: "tNO", label: "Inactive" },
+           ]}
+           value={props?.value}
+           onChange={props?.onChange}
+           aliasvalue="value"
+           aliaslabel="label"
+         />
+       </div>
+     );
   return (
     <MUITextField
       defaultValue={props?.value}

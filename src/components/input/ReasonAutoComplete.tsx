@@ -60,6 +60,7 @@ export default function ReasonAutoComplete(props: {
       </label>
 
       <Autocomplete
+        disabled={props?.disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}

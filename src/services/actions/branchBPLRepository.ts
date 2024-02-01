@@ -5,7 +5,7 @@ import request from "@/utilies/request";
 
 export default class BranchBPLRepository extends Repository<BranchBPL> {
    
-    url = '/BusinessPlaces';
+    url = '/BusinessPlaces?$select=BPLID, BPLName';
     
     // specific key
     key = 'BusinessPlaces';

@@ -12,6 +12,7 @@ import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter
 import { useCookies } from "react-cookie";
 import BranchBPLRepository from "../../../services/actions/branchBPLRepository";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -22,6 +23,7 @@ export default function Lists() {
     fname: "",
 
     bplid: -2,
+    status
   });
   const route = useNavigate();
   const columns = React.useMemo(
@@ -229,6 +231,9 @@ export default function Lists() {
     if (searchValues.code)
       // queryFilters.push(`startswith(Code, '${searchValues.code}')`);
       queryFilters.push(`Code eq '${searchValues.code}'`);
+
+    if (searchValues.status)
+      queryFilters.push(`U_tl_status eq '${searchValues.status}'`);
    
 
     if (searchValues.fname)
@@ -299,7 +304,31 @@ export default function Lists() {
               </div>
               {/*  */}
 
-              <div className="col-span-2 2xl:col-span-3"></div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { label: "None", value: "" },
+                        { label: "Active", value: "y" },
+                        { label: "Inactive", value: "n"}
+                      ]}
+                      onChange={(e) => {
+                        if (e) {
+                          setSearchValues({
+                            ...searchValues,
+                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                          });
+                        }
+                      }}
+                      value={searchValues.status}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div className="col-span-2">

@@ -6,7 +6,7 @@ import request from "@/utilies/request";
 
 export default class CountryRepository extends Repository<Country> {
 
-  url = '/Countries';
+  url = '/Countries?$select=Code,Name';
 
   // specific key
   key = 'countries';

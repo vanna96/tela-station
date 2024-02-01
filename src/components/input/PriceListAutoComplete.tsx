@@ -7,8 +7,8 @@ import PriceListRepository from "@/services/actions/pricelistRepository";
 interface Type {
   PriceListNo: string;
   PriceListName: string;
-  // PriceListNo;
-  // PriceListName;
+  IsGrossPrice: boolean;
+  Active: boolean;
 }
 
 export default function PriceListAutoComplete(props: {
@@ -17,32 +17,42 @@ export default function PriceListAutoComplete(props: {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
+  isActiveAndGross?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["priceList"],
     queryFn: () => new PriceListRepository().get(),
   });
+  let dataFilter = data?.filter(
+    (item: Type) => item.IsGrossPrice && item.Active
+  );
+
   useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedSalePerson = data?.find(
-        (salePerson: any) => salePerson.PriceListNo === props.value
-      );
-      if (selectedSalePerson) {
-        setSelectedValue(selectedSalePerson);
+      let selectedValue: number | null = null;
+
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
+
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
       }
+
+      const selectedPriceList = data?.find(
+        (priceList: any) => priceList.PriceListNo === selectedValue
+      );
+      setSelectedValue(selectedPriceList);
     }
   }, [props.value, data]);
-
-  // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
-    // Update the local state
     setSelectedValue(newValue);
 
     if (props.onChange) {
-      // Notify the parent component with the selected value
       const selectedCode = newValue ? newValue.PriceListNo : null;
       props.onChange(selectedCode);
     }
@@ -58,7 +68,7 @@ export default function PriceListAutoComplete(props: {
       </label>
 
       <Autocomplete
-        options={data ?? []}
+        options={props.isActiveAndGross ? dataFilter : data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}

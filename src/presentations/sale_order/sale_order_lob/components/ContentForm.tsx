@@ -4,19 +4,12 @@ import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
 import { Alert, Collapse, IconButton, TextField } from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import { numberWithCommas } from "@/helper/helper";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 import shortid from "shortid";
 import MUISelect from "@/components/selectbox/MUISelect";
-// import { APIContext } from "../../context/APIContext";
-import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-import BinLocationTo from "@/components/input/BinLocationTo";
-import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
-import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import { TbEdit } from "react-icons/tb";
 interface ContentFormProps {
   handlerAddItem: () => void;
@@ -40,12 +33,14 @@ export default function ContentForm({
   ContentLoading,
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  // const { tlExpDic }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
+  const vendorPriceList = data.U_tl_sopricelist;
+  const wh = data.U_tl_whsdesc;
+  const lineofbusiness = data.U_tl_arbusi;
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -68,31 +63,34 @@ export default function ContentForm({
 
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
-
-      const items: any = data?.Items?.map((item: any, indexItem: number) => {
-        if (i.toString() === indexItem.toString()) {
-          item.ItemCode = itemDetails.ItemCode;
-          item.ItemName = itemDetails.ItemName;
-          item.UnitPrice = itemDetails.MovingAveragePrice;
-          item.Quantity = itemDetails.Quantity ?? 1;
-          item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-          item.FromWarehouseCode = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.WhsCode;
-          item.WarehouseCode = data.ToWarehouse;
-          item.FromBin = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.BinAbsEntry;
-          item.BinQty = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.OnHandQty;
-          item.ToBin = data.ToBinItems?.find(
-            (e: any) => e.WhsCode === item.WarehouseCode
-          )?.BinAbsEntry;
-          item.UoMList = uomLists;
+      const items: any = data?.Items?.map(
+        (item: any, indexItem: number, vendorPriceList: any) => {
+          if (i.toString() === indexItem.toString()) {
+            item.ItemCode = itemDetails.ItemCode;
+            item.ItemName = itemDetails.ItemName;
+            // item.UnitPrice = itemDetails.MovingAveragePrice;
+            item.GrossPrice = item.UnitPrice;
+            item.Quantity = itemDetails.Quantity ?? 1;
+            item.UomAbsEntry = itemDetails.InventoryUoMEntry;
+            item.FromWarehouseCode = data.FromBinItems?.find(
+              (e: any) => e.ItemCode === item.ItemCode
+            )?.WhsCode;
+            item.WarehouseCode = data.ToWarehouse;
+            item.FromBin = data.FromBinItems?.find(
+              (e: any) => e.ItemCode === item.ItemCode
+            )?.BinAbsEntry;
+            item.BinQty = data.FromBinItems?.find(
+              (e: any) => e.ItemCode === item.ItemCode
+            )?.OnHandQty;
+            item.ToBin = data.ToBinItems?.find(
+              (e: any) => e.WhsCode === item.WarehouseCode
+            )?.BinAbsEntry;
+            item.UoMList = uomLists;
+            item.ItemPrices = itemDetails.ItemPrices;
+          }
+          return item;
         }
-        return item;
-      });
+      );
 
       onChange("Items", items);
     } else {
@@ -120,34 +118,6 @@ export default function ContentForm({
 
   const itemColumns = React.useMemo(
     () => [
-      // {
-      //   accessorKey: "ItemCode",
-      //   header: "Item Code",
-      //   visible: true,
-      //   Cell: ({ cell }: any) => {
-      //     return edit ? (
-      //       <MUITextField value={cell.getValue()} disabled />
-      //     ) : (
-      //       <MUISelect
-      //         value={cell.getValue()}
-      //         items={data.FromBinItems?.map((e: any) => ({
-      //           label: e.ItemCode,
-      //           value: e.ItemCode,
-      //         }))}
-      //         aliaslabel="label"
-      //         aliasvalue="Code"
-      //         onChange={(e: any) =>
-      //           handlerUpdateRow(
-      //             cell.row.id,
-      //             ["ItemCode", e.target.value],
-      //             "ItemCode"
-      //           )
-      //         }
-      //       />
-      //     );
-      //   },
-      // },
-
       {
         accessorKey: "ItemCode",
         Header: (header: any) => (
@@ -157,7 +127,7 @@ export default function ContentForm({
         ),
         header: "Item No", //uses the default width from defaultColumn prop
         visible: true,
-        size: 120,
+        size: 140,
         Cell: ({ cell }: any) => (
           /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
             value={cell.getValue()}
@@ -220,16 +190,6 @@ export default function ContentForm({
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
-              // onBlur={(event) => {
-              //   const newValue = parseFloat(
-              //     event.target.value.replace(/,/g, "")
-              //   );
-              //   handlerUpdateRow(
-              //     cell.row.id,
-              //     ["Quantity", newValue],
-              //     "Quantity"
-              //   );
-              // }}
               onBlur={(event) => {
                 const newValue = parseFloat(
                   event.target.value.replace(/,/g, "")
@@ -265,22 +225,69 @@ export default function ContentForm({
           return (
             <MUISelect
               value={cell.getValue()}
-              items={// edit
-              //   ? []
-              //   :
-              cell.row.original.UomLists?.map((e: any) => ({
+              items={cell.row.original.UomLists?.map((e: any) => ({
                 label: e.Name,
                 value: e.AbsEntry,
               }))}
               aliaslabel="label"
               aliasvalue="value"
-              onChange={(e: any) =>
+              onChange={(event: any) => {
                 handlerUpdateRow(
                   cell.row.id,
-                  ["UomAbsEntry", e.target.value],
+                  ["UomAbsEntry", event.target.value],
                   "UomAbsEntry"
-                )
-              }
+                );
+                let defaultPrice = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.Price;
+                let itemPrices = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.UoMPrices;
+
+                let uomPrice = itemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                );
+
+                if (uomPrice && event.target.value === uomPrice.UoMEntry) {
+                  const grossPrice = uomPrice.Price;
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
+
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", grossPrice],
+                    "GrossPrice"
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                } else {
+                  const grossPrice = defaultPrice;
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
+
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", grossPrice],
+                    "GrossPrice"
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }
+              }}
             />
           );
         },
@@ -297,6 +304,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
+              disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
@@ -432,9 +440,13 @@ export default function ContentForm({
         }}
       />
       <ItemModal
+        wh={wh}
+        priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
+        lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        bin={data.U_tl_sobincode}
       />
     </>
   );
