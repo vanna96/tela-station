@@ -86,8 +86,12 @@ const SystemInitializeMasterPage = () => {
         ),
 
         // banking
-        fetchModuleCount("IncomingPayments?$filter=DocType eq 'rCustomer'"),
-        fetchModuleCount("IncomingPayments?$filter=DocType eq 'rAccount'"),
+        fetchModuleCount(
+          "IncomingPayments/$count?$filter=DocType eq 'rCustomer'"
+        ),
+        fetchModuleCount(
+          "IncomingPayments/$count?$filter=DocType eq 'rAccount'"
+        ),
         // expense
         fetchModuleCount("TL_ExpLog/$count"),
         fetchModuleCount("TL_ExpClear/$count"),
@@ -140,7 +144,7 @@ const SystemInitializeMasterPage = () => {
     },
     {
       refetchOnWindowFocus: false,
-      staleTime: 2000,
+      staleTime: 180000,
     }
   );
 
