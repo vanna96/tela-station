@@ -75,30 +75,19 @@ const SystemInitializeMasterPage = () => {
         fetchModuleCount("TL_SALES_SCENARIO/$count"),
 
         // sale orders
-        new SalesOrderRepository().getCount({
-          params: {
-            $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
-          },
-        }),
-        new SalesOrderRepository().getCount({
-          params: {
-            $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
-          },
-        }),
-        new SalesOrderRepository().getCount({
-          params: {
-            $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
-          },
-        }),
+        fetchModuleCount(
+          "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Oil'"
+        ),
+        fetchModuleCount(
+          "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Lube'"
+        ),
+        fetchModuleCount(
+          "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'"
+        ),
 
         // banking
-        new IncomingPaymentRepository().getCount({
-          params: { $filter: `DocType eq 'rCustomer'` },
-        }),
-        new IncomingPaymentRepository().getCount({
-          params: { $filter: `DocType eq 'rAccount'` },
-        }),
-
+        fetchModuleCount("IncomingPayments?$filter=DocType eq 'rCustomer'"),
+        fetchModuleCount("IncomingPayments?$filter=DocType eq 'rAccount'"),
         // expense
         fetchModuleCount("TL_ExpLog/$count"),
         fetchModuleCount("TL_ExpClear/$count"),

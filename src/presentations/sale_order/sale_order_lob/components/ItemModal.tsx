@@ -137,8 +137,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     this.setState({ ...temps });
   }
   render() {
-    console.log(this.state);
-    console.log(this.props.bin);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
