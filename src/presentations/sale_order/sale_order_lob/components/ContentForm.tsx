@@ -127,7 +127,7 @@ export default function ContentForm({
         ),
         header: "Item No", //uses the default width from defaultColumn prop
         visible: true,
-        size: 120,
+        size: 140,
         Cell: ({ cell }: any) => (
           /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
             value={cell.getValue()}
@@ -446,6 +446,7 @@ export default function ContentForm({
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        bin={data.U_tl_sobincode}
       />
     </>
   );

@@ -19,6 +19,7 @@ export default function BinLocationToAsEntry(props: {
   value?: any;
   onChange?: (value: any) => void;
   Warehouse?: any;
+  disabled?: boolean;
   WareBinLocation?: WareBinLocation[];
 }) {
   const { data, isLoading }: any = useQuery({
@@ -79,6 +80,7 @@ export default function BinLocationToAsEntry(props: {
       </label>
 
       <Autocomplete
+        disabled={props.disabled}
         options={uniqueWarehouses ?? data}
         autoHighlight
         value={selectedValue}
@@ -94,7 +96,11 @@ export default function BinLocationToAsEntry(props: {
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={
+              props.disabled
+                ? " w-full text-xs text-field bg-gray-100"
+                : "w-full text-xs text-field bg-white"
+            }
             InputProps={{
               ...params.InputProps,
               endAdornment: (

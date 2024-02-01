@@ -18,6 +18,7 @@ import { NumericFormat } from "react-number-format";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -26,6 +27,7 @@ interface ItemModalProps {
   wh: any;
   lineofbusiness: any;
   priceList: any;
+  bin: any;
 }
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
@@ -38,6 +40,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       lineofbusiness: props.lineofbusiness,
       wh: props.wh,
       WarehouseCode: props.wh,
+      BinAbsEntry: this.props.bin,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -133,8 +136,9 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ ...temps });
   }
-
   render() {
+    console.log(this.state);
+    console.log(this.props.bin);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -295,15 +299,15 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                   }
                 />
               </div>
-
-              <WareBinLocation
-                disabled
-                itemCode={this.state.ItemCode}
-                Whse={this.state.WarehouseCode}
-                value={this.state.BinAbsEntry}
-                label="Bin Location"
-                onChange={(event) => this.handChange(event, "BinAbsEntry")}
-              />
+              <div className="flex flex-col">
+                <div className="text-sm">Bin Location</div>
+                <div className="mb-1"></div>
+                <BinLocationToAsEntry
+                  value={this.props.bin}
+                  disabled
+                  Warehouse={this.state?.WarehouseCode ?? "WH01"}
+                />
+              </div>
 
               <DistributionRuleText
                 label="Line Of Business"
