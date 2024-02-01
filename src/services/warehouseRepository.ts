@@ -8,7 +8,7 @@ export default class WarehouseRepository extends Repository<Warehouse> {
       throw new Error("Method not implemented.");
     }
    
-    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter';
+    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter, ';
     
     // specific key
     key = 'warehouse';
