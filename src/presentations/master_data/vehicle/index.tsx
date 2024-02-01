@@ -25,8 +25,6 @@ export default function Lists() {
       queryFn: () => new DriverRepository().get(),
       staleTime: Infinity,
     });
-  console.log(driver);
-  
   
   const columns = React.useMemo(
     () => [
