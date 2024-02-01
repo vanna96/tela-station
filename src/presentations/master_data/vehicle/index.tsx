@@ -299,21 +299,6 @@ export default function Lists() {
                     Status
                   </label>
                 </div>
-                {/* {searchValues.active === null && (
-                  <div>
-                    <MUITextField
-                      label="LastName"
-                      // placeholder="LastName"
-                      className="bg-white"
-                      onChange={(e) =>
-                        setSearchValues({
-                          ...searchValues,
-                          lastName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                )} */}
                 <MUISelect
                   items={[
                     { value: "All", label: "All" },

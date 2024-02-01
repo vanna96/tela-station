@@ -89,7 +89,8 @@ const Form = (props: any) => {
           setState({
             ...state,
             loading: false,
-          });
+            DocNum:res?.data?.FirstName + ' ' +res?.data?.LastName
+          });          
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -100,7 +101,8 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
+        ([key, value]): any =>
+          value !== null && value !== undefined
       )
     );
     const payload = {
@@ -269,8 +271,13 @@ const Form = (props: any) => {
     );
   };
 
-  // console.log(state)
-
+  const onInvalidForm = (invalids: any) => {
+      dialog.current?.error(
+        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+          "Oop something wrong!",
+        "Invalid Value"
+      );
+  };
   return (
     <>
       {state.loading ? (
@@ -306,7 +313,7 @@ const Form = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
@@ -324,7 +331,7 @@ const Form = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                  <Address setValue={setValue} register={register}  />
+                <Address setValue={setValue} register={register} />
               </h1>
             )}
             {state.tapIndex === 2 && (
@@ -361,10 +368,17 @@ const Form = (props: any) => {
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
-                    variant="contained"
-                      disableElevation
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
+                    disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">
+                    <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
                     </span>
                   </LoadingButton>

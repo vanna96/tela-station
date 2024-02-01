@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   FieldValues,
   UseFormRegister,
@@ -7,14 +7,11 @@ import {
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
-import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import General from "../component/General";
@@ -389,8 +386,8 @@ const VehicleForm = (props: any) => {
                   compart={compart}
                   setCompart={setCompart}
                   control={control}
-                    data={vehicle}
-                    detail={props?.detail}
+                  data={vehicle}
+                  detail={props?.detail}
                 />
               </div>
             )}
@@ -401,10 +398,17 @@ const VehicleForm = (props: any) => {
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
-                    variant="contained"
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
                     disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">
+                    <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
                     </span>
                   </LoadingButton>

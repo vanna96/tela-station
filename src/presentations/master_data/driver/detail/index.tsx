@@ -46,7 +46,7 @@ const FormDetail = (props: any) => {
     isError: false,
     message: "",
     showCollapse: true,
-    DocNum: id,
+    DocNum: null,
   });
   const [header, setHeader] = useState({
     firstName: null,
@@ -74,64 +74,17 @@ const FormDetail = (props: any) => {
         .then((res: any) => {
           setBranchAss(res?.data?.EmployeeBranchAssignment);
           setDriver(res?.data);
-          setState({
-            ...state,
-            loading: false,
-          });
+        setState({
+          ...state,
+          loading: false,
+          DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
+        });    
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
         );
     }
   };
-
-  // const onSubmit = async (e: any) => {
-  //   const data: any = Object.fromEntries(
-  //     Object.entries(e).filter(
-  //       ([key, value]): any => value !== null && value !== undefined
-  //     )
-  //   );
-  //   const payload = {
-  //     ...data,
-  //     U_tl_driver: "Y",
-  //     EmployeeBranchAssignment: branchAss?.map((e: any) => {
-  //       return {
-  //         BPLID: e?.BPLID,
-  //       };
-  //     }),
-  //   };
-  //   const { id } = props?.match?.params || 0;
-  //   try {
-  //     setState({ ...state, isSubmitting: true });
-  //     if (props.edit) {
-  //       await request("PATCH", `/EmployeesInfo(${id})`, payload)
-  //         .then(
-  //           (res: any) =>
-  //             dialog.current?.success(
-  //               "Update Successfully.",
-  //               res?.data?.EmployeeID
-  //             )
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     } else {
-  //       await request("POST", "/EmployeesInfo", payload)
-  //         .then(
-  //           (res: any) =>
-  //             dialog.current?.success(
-  //               "Create Successfully.",
-  //               res?.data?.EmployeeID
-  //             )
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     setState({ ...state, isSubmitting: false });
-  //   }
-  // };
 
   const handlerChangeMenu = useCallback(
     (index: number) => {

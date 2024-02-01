@@ -160,11 +160,12 @@ detail
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
-                Blood Type
+                Blood Type <span className="text-red-500 ml-1">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <Controller
+                rules={{ required: "Blood Type is required" }}
                 name="U_CheckList"
                 control={control}
                 render={({ field }) => {
