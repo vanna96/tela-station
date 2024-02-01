@@ -81,10 +81,10 @@ export default function Compartment({
                   <td className="py-5 flex justify-center gap-5 items-center">
                     <div
                       onClick={() => handlerDelete(index)}
-                      className={`w-[17px] shadow-lg shadow-[#878484] h-[17px] ${
+                      className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
                         detail
                           ? "bg-gray-100 text-gray-600 "
-                          : "bg-red-500 cursor-pointer text-white"
+                          : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
                       }  rounded-sm flex justify-center items-center `}
                     >
                       -
@@ -156,13 +156,15 @@ export default function Compartment({
             })}
           </table>
           {detail ? (
-            <span className="p-1 text-sm bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md">
+            <span
+              className="p-1 text-sm rounded-md bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md"
+            >
               + Add
             </span>
           ) : (
             <span
               onClick={addNewRow}
-              className="p-1 text-sm bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-md"
+              className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               + Add
             </span>
