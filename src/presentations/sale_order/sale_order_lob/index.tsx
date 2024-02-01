@@ -15,6 +15,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function SaleOrderLists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -346,8 +347,8 @@ export default function SaleOrderLists() {
     docnum: "",
     cardcode: "",
     postingDate: null,
-    status: "",
     bplid: "",
+    status: "",
   });
 
   const { id }: any = useParams();
@@ -410,17 +411,6 @@ export default function SaleOrderLists() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                {/* <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                /> */}
                 <MUITextField
                   label="Customer"
                   placeholder="Customer Code/Name"
@@ -440,7 +430,6 @@ export default function SaleOrderLists() {
                 <MUIDatePicker
                   label="Posting Date"
                   value={searchValues.postingDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
                   onChange={(e) => {
                     setSearchValues({
                       ...searchValues,
@@ -464,6 +453,32 @@ export default function SaleOrderLists() {
                         })
                       }
                       value={searchValues.bplid}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "bost_Open", name: "Open" },
+                        { id: "bost_Closed", name: "Close" },
+                        { id: "", name: "None" },
+                      ]}
+                      value={searchValues.status}
+                      onChange={(e) => {
+                        setSearchValues({
+                          ...searchValues,
+                          status: e.target.value,
+                        });
+                      }}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="Status"
                     />
                   </div>
                 </div>
