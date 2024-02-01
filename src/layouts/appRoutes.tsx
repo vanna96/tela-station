@@ -113,7 +113,7 @@ const appRoutes: RouteType[] = [
         state: "route",
         sidebarProps: {
           displayText: "Route",
-        },
+        }
       },
     ],
   },

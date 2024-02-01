@@ -13,6 +13,7 @@ import { TextField } from "@mui/material";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import { useQuery } from "react-query";
 import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
+import request from "@/utilies/request";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -33,6 +34,13 @@ export default function GeneralForm({
     data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
 
   useExchangeRate(data?.Currency, handlerChange);
+
+  const { data:gl6, isLoading }: any = useQuery({
+    queryKey: ["gl_account_6"],
+    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+  });
+
+  console.log(data?.U_tl_expacct)
 
   return (
     <>
@@ -81,7 +89,7 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  G/L Account <span className="text-red-500">*</span>
+                  G/L Account Code <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -96,13 +104,13 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  GL Account Code
+                  GL Account Name
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  value={data?.U_tl_expacct ?? ""}
-                  name="Type"
+                  value={gl6?.find((e:any) => data?.U_tl_expacct === e.Code)?.Name ?? "N/A"}
+                  name="U_tl_cashacct"
                   disabled={true}
                 />
               </div>

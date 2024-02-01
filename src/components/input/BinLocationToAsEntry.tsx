@@ -19,6 +19,7 @@ export default function BinLocationToAsEntry(props: {
   value?: any;
   onChange?: (value: any) => void;
   Warehouse?: any;
+  disabled?: boolean;
   WareBinLocation?: WareBinLocation[];
 }) {
   const { data, isLoading }: any = useQuery({
@@ -31,7 +32,6 @@ export default function BinLocationToAsEntry(props: {
     (warebin: any) => warebin.WhsCode === props?.Warehouse
   );
 
-  // Use a Set to keep track of unique BinCode values
   const uniqueBinCodes = new Set<string>();
   const uniqueWarehouses = filteredWarehouses?.filter((warebin: any) => {
     if (!uniqueBinCodes.has(warebin.BinCode)) {
@@ -40,15 +40,25 @@ export default function BinLocationToAsEntry(props: {
     }
     return false;
   });
-
   useEffect(() => {
     if (props.value) {
-      const selectedWarehouse = uniqueWarehouses?.find(
-        (warebin: any) => warebin.BinAbsEntry === props.value
-      );
-      if (selectedWarehouse) {
-        setSelectedValue(selectedWarehouse);
+      let selectedValue: number | null = null;
+
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
+
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
       }
+
+      const selectedBinLocation = uniqueWarehouses?.find(
+        (warebin: any) => warebin.BinAbsEntry === selectedValue
+      );
+
+      setSelectedValue(selectedBinLocation);
     }
   }, [props.value, uniqueWarehouses]);
 
@@ -70,6 +80,7 @@ export default function BinLocationToAsEntry(props: {
       </label>
 
       <Autocomplete
+        disabled={props.disabled}
         options={uniqueWarehouses ?? data}
         autoHighlight
         value={selectedValue}
@@ -85,7 +96,11 @@ export default function BinLocationToAsEntry(props: {
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={
+              props.disabled
+                ? " w-full text-xs text-field bg-gray-100"
+                : "w-full text-xs text-field bg-white"
+            }
             InputProps={{
               ...params.InputProps,
               endAdornment: (

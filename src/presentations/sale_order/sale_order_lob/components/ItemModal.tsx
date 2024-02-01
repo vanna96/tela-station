@@ -16,11 +16,18 @@ import { TextField } from "@mui/material";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
   onSave?: (value: any) => void;
   columns: any[];
+  wh: any;
+  lineofbusiness: any;
+  priceList: any;
+  bin: any;
 }
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
@@ -29,6 +36,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.state = {
       open: false,
+      priceList: props.priceList,
+      lineofbusiness: props.lineofbusiness,
+      wh: props.wh,
+      WarehouseCode: props.wh,
+      BinAbsEntry: this.props.bin,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -54,7 +66,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ open: false });
   }
-
+  handlerChange(event: any, field: string) {
+    const temps = { ...this.state };
+    temps[field] = event;
+    this.setState({ ...temps });
+  }
   handChange(event: any, field: string) {
     const temps = { ...this.state };
     temps[field] = event.target.value;
@@ -65,7 +81,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
       const unitPrice = parseFloat(value) / (1 + vatRate / 100);
       temps["GrossPrice"] = value;
-      // console.log(value);
       temps["UnitPrice"] = unitPrice;
     }
     if (
@@ -121,7 +136,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ ...temps });
   }
-
   render() {
     return (
       <Modal
@@ -129,7 +143,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
         titleClass="pt-3 px-4 font-bold w-full"
         open={this.state.open}
         widthClass="w-[70vw] sm:w-[90vw]"
-        heightClass="h-[90vh]"
+        // heightClass="h-[90vh]"
         onClose={this.onClose}
         onOk={this.onSave}
         okLabel="Save"
@@ -212,53 +226,109 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               Additional Input
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <UOMSelect
-                label="UOM Code"
-                value={this.state?.UomAbsEntry}
-                filterAbsEntry={this.state.SaleUOMLists}
-                onChange={(event) => this.handChange(event, "UomAbsEntry")}
-              />
               <MUITextField
-                label="UOM Name"
+                label="UOM Code"
                 disabled
-                value={this.state?.UomGroupCode}
+                value={
+                  new UnitOfMeasurementRepository().find(
+                    this.state?.UomAbsEntry
+                  )?.Code
+                }
+              />
+              <MUISelect
+                label="UOM Name"
+                value={this.state?.UomAbsEntry}
+                items={this.state.UomLists?.map((e: any) => ({
+                  label: e.Name,
+                  value: e.AbsEntry,
+                }))}
+                onChange={(event) => {
+                  this.handChange(event, "UomAbsEntry");
+
+                  const selectedUomAbsEntry = event.target.value;
+                  const priceList = this.props.priceList;
+                  let itemPrices = this.state.ItemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(priceList)
+                  )?.UoMPrices;
+
+                  let uomPrice = itemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(priceList)
+                  );
+
+                  if (uomPrice && selectedUomAbsEntry === uomPrice.UoMEntry) {
+                    const grossPrice = uomPrice.Price;
+                    const quantity = this.state.Quantity ?? 1;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (this.state.DiscountPercent / 100);
+
+                    this.setState({
+                      GrossPrice: grossPrice,
+                      LineTotal: totalGross,
+                    });
+                  } else {
+                    const grossPrice = this.state.UnitPrice ?? 0;
+                    const quantity = this.state.Quantity ?? 1;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (this.state.DiscountPercent / 100);
+
+                    this.setState({
+                      GrossPrice: grossPrice,
+                      LineTotal: totalGross,
+                    });
+                  }
+                }}
               />
 
-              <WarehouseAutoComplete
-                Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
-                label="Warehouse Code"
-                value={this.state?.WarehouseCode}
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
-              />
-              <WareBinLocation
-                itemCode={this.state.ItemCode}
-                Whse={this.state.WarehouseCode}
-                value={this.state.BinAbsEntry}
-                label="Bin Location"
-                onChange={(event) => this.handChange(event, "BinAbsEntry")}
-              />
+              <div className="flex flex-col">
+                <div className="text-sm">Warehouse</div>
+                <div className="mb-1"></div>
+                <WarehouseAutoComplete
+                  disabled
+                  Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
+                  value={this.state.WarehouseCode}
+                  onChange={(event) =>
+                    this.handlerChange(event, "WarehouseCode")
+                  }
+                />
+              </div>
+              <div className="flex flex-col">
+                <div className="text-sm">Bin Location</div>
+                <div className="mb-1"></div>
+                <BinLocationToAsEntry
+                  value={this.props.bin}
+                  disabled
+                  Warehouse={this.state?.WarehouseCode ?? "WH01"}
+                />
+              </div>
 
               <DistributionRuleText
                 label="Line Of Business"
+                disabled
                 inWhichNum={1}
                 aliasvalue="FactorCode"
-                value={this.state.LineOfBussiness}
-                onChange={(event) => this.handChange(event, "LineOfBussiness")}
+                value={this.state.COGSCostingCode}
+                onChange={(event) => this.handChange(event, "COGSCostingCode")}
               />
 
               <DistributionRuleText
                 label="Revenue Line"
                 inWhichNum={2}
                 aliasvalue="FactorCode"
-                value={this.state?.revenueLine ?? "202001"}
-                onChange={(event) => this.handChange(event, "revenueLine")}
+                value={this.state?.COGSCostingCode2 ?? "202001"}
+                onChange={(event) => this.handChange(event, "COGSCostingCode2")}
               />
               <DistributionRuleText
                 label="Product Line"
                 inWhichNum={3}
                 aliasvalue="FactorCode"
-                value={this.state?.REV}
-                onChange={(event) => this.handChange(event, "REV")}
+                value={this.state?.COGSCostingCode3}
+                onChange={(event) => this.handChange(event, "COGSCostingCode3")}
               />
             </div>
           </div>

@@ -5,14 +5,13 @@ import request from "@/utilies/request";
 
 export default class WarehouseRepository extends Repository<Warehouse> {
     static get() {
-      throw new Error("Method not implemented.");
+        throw new Error("Method not implemented.");
     }
-   
-    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter';
-    
-    // specific key
-    key = 'warehouse';
 
+    url = '/Warehouses?$select=WarehouseCode,WarehouseName, BusinessPlaceID, U_tl_attn_ter, U_tl_whsclear';
+
+    key = 'warehouse';
+// 
     async get<Warehouse>(query?: string | undefined): Promise<Warehouse[]> {
         const data = localStorage.getItem(this.key);
         if (data) {

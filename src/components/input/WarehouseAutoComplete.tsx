@@ -9,12 +9,14 @@ interface Warehouse {
   WarehouseName: string;
 }
 
-export default function WarehouseAutoComplete(props: {
+export default function zWarehouseAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
   Branch?: any;
   Warehouse?: Warehouse[];
+  disabled?: boolean;
+  isSOWarehouse?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
@@ -22,15 +24,31 @@ export default function WarehouseAutoComplete(props: {
     staleTime: Infinity,
   });
 
-  const filteredWarehouses = data?.filter(
+  let filteredWarehouses = data?.filter(
     (warehouse: any) => warehouse.BusinessPlaceID === props?.Branch
   );
+  if (props.isSOWarehouse) {
+    filteredWarehouses = filteredWarehouses?.filter(
+      (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Yes"
+    );
+  }
 
   useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
     if (props.value) {
+      let selectedValue: number | null = null;
+
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
+
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
+      }
+
       const selectedWarehouse = filteredWarehouses?.find(
-        (warehouse:any) => warehouse.WarehouseCode === props.value
+        (warehouse: any) => warehouse.WarehouseCode === props.value
       );
       if (selectedWarehouse) {
         setSelectedValue(selectedWarehouse);
@@ -38,10 +56,9 @@ export default function WarehouseAutoComplete(props: {
     }
   }, [props.value, filteredWarehouses]);
 
-  // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
-  const handleAutocompleteChange = (event:any, newValue:any) => {
+  const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
     setSelectedValue(newValue);
 
@@ -65,6 +82,7 @@ console.log(data);
       <Autocomplete
         options={filteredWarehouses ?? data}
         autoHighlight
+        disabled={props.disabled}
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
@@ -78,7 +96,7 @@ console.log(data);
         renderInput={(params) => (
           <TextField
             {...params}
-            className="w-full text-xs text-field bg-white"
+            className={`w-full ${props.disabled ? "bg-gray-100 text-xs text-field" : "text-xs text-field bg-white"}`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -90,6 +108,7 @@ console.log(data);
                 </React.Fragment>
               ),
             }}
+            disabled={props.disabled}
           />
         )}
       />

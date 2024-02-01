@@ -65,7 +65,7 @@ const SystemInitializeMasterPage = () => {
         fetchModuleCount("TL_PUMP_ATTEND/$count"),
         fetchModuleCount("TL_ExpDic/$count"),
         fetchModuleCount("TL_CashAcct/$count"),
-        fetchModuleCount("EmployeesInfo/$count"),
+        fetchModuleCount("EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'"),
         fetchModuleCount("TL_VEHICLE/$count"),
         fetchModuleCount("TL_STOPS/$count"),
         fetchModuleCount("TL_ROUTE/$count"),
@@ -75,30 +75,23 @@ const SystemInitializeMasterPage = () => {
         fetchModuleCount("TL_SALES_SCENARIO/$count"),
 
         // sale orders
-        new SalesOrderRepository().getCount({
-          params: {
-            $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
-          },
-        }),
-        new SalesOrderRepository().getCount({
-          params: {
-            $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
-          },
-        }),
-        new SalesOrderRepository().getCount({
-          params: {
-            $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
-          },
-        }),
+        fetchModuleCount(
+          "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Oil'"
+        ),
+        fetchModuleCount(
+          "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Lube'"
+        ),
+        fetchModuleCount(
+          "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'"
+        ),
 
         // banking
-        new IncomingPaymentRepository().getCount({
-          params: { $filter: `DocType eq 'rCustomer'` },
-        }),
-        new IncomingPaymentRepository().getCount({
-          params: { $filter: `DocType eq 'rAccount'` },
-        }),
-
+        fetchModuleCount(
+          "IncomingPayments/$count?$filter=DocType eq 'rCustomer'"
+        ),
+        fetchModuleCount(
+          "IncomingPayments/$count?$filter=DocType eq 'rAccount'"
+        ),
         // expense
         fetchModuleCount("TL_ExpLog/$count"),
         fetchModuleCount("TL_ExpClear/$count"),
@@ -150,10 +143,9 @@ const SystemInitializeMasterPage = () => {
       };
     },
     {
-      refetchOnWindowFocus: false, 
-     staleTime: 2000 
+      refetchOnWindowFocus: false,
+      staleTime: 180000,
     }
-    
   );
 
   if (error) {

@@ -6,6 +6,7 @@ import request from "@/utilies/request";
 import DocumentHeader from "@/components/DocumenHeader";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import MUITextField from "@/components/input/MUITextField";
+import { useQuery } from "react-query";
 
 class FormDetail extends Component<any, any> {
   constructor(props: any) {
@@ -96,6 +97,12 @@ export default withRouter(FormDetail);
 
 function General(props: any) {
   const { data }: any = props;
+
+  const { data:gl6, isLoading }: any = useQuery({
+    queryKey: ["gl_account_6"],
+    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+  });
+  
   return (
     <>
       <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6">
@@ -126,22 +133,21 @@ function General(props: any) {
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">GL Account </div>
+                <div className="col-span-1 text-gray-700 ">GL Account Code </div>
                 <div className="col-span-1 text-gray-900">
                 <MUITextField
                   fullWidth
-                  value={new GLAccountRepository().find(data?.U_tl_expacct)?.Name ??
-                    "N/A"}
+                  value={data?.U_tl_expacct}
                   disabled={true}
                 />
                 </div>
               </div>
               <div className="grid grid-cols-2 py-1">
-                <div className="col-span-1 text-gray-700 ">GL Account Code </div>
+                <div className="col-span-1 text-gray-700 ">GL Account Name </div>
                 <div className="col-span-1 text-gray-900">
                   <MUITextField
                     fullWidth
-                    value={data?.U_tl_expacct ?? "N/A"}
+                    value={gl6?.find((e:any) => data?.U_tl_expacct === e.Code)?.Name ?? "N/A"}
                     disabled={true}
                   />
                 </div>

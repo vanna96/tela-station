@@ -18,7 +18,7 @@ class Form extends CoreFormDocument {
     super(props);
     this.state = {
       ...this.state,
-      U_tl_cashtype: "Payment Method",
+      U_tl_cashtype: "Cash Account",
       U_tl_cashactive: "Y",
       showCollapse: false
     } as any;

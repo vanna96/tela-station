@@ -1,10 +1,7 @@
 import { withRouter } from "@/routes/withRouter";
 import { Component } from "react";
 import { useMemo } from "react";
-import {
-  arrayBufferToBlob,
-  dateFormat,
-} from "@/utilies";
+import { arrayBufferToBlob, dateFormat } from "@/utilies";
 import DocumentHeader from "@/components/DocumenHeader";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MenuButton from "@/components/button/MenuButton";
@@ -18,6 +15,10 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import MUITextField from "@/components/input/MUITextField";
+import PriceListRepository from "@/services/actions/pricelistRepository";
+import SalePersonRepository from "@/services/actions/salePersonRepository";
+import BinlocationRepository from "@/services/actions/BinlocationRepository";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -61,7 +62,6 @@ class DeliveryDetail extends Component<any, any> {
             CurrencyType: true,
           };
 
-      
           this.setState({
             ...data,
             Description: data?.Comments,
@@ -98,7 +98,7 @@ class DeliveryDetail extends Component<any, any> {
               }
             ),
             disabledFields,
-           
+
             Edit: true,
             PostingDate: data?.DocDate,
             DueDate: data?.DocDueDate,
@@ -155,7 +155,6 @@ class DeliveryDetail extends Component<any, any> {
   };
 
   render() {
-    console.log(this.state)
     return (
       <>
         <DocumentHeader
@@ -217,7 +216,11 @@ function General(props: any) {
               new WarehouseRepository().find(props?.data?.U_tl_whsdesc)
                 ?.WarehouseName
             )}
-            {renderKeyValue("Bin Location", props.data.CardCode)}
+            {renderKeyValue(
+              "Bin Location",
+              new WareBinLocationRepository().find(props.data?.U_tl_sobincode)
+                ?.BinCode
+            )}
             {renderKeyValue("Customer", props.data.CardCode)}
             {renderKeyValue("Name", props.data.CardName)}
             {renderKeyValue(
@@ -225,6 +228,11 @@ function General(props: any) {
               props?.data?.vendor?.contactEmployee?.find(
                 (e: any) => e.id == props.data.ContactPersonCode
               )?.name ?? "N/A"
+            )}
+            {renderKeyValue(
+              "Price List",
+              new PriceListRepository().find(parseInt(props.data.U_tl_sopricelist))
+                ?.PriceListName ?? "N/A"
             )}
             {renderKeyValue(
               "Currency",
@@ -240,9 +248,9 @@ function General(props: any) {
             {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
             {renderKeyValue(
               "Sale Employee",
-              props?.data?.vendor?.contactEmployee?.find(
-                (e: any) => e.id == props.data.ContactPersonCode
-              )?.name ?? "N/A"
+              new SalePersonRepository().find(
+                props.data?.vendor?.salePersonCode
+              )?.name
             )}
             {renderKeyValue("Remark", props?.data?.Comments ?? "N/A")}
           </div>

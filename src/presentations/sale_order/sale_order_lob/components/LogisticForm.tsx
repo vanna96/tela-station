@@ -24,8 +24,9 @@ export default function LogisticForm({
   ref,
 }: ILogisticFormProps) {
   if (data.vendor) {
-    data.ShipToCode === data.ShipToDefault;
+    data.ShipToCode = data.vendor?.ShipToDefault;
   }
+
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-screen">
@@ -89,9 +90,15 @@ export default function LogisticForm({
                   value={data?.ShipToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"
-                  items={data?.BPAddresses?.filter(
-                    ({ addressType }: any) => addressType === "bo_ShipTo"
-                  )}
+                  items={
+                    edit
+                      ? data.vendor?.bpAddress?.filter(
+                          ({ addressType }: any) => addressType === "bo_ShipTo"
+                        )
+                      : data?.BPAddresses?.filter(
+                          ({ addressType }: any) => addressType === "bo_ShipTo"
+                        )
+                  }
                   onChange={(e) => handlerChange("ShipToCode", e.target.value)}
                 />
               </div>
@@ -126,6 +133,7 @@ export default function LogisticForm({
                           )
                         )
                   }
+                  InputProps={{ readOnly: true }}
                 />
               </div>
             </div>

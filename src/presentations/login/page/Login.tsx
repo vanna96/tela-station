@@ -41,9 +41,9 @@ export default function Login() {
   const [message, setMessage] = React.useState("");
   const navigate = useNavigate();
 
-  const company = React.useRef(import.meta.env.VITE_DATABASE || "TLTELA_DEVELOPER");
-  const username = React.useRef(import.meta.env.VITE_USERNAME || "");
-  const password = React.useRef(import.meta.env.VITE_PASSWORD || "");
+  const company = React.useRef(import.meta.env.VITE_DATABASE ?? "TLTELA_DEVELOPER");
+  const username = React.useRef(import.meta.env.VITE_USERNAME ?? "");
+  const password = React.useRef(import.meta.env.VITE_PASSWORD ?? "");
 
   const onSubmit = async () => {
     try {

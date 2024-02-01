@@ -38,6 +38,9 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
+  const vendorPriceList = data.U_tl_sopricelist;
+  const wh = data.U_tl_whsdesc;
+  const lineofbusiness = data.U_tl_arbusi;
 
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -60,7 +63,6 @@ export default function ContentForm({
 
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
-      const vendorPriceList = data.PriceLists;
       const items: any = data?.Items?.map(
         (item: any, indexItem: number, vendorPriceList: any) => {
           if (i.toString() === indexItem.toString()) {
@@ -125,7 +127,7 @@ export default function ContentForm({
         ),
         header: "Item No", //uses the default width from defaultColumn prop
         visible: true,
-        size: 120,
+        size: 140,
         Cell: ({ cell }: any) => (
           /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
             value={cell.getValue()}
@@ -220,7 +222,6 @@ export default function ContentForm({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
-        
           return (
             <MUISelect
               value={cell.getValue()}
@@ -231,21 +232,23 @@ export default function ContentForm({
               aliaslabel="label"
               aliasvalue="value"
               onChange={(event: any) => {
-                let itemPrices = cell.row.original.ItemPrices?.find(
-                  (e: any) => e.PriceList === data.PriceLists
-                )?.UoMPrices;
-
-                let uomPrice = itemPrices?.find(
-                  (e: any) => e.PriceList === data.PriceLists
-                );
-
                 handlerUpdateRow(
                   cell.row.id,
                   ["UomAbsEntry", event.target.value],
                   "UomAbsEntry"
                 );
+                let defaultPrice = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.Price;
+                let itemPrices = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.UoMPrices;
 
-                if (event.target.value === uomPrice.UoMEntry) {
+                let uomPrice = itemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                );
+
+                if (uomPrice && event.target.value === uomPrice.UoMEntry) {
                   const grossPrice = uomPrice.Price;
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
@@ -265,7 +268,7 @@ export default function ContentForm({
                     "LineTotal"
                   );
                 } else {
-                  const grossPrice = cell.row.original.UnitPrice;
+                  const grossPrice = defaultPrice;
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
                     grossPrice * quantity -
@@ -437,9 +440,13 @@ export default function ContentForm({
         }}
       />
       <ItemModal
+        wh={wh}
+        priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
+        lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        bin={data.U_tl_sobincode}
       />
     </>
   );

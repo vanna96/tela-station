@@ -99,14 +99,14 @@ export default function MasterDataRoute() {
 
       <Route path="/stops">
         <Route index element={<Stopslistpage />} />
-        <Route path=":id" element={<StopsDetail />} />
+        <Route path=":id" element={<StopsDetail detail={true}/>} />
         <Route path="create" element={<StopsForm />} />
         <Route path=":id/edit" element={<StopsForm edit={true} />} />
       </Route>
 
       <Route path="/route">
         <Route index element={<Routelistpage />} />
-        <Route path=":id" element={<RouteDetail />} />
+        <Route path=":id" element={<RouteDetail detail={true}/>} />
         <Route path="create" element={<RouteForm />} />
         <Route path=":id/edit" element={<RouteForm edit={true} />} />
       </Route>

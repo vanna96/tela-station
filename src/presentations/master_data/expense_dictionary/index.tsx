@@ -15,6 +15,7 @@ import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function Lists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -27,6 +28,7 @@ export default function Lists() {
     name: "",
     docdate: null,
     account: -1,
+    status
   });
   const route = useNavigate();
   const columns = React.useMemo(
@@ -56,8 +58,7 @@ export default function Lists() {
         size: 88,
         visible: true,
           Cell: ({ cell }:any) => {
-          return ` ${cell.getValue() ?? "N/A"} - ${new GLAccountRepository().find(cell.row.original.U_tl_expacct)
-            ?.Name ?? 'N/A'}`;
+          return ` ${cell.getValue() ?? "N/A"} - ${gl6?.find((e:any) => cell.getValue() === e.Code)?.Name ?? "N/A"}`;
         },
       },
       // {
@@ -196,6 +197,11 @@ export default function Lists() {
     staleTime: 0,
   });
 
+  const { data:gl6 }: any = useQuery({
+    queryKey: ["gl_account_6"],
+    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+  });
+
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -244,6 +250,8 @@ export default function Lists() {
       queryFilters.push(`contains(Code, '${searchValues.search}') or contains(Name, '${searchValues.search}') or contains(U_tl_expacct, '${searchValues.search}')`);
     if (searchValues.docnum)
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
+    if (searchValues.status)
+      queryFilters.push(`U_tl_expactive eq '${searchValues.status}'`);
     if (searchValues.code)
       queryFilters.push(`startswith(Code, '${searchValues.code}')`);
     if (searchValues.name)
@@ -286,6 +294,31 @@ export default function Lists() {
                     setSearchValues({ ...searchValues, search: e.target.value })
                   }
                 />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { label: "None", value: "" },
+                        { label: "Active", value: "Y" },
+                        { label: "Inactive", value: "N"}
+                      ]}
+                      onChange={(e) => {
+                        if (e) {
+                          setSearchValues({
+                            ...searchValues,
+                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                          });
+                        }
+                      }}
+                      value={searchValues.status}
+                    />
+                  </div>
+                </div>
               </div>
               {/* <div className="col-span-2 2xl:col-span-3">
                 <MUITextField

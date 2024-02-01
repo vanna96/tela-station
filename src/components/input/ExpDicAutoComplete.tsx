@@ -1,12 +1,9 @@
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import request from "@/utilies/request";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-
-export default function CashACAutoComplete(props: {
+import ExpdicRepository from "@/services/actions/ExpDicRepository";
+export default function ExpDicAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
@@ -15,8 +12,8 @@ export default function CashACAutoComplete(props: {
   name?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["gl_account"],
-    queryFn: () => new GLAccountRepository().get(),
+    queryKey: ["expdic"],
+    queryFn: () => new ExpdicRepository().get(),
     // staleTime: Infinity,
   });
 
