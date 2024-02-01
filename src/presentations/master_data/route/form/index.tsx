@@ -9,11 +9,11 @@ import GeneralForm from "../components/General";
 import React, { useContext } from "react";
 import { ServiceModalComponent } from "@/presentations/collection/outgoing_payment/components/ServiceModalComponent";
 import ContentForm from "../components/ExpenseTable";
-import { APIContext } from "../context/APIContext";
 import Sequence from "../components/Sequence";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import Left from "../components/LeftHeader";
 import Right from "../components/RightHeader";
+import DataTable from "../components/DataTable";
+
 class RouteForm extends CoreFormDocument {
 
   serviceRef = React.createRef<ServiceModalComponent>();
@@ -118,6 +118,22 @@ class RouteForm extends CoreFormDocument {
       this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
+      if (!data.U_BaseStation) {
+        data["error"] = { U_BaseStation: "Base Station is Required!" };
+        throw new FormValidateException("Base Station is Required!", 0);
+      }
+      if (!data.U_Destination) {
+        data["error"] = { U_Destination: "Destination is Required!" };
+        throw new FormValidateException("Destination is Required!", 0);
+      }
+      if (!data.Code) {
+        data["error"] = { Code: "Route Code is Required!" };
+        throw new FormValidateException("Route Code is Required!", 0);
+      }
+      if (!data.Name) {
+        data["error"] = { Name: "Route Name is Required!" };
+        throw new FormValidateException("Route Name is Required!", 0);
+      }
       const payload = {
         Code: data?.Code,
         Name: data?.Name,

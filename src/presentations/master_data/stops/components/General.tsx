@@ -90,23 +90,6 @@ export default function GeneralForm({
                         aliasvalue="value"
                         aliaslabel="label"
                       />
-                      // <MUISelect
-                      //   items={[
-                      //     { id: "Y", name: "Active" },
-                      //     { id: "N", name: "Inactive" },
-                      //   ]}
-                      //   onChange={(e: any) => {
-                      //     setValue("U_active", e.target.value);
-                      //     setStaticSelect({
-                      //       ...staticSelect,
-                      //       status: e.target.value,
-                      //     });
-                      //   }}
-                      //   value={staticSelect.status || defaultValues?.U_active}
-                      //   aliasvalue="id"
-                      //   aliaslabel="name"
-                      //   name="U_active"
-                      // />
                     );
                   }}
                 />

@@ -34,6 +34,7 @@ export default function GeneralForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Base Station
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -52,6 +53,7 @@ export default function GeneralForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Destination
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -68,6 +70,7 @@ export default function GeneralForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Route Code
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -83,6 +86,7 @@ export default function GeneralForm({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Route Name
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -123,7 +127,7 @@ export default function GeneralForm({
                     { id: "N", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("U_Status", e.target.value)}
-                  value={data?.U_Status}
+                  value={data?.U_Status || "Y"} 
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_Status"

@@ -2,17 +2,14 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
-
+import DataTable from "./components/DataTable";
 export default function Routelistpage() {
   const [open, setOpen] = React.useState<boolean>(false);
   const [cookies] = useCookies(["user"]);
@@ -328,7 +325,7 @@ export default function Routelistpage() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Route"
-          createRoute="/master-data/route/create"
+          // createRoute="/master-data/route/create"
         />
       </div>
     </>
