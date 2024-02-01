@@ -75,6 +75,7 @@ export default function zWarehouseAutoComplete(props: {
       <Autocomplete
         options={filteredWarehouses ?? data}
         autoHighlight
+        disabled = {props.disabled}
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
@@ -100,6 +101,7 @@ export default function zWarehouseAutoComplete(props: {
                 </React.Fragment>
               ),
             }}
+            disabled={props.disabled}
           />
         )}
       />

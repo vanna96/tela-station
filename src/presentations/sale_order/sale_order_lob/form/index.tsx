@@ -271,11 +271,11 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Warehouse is Required!",
           getTabIndex: () => 0,
         },
-        {
-          field: "U_tl_sobincode",
-          message: "Bin Location is Required!",
-          getTabIndex: () => 0,
-        },
+        // {
+        //   field: "U_tl_sobincode",
+        //   message: "Bin Location is Required!",
+        //   getTabIndex: () => 0,
+        // },
         {
           field: "CardCode",
           message: "Customer is Required!",
