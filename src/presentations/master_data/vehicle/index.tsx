@@ -192,7 +192,9 @@ export default function Lists() {
     queryFn: async () => {
       const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }${filter ? `&$filter=${filter}` : filter}&$orderby=DocEntry asc`;
+      }${filter ? `&$filter=${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -368,7 +370,9 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Driver"
+          title="Vehicle"
+          filter={filter}
+          createRoute="/master-data/vehicle/create"
         />
       </div>
     </>

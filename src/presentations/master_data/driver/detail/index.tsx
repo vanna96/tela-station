@@ -46,7 +46,7 @@ const FormDetail = (props: any) => {
     isError: false,
     message: "",
     showCollapse: true,
-    DocNum: null,
+    DocNum: '',
   });
   const [header, setHeader] = useState({
     firstName: null,

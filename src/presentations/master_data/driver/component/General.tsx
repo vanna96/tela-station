@@ -14,6 +14,7 @@ import { formatDate } from "@/helper/helper";
 import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
+import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
 
 const General = ({
   register,
@@ -239,13 +240,22 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <BranchAssignmentAuto
-                  disabled={detail}
-                  onChange={(e: any) => {
-                    setBranchAss([e]);
-                    setHeader({ ...header, branch: e?.BPLName });
+                <Controller
+                  rules={{ required: "Terminal is required" }}
+                  name="U_tl_terminal"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BaseStationAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_tl_terminal}
+                        onChange={(e: any) => {
+                          setValue("U_tl_terminal", e);
+                        }}
+                      />
+                    );
                   }}
-                  value={staticSelect?.branchASS}
                 />
               </div>
             </div>

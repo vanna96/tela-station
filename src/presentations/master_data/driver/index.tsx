@@ -391,24 +391,6 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              {/* <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button variant="outlined" size="small">
-                        Adapt Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "No"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div> */}
             </div>
           </div>
         </div>

@@ -32,7 +32,7 @@ interface DataTableProps {
 }
 
 export default function DataTable(props: DataTableProps) {
-  const route = useNavigate();
+  const route: any = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>

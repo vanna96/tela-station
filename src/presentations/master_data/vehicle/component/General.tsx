@@ -46,14 +46,16 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Code
+                  Vehicle Code <span className="text-red-500 ml-1">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("Code"),
+                    ...register("Code", {
+                      required: " Vehicle Code is required",
+                    }),
                     onBlur: (e) =>
                       setHeader({ ...header, code: e.target.value }),
                   }}
@@ -63,14 +65,16 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  VehicleName
+                  Vehicle Name <span className="text-red-500 ml-1">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("Name"),
+                    ...register("Name", {
+                      required: " Vehicle Name is required",
+                    }),
                     onBlur: (e) =>
                       setHeader({ ...header, name: e.target.value }),
                   }}
@@ -80,11 +84,14 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Type
+                  Vehicle Type <span className="text-red-500 ml-1">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{
+                    required: " Vehicle Type is required",
+                  }}
                   name="U_Type"
                   control={control}
                   render={({ field }) => {
@@ -116,11 +123,14 @@ const General = ({
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Ownership
+                  Ownership <span className="text-red-500 ml-1">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{
+                    required: "Ownership is required",
+                  }}
                   name="U_Owner"
                   control={control}
                   render={({ field }) => {
@@ -181,6 +191,9 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{
+                    required: "Fuel Type is required",
+                  }}
                   name="U_FuelType"
                   control={control}
                   render={({ field }) => {
@@ -244,16 +257,35 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Plat Number
+                  Plat Number <span className="text-red-500 ml-1">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("U_PlateNumber"),
+                    ...register("U_PlateNumber", {
+                      required: "Plat Number is required",
+                    }),
                     onBlur: (e) =>
                       setHeader({ ...header, number: e.target.value }),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Vehicle Number <span className="text-red-500 ml-1">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_Number", {
+                      required: "Vehicle Number is required",
+                    }),
                   }}
                 />
               </div>
