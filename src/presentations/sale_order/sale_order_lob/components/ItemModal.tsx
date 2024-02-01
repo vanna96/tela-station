@@ -78,7 +78,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
       const unitPrice = parseFloat(value) / (1 + vatRate / 100);
       temps["GrossPrice"] = value;
-      // console.log(value);
       temps["UnitPrice"] = unitPrice;
     }
     if (
