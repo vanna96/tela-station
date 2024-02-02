@@ -1,48 +1,42 @@
 import request, { url } from "@/utilies/request";
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import DataTable from "@/presentations/master_data/components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
-import { APIContext } from "../context/APIContext";
+// import { APIContext } from "../context/APIContext";
+import { APIContext } from "@/presentations/master_data/context/APIContext";
 import MUISelect from "@/components/selectbox/MUISelect";
-import DataTable from "./component/DatatableV";
-import DriverRepository from "@/services/actions/DriverRepository";
 
-export default function Lists() {
-  const [searchValues, setSearchValues] = React.useState({
+export default function TransportationRequestList() {
+  const [open, setOpen] = React.useState<boolean>(false);
+  const { branchBPL }: any = React.useContext(APIContext);
+  const [cookies] = useCookies(["user"]);
+  const [searchValues, setSearchValues] = React.useState<any>({
+    active: "",
     code: "",
-    status: "All",
   });
 
   const route = useNavigate();
-    const driver: any = useQuery({
-      queryKey: ["drivers"],
-      queryFn: () => new DriverRepository().get(),
-      staleTime: Infinity,
-    });
-  
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "Code",
-        header: "Vehicle Code", //uses the default width from defaultColumn prop
+        header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.Code ?? "N/A";
-        },
       },
       {
         accessorKey: "Name",
-        header: "Vehicle Name", //uses the default width from defaultColumn prop
+        header: "Document Number", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -52,61 +46,60 @@ export default function Lists() {
           return cell.row.original.Name ?? "N/A";
         },
       },
-      {
-        accessorKey: "U_Type",
-        header: "Type", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-        type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.U_Type ?? "N/A";
-        },
-      },
 
       {
-        accessorKey: "U_Driver",
-        header: "Driver",
+        accessorKey: "U_lat",
+        header: "Branch", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          const driverInfo = driver?.data?.find(
-            (e: any) => e?.EmployeeID === cell.row.original.U_Driver
-          );
-
-          if (driverInfo) {
-            return driverInfo.FirstName + " " + driverInfo.LastName;
-          } else {
-            return "N/A";
-          }
+          return cell.row.original.U_lat ?? "N/A";
         },
       },
       {
-        accessorKey: "U_BaseStation",
-        header: "Base Station",
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
+        accessorKey: "U_lng",
+        header: "Terminal",
+        size: 40,
         visible: true,
-        type: "string",
+        type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_BaseStation ?? "N/A";
+          return cell.row.original.U_lng ?? "N/A";
         },
       },
       {
-        accessorKey: "U_Status",
+        accessorKey: "U_active",
+        header: "Requester",
+        size: 40,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "sad",
+        header: "Request Date",
+        size: 40,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "U_active",
         header: "Status",
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 40,
         visible: true,
-        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Status ?? "N/A";
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
         },
       },
       {
@@ -126,19 +119,19 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/vehicle/" + cell.row.original.Code, {
+                route("/trip-management/transportation-request/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
               }}
             >
-              <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
+              <VisibilityIcon fontSize="small" className="text-gray-600 " />
               View
             </button>
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/master-data/vehicle/${cell.row.original.Code}/edit`, {
+                route(`/trip-management/transportation-request/${cell.row.original.Code}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -156,20 +149,20 @@ export default function Lists() {
     ],
     []
   );
+
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
-
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
   const Count: any = useQuery({
-    queryKey: [`vehicles`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_STOPS`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_VEHICLE/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/TL_STOPS/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -183,20 +176,19 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "vehicles",
+      "TL_STOPS",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
-      const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
-        pagination.pageIndex * pagination.pageSize
-      }${filter ? `&$filter=${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : ""
-      }`;
-
-      const response: any = await request("GET", `${Url}`)
+      const response: any = await request(
+        "GET",
+        `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${
+          pagination.pageIndex * pagination.pageSize
+        }&$orderby= DocEntry desc &${filter}`
+      )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -206,17 +198,7 @@ export default function Lists() {
     cacheTime: 0,
     staleTime: 0,
   });
- const handlerSortby = (value: any) => {
-   setSortBy(value);
-   setPagination({
-     pageIndex: 0,
-     pageSize: 10,
-   });
 
-   setTimeout(() => {
-     refetch();
-   }, 500);
- };
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -230,29 +212,23 @@ export default function Lists() {
     }, 500);
   }, []);
 
-  let queryFilters = "";
+  const handlerSortby = (value: any) => {
+    setSortBy(value);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 10,
+    });
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
+
   const handlerSearch = (value: string) => {
-    if (searchValues.code) {
-      queryFilters += queryFilters 
-        ? ` and (contains(Code, '${searchValues.code}'))`
-        : `(contains(Code, '${searchValues.code}'))`;
-    }
- 
+    const str = value.slice(0, 4);
+    const query = str.includes("and") ? value.substring(4) : value;
 
-    if (searchValues.status) {
-      searchValues.status === "All"
-        ? (queryFilters += queryFilters ? "" : "")
-        : (queryFilters += queryFilters
-            ? ` and U_Status eq '${searchValues.status}'`
-            : `U_Status eq '${searchValues.status}'`);
-    }
-
-    let query = queryFilters;
-
-    if (value) {
-      query = queryFilters + `and ${value}`;
-    }
-    setFilter(query);
+    setFilter(`$filter=${query}`);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -264,12 +240,33 @@ export default function Lists() {
     }, 500);
   };
 
+  const handleAdaptFilter = () => {
+    setOpen(true);
+  };
+
+  const handleGoClick = () => {
+    console.log(searchValues);
+    let queryFilters: any = [];
+    if (searchValues.active)
+      queryFilters.push(`startswith(U_active, '${searchValues.active}')`);
+    if (searchValues.code)
+      queryFilters.push(`contains(Code, '${searchValues.code}')`);
+    if (queryFilters.length > 0)
+      return handlerSearch(`${queryFilters.join(" and ")}`);
+      if (searchValues.U_active) {
+        searchValues.U_active === "All"
+          ? (queryFilters += queryFilters)
+          : (queryFilters += queryFilters ? ` and Active eq '${searchValues.U_active}'` : `Active eq '${searchValues.U_active}'`);
+      }
+    return handlerSearch("");
+  };
+
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Vehicle{" "}
+            Trip Management / Transportation Request{" "}
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -277,52 +274,42 @@ export default function Lists() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  type="string"
-                  label="Code"
-                  // placeholder="Employee Code"
+                  label="Document Number"
+                  placeholder="Document Number"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.code}
                   onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      code: e.target.value,
-                    })
+                    setSearchValues({ ...searchValues, code: e.target.value })
                   }
                 />
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
-                <div className="">
-                  <label
-                    htmlFor="Code"
-                    className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
-                  >
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
                   </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "Y", name: "Active" },
+                        { id: "N", name: "Inactive" },
+                        { id: "All", name: "All" },
+                      ]}
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          active: e?.target?.value,
+                        })
+                      }
+                      value={searchValues.active}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="U_active"
+                    />
+                  </div>
                 </div>
-                <MUISelect
-                  items={[
-                    { value: "All", label: "All" },
-                    { value: "Active", label: "Active" },
-                    { value: "Inactive", label: "Inactive" },
-                  ]}
-                  onChange={(e: any) => {
-                    setSearchValues({
-                      ...searchValues,
-                      status: e.target.value,
-                    });
-                  }}
-                  value={
-                    // searchValues.active === null ? "tYES" : searchValues.active
-                    searchValues.status
-                  }
-                  aliasvalue="value"
-                  aliaslabel="label"
-                />
               </div>
-
-              <div className="col-span-2 2xl:col-span-3"></div>
               {/*  */}
 
               <div className="col-span-2 2xl:col-span-3"></div>
@@ -334,29 +321,11 @@ export default function Lists() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={() => handlerSearch("")}
+                  onClick={handleGoClick}
                 >
                   Go
                 </Button>
               </div>
-              {/* <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button variant="outlined" size="small">
-                        Adapt Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "No"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div> */}
             </div>
           </div>
         </div>
@@ -370,9 +339,8 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Vehicle"
-          filter={filter}
-          createRoute="/master-data/vehicle/create"
+          title="Transportation Request"
+          createRoute="/trip-management/transportation-request/create"
         />
       </div>
     </>

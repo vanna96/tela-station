@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   FieldValues,
   UseFormRegister,
@@ -7,26 +7,20 @@ import {
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
-import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
-import Address from "../component/SpecDetail";
 import General from "../component/General";
-import Personal from "../component/Engine";
-import Finance from "../component/Tyres";
-import Remarks from "../component/Commercial";
 import SpecDetail from "../component/SpecDetail";
 import Engine from "../component/Engine";
 import Tyres from "../component/Tyres";
 import Commercial from "../component/Commercial";
 import Compartment from "../component/Compartment";
+import { useParams } from "react-router-dom";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -41,6 +35,7 @@ export type UseFormProps = {
   branchAss?: any;
   header?: any;
   setHeader?: any;
+  detail?: boolean;
 };
 // const { id } = useParams();
 const VehicleForm = (props: any) => {
@@ -53,8 +48,7 @@ const VehicleForm = (props: any) => {
 
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = props?.match?.params || 0;
-
+  const { id }: any = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -65,27 +59,33 @@ const VehicleForm = (props: any) => {
     DocNum: id,
   });
   const [header, setHeader] = useState({
-    firstName: null,
-    lastName: null,
-    gender: null,
-    department: null,
-    branch: null,
+    code: null,
+    name: null,
+    number: null,
+    model: null,
+    owner: null,
+    base: null,
+    status: "tYES",
   });
 
-  const [branchAss, setBranchAss] = useState([]);
   const [vehicle, setVehicle] = React.useState<any>();
+
+  const commers = vehicle?.TL_VH_COMMERCIALCollection;
+  const comparts = vehicle?.TL_VH_COMPARTMENTCollection;
+  const [commer, setCommer] = useState<any[]>(commers ?? []);
+  const [compart, setCompart] = useState<any[]>(comparts ?? []);
+
   React.useEffect(() => {
-     fetchData();
-    if (vehicle) {
+    if (vehicle && commers && comparts) {
       reset({ ...vehicle });
+      setCommer(commers);
+      setCompart(comparts);
     }
-  }, [vehicle]);
+  }, [vehicle, commers, comparts]);
 
-
-  const arr = vehicle?.TL_VH_COMMERCIALCollection;
-  const [commer, setCommer] = useState<any[]>([arr]);
-
-
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     if (id) {
@@ -93,7 +93,7 @@ const VehicleForm = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `TL_VEHICLE(${id})`)
+      await request("GET", `TL_VEHICLE('${id}')`)
         .then((res: any) => {
           setVehicle(res?.data);
           setState({
@@ -113,6 +113,7 @@ const VehicleForm = (props: any) => {
         ([key, value]): any => value !== null && value !== undefined
       )
     );
+    
     const payload = {
       ...data,
       TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
@@ -125,12 +126,20 @@ const VehicleForm = (props: any) => {
           U_Ref: e?.U_Ref,
         };
       }),
+      TL_VH_COMPARTMENTCollection: compart?.map((e: any) => {
+        return {
+          U_CM_NO: e?.U_CM_NO,
+          U_TOP_HATCH: e?.U_TOP_HATCH,
+          U_VOLUME: e?.U_VOLUME,
+          U_BOTTOM_HATCH: e?.U_BOTTOM_HATCH,
+        };
+      }),
     };
-    const { id } = props?.match?.params || 0;
+
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/TL_VEHICLE(${id})`, payload)
+        await request("PATCH", `/TL_VEHICLE('${id}')`, payload)
           .then(
             (res: any) =>
               dialog.current?.success("Update Successfully.", res?.data?.Code)
@@ -151,6 +160,7 @@ const VehicleForm = (props: any) => {
     } finally {
       setState({ ...state, isSubmitting: false });
     }
+    
   };
 
   const handlerChangeMenu = useCallback(
@@ -207,35 +217,35 @@ const VehicleForm = (props: any) => {
     );
   };
 
-
-  
   const Left = ({ header, data }: any) => {
     return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+      <div className="w-[100%] mt-0 pl-[25px] h-[170px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
-            <span className="">First Name </span>
+            <span className="">Vehicle Code </span>
           </div>
           <div>
-            <span className="">Last Name </span>
+            <span className="">Vehicle Name </span>
           </div>
           <div>
-            <span className="">Gender </span>
+            <span className="">Plate Number </span>
+          </div>
+          <div>
+            <span className="">Model</span>
           </div>
         </div>
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
-            <span>{data?.FirstName || header?.firstName || "_"}</span>
+            <span>{data?.Code || header?.code || "_"}</span>
           </div>
           <div>
-            <span>{data?.LastName || header?.lastName || "_"}</span>
+            <span>{data?.Name || header?.name || "_"}</span>
           </div>
           <div>
-            <span>
-              {data?.Gender?.replace("gt_", "") ||
-                header?.gender?.replace("gt_", "") ||
-                "_"}
-            </span>
+            <span>{data?.U_PlateNumber || header?.number || "_"}</span>
+          </div>
+          <div>
+            <span>{data?.U_Model || header?.model || "_"}</span>
           </div>
         </div>
       </div>
@@ -248,38 +258,45 @@ const VehicleForm = (props: any) => {
       staleTime: Infinity,
     });
     return (
-      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
+      <div className="w-[100%] h-[165px] mt-0 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department</span>
+            <span className="mr-10 mb-[18px] inline-block">Ownership</span>
           </div>
           <div>
-            <span className="mr-10">Branch</span>
+            <span className="mr-10 mb-[18px] inline-block">Base Station</span>
+          </div>
+          <div>
+            <span className="mr-10">Status</span>
           </div>
         </div>
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
-            <span className="mb-[27px] inline-block">
-              {new DepartmentRepository()?.find(data?.Department)?.Name ||
-                header?.department ||
-                "_"}
+            <span className="mb-[18px] inline-block">
+              {data?.U_Owner || header?.owner || "_"}
             </span>
+          </div>
+          <div className="mb-[18px] inline-block">
+            <span>{data?.U_BaseStation || header?.base || "_"}</span>
           </div>
           <div>
             <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.branch ||
-                "_"}
+              {data?.U_Status || header?.status == "tYES"
+                ? "Active"
+                : "Inactive" || "_"}
             </span>
           </div>
         </div>
       </div>
     );
   };
-
-  // console.log(state)
-
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
+  };
   return (
     <>
       {state.loading ? (
@@ -315,7 +332,7 @@ const VehicleForm = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
@@ -324,8 +341,6 @@ const VehicleForm = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
                   header={header}
                   setHeader={setHeader}
                 />
@@ -333,7 +348,12 @@ const VehicleForm = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <SpecDetail setValue={setValue} register={register} />
+                <SpecDetail
+                  setValue={setValue}
+                  header={header}
+                  setHeader={setHeader}
+                  register={register}
+                />
               </h1>
             )}
             {state.tapIndex === 2 && (
@@ -371,24 +391,32 @@ const VehicleForm = (props: any) => {
             {state.tapIndex === 5 && (
               <div className="m-5">
                 <Compartment
-                  commer={commer}
+                  compart={compart}
+                  setCompart={setCompart}
                   control={control}
-                  setCommer={setCommer}
                   data={vehicle}
+                  detail={props?.detail}
                 />
               </div>
             )}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
-                    variant="contained"
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
                     disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">
+                    <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
                     </span>
                   </LoadingButton>

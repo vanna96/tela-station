@@ -2,17 +2,14 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
-import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
-
+import DataTable from "./components/DataTable";
 export default function Routelistpage() {
   const [open, setOpen] = React.useState<boolean>(false);
   const [cookies] = useCookies(["user"]);
@@ -148,7 +145,7 @@ export default function Routelistpage() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ROUTE/$count?${filter}`
+        `${url}/TL_ROUTE/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -169,8 +166,9 @@ export default function Routelistpage() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc &${filter}`
+        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${
+          pagination.pageIndex * pagination.pageSize
+        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}`:filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -206,42 +204,43 @@ export default function Routelistpage() {
       refetch();
     }, 500);
   };
-
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    const str = value.slice(0, 4);
-    const query = str.includes("and") ? value.substring(4) : value;
+    if (searchValues.code) {
+      queryFilters += queryFilters
+        ? ` and (contains(Code, '${searchValues.code}'))`
+        : `contains(Code, '${searchValues.code}')`;
+    }
+  
+    if (searchValues.status) {
+      searchValues.status === "All"
+        ? (queryFilters += queryFilters ? "" : "")
+        : (queryFilters += queryFilters
+            ? ` and U_Status eq '${searchValues.status}'`
+            : `U_Status eq '${searchValues.status}'`);
+    }
+  console.log(queryFilters);
+  
+    let query = queryFilters;
+  
+    if (value) {
+      query = queryFilters + ` and ${value}`;
 
-    setFilter(`$filter=${query}`);
+      
+    }
+    console.log(queryFilters);
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
     });
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
+  
     setTimeout(() => {
       Count.refetch();
       refetch();
     }, 500);
   };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-  const handleGoClick = () => {
-    console.log(searchValues);
-
-    let queryFilters: any = [];
-    if (searchValues.status)
-      queryFilters.push(`U_Status eq '${searchValues.status}'`);
-    if (searchValues.code)
-      queryFilters.push(`contains(Code, '${searchValues.code}')`);
-    if (queryFilters.length > 0)
-      return handlerSearch(`${queryFilters.join(" and ")}`);
-    return handlerSearch("");
-  };
+  
   return (
     <>
       <ModalAdaptFilter
@@ -277,16 +276,17 @@ export default function Routelistpage() {
                   <div className="">
                     <MUISelect
                       items={[
+                        { id: "All", name: "All" },
                         { id: "Y", name: "Active" },
                         { id: "N", name: "Inactive" },
                       ]}
                       onChange={(e) =>
                         setSearchValues({
                           ...searchValues,
-                          status: e?.target?.value,
+                          status: e?.target?.value as string,
                         })
                       }
-                      value={searchValues.status}
+                      value={searchValues.status || "All"} // Set default value to "All"
                       aliasvalue="id"
                       aliaslabel="name"
                       name="U_Status"
@@ -302,39 +302,13 @@ export default function Routelistpage() {
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
-                <Button
+              <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>
-              </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                      // onClick={handleGoClick}
-                      >
-                        Adapt Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      e?.accessorKey !== "DocumentStatus"
-                  )}
-                  onClick={handlerSearch}
-                />
               </div>
             </div>
           </div>
@@ -350,7 +324,7 @@ export default function Routelistpage() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Route"
-          createRoute="/master-data/route/create"
+          // createRoute="/master-data/route/create"
         />
       </div>
     </>

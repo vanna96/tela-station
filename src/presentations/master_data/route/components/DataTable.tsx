@@ -1,23 +1,16 @@
 import React from "react";
 import { Button } from "@mui/material";
 import { HiRefresh } from "react-icons/hi";
-import { BiFilterAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineSetting } from "react-icons/ai";
 import MaterialReactTable from "material-react-table";
 import { BsPencilSquare, BsSortDown } from "react-icons/bs";
-import MenuCompoment from "@/components/data_table/MenuComponent";
-import { ThemeContext } from "@/contexts";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import ColumnSearch from "@/components/data_table/ColumnSearch";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import MenuCompoment from "@/components/data_table/MenuComponent";
 import Papa from "papaparse";
 import request, { url } from "@/utilies/request";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { useQuery } from "react-query";
+
 interface DataTableProps {
-  filter: any;
   columns: any[];
   data: any[];
   count: number;
@@ -28,11 +21,11 @@ interface DataTableProps {
   pagination: any;
   paginationChange: (value: any) => void;
   title?: string;
-  createRoute?: string;
+  filter?: any;
 }
 
 export default function DataTable(props: DataTableProps) {
-  const route: any = useNavigate();
+  const route = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
@@ -50,19 +43,12 @@ export default function DataTable(props: DataTableProps) {
     if (queries === "") return;
     props.handlerSearch("&$filter=" + queries);
   };
-  const branchAss: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
+
   const handleExportToCSV = async () => {
-    const response: any = await request(
-      "GET",
-      `${url}/EmployeesInfo?$filter=U_tl_driver eq 'Y'${props?.filter.replace(
-        "&",
-        ""
-      )}`
-    )
+    const params = new URLSearchParams(props?.filter);
+    const urlWithParams = `${url}/TL_ROUTE/?${params.toString()}`;
+
+    const response: any = await request("GET", urlWithParams)
       .then(async (res: any) => res?.data)
       .catch((e: Error) => {
         throw new Error(e.message);
@@ -76,7 +62,7 @@ export default function DataTable(props: DataTableProps) {
     // Create a link element to download the CSV file
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "Driver_list.csv";
+    link.download = "Route_list.csv";
 
     // Simulate a click on the link to trigger the download
     document.body.appendChild(link);
@@ -88,18 +74,16 @@ export default function DataTable(props: DataTableProps) {
 
   const convertToCSV = (data: any[]) => {
     // Specify the desired field names
-    const fields = ["No", "Name", "Gender", "Department", "Branch", "Active"];
+    const fields = ["Code", "Name", "U_BaseStation", "U_Destination","U_Distance", "U_Status"];
 
     // Map the data to the desired field names
-    const mappedData = data?.map((row, index) => ({
-      // EmployeeID: row?.EmployeeID,
-      No: index + 1,
-      Name: row?.FirstName + " " + row?.LastName,
-      Gender: row?.Gender?.replace("gt_", ""),
-      Department: new DepartmentRepository().find(row?.Department)?.Name,
-      Branch: branchAss?.data?.find((e: any) => e?.BPLID === row?.BPLID)
-        ?.BPLName,
-      Active: row?.Active === "tYES" ? "Active" : "Inactive",
+    const mappedData = data.map((row) => ({
+      Code: row.Code,
+      Name: row.Name,
+      U_BaseStation: row.U_BaseStation,
+      U_Destination: row.U_Destination,
+      U_Distance: row.U_Distance,
+      U_Status: row.U_Status == "Y" ? "Active" : "Inactive",
     }));
 
     // Create CSV content with the specified fields
@@ -116,6 +100,7 @@ export default function DataTable(props: DataTableProps) {
 
     return csvContent;
   };
+
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
@@ -123,32 +108,12 @@ export default function DataTable(props: DataTableProps) {
       <div className="flex justify-between">
         <div className="flex gap-4 items-center justify-center">
           <h3 className="text-base">{props.title}</h3>
-          {/* <DataTableColumnFilter
-            handlerClearFilter={props.handlerRefresh}
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BiFilterAlt />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Filter</span>
-              </div>
-            }
-            items={props.columns?.filter((e) => e?.accessorKey !== "DocEntry")}
-            onClick={handlerSearch}
-          /> */}
         </div>
         <div className="flex justify-end gap-2 items-center text-[13px]">
-          {/* <Button size="small" variant="text" onClick={props.handlerRefresh}>
-            <span className="text-lg mr-2">
-              <HiRefresh />
-            </span>
-            <span className="capitalize text-sm">Refresh</span>
-          </Button>*/}
-
           <Button
             size="small"
             variant="text"
-            onClick={() => route(props?.createRoute)}
+            onClick={() => route("/master-data/route/create")}
           >
             <span className="text-lg mr-2">
               <BsPencilSquare />
@@ -189,20 +154,6 @@ export default function DataTable(props: DataTableProps) {
             </span>
             <span className="capitalize text-[13px] ">Export to CSV</span>
           </Button>
-          {/* <DataTableColumnVisibility
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <AiOutlineSetting />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Columns</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={(value) => {
-              setColVisibility(value)
-            }}
-          /> */}
         </div>
       </div>
 
@@ -215,9 +166,8 @@ export default function DataTable(props: DataTableProps) {
             density: "compact",
             columnVisibility: colVisibility,
           }}
-          enableDensityToggle={true}
-          // enableColumnResizing
-
+          enableDensityToggle={false}
+          enableColumnResizing
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -241,6 +191,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
+          enableRowNumbers={true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

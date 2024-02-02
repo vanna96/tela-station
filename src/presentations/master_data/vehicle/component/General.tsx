@@ -14,6 +14,8 @@ import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
 import { UseFormProps } from "../form/VehicleForm";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
 
 const General = ({
   register,
@@ -23,7 +25,8 @@ const General = ({
   setBranchAss,
   branchAss,
   header,
-  setHeader
+  setHeader,
+  detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     U_Type: "",
@@ -31,7 +34,6 @@ const General = ({
     U_FuelType: "",
     U_Status: "",
   });
-
 
   return (
     <>
@@ -44,15 +46,19 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Code
+                  Vehicle Code{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
-                    ...register("Code"),
+                    ...register("Code", {
+                      required: " Vehicle Code is required",
+                    }),
                     onBlur: (e) =>
-                      setHeader({ ...header, firstName: e.target.value }),
+                      setHeader({ ...header, code: e.target.value }),
                   }}
                 />
               </div>
@@ -60,15 +66,19 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  VehicleName
+                  Vehicle Name{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
-                    ...register("Name"),
+                    ...register("Name", {
+                      required: " Vehicle Name is required",
+                    }),
                     onBlur: (e) =>
-                      setHeader({ ...header, lastName: e.target.value }),
+                      setHeader({ ...header, name: e.target.value }),
                   }}
                 />
               </div>
@@ -76,16 +86,21 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Type
+                  Vehicle Type{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{
+                    required: " Vehicle Type is required",
+                  }}
                   name="U_Type"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUISelect
+                        disabled={detail}
                         items={[
                           { label: "Truck", value: "Truck" },
                           { label: "Train", value: "Train" },
@@ -108,36 +123,39 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
+            {/* <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Ownership
+                  Driver
+                </label>
+              </div>
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-3">
+                  <MUITextField
+                    disabled={detail}
+                    inputProps={{
+                      ...register("U_Number", {
+                        required: "Vehicle Number is required",
+                      }),
+                    }}
+                  />
+                </div>
+              </div>
+            </div> */}
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Vehicle Number{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  name="U_Owner"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <MUISelect
-                        items={[
-                          { label: "Own", value: "Own" },
-                          { label: "Rent", value: "Rent" },
-                        ]}
-                        onChange={(e: any) => {
-                          setValue("U_Owner", e.target.value);
-
-                          setStaticSelect({
-                            ...staticSelect,
-                            U_Owner: e.target.value,
-                          });
-                        }}
-                        value={staticSelect.U_Owner || defaultValues?.U_Owner}
-                        aliasvalue="value"
-                        aliaslabel="label"
-                      />
-                    );
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_VH_NO", {
+                      required: "Vehicle Number is required",
+                    }),
                   }}
                 />
               </div>
@@ -154,14 +172,12 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <DepartmentAutoComplete
+                      <ManagerAutoComplete
+                        disabled={detail}
                         {...field}
-                        value={defaultValues?.Department}
+                        value={defaultValues?.U_Driver}
                         onChange={(e: any) => {
-                          setValue("Department", e?.Code);
-                          setHeader({ ...header, department: e?.Name });
-
-                          // setHeader({ ...header, data5: e?.Name })
+                          setValue("U_Driver", e);
                         }}
                       />
                     );
@@ -177,11 +193,15 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{
+                    required: "Fuel Type is required",
+                  }}
                   name="U_FuelType"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUISelect
+                        disabled={detail}
                         items={[
                           { label: "Petro", value: "Petro" },
                           { label: "Diesel", value: "Diesel" },
@@ -221,13 +241,13 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <ManagerAutoComplete
+                      <BaseStationAutoComplete
+                        disabled={detail}
                         {...field}
-                        value={defaultValues?.Manager}
+                        value={defaultValues?.U_BaseStation}
                         onChange={(e: any) => {
-                          setValue("Manager", e);
-
-                          // setHeader({ ...header, data5: e?.Name })
+                          setValue("U_BaseStation", e);
+                          setHeader({ ...header, base: e });
                         }}
                       />
                     );
@@ -239,13 +259,58 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Plat Number
+                  Plat Number{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
-                    ...register("U_PlateNumber"),
+                    ...register("U_PlateNumber", {
+                      required: "Plat Number is required",
+                    }),
+                    onBlur: (e) =>
+                      setHeader({ ...header, number: e.target.value }),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Ownership{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  rules={{
+                    required: "Ownership is required",
+                  }}
+                  name="U_Owner"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        disabled={detail}
+                        items={[
+                          { label: "Own", value: "Own" },
+                          { label: "Rent", value: "Rent" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("U_Owner", e.target.value);
+                          setHeader({ ...header, owner: e?.target?.value });
+                          setStaticSelect({
+                            ...staticSelect,
+                            U_Owner: e.target.value,
+                          });
+                        }}
+                        value={staticSelect.U_Owner || defaultValues?.U_Owner}
+                        aliasvalue="value"
+                        aliaslabel="label"
+                      />
+                    );
                   }}
                 />
               </div>
@@ -258,6 +323,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("U_InitializeOdometer"),
                   }}
@@ -287,9 +353,10 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
+                        disabled={detail}
                         items={[
-                          { value: "tYES", label: "Active" },
-                          { value: "tNO", label: "Inactive" },
+                          { value: "Active", label: "Active" },
+                          { value: "Inactive", label: "Inactive" },
                         ]}
                         onChange={(e: any) => {
                           setValue("U_Status", e.target.value);
@@ -297,6 +364,7 @@ const General = ({
                             ...staticSelect,
                             U_Status: e.target.value,
                           });
+                          setHeader({ ...header, status: e?.target?.value });
                         }}
                         value={
                           staticSelect.U_Status ||
@@ -319,6 +387,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  disabled={detail}
                   inputProps={{
                     ...register("U_UnderMaintenance"),
                   }}

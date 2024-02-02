@@ -10,6 +10,7 @@ const Tyres = ({
   control,
   defaultValues,
   setValue,
+  detail
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     salaryUnit: "",
@@ -29,7 +30,10 @@ const Tyres = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_AxlesNo") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("U_AxlesNo") }}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -39,7 +43,10 @@ const Tyres = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_TyresNo") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("U_TyresNo") }}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -49,7 +56,10 @@ const Tyres = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_TyreRearSize") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("U_TyreRearSize") }}
+              />
             </div>
           </div>
         </div>
@@ -63,6 +73,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                disabled={detail}
                 inputProps={{
                   ...register("U_TyreFrontSize"),
                 }}
@@ -76,7 +87,10 @@ const Tyres = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_RearPresssure") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("U_RearPresssure") }}
+              />
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
@@ -86,7 +100,10 @@ const Tyres = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField inputProps={{ ...register("U_FrontPressure") }} />
+              <MUITextField
+                disabled={detail}
+                inputProps={{ ...register("U_FrontPressure") }}
+              />
             </div>
           </div>
         </div>
