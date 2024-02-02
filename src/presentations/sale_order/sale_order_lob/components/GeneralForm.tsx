@@ -149,6 +149,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BranchAutoComplete
+                disabled={edit}
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
@@ -163,7 +164,8 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
-              isSOWarehouse= {true}
+                disabled={edit}
+                isSOWarehouse={true}
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
@@ -181,6 +183,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
+                disabled={edit}
                 value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
@@ -230,6 +233,7 @@ export default function GeneralForm({
                 defaultValue={data?.CardCode}
                 name="BPCode"
                 endAdornment={!edit}
+                disabled = {edit}
               />
             </div>
           </div>
