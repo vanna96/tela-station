@@ -276,18 +276,17 @@ export default function Routelistpage() {
                   <div className="">
                     <MUISelect
                       items={[
+                        { id: "All", name: "All" },
                         { id: "Y", name: "Active" },
                         { id: "N", name: "Inactive" },
-                        { id: "All", name: "All" },
-
                       ]}
                       onChange={(e) =>
                         setSearchValues({
                           ...searchValues,
-                          status: e?.target?.value,
+                          status: e?.target?.value as string,
                         })
                       }
-                      value={searchValues.status}
+                      value={searchValues.status || "All"} // Set default value to "All"
                       aliasvalue="id"
                       aliaslabel="name"
                       name="U_Status"
