@@ -1,28 +1,33 @@
 import request, { url } from "@/utilies/request";
-import React from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import DataTable from "@/presentations/master_data/components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
+// import { APIContext } from "../context/APIContext";
+import { APIContext } from "@/presentations/master_data/context/APIContext";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { ModalAdaptFilter } from "../cash_account/components/ModalAdaptFilter";
-import DataTable from "./components/DataTable";
-export default function Routelistpage() {
+
+export default function TransportationRequestList() {
   const [open, setOpen] = React.useState<boolean>(false);
+  const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
-  const [searchValues, setSearchValues] = React.useState({
-    status: "",
+  const [searchValues, setSearchValues] = React.useState<any>({
+    active: "",
     code: "",
   });
+
   const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "Code",
-        header: "Route Code", //uses the default width from defaultColumn prop
+        header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -31,7 +36,7 @@ export default function Routelistpage() {
       },
       {
         accessorKey: "Name",
-        header: "Route Name", //uses the default width from defaultColumn prop
+        header: "Document Number", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -43,46 +48,58 @@ export default function Routelistpage() {
       },
 
       {
-        accessorKey: "U_BaseStation",
-        header: "Base Station", //uses the default width from defaultColumn prop
+        accessorKey: "U_lat",
+        header: "Branch", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        type: "string",
+        type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_BaseStation ?? "N/A";
+          return cell.row.original.U_lat ?? "N/A";
         },
       },
-
       {
-        accessorKey: "U_Destination",
-        header: "Destination",
+        accessorKey: "U_lng",
+        header: "Terminal",
         size: 40,
         visible: true,
-        type: "string",
+        type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_Destination ?? "N/A";
+          return cell.row.original.U_lng ?? "N/A";
         },
       },
       {
-        accessorKey: "U_Distance",
-        header: "Distance",
+        accessorKey: "U_active",
+        header: "Requester",
         size: 40,
         visible: true,
-        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Distance ?? "N/A";
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
         },
       },
       {
-        accessorKey: "U_Status",
+        accessorKey: "sad",
+        header: "Request Date",
+        size: 40,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
+        },
+      },
+      {
+        accessorKey: "U_active",
         header: "Status",
         size: 40,
         visible: true,
-        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Status === "Y" ? "Active" : "Inactive";
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive" ?? "N/A";
         },
       },
       {
@@ -102,19 +119,19 @@ export default function Routelistpage() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/route/" + cell.row.original.Code, {
+                route("/trip-management/transportation-request/" + cell.row.original.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
               }}
             >
-              <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
+              <VisibilityIcon fontSize="small" className="text-gray-600 " />
               View
             </button>
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/master-data/route/${cell.row.original.Code}/edit`, {
+                route(`/trip-management/transportation-request/${cell.row.original.Code}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -141,11 +158,11 @@ export default function Routelistpage() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_ROUTE`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_STOPS`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ROUTE/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/TL_STOPS/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -156,19 +173,21 @@ export default function Routelistpage() {
     cacheTime: 0,
     staleTime: 0,
   });
+
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_ROUTE",
-      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""
+      "TL_STOPS",
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}`:filter}`
+        }&$orderby= DocEntry desc &${filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -204,53 +223,50 @@ export default function Routelistpage() {
       refetch();
     }, 500);
   };
-  let queryFilters = "";
-  const handlerSearch = (value: string) => {
-    if (searchValues.code) {
-      queryFilters += queryFilters
-        ? ` and (contains(Code, '${searchValues.code}'))`
-        : `contains(Code, '${searchValues.code}')`;
-    }
-  
-    if (searchValues.status) {
-      searchValues.status === "All"
-        ? (queryFilters += queryFilters ? "" : "")
-        : (queryFilters += queryFilters
-            ? ` and U_Status eq '${searchValues.status}'`
-            : `U_Status eq '${searchValues.status}'`);
-    }
-  console.log(queryFilters);
-  
-    let query = queryFilters;
-  
-    if (value) {
-      query = queryFilters + ` and ${value}`;
 
-      
-    }
-    console.log(queryFilters);
-    setFilter(query);
+  const handlerSearch = (value: string) => {
+    const str = value.slice(0, 4);
+    const query = str.includes("and") ? value.substring(4) : value;
+
+    setFilter(`$filter=${query}`);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
     });
-  
+
     setTimeout(() => {
       Count.refetch();
       refetch();
     }, 500);
   };
-  
+
+  const handleAdaptFilter = () => {
+    setOpen(true);
+  };
+
+  const handleGoClick = () => {
+    console.log(searchValues);
+    let queryFilters: any = [];
+    if (searchValues.active)
+      queryFilters.push(`startswith(U_active, '${searchValues.active}')`);
+    if (searchValues.code)
+      queryFilters.push(`contains(Code, '${searchValues.code}')`);
+    if (queryFilters.length > 0)
+      return handlerSearch(`${queryFilters.join(" and ")}`);
+      if (searchValues.U_active) {
+        searchValues.U_active === "All"
+          ? (queryFilters += queryFilters)
+          : (queryFilters += queryFilters ? ` and Active eq '${searchValues.U_active}'` : `Active eq '${searchValues.U_active}'`);
+      }
+    return handlerSearch("");
+  };
+
   return (
     <>
-      <ModalAdaptFilter
-        isOpen={open}
-        handleClose={() => setOpen(false)}
-      ></ModalAdaptFilter>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Route Master{" "}
+            Trip Management / Transportation Request{" "}
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -258,8 +274,8 @@ export default function Routelistpage() {
             <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label=" Code"
-                  placeholder="Code"
+                  label="Document Number"
+                  placeholder="Document Number"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.code}
@@ -279,18 +295,17 @@ export default function Routelistpage() {
                         { id: "Y", name: "Active" },
                         { id: "N", name: "Inactive" },
                         { id: "All", name: "All" },
-
                       ]}
                       onChange={(e) =>
                         setSearchValues({
                           ...searchValues,
-                          status: e?.target?.value,
+                          active: e?.target?.value,
                         })
                       }
-                      value={searchValues.status}
+                      value={searchValues.active}
                       aliasvalue="id"
                       aliaslabel="name"
-                      name="U_Status"
+                      name="U_active"
                     />
                   </div>
                 </div>
@@ -303,10 +318,10 @@ export default function Routelistpage() {
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
-              <Button
+                <Button
                   variant="contained"
                   size="small"
-                  onClick={() => handlerSearch("")}
+                  onClick={handleGoClick}
                 >
                   Go
                 </Button>
@@ -324,8 +339,8 @@ export default function Routelistpage() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Route"
-          // createRoute="/master-data/route/create"
+          title="Transportation Request"
+          createRoute="/trip-management/transportation-request/create"
         />
       </div>
     </>

@@ -9,7 +9,7 @@ import ExpDicSelect from "@/components/selectbox/ExpDic";
 import ExpDicAutoComplete from "@/components/input/ExpDicAutoComplete";
 import ExpdicRepository from "@/services/actions/ExpDicRepository";
 
-export default function ExpenseTable(
+export default function DocumentTable(
   props: any,
   edit?: boolean,
   detail?: boolean
@@ -53,7 +53,7 @@ export default function ExpenseTable(
   const columns = [
     {
       accessorKey: "U_Code",
-      header: "Expense Code",
+      header: "Source Document *",
       Cell: ({ cell }: any) => (
         <>
           <ExpDicAutoComplete
@@ -74,27 +74,9 @@ export default function ExpenseTable(
         </>
       ),
     },
-    // {
-    //   accessorKey: "U_Description",
-    //   header: "Description",
-    //   Cell: ({ cell }: any) => (
-    //     <MUITextField
-    //       key={"U_Description" + cell.getValue() + cell?.row?.id}
-    //       // value={ new ExpdicRepository().find(cell.row.original.U_Code)?.Name}
-    //       // value={cell.row.original.U_Description}
-    //       defaultValue={cell.row.original?.U_Description || ""}
-    //       onChange={(e: any) => {
-    //         // console.log(e);
-    //         handlerChangeItem(cell?.row?.id , {
-    //           U_Description: e.target.value,
-    //         });
-    //       }}
-    //     />
-    //   ),
-    // },
     {
       accessorKey: "U_Description",
-      header: "Description",
+      header: "Document Number",
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"U_Description" + cell.getValue() + cell?.row?.id}
@@ -110,7 +92,7 @@ export default function ExpenseTable(
     },
     {
       accessorKey: "U_Amount",
-      header: "Expense Amount",
+      header: "Item",
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"U_Amount" + cell.getValue() + cell?.row?.id}
@@ -125,6 +107,57 @@ export default function ExpenseTable(
         />
       ),
     },
+    {
+        accessorKey: "U_Amount",
+        header: "Ship To",
+        Cell: ({ cell }: any) => (
+          <MUITextField
+            key={"U_Amount" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit}
+            type="number"
+            defaultValue={cell.row.original?.U_Amount || ""}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_Amount: e.target.value,
+              });
+            }}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_Amount",
+        header: "Delivery Date",
+        Cell: ({ cell }: any) => (
+          <MUITextField
+            key={"U_Amount" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit}
+            type="number"
+            defaultValue={cell.row.original?.U_Amount || ""}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_Amount: e.target.value,
+              });
+            }}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_Amount",
+        header: "Quantity",
+        Cell: ({ cell }: any) => (
+          <MUITextField
+            key={"U_Amount" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit}
+            type="number"
+            defaultValue={cell.row.original?.U_Amount || ""}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_Amount: e.target.value,
+              });
+            }}
+          />
+        ),
+      },
   ];
   console.log(data);
 

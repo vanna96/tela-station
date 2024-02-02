@@ -24,6 +24,7 @@ import SaleTargetRoute from "./SaleTargetRoute";
 import RetailSaleRoute from "./RetailSaleRoute";
 import SaleOrderRoute from "./SaleOrderRoute";
 import SaleInvoiceRoute from "./SaleInvoiceRoute";
+import TripmanagementRoute from "./TripManagementRoute";
 
 const Router = () => {
   return (
@@ -81,6 +82,11 @@ const Router = () => {
             <Route
               path="/sale-invoice/*"
               element={<SaleInvoiceRoute />}
+              errorElement={<span>Error</span>}
+            />
+            <Route
+              path="/trip-management/*"
+              element={<TripmanagementRoute />}
               errorElement={<span>Error</span>}
             />
           </Route>

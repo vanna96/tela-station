@@ -1,11 +1,10 @@
 import React from "react";
 import { Alert, Collapse, IconButton, TextField } from "@mui/material";
 import MUITextField from "@/components/input/MUITextField";
-import { APIContext } from "../context/APIContext";
-import ExpenseTable from "./ExpenseTable";
-import { useDocumentTotalHook } from "@/hook";
-
-interface PaymentFormProps {
+// import { APIContext } from "../context/APIContext";
+import DocumentTable from "./DocumentTable";
+import { APIContext } from "@/presentations/master_data/context/APIContext";
+interface DocumentProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
   handlerRemoveItem: (record: any[]) => void;
@@ -15,7 +14,7 @@ interface PaymentFormProps {
   ContentLoading?: any;
 }
 
-export default function PaymentForm({ data, onChange }: PaymentFormProps) {
+export default function Document({ data, onChange }: DocumentProps) {
   const [collapseError, setCollapseError] = React.useState(false);
   const { sysInfo }: any = React.useContext(APIContext);
   React.useEffect(() => {
@@ -45,10 +44,7 @@ export default function PaymentForm({ data, onChange }: PaymentFormProps) {
       <div className=" rounded-lg shadow-sm bg-white border p-6 px-8">
         <div className="mt-6">
           <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-            <legend className="text-md px-2 font-bold">
-              Payment Means - Check
-            </legend>
-            <ExpenseTable data={data} onChange={onChange} />
+            <DocumentTable data={data} onChange={onChange} />
           </fieldset>
         </div>
       </div>

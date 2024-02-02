@@ -291,6 +291,32 @@ export default function SideBari(props: any) {
             title="Fuel Level"
           />
         </NavButton>
+        <NavButton
+          onClick={() => {
+            goTo("/trip-management");
+          }}
+          route="trip-management"
+          collapse={props.collapse}
+          icon={<AiOutlineStock />}
+          title="Trip Management"
+          isActive={activeParent === "trip-management"} // Pass isActive prop
+          setActiveParent={setActiveParent} // Pass setActiveParent prop
+        >
+          <ChildButton
+            icon={<MdOutlineStore />}
+            onClick={() => goTo("/trip-management/transportation-request")}
+            route="transportation-request"
+            collapse={props?.collapse}
+            title="Transportation Request"
+          />
+          <ChildButton
+            icon={<MdOutlineStore />}
+            onClick={() => goTo("/trip-management/transportation-order")}
+            route="transportation-order"
+            collapse={props?.collapse}
+            title="Transportation Order"
+          />
+        </NavButton>
       </div>
     </motion.aside>
   );
