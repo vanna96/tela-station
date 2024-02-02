@@ -164,7 +164,7 @@ export default function Stopslistpage() {
         "GET",
         `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}`:filter}`
+        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}` : filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -208,7 +208,7 @@ export default function Stopslistpage() {
         ? ` and (contains(Code, '${searchValues.code}'))`
         : `contains(Code, '${searchValues.code}')`;
     }
-  
+
     if (searchValues.active) {
       searchValues.active === "All"
         ? (queryFilters += queryFilters ? "" : "")
@@ -216,14 +216,12 @@ export default function Stopslistpage() {
             ? ` and U_active eq '${searchValues.active}'`
             : `U_active eq '${searchValues.active}'`);
     }
-  console.log(queryFilters);
-  
+    console.log(queryFilters);
+
     let query = queryFilters;
-  
+
     if (value) {
       query = queryFilters + ` and ${value}`;
-
-      
     }
     console.log(queryFilters);
     setFilter(query);
@@ -231,13 +229,12 @@ export default function Stopslistpage() {
       pageIndex: 0,
       pageSize: 10,
     });
-  
+
     setTimeout(() => {
       Count.refetch();
       refetch();
     }, 500);
   };
-  
 
   return (
     <>
@@ -274,9 +271,9 @@ export default function Stopslistpage() {
                   <div className="">
                     <MUISelect
                       items={[
+                        { id: "All", name: "All" },
                         { id: "Y", name: "Active" },
                         { id: "N", name: "Inactive" },
-                        { id: "All", name: "All" },
                       ]}
                       onChange={(e) =>
                         setSearchValues({
@@ -284,7 +281,7 @@ export default function Stopslistpage() {
                           active: e?.target?.value,
                         })
                       }
-                      value={searchValues.active}
+                      value={searchValues.active || "All"} // Set default value to "All"
                       aliasvalue="id"
                       aliaslabel="name"
                       name="U_active"
@@ -300,7 +297,7 @@ export default function Stopslistpage() {
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
-              <Button
+                <Button
                   variant="contained"
                   size="small"
                   onClick={() => handlerSearch("")}
