@@ -15,7 +15,6 @@ export default function BranchAutoComplete(props: {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
     queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
   });
 
   const uniqueBPLIDs = [...new Set(props?.BPdata?.map((e: any) => e.BPLID))];
