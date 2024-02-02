@@ -432,7 +432,7 @@ const VehicleForm = (props: any) => {
                     disableElevation
                   >
                     <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Save"}
+                      {props.edit ? "Update" : "Add"}
                     </span>
                   </LoadingButton>
                 </div>
