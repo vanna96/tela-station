@@ -30,16 +30,10 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
       (e: any) => e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
     ),
   ];
-  console.log(tl_Dispenser);
 
   if (tl_Dispenser.length > 0) {
     data.nozzleData = tl_Dispenser;
   }
-
-  console.log(tl_Dispenser);
-
-  console.log(data);
-
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = tl_Dispenser?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -197,7 +191,10 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
   );
 
   return (
-    <div className={``}>
+    <div
+      className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
+       overflow-hidden transition-height duration-300 `}
+    >
       <div className=" data-table">
         <MaterialReactTable
           columns={[...itemColumns]}
