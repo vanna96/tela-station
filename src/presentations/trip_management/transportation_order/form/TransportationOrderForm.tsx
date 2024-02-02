@@ -10,11 +10,7 @@ import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import General from "../component/General";
-import Address from "../component/Address";
-import Personal from "../component/Personal";
-import Finance from "../component/Finance";
-import Remarks from "../component/Remaks";
+
 import { useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
@@ -39,7 +35,7 @@ export type UseFormProps = {
   detail?: boolean;
 };
 // const { id } = useParams();
-const Form = (props: any) => {
+const TransportationOrderForm = (props: any) => {
   const {
     handleSubmit,
     register,
@@ -89,8 +85,8 @@ const Form = (props: any) => {
           setState({
             ...state,
             loading: false,
-            DocNum:res?.data?.FirstName + ' ' +res?.data?.LastName
-          });          
+            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
+          });
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -101,8 +97,7 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
-        ([key, value]): any =>
-          value !== null && value !== undefined
+        ([key, value]): any => value !== null && value !== undefined
       )
     );
     const payload = {
@@ -272,11 +267,11 @@ const Form = (props: any) => {
   };
 
   const onInvalidForm = (invalids: any) => {
-      dialog.current?.error(
-        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-          "Oop something wrong!",
-        "Invalid Value"
-      );
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
   };
   return (
     <>
@@ -317,48 +312,27 @@ const Form = (props: any) => {
           >
             {state.tapIndex === 0 && (
               <h1>
-                <General
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
-                  header={header}
-                  setHeader={setHeader}
-                />
+              as
               </h1>
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Address setValue={setValue} register={register} />
+                as
               </h1>
             )}
             {state.tapIndex === 2 && (
               <h1>
-                <Personal
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  header={header}
-                  setHeader={setHeader}
-                />
+               as
               </h1>
             )}
             {state.tapIndex === 3 && (
               <h1>
-                <Finance
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                />
+                as
               </h1>
             )}
             {state.tapIndex === 4 && (
               <h1>
-                <Remarks setValue={setValue} register={register} />
+               as
               </h1>
             )}
             {/* ... Other form fields ... */}
@@ -375,7 +349,7 @@ const Form = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      (window.location.href = "/master-data/driver")
+                      (window.location.href = "/master-data/pump-attendant")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
@@ -407,4 +381,4 @@ const Form = (props: any) => {
   );
 };
 
-export default withRouter(Form);
+export default TransportationOrderForm;

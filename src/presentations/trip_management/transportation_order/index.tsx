@@ -14,9 +14,8 @@ import DataTable from "./component/DataTabaleO";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
-    FirstName: "",
-    LastName: "",
-    active: "All",
+    DocumentNumber: "",
+    active: "tYES",
   });
   const branchAss: any = useQuery({
     queryKey: ["branchAss"],
@@ -247,15 +246,11 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.FirstName) {
+
+    if (searchValues.DocumentNumber) {
       queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.FirstName}'))`
-        : `(contains(FirstName, '${searchValues.FirstName}'))`;
-    }
-    if (searchValues.LastName) {
-      queryFilters += queryFilters
-        ? ` and (contains(LastName, '${searchValues.LastName}'))`
-        : `(contains(LastName, '${searchValues.LastName}'))`;
+        ? ` and (contains(DocumentNo, '${searchValues.DocumentNumber}'))`
+        : `(contains(DocumentNo, '${searchValues.DocumentNumber}'))`;
     }
 
     if (searchValues.active) {
@@ -297,31 +292,14 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   type="string"
-                  label="First Name"
-                  // placeholder="Employee Code"
+                  label="Document Number"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.FirstName}
+                  value={searchValues.DocumentNumber}
                   onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
-                      FirstName: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  type="string"
-                  label="Last Name"
-                  // placeholder="Employee Code"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.LastName}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      LastName: e.target.value,
+                      DocumentNumber: e.target.value,
                     })
                   }
                 />
@@ -353,7 +331,7 @@ export default function Lists() {
                 <MUISelect
                   items={[
                     { value: "All", label: "All" },
-                    { value: "tYES", label: "Active" },
+                    { value: "tYES", label: "Initiated" },
                     { value: "tNO", label: "Inactive" },
                   ]}
                   onChange={(e: any) => {
