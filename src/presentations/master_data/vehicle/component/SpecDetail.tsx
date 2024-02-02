@@ -16,27 +16,35 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Brand
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{ ...register("U_Brand") }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Model
+                  Brand{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("U_Model"),
+                    ...register("U_Brand", {
+                      required: "Brand is required",
+                    }),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Model{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_Model", {
+                      required: "Model is required",
+                    }),
                     onBlur: (e) =>
                       setHeader({ ...header, model: e.target.value }),
                   }}
@@ -80,8 +88,6 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
                   disabled={detail}
                   inputProps={{ ...register("U_EngineNumber") }}
                 />
-
-                
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
