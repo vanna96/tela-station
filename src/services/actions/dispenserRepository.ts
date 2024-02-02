@@ -4,7 +4,7 @@ import request, { axiosInstance } from "@/utilies/request";
 
 export default class DispenserRepository extends Repository<any> {
 
-    url = '/TL_Dispenser?$select=U_tl_type,Code,Name';
+    url = '/TL_Dispenser?$select=U_tl_type,Code,Name,U_tl_status,U_tl_bplid';
 
     // specific key
     key = 'tl_dispenser';

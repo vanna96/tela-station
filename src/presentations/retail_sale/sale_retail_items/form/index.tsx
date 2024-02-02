@@ -358,9 +358,8 @@ class SalesOrderForm extends CoreFormDocument {
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
