@@ -67,7 +67,6 @@ export default function zWarehouseAutoComplete(props: {
       props.onChange(selectedCode);
     }
   };
-console.log(data);
 
   return (
     <div className="block text-[14px] xl:text-[13px] ">
