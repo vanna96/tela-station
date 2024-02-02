@@ -1,170 +1,222 @@
 import MUITextField from "@/components/input/MUITextField";
+import { UseFormProps } from "../form";
+import PositionSelect from "@/components/selectbox/Position";
+import DepartmentSelect from "@/components/selectbox/Department";
+import ManagerSelect from "@/components/selectbox/Manager";
+import PositionAutoComplete from "@/components/input/PositionAutoComplete";
+import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
+import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCookies } from "react-cookie";
-import { TextField } from "@mui/material";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
+import { useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
+import { Controller } from "react-hook-form";
+import { formatDate } from "@/helper/helper";
+import VendorModal from "@/components/modal/VendorModal";
+import BranchAssignmentAuto from "@/components/input/BranchAssignment";
+import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
+import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 
-export interface IGeneralFormProps {
-  handlerChange: (key: string, value: any) => void;
-  data: any;
-  edit?: boolean;
-  setData?: any;
-  detail?: boolean;
-}
-
-export default function GeneralForm({
-  data,
-  handlerChange,
-  edit,
-  setData,
+const General = ({
+  register,
+  control,
+  defaultValues,
+  setValue,
+  setBranchAss,
+  branchAss,
+  header,
+  setHeader,
   detail,
-}: IGeneralFormProps) {
-  const [cookies, setCookie] = useCookies(["user"]);
-  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
+}: UseFormProps) => {
+  const [staticSelect, setStaticSelect] = useState({
+    requestDate: null,
+    status: "",
+    expiredDate: null,
+    branchASS: null,
+  });
 
-  const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
-  );
-
-  const seriesSO =
-    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
-
-  if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0]?.NextNumber;
-  }
+  useEffect(() => {
+    if (defaultValues) {
+      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
+        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
+      );
+    }
+  }, [defaultValues]);
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
+      <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
+        <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
           <h2>Information</h2>
         </div>
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
-            <div className="grid grid-cols-5 py-2">
+        <div className="  flex gap-[100px]">
+          <div className="col-span-5  w-[50%]">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Requester
                 </label>
               </div>
               <div className="col-span-3">
-                <div className="col-span-3">
-                  <WarehouseAttendTo
-                    value={data?.U_BaseStation}
-                    onChange={(e) => {
-                      handlerChange("U_BaseStation", e);
-                    }}
-                    onBlur={(e: any) => setData({ ...data, U_BaseStation: e })}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Branch
-                </label>
-              </div>
-              <div className="col-span-3">
-                <WarehouseAttendTo
-                  value={data?.U_Destination}
-                  onChange={(e) => {
-                    handlerChange("U_Destination", e);
+                <Controller
+                  name="U_Requester"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ManagerAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_Requester}
+                        onChange={(e: any) => {
+                          setValue("U_Requester", e);
+                        }}
+                      />
+                    );
                   }}
-                  onBlur={(e: any) => setData({ ...data, U_Destination: e })}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  To Terminal
+                  Branch Assignment
+                </label>
+              </div>
+              <div className="col-span-3">
+                <BranchAssignmentAuto
+                  disabled={detail}
+                  onChange={(e: any) => {
+                    setBranchAss([e]);
+                    setHeader({ ...header, U_Branch: e?.BPLName });
+                  }}
+                  value={staticSelect?.branchASS}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Destination
+                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <WarehouseAttendTo
-                  value={data?.U_Destination}
-                  onChange={(e) => {
-                    handlerChange("U_Destination", e);
+                  onChange={(e: any) => {
+                    setBranchAss([e]);
+                    setHeader({ ...header, U_Terminal: e?.BPLName });
                   }}
-                  onBlur={(e: any) => setData({ ...data, U_Destination: e })}
+                  value={staticSelect?.branchASS}
                 />
               </div>
             </div>
           </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5 ">
+
+          <div className="col-span-5 w-[50%]">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Series
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Mobile Phone
                 </label>
               </div>
               <div className="col-span-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <MUISelect
-                    items={filteredSeries ?? data.SerieLists}
-                    aliasvalue="Series"
-                    aliaslabel="Name"
-                    name="Series"
-                    loading={data?.isLoadingSerie}
-                    value={edit ? data?.Series : filteredSeries[0]?.Series}
-                    disabled={edit}
-                    // onChange={(e: any) => handlerChange("Series", e.target.value)}
-                    // onChange={handleSeriesChange}
-                  />
-                  <div className="-mt-1">
-                    <MUITextField
-                      size="small"
-                      name="DocNum"
-                      value={
-                        edit
-                          ? data?.DocNum
-                          : filteredSeries[0]?.NextNumber ?? ""
-                      }
-                      // value={data?.DocNum}
-                      disabled={edit}
-                      placeholder="Document No"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-600 ">
-                  Request Date
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUIDatePicker
-                  disabled={data?.isStatusClose || false}
-                  value={data.PostingDate}
-                  onChange={(e: any) => handlerChange("PostingDate", e)}
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("MobilePhone"),
+                  }}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label
-                  htmlFor="Code"
-                  className={`${
-                    !("DueDate" in data?.error)
-                      ? "text-gray-600"
-                      : "text-red-500"
-                  } `}
-                >
-                  Expired Date <span className="text-red-500">*</span>
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Document Number
                 </label>
               </div>
               <div className="col-span-3">
-                <MUIDatePicker
-                  error={"DueDate" in data?.error}
-                  helpertext={data?.error["DueDate"]}
-                  disabled={data?.isStatusClose || false}
-                  value={data.DueDate ?? null}
-                  onChange={(e: any) => handlerChange("DueDate", e)}
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("MobilePhone"),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Request Date
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="U_RequestDate"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        disabled={detail}
+                        {...field}
+                        defaultValue={
+                          defaultValues?.U_RequestDate || staticSelect.requestDate
+                        }
+                        key={`request_date_${staticSelect.requestDate}`}
+                        onChange={(e: any) => {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue("U_RequestDate", `${val == "" ? "" : val}`);
+                          setStaticSelect({
+                            ...staticSelect,
+                            requestDate: e,
+                          });
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Expired Date
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="U_ExpiredDate"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        disabled={detail}
+                        {...field}
+                        defaultValue={
+                          defaultValues?.U_ExpiredDate ||
+                          staticSelect.expiredDate
+                        }
+                        key={`termination_date_${staticSelect.expiredDate}`}
+                        onChange={(e: any) => {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue(
+                            "U_ExpiredDate",
+                            `${val == "" ? "" : val}`
+                          );
+                          setStaticSelect({
+                            ...staticSelect,
+                            expiredDate: e,
+                          });
+                        }}
+                      />
+                    );
+                  }}
                 />
               </div>
             </div>
@@ -175,39 +227,52 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: "Y", name: "Active" },
-                    { id: "N", name: "Inactive" },
-                  ]}
-                  onChange={(e) => handlerChange("U_Status", e.target.value)}
-                  value={data?.U_Status}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="U_Status"
+                {staticSelect?.status === "" && (
+                  <div className="hidden">
+                    <MUITextField
+                      inputProps={{
+                        ...register("Status"),
+                      }}
+                      value={"O"}
+                    />
+                  </div>
+                )}
+                <Controller
+                  name="Status"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        disabled={detail}
+                        items={[
+                          { value: "O", label: "Active" },
+                          { value: "Y", label: "Inactive" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("Status", e.target.value);
+                          setStaticSelect({
+                            ...staticSelect,
+                            status: e.target.value,
+                          });
+                        }}
+                        value={
+                          staticSelect.status || defaultValues?.Status || "O"
+                        }
+                        aliasvalue="value"
+                        aliaslabel="label"
+                      />
+                    );
+                  }}
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-4">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Remarks
-                </label>
-              </div>
-              <div className="col-span-3">
-                <TextField
-                  size="small"
-                  fullWidth
-                  multiline
-                  onChange={(e) => handlerChange("U_Remark", e.target.value)}
-                  rows={2}
-                  value={data.U_Remark}
-                />
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
+      {/* <VendorModal open={true} /> */}
     </>
   );
-}
+};
+
+export default General;

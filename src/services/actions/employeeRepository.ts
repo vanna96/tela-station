@@ -7,7 +7,7 @@ import Employee from '@/models/Employee';
 export default class EmployeeRepository extends Repository<Employee> {
 
   url: string = '/EmployeesInfo';
-
+  key = 'emp';
   public static documentSerie = {
     Document: "22"
   }

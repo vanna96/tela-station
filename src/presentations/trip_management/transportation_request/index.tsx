@@ -12,11 +12,33 @@ import { useCookies } from "react-cookie";
 // import { APIContext } from "../context/APIContext";
 import { APIContext } from "@/presentations/master_data/context/APIContext";
 import MUISelect from "@/components/selectbox/MUISelect";
+import moment from "moment";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import EmployeeRepository from "@/services/actions/employeeRepository";
+import ExpdicRepository from "@/services/actions/ExpDicRepository";
+import ManagerRepository from "@/services/actions/ManagerRepository";
 
 export default function TransportationRequestList() {
   const [open, setOpen] = React.useState<boolean>(false);
-  const { branchBPL }: any = React.useContext(APIContext);
+  // const { branchBPL }: any = React.useContext(APIContext);
   const [cookies] = useCookies(["user"]);
+
+const branchAss: any = useQuery({
+     queryKey: ["branchAss"],
+     queryFn: () => new BranchBPLRepository().get(),
+     staleTime: Infinity,
+   });
+  console.log(branchAss);
+
+  const emp: any = useQuery({
+    queryKey: ["manager"],
+    queryFn: () => new ManagerRepository().get(),
+    staleTime: Infinity,
+  });
+
+ console.log(emp);
+  
+
   const [searchValues, setSearchValues] = React.useState<any>({
     active: "",
     code: "",
@@ -43,22 +65,27 @@ export default function TransportationRequestList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return cell.row.original.DocNum ?? "N/A";
         },
       },
 
       {
-        accessorKey: "U_lat",
+        accessorKey: "U_Branch",
         header: "Branch", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 100,
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_lat ?? "N/A";
+          return (
+            branchAss?.data?.find(
+              (e: any) => e?.BPLID === cell.row.original.U_Branch
+            )?.BPLName ?? "N/A"
+          );
         },
       },
+      
       {
         accessorKey: "U_Terminal",
         header: "Terminal",
@@ -66,38 +93,49 @@ export default function TransportationRequestList() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_lng ?? "N/A";
+          return cell.row.original.U_Terminal ?? "N/A";
         },
       },
       {
-        accessorKey: "U_active",
+        accessorKey: "U_Requester",
         header: "Requester",
-        size: 40,
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
         visible: true,
+        type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_active === "Y"
-            ? "Active"
-            : "Inactive" ?? "N/A";
+          const requester = emp?.data?.find(
+            (e: any) => e?.EmployeeID === cell.row.original.U_Requester
+          );
+      
+          const fullName = requester
+            ? `${requester.FirstName} ${requester.LastName}`
+            : "N/A";
+      
+          return fullName;
         },
       },
+      
       {
-        accessorKey: "sad",
+        accessorKey: "U_RequestDate",
         header: "Request Date",
         size: 40,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_active === "Y"
-            ? "Active"
-            : "Inactive" ?? "N/A";
+          const formattedDate = moment(cell.row.original.U_RequestDate).format(
+            "YYYY-MM-DD"
+          );
+          return <span>{formattedDate}</span>;
         },
       },
       {
-        accessorKey: "U_active",
+        accessorKey: "Status",
         header: "Status",
         size: 40,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_active === "Y"
+          return cell.row.original.Status === "O"
             ? "Active"
             : "Inactive" ?? "N/A";
         },
@@ -148,7 +186,10 @@ export default function TransportationRequestList() {
       },
     ],
     []
+    
+    
   );
+  
 
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
@@ -187,7 +228,7 @@ export default function TransportationRequestList() {
         "GET",
         `${url}/TL_TR?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc &${filter}`
+        }&$orderby= DocNum desc &${filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
