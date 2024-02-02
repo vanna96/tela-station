@@ -1,14 +1,21 @@
 import React from "react";
 import { Button } from "@mui/material";
 import { HiRefresh } from "react-icons/hi";
+import { BiFilterAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
 import MaterialReactTable from "material-react-table";
-import { BsPencilSquare } from "react-icons/bs";
+import { BsPencilSquare, BsSortDown } from "react-icons/bs";
+import MenuCompoment from "@/components/data_table/MenuComponent";
+import { ThemeContext } from "@/contexts";
 import ColumnSearch from "@/components/data_table/ColumnSearch";
-import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility";
-
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import Papa from "papaparse";
+import request, { url } from "@/utilies/request";
+import { useQuery } from "react-query";
+import DriverRepository from "@/services/actions/DriverRepository";
 interface DataTableProps {
+  filter: any;
   columns: any[];
   data: any[];
   count: number;
@@ -19,15 +26,20 @@ interface DataTableProps {
   pagination: any;
   paginationChange: (value: any) => void;
   title?: string;
+  createRoute?: string;
 }
 
 export default function DataTable(props: DataTableProps) {
-  const route = useNavigate();
+  const route: any = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
-
+  const driver: any = useQuery({
+    queryKey: ["drivers"],
+    queryFn: () => new DriverRepository().get(),
+    staleTime: Infinity,
+  });
   React.useEffect(() => {
     const cols: any = {};
     props.columns.forEach((e) => {
@@ -40,7 +52,75 @@ export default function DataTable(props: DataTableProps) {
     if (queries === "") return;
     props.handlerSearch("&$filter=" + queries);
   };
+  const handleExportToCSV = async () => {
+    const response: any = await request(
+      "GET",
+      `${url}/TL_VEHICLE?${props?.filter.replace("&", "")}`
+    )
+      .then(async (res: any) => res?.data)
+      .catch((e: Error) => {
+        throw new Error(e.message);
+      });
 
+    const csvContent = convertToCSV(response?.value);
+
+    // Create a Blob containing the CSV data
+    const blob = new Blob([csvContent], { type: "text/csv" });
+
+    // Create a link element to download the CSV file
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "Vehicle_list.csv";
+
+    // Simulate a click on the link to trigger the download
+    document.body.appendChild(link);
+    link.click();
+
+    // Remove the link from the DOM
+    document.body.removeChild(link);
+  };
+
+  const convertToCSV = (data: any[]) => {
+    // Specify the desired field names
+    const fields = [
+      "VehicleCode",
+      "VehicleName",
+      "Type",
+      "Driver",
+      "BaseStation",
+      "Status",
+    ];
+
+    // Map the data to the desired field names
+    const mappedData = data?.map((row, index) => ({
+      // EmployeeID: row?.EmployeeID,
+      VehicleCode: row?.Code,
+      VehicleName: row?.Name,
+      Type: row?.U_Type,
+      Driver:
+        driver?.data?.find((e: any) => e?.EmployeeID === row?.U_Driver)
+          ?.FirstName +
+        " " +
+        driver?.data?.find((e: any) => e?.EmployeeID === row?.U_Driver)
+          ?.LastName,
+      BaseStation: row?.U_BaseStation,
+      Status: row?.U_Status,
+    }));
+
+    // Create CSV content with the specified fields
+    const csvContent = Papa.unparse(
+      {
+        fields,
+        data: mappedData,
+      },
+      {
+        delimiter: ",", // Specify the delimiter
+        header: true, // Include headers in the CSV
+      }
+    );
+
+    return csvContent;
+  };
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
@@ -48,12 +128,32 @@ export default function DataTable(props: DataTableProps) {
       <div className="flex justify-between">
         <div className="flex gap-4 items-center justify-center">
           <h3 className="text-base">{props.title}</h3>
+          {/* <DataTableColumnFilter
+            handlerClearFilter={props.handlerRefresh}
+            title={
+              <div className="flex gap-2">
+                <span className="text-lg">
+                  <BiFilterAlt />
+                </span>{" "}
+                <span className="text-[13px] capitalize">Filter</span>
+              </div>
+            }
+            items={props.columns?.filter((e) => e?.accessorKey !== "DocEntry")}
+            onClick={handlerSearch}
+          /> */}
         </div>
         <div className="flex justify-end gap-2 items-center text-[13px]">
+          {/* <Button size="small" variant="text" onClick={props.handlerRefresh}>
+            <span className="text-lg mr-2">
+              <HiRefresh />
+            </span>
+            <span className="capitalize text-sm">Refresh</span>
+          </Button>*/}
+
           <Button
             size="small"
             variant="text"
-            onClick={() => route("/master-data/vehicle/create")}
+            onClick={() => route(props?.createRoute)}
           >
             <span className="text-lg mr-2">
               <BsPencilSquare />
@@ -66,7 +166,35 @@ export default function DataTable(props: DataTableProps) {
             </span>
             <span className="capitalize text-sm">Refresh</span>
           </Button>
-          <DataTableColumnVisibility
+          <MenuCompoment
+            title={
+              <div className="flex gap-2">
+                <span className="text-lg">
+                  <BsSortDown />
+                </span>{" "}
+                <span className="text-[13px] capitalize">Sort By</span>
+              </div>
+            }
+            items={props.columns}
+            onClick={props.handlerSortby}
+          />
+          <Button
+            size="small"
+            variant="text"
+            onClick={() => {
+              if (props.data && props.data.length > 0) {
+                handleExportToCSV();
+              }
+            }}
+          >
+            <span className="text-sm mr-2">
+              <InsertDriveFileOutlinedIcon
+                style={{ fontSize: "18px", marginBottom: "2px" }}
+              />
+            </span>
+            <span className="capitalize text-[13px] ">Export to CSV</span>
+          </Button>
+          {/* <DataTableColumnVisibility
             title={
               <div className="flex gap-2">
                 <span className="text-lg">
@@ -77,9 +205,9 @@ export default function DataTable(props: DataTableProps) {
             }
             items={props.columns}
             onClick={(value) => {
-              setColVisibility(value);
+              setColVisibility(value)
             }}
-          />
+          /> */}
         </div>
       </div>
 
@@ -92,8 +220,9 @@ export default function DataTable(props: DataTableProps) {
             density: "compact",
             columnVisibility: colVisibility,
           }}
-          enableDensityToggle={false}
-          enableColumnResizing
+          enableDensityToggle={true}
+          // enableColumnResizing
+
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -117,7 +246,6 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
-          enableRowNumbers={true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

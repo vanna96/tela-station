@@ -89,7 +89,8 @@ const Form = (props: any) => {
           setState({
             ...state,
             loading: false,
-          });
+            DocNum:res?.data?.FirstName + ' ' +res?.data?.LastName
+          });          
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -100,7 +101,8 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
+        ([key, value]): any =>
+          value !== null && value !== undefined
       )
     );
     const payload = {
@@ -269,8 +271,13 @@ const Form = (props: any) => {
     );
   };
 
-  // console.log(state)
-
+  const onInvalidForm = (invalids: any) => {
+      dialog.current?.error(
+        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+          "Oop something wrong!",
+        "Invalid Value"
+      );
+  };
   return (
     <>
       {state.loading ? (
@@ -306,7 +313,7 @@ const Form = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
@@ -324,7 +331,7 @@ const Form = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                  <Address setValue={setValue} register={register}  />
+                <Address setValue={setValue} register={register} />
               </h1>
             )}
             {state.tapIndex === 2 && (
@@ -356,15 +363,22 @@ const Form = (props: any) => {
             )}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                <div className="flex ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                <div className="flex">
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
-                    variant="contained"
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
                     disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/driver")
+                    }
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">
+                    <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
                     </span>
                   </LoadingButton>
@@ -380,7 +394,7 @@ const Form = (props: any) => {
                     disableElevation
                   >
                     <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Save"}
+                      {props.edit ? "Update" : "Add"}
                     </span>
                   </LoadingButton>
                 </div>

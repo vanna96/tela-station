@@ -9,37 +9,71 @@ import { Button } from "@mui/material";
 import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import { useCookies } from "react-cookie";
 import { APIContext } from "../context/APIContext";
-import DataTable from "./component/DataTableD";
+// import DataTable from "./component/DataTableD";
 import MUISelect from "@/components/selectbox/MUISelect";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import DataTable from "./component/DataTableD";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
     FirstName: "",
-    LastName:"",
-    active: "tYES",
+    LastName: "",
+    active: "All",
   });
-   const branchAss: any = useQuery({
-     queryKey: ["branchAss"],
-     queryFn: () => new BranchBPLRepository().get(),
-     staleTime: Infinity,
-   });
+  const branchAss: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
   // console.log(branchAss);
-  
+
   const route = useNavigate();
+
+  const [filter, setFilter] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("");
+
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const Count: any = useQuery({
+    queryKey: [`Driver`, `${filter !== "" ? "f" : ""}`],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'${
+          filter ? ` and ${filter}` : ""
+        }`
+      )
+        .then(async (res: any) => res?.data)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    cacheTime: 0,
+    staleTime: 0,
+  });
+
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "No",
+        accessorKey: "EmployeeID",
         header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        Cell: (cell: any,index:number) => {
+        Cell: (cell: any, index: number) => {
+          console.log(sortBy);
           return (
-            <span>{parseInt(cell?.row?.id)+1}</span>
+            <span>
+              {sortBy.includes("asc") || sortBy === ""
+                ? cell?.row?.index + 1
+                : Count?.data - cell?.row?.index}
+            </span>
           );
         },
       },
@@ -158,35 +192,8 @@ export default function Lists() {
         ),
       },
     ],
-    []
+    [Count, sortBy]
   );
-
-  const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
-
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const Count: any = useQuery({
-    queryKey: [`Driver`, `${filter !== "" ? "f" : ""}`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'${
-          filter ? ` and ${filter}` : ""
-        }`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
@@ -199,9 +206,9 @@ export default function Lists() {
     queryFn: async () => {
       const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }&$filter=U_tl_driver eq 'Y'${
-        filter ? ` and ${filter}` : filter
-      }&$orderby=EmployeeID asc${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
+      }&$filter=U_tl_driver eq 'Y'${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -234,6 +241,8 @@ export default function Lists() {
       pageSize: 10,
     });
 
+    console.log(value);
+
     setTimeout(() => {
       refetch();
     }, 500);
@@ -241,27 +250,29 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-
     if (searchValues.FirstName) {
       queryFilters += queryFilters
         ? ` and (contains(FirstName, '${searchValues.FirstName}'))`
         : `(contains(FirstName, '${searchValues.FirstName}'))`;
     }
-  if (searchValues.LastName) {
-    queryFilters += queryFilters
-      ? ` and (contains(LastName, '${searchValues.LastName}'))`
-      : `(contains(LastName, '${searchValues.LastName}'))`;
-  }
-    if (searchValues.active) {
+    if (searchValues.LastName) {
       queryFilters += queryFilters
-        ? ` and Active eq '${searchValues.active}'`
-        : `Active eq '${searchValues.active}'`;
+        ? ` and (contains(LastName, '${searchValues.LastName}'))`
+        : `(contains(LastName, '${searchValues.LastName}'))`;
+    }
+
+    if (searchValues.active) {
+      searchValues.active === "All"
+        ? (queryFilters += queryFilters ? "" : "")
+        : (queryFilters += queryFilters
+            ? ` and Active eq '${searchValues.active}'`
+            : `Active eq '${searchValues.active}'`);
     }
 
     let query = queryFilters;
 
     if (value) {
-      query = queryFilters + `and ${value}`
+      query = queryFilters + `and ${value}`;
     }
     setFilter(query);
     setPagination({
@@ -295,7 +306,10 @@ export default function Lists() {
                   autoComplete="off"
                   value={searchValues.FirstName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, FirstName: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      FirstName: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -308,7 +322,10 @@ export default function Lists() {
                   autoComplete="off"
                   value={searchValues.LastName}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, LastName: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      LastName: e.target.value,
+                    })
                   }
                 />
               </div>
@@ -338,16 +355,16 @@ export default function Lists() {
                 )} */}
                 <MUISelect
                   items={[
-                    { value: "", label: "All" },
+                    { value: "All", label: "All" },
                     { value: "tYES", label: "Active" },
                     { value: "tNO", label: "Inactive" },
                   ]}
-                  onChange={(e: any) =>
+                  onChange={(e: any) => {
                     setSearchValues({
                       ...searchValues,
                       active: e.target.value,
-                    })
-                  }
+                    });
+                  }}
                   value={
                     // searchValues.active === null ? "tYES" : searchValues.active
                     searchValues.active
@@ -374,24 +391,6 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              {/* <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button variant="outlined" size="small">
-                        Adapt Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "No"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div> */}
             </div>
           </div>
         </div>
@@ -406,7 +405,8 @@ export default function Lists() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Driver"
-        />
+          createRoute="/master-data/driver/create"
+          filter={filter} />
       </div>
     </>
   );

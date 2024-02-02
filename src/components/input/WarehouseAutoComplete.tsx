@@ -21,7 +21,6 @@ export default function zWarehouseAutoComplete(props: {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
     queryFn: () => new WarehouseRepository().get(),
-    staleTime: Infinity,
   });
 
   let filteredWarehouses = data?.filter(

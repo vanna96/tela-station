@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
@@ -12,11 +10,7 @@ import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import General from "../component/General";
-import Address from "../component/Address";
-import Personal from "../component/Personal";
-import Finance from "../component/Finance";
-import Remarks from "../component/Remaks";
+
 import { useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
@@ -25,9 +19,23 @@ import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 let dialog = React.createRef<FormMessageModal>();
-
+export type UseFormProps = {
+  register: UseFormRegister<FieldValues>;
+  setValue: UseFormSetValue<FieldValues>;
+  control?: any;
+  defaultValues?:
+    | Readonly<{
+        [x: string]: any;
+      }>
+    | undefined;
+  setBranchAss?: any;
+  branchAss?: any;
+  header?: any;
+  setHeader?: any;
+  detail?: boolean;
+};
 // const { id } = useParams();
-const FormDetail = (props: any) => {
+const TransportationOrderForm = (props: any) => {
   const {
     handleSubmit,
     register,
@@ -46,7 +54,7 @@ const FormDetail = (props: any) => {
     isError: false,
     message: "",
     showCollapse: true,
-    DocNum: '',
+    DocNum: id,
   });
   const [header, setHeader] = useState({
     firstName: null,
@@ -74,15 +82,63 @@ const FormDetail = (props: any) => {
         .then((res: any) => {
           setBranchAss(res?.data?.EmployeeBranchAssignment);
           setDriver(res?.data);
-        setState({
-          ...state,
-          loading: false,
-          DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
-        });    
+          setState({
+            ...state,
+            loading: false,
+            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
+          });
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
         );
+    }
+  };
+
+  const onSubmit = async (e: any) => {
+    const data: any = Object.fromEntries(
+      Object.entries(e).filter(
+        ([key, value]): any => value !== null && value !== undefined
+      )
+    );
+    const payload = {
+      ...data,
+      U_tl_driver: "Y",
+      EmployeeBranchAssignment: branchAss?.map((e: any) => {
+        return {
+          BPLID: e?.BPLID,
+        };
+      }),
+    };
+    const { id } = props?.match?.params || 0;
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request("PATCH", `/EmployeesInfo(${id})`, payload)
+          .then(
+            (res: any) =>
+              dialog.current?.success(
+                "Update Successfully.",
+                res?.data?.EmployeeID
+              )
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/EmployeesInfo", payload)
+          .then(
+            (res: any) =>
+              dialog.current?.success(
+                "Create Successfully.",
+                res?.data?.EmployeeID
+              )
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
     }
   };
 
@@ -210,8 +266,13 @@ const FormDetail = (props: any) => {
     );
   };
 
-  // console.log(state)
-
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
+  };
   return (
     <>
       {state.loading ? (
@@ -247,62 +308,72 @@ const FormDetail = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
-                <General
-                  detail={props?.detail}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
-                  header={header}
-                  setHeader={setHeader}
-                />
+              as
               </h1>
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Address
-                  setValue={setValue}
-                  register={register}
-                  detail={props.detail}
-                />
+                as
               </h1>
             )}
             {state.tapIndex === 2 && (
               <h1>
-                <Personal
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  header={header}
-                    setHeader={setHeader}
-                    detail={props?.detail}
-                />
+               as
               </h1>
             )}
             {state.tapIndex === 3 && (
               <h1>
-                <Finance
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                    defaultValues={defaultValues}
-                    detail={props?.detail}
-                />
+                as
               </h1>
             )}
             {state.tapIndex === 4 && (
               <h1>
-                <Remarks setValue={setValue} detail={props?.detail} register={register} />
+               as
               </h1>
             )}
             {/* ... Other form fields ... */}
-           
+            <div className="absolute w-full bottom-4  mt-2 ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                <div className="flex">
+                  <LoadingButton
+                    size="small"
+                    sx={{ height: "25px" }}
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
+                    disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
+                  >
+                    <span className="px-3 text-[11px] py-1 text-red-500">
+                      Cancel
+                    </span>
+                  </LoadingButton>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <LoadingButton
+                    type="submit"
+                    sx={{ height: "25px" }}
+                    className="bg-white"
+                    loading={state.isSubmitting}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      {props.edit ? "Update" : "Add"}
+                    </span>
+                  </LoadingButton>
+                </div>
+              </div>
+            </div>
           </form>
         </>
       )}
@@ -310,4 +381,4 @@ const FormDetail = (props: any) => {
   );
 };
 
-export default withRouter(FormDetail);
+export default TransportationOrderForm;

@@ -92,7 +92,7 @@ export default function MasterDataRoute() {
 
       <Route path="/vehicle">
         <Route index element={<VehicleList />} />
-        <Route path=":id" element={<VehicleDetail />} />
+        <Route path=":id" element={<VehicleDetail detail={true} />} />
         <Route path="create" element={<VehicleForm />} />
         <Route path=":id/edit" element={<VehicleForm edit={true} />} />
       </Route>

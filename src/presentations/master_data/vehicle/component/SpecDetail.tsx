@@ -4,7 +4,7 @@ import React from "react";
 import { UseFormProps } from "../form/VehicleForm";
 
 
-const SpecDetail = ({ register }: UseFormProps) => {
+const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
   return (
     <div>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -16,21 +16,39 @@ const SpecDetail = ({ register }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Brand
+                  Brand{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Brand") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_Brand", {
+                      required: "Brand is required",
+                    }),
+                  }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Model
+                  Model{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Model") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_Model", {
+                      required: "Model is required",
+                    }),
+                    onBlur: (e) =>
+                      setHeader({ ...header, model: e.target.value }),
+                  }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -40,7 +58,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Year") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_Year") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -50,7 +71,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("WorkStreet") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_COLOR") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -60,7 +84,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_EngineNumber") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_EngineNumber") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -70,7 +97,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("WorkCity") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_VIN") }}
+                />
               </div>
             </div>
           </div>
@@ -83,7 +113,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Length") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_Length") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -93,7 +126,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Width") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_Width") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -103,7 +139,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Height") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_Height") }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -113,7 +152,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Weight") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_Weight") }}
+                />
               </div>
             </div>
 
@@ -124,7 +166,10 @@ const SpecDetail = ({ register }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField inputProps={{ ...register("U_Volumn") }} />
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{ ...register("U_Volumn") }}
+                />
               </div>
             </div>
           </div>

@@ -6,108 +6,139 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
-import { useCookies } from "react-cookie";
-import { APIContext } from "../context/APIContext";
 import MUISelect from "@/components/selectbox/MUISelect";
-import DataTable from "./component/DatatableV";
-import DriverRepository from "@/services/actions/DriverRepository";
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import DataTable from "./component/DataTabaleO";
+
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
-    code: "",
-    status: "All",
+    DocumentNumber: "",
+    active: "tYES",
   });
+  const branchAss: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
+  // console.log(branchAss);
 
   const route = useNavigate();
-    const driver: any = useQuery({
-      queryKey: ["drivers"],
-      queryFn: () => new DriverRepository().get(),
-      staleTime: Infinity,
-    });
-  
+
+  const [filter, setFilter] = React.useState("");
+  const [sortBy, setSortBy] = React.useState("");
+
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const Count: any = useQuery({
+    queryKey: [`Driver`, `${filter !== "" ? "f" : ""}`],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'${
+          filter ? ` and ${filter}` : ""
+        }`
+      )
+        .then(async (res: any) => res?.data)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    cacheTime: 0,
+    staleTime: 0,
+  });
+
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "Code",
-        header: "Vehicle Code", //uses the default width from defaultColumn prop
+        accessorKey: "EmployeeID",
+        header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.Code ?? "N/A";
+        Cell: (cell: any, index: number) => {
+          console.log(sortBy);
+          return (
+            <span>
+              {sortBy.includes("asc") || sortBy === ""
+                ? cell?.row?.index + 1
+                : Count?.data - cell?.row?.index}
+            </span>
+          );
         },
       },
       {
         accessorKey: "Name",
-        header: "Vehicle Name", //uses the default width from defaultColumn prop
+        header: "Document Number", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return (
+            cell.row.original.FirstName + " " + cell.row.original.LastName ??
+            "N/A"
+          );
         },
       },
       {
-        accessorKey: "U_Type",
-        header: "Type", //uses the default width from defaultColumn prop
+        accessorKey: "Gender",
+        header: "Branch", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 60,
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Type ?? "N/A";
+          return cell.row.original.Gender?.replace("gt_", "") ?? "N/A";
         },
       },
-
       {
-        accessorKey: "U_Driver",
-        header: "Driver",
+        accessorKey: "Department",
+        header: "Terminal", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          const driverInfo = driver?.data?.find(
-            (e: any) => e?.EmployeeID === cell.row.original.U_Driver
+          return (
+            new DepartmentRepository().find(cell.row.original.Department)
+              ?.Name ?? "N/A"
           );
-
-          if (driverInfo) {
-            return driverInfo.FirstName + " " + driverInfo.LastName;
-          } else {
-            return "N/A";
-          }
         },
       },
       {
-        accessorKey: "U_BaseStation",
-        header: "Base Station",
+        accessorKey: "BPLID",
+        header: "Document Date", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 100,
         visible: true,
-        type: "string",
+        type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_BaseStation ?? "N/A";
+          return (
+            branchAss?.data?.find(
+              (e: any) => e?.BPLID === cell.row.original.BPLID
+            )?.BPLName ?? "N/A"
+          );
         },
       },
       {
-        accessorKey: "U_Status",
+        accessorKey: "Active",
         header: "Status",
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 60,
         visible: true,
         type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.U_Status ?? "N/A";
-        },
+        Cell: ({ cell }: any) =>
+          cell.getValue() === "tYES" ? "Active" : "Inactive",
       },
       {
         accessorKey: "DocEntry",
@@ -126,7 +157,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/vehicle/" + cell.row.original.Code, {
+                route("/master-data/driver/" + cell.row.original.EmployeeID, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -138,10 +169,13 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/master-data/vehicle/${cell.row.original.Code}/edit`, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  `/master-data/driver/${cell.row.original.EmployeeID}/edit`,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <DriveFileRenameOutlineIcon
@@ -154,47 +188,23 @@ export default function Lists() {
         ),
       },
     ],
-    []
+    [Count, sortBy]
   );
-  const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
-
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const Count: any = useQuery({
-    queryKey: [`vehicles`, `${filter !== "" ? "f" : ""}`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/TL_VEHICLE/$count?${filter ? `$filter=${filter}` : ""}`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "vehicles",
+      "Driver",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
-      const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }${filter ? `&$filter=${filter}` : filter}${
+      }&$filter=U_tl_driver eq 'Y'${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : ""
-      }`;
+      }${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -206,17 +216,7 @@ export default function Lists() {
     cacheTime: 0,
     staleTime: 0,
   });
- const handlerSortby = (value: any) => {
-   setSortBy(value);
-   setPagination({
-     pageIndex: 0,
-     pageSize: 10,
-   });
 
-   setTimeout(() => {
-     refetch();
-   }, 500);
- };
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -230,21 +230,35 @@ export default function Lists() {
     }, 500);
   }, []);
 
+  const handlerSortby = (value: any) => {
+    setSortBy(value);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 10,
+    });
+
+    console.log(value);
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
+
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.code) {
-      queryFilters += queryFilters 
-        ? ` and (contains(Code, '${searchValues.code}'))`
-        : `(contains(Code, '${searchValues.code}'))`;
-    }
- 
 
-    if (searchValues.status) {
-      searchValues.status === "All"
+    if (searchValues.DocumentNumber) {
+      queryFilters += queryFilters
+        ? ` and (contains(DocumentNo, '${searchValues.DocumentNumber}'))`
+        : `(contains(DocumentNo, '${searchValues.DocumentNumber}'))`;
+    }
+
+    if (searchValues.active) {
+      searchValues.active === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and U_Status eq '${searchValues.status}'`
-            : `U_Status eq '${searchValues.status}'`);
+            ? ` and Active eq '${searchValues.active}'`
+            : `Active eq '${searchValues.active}'`);
     }
 
     let query = queryFilters;
@@ -269,7 +283,7 @@ export default function Lists() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Master Data / Vehicle{" "}
+            Trip Management / Transportation Order{" "}
           </h3>
         </div>
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
@@ -278,20 +292,18 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   type="string"
-                  label="Code"
-                  // placeholder="Employee Code"
+                  label="Document Number"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.code}
+                  value={searchValues.DocumentNumber}
                   onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
-                      code: e.target.value,
+                      DocumentNumber: e.target.value,
                     })
                   }
                 />
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
                   <label
@@ -301,21 +313,36 @@ export default function Lists() {
                     Status
                   </label>
                 </div>
+                {/* {searchValues.active === null && (
+                  <div>
+                    <MUITextField
+                      label="LastName"
+                      // placeholder="LastName"
+                      className="bg-white"
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          lastName: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+                )} */}
                 <MUISelect
                   items={[
                     { value: "All", label: "All" },
-                    { value: "Active", label: "Active" },
-                    { value: "Inactive", label: "Inactive" },
+                    { value: "tYES", label: "Initiated" },
+                    { value: "tNO", label: "Inactive" },
                   ]}
                   onChange={(e: any) => {
                     setSearchValues({
                       ...searchValues,
-                      status: e.target.value,
+                      active: e.target.value,
                     });
                   }}
                   value={
                     // searchValues.active === null ? "tYES" : searchValues.active
-                    searchValues.status
+                    searchValues.active
                   }
                   aliasvalue="value"
                   aliaslabel="label"
@@ -339,24 +366,6 @@ export default function Lists() {
                   Go
                 </Button>
               </div>
-              {/* <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button variant="outlined" size="small">
-                        Adapt Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "No"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div> */}
             </div>
           </div>
         </div>
@@ -370,9 +379,9 @@ export default function Lists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Vehicle"
+          title="Driver"
+          createRoute="/trip-management/transportation-order/create"
           filter={filter}
-          createRoute="/master-data/vehicle/create"
         />
       </div>
     </>
