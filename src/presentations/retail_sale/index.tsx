@@ -1,71 +1,84 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import { useEffect, useState } from "react";
+import { AiOutlineFileProtect } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import {
-  AiOutlineFileAdd,
-  AiOutlineFileExcel,
-  AiOutlineFileProtect,
-} from "react-icons/ai";
-import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
+
+interface CollectionItem {
+  title: string;
+  icon: React.ReactNode;
+  queryKey: string;
+  filter: string;
+  route: string;
+}
 
 const RetailSalePage = () => {
   const navigate = useNavigate();
-  const [count, setCount]: any = useState();
-  const goTo = (route: string) => navigate("/retail-sale/" + route);
 
-  const getCount = async () => {
-    const fuel = await new SalesOrderRepository().getCount({
-      params: {
-        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Oil'`,
+  const createUseQuery = (queryKey: string, filter: string) => {
+    return useQuery({
+      queryKey: [queryKey],
+      queryFn: async () => {
+        try {
+          const response = await request(
+            "GET",
+            `Orders/$count?$filter=${filter}`
+          );
+          return (response as { data?: number })?.data as number;
+        } catch (error) {
+          console.error(`Error fetching data for ${queryKey}:`, error);
+          throw error;
+        }
       },
-    });
-    const lube = await new SalesOrderRepository().getCount({
-      params: {
-        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'Lube'`,
-      },
-    });
-
-    const lpg = await new SalesOrderRepository().getCount({
-      params: {
-        $filter: `U_tl_salestype eq null and U_tl_arbusi eq 'LPG'`,
-      },
-    });
-    setCount({
-      ...count,
-      lube,
-      fuel,
-      lpg,
+      staleTime: Infinity,
     });
   };
 
-  useEffect(() => {
-    getCount();
-  }, []);
+  const goTo = (route: string) => navigate(`/retail-sale/${route}`);
+
+  const collectionItems: CollectionItem[] = [
+    {
+      title: "Fuel Cash Sales",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "fuelOrders",
+      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      route: "fuel-cash-sale",
+    },
+    {
+      title: "Lube Cash Sales",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "lubeOrders",
+      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      route: "lube-cash-sale",
+    },
+    {
+      title: "LPG Cash Sales",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "lpgOrders",
+      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      route: "lpg-cash-sale",
+    },
+  ];
 
   return (
-    <>
-      <MainContainer title="Retail Sale ">
-        <ItemCard
-          title="Fuel Sales"
-          icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("fuel-cash-sale")}
-          amount={count?.fuel || 0}
-        />
-        <ItemCard
-          title="Lube Sales"
-          icon={<AiOutlineFileExcel />}
-          onClick={() => goTo("lube-cash-sale")}
-          amount={count?.lube || 0}
-        />
-        <ItemCard
-          title="LPG Sales"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("lpg-cash-sale")}
-          amount={count?.lpg || 0}
-        />
-      </MainContainer>
-    </>
+    <MainContainer title="Retail Sale">
+      {collectionItems.map(
+        ({ title, icon, queryKey, filter, route }, index) => {
+          const { data, isLoading } = createUseQuery(queryKey, filter);
+          return (
+            <ItemCard
+              key={index}
+              title={title}
+              icon={icon}
+              onClick={() => goTo(`${route}`)}
+              amount={data || 0}
+              isLoading={isLoading}
+            />
+          );
+        }
+      )}
+    </MainContainer>
   );
 };
 
