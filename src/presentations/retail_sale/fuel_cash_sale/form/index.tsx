@@ -86,13 +86,13 @@ class SalesOrderForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("orders-series");
+    let seriesList: any = this.props?.query?.find("retail-sale-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
+        Document: "TL_RetailSale",
       });
-      this.props?.query?.set("orders-series", seriesList);
+      this.props?.query?.set("retail-sale-series", seriesList);
     }
 
     if (this.props.edit) {
