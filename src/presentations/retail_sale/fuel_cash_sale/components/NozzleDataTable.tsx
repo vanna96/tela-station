@@ -10,6 +10,7 @@ import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
+import MaterialReactTable from "material-react-table";
 interface NozzleDataProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -24,7 +25,13 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
 
-  const tl_Dispenser = [...data.DispenserData.TL_DISPENSER_LINESCollection];
+  const tl_Dispenser = [
+    ...data.DispenserData.TL_DISPENSER_LINESCollection?.filter(
+      (e: any) => e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
+    ),
+  ];
+  console.log(tl_Dispenser);
+
   if (tl_Dispenser.length > 0) {
     data.nozzleData = tl_Dispenser;
   }
@@ -190,14 +197,36 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
   );
 
   return (
-    <>
-      <ContentComponent
-        key={key}
-        columns={itemColumns}
-        items={[tl_Dispenser ?? []]}
-        data={data}
-        onChange={onChange}
-      />
-    </>
+    <div className={``}>
+      <div className=" data-table">
+        <MaterialReactTable
+          columns={[...itemColumns]}
+          data={data.nozzleData}
+          enableStickyHeader={true}
+          enableColumnActions={false}
+          enableColumnFilters={false}
+          enablePagination={false}
+          enableSorting={false}
+          enableTopToolbar={false}
+          enableColumnResizing={true}
+          enableColumnFilterModes={false}
+          enableDensityToggle={false}
+          enableFilters={false}
+          enableFullScreenToggle={false}
+          enableGlobalFilter={false}
+          enableHiding={true}
+          enablePinning={true}
+          enableStickyFooter={false}
+          enableMultiRowSelection={true}
+          muiTableBodyRowProps={() => ({
+            sx: { cursor: "pointer" },
+          })}
+          initialState={{
+            density: "compact",
+          }}
+          enableTableFooter={false}
+        />
+      </div>
+    </div>
   );
 }
