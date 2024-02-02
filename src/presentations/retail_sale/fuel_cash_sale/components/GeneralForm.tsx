@@ -159,17 +159,32 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Shift Code
+                Shift
               </label>
             </div>
             <div className="col-span-3">
-              <MUISelect
-                value={data.ShiftCode}
-                items={[{ value: "1", name: "Shift 1" }]}
-                aliaslabel="name"
-                aliasvalue="value"
+              <MUITextField
+                value={data.Shift}
                 onChange={(e) => {
-                  handlerChange("ShiftCode", e.target.value);
+                  handlerChange("Shift", e.target.value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Pump Attendant <span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <DispenserAutoComplete
+                value={data?.PumpAttendant}
+                isStatusActive
+                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                pumpType="Oil"
+                onChange={(e) => {
+                  handlerChange("PumpAttendant", e);
                 }}
               />
             </div>

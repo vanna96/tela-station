@@ -30,6 +30,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
   }
 
   console.log(data)
+  
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = tl_Dispenser?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
