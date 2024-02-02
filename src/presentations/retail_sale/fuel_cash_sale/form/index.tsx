@@ -1,57 +1,28 @@
 import CoreFormDocument from "@/components/core/CoreFormDocument";
 import { withRouter } from "@/routes/withRouter";
 import { LoadingButton } from "@mui/lab";
-import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/IncomingPayment";
-import ContentForm from "../components/ContentForm";
-import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
+import React, { useContext } from "react";
+
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
 import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
-import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
-import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
-import useState from "react";
-import requestHeader from "@/utilies/requestheader";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import { Alert, Button, CircularProgress, Snackbar } from "@mui/material";
 import Consumption from "../components/Consumption";
-import IncomingPaymentForm from "../components/IncomingPayment";
 import StockAllocationForm from "../components/StockAllocation";
+import IncomingPaymentForm from "../components/IncomingPayment";
+import { useNavigate } from "react-router-dom";
 
-class SalesOrderForm extends CoreFormDocument {
+class Form extends CoreFormDocument {
   constructor(props: any) {
     super(props);
     this.state = {
       ...this.state,
-      loading: true,
-      DocumentDate: new Date(),
-      PostingDate: new Date(),
-      DueDate: new Date(),
-      error: {},
-      Branch: 1,
-      BPCurrenciesCollection: [],
-      CurrencyType: "L",
-      Currency: "USD",
-      DocType: "dDocument_Items",
-      ExchangeRate: 1,
-      JournalRemark: "",
-      BPAddresses: [],
-      Rounding: false,
-      DocDiscount: 0,
-      RoundingValue: 0,
-      AttachmentList: [],
-      VatGroup: "S1",
-      type: "sale", // Initialize type with a default value
-      lineofBusiness: "",
-      warehouseCode: "",
+      showCollapse: false,
       nozzleData: [],
       allocationData: [],
       cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
@@ -63,22 +34,13 @@ class SalesOrderForm extends CoreFormDocument {
           check_amount: 0,
         },
       ],
-      isDialogOpen: false,
     } as any;
 
     this.onInit = this.onInit.bind(this);
-    this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
     this.handlerSubmit = this.handlerSubmit.bind(this);
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
-    this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
   }
-  handleLineofBusinessChange = (value: any) => {
-    this.setState({ lineofBusiness: value });
-  };
 
-  handleWarehouseChange = (value: any) => {
-    this.setState({ warehouseCode: value });
-  };
   componentDidMount(): void {
     this.setState({ loading: true });
     this.onInit();
@@ -86,7 +48,7 @@ class SalesOrderForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("retail-sale-series");
+    let seriesList: any;
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
@@ -94,10 +56,9 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("retail-sale-series", seriesList);
     }
-
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `TL_RetailSale('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -107,32 +68,20 @@ class SalesOrderForm extends CoreFormDocument {
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
-
-          // attachment
-          let disabledFields: any = {
-            CurrencyType: true,
+          state = {
+            ...data,
+            vendor,
           };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
-          state["SerieLists"] = seriesList;
           state["loading"] = false;
-          state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
-      state["SerieLists"] = seriesList;
       state["loading"] = false;
-      state["isLoadingSerie"] = false;
       this.setState(state);
     }
-  }
-
-  handlerRemoveItem(code: string) {
-    let items = [...(this.state.Items ?? [])];
-    const index = items.findIndex((e: any) => e?.ItemCode === code);
-    items.splice(index, 1);
-    this.setState({ ...this.state, Items: items });
   }
 
   async handlerSubmit(event: any) {
@@ -140,94 +89,46 @@ class SalesOrderForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     try {
-      this.setState({
-        ...this.state,
-        isSubmitting: false,
-        warehouseCode: "",
-        loading: true,
-      });
+      this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
 
-      if (!data.CardCode) {
-        data["error"] = { CardCode: "Vendor is Required!" };
-        throw new FormValidateException("Vendor is Required!", 0);
-      }
-
-      if (!data?.DueDate) {
-        data["error"] = { DueDate: "End date is Required!" };
-        throw new FormValidateException("End date is Required!", 0);
-      }
-
-      if (!data?.Items || data?.Items?.length === 0) {
-        data["error"] = {
-          Items: "Items is missing and must at least one record!",
-        };
-        throw new FormValidateException("Items is missing", 1);
-      }
-
-      // attachment
-
-      // items
-
-      const warehouseCodeGet = this.state.warehouseCode;
-      const DocumentLines = getItem(
-        data?.Items || [],
-        data?.DocType,
-        warehouseCodeGet
-      );
-      // console.log(this.state.lineofBusiness);
-      const isUSD = (data?.Currency || "USD") === "USD";
-      const roundingValue = data?.RoundingValue || 0;
-      const payloads = {
+      const payload = {
         // general
-        SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
-        DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
-        DocDueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
+        Series: data?.Series,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-
-        // DocCurrency: data?.CurrencyType === "B" ? data?.Currency : "",
-        // DocRate: data?.ExchangeRate || 0,
-        DiscountPercent: data?.DocDiscount,
-        ContactPersonCode: data?.ContactPersonCode || null,
-        DocumentStatus: data?.DocumentStatus,
-        BLPID: data?.BPL_IDAssignedToInvoice ?? 1,
-        U_tl_whsdesc: data?.U_tl_whsdesc,
-        SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.User_Text,
-        U_tl_arbusi: data?.U_tl_arbusi,
-
-        DocumentLines,
+        U_tl_bplid: data?.U_tl_bplid,
+        U_tl_pump: data?.U_tl_pump,
+        U_tl_cardcode: data?.CardCode,
+        U_tl_cardname: data?.CardName,
+        U_tl_shiftcode: data?.U_tl_shift_code,
+        // U_tl_docdate: "2024-01-24T00:00:00Z",
+        // U_tl_docduedate: "2024-01-24T00:00:00Z",
+        // U_tl_taxdate: "2024-01-24T00:00:00Z",
+        //Consumption
+        TL_RETAILSALE_CONHCollection: data?.TL_RETAILSALE_CONHCollection,
+        //Stock Allocation Collection
+        TL_RETAILSALE_STACollection: data?.TL_RETAILSALE_STACollection,
+        //  incoming payment
+        TL_RETAILSALE_INCCollection: data?.TL_RETAILSALE_INCCollection,
       };
 
       if (id) {
-        return await request("PATCH", `/Orders(${id})`, payloads)
+        return await request("PATCH", `/TL_RetailSale('${id}')`, payload)
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/script/test/SO", payloads)
-        .then(async (res: any) => {
-          if ((res && res.status === 200) || 201) {
-            const docEntry = res.data.DocEntry;
-            this.dialog.current?.success("Create Successfully.", docEntry);
-          } else {
-            console.error("Error in POST request:", res.statusText);
-          }
-        })
-        .catch((err: any) => {
-          this.dialog.current?.error(err.message);
-          console.error("Error in POST request:", err.message);
-        })
-        .finally(() => {
-          this.setState({ ...this.state, isSubmitting: false, loading: false });
-        });
+
+      await request("POST", "/TL_RetailSale", payload)
+        .then((res: any) =>
+          this.dialog.current?.success("Create Successfully.", res?.data?.Code)
+        )
+        .catch((err: any) => this.dialog.current?.error(err.message))
+        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
     } catch (error: any) {
       if (error instanceof FormValidateException) {
         this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
@@ -265,7 +166,6 @@ class SalesOrderForm extends CoreFormDocument {
   };
 
   handleCloseDialog = () => {
-    // Close the dialog
     this.setState({ isDialogOpen: false });
   };
 
@@ -347,41 +247,10 @@ class SalesOrderForm extends CoreFormDocument {
     );
   };
 
-  hanndAddNewItem() {
-    if (!this.state?.CardCode) return;
-    if (this.state.DocType === "dDocument_Items")
-      return this.itemModalRef.current?.onOpen(
-        this.state?.CardCode,
-        "sale",
-        this.state.warehouseCode,
-        this.state.Currency
-      );
-  }
-
   FormRender = () => {
-    const getGroupByLineofBusiness = (lineofBusiness: any) => {
-      switch (lineofBusiness) {
-        case "Oil":
-          return 100;
-        case "Lube":
-          return 101;
-        case "LPG":
-          return 102;
-        default:
-          return 0;
-      }
-    };
-
-    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-
+    const navigate = useNavigate();
     return (
       <>
-        <ItemModalComponent
-          type="sale"
-          group={itemGroupCode}
-          onOk={this.handlerConfirmItem}
-          ref={this.itemModalRef}
-        />
         <form
           id="formData"
           onSubmit={this.handlerSubmit}
@@ -402,10 +271,6 @@ class SalesOrderForm extends CoreFormDocument {
                       handlerChange={(key, value) =>
                         this.handlerChange(key, value)
                       }
-                      lineofBusiness={this.state.lineofBusiness}
-                      warehouseCode={this.state.warehouseCode}
-                      onWarehouseChange={this.handleWarehouseChange}
-                      onLineofBusinessChange={this.handleLineofBusinessChange}
                     />
                   )}
                   {this.state.tapIndex === 1 && (
@@ -437,31 +302,47 @@ class SalesOrderForm extends CoreFormDocument {
                   )}
 
                   <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <div className="flex ">
+                    <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                      <div className="flex gap-2">
                         <LoadingButton
+                          onClick={() => navigate(-1)}
+                          variant="outlined"
                           size="small"
-                          sx={{ height: "25px" }}
-                          variant="contained"
+                          sx={{ height: "30px", textTransform: "none" }}
                           disableElevation
                         >
-                          <span className="px-3 text-[11px] py-1 text-white">
+                          <span className="px-3 text-[13px] py-1 text-red-500 font-no">
                             Cancel
                           </span>
                         </LoadingButton>
                       </div>
+                      {this.props.edit && (
+                        <div>
+                          <LoadingButton
+                            variant="outlined"
+                            size="small"
+                            sx={{ height: "30px", textTransform: "none" }}
+                            disableElevation
+                          >
+                            <span className="px-3 text-[13px] py-1 text-green-500">
+                              Add
+                            </span>
+                          </LoadingButton>
+                        </div>
+                      )}
+
                       <div className="flex items-center space-x-4">
                         <LoadingButton
                           type="submit"
-                          sx={{ height: "25px" }}
+                          sx={{ height: "30px", textTransform: "none" }}
                           className="bg-white"
                           loading={false}
                           size="small"
                           variant="contained"
                           disableElevation
                         >
-                          <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Save"}
+                          <span className="px-6 text-[13px] py-4 text-white">
+                            {this.props.edit ? "Update" : "Post"}
                           </span>
                         </LoadingButton>
                       </div>
@@ -477,28 +358,4 @@ class SalesOrderForm extends CoreFormDocument {
   };
 }
 
-export default withRouter(SalesOrderForm);
-
-const getItem = (items: any, type: any, warehouseCode: any) =>
-  items?.map((item: any, index: number) => {
-    return {
-      ItemCode: item.ItemCode || null,
-      Quantity: item.Quantity || null,
-      GrossPrice: item.GrossPrice || item.total,
-      DiscountPercent: item.DiscountPercent || 0,
-      TaxCode: item.VatGroup || item.taxCode || null,
-      UoMEntry: item.UomAbsEntry || null,
-      LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
-      RevenueLine: item.revenueLine ?? "202001",
-      ProductLine: item.REV ?? "203004",
-      BinAbsEntry: item.BinAbsEntry ?? 65,
-      WarehouseCode: item?.WarehouseCode || null,
-      DocumentLinesBinAllocations: [
-        {
-          BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.UnitsOfMeasurement,
-          BaseLineNumber: index,
-        },
-      ],
-    };
-  });
+export default withRouter(Form);

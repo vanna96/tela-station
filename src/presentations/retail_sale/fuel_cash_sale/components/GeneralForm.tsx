@@ -16,10 +16,6 @@ export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
-  lineofBusiness: string;
-  warehouseCode: string;
-  onLineofBusinessChange: (value: any) => void;
-  onWarehouseChange: (value: any) => void;
 }
 
 const fetchDispenserData = async (pump: string) => {
@@ -29,8 +25,6 @@ const fetchDispenserData = async (pump: string) => {
 
 export default function GeneralForm({
   data,
-  onLineofBusinessChange,
-  onWarehouseChange,
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -122,7 +116,6 @@ export default function GeneralForm({
               value={data?.U_tl_arbusi}
               onChange={(e) => {
                 handlerChange("U_tl_arbusi", e.target.value);
-                onLineofBusinessChange(e.target.value);
               }}
             />
           </div>
