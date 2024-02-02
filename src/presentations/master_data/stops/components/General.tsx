@@ -109,7 +109,7 @@ export default function GeneralForm({
                 <div className="col-span-3">
                   <MUITextField
                     inputProps={{
-                      ...register("U_lat"),
+                      ...register("U_lat", { required: 'Latitude is required' })
                     }}
                   />
                 </div>
@@ -124,7 +124,7 @@ export default function GeneralForm({
                 <div className="col-span-3">
                   <MUITextField
                     inputProps={{
-                      ...register("U_lng"),
+                      ...register("U_lng", { required: 'Longitude is required' })
                     }}
                   />
                 </div>

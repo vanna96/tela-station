@@ -26,7 +26,7 @@ export default function TransportationRequestList() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "Code",
+        accessorKey: "DocNum",
         header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -35,7 +35,7 @@ export default function TransportationRequestList() {
         type: "string",
       },
       {
-        accessorKey: "Name",
+        accessorKey: "DocNum",
         header: "Document Number", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -60,7 +60,7 @@ export default function TransportationRequestList() {
         },
       },
       {
-        accessorKey: "U_lng",
+        accessorKey: "U_Terminal",
         header: "Terminal",
         size: 40,
         visible: true,
@@ -158,11 +158,11 @@ export default function TransportationRequestList() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_STOPS`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_TR`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_STOPS/$count?${filter}`
+        `${url}/TL_TR/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -176,7 +176,7 @@ export default function TransportationRequestList() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_STOPS",
+      "TL_TR",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -185,7 +185,7 @@ export default function TransportationRequestList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_TR?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&$orderby= DocEntry desc &${filter}`
       )
