@@ -413,7 +413,7 @@ const VehicleForm = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      (window.location.href = "/master-data/pump-attendant")
+                      (window.location.href = "/master-data/vehicle")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
