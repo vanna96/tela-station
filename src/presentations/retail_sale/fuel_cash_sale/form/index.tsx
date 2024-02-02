@@ -95,23 +95,6 @@ class SalesOrderForm extends CoreFormDocument {
       this.props?.query?.set("orders-series", seriesList);
     }
 
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
-    }
-
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `Orders(${id})`)
@@ -133,17 +116,12 @@ class SalesOrderForm extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
-      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       this.setState(state);
@@ -189,9 +167,6 @@ class SalesOrderForm extends CoreFormDocument {
       }
 
       // attachment
-      let AttachmentEntry = null;
-      const files = data?.AttachmentList?.map((item: any) => item);
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files);
 
       // items
 
@@ -226,41 +201,13 @@ class SalesOrderForm extends CoreFormDocument {
         Comments: data?.User_Text,
         U_tl_arbusi: data?.U_tl_arbusi,
 
-        // content
-        // DocType: data?.DocType,
-        // RoundingDiffAmount: isUSD ? roundingValue : 0,
-        // RoundingDiffAmountFC: isUSD ? 0 : roundingValue,
-        // RoundingDiffAmountSC: isUSD ? roundingValue : 0,
-        // Rounding: data?.Rounding == "true" ? "tYES" : "tNO",
-        // DocumentsOwner: data?.Owner || null,
-        // DiscountPercent: data?.DocDiscount,
         DocumentLines,
-
-        // logistic
-        // ShipToCode: data?.ShippingTo || null,
-        PayToCode: data?.PayToCode || null,
-        // TransportationCode: data?.ShippingType,
-        U_tl_grsuppo: data?.U_tl_grsuppo,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
-        // Address: data?.Address2,
-
-        // accounting
-        // FederalTaxID: data?.FederalTax || null,
-        // PaymentMethod: data?.PaymentMethod || null,
-        // CashDiscountDateOffset: data?.CashDiscount || 0,
-        // CreateQRCodeFrom: data?.QRCode || null,
-        // PaymentGroupCode: data?.PaymentTermType || null,
-        // JournalMemo: data?.JournalRemark,
-        // Project: data?.BPProject || null,
-        // attachment
-        AttachmentEntry,
       };
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -462,18 +409,6 @@ class SalesOrderForm extends CoreFormDocument {
                     />
                   )}
                   {this.state.tapIndex === 1 && (
-                    // <ContentForm
-                    //   data={this.state}
-                    //   handlerAddItem={() => {
-                    //     this.hanndAddNewItem();
-                    //   }}
-                    //   handlerRemoveItem={(items: any[]) =>
-                    //     this.setState({ ...this.state, Items: items })
-                    //   }
-                    //   handlerChangeItem={this.handlerChangeItems}
-                    //   onChangeItemByCode={this.handlerChangeItemByCode}
-                    //   onChange={this.handlerChange}
-                    // />
                     <Consumption
                       data={this.state}
                       handlerChange={this.handlerChange}
@@ -552,7 +487,6 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
       GrossPrice: item.GrossPrice || item.total,
       DiscountPercent: item.DiscountPercent || 0,
       TaxCode: item.VatGroup || item.taxCode || null,
-      // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       LineOfBussiness: item?.LineOfBussiness ? "201001" : "201002",
       RevenueLine: item.revenueLine ?? "202001",
@@ -563,8 +497,6 @@ const getItem = (items: any, type: any, warehouseCode: any) =>
         {
           BinAbsEntry: item.BinAbsEntry,
           Quantity: item.UnitsOfMeasurement,
-          // AllowNegativeQuantity: "tNO",
-          // SerialAndBatchNumbersBaseLine: -1,
           BaseLineNumber: index,
         },
       ],
