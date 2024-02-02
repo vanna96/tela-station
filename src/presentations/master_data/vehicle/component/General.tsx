@@ -46,7 +46,8 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Code <span className="text-red-500 ml-1">*</span>
+                  Vehicle Code{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -65,7 +66,8 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Name <span className="text-red-500 ml-1">*</span>
+                  Vehicle Name{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -84,7 +86,8 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Type <span className="text-red-500 ml-1">*</span>
+                  Vehicle Type{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -120,40 +123,39 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
+            {/* <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Ownership <span className="text-red-500 ml-1">*</span>
+                  Driver
+                </label>
+              </div>
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-3">
+                  <MUITextField
+                    disabled={detail}
+                    inputProps={{
+                      ...register("U_Number", {
+                        required: "Vehicle Number is required",
+                      }),
+                    }}
+                  />
+                </div>
+              </div>
+            </div> */}
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Vehicle Number{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  rules={{
-                    required: "Ownership is required",
-                  }}
-                  name="U_Owner"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <MUISelect
-                        disabled={detail}
-                        items={[
-                          { label: "Own", value: "Own" },
-                          { label: "Rent", value: "Rent" },
-                        ]}
-                        onChange={(e: any) => {
-                          setValue("U_Owner", e.target.value);
-                          setHeader({ ...header, owner: e?.target?.value });
-                          setStaticSelect({
-                            ...staticSelect,
-                            U_Owner: e.target.value,
-                          });
-                        }}
-                        value={staticSelect.U_Owner || defaultValues?.U_Owner}
-                        aliasvalue="value"
-                        aliaslabel="label"
-                      />
-                    );
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_VH_NO", {
+                      required: "Vehicle Number is required",
+                    }),
                   }}
                 />
               </div>
@@ -257,7 +259,8 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Plat Number <span className="text-red-500 ml-1">*</span>
+                  Plat Number{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -276,16 +279,38 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Vehicle Number <span className="text-red-500 ml-1">*</span>
+                  Ownership{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("U_Number", {
-                      required: "Vehicle Number is required",
-                    }),
+                <Controller
+                  rules={{
+                    required: "Ownership is required",
+                  }}
+                  name="U_Owner"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        disabled={detail}
+                        items={[
+                          { label: "Own", value: "Own" },
+                          { label: "Rent", value: "Rent" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("U_Owner", e.target.value);
+                          setHeader({ ...header, owner: e?.target?.value });
+                          setStaticSelect({
+                            ...staticSelect,
+                            U_Owner: e.target.value,
+                          });
+                        }}
+                        value={staticSelect.U_Owner || defaultValues?.U_Owner}
+                        aliasvalue="value"
+                        aliaslabel="label"
+                      />
+                    );
                   }}
                 />
               </div>

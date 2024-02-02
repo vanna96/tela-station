@@ -53,16 +53,20 @@ export default function Compartment({
               <th className="w-[100px] "></th>
 
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Compart. No
+                Compart. No{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Volume (Litre)
+                Volume (Litre){" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Top Hatch
+                Top Hatch{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Bottom Hatch
+                Bottom Hatch{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
             </tr>
             {compart?.length === 0 && (
@@ -156,9 +160,7 @@ export default function Compartment({
             })}
           </table>
           {detail ? (
-            <span
-              className="p-1 text-sm rounded-md bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md"
-            >
+            <span className="p-1 text-sm rounded-md bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md">
               + Add
             </span>
           ) : (

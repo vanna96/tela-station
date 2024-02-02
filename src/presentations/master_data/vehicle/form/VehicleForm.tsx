@@ -113,6 +113,7 @@ const VehicleForm = (props: any) => {
         ([key, value]): any => value !== null && value !== undefined
       )
     );
+    
     const payload = {
       ...data,
       TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
@@ -159,6 +160,7 @@ const VehicleForm = (props: any) => {
     } finally {
       setState({ ...state, isSubmitting: false });
     }
+    
   };
 
   const handlerChangeMenu = useCallback(

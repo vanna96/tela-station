@@ -34,6 +34,12 @@ export default function Commercial({
   };
 
   const handlerChangeCommer = (key: string, value: any, index: number) => {
+    if (value === "") {
+      // Value is required, trigger alert
+      alert(`${key} is required`);
+      return;
+    }
+
     const updated = commer.map((item: any, idx: number) => {
       if (idx === index) {
         return {
@@ -59,22 +65,28 @@ export default function Commercial({
               <th className="w-[100px] "></th>
 
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Type
+                Type{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Name
+                Name{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Issue Date
+                Issue Date{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Expire Date
+                Expire Date{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
-                Fee
+                Fee{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
-                Referance
+                Referance{" "}
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
             </tr>
             {commer?.length === 0 && (
