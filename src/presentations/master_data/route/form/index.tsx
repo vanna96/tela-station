@@ -301,13 +301,20 @@ class RouteForm extends CoreFormDocument {
             <div className="sticky w-full bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
-                  <LoadingButton
+                <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
-                    variant="contained"
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
                     disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">
+                    <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
                     </span>
                   </LoadingButton>
