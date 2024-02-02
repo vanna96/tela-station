@@ -29,8 +29,10 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
     data.nozzleData = tl_Dispenser;
   }
 
-  console.log(data)
-  
+  console.log(tl_Dispenser);
+
+  console.log(data);
+
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = tl_Dispenser?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -115,7 +117,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
             New Meter <span className="text-red-500">*</span>
           </label>
         ),
-        accessorKey: "U_tl_upd_meter",
+        accessorKey: "new_meter",
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -127,10 +129,10 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
-              defaultValue={cell.getValue()}
+              defaultValue={cell.getValue() ?? 0}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_upd_meter: e.target.value,
+                  new_meter: e.target.value,
                 })
               }
             />
@@ -138,7 +140,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
         },
       },
       {
-        accessorKey: "U_tl_reg_meter",
+        accessorKey: "U_tl_upd_meter",
         header: "Old Meter",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -150,7 +152,11 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
-              defaultValue={cell.getValue()}
+              defaultValue={
+                cell.row.original.U_tl_upd_meter
+                  ? cell.getValue()
+                  : cell.row.original.U_tl_reg_meter
+              }
             />
           );
         },
