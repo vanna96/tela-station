@@ -20,7 +20,7 @@ export type UseFormProps = {
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
   edit?: boolean;
-  detail:boolean;
+  detail: boolean;
   defaultValues?:
     | Readonly<{
         [x: string]: any;
@@ -96,14 +96,14 @@ const StopsForm = (props: any) => {
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/TL_STOPS", payload)
-        .then(async (res: any) => {
-          if ((res && res.status === 200) || 201) {
-            const docEntry = res.data.Code;
-           dialog.current?.success("Create Successfully.", docEntry);
-          } else {
-            console.error("Error in POST request:", res.statusText);
-          }
-        })
+          .then(async (res: any) => {
+            if ((res && res.status === 200) || 201) {
+              const docEntry = res.data.Code;
+              dialog.current?.success("Create Successfully.", docEntry);
+            } else {
+              console.error("Error in POST request:", res.statusText);
+            }
+          })
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       }
@@ -148,7 +148,7 @@ const StopsForm = (props: any) => {
         "Oop something wrong!",
       "Invalid Value"
     );
-};
+  };
   return (
     <>
       {state.loading ? (
@@ -177,7 +177,7 @@ const StopsForm = (props: any) => {
             {state.tapIndex === 0 && (
               <h1>
                 <GeneralForm
-                detail={props.detail}
+                  detail={props.detail}
                   register={register}
                   setValue={setValue}
                   control={control}
@@ -187,9 +187,11 @@ const StopsForm = (props: any) => {
               </h1>
             )}
             {/* ... Other form fields ... */}
-            <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                <div className="flex ">
+            <div className="absolute w-full bottom-4 mt-2">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex gap-3 border drop-shadow-sm">
+                <div className="flex ml-auto">
+                  {" "}
+                  {/* Use ml-auto to push to the right */}
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
@@ -211,8 +213,8 @@ const StopsForm = (props: any) => {
                     variant="contained"
                     disableElevation
                   >
-                    <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Save"}
+                    <span className="px-5 text-[11px] py-4 text-white">
+                      {props.edit ? "Update" : "Add"}
                     </span>
                   </LoadingButton>
                 </div>
