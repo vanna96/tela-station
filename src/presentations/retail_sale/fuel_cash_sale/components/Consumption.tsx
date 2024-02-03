@@ -35,7 +35,7 @@ export default function Consumption({
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
           <h2>Nozzle Data</h2>{" "}
         </div>
-        <NozzleData data={data} onChange={handlerChange} />
+        <NozzleData data={data} onChange={handlerChange} edit={edit} />
 
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
           <h2>Allocation</h2>{" "}
@@ -60,7 +60,7 @@ export default function Consumption({
           </Button>
         </div>
         {showAllocationTable && (
-          <AllocationTable data={data} onChange={handlerChange} />
+          <AllocationTable data={data} onChange={handlerChange} edit={edit} />
         )}
       </div>
     </>
