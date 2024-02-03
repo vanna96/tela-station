@@ -15,6 +15,7 @@ import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
+import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
 
 const General = ({
   register,
@@ -32,6 +33,7 @@ const General = ({
     status: "",
     expiredDate: null,
     branchASS: null,
+    emp: null
   });
 
   useEffect(() => {
@@ -67,7 +69,8 @@ const General = ({
                         {...field}
                         value={defaultValues?.U_Requester}
                         onChange={(e: any) => {
-                          setValue("U_Requester", e);
+                          setValue("U_Requester", e?.FirstName);
+                          setHeader({ ...header, U_Requester: e?.FirstName });
                         }}
                       />
                     );
@@ -95,24 +98,33 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Destination
-                  <span className="text-red-500">*</span>
+                Terminal
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseAttendTo
-                  onChange={(e: any) => {
-                    setBranchAss([e]);
-                    setHeader({ ...header, U_Terminal: e?.BPLName });
+                <Controller
+                  name="U_Terminal"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BaseStationAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_Terminal}
+                        onChange={(e: any) => {
+                          setValue("U_Terminal", e);
+                          setHeader({ ...header, base: e });
+                        }}
+                      />
+                    );
                   }}
-                  value={staticSelect?.branchASS}
                 />
               </div>
             </div>
           </div>
 
           <div className="col-span-5 w-[50%]">
-            <div className="grid grid-cols-5 py-2">
+            {/* <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Mobile Phone
@@ -126,7 +138,7 @@ const General = ({
                   }}
                 />
               </div>
-            </div>
+            </div> */}
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">

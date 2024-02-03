@@ -53,7 +53,11 @@ export default function ExpenseTable(
   const columns = [
     {
       accessorKey: "U_Code",
-      header: "Expense Code",
+      header: (
+        <>
+          Expense Code<span style={{ color: "red" }}>*</span>
+        </>
+      ),
       Cell: ({ cell }: any) => (
         <>
           <ExpDicAutoComplete
@@ -66,32 +70,13 @@ export default function ExpenseTable(
                 U_Code: e,
               });
               handlerChangeItem(cell?.row?.id || 0, {
-                U_Description: new ExpdicRepository().find(e)?.Name
+                U_Description: new ExpdicRepository().find(e)?.Name,
               });
-
             }}
           />
         </>
       ),
     },
-    // {
-    //   accessorKey: "U_Description",
-    //   header: "Description",
-    //   Cell: ({ cell }: any) => (
-    //     <MUITextField
-    //       key={"U_Description" + cell.getValue() + cell?.row?.id}
-    //       // value={ new ExpdicRepository().find(cell.row.original.U_Code)?.Name}
-    //       // value={cell.row.original.U_Description}
-    //       defaultValue={cell.row.original?.U_Description || ""}
-    //       onChange={(e: any) => {
-    //         // console.log(e);
-    //         handlerChangeItem(cell?.row?.id , {
-    //           U_Description: e.target.value,
-    //         });
-    //       }}
-    //     />
-    //   ),
-    // },
     {
       accessorKey: "U_Description",
       header: "Description",
@@ -110,21 +95,28 @@ export default function ExpenseTable(
     },
     {
       accessorKey: "U_Amount",
-      header: "Expense Amount",
+      header: (
+        <>
+          Amount<span style={{ color: "red" }}>*</span>
+        </>
+      ),
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"U_Amount" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
-          type="number"
-          defaultValue={cell.row.original?.U_Amount || ""}
+          type="text"
+          defaultValue={`USD ${cell.row.original?.U_Amount || ""}`}
           onBlur={(e: any) => {
+            // Extract numerical value without "USD" prefix
+            const numericValue = e.target.value.replace("USD", "").trim();
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Amount: e.target.value,
+              U_Amount: numericValue,
             });
           }}
         />
       ),
-    },
+    }
+    
   ];
   console.log(data);
 
@@ -143,7 +135,6 @@ export default function ExpenseTable(
             />
           </>
         )}
-        <AiOutlineSetting className="cursor-pointer" />
       </div>
       <MaterialReactTable
         columns={columns}

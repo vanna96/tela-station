@@ -28,7 +28,7 @@ const branchAss: any = useQuery({
      queryFn: () => new BranchBPLRepository().get(),
      staleTime: Infinity,
    });
-  console.log(branchAss);
+  // console.log(branchAss);
 
   const emp: any = useQuery({
     queryKey: ["manager"],
@@ -36,7 +36,7 @@ const branchAss: any = useQuery({
     staleTime: Infinity,
   });
 
- console.log(emp);
+//  console.log(emp);
   
 
   const [searchValues, setSearchValues] = React.useState<any>({

@@ -17,6 +17,9 @@ import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import ManagerRepository from "@/services/actions/ManagerRepository";
+import EmployeeRepository from "@/services/actions/employeeRepository";
+import Document from "../components/Document";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -29,6 +32,7 @@ export type UseFormProps = {
     | undefined;
   setBranchAss?: any;
   branchAss?: any;
+  emp?: any;
   header?: any;
   setHeader?: any;
   detail?: boolean;
@@ -58,15 +62,25 @@ const Form = (props: any) => {
     firstName: null,
     lastName: null,
     gender: null,
-    department: null,
     branch: null,
+    status: "O",
+
   });
 
   const [branchAss, setBranchAss] = useState([]);
-  const [driver, setDriver] = React.useState<any>();
 
+  const [request, setRequest] = React.useState<any>();
+
+  React.useEffect(() => {  const collecttions = document?.TL_TR_ROWCollection;
+  const [emp, setEmp] = useState([]);
+  const [collection, setCollection] = useState<any[]>(collecttions ?? []);
+
+    if (document && collecttions) {
+      reset({ ...document });
+      setCollection(collecttions);
+    }
+  }, [document, collecttions]);
   useEffect(() => {
-    // Fetch initial data if needed
     fetchData();
   }, []);
 
@@ -99,35 +113,37 @@ const Form = (props: any) => {
     );
     const payload = {
       ...data,
-      // U_tl_driver: "Y",
-      // EmployeeBranchAssignment: branchAss?.map((e: any) => {
-      //   return {
-      //     BPLID: e?.BPLID,
-      //   };
-      // }),
-    };
+      TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
+        return {
+          U_IssueDate: e?.U_IssueDate,
+          U_ExpiredDate: e?.U_ExpiredDate,
+          U_Type: e?.U_Type,
+          U_Name: e?.U_Name,
+          U_Fee: e?.U_Fee,
+          U_Ref: e?.U_Ref,
+        };
+      }),
+    }
     const { id } = props?.match?.params || 0;
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
         await request("PATCH", `/TL_TR(${id})`, payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Update Successfully.",
-                res?.data?.EmployeeID
-              )
+          .then((res: any) =>
+            dialog.current?.success(
+              "Update Successfully.",
+              res?.data?.EmployeeID
+            )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/TL_TR", payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Create Successfully.",
-                res?.data?.EmployeeID
-              )
+          .then((res: any) =>
+            dialog.current?.success(
+              "Create Successfully.",
+              res?.data?.EmployeeID
+            )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -176,30 +192,38 @@ const Form = (props: any) => {
   }, [driver]);
 
   const Left = ({ header, data }: any) => {
+    const branchAss: any = useQuery({
+      queryKey: ["branchAss"],
+      queryFn: () => new BranchBPLRepository().get(),
+      staleTime: Infinity,
+    });
+    const emp: any = useQuery({
+      queryKey: ["manager"],
+      queryFn: () => new ManagerRepository().get(),
+      staleTime: Infinity,
+    });
+
     return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+      <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
-            <span className="">First Name </span>
+            <span className="">Requester</span>
           </div>
           <div>
-            <span className="">Last Name </span>
-          </div>
-          <div>
-            <span className="">Gender </span>
+            <span className="mt-10">Branch</span>
           </div>
         </div>
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
-            <span>{data?.FirstName || header?.firstName || "_"}</span>
-          </div>
-          <div>
-            <span>{data?.LastName || header?.lastName || "_"}</span>
+            <span className="mb-[27px] inline-block">
+            {new EmployeeRepository()?.find(data?.Department)?.FirstName ||header?.firstName ||"_"}
+            </span>
           </div>
           <div>
             <span>
-              {data?.Gender?.replace("gt_", "") ||
-                header?.gender?.replace("gt_", "") ||
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
+                ?.BPLName ||
+                header?.U_Branch ||
                 "_"}
             </span>
           </div>
@@ -208,35 +232,25 @@ const Form = (props: any) => {
     );
   };
   const Right = ({ header, data }: any) => {
-    const branchAss: any = useQuery({
-      queryKey: ["branchAss"],
-      queryFn: () => new BranchBPLRepository().get(),
-      staleTime: Infinity,
-    });
     return (
       <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department </span>
+            <span className="mr-10 mb-[27px] inline-block">Terminal</span>
           </div>
           <div>
-            <span className="mr-10">Branch</span>
+            <span className="mr-10">Status</span>
           </div>
         </div>
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
-            <span className="mb-[27px] inline-block">
-              {new DepartmentRepository()?.find(data?.Department)?.Name ||
-                header?.department ||
-                "_"}
-            </span>
+            <span>{data?.U_Terminal || header?.base || "_"}</span>
           </div>
-          <div>
-            <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.branch ||
-                "_"}
+          <div className="mt-7">
+          <span>
+              {data?.Status || header?.status == "O"
+                ? "Active"
+                : "Inactive" || "_"}
             </span>
           </div>
         </div>
@@ -292,26 +306,39 @@ const Form = (props: any) => {
                   defaultValues={defaultValues}
                   setBranchAss={setBranchAss}
                   branchAss={branchAss}
+                  emp={emp}
                   header={header}
                   setHeader={setHeader}
                 />
               </h1>
             )}
-            {state.tapIndex === 1 && (
-              <h1>
-                  <General setValue={setValue} register={register}  />
-              </h1>
+             {state.tapIndex === 4 && (
+              <div className="m-5">
+                <Document
+                  commer={commer}
+                  control={control}
+                  setCommer={setCommer}
+                  data={vehicle}
+                />
+              </div>
             )}
             <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
-                  <LoadingButton
+                <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
-                    variant="contained"
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
                     disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
                   >
-                    <span className="px-3 text-[11px] py-1 text-white">
+                    <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
                     </span>
                   </LoadingButton>
