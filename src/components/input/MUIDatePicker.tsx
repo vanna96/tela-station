@@ -62,11 +62,6 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
       <div className={`date-picker ${false ? "date-picker-error" : ""} `}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DesktopDatePicker
-            PopperProps={{
-              style: {
-                color: theme === "light" ? "" : "#FFFFFF",
-              },
-            }}
             inputFormat="DD.MMMM.YYYY"
             value={dateVal}
             disabled={disabled}
