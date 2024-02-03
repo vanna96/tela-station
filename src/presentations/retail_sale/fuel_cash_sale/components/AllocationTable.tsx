@@ -50,7 +50,9 @@ export default function AllocationTable({
   //     ];
 
   const AllocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
-
+  if (AllocationData.length > 0) {
+    data.allocationData = AllocationData;
+  }
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = AllocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;

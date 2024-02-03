@@ -54,7 +54,6 @@ export default function GeneralForm({
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-  console.log(data);
 
   const seriesSO =
     data.seriesList.find((series: any) => series.BPLID === BPL)?.Series || "";

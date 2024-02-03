@@ -46,7 +46,6 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
       ];
 
   console.log(datattest);
-
   if (tl_Dispenser.length > 0) {
     data.nozzleData = tl_Dispenser;
   }
