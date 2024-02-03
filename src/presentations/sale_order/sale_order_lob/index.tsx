@@ -497,32 +497,6 @@ export default function SaleOrderLists() {
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "TaxDate" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
             </div>
           </div>
         </div>
