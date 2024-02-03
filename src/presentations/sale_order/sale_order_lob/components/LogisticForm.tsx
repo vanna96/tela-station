@@ -46,9 +46,10 @@ export default function LogisticForm({
                 <WarehouseAutoComplete
                   Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                   value={data?.U_tl_dnsuppo}
-                  onChange={(e) => {
-                    handlerChange("U_tl_dnsuppo", e);
-                  }}
+                  disabled
+                  // onChange={(e) => {
+                  //   handlerChange("U_tl_dnsuppo", e);
+                  // }}
                 />
               </div>
             </div>

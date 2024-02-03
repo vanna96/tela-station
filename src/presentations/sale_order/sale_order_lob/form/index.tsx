@@ -341,7 +341,7 @@ class SalesOrderForm extends CoreFormDocument {
         ShipToCode: data?.ShipToCode || "",
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
+        U_tl_dnsuppo: data?.U_tl_whsdesc,
         // AttachmentEntry,
       };
 
@@ -368,7 +368,7 @@ class SalesOrderForm extends CoreFormDocument {
         // logistic
         ShipToCode: data?.ShipToCode || null,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
+        U_tl_dnsuppo: data?.U_tl_whsdesc,
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
         // AttachmentEntry,
