@@ -65,7 +65,6 @@ export default function Lists() {
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
-        visible: true,
         Cell: (cell: any, index: number) => {
           console.log(sortBy);
           return (

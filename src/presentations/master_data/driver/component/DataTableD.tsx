@@ -1,10 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@mui/material";
 import { HiRefresh } from "react-icons/hi";
 import { BiFilterAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineSetting } from "react-icons/ai";
-import MaterialReactTable from "material-react-table";
+import MaterialReactTable, { MRT_RowSelectionState } from "material-react-table";
 import { BsPencilSquare, BsSortDown } from "react-icons/bs";
 import MenuCompoment from "@/components/data_table/MenuComponent";
 import { ThemeContext } from "@/contexts";
@@ -116,6 +116,13 @@ export default function DataTable(props: DataTableProps) {
 
     return csvContent;
   };
+  const getRow = (e:any) => {
+  console.log(e);
+    
+  }
+    const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+console.log(rowSelection);
+
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
@@ -217,7 +224,8 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableDensityToggle={true}
           // enableColumnResizing
-
+          enableRowSelection={true}
+          onRowSelectionChange={setRowSelection}
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -229,15 +237,24 @@ export default function DataTable(props: DataTableProps) {
           muiTablePaginationProps={{
             rowsPerPageOptions: [5, 10, 15],
           }}
+          muiTableBodyRowProps={({ row }) => ({
+            onClick: () =>
+              setRowSelection((prev) => ({
+                ...prev,
+                [row.id]: !prev[row.id],
+                selected: rowSelection[row.id],
+              })),
+          })}
           enableFilters={false}
           enableGlobalFilter={false}
           rowCount={props.count ?? 0}
-          getRowId={(row: any) => row.DocEntry}
+          getRowId={(e: any) => e?.EmployeeID}
           onPaginationChange={props.paginationChange}
           state={{
             isLoading: props.loading,
             pagination: props.pagination,
             columnVisibility: colVisibility,
+            rowSelection,
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}

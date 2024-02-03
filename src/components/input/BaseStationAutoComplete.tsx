@@ -6,6 +6,7 @@ import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import WarehouseRepository from "@/services/warehouseRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
   WarehouseCode: string;
@@ -20,10 +21,22 @@ export default function BaseStationAutoComplete(props: {
   disabled?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["warehouse"],
-    queryFn: () => new WarehouseRepository().get(),
-    staleTime: Infinity,
+    queryKey: ["TL_WH"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}//Warehouses?$filter=U_tl_attn_ter eq 'Y'`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    cacheTime: 0,
+    staleTime: 0,
   });
+console.log(data);
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
