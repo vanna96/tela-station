@@ -102,21 +102,19 @@ export default function ExpenseTable(
       ),
       Cell: ({ cell }: any) => (
         <MUITextField
+          startAdornment={"USD"}
           key={"U_Amount" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
-          type="text"
-          defaultValue={`USD ${cell.row.original?.U_Amount || ""}`}
+          type="number"
+          defaultValue={cell.row.original?.U_Amount || ""}
           onBlur={(e: any) => {
-            // Extract numerical value without "USD" prefix
-            const numericValue = e.target.value.replace("USD", "").trim();
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Amount: numericValue,
+              U_Amount: e.target.value,
             });
           }}
         />
       ),
-    }
-    
+    },
   ];
   console.log(data);
 

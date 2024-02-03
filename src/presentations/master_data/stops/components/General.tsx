@@ -55,7 +55,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUITextField
                   inputProps={{
-                    ...register("Name"),
+                    ...register("Name", { required: 'Description is required' })
                   }}
                 />
               </div>

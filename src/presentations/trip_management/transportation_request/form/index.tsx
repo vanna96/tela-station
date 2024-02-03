@@ -71,10 +71,10 @@ const Form = (props: any) => {
 
   const [request, setRequest] = React.useState<any>();
 
-  React.useEffect(() => {  const collecttions = document?.TL_TR_ROWCollection;
+  const collecttions = request?.TL_TR_ROWCollection;
   const [emp, setEmp] = useState([]);
   const [collection, setCollection] = useState<any[]>(collecttions ?? []);
-
+  React.useEffect(() => {
     if (document && collecttions) {
       reset({ ...document });
       setCollection(collecttions);
@@ -93,7 +93,7 @@ const Form = (props: any) => {
       await request("GET", `TL_TR(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
-          setDriver(res?.data);
+          setRequest(res?.data);
           setState({
             ...state,
             loading: false,
@@ -113,7 +113,7 @@ const Form = (props: any) => {
     );
     const payload = {
       ...data,
-      TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
+      TL_TR_ROWCollection: collection?.map((e: any) => {
         return {
           U_IssueDate: e?.U_IssueDate,
           U_ExpiredDate: e?.U_ExpiredDate,
@@ -186,10 +186,10 @@ const Form = (props: any) => {
   };
 
   React.useEffect(() => {
-    if (driver) {
-      reset({ ...driver });
+    if (request) {
+      reset({ ...request });
     }
-  }, [driver]);
+  }, [request]);
 
   const Left = ({ header, data }: any) => {
     const branchAss: any = useQuery({
@@ -216,8 +216,10 @@ const Form = (props: any) => {
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
             <span className="mb-[27px] inline-block">
-            {new EmployeeRepository()?.find(data?.Department)?.FirstName ||header?.firstName ||"_"}
-            </span>
+            {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
+                ?.BPLName ||
+                header?.U_Branch ||
+                "_"}            </span>
           </div>
           <div>
             <span>
@@ -273,8 +275,8 @@ const Form = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={driver} />
-                <Right header={header} data={driver} />
+                <Left header={header} data={request} />
+                <Right header={header} data={request} />
                 {/* <TotalSummaryRightSide data={this.state} /> */}
               </>
             }
@@ -312,13 +314,13 @@ const Form = (props: any) => {
                 />
               </h1>
             )}
-             {state.tapIndex === 4 && (
+             {state.tapIndex === 1 && (
               <div className="m-5">
                 <Document
-                  commer={commer}
+                  collection={collection}
                   control={control}
-                  setCommer={setCommer}
-                  data={vehicle}
+                  setCollection={setCollection}
+                  data={request}
                 />
               </div>
             )}

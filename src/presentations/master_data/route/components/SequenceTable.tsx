@@ -4,6 +4,7 @@ import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
 import { MdDeleteOutline } from "react-icons/md";
 import MUITextField from "@/components/input/MUITextField";
 import StopsSelect from "@/components/selectbox/StopsSelect";
+import { FaMapMarkerAlt } from "react-icons/fa";
 export default function SequenceTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -134,10 +135,35 @@ export default function SequenceTable(props: any) {
     },
     {
       accessorKey: "LineId",
-      header: "Pointed",
-
+      header: (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span className="ml-[70px]">Pointed</span>
+        </div>
+      ),
       Cell: ({ cell }: any) => (
-        <div>a</div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "green",
+              fontSize: "20px",
+              verticalAlign: "middle",
+            }}
+          >
+            <FaMapMarkerAlt />
+          </span>
+        </div>
       ),
     },
   ];
