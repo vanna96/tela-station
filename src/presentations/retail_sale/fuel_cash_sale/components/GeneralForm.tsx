@@ -16,10 +16,6 @@ export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
-  lineofBusiness: string;
-  warehouseCode: string;
-  onLineofBusinessChange: (value: any) => void;
-  onWarehouseChange: (value: any) => void;
 }
 
 const fetchDispenserData = async (pump: string) => {
@@ -29,8 +25,6 @@ const fetchDispenserData = async (pump: string) => {
 
 export default function GeneralForm({
   data,
-  onLineofBusinessChange,
-  onWarehouseChange,
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -55,13 +49,14 @@ export default function GeneralForm({
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
-  const filteredSeries = data?.SerieLists?.filter(
+  const filteredSeries = data?.seriesList?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
+  console.log(data);
 
   const seriesSO =
-    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+    data.seriesList.find((series: any) => series.BPLID === BPL)?.Series || "";
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
@@ -105,12 +100,12 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <DispenserAutoComplete
-                value={data?.Pump}
+                value={data?.U_tl_pump}
                 isStatusActive
                 branch={data?.BPL_IDAssignedToInvoice ?? BPL}
                 pumpType="Oil"
                 onChange={(e) => {
-                  handlerChange("Pump", e);
+                  handlerChange("U_tl_pump", e);
                 }}
               />
             </div>
@@ -122,7 +117,6 @@ export default function GeneralForm({
               value={data?.U_tl_arbusi}
               onChange={(e) => {
                 handlerChange("U_tl_arbusi", e.target.value);
-                onLineofBusinessChange(e.target.value);
               }}
             />
           </div>
@@ -139,8 +133,9 @@ export default function GeneralForm({
                 error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
-                defaultValue={data?.CardCode}
+                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
+              disabled={edit}
                 endAdornment={!edit}
               />
             </div>
@@ -152,7 +147,11 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField value={data?.CardName} disabled name="BPName" />
+              <MUITextField
+                value={edit ? data.U_tl_cardname : data?.CardName}
+                disabled
+                name="BPName"
+              />
             </div>
           </div>
 
@@ -201,7 +200,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={filteredSeries ?? data.SerieLists}
+                  items={filteredSeries ?? data.seriesList}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"

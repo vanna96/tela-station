@@ -26,7 +26,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
   }, [data?.error]);
 
   const tl_Dispenser = [
-    ...data.DispenserData.TL_DISPENSER_LINESCollection?.filter(
+    ...data.DispenserData?.TL_DISPENSER_LINESCollection?.filter(
       (e: any) => e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
     ),
   ];
