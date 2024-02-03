@@ -16,10 +16,6 @@ export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
-  lineofBusiness: string;
-  warehouseCode: string;
-  onLineofBusinessChange: (value: any) => void;
-  onWarehouseChange: (value: any) => void;
 }
 
 const fetchDispenserData = async (pump: string) => {
@@ -29,8 +25,6 @@ const fetchDispenserData = async (pump: string) => {
 
 export default function GeneralForm({
   data,
-  onLineofBusinessChange,
-  onWarehouseChange,
   handlerChange,
   edit,
 }: IGeneralFormProps) {
@@ -48,54 +42,27 @@ export default function GeneralForm({
   if (isError) {
     console.error("Error fetching dispenser data");
   }
-
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
-
-  //Filtering SO series
-  const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const filteredSeries = data?.seriesList?.filter(
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
+  console.log(data);
 
   const seriesSO =
-    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+    data.seriesList.find((series: any) => series.BPLID === BPL)?.Series || "";
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
-  // Finding date and to filter DN and INVOICE series Name
-  const currentDate = new Date();
-  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
-  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
-  const formattedMonth = month.toString().padStart(2, "0");
-  const formattedDateA = `23A${formattedMonth}`;
-  const formattedDateB = `23B${formattedMonth}`;
-
-  const seriesDN = (
-    data?.dnSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
-  const seriesIN = (
-    data?.invoiceSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
   if (data) {
-    data.DNSeries = seriesDN;
-    data.INSeries = seriesIN;
     data.Series = seriesSO;
     data.U_tl_arbusi = "Oil";
     data.lineofBusiness = "Oil";
@@ -133,9 +100,12 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <DispenserAutoComplete
-                value={data?.Pump}
+                value={data?.U_tl_pump}
+                isStatusActive
+                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                pumpType="Oil"
                 onChange={(e) => {
-                  handlerChange("Pump", e);
+                  handlerChange("U_tl_pump", e);
                 }}
               />
             </div>
@@ -143,23 +113,10 @@ export default function GeneralForm({
           <div>
             <input
               hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
-            <input
-              hidden
               name="U_tl_arbusi"
               value={data?.U_tl_arbusi}
               onChange={(e) => {
                 handlerChange("U_tl_arbusi", e.target.value);
-                onLineofBusinessChange(e.target.value);
               }}
             />
           </div>
@@ -176,8 +133,9 @@ export default function GeneralForm({
                 error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
-                defaultValue={data?.CardCode}
+                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
+              disabled={edit}
                 endAdornment={!edit}
               />
             </div>
@@ -189,24 +147,43 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField value={data?.CardName} disabled name="BPName" />
+              <MUITextField
+                value={edit ? data.U_tl_cardname : data?.CardName}
+                disabled
+                name="BPName"
+              />
             </div>
           </div>
 
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Shift Code
+                Shift
               </label>
             </div>
             <div className="col-span-3">
-              <MUISelect
-                value={data.ShiftCode}
-                items={[{ value: "1", name: "Shift 1" }]}
-                aliaslabel="name"
-                aliasvalue="value"
+              <MUITextField
+                value={data.Shift}
                 onChange={(e) => {
-                  handlerChange("ShiftCode", e.target.value);
+                  handlerChange("Shift", e.target.value);
+                }}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Pump Attendant <span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <DispenserAutoComplete
+                value={data?.PumpAttendant}
+                isStatusActive
+                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                pumpType="Oil"
+                onChange={(e) => {
+                  handlerChange("PumpAttendant", e);
                 }}
               />
             </div>
@@ -223,7 +200,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={filteredSeries ?? data.SerieLists}
+                  items={filteredSeries ?? data.seriesList}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"

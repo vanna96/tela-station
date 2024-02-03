@@ -41,7 +41,9 @@ export default function Login() {
   const [message, setMessage] = React.useState("");
   const navigate = useNavigate();
 
-  const company = React.useRef(import.meta.env.VITE_DATABASE ?? "TLTELA_DEVELOPER");
+  const company = React.useRef(
+    import.meta.env.VITE_DATABASE ?? "TLTELA_DEVELOPER"
+  );
   const username = React.useRef(import.meta.env.VITE_USERNAME ?? "");
   const password = React.useRef(import.meta.env.VITE_PASSWORD ?? "");
 
@@ -159,6 +161,11 @@ export default function Login() {
                   size="small"
                   defaultValue={username.current}
                   onChange={(event) => onChange(event, "username")}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      onSubmit();
+                    }
+                  }}
                 />
                 <MUITextField
                   label="Password"
@@ -167,6 +174,11 @@ export default function Login() {
                   size="small"
                   defaultValue={password.current}
                   onChange={(event) => onChange(event, "password")}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                      onSubmit();
+                    }
+                  }}
                 />
                 {message ? (
                   <Alert severity="error">

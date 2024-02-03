@@ -15,23 +15,29 @@ export default function DispenserAutoComplete(props: {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
+  isStatusActive?: boolean;
+  branch?: number;
+  pumpType?: string;
 }) {
-  const { data, isLoading }: any = useQuery({
-    queryKey: ["pump_attendant"],
+  let { data, isLoading }: any = useQuery({
+    queryKey: ["efeffeefe"],
     queryFn: () => new DispenserRepository().get(),
- 
   });
+  const filteredData = data
+    ?.filter((e: any) => !props.isStatusActive || e.U_tl_status === "Active")
+    ?.filter(
+      (e: any) => !props.branch || parseInt(e.U_tl_bplid) === props.branch
+    )
+    ?.filter((e: any) => !props.pumpType || e.U_tl_type === props.pumpType);
+
   useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedSalePerson = data?.find(
-        (salePerson: any) => salePerson.Code === props.value
-      );
-      if (selectedSalePerson) {
-        setSelectedValue(selectedSalePerson);
+      const oData = filteredData?.find((e: any) => e.Code === props.value);
+      if (oData) {
+        setSelectedValue(oData);
       }
     }
-  }, [props.value, data]);
+  }, [props.value, data, props.isStatusActive, props.branch, props.pumpType]);
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
@@ -57,17 +63,15 @@ export default function DispenserAutoComplete(props: {
       </label>
 
       <Autocomplete
-        options={data ?? []}
+        options={filteredData ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(e: Type) =>
-          e.Code + " - " + e.Name 
-        }
+        getOptionLabel={(e: Type) => e.Code + " - " + e.Name}
         renderOption={(props, e: Type) => (
           <Box component="li" {...props}>
-            {e.Code + " - " + e.Name }
+            {e.Code + " - " + e.Name}
           </Box>
         )}
         renderInput={(params) => (

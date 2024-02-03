@@ -43,20 +43,13 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {!edit ? (
-                  <WarehouseAutoComplete
-                    Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                    value={data?.U_tl_dnsuppo}
-                    onChange={(e) => {
-                      handlerChange("U_tl_dnsuppo", e);
-                    }}
-                  />
-                ) : (
-                  <WarehouseAttendTo
-                    value={data.U_tl_dnsuppo}
-                    onChange={(e) => handlerChange("U_tl_dnsuppo", e)}
-                  />
-                )}
+                <WarehouseAutoComplete
+                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                  value={data?.U_tl_dnsuppo}
+                  onChange={(e) => {
+                    handlerChange("U_tl_dnsuppo", e);
+                  }}
+                />
               </div>
             </div>
 
