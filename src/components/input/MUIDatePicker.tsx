@@ -25,7 +25,7 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
   const { theme } = React.useContext(ThemeContext);
 
   const dateVal = React.useMemo(() => {
-    if (value === null || value === '' || value === undefined) return '';
+    if (value === null || value === "" || value === undefined) return "";
 
     if (addOnDay) {
       const today = dayjs();
@@ -41,7 +41,7 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
     if (dayjs(props.value).format("DD-MM-YYYY") === event.target.value) return;
 
     if (event.target.value === "") {
-      props?.onChange('');
+      props?.onChange("");
       return;
     }
 
@@ -52,8 +52,9 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
     <div className="flex flex-col gap-1">
       <label
         htmlFor={props.label}
-        className={` text-[14px] xl:text-[13px] ${props.error ? "text-red-500" : "text-[#656565]"
-          } `}
+        className={` text-[14px] xl:text-[13px] ${
+          props.error ? "text-red-500" : "text-[#656565]"
+        } `}
       >
         {props.label}{" "}
         {props.required && <span className="text-red-500 font-bold">*</span>}
@@ -64,10 +65,9 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
             PopperProps={{
               style: {
                 color: theme === "light" ? "" : "#FFFFFF",
-                backgroundColor: 'red'
               },
             }}
-            inputFormat="DD-MM-YYYY"
+            inputFormat="DD.MMMM.YYYY"
             value={dateVal}
             disabled={disabled}
             className={`${disabled ? "bg-gray-100" : ""}`}
@@ -88,13 +88,13 @@ const MUIDatePicker: React.FC<MUIDatePickerProps> = (
                 name={name}
                 autoComplete="off"
                 onBlur={onChangeInput}
-              // error={(!dayjs(value).isValid()) || props.error}
-              // helperText={
-              //   props.helpertext ??
-              //   (!dayjs(value).isValid() && (value || value !== "")
-              //     ? "invalid date format"
-              //     : "")
-              // }
+                // error={(!dayjs(value).isValid()) || props.error}
+                // helperText={
+                //   props.helpertext ??
+                //   (!dayjs(value).isValid() && (value || value !== "")
+                //     ? "invalid date format"
+                //     : "")
+                // }
               />
             )}
           />
