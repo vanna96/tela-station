@@ -23,12 +23,12 @@ export default class DispenserRepository extends Repository<any> {
         return salePersons;
     }
 
-    find(code: number | undefined | null): any {
+    find(Code: string | undefined | null): any {
         const data = localStorage.getItem(this.key);
         if (!data) return {};
 
         const salePersons: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '{}')));
-        return salePersons.find((e: any) => e?.code == code);
+        return salePersons.find((e: any) => e?.Code == Code);
     }
 
     post(payload: any, isUpdate?: boolean, id?: any): Promise<any> {

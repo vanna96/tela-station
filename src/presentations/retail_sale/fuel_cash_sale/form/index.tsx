@@ -48,39 +48,48 @@ class Form extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any;
 
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "TL_RetailSale",
-      });
-      this.props?.query?.set("retail-sale-series", seriesList);
-    }
+    let seriesList = await DocumentSerieRepository.getDocumentSeries({
+      Document: "TL_RetailSale",
+    });
+
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_RetailSale('${id}')`)
+      console.log(id);
+      await request("GET", `TL_RetailSale(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
+          console.log(data);
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`
+            `/BusinessPartners('${data?.U_tl_cardcode}')`
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
+          console.log(vendor);
+          console.log(this.props.edit);
+
           state = {
             ...data,
             vendor,
+            seriesList,
           };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["loading"] = false;
+          state["seriesList"] = seriesList;
+          state["isLoadingSerie"] = false;
           this.setState(state);
+          console.log(state);
         });
     } else {
+      state["seriesList"] = seriesList;
       state["loading"] = false;
+      state["isLoadingSerie"] = false;
       this.setState(state);
+      console.log(state);
     }
   }
 

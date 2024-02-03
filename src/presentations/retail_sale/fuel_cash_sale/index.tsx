@@ -15,6 +15,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import DispenserRepository from "@/services/actions/dispenserRepository";
 
 export default function SaleOrderLists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -48,7 +49,18 @@ export default function SaleOrderLists() {
         type: "number",
       },
       {
-        accessorKey: "CardCode",
+        accessorKey: "U_tl_pump",
+        header: "Pump Code",
+        enableClickToCopy: true,
+        visible: true,
+        type: "string",
+        align: "center",
+        size: 65,
+        Cell: ({ cell }: any) =>
+          new DispenserRepository()?.find("Sopen2")?.Name,
+      },
+      {
+        accessorKey: "U_tl_cardcode",
         header: "Customer Code",
         enableClickToCopy: true,
         visible: true,
@@ -57,7 +69,7 @@ export default function SaleOrderLists() {
         size: 65,
       },
       {
-        accessorKey: "CardName",
+        accessorKey: "U_tl_cardname",
         header: "Customer Name",
         visible: true,
         type: "string",
@@ -65,14 +77,14 @@ export default function SaleOrderLists() {
         size: 90,
       },
       {
-        accessorKey: "TaxDate",
+        accessorKey: "U_tl_docdate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.TaxDate).format(
+          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
             "YYYY-MM-DD"
           );
           return <span>{formattedDate}</span>;
@@ -80,35 +92,14 @@ export default function SaleOrderLists() {
       },
 
       {
-        accessorKey: "DocumentStatus",
-        header: " Status",
+        accessorKey: "U_tl_bplid",
+        header: "Branch",
+        enableClickToCopy: true,
         visible: true,
-        type: "string",
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
         size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-
-      {
-        accessorKey: "DocTotal",
-        header: " Document Total",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      // {
-      //   accessorKey: "BPL_IDAssignedToInvoice",
-      //   header: "Branch",
-      //   enableClickToCopy: true,
-      //   visible: false,
-      //   Cell: ({ cell }: any) =>
-      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-      //   size: 60,
-      // },
 
       //
       {
@@ -179,7 +170,6 @@ export default function SaleOrderLists() {
   );
 
   const [filter, setFilter] = React.useState("");
-  const defaultFilter = `$filter=U_tl_salestype eq null and U_tl_arbusi eq '${numAtCardFilter}'`;
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -188,9 +178,7 @@ export default function SaleOrderLists() {
   const Count: any = useQuery({
     queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
-      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${
-        numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-      }${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RetailSale/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -211,13 +199,11 @@ export default function SaleOrderLists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_RetailSale?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$filter=U_tl_salestype eq null${
-          numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
         }${filter ? ` and ${filter}` : filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }${"&$select =DocNum,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`
+        }`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
