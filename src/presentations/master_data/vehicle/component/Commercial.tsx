@@ -19,7 +19,10 @@ export default function Commercial({
     u_Type: "",
   });
   const addNewRow = () => {
-    let newRow: any = {};
+    let newRow: any = {
+      U_Type: null,
+      U_Name: null,
+    };
     setCommer([...(commer ?? []), newRow]);
   };
 
@@ -51,7 +54,6 @@ export default function Commercial({
     });
     setCommer(updated);
   };
-  console.log(staticSelect);
 
   return (
     <>
@@ -77,7 +79,7 @@ export default function Commercial({
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Expire Date{" "}
+                Expired Date{" "}
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
@@ -85,8 +87,10 @@ export default function Commercial({
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
-                Referance{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Reference{" "}
+              </th>
+              <th className="w-[100px] font-normal text-center py-2 text-[14px] text-gray-500">
+                Status{" "}
               </th>
             </tr>
             {commer?.length === 0 && (
@@ -125,9 +129,8 @@ export default function Commercial({
                           <MUISelect
                             disabled={detail}
                             items={[
-                              { label: "Truck", value: "Truck" },
-                              { label: "Train", value: "Train" },
-                              { label: "Van", value: "Van" },
+                              { label: "License", value: "License" },
+                              { label: "Check", value: "Check" },
                             ]}
                             onChange={(e: any) => {
                               handlerChangeCommer(
@@ -224,6 +227,7 @@ export default function Commercial({
 
                   <td className="pr-4">
                     <MUITextField
+                      type="number"
                       disabled={detail}
                       placeholder="Fee"
                       inputProps={{
@@ -236,13 +240,16 @@ export default function Commercial({
                   <td className="pr-4">
                     <MUITextField
                       disabled={detail}
-                      placeholder="Referance"
+                      placeholder="Reference"
                       inputProps={{
                         defaultValue: e?.U_Ref,
                         onChange: (e: any) =>
                           handlerChangeCommer("U_Ref", e?.target?.value, index),
                       }}
                     />
+                  </td>
+                  <td className="pr-4 text-center">
+                    <span className="text-green-500 text-sm">Active</span>
                   </td>
                 </tr>
               );

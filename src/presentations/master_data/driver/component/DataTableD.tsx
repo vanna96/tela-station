@@ -224,8 +224,6 @@ console.log(rowSelection);
           }}
           enableDensityToggle={true}
           // enableColumnResizing
-          enableRowSelection={true}
-          onRowSelectionChange={setRowSelection}
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -237,14 +235,7 @@ console.log(rowSelection);
           muiTablePaginationProps={{
             rowsPerPageOptions: [5, 10, 15],
           }}
-          muiTableBodyRowProps={({ row }) => ({
-            onClick: () =>
-              setRowSelection((prev) => ({
-                ...prev,
-                [row.id]: !prev[row.id],
-                selected: rowSelection[row.id],
-              })),
-          })}
+
           enableFilters={false}
           enableGlobalFilter={false}
           rowCount={props.count ?? 0}

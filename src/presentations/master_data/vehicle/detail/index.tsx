@@ -124,7 +124,7 @@ const VehicleDetail = (props: any) => {
           active={state.tapIndex === 1}
           onClick={() => handlerChangeMenu(1)}
         >
-          Spac Detail
+          Spec Detail
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 2}
@@ -285,6 +285,7 @@ const VehicleDetail = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                   register={register}
+                  control={control}
                   detail={props?.detail}
                 />
               </h1>
