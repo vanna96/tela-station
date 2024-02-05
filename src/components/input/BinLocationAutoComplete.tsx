@@ -24,17 +24,16 @@ export default function BinLocationAutoComplete(props: {
   const { data, isLoading }: any = useQuery({
     queryKey: ["ware-BinLocation"],
     queryFn: () => new WareBinLocationRepository().get(),
-    staleTime: Infinity,
   });
 
   const filteredWarehouses = data?.filter(
-    (warebin: any) => warebin.WhsCode === props?.Warehouse
+    (warebin: any) => warebin?.WhsCode === props?.Warehouse
   );
 
   useEffect(() => {
     if (props.value) {
       const selectedWarehouse = filteredWarehouses?.find(
-        (warebin: any) => warebin.WhsCode === props.value
+        (warebin: any) => warebin?.WhsCode === props?.value
       );
       if (selectedWarehouse) {
         setSelectedValue(selectedWarehouse);
@@ -48,7 +47,7 @@ export default function BinLocationAutoComplete(props: {
     setSelectedValue(newValue);
 
     if (props.onChange) {
-      const selectedCode = newValue ? newValue.WhsCode : null;
+      const selectedCode = newValue ? newValue?.WhsCode : null;
       props.onChange(selectedCode);
     }
   };
