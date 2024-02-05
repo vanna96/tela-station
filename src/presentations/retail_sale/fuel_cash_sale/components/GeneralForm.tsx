@@ -38,16 +38,15 @@ export default function GeneralForm({
   );
 
   if (dispenserData?.TL_DISPENSER_LINESCollection?.length > 0) {
-    dispenserData.TL_DISPENSER_LINESCollection =
-      dispenserData.TL_DISPENSER_LINESCollection.map((line: any) => {
-       
-        return {
-          ...line,
-          U_tl_bplid: data.U_tl_bplid,
-          U_tl_itemcode: data.U_tl_itemnum,
-        };
-      });
+    dispenserData.TL_DISPENSER_LINESCollection = dispenserData.TL_DISPENSER_LINESCollection.map((line: any) => {
+      return {
+        ...line,
+        U_tl_bplid: parseInt(data.U_tl_bplid, 10), // Convert U_tl_bplid to a number
+        U_tl_itemcode: data.U_tl_itemnum,
+      };
+    });
   }
+  
 
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");

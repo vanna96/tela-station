@@ -57,6 +57,7 @@ export default function Consumption({
                 Generate Allocation
               </span>
             </Button>
+            <div className="mb-6"/>
             {showAllocationTable && (
               <AllocationTable
                 data={data}

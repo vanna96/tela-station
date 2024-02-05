@@ -92,7 +92,7 @@ export default function StockAllocationData({
         accessorKey: "U_tl_bplid",
         header: "Branch", //uses the default width from defaultColumn prop
         visible: true,
-
+        type: "number",
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid)
             return (
@@ -114,12 +114,12 @@ export default function StockAllocationData({
             <BranchAutoComplete
               BPdata={userData?.UserBranchAssignment}
               onChange={(e: any) => {
-                console.log(e);
+                // console.log(e);
                 branchChange(cell?.row?.id || 0, {
                   U_tl_bplid: e,
                 });
               }}
-              value={cell.getValue()}
+              value={(cell.getValue())}
             />
           );
         },
