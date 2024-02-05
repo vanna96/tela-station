@@ -292,6 +292,7 @@ function Content(props: any) {
     1
   );
 
+
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount ?? 0;
     if (dataDiscount <= 0) return 0;

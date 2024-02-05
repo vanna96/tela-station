@@ -212,7 +212,7 @@ const ItemModal: FC<ItemModalProps> = ({
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
         VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
         Quantity: defaultPrice !== null ? 1 : 0,
-        UnitPrice: defaultPrice ?? 0,
+        // UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
         LineTotal: total,
         Total: total,
@@ -224,9 +224,9 @@ const ItemModal: FC<ItemModalProps> = ({
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
         // ProductLine: item.ProductLine ?? "203004",
-        // GrossPrice:
-        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-        //   0,
+        UnitPrice:
+          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+          0,
         COGSCostingCode: e?.U_tl_dim1,
         OGSCostingCode2: "202001",
         COGSCostingCode3: e?.U_tl_dim2,

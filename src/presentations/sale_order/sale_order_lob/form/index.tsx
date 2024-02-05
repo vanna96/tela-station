@@ -166,6 +166,7 @@ class SalesOrderForm extends CoreFormDocument {
                   VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,
                   TotalGross: item.GrossTotal,
+                  TotalUnit: item.LineTotal,
                   LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
                   TaxCode: item.VatGroup || item.taxCode || null,
