@@ -19,6 +19,7 @@ import PriceListRepository from "@/services/actions/pricelistRepository";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import BinlocationRepository from "@/services/actions/BinlocationRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -46,6 +47,15 @@ class DeliveryDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
+
+      let seriesList: any = this.props?.query?.find("orders-series");
+
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "17",
+      });
+      this.props?.query?.set("orders-series", seriesList);
+    }
       await request("GET", `Orders(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
@@ -63,6 +73,7 @@ class DeliveryDetail extends Component<any, any> {
           };
 
           this.setState({
+            seriesList,
             ...data,
             Description: data?.Comments,
             Owner: data?.DocumentsOwner,
@@ -110,7 +121,7 @@ class DeliveryDetail extends Component<any, any> {
           this.setState({ isError: true, message: err.message })
         );
     } else {
-      this.setState({ ...data, loading: false });
+      this.setState({ ...data, loading: false});
     }
   }
 
@@ -202,6 +213,15 @@ function renderKeyValue(label: string, value: any) {
 }
 
 function General(props: any) {
+  
+  const filteredSeries = props.data?.seriesList?.filter((e:any) => e.Series === (props.data?.Series));
+
+  const seriesNames = filteredSeries?.map((series:any) => series.Name);
+
+  const seriesName = seriesNames?.join(', ');
+  
+  
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -241,7 +261,7 @@ function General(props: any) {
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">
-            {renderKeyValue("Series", props.data.Series)}
+            {renderKeyValue("Series", seriesName)}
             {renderKeyValue("DocNum", props.data.DocNum)}
             {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
             {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
