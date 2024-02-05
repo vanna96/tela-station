@@ -60,7 +60,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.row.original.TaxDate).format(
-            "YYYY-MM-DD"
+            "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
         },
@@ -87,17 +87,15 @@ export default function SaleOrderLists() {
           </>
         ),
       },
-      // {
-      //   accessorKey: "BPL_IDAssignedToInvoice",
-      //   header: "Branch",
-      //   enableClickToCopy: true,
-      //   visible: false,
-      //   Cell: ({ cell }: any) =>
-      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-      //   size: 60,
-      // },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
+        size: 60,
+      },
 
-      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
