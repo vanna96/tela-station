@@ -342,7 +342,7 @@ const General = ({
                       inputProps={{
                         ...register("U_Status"),
                       }}
-                      value={"tYES"}
+                      value={"Active"}
                     />
                   </div>
                 )}
@@ -368,7 +368,7 @@ const General = ({
                         value={
                           staticSelect.U_Status ||
                           defaultValues?.U_Status ||
-                          "tYES"
+                          "Active"
                         }
                         aliasvalue="value"
                         aliaslabel="label"
