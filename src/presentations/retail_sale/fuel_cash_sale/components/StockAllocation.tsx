@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import { Button } from "@mui/material";
 import request from "@/utilies/request";
@@ -25,7 +25,7 @@ export default function StockAllocationData({
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
   const datattest = data?.TL_RETAILSALE_STACollection?.map((item: any) => ({
-    U_tl_bplid: item.U_tl_bplid,
+    U_tl_bplid: parseInt(item.U_tl_bplid),
     U_tl_itemnum: item.U_tl_itemcode,
     U_tl_itemdesc: item.U_tl_itemname,
     U_tl_qtyaloc: item.U_tl_qtyaloc,
@@ -35,16 +35,16 @@ export default function StockAllocationData({
     U_tl_uom: item.U_tl_uom,
   }));
 
-  console.log(datattest);
-  const StockAllocationData = edit
+  // console.log(datattest);
+  let StockAllocationData = edit
     ? datattest
     : [...data.DispenserData.TL_DISPENSER_LINESCollection];
-
-  if (StockAllocationData.length > 0) {
     data.stockAllocationData = StockAllocationData;
-  }
+  // if (StockAllocationData) {
+  //   data.stockAllocationData = StockAllocationData;
+  // }
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = StockAllocationData?.map((item: any, index: number) => {
+    const newData = data.stockAllocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
@@ -53,22 +53,27 @@ export default function StockAllocationData({
     onChange("stockAllocationData", newData);
   };
   const branchChange = (key: number, obj: any) => {
-    const newData = StockAllocationData?.map((item: any, index: number) => {
+    const newData = data.stockAllocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
-      return item;
+  
+      const newValues: Record<string, number> = {};
+      for (const [prop, value] of Object.entries(obj)) {
+        newValues[prop] = parseInt(value, 10) || 0; // Convert to number or use 0 if not a valid number
+      }
+  
+      return { ...item, ...newValues };
     });
-
-    if (newData.length <= 0) return {};
-
+  
+    if (!newData || newData.length <= 0) return {};
+  
     return { stockAllocationData: newData };
   };
-
+  
   const handlerAdd = () => {
-    const firstData = [
+    let firstData = [
       ...data.stockAllocationData,
       {
-        U_tl_bplid: "1",
+        U_tl_bplid: 1,
         U_tl_itemnum: "",
         U_tl_itemdesc: "",
         U_tl_qtyaloc: "",
@@ -81,6 +86,9 @@ export default function StockAllocationData({
     onChange("stockAllocationData", firstData);
   };
 
+  useEffect(() => {
+    console.log("Updated Data:", data);
+  }, [data]);
 
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
@@ -97,7 +105,7 @@ export default function StockAllocationData({
           if (!cell.row.original?.U_tl_bplid)
             return (
               <Button
-                onClick={() => handlerAdd}
+                onClick={() => handlerAdd()}
                 variant="outlined"
                 size="small"
                 sx={{ height: "30px", textTransform: "none", width: "100%" }}
@@ -114,12 +122,12 @@ export default function StockAllocationData({
             <BranchAutoComplete
               BPdata={userData?.UserBranchAssignment}
               onChange={(e: any) => {
-                // console.log(e);
+                console.log(e)
                 branchChange(cell?.row?.id || 0, {
                   U_tl_bplid: e,
                 });
               }}
-              value={(cell.getValue())}
+              value={cell.getValue()}
             />
           );
         },
@@ -194,7 +202,7 @@ export default function StockAllocationData({
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}
-              onChange={(e: any) =>
+              onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_qtycon: e.target.value,
                 })
@@ -299,7 +307,7 @@ export default function StockAllocationData({
         },
       },
     ],
-    [StockAllocationData]
+    [data.stockAllocationData]
   );
 
 

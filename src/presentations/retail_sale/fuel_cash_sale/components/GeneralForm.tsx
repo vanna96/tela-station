@@ -36,12 +36,16 @@ export default function GeneralForm({
       enabled: !!data.U_tl_pump,
     }
   );
-
+  interface DispenserLine {
+    U_tl_bplid: number;
+    U_tl_itemcode: string;
+    // ... other properties
+  }
   if (dispenserData?.TL_DISPENSER_LINESCollection?.length > 0) {
-    dispenserData.TL_DISPENSER_LINESCollection = dispenserData.TL_DISPENSER_LINESCollection.map((line: any) => {
+    dispenserData.TL_DISPENSER_LINESCollection = dispenserData.TL_DISPENSER_LINESCollection.map(( line: DispenserLine) => {
       return {
         ...line,
-        U_tl_bplid: parseInt(data.U_tl_bplid, 10), // Convert U_tl_bplid to a number
+        U_tl_bplid: (data.U_tl_bplid), 
         U_tl_itemcode: data.U_tl_itemnum,
       };
     });
