@@ -16,6 +16,7 @@ import Consumption from "../components/Consumption";
 import StockAllocationForm from "../components/StockAllocation";
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
+import async from '../components/GeneralForm';
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -24,6 +25,7 @@ class Form extends CoreFormDocument {
       ...this.state,
       showCollapse: false,
       nozzleData: [],
+      U_tl_bplid: 1,
       allocationData: [],
       cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
       checkNumberData: [
@@ -304,7 +306,7 @@ class Form extends CoreFormDocument {
                     <StockAllocationForm
                       data={this.state}
                       edit={this.props?.edit}
-                      handlerChange={(key, value) => {
+                      onChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
                     />

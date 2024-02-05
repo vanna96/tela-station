@@ -10,6 +10,7 @@ import FormCard from "@/components/card/FormCard";
 import MaterialReactTable from "material-react-table";
 import { useCookies } from "react-cookie";
 import { AiOutlineSetting } from "react-icons/ai";
+import { GridAddIcon } from "@mui/x-data-grid";
 interface StockAllocationDataProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -35,11 +36,10 @@ export default function StockAllocationData({
   }));
 
   console.log(datattest);
-
-  console.log(userData.UserBranchAssignment);
   const StockAllocationData = edit
     ? datattest
-    : [...data.DispenserData?.TL_RETAILSALE_STACollection];
+    : [...data.DispenserData.TL_DISPENSER_LINESCollection];
+
   if (StockAllocationData.length > 0) {
     data.stockAllocationData = StockAllocationData;
   }
@@ -64,19 +64,52 @@ export default function StockAllocationData({
     return { stockAllocationData: newData };
   };
 
+  const handlerAdd = () => {
+    const firstData = [
+      ...data.stockAllocationData,
+      {
+        U_tl_bplid: "1",
+        U_tl_itemnum: "",
+        U_tl_itemdesc: "",
+        U_tl_qtyaloc: "",
+        U_tl_qtycon: "",
+        U_tl_qtyopen: "",
+        U_tl_remark: "",
+        U_tl_uom: "",
+      },
+    ];
+    onChange("stockAllocationData", firstData);
+  };
+
+
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     return res;
   };
-
   const itemColumns = React.useMemo(
     () => [
       {
         accessorKey: "U_tl_bplid",
-        header: "Branch",
-        type: "number",
+        header: "Branch", //uses the default width from defaultColumn prop
         visible: true,
+
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid)
+            return (
+              <Button
+                onClick={() => handlerAdd}
+                variant="outlined"
+                size="small"
+                sx={{ height: "30px", textTransform: "none", width: "100%" }}
+                disableElevation
+              >
+                <span className="px-3 text-[13px] py-1 text-green-500 font-no">
+                  <GridAddIcon />
+                  Add Row
+                </span>
+              </Button>
+            );
+
           return (
             <BranchAutoComplete
               BPdata={userData?.UserBranchAssignment}
@@ -97,10 +130,13 @@ export default function StockAllocationData({
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           return (
             <MUITextField
-              value={edit ? cell.row.original.U_tl_itemcode : cell.getValue()}
-              disabled
+              readOnly
+              value={cell.getValue()}
+              // disabled
             />
           );
         },
@@ -110,6 +146,8 @@ export default function StockAllocationData({
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           const itemCode = cell.row.original.U_tl_itemnum;
 
           const {
@@ -146,6 +184,8 @@ export default function StockAllocationData({
         header: "Cons. Qty ",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
@@ -153,8 +193,8 @@ export default function StockAllocationData({
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
+              value={cell.getValue()}
+              onChange={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_qtycon: e.target.value,
                 })
@@ -173,6 +213,8 @@ export default function StockAllocationData({
         header: "Aloc. Qty",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           return (
             <NumericFormat
               disabled
@@ -196,6 +238,8 @@ export default function StockAllocationData({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           return (
             <MUITextField
               value={
@@ -214,6 +258,8 @@ export default function StockAllocationData({
         header: "Open. Qty",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           return (
             <NumericFormat
               disabled
@@ -238,6 +284,8 @@ export default function StockAllocationData({
         header: "Remark",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+
           return (
             <MUITextField
               value={cell.getValue()}
@@ -254,40 +302,18 @@ export default function StockAllocationData({
     [StockAllocationData]
   );
 
-  const handlerAdd = () => {
-    const firstData = [
-      ...data.stockAllocationData,
-      {
-        // remark: "",
-        // open_qty: 0,
-        // branch: -1,
-        // U_tl_itemnum: "",
-        // U_tl_itemdesc: "",
-        // cons_qty: 0,
-      },
-    ];
-    onChange("stockAllocationData", firstData);
-  };
 
   return (
     <>
       <FormCard
         title="Stock Allocation "
-        action={
-          <div className="flex ">
-            <Button size="small" disabled={data?.isStatusClose || false}>
-              <span className="capitalize text-sm" onClick={handlerAdd}>
-                Add
-              </span>
-            </Button>
-          </div>
-        }
+      
       >
         <>
           <div className="col-span-2 data-table">
             <MaterialReactTable
               columns={[...itemColumns]}
-              data={data.stockAllocationData}
+              data={[...data.stockAllocationData, { U_tl_bplid: "" }]}
               enableStickyHeader={true}
               enableColumnActions={false}
               enableColumnFilters={false}

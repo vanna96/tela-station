@@ -87,7 +87,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemnum;
+          const itemCode = cell.row.original.U_tl_itemname;
 
           const {
             data: itemName,
@@ -105,7 +105,10 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
             return <span>Error fetching itemName</span>;
           }
 
-          return <MUITextField disabled value={itemName?.data?.ItemName} />;
+          return <MUITextField disabled value={  edit
+            ? cell.row.original.U_tl_itemdesc
+            : itemName?.data?.ItemName
+        } />;
         },
       },
 

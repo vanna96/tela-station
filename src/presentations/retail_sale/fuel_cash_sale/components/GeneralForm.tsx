@@ -25,7 +25,7 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
-  const {
+  let {
     data: dispenserData,
     isLoading,
     isError,
@@ -37,12 +37,18 @@ export default function GeneralForm({
     }
   );
 
-  console.log(dispenserData);
-
-  // Add error handling if needed
-  if (isError) {
-    console.error("Error fetching dispenser data");
+  if (dispenserData?.TL_DISPENSER_LINESCollection?.length > 0) {
+    dispenserData.TL_DISPENSER_LINESCollection =
+      dispenserData.TL_DISPENSER_LINESCollection.map((line: any) => {
+       
+        return {
+          ...line,
+          U_tl_bplid: data.U_tl_bplid,
+          U_tl_itemcode: data.U_tl_itemnum,
+        };
+      });
   }
+
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
@@ -102,7 +108,7 @@ export default function GeneralForm({
               <DispenserAutoComplete
                 value={data?.U_tl_pump}
                 isStatusActive
-                branch={parseInt(data?.U_tl_bplid)?? BPL}
+                branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
                 onChange={(e) => {
                   handlerChange("U_tl_pump", e);
