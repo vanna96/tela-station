@@ -20,6 +20,7 @@ import SalePersonRepository from "@/services/actions/salePersonRepository";
 import BinlocationRepository from "@/services/actions/BinlocationRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
+import { useDocumentTotalHook } from "@/hook";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -284,6 +285,28 @@ function Content(props: any) {
   const { data } = props;
   const itemGroupRepo = new ItemGroupRepository();
 
+  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+    props.data.Items ?? [],
+    props?.data?.DocDiscount,
+    // props?.data?.ExchangeRate ?? 1
+    1
+  );
+
+  const discountAmount = useMemo(() => {
+    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
+    if (dataDiscount <= 0) return 0;
+    if (dataDiscount > 100) return 100;
+    return docTotal * (dataDiscount / 100);
+  }, [props?.data?.DocDiscount, props.data.Items]);
+
+  let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
+  if (props.data) {
+    props.data.DocTaxTotal = docTaxTotal;
+    props.data.DocTotalBeforeDiscount = docTotal;
+    props.data.DocDiscountPercent = props.data?.DocDiscount;
+    props.data.DocDiscountPrice = discountAmount;
+    props.data.DocTotal = TotalPaymentDue;
+  }
   const itemColumn: any = useMemo(
     () => [
       {
@@ -397,7 +420,7 @@ function Content(props: any) {
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Content Information</h2>
         </div>
-        <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
+        <div className="col-span-2 data-table">
           <MaterialReactTable
             enableColumnActions={false}
             enableColumnFilters={false}
@@ -414,6 +437,120 @@ function Content(props: any) {
               },
             }}
           />
+            <div className="grid grid-cols-12 mt-2">
+            <div className="col-span-5"></div>
+
+            <div className="col-span-2"></div>
+            <div className="col-span-5 ">
+              <div className="grid grid-cols-2 py-2">
+                <div className="col-span-1 text-lg font-medium">
+                  Total Summary
+                </div>
+              </div>
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">
+                  Total Before Discount
+                </div>
+                <div className="col-span-6 text-gray-900">
+                  <NumericFormat
+                    className="bg-white w-full"
+                    value={docTotal}
+                    thousandSeparator
+                    fixedDecimalScale
+                    startAdornment={props?.data?.Currency}
+                    decimalScale={2}
+                    placeholder="0.00"
+                    readonly
+                    customInput={MUITextField}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">
+                  <div className="grid grid-cols-12 gap-2">
+                    <div className="col-span-7 text-gray-700">Discount</div>
+                    <div className="col-span-5 text-gray-900 mr-2">
+                      <MUITextField
+                        placeholder="0.00"
+                        type="number"
+                        startAdornment={"%"}
+                        value={props?.data?.DiscountPercent ?? 0}
+                        // value={props.data.DocDiscount || discount}
+                        onChange={(event: any) => {
+                          if (
+                            !(
+                              event.target.value <= 100 &&
+                              event.target.value >= 0
+                            )
+                          ) {
+                            event.target.value = 0;
+                          }
+                          // onChange("DocDiscount", event.target.value);
+                        }}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-6 text-gray-900 ">
+                  <div className="grid grid-cols-4">
+                    <div className="col-span-4">
+                      <NumericFormat
+                        className="bg-white w-full"
+                        value={props.data.TotalDiscount}
+                        thousandSeparator
+                        fixedDecimalScale
+                        startAdornment={props?.data?.Currency}
+                        decimalScale={2}
+                        placeholder="0.00"
+                        readonly
+                        customInput={MUITextField}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">Tax</div>
+                <div className="col-span-6 text-gray-900">
+                  <NumericFormat
+                    className="bg-white w-full"
+                    value={docTaxTotal}
+                    thousandSeparator
+                    fixedDecimalScale
+                    startAdornment={props?.data?.Currency}
+                    decimalScale={2}
+                    placeholder="0.00"
+                    readonly
+                    customInput={MUITextField}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">Total</div>
+                <div className="col-span-6 text-gray-900">
+                  <NumericFormat
+                    className="bg-white w-full"
+                    readOnly
+                    value={props.data.DocTotal}
+                    thousandSeparator
+                    fixedDecimalScale
+                    startAdornment={props?.data?.Currency}
+                    decimalScale={2}
+                    placeholder="0.00"
+                    readonly
+                    customInput={MUITextField}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
