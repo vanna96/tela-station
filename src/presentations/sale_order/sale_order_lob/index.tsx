@@ -464,7 +464,15 @@ export default function SaleOrderLists() {
                     <MUISelect
                       items={[
                         { id: "bost_Open", name: "Open" },
-                        { id: "bost_Closed", name: "Close" },
+                        { id: "bost_Open", name: "Open; Printed" },
+                        { id: "bost_Closed", name: "Closed" },
+                        { id: "bost_Canceled", name: "Canceled" },
+                        { id: "bost_NotConfirmed", name: "Not Confirmed" },
+                        { id: "bost_Paid", name: "Paid" },
+                        { id: "Delivered", name: "Delivered" },
+                        { id: "bost_ClosedCancellation", name: "Closed - Cancellation" },
+                        { id: "bost_OpenMailed", name: "Open; E-Mailed" },
+                        { id: "bost_OpenPrintedMailed", name: "Open; Printed and E-Mailed" },
                         { id: "", name: "None" },
                       ]}
                       value={searchValues.status}
