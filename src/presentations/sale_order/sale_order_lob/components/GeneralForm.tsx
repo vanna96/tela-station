@@ -16,6 +16,7 @@ import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
+import PriceListRepository from "@/services/actions/pricelistRepository";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -243,7 +244,13 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
-                onChange={(e) => handlerChange("U_tl_sopricelist", e)}
+                onChange={(e) => {
+                  handlerChange("U_tl_sopricelist", e);
+                  handlerChange(
+                    "Currency",
+                    new PriceListRepository().find(e)?.DefaultPrimeCurrency
+                  );
+                }}
                 value={data?.U_tl_sopricelist}
                 isActiveAndGross={true}
               />
@@ -260,6 +267,7 @@ export default function GeneralForm({
                 <div className="col-span-6">
                   {
                     <MUISelect
+                      disabled
                       value={data?.Currency || sysInfo?.SystemCurrency}
                       items={
                         dataCurrency?.length > 0

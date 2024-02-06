@@ -18,6 +18,7 @@ import ArrowCircleDownRoundedIcon from "@mui/icons-material/ArrowCircleDownRound
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import PriceListRepository from "@/services/actions/pricelistRepository";
 interface DocumentHeaderComponentProps {
   leftSideField: JSX.Element | React.ReactNode;
   rightSideField: JSX.Element | React.ReactNode;
@@ -245,7 +246,7 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
           </div>
           <div className="col-span-4">
             <span>
-              {props.data?.Currency || 1}
+            {props.data?.Currency || 1}
               {props.data?.Currency !== sysInfoData?.SystemCurrency && (
                 <>
                   {" - "}
