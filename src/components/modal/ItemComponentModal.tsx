@@ -30,6 +30,7 @@ interface ItemModalProps {
   Currency?: any;
   multipleSelect?: any;
   priceList?: number;
+  U_ti_revenue?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -43,6 +44,7 @@ const ItemModal: FC<ItemModalProps> = ({
   Currency,
   multipleSelect,
   priceList,
+  U_ti_revenue,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -199,7 +201,7 @@ const ItemModal: FC<ItemModalProps> = ({
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
-      // const warehouseCode = WarehouseCode;
+  
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,
@@ -228,7 +230,7 @@ const ItemModal: FC<ItemModalProps> = ({
           defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
           0,
         COGSCostingCode: e?.U_tl_dim1,
-        OGSCostingCode2: "202001",
+        COGSCostingCode2: U_ti_revenue,
         COGSCostingCode3: e?.U_tl_dim2,
         GrossPrice: defaultPrice,
         ItemPrices: e.ItemPrices,
@@ -437,6 +439,7 @@ export class ItemModalComponent extends React.Component<
         Currency={this.state.Currency}
         multipleSelect={this.props.multipleSelect}
         priceList={this.props.priceList}
+        U_ti_revenue = {this.props.U_ti_revenue}
       />
     );
   }

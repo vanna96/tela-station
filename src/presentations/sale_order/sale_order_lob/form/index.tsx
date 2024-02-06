@@ -57,6 +57,7 @@ class SalesOrderForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      U_ti_revenue: "202001",
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -313,7 +314,8 @@ class SalesOrderForm extends CoreFormDocument {
         data?.DocType,
         warehouseCodeGet,
         data.BinLocation,
-        data.LineOfBusiness
+        data.LineOfBusiness,
+        data.U_ti_revenue
       );
       const isUSD = (data?.Currency || "USD") === "USD";
       const roundingValue = data?.RoundingValue || 0;
@@ -538,7 +540,6 @@ class SalesOrderForm extends CoreFormDocument {
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();
-
     return (
       <>
         <ItemModalComponent
@@ -547,6 +548,7 @@ class SalesOrderForm extends CoreFormDocument {
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
           priceList={priceList}
+          U_ti_revenue={this.state.U_ti_revenue}
         />
         <form
           id="formData"
@@ -665,7 +667,8 @@ const getItem = (
   type: any,
   warehouseCode: any,
   BinLocation: any,
-  LineOfBussiness: any
+  LineOfBussiness: any,
+  U_ti_revenue: any
 ) =>
   items?.map((item: any, index: number) => {
     return {
@@ -681,7 +684,7 @@ const getItem = (
       // RevenueLine: item.revenueLine ?? "202001",
       // ProductLine: item.REV ?? "203004",
       COGSCostingCode: item.COGSCostingCode ?? "201001",
-      COGSCostingCode2: item.COGSCostingCode2 ?? "202001",
+      COGSCostingCode2: U_ti_revenue,
       COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
       // BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || warehouseCode,

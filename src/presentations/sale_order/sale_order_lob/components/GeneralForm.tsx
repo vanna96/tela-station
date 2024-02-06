@@ -17,6 +17,7 @@ import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 import PriceListRepository from "@/services/actions/pricelistRepository";
+import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -393,6 +394,22 @@ export default function GeneralForm({
               <SalePersonAutoComplete
                 value={data.SalesPersonCode}
                 onChange={(e) => handlerChange("SalesPersonCode", e)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Revenue Line
+              </label>
+            </div>
+            <div className="col-span-3">
+              <DistributionRuleText
+                inWhichNum={2}
+                aliasvalue="FactorCode"
+                value={data?.U_ti_revenue}
+                onChange={(e) => handlerChange("U_ti_revenue", e.target.value)}
               />
             </div>
           </div>
