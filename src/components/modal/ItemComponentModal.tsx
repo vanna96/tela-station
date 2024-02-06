@@ -16,7 +16,7 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 export type ItemType = "purchase" | "sale" | "inventory";
-export type ItemGroup = 100 | 101 | 102 | 0;
+export type ItemGroup = 100 | 101 | 102;
 
 interface ItemModalProps {
   open: boolean;
@@ -51,12 +51,11 @@ const ItemModal: FC<ItemModalProps> = ({
 
   const itemsGroupCodes = [100, 101, 102];
   const { data, isFetching }: any = useQuery({
-    queryKey: ["items"],
+    queryKey: ["items", group],
     queryFn: () =>
       new itemRepository().getSaleItem(
-        ` &$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
+        `&$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and ItemsGroupCode eq ${group} &$orderby=ItemCode asc`
       ),
-    // staleTime: 180000,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -94,43 +93,6 @@ const ItemModal: FC<ItemModalProps> = ({
     ],
     []
   );
-
-  const items = useMemo(() => {
-    switch (type) {
-      case "purchase":
-        return data?.filter((e: any) => e?.PurchaseItem === "tYES");
-      case "sale":
-        return data?.filter((e: any) => e?.SalesItem === "tYES");
-      case "inventory":
-        return data?.filter((e: any) => e?.InventoryItem === "tYES");
-      default:
-        return [];
-    }
-  }, [data]);
-  // const itemFilter = useMemo(() => {
-  //   const filterFunctions = {
-  //     100: (e: any) => e?.ItemsGroupCode === 100,
-  //     101: (e: any) => e?.ItemsGroupCode === 101,
-  //     102: (e: any) => e?.ItemsGroupCode === 102,
-  //     0: () => true, // Return true for group 0 to include all items
-  //   };
-
-  //   return data?.filter((e: any) => filterFunctions[Number(group)](e));
-  // }, [data, group]);
-  const itemFilter = useMemo(() => {
-    switch (Number(group)) {
-      case 100:
-        return data?.filter((e: any) => e?.ItemsGroupCode === 100);
-      case 101:
-        return data?.filter((e: any) => e?.ItemsGroupCode === 101);
-      case 102:
-        return data?.filter((e: any) => e?.ItemsGroupCode === 102);
-      case 0:
-        return data;
-      default:
-        return data;
-    }
-  }, [Number(group), data]);
 
   const handlerConfirm = async () => {
     const keys = Object.keys(rowSelection);
@@ -201,7 +163,7 @@ const ItemModal: FC<ItemModalProps> = ({
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
-  
+
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,
@@ -316,7 +278,7 @@ const ItemModal: FC<ItemModalProps> = ({
                     <MaterialReactTable
                       columns={columns}
                       // data={items ?? []}
-                      data={itemFilter ?? []}
+                      data={data ?? []}
                       enableStickyHeader={true}
                       enableStickyFooter={true}
                       enablePagination={true}
@@ -432,14 +394,14 @@ export class ItemModalComponent extends React.Component<
         open={this.state.isOpen}
         onClose={this.onClose}
         type={this.state.type || this.props.type || "sale"}
-        group={this.props.group || 0}
+        group={this.props.group}
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}
         Currency={this.state.Currency}
         multipleSelect={this.props.multipleSelect}
         priceList={this.props.priceList}
-        U_ti_revenue = {this.props.U_ti_revenue}
+        U_ti_revenue={this.props.U_ti_revenue}
       />
     );
   }
