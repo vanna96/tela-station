@@ -30,7 +30,9 @@ interface ContentComponentProps {
 
 export default function ContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
-  const [discount, setDiscount] = React.useState(props?.data?.DiscountPercent || 0);
+  const [discount, setDiscount] = React.useState(
+    props?.data?.DiscountPercent || 0
+  );
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
@@ -100,9 +102,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     // props?.data?.ExchangeRate ?? 1
     1
   );
-
-
-  console.log(props.data)
 
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DiscountPercent ?? 0;
@@ -212,7 +211,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={docTotal }
+                    value={docTotal}
                     thousandSeparator
                     fixedDecimalScale
                     startAdornment={props?.data?.Currency}

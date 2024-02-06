@@ -247,7 +247,9 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
 };
 
 export const TotalSummaryRightSide = (props: any) => {
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount ?? 0);
+  const [discount, setDiscount] = React.useState(
+    props?.data?.DiscountPercent ?? 0
+  );
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data?.Items ?? [],
     discount,
@@ -255,14 +257,15 @@ export const TotalSummaryRightSide = (props: any) => {
   );
 
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
+    const dataDiscount: number = props?.data?.DiscountPercent || discount;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [discount, props?.data?.DocDiscount]);
+  }, [discount, props?.data?.DiscountPercent]);
 
   let TotalPaymentDue =
-    docTotal - (docTotal * props.data?.DocDiscount) / 100 + docTaxTotal || 0;
+    docTotal - (docTotal * props.data?.DiscountPercent) / 100 + docTaxTotal ||
+    0;
   return (
     <div className="grid grid-cols-1 px-12 text-right w-full">
       <div className="col-span-5  col-start-3">
@@ -293,7 +296,7 @@ export const TotalSummaryRightSide = (props: any) => {
             </label>
           </div>
           <div className="col-span-4">
-            {"%"} {props?.data?.DocDiscount} {props.data?.Currency}{" "}
+            {"%"} {props?.data?.DiscountPercent} {props.data?.Currency}{" "}
             <NumericFormat
               value={discountAmount}
               thousandSeparator
