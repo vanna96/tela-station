@@ -30,7 +30,7 @@ interface ContentComponentProps {
 
 export default function ContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
+  const [discount, setDiscount] = React.useState(props?.data?.DiscountPercent || 0);
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
@@ -101,23 +101,26 @@ export default function ContentComponent(props: ContentComponentProps) {
     1
   );
 
+
+  console.log(props.data)
+
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
+    const dataDiscount: number = props?.data?.DiscountPercent ?? 0;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [props?.data?.DocDiscount, props.data.Items]);
+  }, [props?.data?.DiscountPercent, props.data.Items]);
 
   let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
   if (props.data) {
     props.data.DocTaxTotal = docTaxTotal;
     props.data.DocTotalBeforeDiscount = docTotal;
-    props.data.DocDiscountPercent = props.data?.DocDiscount;
+    props.data.DocDiscountPercent = props.data?.DiscountPercent;
     props.data.DocDiscountPrice = discountAmount;
     props.data.DocTotal = TotalPaymentDue;
   }
 
-  console.log(props.data)
+  console.log(props.data);
   return (
     <FormCard
       title="Content"
@@ -209,7 +212,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={docTotal}
+                    value={docTotal }
                     thousandSeparator
                     fixedDecimalScale
                     startAdornment={props?.data?.Currency}
@@ -231,7 +234,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
-                        value={props?.data?.DocDiscount ?? 0}
+                        value={props?.data?.DiscountPercent ?? 0}
                         // value={props.data.DocDiscount || discount}
                         onChange={(event: any) => {
                           if (
@@ -242,7 +245,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           ) {
                             event.target.value = 0;
                           }
-                          onChange("DocDiscount", event.target.value);
+                          onChange("DiscountPercent", event.target.value);
                         }}
                       />
                     </div>
