@@ -287,6 +287,7 @@ const VehicleDetail = (props: any) => {
                   register={register}
                   control={control}
                   detail={props?.detail}
+                  defaultValues={defaultValues}
                 />
               </h1>
             )}
