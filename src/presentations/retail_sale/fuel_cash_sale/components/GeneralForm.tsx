@@ -42,15 +42,15 @@ export default function GeneralForm({
     // ... other properties
   }
   if (dispenserData?.TL_DISPENSER_LINESCollection?.length > 0) {
-    dispenserData.TL_DISPENSER_LINESCollection = dispenserData.TL_DISPENSER_LINESCollection.map(( line: DispenserLine) => {
-      return {
-        ...line,
-        U_tl_bplid: (data.U_tl_bplid), 
-        U_tl_itemcode: data.U_tl_itemnum,
-      };
-    });
+    dispenserData.TL_DISPENSER_LINESCollection =
+      dispenserData.TL_DISPENSER_LINESCollection.map((line: DispenserLine) => {
+        return {
+          ...line,
+          U_tl_bplid: data.U_tl_bplid,
+          U_tl_itemcode: data.U_tl_itemnum,
+        };
+      });
   }
-  
 
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");

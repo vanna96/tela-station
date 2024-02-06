@@ -11,21 +11,21 @@ import MaterialReactTable from "material-react-table";
 import { useCookies } from "react-cookie";
 import { AiOutlineSetting } from "react-icons/ai";
 import { GridAddIcon } from "@mui/x-data-grid";
-interface StockAllocationDataProps {
+interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
   edit?: boolean;
 }
 
-export default function StockAllocationData({
+export default function StockAllocationTable({
   data,
   onChange,
   edit,
-}: StockAllocationDataProps) {
+}: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
-  const datattest = data?.TL_RETAILSALE_STACollection?.map((item: any) => ({
-    U_tl_bplid: parseInt(item.U_tl_bplid),
+  const dataFromApi = data?.TL_RETAILSALE_STACollection?.map((item: any) => ({
+    U_tl_bplid: item.U_tl_bplid,
     U_tl_itemnum: item.U_tl_itemcode,
     U_tl_itemdesc: item.U_tl_itemname,
     U_tl_qtyaloc: item.U_tl_qtyaloc,
@@ -35,40 +35,45 @@ export default function StockAllocationData({
     U_tl_uom: item.U_tl_uom,
   }));
 
-  // console.log(datattest);
+  // console.log(dataFromApi);
   let StockAllocationData = edit
-    ? datattest
-    : [...data.DispenserData.TL_DISPENSER_LINESCollection];
-    data.stockAllocationData = StockAllocationData;
+    ? dataFromApi
+    : data.DispenserData.TL_DISPENSER_LINESCollection;
+  data.stockAllocationData = StockAllocationData;
   // if (StockAllocationData) {
   //   data.stockAllocationData = StockAllocationData;
   // }
-  const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.stockAllocationData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
-      return item;
-    });
+  const onChangeItem = (key: number, obj: any) => {
+    const newData = data.stockAllocationData?.map(
+      (item: any, index: number) => {
+        if (index.toString() !== key.toString()) return item;
+        item[Object.keys(obj).toString()] = Object.values(obj).toString();
+        return item;
+      }
+    );
     if (newData.length <= 0) return;
     onChange("stockAllocationData", newData);
   };
+
   const branchChange = (key: number, obj: any) => {
-    const newData = data.stockAllocationData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-  
-      const newValues: Record<string, number> = {};
-      for (const [prop, value] of Object.entries(obj)) {
-        newValues[prop] = parseInt(value, 10) || 0; // Convert to number or use 0 if not a valid number
+    const newData = data.stockAllocationData?.map(
+      (item: any, index: number) => {
+        if (index.toString() !== key.toString()) return item;
+
+        const newValues: Record<string, number> = {};
+        for (const [prop, value] of Object.entries(obj)) {
+          newValues[prop] = parseInt(value, 10) || 0; // Convert to number or use 0 if not a valid number
+        }
+
+        return { ...item, ...newValues };
       }
-  
-      return { ...item, ...newValues };
-    });
-  
+    );
+
     if (!newData || newData.length <= 0) return {};
-  
+
     return { stockAllocationData: newData };
   };
-  
+
   const handlerAdd = () => {
     let firstData = [
       ...data.stockAllocationData,
@@ -83,6 +88,7 @@ export default function StockAllocationData({
         U_tl_uom: "",
       },
     ];
+    console.log(firstData);
     onChange("stockAllocationData", firstData);
   };
 
@@ -122,12 +128,12 @@ export default function StockAllocationData({
             <BranchAutoComplete
               BPdata={userData?.UserBranchAssignment}
               onChange={(e: any) => {
-                console.log(e)
-                branchChange(cell?.row?.id || 0, {
+                console.log(e);
+                onChangeItem(cell?.row?.id || 0, {
                   U_tl_bplid: e,
                 });
               }}
-              value={cell.getValue()}
+              value={parseInt(cell.getValue())}
             />
           );
         },
@@ -203,7 +209,7 @@ export default function StockAllocationData({
               customInput={MUITextField}
               value={cell.getValue()}
               onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
+                onChangeItem(cell?.row?.id || 0, {
                   U_tl_qtycon: e.target.value,
                 })
               }
@@ -233,7 +239,7 @@ export default function StockAllocationData({
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
+                onChangeItem(cell?.row?.id || 0, {
                   U_tl_qtyaloc: e.target.value,
                 })
               }
@@ -278,7 +284,7 @@ export default function StockAllocationData({
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
+                onChangeItem(cell?.row?.id || 0, {
                   U_tl_qtyopen: e.target.value,
                 })
               }
@@ -298,7 +304,7 @@ export default function StockAllocationData({
             <MUITextField
               value={cell.getValue()}
               onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
+                onChangeItem(cell?.row?.id || 0, {
                   U_tl_remark: e.target.value,
                 })
               }
@@ -310,13 +316,9 @@ export default function StockAllocationData({
     [data.stockAllocationData]
   );
 
-
   return (
     <>
-      <FormCard
-        title="Stock Allocation "
-      
-      >
+      <FormCard title="Stock Allocation ">
         <>
           <div className="col-span-2 data-table">
             <MaterialReactTable

@@ -13,13 +13,11 @@ import DocumentSerieRepository from "@/services/actions/documentSerie";
 import BusinessPartner from "@/models/BusinessParter";
 import { Alert, Button, CircularProgress, Snackbar } from "@mui/material";
 import Consumption from "../components/Consumption";
-import StockAllocationForm from "../components/StockAllocation";
+import StockAllocationForm from "../components/StockAllocationForm";
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
-import async from '../components/GeneralForm';
 
 class Form extends CoreFormDocument {
- 
   constructor(props: any) {
     super(props);
     this.state = {
@@ -46,7 +44,6 @@ class Form extends CoreFormDocument {
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
   }
 
-  
   componentDidMount(): void {
     this.setState({ loading: true });
     this.onInit();
@@ -61,7 +58,6 @@ class Form extends CoreFormDocument {
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      console.log(id);
       await request("GET", `TL_RetailSale(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
@@ -79,6 +75,7 @@ class Form extends CoreFormDocument {
           state = {
             ...data,
             vendor,
+            CardCode: data.U_tl_cardcode,
             seriesList,
           };
         })
@@ -186,7 +183,7 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["U_tl_pump"],
+      0: ["U_tl_pump", "CardCode"],
       1: [],
       2: [],
       3: [],
@@ -308,13 +305,11 @@ class Form extends CoreFormDocument {
 
                   {this.state.tapIndex === 3 && (
                     <StockAllocationForm
-                    
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
-                      onChange={this.handlerChange}
                     />
                   )}
 
