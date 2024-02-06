@@ -1,5 +1,6 @@
-import Formular from "@/utilies/formular"
-import React from "react"
+import formular from "@/utilies/formular";
+import Formular from "@/utilies/formular";
+import React from "react";
 
 export const useDocumentTotalHook = (
   items: any[],
@@ -7,24 +8,31 @@ export const useDocumentTotalHook = (
   ExchangeRate: any
 ) => {
   const docTotal: number = React.useMemo(() => {
-    let total = items.reduce((prev: number, cur: any) => {
-      return prev + cur?.TotalUnit
-      // Formular.findTotalUnit(cur?.Quantity, cur?.UnitPrice, cur?.LineDiscount)
-    }, 0)
-    return total * ExchangeRate
-  }, [items, ExchangeRate])
+    const total = items.reduce((prevTotal, item) => {
+      const lineTotal = formular.findLineTotal(
+        item.Quantity,
+        item.UnitPrice,
+        item.Discount
+      );
+      console.log(lineTotal);
+      return prevTotal + lineTotal;
+    }, 0);
+    return total * ExchangeRate;
+  }, [items, ExchangeRate]);
 
-  let docTaxTotal: number = React.useMemo(() => {
-    let total = items.reduce((prev: number, cur: any) => {
-      return (
-        prev +
-        (parseFloat(cur?.VatRate ?? 0) * parseFloat(cur?.TotalUnit ?? 1)) / 100
-      )
-    }, 0)
+  const grossTotal: number = React.useMemo(() => {
+    const total = items.reduce((prevTotal, item) => {
+      const lineTotal = formular.findLineTotal(
+        item.Quantity,
+        item.GrossPrice,
+        item.Discount
+      );
+      console.log(lineTotal);
+      return prevTotal + lineTotal;
+    }, 0);
+    return total * ExchangeRate;
+  }, [items, ExchangeRate]);
 
-    return total * ExchangeRate
-  }, [items, discount, ExchangeRate])
-
-  docTaxTotal = docTaxTotal - (docTaxTotal * discount) / 100
-  return [docTotal, docTaxTotal]
-}
+  let docTaxTotal: number = grossTotal - docTotal;
+  return [docTotal, docTaxTotal, grossTotal];
+};

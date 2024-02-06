@@ -16,6 +16,7 @@ import { NumericFormat } from "react-number-format";
 import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
 import ArrowCircleDownRoundedIcon from "@mui/icons-material/ArrowCircleDownRounded";
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
+
 interface DocumentHeaderComponentProps {
   leftSideField: JSX.Element | React.ReactNode;
   rightSideField: JSX.Element | React.ReactNode;
@@ -250,7 +251,7 @@ export const TotalSummaryRightSide = (props: any) => {
   const [discount, setDiscount] = React.useState(
     props?.data?.DiscountPercent ?? 0
   );
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data?.Items ?? [],
     discount,
     1
@@ -281,10 +282,10 @@ export const TotalSummaryRightSide = (props: any) => {
               <NumericFormat
                 value={docTotal}
                 thousandSeparator
-                fixedDecimalScale
+                // fixedDecimalScale
                 disabled
                 className="bg-white w-1/2"
-                decimalScale={2}
+                decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
               />
             }
           </div>
@@ -300,10 +301,10 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={discountAmount}
               thousandSeparator
-              fixedDecimalScale
+              // fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={2}
+              decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
             />
           </div>
         </div>
@@ -318,10 +319,10 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={docTaxTotal}
               thousandSeparator
-              fixedDecimalScale
+              // fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={2}
+              decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
             />
           </div>
         </div>
@@ -335,12 +336,12 @@ export const TotalSummaryRightSide = (props: any) => {
             {" "}
             {props.data?.Currency}{" "}
             <NumericFormat
-              value={TotalPaymentDue}
+              value={grossTotal}
               thousandSeparator
-              fixedDecimalScale
+              // fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={2}
+              decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
             />
           </div>
         </div>
