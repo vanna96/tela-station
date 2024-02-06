@@ -18,7 +18,7 @@ export default function Sequence({ data, onChange }: SequenceProps) {
   const { sysInfo }: any = React.useContext(APIContext);
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
-  }, [data?.error]);  
+  }, [data?.error]);
 
   return (
     <>
@@ -31,7 +31,7 @@ export default function Sequence({ data, onChange }: SequenceProps) {
               aria-label="close"
               color="inherit"
               size="small"
-              //   onClick={onClose}
+            //   onClick={onClose}
             >
               {/* <MdOutlineClose fontSize="inherit" /> */}
             </IconButton>
@@ -44,7 +44,7 @@ export default function Sequence({ data, onChange }: SequenceProps) {
         <div className="mt-6">
           <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
             <legend className="text-md px-2 font-bold">
-              
+
             </legend>
 
             <div className="grid grid-cols-12 py-2 ">

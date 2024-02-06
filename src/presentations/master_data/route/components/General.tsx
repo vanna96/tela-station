@@ -3,6 +3,7 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { useCookies } from "react-cookie";
 import { TextField } from "@mui/material";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
+import StopsSelect from "@/components/selectbox/StopsSelect";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -40,6 +41,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <div className="col-span-3">
                   <WarehouseAttendTo
+                    U_tl_attn_ter={true}
                     value={data?.U_BaseStation}
                     onChange={(e) => {
                       handlerChange("U_BaseStation", e);
@@ -57,12 +59,11 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseAttendTo
+                <StopsSelect
                   value={data?.U_Destination}
-                  onChange={(e) => {
-                    handlerChange("U_Destination", e);
+                  onHandlerChange={(val) => {
+                    handlerChange("U_Destination", val?.Code);
                   }}
-                  onBlur={(e: any) => setData({ ...data, U_Destination: e })}
                 />
               </div>
             </div>
@@ -127,7 +128,7 @@ export default function GeneralForm({
                     { id: "N", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("U_Status", e.target.value)}
-                  value={data?.U_Status || "Y"} 
+                  value={data?.U_Status || "Y"}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_Status"
@@ -137,13 +138,14 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Latitude" className="text-gray-500 ">
-                  Distance
+                  Distance (KM)
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   value={data?.U_Distance}
                   name="U_Distance"
+                  type="number"
                   onChange={(e) => handlerChange("U_Distance", e.target.value)}
                 />
               </div>
@@ -159,23 +161,6 @@ export default function GeneralForm({
                   value={data?.U_Duration}
                   name="U_Duration"
                   onChange={(e) => handlerChange("U_Duration", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Extra Remarks
-                </label>
-              </div>
-              <div className="col-span-3">
-                <TextField
-                  size="small"
-                  fullWidth
-                  multiline
-                  onChange={(e) => handlerChange("U_Remark", e.target.value)}
-                  rows={2}
-                  value={data.U_Remark}
                 />
               </div>
             </div>

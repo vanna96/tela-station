@@ -196,7 +196,7 @@ const General = ({
                         {...field}
                         value={defaultValues?.Manager}
                         onChange={(e: any) => {
-                          setValue("Manager", e);
+                          setValue("Manager", e?.EmployeeID);
 
                           // setHeader({ ...header, data5: e?.Name })
                         }}

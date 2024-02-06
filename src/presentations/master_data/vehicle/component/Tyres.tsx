@@ -31,6 +31,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{ ...register("U_AxlesNo") }}
               />
@@ -44,6 +45,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{ ...register("U_TyresNo") }}
               />
@@ -57,6 +59,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{ ...register("U_TyreRearSize") }}
               />
@@ -73,6 +76,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{
                   ...register("U_TyreFrontSize"),
@@ -88,6 +92,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{ ...register("U_RearPresssure") }}
               />
@@ -101,6 +106,7 @@ const Tyres = ({
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{ ...register("U_FrontPressure") }}
               />

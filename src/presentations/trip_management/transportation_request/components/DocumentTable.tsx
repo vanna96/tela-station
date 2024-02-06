@@ -18,8 +18,8 @@ export default function DocumentTable(
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerAddCheck = () => {
-    onChange("TL_RM_EXPENSCollection", [
-      ...(data?.TL_RM_EXPENSCollection || []),
+    onChange("TL_TR_ROWCollection", [
+      ...(data?.TL_TR_ROWCollection || []),
       {
         U_Code: "",
         U_Description: "",
@@ -31,15 +31,15 @@ export default function DocumentTable(
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
-    const newData = data?.TL_RM_EXPENSCollection?.filter(
+    const newData = data?.TL_TR_ROWCollection?.filter(
       (item: any, index: number) => !rows.includes(index.toString())
     );
-    onChange("TL_RM_EXPENSCollection", newData);
+    onChange("TL_TR_ROWCollection", newData);
     setRowSelection({});
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.TL_RM_EXPENSCollection?.map(
+    const newData = data?.TL_TR_ROWCollection?.map(
       (item: any, index: number) => {
         if (index.toString() !== key.toString()) return item;
         item[Object.keys(obj).toString()] = Object.values(obj).toString();
@@ -47,7 +47,7 @@ export default function DocumentTable(
       }
     );
     if (newData.length <= 0) return;
-    onChange("TL_RM_EXPENSCollection", newData);
+    onChange("TL_TR_ROWCollection", newData);
   };
 
   const columns = [
@@ -143,7 +143,7 @@ export default function DocumentTable(
       },
       {
         accessorKey: "U_Amount",
-        header: "Quantity",
+        header: "Quantityasas",
         Cell: ({ cell }: any) => (
           <MUITextField
             key={"U_Amount" + cell.getValue() + cell?.row?.id}
@@ -180,7 +180,7 @@ export default function DocumentTable(
       </div>
       <MaterialReactTable
         columns={columns}
-        data={data?.TL_RM_EXPENSCollection || []}
+        data={data?.TL_TR_ROWCollection || []}
         enableStickyHeader={true}
         enableHiding={true}
         enablePinning={true}
