@@ -16,7 +16,8 @@ import { NumericFormat } from "react-number-format";
 import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
 import ArrowCircleDownRoundedIcon from "@mui/icons-material/ArrowCircleDownRounded";
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
-
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 interface DocumentHeaderComponentProps {
   leftSideField: JSX.Element | React.ReactNode;
   rightSideField: JSX.Element | React.ReactNode;
@@ -193,7 +194,14 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
 export default DocumentHeaderComponent;
 
 export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
-  // console.log(props.data);
+  const { data: sysInfoData }: any = useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () =>
+      request("POST", "CompanyService_GetAdminInfo")
+        .then((res: any) => res?.data)
+        .catch((err: any) => console.log(err)),
+    staleTime: Infinity,
+  });
   return (
     <div className=" grid grid-cols-1 text-left w-full px-12">
       <div className="col-span-5  col-start-1">
@@ -238,7 +246,12 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
           <div className="col-span-4">
             <span>
               {props.data?.Currency || 1}
-              {" - "} {props.data?.ExchangeRate}
+              {props.data?.Currency !== sysInfoData?.SystemCurrency && (
+                <>
+                  {" - "}
+                  {props.data?.ExchangeRate}
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -248,15 +261,13 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
 };
 
 export const TotalSummaryRightSide = (props: any) => {
-  // Initialize the discount state with the initial value from props
   const [discount, setDiscount] = React.useState(
     props?.data?.DiscountPercent || 0
   );
 
-  // Update the discount state when props.data.DiscountPercent changes
   React.useEffect(() => {
     setDiscount(props?.data?.DiscountPercent || 0);
-  }, [props?.data?.DiscountPercent]); // Update whenever props.data.DiscountPercent changes
+  }, [props?.data?.DiscountPercent]);
 
   const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
