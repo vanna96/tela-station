@@ -4,7 +4,7 @@ import React from "react";
 
 export const useDocumentTotalHook = (
   items: any[],
-  discount = 0,
+  discount: number,
   ExchangeRate: any
 ) => {
   const docTotal: number = React.useMemo(() => {
@@ -14,11 +14,18 @@ export const useDocumentTotalHook = (
         item.UnitPrice,
         item.Discount
       );
-      console.log(lineTotal);
       return prevTotal + lineTotal;
     }, 0);
     return total * ExchangeRate;
   }, [items, ExchangeRate]);
+
+  // Calculate discount amount
+  const docDiscountAmount = (discount / 100) * docTotal;
+
+  // Include docDiscountAmount in the dependency array
+  const docTaxTotal: number = React.useMemo(() => {
+    return (docTotal - docDiscountAmount) / 10;
+  }, [docTotal, docDiscountAmount]);
 
   const grossTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
@@ -27,12 +34,11 @@ export const useDocumentTotalHook = (
         item.GrossPrice,
         item.Discount
       );
-      console.log(lineTotal);
       return prevTotal + lineTotal;
     }, 0);
-    return total * ExchangeRate;
-  }, [items, ExchangeRate]);
 
-  let docTaxTotal: number = grossTotal - docTotal;
+    return docTotal - docDiscountAmount + docTaxTotal * ExchangeRate;
+  }, [items, ExchangeRate, discount, docTotal, docDiscountAmount, docTaxTotal]);
+
   return [docTotal, docTaxTotal, grossTotal];
 };

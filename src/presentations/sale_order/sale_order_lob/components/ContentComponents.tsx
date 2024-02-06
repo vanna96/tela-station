@@ -10,7 +10,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../../components";
+import { useDocumentTotalHook } from "@/hook";
 
 interface ContentComponentProps {
   items: any[];
@@ -30,9 +30,17 @@ interface ContentComponentProps {
 
 export default function ContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
+
+  // Initialize the discount state with the initial value from props
   const [discount, setDiscount] = React.useState(
     props?.data?.DiscountPercent || 0
   );
+
+  // Update the discount state when props.data.DiscountPercent changes
+  React.useEffect(() => {
+    setDiscount(props?.data?.DiscountPercent || 0);
+  }, [props?.data?.DiscountPercent]); // Update whenever props.data.DiscountPercent changes
+
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
@@ -96,7 +104,7 @@ export default function ContentComponent(props: ContentComponentProps) {
   const onChange = (key: string, value: any) => {
     if (props.onChange) props.onChange(key, value);
   };
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     discount,
     // props?.data?.ExchangeRate ?? 1
@@ -120,6 +128,10 @@ export default function ContentComponent(props: ContentComponentProps) {
   }
 
   console.log(props.data);
+  const handleDiscountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(event.target.value); // Parse the input value to a number
+    setDiscount(isNaN(value) ? 0 : value); // Update the discount state
+  };
   return (
     <FormCard
       title="Content"
@@ -213,9 +225,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                     className="bg-white w-full"
                     value={docTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -258,9 +269,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                         className="bg-white w-full"
                         value={discountAmount}
                         thousandSeparator
-                        fixedDecimalScale
                         startAdornment={props?.data?.Currency}
-                        decimalScale={2}
+                        decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
@@ -278,9 +288,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                     className="bg-white w-full"
                     value={docTaxTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -293,11 +302,10 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={TotalPaymentDue}
+                    value={grossTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
