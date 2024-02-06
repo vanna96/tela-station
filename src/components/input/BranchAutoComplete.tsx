@@ -22,10 +22,20 @@ export default function BranchAutoComplete(props: {
   const filteredBranch = data?.filter((e: any) =>
     uniqueBPLIDs.includes(e.BPLID)
   );
+ useEffect(() => {
+  if (props.value) {
+    let selectedValue: number | null = null;
 
-  useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
+    if (typeof props.value === "string") {
+      const numericValue = parseFloat(props.value);
+
+      if (!isNaN(numericValue)) {
+        selectedValue = numericValue;
+      }
+    } else {
+      selectedValue = props.value;
+    }
+
       const selectedBranch = filteredBranch?.find(
         (branch: any) => branch?.BPLID === props.value
       );
@@ -35,7 +45,6 @@ export default function BranchAutoComplete(props: {
     }
   }, [props.value, filteredBranch]);
 
-  // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {

@@ -2,12 +2,9 @@ import React, { useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
 import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
@@ -28,32 +25,44 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
-  const {
+  let {
     data: dispenserData,
     isLoading,
     isError,
-  } = useQuery(["dispenser", data.Pump], () => fetchDispenserData(data.Pump), {
-    enabled: !!data.Pump,
-  });
-
-  console.log(dispenserData);
-
-  // Add error handling if needed
-  if (isError) {
-    console.error("Error fetching dispenser data");
+  } = useQuery(
+    ["dispenser", data.U_tl_pump],
+    () => fetchDispenserData(data.U_tl_pump),
+    {
+      enabled: !!data.U_tl_pump,
+    }
+  );
+  interface DispenserLine {
+    U_tl_bplid: number;
+    U_tl_itemcode: string;
+    // ... other properties
   }
+  if (dispenserData?.TL_DISPENSER_LINESCollection?.length > 0) {
+    dispenserData.TL_DISPENSER_LINESCollection = dispenserData.TL_DISPENSER_LINESCollection.map(( line: DispenserLine) => {
+      return {
+        ...line,
+        U_tl_bplid: (data.U_tl_bplid), 
+        U_tl_itemcode: data.U_tl_itemnum,
+      };
+    });
+  }
+  
+
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
-  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
+  const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const filteredSeries = data?.seriesList?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-  console.log(data);
 
   const seriesSO =
     data.seriesList.find((series: any) => series.BPLID === BPL)?.Series || "";
@@ -86,7 +95,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                onChange={(e) => handlerChange("U_tl_bplid", e)}
                 value={BPL}
               />
             </div>
@@ -102,7 +111,7 @@ export default function GeneralForm({
               <DispenserAutoComplete
                 value={data?.U_tl_pump}
                 isStatusActive
-                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
                 onChange={(e) => {
                   handlerChange("U_tl_pump", e);
@@ -126,7 +135,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3 text-gray-900">
               <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
+                branch={data?.U_tl_bplid}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
@@ -135,7 +144,7 @@ export default function GeneralForm({
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-              disabled={edit}
+                disabled={edit}
                 endAdornment={!edit}
               />
             </div>
@@ -180,7 +189,7 @@ export default function GeneralForm({
               <DispenserAutoComplete
                 value={data?.PumpAttendant}
                 isStatusActive
-                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                branch={data?.U_tl_bplid ?? BPL}
                 pumpType="Oil"
                 onChange={(e) => {
                   handlerChange("PumpAttendant", e);
@@ -231,9 +240,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={edit && data?.Status?.includes("A")}
-                value={data.DocumentDate}
-                onChange={(e: any) => handlerChange("DocumentDate", e)}
+                disabled={edit}
+                value={data.U_tl_docdate}
+                onChange={(e: any) => handlerChange("U_tl_docdate", e)}
               />
             </div>
           </div>

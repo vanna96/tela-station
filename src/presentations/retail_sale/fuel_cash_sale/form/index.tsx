@@ -16,15 +16,20 @@ import Consumption from "../components/Consumption";
 import StockAllocationForm from "../components/StockAllocation";
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
+import async from '../components/GeneralForm';
 
 class Form extends CoreFormDocument {
+ 
   constructor(props: any) {
     super(props);
     this.state = {
       ...this.state,
       showCollapse: false,
       nozzleData: [],
+      U_tl_bplid: 1,
+      U_tl_docdate: new Date(),
       allocationData: [],
+      stockAllocationData: [],
       cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
       checkNumberData: [
         {
@@ -41,6 +46,7 @@ class Form extends CoreFormDocument {
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
   }
 
+  
   componentDidMount(): void {
     this.setState({ loading: true });
     this.onInit();
@@ -180,7 +186,7 @@ class Form extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      // 0: ["CardCode"],
+      0: ["U_tl_pump"],
       1: [],
       2: [],
       3: [],
@@ -302,11 +308,13 @@ class Form extends CoreFormDocument {
 
                   {this.state.tapIndex === 3 && (
                     <StockAllocationForm
+                    
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
+                      onChange={this.handlerChange}
                     />
                   )}
 

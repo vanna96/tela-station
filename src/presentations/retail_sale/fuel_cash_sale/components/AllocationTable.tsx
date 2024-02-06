@@ -14,23 +14,45 @@ import MaterialReactTable from "material-react-table";
 interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
+  edit?: boolean;
 }
 
 export default function AllocationTable({
   data,
   onChange,
+  edit,
 }: AllocationTableProps) {
-  const [key, setKey] = React.useState(shortid.generate());
-  const onClose = React.useCallback(() => setCollapseError(false), []);
-  const [collapseError, setCollapseError] = React.useState(false);
+  // const datattest = data?.TL_RETAILSALE_CONHCollection?.map((item: any) => ({
+  //   U_tl_pumpcode: item.U_tl_nozzlecode,
+  //   U_tl_itemnum: item.U_tl_itemcode,
+  //   U_tl_itemdesc: item.U_tl_itemname,
+  //   U_tl_uom: item.U_tl_uom,
+  //   new_meter: item.U_tl_nmeter,
+  //   U_tl_upd_meter: item.U_tl_ometer,
+  //   U_tl_cmeter: item.U_tl_cmeter,
 
-  React.useEffect(() => {
-    setCollapseError("Items" in data?.error);
-  }, [data?.error]);
-  console.log(data.nozzleData);
+  //   U_tl_cardallow: item.U_tl_cardallow,
+  //   U_tl_cashallow: item.U_tl_cashallow,
+  //   U_tl_ownallow: item.U_tl_ownallow,
+  //   U_tl_partallow: item.U_tl_partallow,
+  //   U_tl_pumpallow: item.U_tl_pumpallow,
+  //   U_tl_stockallow: item.U_tl_stockallow,
+  //   U_tl_totalallow: item.U_tl_totalallow,
+  // }));
+
+  // const tl_Dispenser = edit
+  //   ? datattest
+  //   : [
+  //       ...data.DispenserData?.TL_DISPENSER_LINESCollection?.filter(
+  //         (e: any) =>
+  //           e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
+  //       ),
+  //     ];
 
   const AllocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
-
+  if (AllocationData.length > 0) {
+    data.allocationData = AllocationData;
+  }
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = AllocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -77,7 +99,7 @@ export default function AllocationTable({
       },
 
       {
-        accessorKey: "cashSales",
+        accessorKey: "U_tl_cashallow",
         header: "Cash Sales (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -91,7 +113,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  cashSales: e.target.value,
+                  U_tl_cashallow: e.target.value,
                 })
               }
             />
@@ -99,7 +121,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "partnership",
+        accessorKey: "U_tl_partallow",
         header: "Partnership (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -113,7 +135,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  partnership: e.target.value,
+                  U_tl_partallow: e.target.value,
                 })
               }
             />
@@ -121,7 +143,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "stockTransfer",
+        accessorKey: "U_tl_stockallow",
         header: "Stock Transfer (Liter)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -135,7 +157,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  stockTransfer: e.target.value,
+                  U_tl_stockallow: e.target.value,
                 })
               }
             />
@@ -143,7 +165,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "ownUsage",
+        accessorKey: "U_tl_ownallow",
         header: "Own Usage (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -157,7 +179,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  ownUsage: e.target.value,
+                  U_tl_ownallow: e.target.value,
                 })
               }
             />
@@ -165,7 +187,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "telaCard",
+        accessorKey: "U_tl_cardallow",
         header: "Tela Card (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -179,7 +201,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  telaCard: e.target.value,
+                  U_tl_cardallow: e.target.value,
                 })
               }
             />
@@ -187,7 +209,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "pumpTest",
+        accessorKey: "U_tl_pumpallow",
         header: "Pump Test (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -201,7 +223,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  pumpTest: e.target.value,
+                  U_tl_pumpallow: e.target.value,
                 })
               }
             />
@@ -209,7 +231,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "total",
+        accessorKey: "U_tl_totalallow",
         header: "Total (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -224,7 +246,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  total: e.target.value,
+                  U_tl_totalallow: e.target.value,
                 })
               }
             />

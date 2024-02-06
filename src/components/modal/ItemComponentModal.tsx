@@ -52,9 +52,9 @@ const ItemModal: FC<ItemModalProps> = ({
     queryKey: ["items"],
     queryFn: () =>
       new itemRepository().getSaleItem(
-        ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
+        ` &$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
       ),
-    staleTime: 180000,
+    // staleTime: 180000,
   });
 
   const [pagination, setPagination] = React.useState({
@@ -212,7 +212,7 @@ const ItemModal: FC<ItemModalProps> = ({
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
         VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
         Quantity: defaultPrice !== null ? 1 : 0,
-        UnitPrice: defaultPrice ?? 0,
+        // UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
         LineTotal: total,
         Total: total,
@@ -224,9 +224,9 @@ const ItemModal: FC<ItemModalProps> = ({
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
         // ProductLine: item.ProductLine ?? "203004",
-        // GrossPrice:
-        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-        //   0,
+        UnitPrice:
+          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+          0,
         COGSCostingCode: e?.U_tl_dim1,
         OGSCostingCode2: "202001",
         COGSCostingCode3: e?.U_tl_dim2,

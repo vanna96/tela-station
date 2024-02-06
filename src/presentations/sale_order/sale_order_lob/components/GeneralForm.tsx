@@ -309,7 +309,7 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={edit ? data?.Series : filteredSeries[0]?.Series}
+                  value={ filteredSeries[0]?.Series}
                   disabled={edit}
                   // onChange={(e: any) => handlerChange("Series", e.target.value)}
                   // onChange={handleSeriesChange}

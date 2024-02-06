@@ -35,32 +35,37 @@ export default function Consumption({
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
           <h2>Nozzle Data</h2>{" "}
         </div>
-        <NozzleData data={data} onChange={handlerChange} />
+        <NozzleData data={data} onChange={handlerChange} edit={edit} />
 
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
           <h2>Allocation</h2>{" "}
-          {/* <div
-            className="button cursor-pointer"
-            onClick={handleGenerateAllocation}
-          >
-            <h3 className="font-thin text-base border-x-2 border-y-2 px-8 border-gray-500 select-none">
-              Generate Allocation
-            </h3>
-          </div> */}
-          <Button
-            type="button"
-            sx={{ height: "30px", textTransform: "none" }}
-            className="bg-white"
-            size="small"
-            variant="outlined"
-            disableElevation
-            onClick={handleGenerateAllocation}
-          >
-            <span className="px-6 text-[13px] py-4 ">Generate Allocation</span>
-          </Button>
         </div>
-        {showAllocationTable && (
-          <AllocationTable data={data} onChange={handlerChange} />
+        {edit ? (
+          <AllocationTable data={data} onChange={handlerChange} edit={edit} />
+        ) : (
+          <div>
+            <Button
+              type="button"
+              sx={{ height: "30px", textTransform: "none" }}
+              className="bg-white"
+              size="small"
+              variant="outlined"
+              disableElevation
+              onClick={() => setShowAllocationTable(!showAllocationTable)}
+            >
+              <span className="px-6 text-[13px] py-4 ">
+                Generate Allocation
+              </span>
+            </Button>
+            <div className="mb-6"/>
+            {showAllocationTable && (
+              <AllocationTable
+                data={data}
+                onChange={handlerChange}
+                edit={edit}
+              />
+            )}
+          </div>
         )}
       </div>
     </>

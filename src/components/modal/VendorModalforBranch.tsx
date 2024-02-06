@@ -49,7 +49,7 @@ const VendorModalBranch: FC<VendorModalProps> = ({
   const { data, isLoading }: any = useQuery({
     queryKey: ["venders_branch", branch],
     queryFn: () =>
-      new BranchQueryRepository().get(`?$filter=BPLId eq ${branch}`),
+      new BranchQueryRepository().get(`?$filter=CardType eq 'C' and BPLId eq ${branch}`),
     // staleTime: 10000,
     enabled: branch !== "",
   });
