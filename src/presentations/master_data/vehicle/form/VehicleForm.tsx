@@ -38,8 +38,6 @@ export type UseFormProps = {
   header?: any;
   setHeader?: any;
   detail?: boolean;
-  setIsChecked?: any;
-  isChecked?: any;
 };
 // const { id } = useParams();
 const VehicleForm = (props: any) => {
@@ -110,7 +108,6 @@ const VehicleForm = (props: any) => {
         );
     }
   };
-  const [isChecked, setIsChecked] = useState(false);
 
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
@@ -217,7 +214,6 @@ const VehicleForm = (props: any) => {
     }
     const payload = {
       ...data,
-      // U_UnderMaintenance: isChecked ? "YES" : "No",
       TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
         return {
           U_IssueDate: e?.U_IssueDate,
@@ -443,8 +439,6 @@ const VehicleForm = (props: any) => {
                   defaultValues={defaultValues}
                   header={header}
                   setHeader={setHeader}
-                  setIsChecked={setIsChecked}
-                  isChecked={isChecked}
                   useWatch={useWatch}
                 />
               </h1>

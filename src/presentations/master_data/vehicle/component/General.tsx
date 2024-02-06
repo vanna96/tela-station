@@ -24,8 +24,6 @@ const General = ({
   header,
   setHeader,
   detail,
-  setIsChecked,
-  isChecked,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     U_Type: "",
