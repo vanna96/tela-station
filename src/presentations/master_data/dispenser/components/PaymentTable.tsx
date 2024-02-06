@@ -179,7 +179,7 @@ export default function PaymentTable(props: any) {
           items={[
             { id: "New", name: "New" },
             { id: "Initialized", name: "Initialized" },
-            { id: "OutOfOrder", name: "Out Of Order" },
+            { id: "Active", name: "Active" },
             { id: "Inactive", name: "Inactive" },
           ]}
           onChange={(e) =>
