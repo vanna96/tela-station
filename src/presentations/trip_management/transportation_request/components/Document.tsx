@@ -8,8 +8,8 @@ export default function Document({
   register,
   defaultValue,
   setValue,
-  commer,
-  setCommer,
+  collecttion,
+  setCollection,
   control,
   detail,
 }: any) {
@@ -20,14 +20,14 @@ export default function Document({
   });
   const addNewRow = () => {
     let newRow: any = {};
-    setCommer([...(commer ?? []), newRow]);
+    setCollection([...(collecttion ?? []), newRow]);
   };
 
   const handlerDelete = (index: number) => {
     if (index >= 0 && detail !== true) {
-      const state: any[] = [...commer];
+      const state: any[] = [...collecttion];
       state.splice(index, 1);
-      setCommer(state);
+      setCollection(state);
     } else {
       return;
     }
@@ -40,7 +40,7 @@ export default function Document({
       return;
     }
 
-    const updated = commer.map((item: any, idx: number) => {
+    const updated = collecttion.map((item: any, idx: number) => {
       if (idx === index) {
         return {
           ...item,
@@ -49,7 +49,7 @@ export default function Document({
       }
       return item;
     });
-    setCommer(updated);
+    setCollection(updated);
   };
   console.log(staticSelect);
 
@@ -57,7 +57,7 @@ export default function Document({
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
-          <h2>Commercial</h2>
+          <h2>Document</h2>
         </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
@@ -65,31 +65,35 @@ export default function Document({
               <th className="w-[100px] "></th>
 
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Type{" "}
+                Source Document
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Name{" "}
+                Document Number
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Issue Date{" "}
+                Item
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Expire Date{" "}
+                Ship To
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
-                Fee{" "}
+                Delivery Date
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
-                Referance{" "}
+                Quantity
+                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+              </th>
+              <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
+                Action
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
             </tr>
-            {commer?.length === 0 && (
+            {collecttion?.length === 0 && (
               <tr>
                 <td
                   colSpan={6}
@@ -99,7 +103,7 @@ export default function Document({
                 </td>
               </tr>
             )}
-            {commer?.map((e: any, index: number) => {
+            {collecttion?.map((e: any, index: number) => {
               return (
                 <tr key={index}>
                   <td className="py-5 flex justify-center gap-5 items-center">

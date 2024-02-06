@@ -157,7 +157,7 @@ const branchAss: any = useQuery({
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/trip-management/transportation-request/" + cell.row.original.Code, {
+                route("/trip-management/transportation-request/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -169,7 +169,7 @@ const branchAss: any = useQuery({
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/trip-management/transportation-request/${cell.row.original.Code}/edit`, {
+                route(`/trip-management/transportation-request/${cell.row.original.DocEntry}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 });
