@@ -1,15 +1,6 @@
 import React from "react";
-import { useQuery } from "react-query";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import MUITextField from "@/components/input/MUITextField";
-import MUISelect from "@/components/selectbox/MUISelect";
-import VendorByBranch from "@/components/input/VendorByBranch";
-import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
-import request from "@/utilies/request";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import NozzleData from "./NozzleDataTable";
 import AllocationTable from "./AllocationTable";
-import FormCard from "@/components/card/FormCard";
 import { Button } from "@mui/material";
 
 export interface ConsumptionProps {
@@ -57,7 +48,7 @@ export default function Consumption({
                 Generate Allocation
               </span>
             </Button>
-            <div className="mb-6"/>
+            <div className="mb-6" />
             {showAllocationTable && (
               <AllocationTable
                 data={data}
@@ -71,7 +62,3 @@ export default function Consumption({
     </>
   );
 }
-const handleGenerateAllocation = () => {
-  // Add your logic here for generating allocation
-  console.log("Generate Allocation button clicked!");
-};

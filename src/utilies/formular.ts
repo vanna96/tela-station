@@ -23,7 +23,10 @@ export default class Formular {
 
 
   public static findLineTotal(qty: string, price: string, discount: string) {
-    const total = parseFloat(price ?? 0) * parseFloat(qty ?? 0) - (parseFloat(price ?? 0) * parseFloat(qty ?? 0) * (parseFloat(discount ?? 0) / 100))
+    const total = parseFloat(price ?? 0) * parseFloat(qty ?? 0)
+    // - (parseFloat(price ?? 0) * parseFloat(qty ?? 0) * (parseFloat(discount ?? 0) / 100))
+
+
     if (isNaN(total)) {
       return 0;
     }
