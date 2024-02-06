@@ -1,6 +1,7 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
+import { dateFormat } from "@/utilies";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
@@ -111,7 +112,7 @@ export default function Commercial({
                       onClick={() => handlerDelete(index)}
                       className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
                         detail
-                          ? "bg-gray-100 text-gray-600 "
+                          ? "hidden"
                           : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
                       }  rounded-sm flex justify-center items-center `}
                     >
@@ -167,62 +168,88 @@ export default function Commercial({
                     />
                   </td>
                   <td className="pr-4">
-                    <Controller
-                      name="U_IssueDate"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <MUIDatePicker
-                            disabled={detail}
-                            {...field}
-                            value={e?.U_IssueDate || staticSelect?.u_IssueDate}
-                            key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
-                            onChange={(e: any) => {
-                              const val =
-                                e.toLowerCase() ===
-                                "Invalid Date".toLocaleLowerCase()
-                                  ? ""
-                                  : e;
-                              setStaticSelect({
-                                ...staticSelect,
-                                u_IssueDate: e,
-                              });
-                              handlerChangeCommer("U_IssueDate", val, index);
-                            }}
-                          />
-                        );
-                      }}
-                    />
+                    {detail ? (
+                      <MUITextField
+                        disabled={detail}
+                        placeholder="U_IssueDate"
+                        inputProps={{
+                          defaultValue: dateFormat(e?.U_IssueDate),
+                        }}
+                      />
+                    ) : (
+                      <Controller
+                        name="U_IssueDate"
+                        control={control}
+                        render={({ field }) => {
+                          return (
+                            <MUIDatePicker
+                              disabled={detail}
+                              {...field}
+                              value={
+                                e?.U_IssueDate || staticSelect?.u_IssueDate
+                              }
+                              key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
+                              onChange={(e: any) => {
+                                const val =
+                                  e.toLowerCase() ===
+                                  "Invalid Date".toLocaleLowerCase()
+                                    ? ""
+                                    : e;
+                                setStaticSelect({
+                                  ...staticSelect,
+                                  u_IssueDate: e,
+                                });
+                                handlerChangeCommer("U_IssueDate", val, index);
+                              }}
+                            />
+                          );
+                        }}
+                      />
+                    )}
                   </td>
                   <td className="pr-4">
-                    <Controller
-                      name="U_ExpiredDate"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <MUIDatePicker
-                            disabled={detail}
-                            {...field}
-                            value={
-                              e?.U_ExpiredDate || staticSelect.u_ExpiredDate
-                            }
-                            key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
-                            onChange={(e: any) => {
-                              const val =
-                                e.toLowerCase() ===
-                                "Invalid Date".toLocaleLowerCase()
-                                  ? ""
-                                  : e;
-                              setStaticSelect({
-                                ...staticSelect,
-                                u_ExpiredDate: e,
-                              });
-                              handlerChangeCommer("U_ExpiredDate", val, index);
-                            }}
-                          />
-                        );
-                      }}
-                    />
+                    {detail ? (
+                      <MUITextField
+                        disabled={detail}
+                        placeholder="U_ExpiredDate"
+                        inputProps={{
+                          defaultValue: dateFormat(e?.U_ExpiredDate),
+                        }}
+                      />
+                    ) : (
+                      <Controller
+                        name="U_ExpiredDate"
+                        control={control}
+                        render={({ field }) => {
+                          return (
+                            <MUIDatePicker
+                              disabled={detail}
+                              {...field}
+                              value={
+                                e?.U_ExpiredDate || staticSelect.u_ExpiredDate
+                              }
+                              key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
+                              onChange={(e: any) => {
+                                const val =
+                                  e.toLowerCase() ===
+                                  "Invalid Date".toLocaleLowerCase()
+                                    ? ""
+                                    : e;
+                                setStaticSelect({
+                                  ...staticSelect,
+                                  u_ExpiredDate: e,
+                                });
+                                handlerChangeCommer(
+                                  "U_ExpiredDate",
+                                  val,
+                                  index
+                                );
+                              }}
+                            />
+                          );
+                        }}
+                      />
+                    )}
                   </td>
 
                   <td className="pr-4">
@@ -256,9 +283,7 @@ export default function Commercial({
             })}
           </table>
           {detail ? (
-            <span className="p-1 text-sm rounded-md bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md">
-              + Add
-            </span>
+            null
           ) : (
             <span
               onClick={addNewRow}
