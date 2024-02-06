@@ -5,7 +5,7 @@ import request from "@/utilies/request";
 
 export default class BranchBPLRepository extends Repository<BranchBPL> {
    
-    url = '/BusinessPlaces?$select=BPLID, BPLName';
+    url = '/BusinessPlaces?$select=BPLID, BPLName, Address';
     
     // specific key
     key = 'BusinessPlaces';
@@ -29,6 +29,7 @@ export default class BranchBPLRepository extends Repository<BranchBPL> {
         const data = localStorage.getItem(this.key);
         if (!data) return {};
         const branchs: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
+        console.log(branchs)
         return branchs.find((e: any) => e?.BPLID == code);
     }
 

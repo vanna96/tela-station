@@ -1,7 +1,7 @@
 import moment from 'moment';
 
 
-export const dateFormat = (str: string): string => moment(str).isValid() ? moment(str).format('DD-MM-YYYY') : 'N/A';
+export const dateFormat = (str: string): string => moment(str).isValid() ? moment(str).format('DD.MMMM.YYYY') : 'N/A';
 
 
 export const setItemToLocal = (key: string, data: any) => localStorage.setItem(key, JSON.stringify(data));

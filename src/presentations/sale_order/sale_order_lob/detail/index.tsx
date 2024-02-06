@@ -21,6 +21,8 @@ import BinlocationRepository from "@/services/actions/BinlocationRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDocumentTotalHook } from "@/hook";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { TextField } from "@mui/material";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -51,12 +53,12 @@ class DeliveryDetail extends Component<any, any> {
 
       let seriesList: any = this.props?.query?.find("orders-series");
 
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
-      });
-      this.props?.query?.set("orders-series", seriesList);
-    }
+      if (!seriesList) {
+        seriesList = await DocumentSerieRepository.getDocumentSeries({
+          Document: "17",
+        });
+        this.props?.query?.set("orders-series", seriesList);
+      }
       await request("GET", `Orders(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
@@ -122,7 +124,7 @@ class DeliveryDetail extends Component<any, any> {
           this.setState({ isError: true, message: err.message })
         );
     } else {
-      this.setState({ ...data, loading: false});
+      this.setState({ ...data, loading: false });
     }
   }
 
@@ -214,14 +216,13 @@ function renderKeyValue(label: string, value: any) {
 }
 
 function General(props: any) {
-  
-  const filteredSeries = props.data?.seriesList?.filter((e:any) => e.Series === (props.data?.Series));
+  const filteredSeries = props.data?.seriesList?.filter(
+    (e: any) => e.Series === props.data?.Series
+  );
 
-  const seriesNames = filteredSeries?.map((series:any) => series.Name);
+  const seriesNames = filteredSeries?.map((series: any) => series.Name);
 
-  const seriesName = seriesNames?.join(', ');
-  
-  
+  const seriesName = seriesNames?.join(", ");
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
@@ -252,8 +253,9 @@ function General(props: any) {
             )}
             {renderKeyValue(
               "Price List",
-              new PriceListRepository().find(parseInt(props.data.U_tl_sopricelist))
-                ?.PriceListName ?? "N/A"
+              new PriceListRepository().find(
+                parseInt(props.data.U_tl_sopricelist)
+              )?.PriceListName ?? "N/A"
             )}
             {renderKeyValue(
               "Currency",
@@ -269,11 +271,22 @@ function General(props: any) {
             {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
             {renderKeyValue(
               "Sale Employee",
-              new SalePersonRepository().find(
-                props.data?.SalesPersonCode
-              )?.name
+              new SalePersonRepository().find(props.data?.SalesPersonCode)?.name
             )}
-            {renderKeyValue("Remark", props?.data?.Comments ?? "N/A")}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Remark </div>
+              <div className="col-span-1 text-gray-900">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  disabled
+                  className="bg-gray-100"
+                  value={props?.data?.Comments}
+                  InputProps={{ readOnly: true }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -291,7 +304,6 @@ function Content(props: any) {
     // props?.data?.ExchangeRate ?? 1
     1
   );
-
 
   const discountAmount = useMemo(() => {
     const dataDiscount: number = props?.data?.DocDiscount ?? 0;
@@ -438,7 +450,7 @@ function Content(props: any) {
               },
             }}
           />
-            <div className="grid grid-cols-12 mt-2">
+          <div className="grid grid-cols-12 mt-2">
             <div className="col-span-5"></div>
 
             <div className="col-span-2"></div>
@@ -567,11 +579,24 @@ function Logistic(props: any) {
       <div className="py-2 px-4">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            {renderKeyValue(
-              "Ship From Address",
-              new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
-                ?.WarehouseName ?? "N/A"
-            )}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Ship From Address</div>
+              <div className="col-span-1 text-gray-900">
+                <TextField
+                  size="small"
+                  fullWidth
+                  disabled
+                  multiline
+                  className="bg-gray-100"
+                  value={
+                    new BranchBPLRepository().find(
+                      props?.data?.BPL_IDAssignedToInvoice
+                    )?.Address ?? "N/A"
+                  }
+                  InputProps={{ readOnly: true }}
+                />
+              </div>
+            </div>
             {renderKeyValue(
               "Attention Terminal",
               new WarehouseRepository().find(props?.data?.U_tl_attn_ter)
@@ -584,7 +609,20 @@ function Logistic(props: any) {
               "Ship-To Address",
               props?.data?.ShipToCode ?? "N/A"
             )}
-            {renderKeyValue("Shipping Address", props?.data?.Address2 ?? "N/A")}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Shipping Address</div>
+              <div className="col-span-1 text-gray-900">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  disabled
+                  className="bg-gray-100"
+                  value={props?.data?.Address2}
+                  InputProps={{ readOnly: true }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
