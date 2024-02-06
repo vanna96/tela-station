@@ -334,6 +334,7 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
+        NumAtCard: data?.U_tl_arbusi,
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
         DocumentLines,
