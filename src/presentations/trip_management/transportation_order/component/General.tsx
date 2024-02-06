@@ -1,5 +1,4 @@
 import MUITextField from "@/components/input/MUITextField";
-import { UseFormProps } from "../form";
 import PositionSelect from "@/components/selectbox/Position";
 import DepartmentSelect from "@/components/selectbox/Department";
 import ManagerSelect from "@/components/selectbox/Manager";
@@ -15,14 +14,15 @@ import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
+import { UseFormProps } from "../form/TransportationOrderForm";
+import RoutAutoComplete from "@/components/input/RouteAutoComplete";
+import VehicleAutoComplete from "@/components/input/VehicleAutoComplete";
 
 const General = ({
   register,
   control,
   defaultValues,
   setValue,
-  setBranchAss,
-  branchAss,
   header,
   setHeader,
   detail,
@@ -53,98 +53,25 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  First Name{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("FirstName", {
-                      required: "First Name is required",
-                    }),
-                    onBlur: (e) =>
-                      setHeader({ ...header, firstName: e.target.value }),
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Last Name{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("LastName", {
-                      required: "Last Name is required",
-                    }),
-                    onBlur: (e) =>
-                      setHeader({ ...header, lastName: e.target.value }),
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Middle Name
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("MiddleName"),
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Employees Code{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("EmployeeCode", {
-                      required: "Employee Code is required",
-                    }),
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Position{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  Route{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Position is required" }}
-                  name="Position"
+                  name="U_Route"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <PositionAutoComplete
+                      <RoutAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.Position}
+                        value={defaultValues?.U_Route}
                         onChange={(e: any) => {
-                          setValue("Position", e);
-
-                          // setHeader({ ...header, data5: e?.Name })
+                          setValue("U_Route", e);
+                          setHeader({
+                            ...header,
+                            Route: e?.Code,
+                          });
                         }}
                       />
                     );
@@ -152,26 +79,25 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Department
+                  Base Station{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="Department"
+                  name="U_BaseStation"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <DepartmentAutoComplete
+                      <BaseStationAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.Department}
+                        value={defaultValues?.U_BaseStation}
                         onChange={(e: any) => {
-                          setValue("Department", e?.Code);
-                          setHeader({ ...header, department: e?.Name });
-                          // setHeader({ ...header, data5: e?.Name })
+                          setValue("U_BaseStation", e);
+                          setHeader({ ...header, BaseStation: e });
                         }}
                       />
                     );
@@ -179,26 +105,72 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Manager
+                  Vehicle Code
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="Manager"
+                  name="U_VehicleCode"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <VehicleAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_BaseStation}
+                        onChange={(e: any) => {
+                          setValue("U_VehicleCode", e?.Code);
+                          setValue("U_VehicleName", e?.Name);
+                          setHeader({ ...header, Vehicle: e?.Code });
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Vehicle Name{" "}
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("U_VehicleName"),
+                  }}
+                  defaultValue={defaultValues?.U_VehicleName}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Driver{" "}
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="U_Driver"
                   control={control}
                   render={({ field }) => {
                     return (
                       <ManagerAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.Manager}
+                        value={defaultValues?.U_Driver}
                         onChange={(e: any) => {
-                          setValue("Manager", e?.EmployeeID);
-
-                          // setHeader({ ...header, data5: e?.Name })
+                          setValue("U_CheckList", e?.U_CheckList);
+                          setValue("U_Driver", e?.EmployeeID);
+                          setHeader({
+                            ...header,
+                            Driver: e?.FirstName + " " + e?.LastName,
+                          });
                         }}
                       />
                     );
@@ -206,32 +178,19 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch Assignment{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  Check List
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPLID"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BranchAssignmentAuto
-                        {...field}
-                        disabled={detail}
-                        onChange={(e: any) => {
-                          setValue("BPLID", e?.BPLID);
-                          setBranchAss([e]);
-                          setHeader({ ...header, branch: e?.BPLName });
-                        }}
-                        value={staticSelect?.branchASS}
-                      />
-                    );
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("U_CheckList"),
                   }}
+                  defaultValue={defaultValues?.U_CheckList}
                 />
               </div>
             </div>
@@ -241,13 +200,11 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Terminal{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  Series{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Terminal is required" }}
                   name="U_tl_terminal"
                   control={control}
                   render={({ field }) => {
@@ -268,12 +225,12 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Mobile Phone
+                  Document Number
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                  disabled={true}
                   inputProps={{
                     ...register("MobilePhone"),
                   }}
@@ -283,14 +240,36 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Home Phone
+                  Document Date
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("HomePhone"),
+                <Controller
+                  name="DocumentDate"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        disabled={detail}
+                        {...field}
+                        defaultValue={
+                          defaultValues?.DocumentDate || staticSelect.startDate
+                        }
+                        key={`start_date_${staticSelect.startDate}`}
+                        onChange={(e: any) => {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue("DocumentDate", `${val == "" ? "" : val}`);
+                          setStaticSelect({
+                            ...staticSelect,
+                            startDate: e,
+                          });
+                        }}
+                      />
+                    );
                   }}
                 />
               </div>
@@ -298,12 +277,12 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Email
+                  Status
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                  disabled={true}
                   inputProps={{
                     ...register("eMail"),
                   }}
@@ -313,13 +292,11 @@ const General = ({
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Start Date{" "}
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  Dispatch Date{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Start Date is required" }}
                   name="StartDate"
                   control={control}
                   render={({ field }) => {
@@ -342,6 +319,7 @@ const General = ({
                             ...staticSelect,
                             startDate: e,
                           });
+                           setHeader({ ...header, DispatchDate: e });
                         }}
                       />
                     );
@@ -352,58 +330,12 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Status
-                </label>
-              </div>
-              <div className="col-span-3">
-                {staticSelect?.status === "" && (
-                  <div className="hidden">
-                    <MUITextField
-                      inputProps={{
-                        ...register("Active"),
-                      }}
-                      value={"tYES"}
-                    />
-                  </div>
-                )}
-                <Controller
-                  name="Active"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <MUISelect
-                        disabled={detail}
-                        items={[
-                          { value: "tYES", label: "Active" },
-                          { value: "tNO", label: "Inactive" },
-                        ]}
-                        onChange={(e: any) => {
-                          setValue("Active", e.target.value);
-                          setStaticSelect({
-                            ...staticSelect,
-                            status: e.target.value,
-                          });
-                        }}
-                        value={
-                          staticSelect.status || defaultValues?.Active || "tYES"
-                        }
-                        aliasvalue="value"
-                        aliaslabel="label"
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Termination
+                  Completed Date
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="TerminationDate"
+                  name="CompleteDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -411,24 +343,21 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.TerminationDate ||
-                          staticSelect.termination
+                          defaultValues?.CompleteDate || staticSelect.startDate
                         }
-                        key={`termination_date_${staticSelect.termination}`}
+                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue(
-                            "TerminationDate",
-                            `${val == "" ? "" : val}`
-                          );
+                          setValue("CompleteDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
-                            termination: e,
+                            startDate: e,
                           });
+                           setHeader({ ...header, CompletedDate: e });
                         }}
                       />
                     );
@@ -436,33 +365,7 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Termination Reason
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  name="TreminationReason"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <ReasonAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={defaultValues?.TreminationReason}
-                        onChange={(e: any) => {
-                          setValue("TreminationReason", e);
-
-                          // setHeader({ ...header, data5: e?.Name })
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
+            <div className="grid grid-cols-5 py-2 mb-1"></div>
           </div>
         </div>
       </div>

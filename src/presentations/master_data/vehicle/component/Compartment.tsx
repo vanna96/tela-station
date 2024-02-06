@@ -97,6 +97,7 @@ export default function Compartment({
                   </td>
                   <td className="pr-4">
                     <MUITextField
+                      type="number"
                       disabled={detail}
                       placeholder="No"
                       inputProps={{
@@ -112,6 +113,7 @@ export default function Compartment({
                   </td>
                   <td className="pr-4">
                     <MUITextField
+                      type="number"
                       disabled={detail}
                       placeholder="Volume"
                       inputProps={{
@@ -127,6 +129,7 @@ export default function Compartment({
                   </td>
                   <td className="pr-4">
                     <MUITextField
+                      type="number"
                       disabled={detail}
                       placeholder="Top Hatch"
                       inputProps={{
@@ -142,6 +145,7 @@ export default function Compartment({
                   </td>
                   <td className="pr-4">
                     <MUITextField
+                      type="number"
                       disabled={detail}
                       placeholder="Bottom Hatch"
                       inputProps={{
