@@ -415,13 +415,6 @@ export default abstract class CoreFormDocument extends React.Component<
           items[index][field] / items[index]["Quantity"];
         items[index]["DiscountPercent"] = items[index]["DiscountPercent"] ?? 0;
         break;
-      case "TotalUnit":
-        items[index][field] = value;
-        items[index]["Quantity"] = items[index]["Quantity"] ?? 1;
-        items[index]["UnitPrice"] =
-          items[index][field] / items[index]["Quantity"];
-        items[index]["DiscountPercent"] = items[index]["DiscountPercent"] ?? 0;
-        break;
       default:
         items[index][field] = value;
     }
@@ -435,15 +428,9 @@ export default abstract class CoreFormDocument extends React.Component<
       field === "UnitPrice" ||
       field === "DiscountPercent" ||
       field?.includes("Vat") ||
-      field === "LineTotal" ||
-      field === "TotalUnit"
+      field === "LineTotal"
     ) {
       items[index]["LineTotal"] = Formular.findLineTotal(
-        items[index]["Quantity"],
-        items[index]["UnitPrice"],
-        items[index]["DiscountPercent"]
-      );
-      items[index]["TotalUnit"] = Formular.findLineTotal(
         items[index]["Quantity"],
         items[index]["UnitPrice"],
         items[index]["DiscountPercent"]
