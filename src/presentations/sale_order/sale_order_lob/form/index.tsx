@@ -339,6 +339,7 @@ class SalesOrderForm extends CoreFormDocument {
         NumAtCard: data?.U_tl_arbusi,
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
+        U_ti_revenue: data?.U_ti_revenue,
         DocumentLines,
 
         // logistic
@@ -366,6 +367,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
+        U_ti_revenue: data?.U_ti_revenue,
         // U_tl_arbusi: data?.U_tl_arbusi,
         DocumentLines,
 

@@ -23,6 +23,7 @@ import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDocumentTotalHook } from "@/hook";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
+import DimensionRepository from "@/services/actions/DimensionRepostsitory";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -273,6 +274,11 @@ function General(props: any) {
               "Sale Employee",
               new SalePersonRepository().find(props.data?.SalesPersonCode)?.name
             )}
+            {renderKeyValue(
+              "Revenue Line",
+              new DimensionRepository().find(props.data?.U_ti_revenue)
+                ?.FactorDescription
+            )}
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700">Remark </div>
               <div className="col-span-1 text-gray-900">
@@ -327,13 +333,13 @@ function Content(props: any) {
         header: "Item NO.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 150,
+        size: 100,
       },
       {
         accessorKey: "ItemName",
         header: "Item Description",
         enableClickToCopy: true,
-        size: 200,
+        size: 100,
       },
       {
         accessorKey: "Quantity",
@@ -349,10 +355,9 @@ function Content(props: any) {
           <NumericFormat
             value={cell.getValue() ?? 0}
             thousandSeparator
-            fixedDecimalScale
             disabled
             className="bg-white w-full"
-            decimalScale={2}
+            decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
           />
         ),
       },
@@ -408,10 +413,9 @@ function Content(props: any) {
           <NumericFormat
             value={cell.getValue() ?? 0}
             thousandSeparator
-            fixedDecimalScale
             disabled
             className="bg-white w-full"
-            decimalScale={2}
+            decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
           />
         ),
       },
@@ -469,9 +473,8 @@ function Content(props: any) {
                     className="bg-white w-full"
                     value={docTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -489,7 +492,6 @@ function Content(props: any) {
                         type="number"
                         startAdornment={"%"}
                         value={props?.data?.DiscountPercent ?? 0}
-                        // value={props.data.DocDiscount || discount}
                         onChange={(event: any) => {
                           if (
                             !(
@@ -499,7 +501,6 @@ function Content(props: any) {
                           ) {
                             event.target.value = 0;
                           }
-                          // onChange("DocDiscount", event.target.value);
                         }}
                         disabled
                       />
@@ -514,9 +515,8 @@ function Content(props: any) {
                         className="bg-white w-full"
                         value={props.data.TotalDiscount}
                         thousandSeparator
-                        fixedDecimalScale
                         startAdornment={props?.data?.Currency}
-                        decimalScale={2}
+                        decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
@@ -534,9 +534,8 @@ function Content(props: any) {
                     className="bg-white w-full"
                     value={docTaxTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -552,9 +551,8 @@ function Content(props: any) {
                     readOnly
                     value={props.data.DocTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
