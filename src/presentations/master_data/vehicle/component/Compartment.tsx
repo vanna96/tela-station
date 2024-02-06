@@ -87,7 +87,7 @@ export default function Compartment({
                       onClick={() => handlerDelete(index)}
                       className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
                         detail
-                          ? "bg-gray-100 text-gray-600 "
+                          ? "hidden"
                           : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
                       }  rounded-sm flex justify-center items-center `}
                     >
@@ -164,9 +164,7 @@ export default function Compartment({
             })}
           </table>
           {detail ? (
-            <span className="p-1 text-sm rounded-md bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md">
-              + Add
-            </span>
+           null
           ) : (
             <span
               onClick={addNewRow}
