@@ -17,6 +17,8 @@ import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasureme
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { ReactNode } from "react";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 class SalesOrderForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
@@ -63,7 +65,6 @@ class SalesOrderForm extends CoreFormDocument {
         attachment: false,
       },
       isDialogOpen: false,
-    
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -93,23 +94,6 @@ class SalesOrderForm extends CoreFormDocument {
         Document: "17",
       });
       this.props?.query?.set("orders-series", seriesList);
-    }
-
-    let dnSeries: any = this.props?.query?.find("dn-series");
-
-    if (!dnSeries) {
-      dnSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "15",
-      });
-      this.props?.query?.set("dn-series", dnSeries);
-    }
-    let invoiceSeries: any = this.props?.query?.find("invoice-series");
-
-    if (!invoiceSeries) {
-      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
-        Document: "13",
-      });
-      this.props?.query?.set("invoice-series", invoiceSeries);
     }
 
     if (this.props.edit) {
@@ -227,16 +211,16 @@ class SalesOrderForm extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
+          // state["dnSeries"] = dnSeries;
+          // state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
+      // state["dnSeries"] = dnSeries;
+      // state["invoiceSeries"] = invoiceSeries;
       // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
@@ -364,8 +348,8 @@ class SalesOrderForm extends CoreFormDocument {
       const edit_payloads = {
         // general
         SOSeries: data?.Series,
-        DNSeries: data?.DNSeries,
-        INSeries: data?.INSeries,
+        // DNSeries: data?.DNSeries,
+        // INSeries: data?.INSeries,
         DocDate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
         DocDueDate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
         TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
@@ -551,6 +535,8 @@ class SalesOrderForm extends CoreFormDocument {
     );
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
+    const navigate = useNavigate();
+
     return (
       <>
         <ItemModalComponent
@@ -617,6 +603,7 @@ class SalesOrderForm extends CoreFormDocument {
                     <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                       <div className="flex gap-2">
                         <LoadingButton
+                          onClick={() => navigate(-1)}
                           variant="outlined"
                           size="small"
                           sx={{ height: "30px", textTransform: "none" }}

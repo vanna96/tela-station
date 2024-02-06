@@ -251,6 +251,13 @@ function Sequence(props: any) {
   const itemColumn: any = useMemo(
     () => [
       {
+        accessorKey: "LineId",
+        header: "Priority", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 150,
+      },
+      {
         accessorKey: "U_Code",
         header: "Stops", //uses the default width from defaultColumn prop
         enableClickToCopy: true,

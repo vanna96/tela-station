@@ -1,12 +1,13 @@
-import React, { useMemo } from "react"
-import MaterialReactTable, { type MRT_ColumnDef } from "material-react-table"
-import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai"
-import { MdDeleteOutline } from "react-icons/md"
-import MUITextField from "@/components/input/MUITextField"
-import StopsSelect from "@/components/selectbox/StopsSelect"
+import React, { useMemo } from "react";
+import MaterialReactTable, { type MRT_ColumnDef } from "material-react-table";
+import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
+import { MdDeleteOutline } from "react-icons/md";
+import MUITextField from "@/components/input/MUITextField";
+import StopsSelect from "@/components/selectbox/StopsSelect";
+import { FaMapMarkerAlt } from "react-icons/fa";
 export default function SequenceTable(props: any) {
-  const { data, onChange }: any = props
-  const [rowSelection, setRowSelection] = React.useState<any>({})
+  const { data, onChange }: any = props;
+  const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerAddCheck = () => {
     onChange("TL_RM_SEQUENCECollection", [
@@ -17,33 +18,59 @@ export default function SequenceTable(props: any) {
         U_Duration: "",
         U_Stop_Duration: "",
       },
-    ])
-  }
+    ]);
+  };
 
   const handlerRemoveCheck = () => {
-    const rows = Object.keys(rowSelection)
-    if (rows.length <= 0) return
+    const rows = Object.keys(rowSelection);
+    if (rows.length <= 0) return;
     const newData = data?.TL_RM_SEQUENCECollection?.filter(
-      (item: any, index: number) => !rows.includes(index.toString()),
-    )
-    onChange("TL_RM_SEQUENCECollection", newData)
-    setRowSelection({})
-  }
+      (item: any, index: number) => !rows.includes(index.toString())
+    );
+    onChange("TL_RM_SEQUENCECollection", newData);
+    setRowSelection({});
+  };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.TL_RM_SEQUENCECollection?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item
-      item[Object.keys(obj).toString()] = Object.values(obj).toString()
-      return item
-    })
-    if (newData.length <= 0) return
-    onChange("TL_RM_SEQUENCECollection", newData)
-  }
+    const newData = data?.TL_RM_SEQUENCECollection?.map(
+      (item: any, index: number) => {
+        if (index.toString() !== key.toString()) return item;
+        item[Object.keys(obj).toString()] = Object.values(obj).toString();
+        return item;
+      }
+    );
+    if (newData.length <= 0) return;
+    onChange("TL_RM_SEQUENCECollection", newData);
+  };
 
   const columns = [
     {
+      accessorKey: "LineId",
+      header: (
+        <>
+          Priority<span style={{ color: "red" }}>*</span>
+        </>
+      ),
+      Cell: ({ cell }: any) => (
+        <MUITextField
+          key={"LineId" + cell.getValue() + cell?.row?.id}
+          disabled={data?.edit}
+          defaultValue={cell.row.original?.LineId || ""}
+          onBlur={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              LineId: e.target.value,
+            });
+          }}
+        />
+      ),
+    },
+    {
       accessorKey: "U_Code",
-      header: "Stops",
+      header: (
+        <>
+          Stops<span style={{ color: "red" }}>*</span>
+        </>
+      ),
       Cell: ({ cell }: any) => (
         <StopsSelect
           key={"U_Code" + cell.getValue() + cell?.row?.id}
@@ -52,7 +79,7 @@ export default function SequenceTable(props: any) {
           onChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               U_Code: e.target.value,
-            })
+            });
           }}
         />
       ),
@@ -68,7 +95,7 @@ export default function SequenceTable(props: any) {
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               U_Distance: e.target.value,
-            })
+            });
           }}
         />
       ),
@@ -85,29 +112,62 @@ export default function SequenceTable(props: any) {
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               U_Duration: e.target.value,
-            })
+            });
           }}
         />
       ),
     },
     {
-        accessorKey: "U_Stop_Duration",
-        header: "Stops Duration",
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
-            disabled={data?.edit}
-            defaultValue={cell.row.original?.U_Stop_Duration || ""}
-            onBlur={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                U_Stop_Duration: e.target.value,
-              })
+      accessorKey: "U_Stop_Duration",
+      header: "Stops Duration",
+      Cell: ({ cell }: any) => (
+        <MUITextField
+          key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
+          disabled={data?.edit}
+          defaultValue={cell.row.original?.U_Stop_Duration || ""}
+          onBlur={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              U_Stop_Duration: e.target.value,
+            });
+          }}
+        />
+      ),
+    },
+    {
+      accessorKey: "LineId",
+      header: (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span className="ml-[70px]">Pointed</span>
+        </div>
+      ),
+      Cell: ({ cell }: any) => (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <span
+            style={{
+              color: "green",
+              fontSize: "20px",
+              verticalAlign: "middle",
             }}
-          />
-        ),
-      },
-  ]
-console.log(data);
+          >
+            <FaMapMarkerAlt />
+          </span>
+        </div>
+      ),
+    },
+  ];
+  console.log(data);
 
   return (
     <>
@@ -124,7 +184,6 @@ console.log(data);
             />
           </>
         )}
-        <AiOutlineSetting className="cursor-pointer" />
       </div>
       <MaterialReactTable
         columns={columns}
@@ -156,5 +215,5 @@ console.log(data);
         }}
       />
     </>
-  )
+  );
 }

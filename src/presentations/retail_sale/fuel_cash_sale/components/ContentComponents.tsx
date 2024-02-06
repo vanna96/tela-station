@@ -42,8 +42,6 @@ export default function ContentComponent(props: ContentComponentProps) {
 
   const columns = useMemo(() => props.columns, [colVisibility]);
 
-
-
   return (
     <div
       className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
@@ -53,9 +51,7 @@ export default function ContentComponent(props: ContentComponentProps) {
         <div className=" data-table">
           <MaterialReactTable
             columns={[...columns]}
-            data={
-              props?.data?.DispenserData?.TL_DISPENSER_LINESCollection ?? []
-            }
+            data={props.data.nozzleData}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

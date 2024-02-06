@@ -10,6 +10,7 @@ import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
+import MaterialReactTable from "material-react-table";
 interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -26,11 +27,12 @@ export default function AllocationTable({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
+  console.log(data.nozzleData);
 
-  const tl_Dispenser = [...data.DispenserData.TL_DISPENSER_LINESCollection];
+  const AllocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = tl_Dispenser?.map((item: any, index: number) => {
+    const newData = AllocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
@@ -38,7 +40,7 @@ export default function AllocationTable({
     if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-
+  console.log(AllocationData);
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     console.log(res);
@@ -213,6 +215,7 @@ export default function AllocationTable({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
+              // className=""
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
@@ -229,18 +232,45 @@ export default function AllocationTable({
         },
       },
     ],
-    [tl_Dispenser]
+    [data.nozzleData]
   );
 
   return (
     <>
-      <ContentComponent
-        key={key}
-        columns={itemColumns}
-        items={[tl_Dispenser]}
-        data={data}
-        onChange={onChange}
-      />
+      <div
+        className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
+       overflow-hidden transition-height duration-300 `}
+      >
+        <div className=" data-table">
+          <MaterialReactTable
+            columns={[...itemColumns]}
+            data={AllocationData}
+            enableStickyHeader={true}
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableTopToolbar={false}
+            enableColumnResizing={true}
+            enableColumnFilterModes={false}
+            enableDensityToggle={false}
+            enableFilters={false}
+            enableFullScreenToggle={false}
+            enableGlobalFilter={false}
+            enableHiding={true}
+            enablePinning={true}
+            enableStickyFooter={false}
+            enableMultiRowSelection={true}
+            muiTableBodyRowProps={() => ({
+              sx: { cursor: "pointer" },
+            })}
+            initialState={{
+              density: "compact",
+            }}
+            enableTableFooter={false}
+          />
+        </div>
+      </div>
     </>
   );
 }

@@ -41,7 +41,7 @@ export default function ContentForm({
   const vendorPriceList = data.U_tl_sopricelist;
   const wh = data.U_tl_whsdesc;
   const lineofbusiness = data.U_tl_arbusi;
-
+  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -125,11 +125,11 @@ export default function ContentForm({
             Item No <span className="text-red-500">*</span>
           </label>
         ),
-        header: "Item No", //uses the default width from defaultColumn prop
+        header: "Item No",
         visible: true,
         size: 140,
         Cell: ({ cell }: any) => (
-          /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
+          <MUITextField
             value={cell.getValue()}
             disabled={data?.isStatusClose || false}
             onBlur={(event) =>
@@ -163,11 +163,8 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              value={cell.getValue()}
+              value={cell.row.original.ItemCode ? cell.getValue() : ""}
               disabled
-              // onBlur={(e: any) =>
-              //   handlerUpdateRow(cell.row.id, ["ItemName", e.target.value])
-              // }
             />
           );
         },
@@ -185,6 +182,7 @@ export default function ContentForm({
           return (
             <NumericFormat
               key={"Quantity_" + cell.getValue()}
+              disabled={(cell.row.original.ItemCode === "")}
               thousandSeparator
               decimalScale={1}
               fixedDecimalScale
@@ -224,6 +222,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUISelect
+            disabled={(cell.row.original.ItemCode === "")}
               value={cell.getValue()}
               items={cell.row.original.UomLists?.map((e: any) => ({
                 label: e.Name,
@@ -342,7 +341,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-              // placeholder="0.00"
+            disabled={(cell.row.original.ItemCode === "")}
               type="number"
               startAdornment={"%"}
               defaultValue={cell.getValue() ?? 0}
@@ -379,6 +378,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
+            disabled={(cell.row.original.ItemCode === "")}
               key={"Amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
@@ -400,7 +400,7 @@ export default function ContentForm({
         },
       },
     ],
-    [updateRef]
+    [updateRef, data.Items.length]
   );
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
@@ -427,7 +427,7 @@ export default function ContentForm({
       </Collapse>
       <ContentComponent
         key={key}
-        columns={itemColumns}
+        columns={[...itemColumns]}
         items={[...data?.Items]}
         isNotAccount={isNotAccount}
         data={data}

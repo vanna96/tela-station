@@ -40,6 +40,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <div className="col-span-3">
                   <WarehouseAttendTo
+                    U_tl_attn_ter={true}
                     value={data?.U_BaseStation}
                     onChange={(e) => {
                       handlerChange("U_BaseStation", e);
@@ -58,6 +59,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <WarehouseAttendTo
+                  U_tl_attn_ter={true}
                   value={data?.U_Destination}
                   onChange={(e) => {
                     handlerChange("U_Destination", e);
@@ -127,7 +129,7 @@ export default function GeneralForm({
                     { id: "N", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("U_Status", e.target.value)}
-                  value={data?.U_Status || "Y"} 
+                  value={data?.U_Status || "Y"}
                   aliasvalue="id"
                   aliaslabel="name"
                   name="U_Status"

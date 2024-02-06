@@ -39,10 +39,10 @@ export default function GeneralForm({
   const userData = cookies.user;
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
-
-  //Filtering SO series
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
   const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
+    (series: any) => series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
 
   const seriesSO =
@@ -53,30 +53,6 @@ export default function GeneralForm({
   }
 
   // Finding date and to filter DN and INVOICE series Name
-  const currentDate = new Date();
-  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
-  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
-  const formattedMonth = month.toString().padStart(2, "0");
-  const formattedDateA = `23A${formattedMonth}`;
-  const formattedDateB = `23B${formattedMonth}`;
-
-  const seriesDN = (
-    data?.dnSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
-  const seriesIN = (
-    data?.invoiceSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
 
   const route = useParams();
   const salesType = route["*"];
@@ -94,8 +70,6 @@ export default function GeneralForm({
   };
 
   if (data) {
-    data.DNSeries = seriesDN;
-    data.INSeries = seriesIN;
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
@@ -149,6 +123,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BranchAutoComplete
+                disabled={edit}
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
@@ -163,7 +138,8 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
-              isSOWarehouse= {true}
+                disabled={edit}
+                isSOWarehouse={true}
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
@@ -181,6 +157,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
+                disabled={edit}
                 value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
@@ -191,18 +168,6 @@ export default function GeneralForm({
             </div>
           </div>
           <div>
-            <input
-              hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
             <input
               hidden
               name="U_tl_arbusi"
@@ -230,6 +195,7 @@ export default function GeneralForm({
                 defaultValue={data?.CardCode}
                 name="BPCode"
                 endAdornment={!edit}
+                disabled={edit}
               />
             </div>
           </div>

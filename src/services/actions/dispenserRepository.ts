@@ -4,7 +4,7 @@ import request, { axiosInstance } from "@/utilies/request";
 
 export default class DispenserRepository extends Repository<any> {
 
-    url = '/TL_Dispenser?$select=U_tl_type,Code,Name';
+    url = '/TL_Dispenser?$select=U_tl_type,Code,Name,U_tl_status,U_tl_bplid';
 
     // specific key
     key = 'tl_dispenser';
@@ -23,12 +23,12 @@ export default class DispenserRepository extends Repository<any> {
         return salePersons;
     }
 
-    find(code: number | undefined | null): any {
+    find(Code: string | undefined | null): any {
         const data = localStorage.getItem(this.key);
         if (!data) return {};
 
         const salePersons: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '{}')));
-        return salePersons.find((e: any) => e?.code == code);
+        return salePersons.find((e: any) => e?.Code == Code);
     }
 
     post(payload: any, isUpdate?: boolean, id?: any): Promise<any> {

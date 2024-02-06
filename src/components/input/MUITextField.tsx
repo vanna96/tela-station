@@ -52,6 +52,7 @@ function MUITextField(props: MUITextFieldProps) {
           <div className="text-field">
             <OutlinedInput
               {...props}
+              onKeyDown={props.onKeyDown}
               value={props.value === null ? undefined : props.value}
               label={undefined}
               onClick={onPress}
