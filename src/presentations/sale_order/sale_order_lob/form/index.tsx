@@ -292,11 +292,11 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Ship To Address is Required!",
           getTabIndex: () => 2,
         },
-        {
-          field: "U_tl_dnsuppo",
-          message: "Ship From Address is Required!",
-          getTabIndex: () => 2,
-        },
+        // {
+        //   field: "U_tl_dnsuppo",
+        //   message: "Ship From Address is Required!",
+        //   getTabIndex: () => 2,
+        // },
       ];
 
       validations.forEach(({ field, message, isArray, getTabIndex }) => {
@@ -444,7 +444,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["U_tl_dnsuppo", "ShipToCode"],
+      2: ["ShipToCode"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];

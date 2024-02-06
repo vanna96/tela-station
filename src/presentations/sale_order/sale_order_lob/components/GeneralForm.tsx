@@ -42,7 +42,8 @@ export default function GeneralForm({
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
 
   const seriesSO =
@@ -282,7 +283,7 @@ export default function GeneralForm({
                   {(data?.Currency || sysInfo?.SystemCurrency) !==
                     sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 0}
+                      value={data?.ExchangeRate || 1}
                       name=""
                       disabled={true}
                       className="-mt-1"
@@ -309,7 +310,7 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={ filteredSeries[0]?.Series}
+                  value={filteredSeries[0]?.Series}
                   disabled={edit}
                   // onChange={(e: any) => handlerChange("Series", e.target.value)}
                   // onChange={handleSeriesChange}

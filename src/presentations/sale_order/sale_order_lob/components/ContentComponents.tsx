@@ -107,7 +107,7 @@ export default function ContentComponent(props: ContentComponentProps) {
   const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     discount,
-    // props?.data?.ExchangeRate ?? 1
+    // props.data.ExchangeRate ?? 1
     1
   );
 
@@ -127,7 +127,6 @@ export default function ContentComponent(props: ContentComponentProps) {
     props.data.DocTotal = TotalPaymentDue;
   }
 
-  console.log(props.data);
   const handleDiscountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(event.target.value); // Parse the input value to a number
     setDiscount(isNaN(value) ? 0 : value); // Update the discount state

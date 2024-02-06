@@ -248,12 +248,20 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
 };
 
 export const TotalSummaryRightSide = (props: any) => {
+  // Initialize the discount state with the initial value from props
   const [discount, setDiscount] = React.useState(
-    props?.data?.DiscountPercent ?? 0
+    props?.data?.DiscountPercent || 0
   );
+
+  // Update the discount state when props.data.DiscountPercent changes
+  React.useEffect(() => {
+    setDiscount(props?.data?.DiscountPercent || 0);
+  }, [props?.data?.DiscountPercent]); // Update whenever props.data.DiscountPercent changes
+
   const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
-    props.data?.Items ?? [],
+    props.data.Items ?? [],
     discount,
+    // props.data.ExchangeRate ?? 1
     1
   );
 
