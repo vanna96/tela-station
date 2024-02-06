@@ -10,7 +10,7 @@ import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import { useDocumentTotalHook } from "../../components";
 
 interface ContentComponentProps {
   items: any[];
@@ -116,6 +116,8 @@ export default function ContentComponent(props: ContentComponentProps) {
     props.data.DocDiscountPrice = discountAmount;
     props.data.DocTotal = TotalPaymentDue;
   }
+
+  console.log(props.data)
   return (
     <FormCard
       title="Content"

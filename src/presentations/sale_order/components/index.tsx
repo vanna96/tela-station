@@ -8,7 +8,7 @@ export const useDocumentTotalHook = (
 ) => {
   const docTotal: number = React.useMemo(() => {
     let total = items.reduce((prev: number, cur: any) => {
-      return prev + cur?.TotalGross
+      return prev + cur?.TotalUnit
       // Formular.findLineTotal(cur?.Quantity, cur?.UnitPrice, cur?.LineDiscount)
     }, 0)
 
@@ -22,7 +22,7 @@ console.log(total)
     let total = items.reduce((prev: number, cur: any) => {
       return (
         prev +
-        (parseFloat(cur?.VatRate ?? 0) * parseFloat(cur?.TotalGross ?? 1)) / 100
+        (parseFloat(cur?.VatRate ?? 0) * parseFloat(cur?.TotalUnit ?? 1)) / 100
       )
     }, 0)
 

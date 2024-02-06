@@ -60,7 +60,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.row.original.TaxDate).format(
-            "YYYY-MM-DD"
+            "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
         },
@@ -87,17 +87,15 @@ export default function SaleOrderLists() {
           </>
         ),
       },
-      // {
-      //   accessorKey: "BPL_IDAssignedToInvoice",
-      //   header: "Branch",
-      //   enableClickToCopy: true,
-      //   visible: false,
-      //   Cell: ({ cell }: any) =>
-      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-      //   size: 60,
-      // },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
+        size: 60,
+      },
 
-      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -466,7 +464,9 @@ export default function SaleOrderLists() {
                     <MUISelect
                       items={[
                         { id: "bost_Open", name: "Open" },
-                        { id: "bost_Closed", name: "Close" },
+                        { id: "bost_Close", name: "Closed" },
+                        { id: "bost_Paid", name: "Paid" },
+                        { id: "bost_Delivered", name: "Delivered" },
                         { id: "", name: "None" },
                       ]}
                       value={searchValues.status}
@@ -496,32 +496,6 @@ export default function SaleOrderLists() {
                 >
                   Go
                 </Button>
-              </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "TaxDate" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
               </div>
             </div>
           </div>
