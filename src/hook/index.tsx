@@ -12,8 +12,9 @@ export const useDocumentTotalHook = (
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.UnitPrice,
-        item.Discount
+        item.DiscountPercent
       );
+
       return prevTotal + lineTotal;
     }, 0);
     return total * ExchangeRate;
@@ -32,7 +33,7 @@ export const useDocumentTotalHook = (
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.GrossPrice,
-        item.Discount
+        item.DiscountPercent
       );
       return prevTotal + lineTotal;
     }, 0);
