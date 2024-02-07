@@ -592,6 +592,7 @@ function Logistic(props: any) {
                       props?.data?.BPL_IDAssignedToInvoice
                     )?.Address ?? "N/A"
                   }
+                  // value={props.data.ShipFrom}
                   InputProps={{ readOnly: true }}
                 />
               </div>

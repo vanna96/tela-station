@@ -19,6 +19,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 class SalesOrderForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
@@ -344,6 +345,9 @@ class SalesOrderForm extends CoreFormDocument {
 
         // logistic
         ShipToCode: data?.ShipToCode || "",
+        ShipFrom: new BranchBPLRepository().find(
+          data?.BPL_IDAssignedToInvoice || 1
+        )?.Address,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_whsdesc,

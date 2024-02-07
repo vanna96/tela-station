@@ -3,6 +3,7 @@ import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import { getShippingAddress } from "@/models/BusinessParter";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
 
 export interface ILogisticFormProps {
@@ -34,13 +35,16 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseAutoComplete
-                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                  value={data?.U_tl_whsdesc}
-                  disabled
-                  // onChange={(e) => {
-                  //   handlerChange("U_tl_dnsuppo", e);
-                  // }}
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  value={
+                    new BranchBPLRepository().find(
+                      data?.BPL_IDAssignedToInvoice || 1
+                    )?.Address ?? "N/A"
+                  }
+                  InputProps={{ readOnly: true }}
                 />
               </div>
             </div>
@@ -99,7 +103,6 @@ export default function LogisticForm({
                   size="small"
                   fullWidth
                   multiline
-                  rows={2}
                   value={
                     !edit
                       ? getShippingAddress(
