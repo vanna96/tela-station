@@ -105,8 +105,7 @@ export default function ContentComponent(props: ContentComponentProps) {
   const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     discount,
-    // props.data.ExchangeRate ?? 1
-    1
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {

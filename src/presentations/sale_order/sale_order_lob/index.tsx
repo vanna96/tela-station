@@ -305,8 +305,8 @@ export default function SaleOrderLists() {
 
     if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and TaxDate ge '${searchValues.postingDate}'`
-        : `TaxDate ge '${searchValues.postingDate}'`;
+        ? ` and TaxDate eq '${searchValues.postingDate}'`
+        : `TaxDate eq '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
