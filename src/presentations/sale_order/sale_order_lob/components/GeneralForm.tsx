@@ -295,7 +295,7 @@ export default function GeneralForm({
                   {(data?.Currency || sysInfo?.SystemCurrency) !==
                     sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 1}
+                      value={data?.ExchangeRate }
                       name=""
                       disabled={true}
                       className="-mt-1"
