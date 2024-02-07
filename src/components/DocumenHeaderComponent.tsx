@@ -246,7 +246,7 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
           </div>
           <div className="col-span-4">
             <span>
-            {props.data?.Currency || 1}
+              {props.data?.Currency || 1}
               {props.data?.Currency !== sysInfoData?.SystemCurrency && (
                 <>
                   {" - "}
@@ -273,8 +273,7 @@ export const TotalSummaryRightSide = (props: any) => {
   const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     discount,
-    // props.data.ExchangeRate ?? 1
-    1
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {
