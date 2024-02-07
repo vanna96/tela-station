@@ -18,11 +18,6 @@ interface NozzleDataProps {
 }
 
 export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
-  data.nozzleData = [
-    ...data.DispenserData?.TL_DISPENSER_LINESCollection?.filter(
-      (e: any) => e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
-    ),
-  ];
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.nozzleData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -61,7 +56,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemname;
+          const itemCode = cell.row.original.U_tl_itemnum;
 
           const {
             data: itemName,

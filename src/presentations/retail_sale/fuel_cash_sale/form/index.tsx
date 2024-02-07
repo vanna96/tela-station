@@ -16,6 +16,7 @@ import Consumption from "../components/Consumption";
 import StockAllocationForm from "../components/StockAllocationForm";
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "react-query";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -25,6 +26,7 @@ class Form extends CoreFormDocument {
       showCollapse: false,
       nozzleData: [],
       U_tl_bplid: 1,
+      dispenserData: [],
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
@@ -55,7 +57,6 @@ class Form extends CoreFormDocument {
     let seriesList = await DocumentSerieRepository.getDocumentSeries({
       Document: "TL_RetailSale",
     });
-
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RetailSale(${id})`)
@@ -113,6 +114,18 @@ class Form extends CoreFormDocument {
                 U_tl_totalallow: item.U_tl_totalallow,
               })
             ),
+            stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
+              (item: any) => ({
+                U_tl_bplid: item.U_tl_bplid,
+                U_tl_itemnum: item.U_tl_itemcode,
+                U_tl_itemdesc: item.U_tl_itemname,
+                U_tl_qtyaloc: item.U_tl_qtyaloc,
+                U_tl_qtycon: item.U_tl_qtycon,
+                U_tl_qtyopen: item.U_tl_qtyopen,
+                U_tl_remark: item.U_tl_remark,
+                U_tl_uom: item.U_tl_uom,
+              })
+            ),
           };
         })
         .catch((err: any) => console.log(err))
@@ -126,6 +139,7 @@ class Form extends CoreFormDocument {
     } else {
       state["seriesList"] = seriesList;
       state["loading"] = false;
+
       state["isLoadingSerie"] = false;
       this.setState(state);
       console.log(state);
@@ -319,6 +333,9 @@ class Form extends CoreFormDocument {
                       handlerChange={(key, value) =>
                         this.handlerChange(key, value)
                       }
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                     />
                   )}
                   {this.state.tapIndex === 1 && (
@@ -345,7 +362,7 @@ class Form extends CoreFormDocument {
                     <StockAllocationForm
                       data={this.state}
                       edit={this.props?.edit}
-                      handlerChange={(key, value) => {
+                      onChange={(key, value) => {
                         this.handlerChange(key, value);
                       }}
                     />
