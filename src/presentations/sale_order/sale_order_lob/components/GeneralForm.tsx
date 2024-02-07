@@ -16,6 +16,8 @@ import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
+import PriceListRepository from "@/services/actions/pricelistRepository";
+import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -42,7 +44,8 @@ export default function GeneralForm({
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
 
   const seriesSO =
@@ -107,6 +110,9 @@ export default function GeneralForm({
     });
 
   useExchangeRate(data?.Currency, handlerChange);
+  if (data.vendor) {
+    data.ShipToCode = data.vendor?.ShipToDefault;
+  }
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -242,7 +248,13 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
-                onChange={(e) => handlerChange("U_tl_sopricelist", e)}
+                onChange={(e) => {
+                  handlerChange("U_tl_sopricelist", e);
+                  handlerChange(
+                    "Currency",
+                    new PriceListRepository().find(e)?.DefaultPrimeCurrency
+                  );
+                }}
                 value={data?.U_tl_sopricelist}
                 isActiveAndGross={true}
               />
@@ -259,6 +271,7 @@ export default function GeneralForm({
                 <div className="col-span-6">
                   {
                     <MUISelect
+                      disabled
                       value={data?.Currency || sysInfo?.SystemCurrency}
                       items={
                         dataCurrency?.length > 0
@@ -282,7 +295,7 @@ export default function GeneralForm({
                   {(data?.Currency || sysInfo?.SystemCurrency) !==
                     sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 0}
+                      value={data?.ExchangeRate || 1}
                       name=""
                       disabled={true}
                       className="-mt-1"
@@ -309,7 +322,7 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={ filteredSeries[0]?.Series}
+                  value={filteredSeries[0]?.Series}
                   disabled={edit}
                   // onChange={(e: any) => handlerChange("Series", e.target.value)}
                   // onChange={handleSeriesChange}
@@ -381,6 +394,22 @@ export default function GeneralForm({
               <SalePersonAutoComplete
                 value={data.SalesPersonCode}
                 onChange={(e) => handlerChange("SalesPersonCode", e)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Revenue Line
+              </label>
+            </div>
+            <div className="col-span-3">
+              <DistributionRuleText
+                inWhichNum={2}
+                aliasvalue="FactorCode"
+                value={data?.U_ti_revenue}
+                onChange={(e) => handlerChange("U_ti_revenue", e.target.value)}
               />
             </div>
           </div>

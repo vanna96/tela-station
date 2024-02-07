@@ -4,6 +4,7 @@ import {
   UseFormRegister,
   UseFormSetValue,
   useForm,
+  useWatch,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
@@ -25,6 +26,7 @@ let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
+  useWatch?: any;
   control?: any;
   defaultValues?:
     | Readonly<{
@@ -72,7 +74,7 @@ const VehicleForm = (props: any) => {
 
   const commers = vehicle?.TL_VH_COMMERCIALCollection;
   const comparts = vehicle?.TL_VH_COMPARTMENTCollection;
-  const [commer, setCommer] = useState<any[]>(commers ?? []);
+  const [commer, setCommer] = useState(commers ?? []);
   const [compart, setCompart] = useState<any[]>(comparts ?? []);
 
   React.useEffect(() => {
@@ -113,7 +115,103 @@ const VehicleForm = (props: any) => {
         ([key, value]): any => value !== null && value !== undefined
       )
     );
-    
+    if (!commer || commer.length === 0) {
+      // Alert the user if commer is an empty array
+      dialog.current?.error(
+        "Please provide at least one item in commercial." ??
+          "Oops something wrong!",
+        "Invalid Value"
+      );
+      return;
+    }
+    let missingField: any = null;
+
+    const isCommercialValid = commer?.every((e: any) => {
+      const requiredFields = [
+        "U_Type",
+        "U_Name",
+        "U_IssueDate",
+        "U_ExpiredDate",
+        "U_Fee",
+        "U_Ref",
+      ];
+
+      missingField = requiredFields.find(
+        (field) =>
+          e[field] === null || e[field] === "" || e[field] === undefined
+      );
+
+      return !missingField;
+    });
+
+    if (!isCommercialValid) {
+      if (missingField) {
+        // Map specific values for missingField
+        const fieldMap: any = {
+          U_Type: "Type",
+          U_Name: "Name",
+          U_IssueDate: "Issue Date",
+          U_ExpiredDate: "Expired Date",
+          U_Fee: "Fee",
+          U_Ref: "	Reference",
+        };
+
+        // Replace missingField with the mapped value or keep the original value
+        const displayField = fieldMap[missingField] || missingField;
+
+        dialog.current?.error(
+          `${displayField} is required` ?? "Oops something wrong!",
+          "Invalid Value"
+        );
+      }
+      return;
+    }
+
+    if (!compart || compart.length === 0) {
+      // Alert the user if commer is an empty array
+      dialog.current?.error(
+        "Please provide at least one item in compartment." ??
+          "Oops something wrong!",
+        "Invalid Value"
+      );
+      return;
+    }
+    let missingFieldP: any = null;
+
+    const isCompartValid = compart?.every((e: any) => {
+      const requiredFields = [
+        "U_CM_NO",
+        "U_VOLUME",
+        "U_TOP_HATCH",
+        "U_BOTTOM_HATCH",
+      ];
+
+      missingFieldP = requiredFields.find(
+        (field) =>
+          e[field] === null || e[field] === "" || e[field] === undefined
+      );
+
+      return !missingFieldP;
+    });
+
+    if (!isCompartValid) {
+      if (missingFieldP) {
+        const fieldMap: any = {
+          U_CM_NO: "Compart. No",
+          U_VOLUME: "Volume",
+          U_TOP_HATCH: "Top Hatch",
+          U_BOTTOM_HATCH: "	Bottom Hatch ",
+        };
+
+        // Replace missingField with the mapped value or keep the original value
+        const displayField = fieldMap[missingFieldP] || missingFieldP;
+        dialog.current?.error(
+          `${displayField} is required` ?? "Oops something wrong!",
+          "Invalid Value"
+        );
+      }
+      return;
+    }
     const payload = {
       ...data,
       TL_VH_COMMERCIALCollection: commer?.map((e: any) => {
@@ -156,13 +254,11 @@ const VehicleForm = (props: any) => {
           .finally(() => setState({ ...state, isSubmitting: false }));
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setState({ ...state, isSubmitting: false });
     }
-    
   };
-
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -186,7 +282,7 @@ const VehicleForm = (props: any) => {
           active={state.tapIndex === 1}
           onClick={() => handlerChangeMenu(1)}
         >
-          Spac Detail
+          Spec Detail
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 2}
@@ -343,6 +439,7 @@ const VehicleForm = (props: any) => {
                   defaultValues={defaultValues}
                   header={header}
                   setHeader={setHeader}
+                  useWatch={useWatch}
                 />
               </h1>
             )}
@@ -353,6 +450,8 @@ const VehicleForm = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                   register={register}
+                  control={control}
+                  defaultValues={defaultValues}
                 />
               </h1>
             )}

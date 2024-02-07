@@ -139,7 +139,6 @@ function renderKeyValue(label: string, value: any) {
 
 function General(props: any) {
   const { data }: any = props;
-  console.log(data);
 
   return (
     <>
@@ -160,27 +159,10 @@ function General(props: any) {
             <div className="col-span-5">
               {renderKeyValue(
                 "Status",
-                props.data.U_active === "Y" ? "Active" : "Inactive"
+                props.data.U_Status === "Y" ? "Active" : "Inactive"
               )}
               {renderKeyValue("Distance", props.data.U_Distance)}
               {renderKeyValue("Travel Hour", props.data.U_Duration)}
-              <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Extra Remarks
-                </label>
-              </div>
-              <div className="col-span-3">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    multiline
-                    rows={2}
-                    value={data.U_Remark}
-                    disabled={true}
-                  />
-              </div>
-            </div>
             </div>
           </div>
         </div>
@@ -250,6 +232,13 @@ function Sequence(props: any) {
 
   const itemColumn: any = useMemo(
     () => [
+      {
+        accessorKey: "LineId",
+        header: "Priority", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 150,
+      },
       {
         accessorKey: "U_Code",
         header: "Stops", //uses the default width from defaultColumn prop

@@ -17,8 +17,7 @@ import DataTable from "./component/DataTableD";
 
 export default function Lists() {
   const [searchValues, setSearchValues] = React.useState({
-    FirstName: "",
-    LastName: "",
+    Name: "",
     active: "All",
   });
   const branchAss: any = useQuery({
@@ -65,7 +64,6 @@ export default function Lists() {
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
-        visible: true,
         Cell: (cell: any, index: number) => {
           console.log(sortBy);
           return (
@@ -78,7 +76,7 @@ export default function Lists() {
         },
       },
       {
-        accessorKey: "Name",
+        accessorKey: "U_tl_name",
         header: "Driver Name", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -86,10 +84,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return (
-            cell.row.original.FirstName + " " + cell.row.original.LastName ??
-            "N/A"
-          );
+          return cell.row.original?.U_tl_name ?? "N/A";
         },
       },
       {
@@ -208,7 +203,7 @@ export default function Lists() {
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_driver eq 'Y'${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : ""
-      }${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
+      }${"&$select =EmployeeID,FirstName,LastName,Gender,Department,U_tl_name,BPLID,Active"}`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -250,15 +245,10 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.FirstName) {
+    if (searchValues.Name) {
       queryFilters += queryFilters
-        ? ` and (contains(FirstName, '${searchValues.FirstName}'))`
-        : `(contains(FirstName, '${searchValues.FirstName}'))`;
-    }
-    if (searchValues.LastName) {
-      queryFilters += queryFilters
-        ? ` and (contains(LastName, '${searchValues.LastName}'))`
-        : `(contains(LastName, '${searchValues.LastName}'))`;
+        ? ` and (contains(U_tl_name, '${searchValues.Name}'))`
+        : `(contains(U_tl_name, '${searchValues.Name}'))`;
     }
 
     if (searchValues.active) {
@@ -300,35 +290,19 @@ export default function Lists() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   type="string"
-                  label="First Name"
+                  label="Driver Name"
                   // placeholder="Employee Code"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.FirstName}
+                  value={searchValues.Name}
                   onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
-                      FirstName: e.target.value,
+                      Name: e.target.value,
                     })
                   }
                 />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  type="string"
-                  label="Last Name"
-                  // placeholder="Employee Code"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.LastName}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      LastName: e.target.value,
-                    })
-                  }
-                />
-              </div>
+              </div>          
               <div className="col-span-2 2xl:col-span-3">
                 <div className="">
                   <label

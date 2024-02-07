@@ -1,15 +1,20 @@
 import MUITextField from "@/components/input/MUITextField";
 import { TextField } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { UseFormProps } from "../form/VehicleForm";
+import YearDropdown from "./YearsDropDown";
+import YearsAutoComplete from "./YearsDropDown";
+import { Controller } from "react-hook-form";
 
 
-const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
+const SpecDetail = ({ register, setHeader, header, detail,setValue ,defaultValues,control}: UseFormProps) => {
+
+
   return (
     <div>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
-          <h2>Spac Detail</h2>
+          <h2>Spec Detail</h2>
         </div>
         <div className="  flex gap-[100px]">
           <div className="col-span-5  w-[50%]">
@@ -58,9 +63,22 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{ ...register("U_Year") }}
+                <Controller
+                  name="U_Year"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <YearsAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_Year}
+                        onChange={(e: any) => {
+
+                          setValue("U_Year", e);
+                        }}
+                      />
+                    );
+                  }}
                 />
               </div>
             </div>
@@ -114,6 +132,7 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{ ...register("U_Length") }}
                 />
@@ -127,6 +146,7 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{ ...register("U_Width") }}
                 />
@@ -140,6 +160,7 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{ ...register("U_Height") }}
                 />
@@ -153,6 +174,7 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{ ...register("U_Weight") }}
                 />
@@ -167,6 +189,7 @@ const SpecDetail = ({ register,setHeader,header,detail }: UseFormProps) => {
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{ ...register("U_Volumn") }}
                 />

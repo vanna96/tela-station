@@ -49,7 +49,9 @@ const VendorModalBranch: FC<VendorModalProps> = ({
   const { data, isLoading }: any = useQuery({
     queryKey: ["venders_branch", branch],
     queryFn: () =>
-      new BranchQueryRepository().get(`?$filter=CardType eq 'C' and BPLId eq ${branch}`),
+      new BranchQueryRepository().get(
+        `?$filter=CardType eq 'C' and BPLId eq ${branch}`
+      ),
     // staleTime: 10000,
     enabled: branch !== "",
   });
@@ -67,19 +69,18 @@ const VendorModalBranch: FC<VendorModalProps> = ({
     }
   }, [businessPartnerData]);
 
-
   const [rowSelection, setRowSelection] = React.useState({});
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "CardCode",
-        header: "Card Code",
-        size: 120,
+        header: "Customer Code",
+        size: 150,
       },
       {
         accessorKey: "CardName",
-        header: "Card Name",
-        size: 400,
+        header: "Customer Name",
+        size: 350,
       },
       {
         accessorKey: "Currency",

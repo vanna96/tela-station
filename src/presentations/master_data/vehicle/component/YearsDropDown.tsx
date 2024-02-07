@@ -1,43 +1,31 @@
+
 import React, { useState, useEffect } from "react";
-import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { BsDot } from "react-icons/bs";
-import { useQuery } from "react-query";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
-import PositionRepository from "@/services/actions/positionRepository";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import ManagerRepository from "@/services/actions/ManagerRepository";
+import { Autocomplete, Box, TextField } from "@mui/material";
 
-interface Type {
-  EmployeeID: number;
-  FirstName: string;
-  LastName: string
-}
-
-export default function ManagerAutoComplete(props: {
+export default function YearsAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
 }) {
-  const { data, isLoading }: any = useQuery({
-    queryKey: ["manager"],
-    queryFn: () => new ManagerRepository().get(),
-    staleTime: Infinity,
-  });
+  const currentYear = new Date().getFullYear();
+  const startYear = 1900;
 
-  useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
-      const selected = data?.find((e: Type) => e.EmployeeID === props.value);
-      if (selected) {
-        setSelectedValue(selected);
-      }
-    }
-  }, [props.value, data]);
+  const data: any = Array.from(
+    { length: currentYear - startYear + 1 },
+    (_, index) => currentYear - index // Reverse the order
+  );
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
+
+  useEffect(() => {
+    // Ensure that the selected value is set when the component is mounted
+    if (props.value !== undefined && props.value !== null) {
+      setSelectedValue(props.value);
+    }
+  }, [props.value]);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -45,11 +33,13 @@ export default function ManagerAutoComplete(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedCode = newValue ? newValue : null;
-      props.onChange(selectedCode);
+      const selected = newValue ? newValue : null;
+      props.onChange(selected);
     }
   };
+
   const disabled = props.disabled;
+
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -65,11 +55,10 @@ export default function ManagerAutoComplete(props: {
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
-        loading={isLoading}
-        getOptionLabel={(option: Type) => option.FirstName + ' '+option.LastName}
-        renderOption={(props, option: Type) => (
+        getOptionLabel={(option: any) => option.toString()} // Convert to string
+        renderOption={(props, option: any) => (
           <Box component="li" {...props}>
-            {option.FirstName + ' '+ option.LastName}
+            {option}
           </Box>
         )}
         renderInput={(params) => (
@@ -82,9 +71,6 @@ export default function ManagerAutoComplete(props: {
               ...params.InputProps,
               endAdornment: (
                 <React.Fragment>
-                  {isLoading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
                   {params.InputProps.endAdornment}
                 </React.Fragment>
               ),

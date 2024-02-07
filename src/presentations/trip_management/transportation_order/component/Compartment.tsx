@@ -1,10 +1,11 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
+import { Button } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
-export default function Document({
+export default function Compartment({
   register,
   defaultValue,
   setValue,
@@ -18,46 +19,12 @@ export default function Document({
     u_ExpiredDate: undefined,
     u_Type: "",
   });
-  const addNewRow = () => {
-    let newRow: any = {};
-    setCommer([...(commer ?? []), newRow]);
-  };
-
-  const handlerDelete = (index: number) => {
-    if (index >= 0 && detail !== true) {
-      const state: any[] = [...commer];
-      state.splice(index, 1);
-      setCommer(state);
-    } else {
-      return;
-    }
-  };
-
-  const handlerChangeCommer = (key: string, value: any, index: number) => {
-    if (value === "") {
-      // Value is required, trigger alert
-      alert(`${key} is required`);
-      return;
-    }
-
-    const updated = commer.map((item: any, idx: number) => {
-      if (idx === index) {
-        return {
-          ...item,
-          [key]: value,
-        };
-      }
-      return item;
-    });
-    setCommer(updated);
-  };
-  console.log(staticSelect);
 
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
-        <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
-          <h2>Commercial</h2>
+        <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
+          <h2 className="mr-3">Compartments</h2>
         </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
@@ -65,28 +32,22 @@ export default function Document({
               <th className="w-[100px] "></th>
 
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Type{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Document Number{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Name{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Product{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Issue Date{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Volume Litre{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Expire Date{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Comp. Number{" "}
               </th>
               <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
-                Fee{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Bottom hatch{" "}
               </th>
               <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
-                Referance{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Top Hatch{" "}
               </th>
             </tr>
             {commer?.length === 0 && (
@@ -95,7 +56,7 @@ export default function Document({
                   colSpan={6}
                   className="text-center p-10 text-[16px] text-gray-400"
                 >
-                  No Record For Commercial
+                  No Record
                 </td>
               </tr>
             )}
@@ -104,7 +65,6 @@ export default function Document({
                 <tr key={index}>
                   <td className="py-5 flex justify-center gap-5 items-center">
                     <div
-                      onClick={() => handlerDelete(index)}
                       className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
                         detail
                           ? "bg-gray-100 text-gray-600 "
@@ -129,17 +89,6 @@ export default function Document({
                               { label: "Train", value: "Train" },
                               { label: "Van", value: "Van" },
                             ]}
-                            onChange={(e: any) => {
-                              handlerChangeCommer(
-                                "U_Type",
-                                e?.target?.value,
-                                index
-                              ),
-                                setStaticSelect({
-                                  ...staticSelect,
-                                  u_Type: e.target.value,
-                                });
-                            }}
                             value={e?.U_Type || staticSelect.u_Type}
                             aliasvalue="value"
                             aliaslabel="label"
@@ -154,12 +103,6 @@ export default function Document({
                       placeholder="Name"
                       inputProps={{
                         defaultValue: e?.U_Name,
-                        onChange: (e: any) =>
-                          handlerChangeCommer(
-                            "U_Name",
-                            e?.target?.value,
-                            index
-                          ),
                       }}
                     />
                   </td>
@@ -174,18 +117,6 @@ export default function Document({
                             {...field}
                             value={e?.U_IssueDate || staticSelect?.u_IssueDate}
                             key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
-                            onChange={(e: any) => {
-                              const val =
-                                e.toLowerCase() ===
-                                "Invalid Date".toLocaleLowerCase()
-                                  ? ""
-                                  : e;
-                              setStaticSelect({
-                                ...staticSelect,
-                                u_IssueDate: e,
-                              });
-                              handlerChangeCommer("U_IssueDate", val, index);
-                            }}
                           />
                         );
                       }}
@@ -204,18 +135,6 @@ export default function Document({
                               e?.U_ExpiredDate || staticSelect.u_ExpiredDate
                             }
                             key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
-                            onChange={(e: any) => {
-                              const val =
-                                e.toLowerCase() ===
-                                "Invalid Date".toLocaleLowerCase()
-                                  ? ""
-                                  : e;
-                              setStaticSelect({
-                                ...staticSelect,
-                                u_ExpiredDate: e,
-                              });
-                              handlerChangeCommer("U_ExpiredDate", val, index);
-                            }}
                           />
                         );
                       }}
@@ -228,8 +147,6 @@ export default function Document({
                       placeholder="Fee"
                       inputProps={{
                         defaultValue: e?.U_Fee,
-                        onChange: (e: any) =>
-                          handlerChangeCommer("U_Fee", e?.target?.value, index),
                       }}
                     />
                   </td>
@@ -239,27 +156,67 @@ export default function Document({
                       placeholder="Referance"
                       inputProps={{
                         defaultValue: e?.U_Ref,
-                        onChange: (e: any) =>
-                          handlerChangeCommer("U_Ref", e?.target?.value, index),
                       }}
                     />
                   </td>
                 </tr>
               );
             })}
+            {/* table */}
+            <tr>
+              <td className="py-5 flex justify-center gap-5 items-center">
+                <span className="text-gray-500">1</span>
+              </td>
+              <td className="pr-4">
+                <MUISelect
+                  disabled={detail}
+                  items={[
+                    { label: "Truck", value: "Truck" },
+                    { label: "Train", value: "Train" },
+                    { label: "Van", value: "Van" },
+                  ]}
+                  value={staticSelect.u_Type}
+                  aliasvalue="value"
+                  aliaslabel="label"
+                />
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={detail}
+                  placeholder="Amount"
+                  inputProps={{}}
+                />
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={detail}
+                  placeholder="Description"
+                  inputProps={{}}
+                />
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={detail}
+                  placeholder="Description"
+                  inputProps={{}}
+                />
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={detail}
+                  placeholder="Description"
+                  inputProps={{}}
+                />
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={detail}
+                  placeholder="Description"
+                  inputProps={{}}
+                />
+              </td>
+            </tr>
           </table>
-          {detail ? (
-            <span className="p-1 text-sm rounded-md bg-gray-100 text-gray-500 w-[90px] mt-5 text-center inline-block border-[1px] shadow-md">
-              + Add
-            </span>
-          ) : (
-            <span
-              onClick={addNewRow}
-              className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
-            >
-              + Add
-            </span>
-          )}
         </div>
       </div>
     </>

@@ -1,5 +1,4 @@
 import MUITextField from "@/components/input/MUITextField";
-import { UseFormProps } from "../form";
 import PositionSelect from "@/components/selectbox/Position";
 import DepartmentSelect from "@/components/selectbox/Department";
 import ManagerSelect from "@/components/selectbox/Manager";
@@ -14,26 +13,25 @@ import { formatDate } from "@/helper/helper";
 import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
+import { UseFormProps } from "../form/TransportationOrderForm";
+import RoutAutoComplete from "@/components/input/RouteAutoComplete";
+import VehicleAutoComplete from "@/components/input/VehicleAutoComplete";
 
 const General = ({
   register,
   control,
   defaultValues,
   setValue,
-  setBranchAss,
-  branchAss,
   header,
   setHeader,
   detail,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
-    requestDate: null,
+    startDate: null,
     status: "",
-    expiredDate: null,
+    termination: null,
     branchASS: null,
-    emp: null
   });
 
   useEffect(() => {
@@ -52,25 +50,28 @@ const General = ({
         </div>
         <div className="  flex gap-[100px]">
           <div className="col-span-5  w-[50%]">
-            <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Requester
+                  Route{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_Requester"
+                  name="U_Route"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <ManagerAutoComplete
+                      <RoutAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_Requester}
+                        value={defaultValues?.U_Route}
                         onChange={(e: any) => {
-                          setValue("U_Requester", e?.FirstName);
-                          setHeader({ ...header, U_Requester: e?.FirstName });
+                          setValue("U_Route", e);
+                          setHeader({
+                            ...header,
+                            Route: e?.Code,
+                          });
                         }}
                       />
                     );
@@ -81,39 +82,22 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch Assignment
-                </label>
-              </div>
-              <div className="col-span-3">
-                <BranchAssignmentAuto
-                  disabled={detail}
-                  onChange={(e: any) => {
-                    setBranchAss([e]);
-                    setHeader({ ...header, U_Branch: e?.BPLName });
-                  }}
-                  value={staticSelect?.branchASS}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                Terminal
+                  Base Station{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_Terminal"
+                  name="U_BaseStation"
                   control={control}
                   render={({ field }) => {
                     return (
                       <BaseStationAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_Terminal}
+                        value={defaultValues?.U_BaseStation}
                         onChange={(e: any) => {
-                          setValue("U_Terminal", e);
-                          setHeader({ ...header, base: e });
+                          setValue("U_BaseStation", e);
+                          setHeader({ ...header, BaseStation: e });
                         }}
                       />
                     );
@@ -121,24 +105,123 @@ const General = ({
                 />
               </div>
             </div>
-          </div>
-
-          <div className="col-span-5 w-[50%]">
-            {/* <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Mobile Phone
+                  Vehicle Code
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="U_VehicleCode"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <VehicleAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_BaseStation}
+                        onChange={(e: any) => {
+                          setValue("U_VehicleCode", e?.Code);
+                          setValue("U_VehicleName", e?.Name);
+                          setHeader({ ...header, Vehicle: e?.Code });
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Vehicle Name{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                  disabled={true}
                   inputProps={{
-                    ...register("MobilePhone"),
+                    ...register("U_VehicleName"),
+                  }}
+                  defaultValue={defaultValues?.U_VehicleName}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Driver{" "}
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="U_Driver"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ManagerAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_Driver}
+                        onChange={(e: any) => {
+                          setValue("U_CheckList", e?.U_CheckList);
+                          setValue("U_Driver", e?.EmployeeID);
+                          setHeader({
+                            ...header,
+                            Driver: e?.FirstName + " " + e?.LastName,
+                          });
+                        }}
+                      />
+                    );
                   }}
                 />
               </div>
-            </div> */}
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Check List
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("U_CheckList"),
+                  }}
+                  defaultValue={defaultValues?.U_CheckList}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-5 w-[50%]">
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Series{" "}
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="U_tl_terminal"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BaseStationAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_tl_terminal}
+                        onChange={(e: any) => {
+                          setValue("U_tl_terminal", e);
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -154,15 +237,15 @@ const General = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Request Date
+                  Document Date
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_RequestDate"
+                  name="DocumentDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -170,60 +253,19 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.U_RequestDate || staticSelect.requestDate
+                          defaultValues?.DocumentDate || staticSelect.startDate
                         }
-                        key={`request_date_${staticSelect.requestDate}`}
+                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("U_RequestDate", `${val == "" ? "" : val}`);
+                          setValue("DocumentDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
-                            requestDate: e,
-                          });
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Expired Date
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  name="U_ExpiredDate"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <MUIDatePicker
-                        disabled={detail}
-                        {...field}
-                        defaultValue={
-                          defaultValues?.U_ExpiredDate ||
-                          staticSelect.expiredDate
-                        }
-                        key={`termination_date_${staticSelect.expiredDate}`}
-                        onChange={(e: any) => {
-                          const val =
-                            e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
-                              ? ""
-                              : e;
-                          setValue(
-                            "U_ExpiredDate",
-                            `${val == "" ? "" : val}`
-                          );
-                          setStaticSelect({
-                            ...staticSelect,
-                            expiredDate: e,
+                            startDate: e,
                           });
                         }}
                       />
@@ -239,46 +281,91 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {staticSelect?.status === "" && (
-                  <div className="hidden">
-                    <MUITextField
-                      inputProps={{
-                        ...register("Status"),
-                      }}
-                      value={"O"}
-                    />
-                  </div>
-                )}
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("eMail"),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Dispatch Date{" "}
+                </label>
+              </div>
+              <div className="col-span-3">
                 <Controller
-                  name="Status"
+                  name="StartDate"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <MUISelect
+                      <MUIDatePicker
                         disabled={detail}
-                        items={[
-                          { value: "O", label: "Active" },
-                          { value: "Y", label: "Inactive" },
-                        ]}
+                        {...field}
+                        defaultValue={
+                          defaultValues?.StartDate || staticSelect.startDate
+                        }
+                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
-                          setValue("Status", e.target.value);
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue("StartDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
-                            status: e.target.value,
+                            startDate: e,
                           });
+                           setHeader({ ...header, DispatchDate: e });
                         }}
-                        value={
-                          staticSelect.status || defaultValues?.Status || "O"
-                        }
-                        aliasvalue="value"
-                        aliaslabel="label"
                       />
                     );
                   }}
                 />
               </div>
             </div>
-
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Completed Date
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  name="CompleteDate"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        disabled={detail}
+                        {...field}
+                        defaultValue={
+                          defaultValues?.CompleteDate || staticSelect.startDate
+                        }
+                        key={`start_date_${staticSelect.startDate}`}
+                        onChange={(e: any) => {
+                          const val =
+                            e.toLowerCase() ===
+                            "Invalid Date".toLocaleLowerCase()
+                              ? ""
+                              : e;
+                          setValue("CompleteDate", `${val == "" ? "" : val}`);
+                          setStaticSelect({
+                            ...staticSelect,
+                            startDate: e,
+                          });
+                           setHeader({ ...header, CompletedDate: e });
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1"></div>
           </div>
         </div>
       </div>
