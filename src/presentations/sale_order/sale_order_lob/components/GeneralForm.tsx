@@ -27,6 +27,7 @@ export interface IGeneralFormProps {
   warehouseCode: string;
   onLineofBusinessChange: (value: any) => void;
   onWarehouseChange: (value: any) => void;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function GeneralForm({
@@ -34,6 +35,7 @@ export default function GeneralForm({
   onLineofBusinessChange,
   onWarehouseChange,
   handlerChange,
+  handlerChangeObject,
   edit,
 }: IGeneralFormProps) {
   const [cookies] = useCookies(["user"]);
@@ -79,9 +81,7 @@ export default function GeneralForm({
   }
   if (!edit && data.vendor) {
     data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
-    data.Currency = new PriceListRepository().find(data.U_tl_sopricelist)?.DefaultPrimeCurrency;
   }
-  console.log(data);
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),
@@ -250,7 +250,14 @@ export default function GeneralForm({
             <div className="col-span-3">
               <PriceListAutoComplete
                 onChange={(e) => {
-                  handlerChange("U_tl_sopricelist", e);
+                  console.log(
+                    new PriceListRepository().find(e)?.DefaultPrimeCurrency
+                  );
+                  handlerChangeObject({
+                    U_tl_sopricelist: e,
+                    Currency: new PriceListRepository().find(e)
+                      ?.DefaultPrimeCurrency,
+                  });
                 }}
                 value={data?.U_tl_sopricelist}
                 isActiveAndGross={true}
@@ -269,7 +276,7 @@ export default function GeneralForm({
                   {
                     <MUISelect
                       disabled
-                      value={data?.Currency || sysInfo?.SystemCurrency}
+                      value={data?.Currency}
                       items={
                         dataCurrency?.length > 0
                           ? dataCurrency
@@ -289,8 +296,7 @@ export default function GeneralForm({
                   }
                 </div>
                 <div className="col-span-6 ">
-                  {(data?.Currency || sysInfo?.SystemCurrency) !==
-                    sysInfo?.SystemCurrency && (
+                  {data?.Currency !== sysInfo?.SystemCurrency && (
                     <MUITextField
                       value={data?.ExchangeRate}
                       name=""

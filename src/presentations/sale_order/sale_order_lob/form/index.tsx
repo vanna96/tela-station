@@ -567,6 +567,9 @@ class SalesOrderForm extends CoreFormDocument {
                 <div className="grow">
                   {this.state.tapIndex === 0 && (
                     <GeneralForm
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) =>
