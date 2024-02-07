@@ -50,12 +50,17 @@ const ItemModal: FC<ItemModalProps> = ({
   const [filterKey, setFilterKey] = React.useState("key-id");
 
   const itemsGroupCodes = [100, 101, 102];
+
+  const groupCondition =
+    group == undefined ? `(ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)`: `ItemsGroupCode eq ${group}`;
   const { data, isFetching }: any = useQuery({
     queryKey: ["items", group],
     queryFn: () =>
       new itemRepository().getSaleItem(
-        `&$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and ItemsGroupCode eq ${group} &$orderby=ItemCode asc`
+        `&$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and ${groupCondition} &$orderby=ItemCode asc`
       ),
+      
+   
   });
 
   const [pagination, setPagination] = React.useState({
