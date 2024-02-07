@@ -79,8 +79,9 @@ export default function GeneralForm({
   }
   if (!edit && data.vendor) {
     data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
+    data.Currency = new PriceListRepository().find(data.U_tl_sopricelist)?.DefaultPrimeCurrency;
   }
-
+  console.log(data);
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),
@@ -250,10 +251,6 @@ export default function GeneralForm({
               <PriceListAutoComplete
                 onChange={(e) => {
                   handlerChange("U_tl_sopricelist", e);
-                  handlerChange(
-                    "Currency",
-                    new PriceListRepository().find(e)?.DefaultPrimeCurrency
-                  );
                 }}
                 value={data?.U_tl_sopricelist}
                 isActiveAndGross={true}
@@ -295,7 +292,7 @@ export default function GeneralForm({
                   {(data?.Currency || sysInfo?.SystemCurrency) !==
                     sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 1}
+                      value={data?.ExchangeRate}
                       name=""
                       disabled={true}
                       className="-mt-1"
