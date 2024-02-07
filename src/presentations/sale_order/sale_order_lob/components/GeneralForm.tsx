@@ -88,8 +88,6 @@ export default function GeneralForm({
     staleTime: Infinity,
   });
 
-  console.log(CurrencyAPI);
-
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
     queryFn: () =>
