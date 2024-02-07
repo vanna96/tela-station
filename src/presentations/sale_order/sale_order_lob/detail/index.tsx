@@ -305,13 +305,10 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  const itemGroupRepo = new ItemGroupRepository();
-
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     props?.data?.DocDiscount,
-    // props?.data?.ExchangeRate ?? 1
-    1
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {
@@ -493,8 +490,8 @@ function Content(props: any) {
                     <div className="col-span-4">
                       <NumericFormat
                         className="bg-white w-full"
-                        value={props.data.TotalDiscount}
                         thousandSeparator
+                        value={discountAmount}
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         fixedDecimalScale

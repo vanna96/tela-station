@@ -7,20 +7,20 @@ export const useDocumentTotalHook = (
   discount: number,
   ExchangeRate: any
 ) => {
+
   const docTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
+    
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.UnitPrice,
         item.DiscountPercent
       );
-
       return prevTotal + lineTotal;
     }, 0);
-    return total * ExchangeRate;
+    return total ;
   }, [items, ExchangeRate]);
 
-  // Calculate discount amount
   const docDiscountAmount = (discount / 100) * docTotal;
 
   // Include docDiscountAmount in the dependency array
@@ -38,8 +38,8 @@ export const useDocumentTotalHook = (
       return prevTotal + lineTotal;
     }, 0);
 
-    return docTotal - docDiscountAmount + docTaxTotal * ExchangeRate;
-  }, [items, ExchangeRate, discount, docTotal, docDiscountAmount, docTaxTotal]);
+    return docTotal - docDiscountAmount + docTaxTotal ;
+  }, [items,  discount, docTotal, docDiscountAmount, docTaxTotal]);
 
-  return [docTotal, docTaxTotal, grossTotal];
+  return [docTotal, docTaxTotal, grossTotal, ];
 };

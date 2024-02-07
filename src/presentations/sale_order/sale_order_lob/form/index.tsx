@@ -112,17 +112,16 @@ class SalesOrderForm extends CoreFormDocument {
             .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = [];
           let disabledFields: any = {
             CurrencyType: true,
           };
-
           state = {
             ...data,
 
             vendor,
             warehouseCode: data.U_tl_whsdesc,
             lob: data.U_tl_arbusi,
+            Currency: data.DocCurrency,
 
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
@@ -318,8 +317,7 @@ class SalesOrderForm extends CoreFormDocument {
         data.LineOfBusiness,
         data.U_ti_revenue
       );
-      const isUSD = (data?.Currency || "USD") === "USD";
-      const roundingValue = data?.RoundingValue || 0;
+
       const payloads = {
         // general
         // SOSeries: data?.Series,
