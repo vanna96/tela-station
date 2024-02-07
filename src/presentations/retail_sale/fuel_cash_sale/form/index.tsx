@@ -77,6 +77,42 @@ class Form extends CoreFormDocument {
             vendor,
             CardCode: data.U_tl_cardcode,
             seriesList,
+            nozzleData: data.TL_RETAILSALE_CONHCollection?.map((item: any) => ({
+              U_tl_pumpcode: item.U_tl_nozzlecode,
+              U_tl_itemnum: item.U_tl_itemcode,
+              U_tl_itemdesc: item.U_tl_itemname,
+              U_tl_uom: item.U_tl_uom,
+              new_meter: item.U_tl_nmeter,
+              U_tl_upd_meter: item.U_tl_ometer,
+              U_tl_cmeter: item.U_tl_cmeter,
+
+              U_tl_cardallow: item.U_tl_cardallow,
+              U_tl_cashallow: item.U_tl_cashallow,
+              U_tl_ownallow: item.U_tl_ownallow,
+              U_tl_partallow: item.U_tl_partallow,
+              U_tl_pumpallow: item.U_tl_pumpallow,
+              U_tl_stockallow: item.U_tl_stockallow,
+              U_tl_totalallow: item.U_tl_totalallow,
+            })),
+            allocationData: data.TL_RETAILSALE_CONHCollection?.map(
+              (item: any) => ({
+                U_tl_pumpcode: item.U_tl_nozzlecode,
+                U_tl_itemnum: item.U_tl_itemcode,
+                U_tl_itemdesc: item.U_tl_itemname,
+                U_tl_uom: item.U_tl_uom,
+                new_meter: item.U_tl_nmeter,
+                U_tl_upd_meter: item.U_tl_ometer,
+                U_tl_cmeter: item.U_tl_cmeter,
+
+                U_tl_cardallow: item.U_tl_cardallow,
+                U_tl_cashallow: item.U_tl_cashallow,
+                U_tl_ownallow: item.U_tl_ownallow,
+                U_tl_partallow: item.U_tl_partallow,
+                U_tl_pumpallow: item.U_tl_pumpallow,
+                U_tl_stockallow: item.U_tl_stockallow,
+                U_tl_totalallow: item.U_tl_totalallow,
+              })
+            ),
           };
         })
         .catch((err: any) => console.log(err))
@@ -288,7 +324,9 @@ class Form extends CoreFormDocument {
                   {this.state.tapIndex === 1 && (
                     <Consumption
                       data={this.state}
-                      handlerChange={this.handlerChange}
+                      handlerChange={(key, value) =>
+                        this.handlerChange(key, value)
+                      }
                       edit={this.props?.edit}
                     />
                   )}
