@@ -36,7 +36,6 @@ export default function BaseStationAutoComplete(props: {
     cacheTime: 0,
     staleTime: 0,
   });
-console.log(data);
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
@@ -78,10 +77,12 @@ console.log(data);
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.WarehouseCode}
+        getOptionLabel={(option: Type) =>
+          option.WarehouseCode+" - "+option.WarehouseName
+        }
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.WarehouseCode}
+            {option.WarehouseCode+" - "+option.WarehouseName}
           </Box>
         )}
         renderInput={(params) => (
