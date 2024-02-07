@@ -293,11 +293,11 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Ship To Address is Required!",
           getTabIndex: () => 2,
         },
-        // {
-        //   field: "U_tl_dnsuppo",
-        //   message: "Ship From Address is Required!",
-        //   getTabIndex: () => 2,
-        // },
+        {
+          field: "U_tl_attn_ter",
+          message: "Attention Terminal is Required!",
+          getTabIndex: () => 2,
+        },
       ];
 
       validations.forEach(({ field, message, isArray, getTabIndex }) => {
@@ -449,7 +449,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["ShipToCode"],
+      2: ["ShipToCode", "U_tl_attn_ter"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -539,7 +539,6 @@ class SalesOrderForm extends CoreFormDocument {
     const itemGroupCode = getGroupByLineofBusiness(
       this.props.edit ? this.state.lob : this.state.lineofBusiness
     );
-    
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();
