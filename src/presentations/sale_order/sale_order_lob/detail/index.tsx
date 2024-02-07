@@ -23,7 +23,8 @@ import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDocumentTotalHook } from "@/hook";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
-import DimensionRepository from "@/services/actions/DimensionRepostsitory";
+import { useQuery } from "react-query";
+import DistributionRuleRepository from "@/services/actions/distributionRulesRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -276,7 +277,7 @@ function General(props: any) {
             )}
             {renderKeyValue(
               "Revenue Line",
-              new DimensionRepository().find(props.data?.U_ti_revenue)
+              new DistributionRuleRepository().find(props.data?.U_ti_revenue)
                 ?.FactorDescription
             )}
             <div className="grid grid-cols-2 py-2">
