@@ -183,7 +183,7 @@ export default function ContentForm({
               key={"Quantity_" + cell.getValue()}
               disabled={cell.row.original.ItemCode === ""}
               thousandSeparator
-              decimalScale={1}
+              decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
@@ -305,7 +305,7 @@ export default function ContentForm({
               disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}
@@ -380,7 +380,7 @@ export default function ContentForm({
               disabled
               key={"Amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}

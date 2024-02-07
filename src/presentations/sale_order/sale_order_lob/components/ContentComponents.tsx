@@ -215,7 +215,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={docTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -258,7 +259,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                         value={discountAmount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
-                        decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
@@ -277,7 +279,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={docTaxTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -293,7 +296,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={grossTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}

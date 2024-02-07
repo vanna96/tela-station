@@ -341,6 +341,7 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
         U_ti_revenue: data?.U_ti_revenue,
+        DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
         // logistic
@@ -372,7 +373,7 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
         U_ti_revenue: data?.U_ti_revenue,
-        // U_tl_arbusi: data?.U_tl_arbusi,
+        DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
         // logistic
