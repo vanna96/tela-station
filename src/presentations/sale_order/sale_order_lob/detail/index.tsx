@@ -226,6 +226,8 @@ function General(props: any) {
 
   const seriesName = seriesNames?.join(", ");
 
+  console.log(props.data);
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -346,7 +348,16 @@ function Content(props: any) {
         accessorKey: "Quantity",
         header: "Quantity",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            value={cell.getValue() ?? 0}
+            thousandSeparator
+            disabled
+            className="bg-white w-full"
+            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            fixedDecimalScale
+          />
+        ),
       },
       {
         accessorKey: "MeasureUnit",
@@ -364,7 +375,8 @@ function Content(props: any) {
             thousandSeparator
             disabled
             className="bg-white w-full"
-            decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            fixedDecimalScale
           />
         ),
       },
@@ -379,31 +391,6 @@ function Content(props: any) {
         },
       },
 
-      // {
-      //   accessorKey: "VatGroup",
-      //   header: "Tax Code",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => cell.getValue(),
-      // },
-      // {
-      //   accessorKey: "ItemsGroupCode",
-      //   header: "Item Group",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => {
-      //     const value = cell.getValue();
-      //     switch (value) {
-      //       case "201001":
-      //         return "Oil";
-      //       case "201002":
-      //         return "Lube";
-      //       case "201003":
-      //         return "LPG";
-      //       default:
-      //         return value;
-      //     }
-      //   },
-      // },
-
       {
         accessorKey: "GrossTotal",
         header: "Amount",
@@ -414,20 +401,13 @@ function Content(props: any) {
             thousandSeparator
             disabled
             className="bg-white w-full"
-            decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+            decimalScale={props.data.Currency === "USD" ? 3 : 0}
+            fixedDecimalScale
           />
         ),
       },
-      // {
-      //   accessorKey: "WarehouseCode",
-      //   header: "Warehouse",
-      //   size: 60,
-      //   Cell: ({ cell }: any) =>
-      //     new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
-      //     "N/A",
-      // },
     ],
-    [data]
+    []
   );
 
   return (
@@ -473,7 +453,8 @@ function Content(props: any) {
                     value={docTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -515,7 +496,8 @@ function Content(props: any) {
                         value={props.data.TotalDiscount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
-                        decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
@@ -534,7 +516,8 @@ function Content(props: any) {
                     value={docTaxTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -551,7 +534,8 @@ function Content(props: any) {
                     value={props.data.DocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
