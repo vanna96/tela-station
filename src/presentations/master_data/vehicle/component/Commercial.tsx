@@ -38,12 +38,6 @@ export default function Commercial({
   };
 
   const handlerChangeCommer = (key: string, value: any, index: number) => {
-    if (value === "") {
-      // Value is required, trigger alert
-      alert(`${key} is required`);
-      return;
-    }
-
     const updated = commer.map((item: any, idx: number) => {
       if (idx === index) {
         return {
@@ -282,9 +276,7 @@ export default function Commercial({
               );
             })}
           </table>
-          {detail ? (
-            null
-          ) : (
+          {detail ? null : (
             <span
               onClick={addNewRow}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
