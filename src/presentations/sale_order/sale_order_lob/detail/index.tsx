@@ -338,13 +338,19 @@ function Content(props: any) {
       },
       {
         accessorKey: "ItemName",
-        header: "Item Description",
+        header: "Item Name",
         enableClickToCopy: true,
         size: 100,
       },
       {
         accessorKey: "Quantity",
         header: "Quantity",
+        size: 60,
+        Cell: ({ cell }: any) => cell.getValue(),
+      },
+      {
+        accessorKey: "MeasureUnit",
+        header: "UoM ",
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
       },
@@ -362,18 +368,23 @@ function Content(props: any) {
           />
         ),
       },
+
       {
         accessorKey: "DiscountPercent",
-        header: "Discount %",
+        header: "Unit Discount",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => {
+          const discountPercent = cell.getValue(); // Get the discount percentage value
+          return <span>% {discountPercent}</span>; // Concatenate the value with "%"
+        },
       },
-      {
-        accessorKey: "VatGroup",
-        header: "Tax Code",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
+
+      // {
+      //   accessorKey: "VatGroup",
+      //   header: "Tax Code",
+      //   size: 60,
+      //   Cell: ({ cell }: any) => cell.getValue(),
+      // },
       // {
       //   accessorKey: "ItemsGroupCode",
       //   header: "Item Group",
@@ -392,23 +403,10 @@ function Content(props: any) {
       //     }
       //   },
       // },
-      {
-        accessorKey: "MeasureUnit",
-        header: "UoM Group",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "UomEntry",
-        header: "UoM Name",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
-      },
 
       {
         accessorKey: "GrossTotal",
-        header: "Total(LC)",
+        header: "Amount",
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
@@ -420,14 +418,14 @@ function Content(props: any) {
           />
         ),
       },
-      {
-        accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
-          "N/A",
-      },
+      // {
+      //   accessorKey: "WarehouseCode",
+      //   header: "Warehouse",
+      //   size: 60,
+      //   Cell: ({ cell }: any) =>
+      //     new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
+      //     "N/A",
+      // },
     ],
     [data]
   );
