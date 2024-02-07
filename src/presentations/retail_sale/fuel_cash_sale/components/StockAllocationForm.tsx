@@ -160,7 +160,7 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
 
-          const itemCode = cell.row.original.U_tl_itemname;
+          const itemCode = cell.row.original.U_tl_itemnum;
 
           const {
             data: itemName,
@@ -189,6 +189,7 @@ export default function StockAllocationTable({
             />
           );
         },
+      },
 
       {
         accessorKey: "U_tl_qtycon",

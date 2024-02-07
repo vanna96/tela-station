@@ -88,13 +88,7 @@ export default function GeneralForm({
     staleTime: Infinity,
   });
 
-  const a = CurrencyAPI?.map((c: any) => {
-    return {
-      value: c.Code,
-      name: c.Name,
-    };
-  });
-  //test
+  console.log(CurrencyAPI);
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -250,9 +244,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <PriceListAutoComplete
                 onChange={(e) => {
-                  console.log(
-                    new PriceListRepository().find(e)?.DefaultPrimeCurrency
-                  );
+                 
                   handlerChangeObject({
                     U_tl_sopricelist: e,
                     Currency: new PriceListRepository().find(e)

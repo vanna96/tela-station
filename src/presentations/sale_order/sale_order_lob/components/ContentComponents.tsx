@@ -219,7 +219,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
@@ -229,7 +229,6 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-7 text-gray-700">Discount</div>
                     <div className="col-span-5 text-gray-900 mr-2">
                       <MUITextField
-                        disabled={props?.data?.isStatusClose || false}
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
@@ -263,7 +262,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
-                        disabled={props?.data?.isStatusClose || false}
+                        disabled
                       />
                     </div>
                   </div>
@@ -282,7 +281,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
@@ -298,7 +297,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
