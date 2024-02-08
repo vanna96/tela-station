@@ -115,7 +115,6 @@ export default function ContentForm({
   };
 
   const updateRef = React.createRef<ItemModal>();
-
   const itemColumns = React.useMemo(
     () => [
       {
@@ -182,9 +181,9 @@ export default function ContentForm({
           return (
             <NumericFormat
               key={"Quantity_" + cell.getValue()}
-              disabled={(cell.row.original.ItemCode === "")}
+              disabled={cell.row.original.ItemCode === ""}
               thousandSeparator
-              decimalScale={1}
+              decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
@@ -222,7 +221,7 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUISelect
-            disabled={(cell.row.original.ItemCode === "")}
+              disabled={cell.row.original.ItemCode === ""}
               value={cell.getValue()}
               items={cell.row.original.UomLists?.map((e: any) => ({
                 label: e.Name,
@@ -306,7 +305,7 @@ export default function ContentForm({
               disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}
@@ -341,17 +340,17 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
-            disabled={(cell.row.original.ItemCode === "")}
+              disabled={cell.row.original.ItemCode === ""}
               type="number"
               startAdornment={"%"}
-              defaultValue={cell.getValue() ?? 0}
+              value={cell.getValue() || 0}
               onChange={(event: any) => {
                 if (!(event.target.value <= 100 && event.target.value >= 0)) {
                   event.target.value = 0;
                 }
                 handlerUpdateRow(
                   cell.row.id,
-                  ["DiscountPercent", event.target.value],
+                  ["DiscountPercent", event.target.value || 0],
                   "DiscountPercent"
                 );
                 const quantity = cell.row.original.Quantity;
@@ -378,10 +377,10 @@ export default function ContentForm({
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
-            disabled={(cell.row.original.ItemCode === "")}
+              disabled
               key={"Amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}

@@ -14,25 +14,18 @@ import MaterialReactTable from "material-react-table";
 interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
+  edit?: boolean;
 }
 
 export default function AllocationTable({
   data,
   onChange,
+  edit,
 }: AllocationTableProps) {
-  const [key, setKey] = React.useState(shortid.generate());
-  const onClose = React.useCallback(() => setCollapseError(false), []);
-  const [collapseError, setCollapseError] = React.useState(false);
-
-  React.useEffect(() => {
-    setCollapseError("Items" in data?.error);
-  }, [data?.error]);
-  console.log(data.nozzleData);
-
-  const AllocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
+  data.allocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = AllocationData?.map((item: any, index: number) => {
+    const newData = data.allocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
@@ -40,7 +33,7 @@ export default function AllocationTable({
     if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-  console.log(AllocationData);
+  console.log(data.allocationData);
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     console.log(res);
@@ -77,7 +70,7 @@ export default function AllocationTable({
       },
 
       {
-        accessorKey: "cashSales",
+        accessorKey: "U_tl_cashallow",
         header: "Cash Sales (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -91,7 +84,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  cashSales: e.target.value,
+                  U_tl_cashallow: e.target.value,
                 })
               }
             />
@@ -99,7 +92,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "partnership",
+        accessorKey: "U_tl_partallow",
         header: "Partnership (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -113,7 +106,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  partnership: e.target.value,
+                  U_tl_partallow: e.target.value,
                 })
               }
             />
@@ -121,7 +114,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "stockTransfer",
+        accessorKey: "U_tl_stockallow",
         header: "Stock Transfer (Liter)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -135,7 +128,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  stockTransfer: e.target.value,
+                  U_tl_stockallow: e.target.value,
                 })
               }
             />
@@ -143,7 +136,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "ownUsage",
+        accessorKey: "U_tl_ownallow",
         header: "Own Usage (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -157,7 +150,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  ownUsage: e.target.value,
+                  U_tl_ownallow: e.target.value,
                 })
               }
             />
@@ -165,7 +158,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "telaCard",
+        accessorKey: "U_tl_cardallow",
         header: "Tela Card (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -179,7 +172,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  telaCard: e.target.value,
+                  U_tl_cardallow: e.target.value,
                 })
               }
             />
@@ -187,7 +180,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "pumpTest",
+        accessorKey: "U_tl_pumpallow",
         header: "Pump Test (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -201,7 +194,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  pumpTest: e.target.value,
+                  U_tl_pumpallow: e.target.value,
                 })
               }
             />
@@ -209,7 +202,7 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "total",
+        accessorKey: "U_tl_totalallow",
         header: "Total (Litre)",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -224,7 +217,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  total: e.target.value,
+                  U_tl_totalallow: e.target.value,
                 })
               }
             />
@@ -232,7 +225,7 @@ export default function AllocationTable({
         },
       },
     ],
-    [data.nozzleData]
+    [data.allocationData]
   );
 
   return (
@@ -244,7 +237,7 @@ export default function AllocationTable({
         <div className=" data-table">
           <MaterialReactTable
             columns={[...itemColumns]}
-            data={AllocationData}
+            data={data.allocationData}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

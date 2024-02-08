@@ -14,28 +14,12 @@ import MaterialReactTable from "material-react-table";
 interface NozzleDataProps {
   data: any;
   onChange: (key: any, value: any) => void;
+  edit?: boolean;
 }
 
-export default function NozzleData({ data, onChange }: NozzleDataProps) {
-  const [key, setKey] = React.useState(shortid.generate());
-  const onClose = React.useCallback(() => setCollapseError(false), []);
-  const [collapseError, setCollapseError] = React.useState(false);
-
-  React.useEffect(() => {
-    setCollapseError("Items" in data?.error);
-  }, [data?.error]);
-
-  const tl_Dispenser = [
-    ...data.DispenserData?.TL_DISPENSER_LINESCollection?.filter(
-      (e: any) => e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
-    ),
-  ];
-
-  if (tl_Dispenser.length > 0) {
-    data.nozzleData = tl_Dispenser;
-  }
+export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = tl_Dispenser?.map((item: any, index: number) => {
+    const newData = data.nozzleData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
@@ -90,7 +74,16 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
             return <span>Error fetching itemName</span>;
           }
 
-          return <MUITextField disabled value={itemName?.data?.ItemName} />;
+          return (
+            <MUITextField
+              disabled
+              value={
+                edit
+                  ? cell.row.original.U_tl_itemdesc
+                  : itemName?.data?.ItemName
+              }
+            />
+          );
         },
       },
 
@@ -164,7 +157,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
       },
 
       {
-        accessorKey: "consumption",
+        accessorKey: "U_tl_cmeter",
         header: "Consumption",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -179,7 +172,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  consumption: e.target.value,
+                  U_tl_cmeter: e.target.value,
                 })
               }
             />
@@ -187,7 +180,7 @@ export default function NozzleData({ data, onChange }: NozzleDataProps) {
         },
       },
     ],
-    [tl_Dispenser]
+    []
   );
 
   return (

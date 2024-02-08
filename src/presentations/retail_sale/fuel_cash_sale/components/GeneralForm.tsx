@@ -2,58 +2,50 @@ import React, { useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { TextField } from "@mui/material";
 import { useCookies } from "react-cookie";
 import VendorByBranch from "@/components/input/VendorByBranch";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
 import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
+import itemRepository from "@/services/actions/itemRepostory";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
+  handlerChangeObject: (obj: any) => void;
 }
 
 const fetchDispenserData = async (pump: string) => {
   const res = await request("GET", `TL_Dispenser('${pump}')`);
   return res.data;
 };
-
+const fetchItemNameandPrice = async (item: string) => {
+  const res = await request(
+    "GET",
+    `Items/'${item}?$select=ItemName,ItemPrices`
+  );
+  return res.data;
+};
 export default function GeneralForm({
   data,
   handlerChange,
+  handlerChangeObject,
   edit,
 }: IGeneralFormProps) {
-  const {
-    data: dispenserData,
-    isLoading,
-    isError,
-  } = useQuery(["dispenser", data.Pump], () => fetchDispenserData(data.Pump), {
-    enabled: !!data.Pump,
-  });
-
-  console.log(dispenserData);
-
-  // Add error handling if needed
-  if (isError) {
-    console.error("Error fetching dispenser data");
-  }
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
-  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
+  const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
   const filteredSeries = data?.seriesList?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-  console.log(data);
 
   const seriesSO =
     data.seriesList.find((series: any) => series.BPLID === BPL)?.Series || "";
@@ -61,14 +53,20 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-
-  if (data) {
-    data.Series = seriesSO;
-    data.U_tl_arbusi = "Oil";
-    data.lineofBusiness = "Oil";
-    data.DispenserData = dispenserData;
-  }
   console.log(data);
+  console.log(data.U_tl_pump);
+  async function getPriceListNum(CardCode: any) {
+    try {
+      const result = await new BusinessPartnerRepository().find(CardCode);
+      return result?.PriceListNum;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  const globalPriceListNum = getPriceListNum(data.U_tl_cardcode); // Removed an extra closing parenthesis here
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -86,7 +84,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                onChange={(e) => handlerChange("U_tl_bplid", e)}
                 value={BPL}
               />
             </div>
@@ -102,10 +100,53 @@ export default function GeneralForm({
               <DispenserAutoComplete
                 value={data?.U_tl_pump}
                 isStatusActive
-                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
-                onChange={(e) => {
-                  handlerChange("U_tl_pump", e);
+                onChange={async (e: any) => {
+                  const dispenserData = await fetchDispenserData(e);
+                  // console.log(dispenserData);
+
+                  // selectItems = selectItems.map((e: any) => {
+                  //   const defaultPrice = e?.ItemPrices?.find(
+                  //     (row: any) => row?.PriceList === globalPriceListNum
+                  //   )?.Price;
+
+                  //   return {
+                  //     ...e,
+                  //     defaultPrice: defaultPrice, // Assuming you want to add the defaultPrice to the selectItems
+                  //   };
+                  // });
+                  handlerChangeObject({
+                    U_tl_pump: e,
+
+                    stockAllocationData:
+                      dispenserData?.TL_DISPENSER_LINESCollection?.filter(
+                        (e: any) =>
+                          e.U_tl_status === "Initialized" ||
+                          e.U_tl_status === "Active"
+                      )?.map((item: any) => ({
+                        U_tl_bplid: data.U_tl_bplid,
+                        U_tl_itemnum: item.U_tl_itemnum,
+                        U_tl_itemdesc: item.U_tl_itemname,
+                        U_tl_qtyaloc: item.U_tl_qtyaloc,
+                        U_tl_qtycon: item.U_tl_qtycon,
+                        U_tl_qtyopen: item.U_tl_qtyopen,
+                        U_tl_remark: item.U_tl_remark,
+                        U_tl_uom: item.U_tl_uom,
+                        // ItemPrices: item.ItemPrices,
+                        ItemPrices: new itemRepository().find(
+                          `${item.U_tl_itemnum}`
+                        ),
+                      })),
+                    nozzleData:
+                      dispenserData?.TL_DISPENSER_LINESCollection?.filter(
+                        (e: any) =>
+                          e.U_tl_status === "Initialized" ||
+                          e.U_tl_status === "Active"
+                      )?.map((item: any) => ({
+                        U_tl_itemnum: item.U_tl_itemnum,
+                      })),
+                  });
                 }}
               />
             </div>
@@ -126,7 +167,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3 text-gray-900">
               <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
+                branch={data?.U_tl_bplid}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
@@ -135,7 +176,7 @@ export default function GeneralForm({
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-              disabled={edit}
+                disabled={edit}
                 endAdornment={!edit}
               />
             </div>
@@ -180,7 +221,7 @@ export default function GeneralForm({
               <DispenserAutoComplete
                 value={data?.PumpAttendant}
                 isStatusActive
-                branch={data?.BPL_IDAssignedToInvoice ?? BPL}
+                branch={data?.U_tl_bplid ?? BPL}
                 pumpType="Oil"
                 onChange={(e) => {
                   handlerChange("PumpAttendant", e);
@@ -231,9 +272,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={edit && data?.Status?.includes("A")}
-                value={data.DocumentDate}
-                onChange={(e: any) => handlerChange("DocumentDate", e)}
+                disabled={edit}
+                value={data.U_tl_docdate}
+                onChange={(e: any) => handlerChange("U_tl_docdate", e)}
               />
             </div>
           </div>
