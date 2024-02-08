@@ -52,15 +52,15 @@ const ItemModal: FC<ItemModalProps> = ({
   const itemsGroupCodes = [100, 101, 102];
 
   const groupCondition =
-    group == undefined ? `(ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)`: `ItemsGroupCode eq ${group}`;
+    group == undefined
+      ? `(ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)`
+      : `ItemsGroupCode eq ${group}`;
   const { data, isFetching }: any = useQuery({
     queryKey: ["items", group],
     queryFn: () =>
       new itemRepository().getSaleItem(
         `&$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and ${groupCondition} &$orderby=ItemCode asc`
       ),
-      
-   
   });
 
   const [pagination, setPagination] = React.useState({
@@ -180,7 +180,7 @@ const ItemModal: FC<ItemModalProps> = ({
         PurchaseVatGroup: e?.PurchaseVATGroup,
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
         VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
-        Quantity: defaultPrice !== null ? 1 : 0,
+        Quantity: 0,
         // UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
         LineTotal: total,
