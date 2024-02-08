@@ -249,7 +249,7 @@ function General(props: any) {
             {renderKeyValue(
               "Sale Employee",
               new SalePersonRepository().find(
-                props.data?.vendor?.salePersonCode
+                props.data?.SalesPersonCode
               )?.name
             )}
             {renderKeyValue("Remark", props?.data?.Comments ?? "N/A")}

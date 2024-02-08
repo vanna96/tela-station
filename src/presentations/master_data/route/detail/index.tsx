@@ -8,6 +8,9 @@ import DocumentHeader from "@/components/DocumenHeader";
 import MaterialReactTable from "material-react-table";
 import MUITextField from "@/components/input/MUITextField";
 import { TextField } from "@mui/material";
+import React from "react";
+import { duration } from "moment";
+import { getDuration } from "../components/duration-picker";
 
 class RouteDetail extends Component<any, any> {
   constructor(props: any) {
@@ -139,7 +142,14 @@ function renderKeyValue(label: string, value: any) {
 
 function General(props: any) {
   const { data }: any = props;
-  console.log(data);
+
+
+  const duration = React.useMemo(() => {
+    if (!props.data.U_Duration) return '00 h : 00 min';
+
+    const time: string[] = props.data.U_Duration?.split(':');
+    return `${time?.at(0) ?? '00'} h : ${time?.at(1) ?? '00'} min`;
+  }, [props.data.U_Duration])
 
   return (
     <>
@@ -160,27 +170,10 @@ function General(props: any) {
             <div className="col-span-5">
               {renderKeyValue(
                 "Status",
-                props.data.U_active === "Y" ? "Active" : "Inactive"
+                props.data.U_Status === "Y" ? "Active" : "Inactive"
               )}
-              {renderKeyValue("Distance", props.data.U_Distance)}
+              {renderKeyValue("Distance", duration)}
               {renderKeyValue("Travel Hour", props.data.U_Duration)}
-              <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Extra Remarks
-                </label>
-              </div>
-              <div className="col-span-3">
-                  <TextField
-                    size="small"
-                    fullWidth
-                    multiline
-                    rows={2}
-                    value={data.U_Remark}
-                    disabled={true}
-                  />
-              </div>
-            </div>
             </div>
           </div>
         </div>
@@ -199,18 +192,20 @@ function Expense(props: any) {
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 150,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Description",
         header: "Description",
         enableClickToCopy: true,
         size: 200,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Amount",
         header: "Expense Amount",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
     ],
     [data]
@@ -251,29 +246,39 @@ function Sequence(props: any) {
   const itemColumn: any = useMemo(
     () => [
       {
+        accessorKey: "LineId",
+        header: "Priority", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 150,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
+      },
+      {
         accessorKey: "U_Code",
         header: "Stops", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 150,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Distance",
         header: "Distance",
         enableClickToCopy: true,
         size: 200,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Duration",
         header: "Travel Duration",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={getDuration(cell.getValue())} />,
       },
       {
         accessorKey: "U_Stop_Duration",
         header: "Stops Duration",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={getDuration(cell.getValue())} />,
       },
     ],
     [data]

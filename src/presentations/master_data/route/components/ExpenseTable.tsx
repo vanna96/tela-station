@@ -53,7 +53,11 @@ export default function ExpenseTable(
   const columns = [
     {
       accessorKey: "U_Code",
-      header: "Expense Code",
+      header: (
+        <>
+          Expense Code<span style={{ color: "red" }}>*</span>
+        </>
+      ),
       Cell: ({ cell }: any) => (
         <>
           <ExpDicAutoComplete
@@ -61,37 +65,17 @@ export default function ExpenseTable(
             value={cell.row.original?.U_Code || 0}
             disabled={data?.edit}
             onChange={(e: any) => {
-              console.log(e);
               handlerChangeItem(cell?.row?.id || 0, {
                 U_Code: e,
               });
               handlerChangeItem(cell?.row?.id || 0, {
-                U_Description: new ExpdicRepository().find(e)?.Name
+                U_Description: new ExpdicRepository().find(e)?.Name,
               });
-
             }}
           />
         </>
       ),
     },
-    // {
-    //   accessorKey: "U_Description",
-    //   header: "Description",
-    //   Cell: ({ cell }: any) => (
-    //     <MUITextField
-    //       key={"U_Description" + cell.getValue() + cell?.row?.id}
-    //       // value={ new ExpdicRepository().find(cell.row.original.U_Code)?.Name}
-    //       // value={cell.row.original.U_Description}
-    //       defaultValue={cell.row.original?.U_Description || ""}
-    //       onChange={(e: any) => {
-    //         // console.log(e);
-    //         handlerChangeItem(cell?.row?.id , {
-    //           U_Description: e.target.value,
-    //         });
-    //       }}
-    //     />
-    //   ),
-    // },
     {
       accessorKey: "U_Description",
       header: "Description",
@@ -110,9 +94,14 @@ export default function ExpenseTable(
     },
     {
       accessorKey: "U_Amount",
-      header: "Expense Amount",
+      header: (
+        <>
+          Amount<span style={{ color: "red" }}>*</span>
+        </>
+      ),
       Cell: ({ cell }: any) => (
         <MUITextField
+          startAdornment={"USD"}
           key={"U_Amount" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
           type="number"
@@ -126,7 +115,6 @@ export default function ExpenseTable(
       ),
     },
   ];
-  console.log(data);
 
   return (
     <>
@@ -143,7 +131,6 @@ export default function ExpenseTable(
             />
           </>
         )}
-        <AiOutlineSetting className="cursor-pointer" />
       </div>
       <MaterialReactTable
         columns={columns}

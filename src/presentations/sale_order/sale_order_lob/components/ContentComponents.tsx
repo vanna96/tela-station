@@ -126,11 +126,7 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
-          {/* <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerAdd}>
-              Add
-            </span>
-          </Button> */}
+
           <IconButton onClick={() => columnRef.current?.onOpen()}>
             <TbSettings className="text-2lg" />
           </IconButton>

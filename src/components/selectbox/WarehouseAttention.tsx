@@ -16,12 +16,11 @@ export default function WarehouseAttendTo(props: {
   Warehouse?: Warehouse[];
   disabled?: any;
   U_tl_attn_ter?: boolean;
-  onBlur?:any
+  onBlur?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
     queryFn: () => new WarehouseRepository().get(),
-    staleTime: Infinity,
   });
   let filteredData = data;
 
@@ -32,7 +31,7 @@ export default function WarehouseAttendTo(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedWarehouse = data?.find(
+      const selectedWarehouse = filteredData?.find(
         (warehouse: any) => warehouse.WarehouseCode === props.value
       );
       if (selectedWarehouse) {
@@ -67,7 +66,7 @@ export default function WarehouseAttendTo(props: {
 
       <Autocomplete
         disabled={disabled}
-        options={data}
+        options={filteredData ?? data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
