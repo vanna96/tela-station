@@ -321,7 +321,7 @@ const branchAss: any = useQuery({
                   autoComplete="off"
                   value={searchValues.code}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, code: e.target.value })
+                    setSearchValues({ ...searchValues, vv   : e.target.value })
                   }
                 />
               </div>

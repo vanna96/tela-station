@@ -3,6 +3,7 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
@@ -50,6 +51,11 @@ const Form = (props: any) => {
     reset,
     formState: { errors, defaultValues },
   } = useForm();
+
+  // const { fields:, append, remove } = useFieldArray({
+  //   control,
+  //   name: "test"
+  // });
   const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
@@ -347,6 +353,7 @@ const Form = (props: any) => {
                   control={control}
                   setCollection={setCollection}
                   data={requestS}
+  
                 />
               </div>
             )}
