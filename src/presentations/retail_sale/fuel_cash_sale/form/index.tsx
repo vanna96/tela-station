@@ -30,10 +30,17 @@ class Form extends CoreFormDocument {
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
-      cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
+      cashBankData: [
+        {
+          U_tl_paytype: "cash",
+          U_tl_paycur: "USD",
+          U_tl_amtcash: 0,
+          U_tl_amtbank: 0,
+        },
+      ],
       checkNumberData: [
         {
-          check_no: "",
+          check_no: "1",
           check_date: new Date(),
           bank: "",
           check_amount: 0,
