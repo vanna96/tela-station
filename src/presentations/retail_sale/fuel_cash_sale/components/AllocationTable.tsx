@@ -22,7 +22,7 @@ export default function AllocationTable({
   onChange,
   edit,
 }: AllocationTableProps) {
-  data.allocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
+  data.allocationData = data.nozzleData?.filter((e: any) => e.U_tl_nmeter > 0);
 
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.allocationData?.map((item: any, index: number) => {
@@ -43,11 +43,11 @@ export default function AllocationTable({
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_itemdesc",
+        accessorKey: "U_tl_itemcode",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemnum;
+          const itemCode = cell.row.original.U_tl_itemcode;
 
           const {
             data: itemName,

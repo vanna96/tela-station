@@ -22,13 +22,7 @@ const fetchDispenserData = async (pump: string) => {
   const res = await request("GET", `TL_Dispenser('${pump}')`);
   return res.data;
 };
-const fetchItemNameandPrice = async (item: string) => {
-  const res = await request(
-    "GET",
-    `Items/'${item}?$select=ItemName,ItemPrices`
-  );
-  return res.data;
-};
+
 export default function GeneralForm({
   data,
   handlerChange,
@@ -66,6 +60,11 @@ export default function GeneralForm({
   }
 
   const globalPriceListNum = getPriceListNum(data.U_tl_cardcode); // Removed an extra closing parenthesis here
+  if (data.vendor) {
+    data.PriceList = data.vendor.priceLists;
+  }
+
+  console.log(data.PriceList);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -104,18 +103,7 @@ export default function GeneralForm({
                 pumpType="Oil"
                 onChange={async (e: any) => {
                   const dispenserData = await fetchDispenserData(e);
-                  // console.log(dispenserData);
 
-                  // selectItems = selectItems.map((e: any) => {
-                  //   const defaultPrice = e?.ItemPrices?.find(
-                  //     (row: any) => row?.PriceList === globalPriceListNum
-                  //   )?.Price;
-
-                  //   return {
-                  //     ...e,
-                  //     defaultPrice: defaultPrice, // Assuming you want to add the defaultPrice to the selectItems
-                  //   };
-                  // });
                   handlerChangeObject({
                     U_tl_pump: e,
 
@@ -134,9 +122,9 @@ export default function GeneralForm({
                         U_tl_remark: item.U_tl_remark,
                         U_tl_uom: item.U_tl_uom,
                         // ItemPrices: item.ItemPrices,
-                        ItemPrices: new itemRepository().find(
-                          `${item.U_tl_itemnum}`
-                        ),
+                        // ItemPrices: new itemRepository().find(
+                        //   `'${item.U_tl_itemnum}'`
+                        // ),
                       })),
                     nozzleData:
                       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
@@ -144,7 +132,23 @@ export default function GeneralForm({
                           e.U_tl_status === "Initialized" ||
                           e.U_tl_status === "Active"
                       )?.map((item: any) => ({
-                        U_tl_itemnum: item.U_tl_itemnum,
+                        U_tl_nozzlecode: item.U_tl_pumpcode,
+                        U_tl_itemcode: item.U_tl_itemnum,
+                        U_tl_itemname: item.U_tl_desc,
+                        U_tl_uom: item.U_tl_uom,
+                        U_tl_nmeter: item.U_tl_nmeter,
+                        // U_tl_upd_meter: item.U_tl_ometer,
+                        U_tl_ometer: item.U_tl_upd_meter,
+                        U_tl_cmeter: item.U_tl_cmeter,
+                        U_tl_reg_meter: item.U_tl_reg_meter,
+                        U_tl_cardallow: item.U_tl_cardallow,
+                        U_tl_cashallow: item.U_tl_cashallow,
+                        U_tl_ownallow: item.U_tl_ownallow,
+                        U_tl_partallow: item.U_tl_partallow,
+                        U_tl_pumpallow: item.U_tl_pumpallow,
+                        U_tl_stockallow: item.U_tl_stockallow,
+                        U_tl_totalallow: item.U_tl_totalallow,
+                        ItemPrice: "",
                       })),
                   });
                 }}
@@ -170,6 +174,10 @@ export default function GeneralForm({
                 branch={data?.U_tl_bplid}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
+                // onChange={(vendor) => handlerChangeObject({
+                //   "vendor" : vendor,
+                //   // "PriceList" : vendor.priceLists
+                // })}
                 key={data?.CardCode}
                 error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
