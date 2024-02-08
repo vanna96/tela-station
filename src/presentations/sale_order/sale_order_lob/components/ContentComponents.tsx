@@ -215,11 +215,12 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={docTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
@@ -229,7 +230,6 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-7 text-gray-700">Discount</div>
                     <div className="col-span-5 text-gray-900 mr-2">
                       <MUITextField
-                        disabled={props?.data?.isStatusClose || false}
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
@@ -259,11 +259,12 @@ export default function ContentComponent(props: ContentComponentProps) {
                         value={discountAmount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
-                        decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
-                        disabled={props?.data?.isStatusClose || false}
+                        disabled
                       />
                     </div>
                   </div>
@@ -278,11 +279,12 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={docTaxTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
@@ -294,11 +296,12 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={grossTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>

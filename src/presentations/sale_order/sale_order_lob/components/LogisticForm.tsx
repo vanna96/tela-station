@@ -1,14 +1,10 @@
 import FormCard from "@/components/card/FormCard";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
-import BPAddress from "@/components/selectbox/BPAddress";
 import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseSelect from "@/components/selectbox/Warehouse";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import { getShippingAddress } from "@/models/BusinessParter";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
-import { useEffect, useState } from "react";
 
 export interface ILogisticFormProps {
   data: any;
@@ -39,13 +35,16 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <WarehouseAutoComplete
-                  Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                  value={data?.U_tl_whsdesc}
-                  disabled
-                  // onChange={(e) => {
-                  //   handlerChange("U_tl_dnsuppo", e);
-                  // }}
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  value={
+                    new BranchBPLRepository().find(
+                      data?.BPL_IDAssignedToInvoice || 1
+                    )?.Address ?? "N/A"
+                  }
+                  InputProps={{ readOnly: true }}
                 />
               </div>
             </div>
@@ -53,7 +52,7 @@ export default function LogisticForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Attention Terminal
+                  Attention Terminal <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -104,7 +103,6 @@ export default function LogisticForm({
                   size="small"
                   fullWidth
                   multiline
-                  rows={2}
                   value={
                     !edit
                       ? getShippingAddress(

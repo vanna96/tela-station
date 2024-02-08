@@ -8,50 +8,33 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
+import itemRepository from "@/services/actions/itemRepostory";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
+  handlerChangeObject: (obj: any) => void;
 }
 
 const fetchDispenserData = async (pump: string) => {
   const res = await request("GET", `TL_Dispenser('${pump}')`);
   return res.data;
 };
-
+const fetchItemNameandPrice = async (item: string) => {
+  const res = await request(
+    "GET",
+    `Items/'${item}?$select=ItemName,ItemPrices`
+  );
+  return res.data;
+};
 export default function GeneralForm({
   data,
   handlerChange,
+  handlerChangeObject,
   edit,
 }: IGeneralFormProps) {
-  let {
-    data: dispenserData,
-    isLoading,
-    isError,
-  } = useQuery(
-    ["dispenser", data.U_tl_pump],
-    () => fetchDispenserData(data.U_tl_pump),
-    {
-      enabled: !!data.U_tl_pump,
-    }
-  );
-  interface DispenserLine {
-    U_tl_bplid: number;
-    U_tl_itemcode: string;
-    // ... other properties
-  }
-  if (dispenserData?.TL_DISPENSER_LINESCollection?.length > 0) {
-    dispenserData.TL_DISPENSER_LINESCollection =
-      dispenserData.TL_DISPENSER_LINESCollection.map((line: DispenserLine) => {
-        return {
-          ...line,
-          U_tl_bplid: data.U_tl_bplid,
-          U_tl_itemcode: data.U_tl_itemnum,
-        };
-      });
-  }
-
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
@@ -70,14 +53,20 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-
-  if (data) {
-    data.Series = seriesSO;
-    data.U_tl_arbusi = "Oil";
-    data.lineofBusiness = "Oil";
-    data.DispenserData = dispenserData;
-  }
   console.log(data);
+  console.log(data.U_tl_pump);
+  async function getPriceListNum(CardCode: any) {
+    try {
+      const result = await new BusinessPartnerRepository().find(CardCode);
+      return result?.PriceListNum;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  }
+
+  const globalPriceListNum = getPriceListNum(data.U_tl_cardcode); // Removed an extra closing parenthesis here
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -113,8 +102,51 @@ export default function GeneralForm({
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
-                onChange={(e) => {
-                  handlerChange("U_tl_pump", e);
+                onChange={async (e: any) => {
+                  const dispenserData = await fetchDispenserData(e);
+                  // console.log(dispenserData);
+
+                  // selectItems = selectItems.map((e: any) => {
+                  //   const defaultPrice = e?.ItemPrices?.find(
+                  //     (row: any) => row?.PriceList === globalPriceListNum
+                  //   )?.Price;
+
+                  //   return {
+                  //     ...e,
+                  //     defaultPrice: defaultPrice, // Assuming you want to add the defaultPrice to the selectItems
+                  //   };
+                  // });
+                  handlerChangeObject({
+                    U_tl_pump: e,
+
+                    stockAllocationData:
+                      dispenserData?.TL_DISPENSER_LINESCollection?.filter(
+                        (e: any) =>
+                          e.U_tl_status === "Initialized" ||
+                          e.U_tl_status === "Active"
+                      )?.map((item: any) => ({
+                        U_tl_bplid: data.U_tl_bplid,
+                        U_tl_itemnum: item.U_tl_itemnum,
+                        U_tl_itemdesc: item.U_tl_itemname,
+                        U_tl_qtyaloc: item.U_tl_qtyaloc,
+                        U_tl_qtycon: item.U_tl_qtycon,
+                        U_tl_qtyopen: item.U_tl_qtyopen,
+                        U_tl_remark: item.U_tl_remark,
+                        U_tl_uom: item.U_tl_uom,
+                        // ItemPrices: item.ItemPrices,
+                        ItemPrices: new itemRepository().find(
+                          `${item.U_tl_itemnum}`
+                        ),
+                      })),
+                    nozzleData:
+                      dispenserData?.TL_DISPENSER_LINESCollection?.filter(
+                        (e: any) =>
+                          e.U_tl_status === "Initialized" ||
+                          e.U_tl_status === "Active"
+                      )?.map((item: any) => ({
+                        U_tl_itemnum: item.U_tl_itemnum,
+                      })),
+                  });
                 }}
               />
             </div>

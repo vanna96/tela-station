@@ -22,39 +22,10 @@ export default function AllocationTable({
   onChange,
   edit,
 }: AllocationTableProps) {
-  // const datattest = data?.TL_RETAILSALE_CONHCollection?.map((item: any) => ({
-  //   U_tl_pumpcode: item.U_tl_nozzlecode,
-  //   U_tl_itemnum: item.U_tl_itemcode,
-  //   U_tl_itemdesc: item.U_tl_itemname,
-  //   U_tl_uom: item.U_tl_uom,
-  //   new_meter: item.U_tl_nmeter,
-  //   U_tl_upd_meter: item.U_tl_ometer,
-  //   U_tl_cmeter: item.U_tl_cmeter,
+  data.allocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
 
-  //   U_tl_cardallow: item.U_tl_cardallow,
-  //   U_tl_cashallow: item.U_tl_cashallow,
-  //   U_tl_ownallow: item.U_tl_ownallow,
-  //   U_tl_partallow: item.U_tl_partallow,
-  //   U_tl_pumpallow: item.U_tl_pumpallow,
-  //   U_tl_stockallow: item.U_tl_stockallow,
-  //   U_tl_totalallow: item.U_tl_totalallow,
-  // }));
-
-  // const tl_Dispenser = edit
-  //   ? datattest
-  //   : [
-  //       ...data.DispenserData?.TL_DISPENSER_LINESCollection?.filter(
-  //         (e: any) =>
-  //           e.U_tl_status === "Initialized" || e.U_tl_status === "Active"
-  //       ),
-  //     ];
-
-  const AllocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
-  if (AllocationData.length > 0) {
-    data.allocationData = AllocationData;
-  }
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = AllocationData?.map((item: any, index: number) => {
+    const newData = data.allocationData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
@@ -62,7 +33,7 @@ export default function AllocationTable({
     if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-  console.log(AllocationData);
+  console.log(data.allocationData);
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     console.log(res);
@@ -254,7 +225,7 @@ export default function AllocationTable({
         },
       },
     ],
-    [data.nozzleData]
+    [data.allocationData]
   );
 
   return (
@@ -266,7 +237,7 @@ export default function AllocationTable({
         <div className=" data-table">
           <MaterialReactTable
             columns={[...itemColumns]}
-            data={AllocationData}
+            data={data.allocationData}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}
