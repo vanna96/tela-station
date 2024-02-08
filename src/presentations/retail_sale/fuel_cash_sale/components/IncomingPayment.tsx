@@ -45,7 +45,7 @@ export default function IncomingPaymentForm({
           <h2>Check Number</h2>{" "}
         </div>
         <CheckNumberTable data={data} onChange={handlerChange} />
-        <h1 className="mt-8"> Coupon Account Name</h1>
+        {/* <h1 className="mt-8"> Coupon Account Name</h1>
         <div className="grid grid-cols-4 gap-4 mt-4">
           <AccountCodeAutoComplete
             onChange={(e: any) => handlerChange("GLCash", e)}
@@ -93,7 +93,7 @@ export default function IncomingPaymentForm({
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );

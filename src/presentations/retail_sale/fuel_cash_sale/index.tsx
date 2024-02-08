@@ -202,7 +202,7 @@ export default function SaleOrderLists() {
           pagination.pageIndex * pagination.pageSize
         }${filter ? ` and ${filter}` : filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }`
+        }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,CardName, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {

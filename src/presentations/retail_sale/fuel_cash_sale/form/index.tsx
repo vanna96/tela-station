@@ -77,6 +77,7 @@ class Form extends CoreFormDocument {
             ...data,
             vendor,
             CardCode: data.U_tl_cardcode,
+            CardName: data.U_tl_cardname,
             seriesList,
             nozzleData: data.TL_RETAILSALE_CONHCollection,
             // ?.map((item: any) => ({
@@ -165,9 +166,9 @@ class Form extends CoreFormDocument {
         U_tl_cardcode: data?.CardCode,
         U_tl_cardname: data?.CardName,
         U_tl_shiftcode: data?.U_tl_shift_code,
-        // U_tl_docdate: "2024-01-24T00:00:00Z",
-        // U_tl_docduedate: "2024-01-24T00:00:00Z",
-        // U_tl_taxdate: "2024-01-24T00:00:00Z",
+        U_tl_docdate: new Date(),
+        U_tl_docduedate: new Date(),
+        U_tl_taxdate: new Date(),
         //Consumption
         TL_RETAILSALE_CONHCollection: data?.nozzleData
           ?.filter((e: any) => e.U_tl_nmeter > 0)
