@@ -8,6 +8,9 @@ import DocumentHeader from "@/components/DocumenHeader";
 import MaterialReactTable from "material-react-table";
 import MUITextField from "@/components/input/MUITextField";
 import { TextField } from "@mui/material";
+import React from "react";
+import { duration } from "moment";
+import { getDuration } from "../components/duration-picker";
 
 class RouteDetail extends Component<any, any> {
   constructor(props: any) {
@@ -140,6 +143,14 @@ function renderKeyValue(label: string, value: any) {
 function General(props: any) {
   const { data }: any = props;
 
+
+  const duration = React.useMemo(() => {
+    if (!props.data.U_Duration) return '00 h : 00 min';
+
+    const time: string[] = props.data.U_Duration?.split(':');
+    return `${time?.at(0) ?? '00'} h : ${time?.at(1) ?? '00'} min`;
+  }, [props.data.U_Duration])
+
   return (
     <>
       <div className="overflow-auto w-full bg-white shadow-lg border p-4 rounded-lg mb-6 py-6 mt-4">
@@ -161,7 +172,7 @@ function General(props: any) {
                 "Status",
                 props.data.U_Status === "Y" ? "Active" : "Inactive"
               )}
-              {renderKeyValue("Distance", props.data.U_Distance)}
+              {renderKeyValue("Distance", duration)}
               {renderKeyValue("Travel Hour", props.data.U_Duration)}
             </div>
           </div>
@@ -181,18 +192,20 @@ function Expense(props: any) {
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 150,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Description",
         header: "Description",
         enableClickToCopy: true,
         size: 200,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Amount",
         header: "Expense Amount",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
     ],
     [data]
@@ -238,6 +251,7 @@ function Sequence(props: any) {
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 150,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Code",
@@ -245,24 +259,26 @@ function Sequence(props: any) {
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 150,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Distance",
         header: "Distance",
         enableClickToCopy: true,
         size: 200,
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
       {
         accessorKey: "U_Duration",
         header: "Travel Duration",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={getDuration(cell.getValue())} />,
       },
       {
         accessorKey: "U_Stop_Duration",
         header: "Stops Duration",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+        Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={getDuration(cell.getValue())} />,
       },
     ],
     [data]
