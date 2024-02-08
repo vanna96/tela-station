@@ -4,6 +4,7 @@ import { TextField } from "@mui/material";
 import React, { useState } from "react";
 import { UseFormProps } from "../form";
 import { Controller } from "react-hook-form";
+import BankAutoComplete from "@/components/input/BankAutoComplete";
 
 const Finance = ({
   register,
@@ -87,10 +88,20 @@ const Finance = ({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField
-                disabled={detail}
-                inputProps={{
-                  ...register("BankCode"),
+              <Controller
+                name="BankCode"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <BankAutoComplete
+                      disabled={detail}
+                      {...field}
+                      value={defaultValues?.BankCode}
+                      onChange={(e: any) => {
+                        setValue("BankCode", e);
+                      }}
+                    />
+                  );
                 }}
               />
             </div>

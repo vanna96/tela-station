@@ -3,6 +3,7 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
@@ -80,6 +81,10 @@ const TransportationOrderForm = (props: any) => {
     // Fetch initial data if needed
     fetchData();
   }, []);
+  const { fields: document, remove: removeDocument } = useFieldArray({
+    control,
+    name: "Document",
+  });
 
   const fetchData = async () => {
     if (id) {
@@ -335,7 +340,7 @@ const TransportationOrderForm = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Document commer={commer} />
+                <Document setValue={setValue} document={document} removeDocument={removeDocument} commer={commer} />
               </h1>
             )}
               {state.tapIndex === 2 && <h1><Expense expense={ expense} /></h1>}

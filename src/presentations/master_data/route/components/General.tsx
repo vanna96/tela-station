@@ -4,6 +4,7 @@ import { useCookies } from "react-cookie";
 import { TextField } from "@mui/material";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import StopsSelect from "@/components/selectbox/StopsSelect";
+import { DurationPicker } from "./duration-picker";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -108,6 +109,7 @@ export default function GeneralForm({
                 <MUITextField
                   value={data?.U_Incentive}
                   name="U_Incentive"
+                  type="number"
                   onChange={(e) => handlerChange("U_Incentive", e.target.value)}
                 />
               </div>
@@ -142,6 +144,7 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
+
                 <MUITextField
                   value={data?.U_Distance}
                   name="U_Distance"
@@ -157,10 +160,14 @@ export default function GeneralForm({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
+                {/* <MUITextField
                   value={data?.U_Duration}
                   name="U_Duration"
                   onChange={(e) => handlerChange("U_Duration", e.target.value)}
+                /> */}
+                <DurationPicker
+                  value={data?.U_Duration}
+                  onChange={(e) => handlerChange("U_Duration", e)}
                 />
               </div>
             </div>
