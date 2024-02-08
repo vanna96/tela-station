@@ -166,7 +166,7 @@ export default function GeneralForm({
                   onChange={(e) => handlerChange("U_Duration", e.target.value)}
                 /> */}
                 <DurationPicker
-                  value={data?.U_Distance}
+                  value={data?.U_Duration}
                   onChange={(e) => handlerChange("U_Duration", e)}
                 />
               </div>
