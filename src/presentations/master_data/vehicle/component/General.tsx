@@ -148,6 +148,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{
                     ...register("U_VH_NO", {
@@ -323,6 +324,9 @@ const General = ({
                   disabled={detail}
                   inputProps={{
                     ...register("U_InitializeOdometer"),
+                    onChange: (val) => {
+                      if (isNaN(Number(val))) return "1";
+                    },
                   }}
                 />
               </div>

@@ -66,10 +66,14 @@ export default function TRTable(props: DataTableProps) {
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
     >
       <div className="flex justify-between">
-        <div className="flex gap-4 items-center justify-center">
-          <h3 className="text-base">
-            {props.title}
-          </h3>
+        <div className="flex gap-4 items-center w-full justify-between">
+          <h3 className="text-base">{props.title}</h3>
+          <Button size="small" variant="text" onClick={props.handlerRefresh}>
+            <span className="text-lg mr-2">
+              <HiRefresh />
+            </span>
+            <span className="capitalize text-sm">Refresh</span>
+          </Button>
         </div>
       </div>
       <div className="grow data-grid border-t bg-inherit ">
@@ -101,7 +105,8 @@ export default function TRTable(props: DataTableProps) {
           enableGlobalFilter={false}
           rowCount={props.count ?? 0}
           getRowId={(row: any) => {
-            return `${shortid.generate()}_${row?.DocNum}_${row?.Type}`;
+            // return `${shortid.generate()}_${row?.DocNum}_${row?.Type}`;
+            return `${shortid.generate()+'_'+row?.DocNum}`;
           }}
           onPaginationChange={props.paginationChange}
           state={{

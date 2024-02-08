@@ -5,12 +5,15 @@ import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import { Box, Button, Modal } from "@mui/material";
+import { Backdrop, Box, Button, CircularProgress, Modal } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import TRTable from "./TRTable";
 import { MRT_RowSelectionState } from "material-react-table";
+import BranchAssignmentAuto from "@/components/input/BranchAssignment";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
+import { TbRuler } from "react-icons/tb";
 
 const style = {
   position: "absolute" as "absolute",
@@ -25,19 +28,16 @@ const style = {
 export default function TRModal(props: any) {
   const [searchValues, setSearchValues] = React.useState({
     DocumentNumber: "",
-    active: "tYES",
+    Type: "",
+    Status: "",
+    Branch: "",
+    From: "",
+    To: "",
   });
-  const branchAss: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
-  // console.log(branchAss);
-
-  const route = useNavigate();
-
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
+  const [openLoading, setOpenLoading] = React.useState(false);
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -73,7 +73,7 @@ export default function TRModal(props: any) {
       const Url = `${url}/sml.svc/TL_TR_DOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
-        filter ? ` and ${filter}` : filter
+        filter ? `&$filter=${filter}` : filter
       }${sortBy !== "" ? "&$orderby=" + sortBy : ""}`;
 
       const response: any = await request("GET", `${Url}`)
@@ -97,18 +97,8 @@ export default function TRModal(props: any) {
         size: 88,
         visible: true,
         Cell: (cell: any, index: number) => {
-          console.log(sortBy);
-          // return (
-          //   <span>
-          //     {sortBy.includes("asc") || sortBy === ""
-          //       ? cell?.row?.index + 1
-          //       : Count?.data - cell?.row?.index}
-          //     {/* {cell?.row?.index + 1} */}
-          //   </span>
-          // );
-          return cell.row.original['id__'] ?? "N/A";
+          return cell.row.original["id__"] ?? "N/A";
         },
-        
       },
       {
         accessorKey: "DocNum",
@@ -183,8 +173,8 @@ export default function TRModal(props: any) {
         size: 60,
         visible: true,
         type: "string",
-        Cell: (cell: any) => {
-          return 1;
+        Cell: (cell: any, index: number) => {
+          return cell.row.original["id__"] ?? "N/A";
         },
       },
       {
@@ -194,17 +184,14 @@ export default function TRModal(props: any) {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original["Quantity"] ?? "N/A";
+          return (cell.row.original["Quantity"] ?? "N/A").toString() + ".0";
         },
       },
     ],
     [data]
   );
-  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
-
-  console.log(data?.length);
-
   const handlerRefresh = React.useCallback(() => {
+    setRowSelection({});
     setFilter("");
     setSortBy("");
     setPagination({
@@ -235,18 +222,32 @@ export default function TRModal(props: any) {
   const handlerSearch = (value: string) => {
     if (searchValues.DocumentNumber) {
       queryFilters += queryFilters
-        ? ` and (contains(DocumentNo, '${searchValues.DocumentNumber}'))`
-        : `(contains(DocumentNo, '${searchValues.DocumentNumber}'))`;
+        ? ` and (contains(DocNum, ${searchValues.DocumentNumber}))`
+        : `(contains(DocNum, ${searchValues.DocumentNumber}))`;
     }
-
-    if (searchValues.active) {
-      searchValues.active === "All"
+    if (searchValues.Type) {
+      searchValues.Type === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and Active eq '${searchValues.active}'`
-            : `Active eq '${searchValues.active}'`);
+            ? ` and Type eq '${searchValues.Type}'`
+            : `Type eq '${searchValues.Type}'`);
+    }
+    if (searchValues.Branch) {
+      queryFilters += queryFilters
+        ? ` and (contains(BPLId, ${searchValues.Branch}))`
+        : `(contains(BPLId, ${searchValues.Branch}))`;
+    }
+    if (searchValues.From) {
+      queryFilters += queryFilters
+        ? ` and DocDate ge '${searchValues.From}'`
+        : `DocDate ge '${searchValues.From}'`;
     }
 
+    if (searchValues.To) {
+      queryFilters += queryFilters
+        ? ` and DocDueDate le '${searchValues.To}'`
+        : `DocDueDate le '${searchValues.To}'`;
+    }
     let query = queryFilters;
 
     if (value) {
@@ -263,23 +264,39 @@ export default function TRModal(props: any) {
       refetch();
     }, 500);
   };
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     props?.setOpen(false);
-  };
+  }, [props?.open]);
+
   const onSelectData = React.useCallback(async () => {
+    setOpenLoading(true);
     let ids = [];
     for (const [key, value] of Object.entries(rowSelection)) {
       if (!value) continue;
-      const extractedKey = key.split('_')[1];
-      ids.push(`DocNum eq ${extractedKey}`);
-    }
-    console.log(ids.join(" or "));
-    const response = await request(
-      "get",
-      "/sml.svc/TL_TR_DOCS?" + `$filter=${ids.join(" or ")}`
-    );
 
-    console.log(response);
+      const docNum = key.split("_")?.at(-1);
+      ids.push(`DocNum eq ${docNum}`);
+    }
+
+    let apendQuery = "";
+    switch (searchValues.Type) {
+      case "SO":
+        apendQuery += ` and Type eq 'SO'`;
+        break;
+      case "ITR":
+        apendQuery += ` and Type eq 'ITR'`;
+        break;
+      default:
+        break;
+    }
+    await request(
+      "get",
+      "/sml.svc/TL_TR_DOCS?" + `$filter=${ids.join(" or ")}${apendQuery}`
+    ).then((res: any) => {
+      props?.setValue("Document",res?.data?.value);
+      setOpenLoading(false);
+      props?.setOpen(false);
+    });
   }, [rowSelection]);
 
   const lists = React.useMemo(() => data, [data]);
@@ -293,6 +310,13 @@ export default function TRModal(props: any) {
         aria-describedby="parent-modal-description"
       >
         <Box sx={style} borderRadius={3}>
+          <div
+            className={`w-full h-full ${
+              openLoading ? "block" : "hidden"
+            } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
+          >
+            <CircularProgress color="success" />{" "}
+          </div>
           {/* <div className="w-[80vw] h-[80vh] px-6 py-2 flex flex-col gap-1 relative bg-white"> */}
           <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
             <div className="col-span-10">
@@ -316,7 +340,7 @@ export default function TRModal(props: any) {
                   <div className="">
                     <label
                       htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
+                      className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
                     >
                       Document Type
                     </label>
@@ -326,95 +350,109 @@ export default function TRModal(props: any) {
                     items={[
                       { value: "All", label: "All" },
                       { value: "SO", label: "Sale Order" },
-                      { value: "tNO", label: "Inactive" },
+                      { value: "ITR", label: "Inventory Transfer Request" },
                     ]}
                     onChange={(e: any) => {
                       setSearchValues({
                         ...searchValues,
-                        active: e.target.value,
+                        Type: e.target.value,
                       });
                     }}
                     value={
                       // searchValues.active === null ? "tYES" : searchValues.active
-                      searchValues.active
+                      searchValues.Type
                     }
                     aliasvalue="value"
                     aliaslabel="label"
-                  />
-                </div>
-                <div className="col-span-2 2xl:col-span-3">
-                  <MUITextField
-                    type="string"
-                    label="Branch"
-                    className="bg-white"
-                    autoComplete="off"
-                    value={searchValues.DocumentNumber}
-                    onChange={(e) =>
-                      setSearchValues({
-                        ...searchValues,
-                        DocumentNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-span-2 2xl:col-span-3">
-                  <MUITextField
-                    type="string"
-                    label="From Date"
-                    className="bg-white"
-                    autoComplete="off"
-                    value={searchValues.DocumentNumber}
-                    onChange={(e) =>
-                      setSearchValues({
-                        ...searchValues,
-                        DocumentNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-span-2 2xl:col-span-3">
-                  <MUITextField
-                    type="string"
-                    label="To Date"
-                    className="bg-white"
-                    autoComplete="off"
-                    value={searchValues.DocumentNumber}
-                    onChange={(e) =>
-                      setSearchValues({
-                        ...searchValues,
-                        DocumentNumber: e.target.value,
-                      })
-                    }
                   />
                 </div>
                 <div className="col-span-2 2xl:col-span-3">
                   <div className="">
                     <label
                       htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] mb-[0.5px] inline-block"
+                      className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
                     >
-                      Status
+                      Branch
                     </label>
                   </div>
-
-                  <MUISelect
-                    items={[
-                      { value: "All", label: "All" },
-                      { value: "tYES", label: "Initiated" },
-                      { value: "tNO", label: "Inactive" },
-                    ]}
-                    onChange={(e: any) => {
-                      setSearchValues({
-                        ...searchValues,
-                        active: e.target.value,
-                      });
+                  <BranchAssignmentAuto
+                    onChange={(e) => {
+                      console.log(e);
+                      if (e !== null) {
+                        setSearchValues({
+                          ...searchValues,
+                          Branch: e.BPLID,
+                        });
+                      } else {
+                        setSearchValues({
+                          ...searchValues,
+                          Branch: "",
+                        });
+                      }
                     }}
-                    value={
-                      // searchValues.active === null ? "tYES" : searchValues.active
-                      searchValues.active
-                    }
-                    aliasvalue="value"
-                    aliaslabel="label"
+                    value={searchValues.Branch}
+                  />
+                </div>
+
+                <div className="col-span-2 -mt-1 2xl:col-span-3">
+                  <div className="">
+                    <label
+                      htmlFor="Code"
+                      className="text-gray-500 text-[14.1px] inline-block"
+                    >
+                      From Date
+                    </label>
+                  </div>
+                  <MUIDatePicker
+                    onChange={(e) => {
+                      if (e !== null) {
+                        const val =
+                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
+                            ? ""
+                            : e;
+                        setSearchValues({
+                          ...searchValues,
+                          From: val,
+                        });
+                      } else {
+                        setSearchValues({
+                          ...searchValues,
+                          From: "",
+                        });
+                      }
+                    }}
+                    value={searchValues.From}
+                  />
+                </div>
+
+                <div className="col-span-2 -mt-1 2xl:col-span-3">
+                  <div className="">
+                    <label
+                      htmlFor="Code"
+                      className="text-gray-500 text-[14.1px] inline-block"
+                    >
+                      To Date
+                    </label>
+                  </div>
+                  <MUIDatePicker
+                    onChange={(e) => {
+                      if (e !== null) {
+                        const val =
+                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
+                            ? ""
+                            : e;
+                        setSearchValues({
+                          ...searchValues,
+                          To: val,
+                        });
+                      } else {
+                        setSearchValues({
+                          ...searchValues,
+                          To: "",
+                        });
+                      }
+                    }}
+                    value={searchValues.To}
                   />
                 </div>
 
