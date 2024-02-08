@@ -4,16 +4,18 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { Button } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, useFieldArray } from "react-hook-form";
 import TRModal from "./TRModal";
+import { FaAngleDown } from "react-icons/fa6";
+
 export default function Document({
   register,
   defaultValue,
   setValue,
-  commer,
-  setCommer,
   control,
   detail,
+  document,
+  removeDocument
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: undefined,
@@ -25,6 +27,7 @@ export default function Document({
   const handleOpen = () => {
     setOpen(true);
   };
+  
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -55,26 +58,29 @@ export default function Document({
             <tr className="border-[1px] border-[#dadde0]">
               <th className="w-[100px] "></th>
 
-              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Source Type{" "}
+              <th className="w-[180px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                Source Document <span className="text-red-500 ml-1">*</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Document Numbering{" "}
+                Document Number{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                To Branch{" "}
+                Item{" "}
               </th>
-              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                To Warehouse{" "}
+              <th className="text-left font-normal  py-2 text-[14px] text-gray-500">
+                Ship To <span className="text-red-500 ml-1">*</span>
               </th>
               <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
-                Items{" "}
+                Delivery Date <span className="text-red-500 ml-1">*</span>
               </th>
-              <th className=" text-left font-normal py-2 text-[14px] text-gray-500">
+              <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
                 Quantity{" "}
               </th>
+              <th className="w-[90px] text-center font-normal py-2 text-[14px] text-gray-500">
+                Action{" "}
+              </th>
             </tr>
-            {commer?.length === 0 && (
+            {document?.length === 0 && (
               <tr>
                 <td
                   colSpan={6}
@@ -84,113 +90,74 @@ export default function Document({
                 </td>
               </tr>
             )}
-            {commer?.map((e: any, index: number) => {
+            {document?.map((e: any, index: number) => {
               return (
                 <tr key={index}>
                   <td className="py-5 flex justify-center gap-5 items-center">
-                    <div
-                      className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
-                        detail
-                          ? "bg-gray-100 text-gray-600 "
-                          : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
-                      }  rounded-sm flex justify-center items-center `}
-                    >
-                      -
+                    <div className={`text-gray-700`}>
+                      <FaAngleDown color="gray" />
                     </div>
                     <span className="text-gray-500">{index + 1}</span>
                   </td>
 
                   <td className="pr-4">
-                    <Controller
-                      name="U_Type"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <MUISelect
-                            disabled={detail}
-                            items={[
-                              { label: "Truck", value: "Truck" },
-                              { label: "Train", value: "Train" },
-                              { label: "Van", value: "Van" },
-                            ]}
-                            value={e?.U_Type || staticSelect.u_Type}
-                            aliasvalue="value"
-                            aliaslabel="label"
-                          />
-                        );
-                      }}
+                    <span className="text-gray-500 text-[13.5px]">
+                      {e?.Type === "ITR"
+                        ? "Inventory Transfer Request"
+                        : "Sale Order"}
+                    </span>
+                  </td>
+                  <td className="pr-4">
+                    <MUITextField
+                      disabled={true}
+                      placeholder="Document Number"
+                      value={e?.DocNum}
                     />
                   </td>
                   <td className="pr-4">
                     <MUITextField
-                      disabled={detail}
-                      placeholder="Name"
-                      inputProps={{
-                        defaultValue: e?.U_Name,
-                      }}
+                      disabled={true}
+                      placeholder="Item"
+                      value={e?.ItemCode}
                     />
                   </td>
                   <td className="pr-4">
-                    <Controller
-                      name="U_IssueDate"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <MUIDatePicker
-                            disabled={detail}
-                            {...field}
-                            value={e?.U_IssueDate || staticSelect?.u_IssueDate}
-                            key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
-                          />
-                        );
-                      }}
-                    />
-                  </td>
-                  <td className="pr-4">
-                    <Controller
-                      name="U_ExpiredDate"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <MUIDatePicker
-                            disabled={detail}
-                            {...field}
-                            value={
-                              e?.U_ExpiredDate || staticSelect.u_ExpiredDate
-                            }
-                            key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
-                          />
-                        );
-                      }}
+                    <MUITextField
+                      disabled={true}
+                      placeholder="Ship To"
+                      value={e?.ShipToCode}
                     />
                   </td>
 
                   <td className="pr-4">
                     <MUITextField
-                      disabled={detail}
-                      placeholder="Fee"
-                      inputProps={{
-                        defaultValue: e?.U_Fee,
-                      }}
+                      disabled={true}
+                      placeholder="Delivery Date"
+                      value={e?.DocDate}
                     />
                   </td>
-                  <td className="pr-4">
+                  <td className="">
                     <MUITextField
-                      disabled={detail}
-                      placeholder="Referance"
-                      inputProps={{
-                        defaultValue: e?.U_Ref,
-                      }}
+                      disabled={true}
+                      placeholder="Quantity"
+                      value={(e?.Quantity).toString() + ".00"}
                     />
+                  </td>
+                  <td className="text-center">
+                    <div
+                      onClick={() => removeDocument(index)}
+                      className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
+                    >
+                      -
+                    </div>
                   </td>
                 </tr>
               );
             })}
           </table>
-      
         </div>
       </div>
-      <TRModal open={open} setOpen={setOpen} />
+      <TRModal setValue={setValue} open={open} setOpen={setOpen} />
     </>
   );
 }

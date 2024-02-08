@@ -5,28 +5,29 @@ import { useQuery } from "react-query";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
-import WarehouseRepository from "@/services/warehouseRepository";
 import request, { url } from "@/utilies/request";
 
 interface Type {
-  WarehouseCode: string;
-  WarehouseName: string;
+  BankCode: string;
+  BankName: string;
 }
 
-export default function BaseStationAutoComplete(props: {
+export default function BankAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
 }) {
+  // const { data, isLoading }: any = useQuery({
+  //   queryKey: ["department"],
+  //   queryFn: () => new DepartmentRepository().get(),
+  //   staleTime: Infinity,
+  // });
   const { data, isLoading }: any = useQuery({
-    queryKey: ["TL_WH"],
+    queryKey: ["banks"],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}//Warehouses?$filter=U_tl_attn_ter eq 'Y'`
-      )
+      const response: any = await request("GET", `${url}/Banks`)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -40,7 +41,7 @@ export default function BaseStationAutoComplete(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.WarehouseCode === props.value);
+      const selected = data?.find((e: Type) => e.BankCode === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -56,7 +57,7 @@ export default function BaseStationAutoComplete(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue?.WarehouseCode : null;
+      const selected = newValue ? newValue?.BankCode : null;
       props.onChange(selected);
     }
   };
@@ -78,11 +79,11 @@ export default function BaseStationAutoComplete(props: {
         onChange={handleAutocompleteChange}
         loading={isLoading}
         getOptionLabel={(option: Type) =>
-          option.WarehouseCode+" - "+option.WarehouseName
+          option.BankCode + "-" + option.BankName
         }
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.WarehouseCode+" - "+option.WarehouseName}
+            {option.BankCode + "-" + option.BankName}
           </Box>
         )}
         renderInput={(params) => (
