@@ -316,7 +316,7 @@ export const TotalSummaryRightSide = (props: any) => {
             </label>
           </div>
           <div className="col-span-4">
-            {"%"} {props?.data?.DiscountPercent} {props.data?.Currency}{" "}
+            {"%"} {(props?.data?.DiscountPercent)?.toFixed(3)} {props.data?.Currency}{" "}
             <NumericFormat
               value={discountAmount}
               thousandSeparator

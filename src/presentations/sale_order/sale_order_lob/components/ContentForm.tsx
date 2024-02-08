@@ -339,18 +339,50 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField
+            // <MUITextField
+            //   disabled={cell.row.original.ItemCode === ""}
+            //   type="number"
+            //   placeholder={data.Currency === 'USD' ? "0.000" : "0"}
+            //   startAdornment={"%"}
+            //   value={cell.getValue()}
+            //   onChange={(event: any) => {
+            //     if (!(event.target.value <= 100 && event.target.value >= 0)) {
+            //       event.target.value = 0;
+            //     }
+            //     handlerUpdateRow(
+            //       cell.row.id,
+            //       ["DiscountPercent", event.target.value ],
+            //       "DiscountPercent"
+            //     );
+            //     const quantity = cell.row.original.Quantity;
+            //     const totalGross =
+            //       cell.row.original.GrossPrice * quantity -
+            //       cell.row.original.GrossPrice *
+            //         quantity *
+            //         (cell.row.original.DiscountPercent / 100);
+            //     handlerUpdateRow(
+            //       cell.row.id,
+            //       ["LineTotal", totalGross],
+            //       "LineTotal"
+            //     );
+            //   }}
+            // />
+            <NumericFormat
               disabled={cell.row.original.ItemCode === ""}
-              type="number"
+              className="bg-white w-full"
+              value={cell.getValue()}
+              thousandSeparator
               startAdornment={"%"}
-              value={cell.getValue() || 0}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
+              fixedDecimalScale
+              placeholder={data.Currency === "USD" ? "0.000" : "0"}
               onChange={(event: any) => {
                 if (!(event.target.value <= 100 && event.target.value >= 0)) {
                   event.target.value = 0;
                 }
                 handlerUpdateRow(
                   cell.row.id,
-                  ["DiscountPercent", event.target.value || 0],
+                  ["DiscountPercent", event.target.value],
                   "DiscountPercent"
                 );
                 const quantity = cell.row.original.Quantity;
@@ -365,6 +397,7 @@ export default function ContentForm({
                   "LineTotal"
                 );
               }}
+              customInput={MUITextField}
             />
           );
         },

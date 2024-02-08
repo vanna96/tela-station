@@ -227,14 +227,18 @@ export default function ContentComponent(props: ContentComponentProps) {
               <div className="grid grid-cols-12 py-1">
                 <div className="col-span-6 text-gray-700">
                   <div className="grid grid-cols-12 gap-2">
-                    <div className="col-span-7 text-gray-700">Discount</div>
-                    <div className="col-span-5 text-gray-900 mr-2">
-                      <MUITextField
-                        placeholder="0.00"
-                        type="number"
-                        startAdornment={"%"}
+                    <div className="col-span-6 text-gray-700">Discount</div>
+                    <div className="col-span-6  text-gray-900 mr-2">
+                      <NumericFormat
+                        className="bg-white w-full"
                         value={props?.data?.DiscountPercent ?? 0}
-                        // value={props.data.DocDiscount || discount}
+                        thousandSeparator
+                        startAdornment={"%"}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
+                        placeholder={
+                          props.data.Currency === "USD" ? "0.000" : "0"
+                        }
                         onChange={(event: any) => {
                           if (
                             !(
@@ -246,6 +250,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           }
                           onChange("DiscountPercent", event.target.value);
                         }}
+                        customInput={MUITextField}
                       />
                     </div>
                   </div>
