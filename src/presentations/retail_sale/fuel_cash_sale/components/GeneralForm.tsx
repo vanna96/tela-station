@@ -114,8 +114,8 @@ export default function GeneralForm({
                           e.U_tl_status === "Active"
                       )?.map((item: any) => ({
                         U_tl_bplid: data.U_tl_bplid,
-                        U_tl_itemnum: item.U_tl_itemnum,
-                        U_tl_itemdesc: item.U_tl_itemname,
+                        U_tl_itemcode: item.U_tl_itemnum,
+                        U_tl_itemname: item.U_tl_desc,
                         U_tl_qtyaloc: item.U_tl_qtyaloc,
                         U_tl_qtycon: item.U_tl_qtycon,
                         U_tl_qtyopen: item.U_tl_qtyopen,
