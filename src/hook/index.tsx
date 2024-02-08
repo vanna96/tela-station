@@ -1,3 +1,4 @@
+import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
 import formular from "@/utilies/formular";
 import Formular from "@/utilies/formular";
 import React from "react";
@@ -10,7 +11,6 @@ export const useDocumentTotalHook = (
 
   const docTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
-    
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.UnitPrice,
@@ -18,7 +18,8 @@ export const useDocumentTotalHook = (
       );
       return prevTotal + lineTotal;
     }, 0);
-    return total ;
+
+    return formatNumberWithoutRounding(total, 6);
   }, [items, ExchangeRate]);
 
   const docDiscountAmount = (discount / 100) * docTotal;
@@ -38,8 +39,8 @@ export const useDocumentTotalHook = (
       return prevTotal + lineTotal;
     }, 0);
 
-    return docTotal - docDiscountAmount + docTaxTotal ;
-  }, [items,  discount, docTotal, docDiscountAmount, docTaxTotal]);
+    return docTotal - docDiscountAmount + docTaxTotal;
+  }, [items, discount, docTotal, docDiscountAmount, docTaxTotal]);
 
-  return [docTotal, docTaxTotal, grossTotal, ];
+  return [docTotal, docTaxTotal, grossTotal];
 };

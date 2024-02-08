@@ -158,11 +158,15 @@ class SalesOrderForm extends CoreFormDocument {
                   }
                 });
                 item.ItemPrices === apiResponse.ItemPrices;
+
                 return {
                   ItemCode: item.ItemCode || null,
                   ItemName: item.ItemDescription || item.Name || null,
                   Quantity: item.Quantity || null,
-                  UnitPrice: item.UnitPrice || item.total,
+                  UnitPrice: (
+                    item.GrossPrice /
+                    (1 + (item?.VatGroup === "VO10" ? 10 : 0) / 100)
+                  )?.toFixed(6),
                   Discount: item.DiscountPercent || 0,
                   VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,

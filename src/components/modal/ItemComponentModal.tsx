@@ -14,6 +14,7 @@ import { HiSearch, HiX } from "react-icons/hi";
 import shortid from "shortid";
 import WarehouseRepository from "@/services/warehouseRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
 
 export type ItemType = "purchase" | "sale" | "inventory";
 export type ItemGroup = 100 | 101 | 102;
@@ -168,6 +169,12 @@ const ItemModal: FC<ItemModalProps> = ({
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
+      const unitPriceValue =
+        defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ?? 0;
+      const unitPriceString = formatNumberWithoutRounding(
+        unitPriceValue,
+        6
+      ).toFixed(6);
 
       return {
         ItemCode: e?.ItemCode,
@@ -193,9 +200,7 @@ const ItemModal: FC<ItemModalProps> = ({
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
         // ProductLine: item.ProductLine ?? "203004",
-        UnitPrice:
-          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-          0,
+        UnitPrice: unitPriceString,
         COGSCostingCode: e?.U_tl_dim1,
         COGSCostingCode2: U_ti_revenue,
         COGSCostingCode3: e?.U_tl_dim2,
