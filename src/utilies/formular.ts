@@ -22,17 +22,19 @@ export default class Formular {
   }
 
 
-  public static findLineTotal(qty: string, price: string, discount: string) {
-    const total = parseFloat(price ?? 0) * parseFloat(qty ?? 0)
-      - (parseFloat(price ?? 0) * parseFloat(qty ?? 0) * (parseFloat(discount ?? 0) / 100))
+  public static findLineTotal(qty: string, price: string, discount: string, vatRate: string) {
+    const totalBeforeDiscount = parseFloat(price ?? 0) * parseFloat(qty ?? 0);
+    const discountAmount = totalBeforeDiscount * (parseFloat(discount ?? 0) / 100);
+    const total = totalBeforeDiscount - discountAmount;
+    const totalWithVAT = total * (1 + parseFloat(vatRate ?? 0) / 100);
 
-
-    if (isNaN(total)) {
+    if (isNaN(totalWithVAT)) {
       return 0;
     }
 
-    return total;
+    return totalWithVAT;
   }
+
 
   public static findToTal(qty: string, price: string) {
     const total = parseFloat(price) * parseFloat(qty);

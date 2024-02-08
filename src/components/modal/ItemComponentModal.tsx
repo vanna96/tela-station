@@ -186,7 +186,7 @@ const ItemModal: FC<ItemModalProps> = ({
         SaleVatGroup: e?.SalesVATGroup,
         PurchaseVatGroup: e?.PurchaseVATGroup,
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
-        VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
+        TaxPercentagePerRow: e?.SalesVATGroup === "VO10" ? 10 : 0,
         Quantity: 0,
         // UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,

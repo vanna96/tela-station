@@ -88,7 +88,8 @@ class DeliveryDetail extends Component<any, any> {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
                 Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
+                UnitPrice:
+                  item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                 GrossPrice: item.GrossPrice || item.total,
                 GrossTotal: item.GrossTotal,
                 Discount: item.DiscountPercent || 0,
@@ -225,8 +226,6 @@ function General(props: any) {
   const seriesNames = filteredSeries?.map((series: any) => series.Name);
 
   const seriesName = seriesNames?.join(", ");
-
-  console.log(props.data);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
@@ -368,12 +367,13 @@ function Content(props: any) {
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
             disabled
-            className="bg-white w-full"
-            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            key={"GrossPrice" + cell.getValue()}
+            thousandSeparator
+            decimalScale={data.Currency === "USD" ? 4 : 0}
             fixedDecimalScale
+            customInput={MUITextField}
+            value={cell.getValue()}
           />
         ),
       },
@@ -383,8 +383,19 @@ function Content(props: any) {
         header: "Unit Discount",
         size: 60,
         Cell: ({ cell }: any) => {
-          const discountPercent = cell.getValue(); // Get the discount percentage value
-          return <span>% {discountPercent}</span>; // Concatenate the value with "%"
+          return (
+            <NumericFormat
+              disabled={cell.row.original.ItemCode === ""}
+              className="bg-white w-full"
+              value={cell.getValue()}
+              thousandSeparator
+              startAdornment={"%"}
+              customInput={MUITextField}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
+              fixedDecimalScale
+              placeholder={data.Currency === "USD" ? "0.000" : "0"}
+            />
+          );
         },
       },
 

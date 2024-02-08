@@ -163,10 +163,8 @@ class SalesOrderForm extends CoreFormDocument {
                   ItemCode: item.ItemCode || null,
                   ItemName: item.ItemDescription || item.Name || null,
                   Quantity: item.Quantity || null,
-                  UnitPrice: (
-                    item.GrossPrice /
-                    (1 + (item?.VatGroup === "VO10" ? 10 : 0) / 100)
-                  )?.toFixed(6),
+                  UnitPrice:
+                    item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                   Discount: item.DiscountPercent || 0,
                   VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,

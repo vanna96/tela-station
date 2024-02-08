@@ -8,13 +8,13 @@ export const useDocumentTotalHook = (
   discount: number,
   ExchangeRate: any
 ) => {
-
   const docTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.UnitPrice,
-        item.DiscountPercent
+        item.DiscountPercent,
+        item.VatGroup === "VO10" ? "10" : "0"
       );
       return prevTotal + lineTotal;
     }, 0);
@@ -34,8 +34,12 @@ export const useDocumentTotalHook = (
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.GrossPrice,
-        item.DiscountPercent
+        item.DiscountPercent,
+        item.VatGroup === "VO10" ? "10" : "0"
       );
+
+      console.log(item.VatGroup === "VO10" ? "10" : "0");
+      console.log(lineTotal)
       return prevTotal + lineTotal;
     }, 0);
 
