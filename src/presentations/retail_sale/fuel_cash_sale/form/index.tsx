@@ -17,6 +17,7 @@ import StockAllocationForm from "../components/StockAllocationForm";
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
+import CardCount from "../components/CardCountTable";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -40,7 +41,7 @@ class Form extends CoreFormDocument {
       ],
       checkNumberData: [
         {
-          check_no: "1",
+          check_no: "CheckNo.",
           check_date: new Date(),
           bank: "",
           check_amount: 0,
@@ -289,6 +290,9 @@ class Form extends CoreFormDocument {
           <MenuButton active={this.state.tapIndex === 3}>
             <span> Stock Allocation</span>
           </MenuButton>
+          <MenuButton active={this.state.tapIndex === 4}>
+            <span>Card Count</span>
+          </MenuButton>
         </div>
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
@@ -308,7 +312,7 @@ class Form extends CoreFormDocument {
                 size="small"
                 variant="outlined"
                 onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
+                disabled={this.state.tapIndex === 4}
                 style={{ textTransform: "none" }}
               >
                 Next
@@ -389,6 +393,18 @@ class Form extends CoreFormDocument {
 
                   {this.state.tapIndex === 3 && (
                     <StockAllocationForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      onChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {this.state.tapIndex === 4 && (
+                    <CardCount
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                       data={this.state}
                       edit={this.props?.edit}
                       onChange={(key, value) => {

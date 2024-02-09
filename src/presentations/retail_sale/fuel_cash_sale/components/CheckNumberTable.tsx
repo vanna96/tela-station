@@ -18,7 +18,7 @@ export default function CheckNumberTable(props: any) {
     onChange("checkNumberData", [
       ...(data?.checkNumberData || []),
       {
-        check_no: 1,
+        check_no:'CheckNo.',
         check_date: new Date(),
         bank: "",
         check_amount: 0,
@@ -52,7 +52,7 @@ export default function CheckNumberTable(props: any) {
       accessorKey: "deleteButton",
       header: "",
       Cell: ({ cell }: any) => {
-        if (!cell.row.orignal.check_no) return null;
+        if (!cell.row.orignal?.check_no) return null;
         return (
           <GridDeleteIcon
             className="text-red-500 cursor-pointer"
@@ -84,7 +84,7 @@ export default function CheckNumberTable(props: any) {
         return (
           <MUITextField
             key={"check_no" + cell.getValue() + cell?.row?.id}
-            type="number"
+            // type="number"
             disabled={data?.edit}
             defaultValue={cell.row.original?.check_no || ""}
             onBlur={(e: any) => {
@@ -101,7 +101,7 @@ export default function CheckNumberTable(props: any) {
       header: "Check Date",
 
       Cell: ({ cell }: any) => {
-        if (!cell.row.orignal.check_no) return null;
+        if (!cell.row.orignal?.check_no) return null;
         return (
           <MUIDatePicker
             key={"check_date" + cell.getValue() + cell?.row?.id}
@@ -120,7 +120,7 @@ export default function CheckNumberTable(props: any) {
       accessorKey: "check_amount",
       header: "Check Amount",
       Cell: ({ cell }: any) => {
-        if (!cell.row.orignal.check_no) return null;
+        if (!cell.row.orignal?.check_no) return null;
         return (
           <FormattedInputs
             key={"check_amount" + cell.getValue() + cell?.row?.id}
@@ -142,7 +142,7 @@ export default function CheckNumberTable(props: any) {
       header: "Bank",
 
       Cell: ({ cell }: any) => {
-        if (!cell.row.orignal.check_no) return null;
+        if (!cell.row.orignal?.check_no) return null;
         return (
           <BankSelect
             key={"bank" + cell.getValue() + cell?.row?.id}
@@ -163,8 +163,8 @@ export default function CheckNumberTable(props: any) {
     <>
       <MaterialReactTable
         columns={[...columns]}
-        // data={[...data?.checkNumberData, { check_no: "" }]}
-        data={data.checkNumberData}
+        data={[...data?.checkNumberData, { check_no: "" }]}
+        // data={data.checkNumberData}
         enableStickyHeader={true}
         enableColumnActions={false}
         enableColumnFilters={false}
