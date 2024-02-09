@@ -99,7 +99,7 @@ export default function SequenceTable(props: any) {
     },
     {
       accessorKey: "U_Distance",
-      header: "Distance",
+      header: "Distance KM",
       Cell: ({ cell }: any) => (
         <MUITextField
           type="number"
