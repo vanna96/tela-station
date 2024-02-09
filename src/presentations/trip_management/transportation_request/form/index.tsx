@@ -3,12 +3,12 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
-import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import General from "../components/General";
 import { Backdrop, CircularProgress } from "@mui/material";
@@ -20,6 +20,8 @@ import { useQuery } from "react-query";
 import ManagerRepository from "@/services/actions/ManagerRepository";
 import EmployeeRepository from "@/services/actions/employeeRepository";
 import Document from "../components/Document";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
+import request from "@/utilies/request";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -36,6 +38,8 @@ export type UseFormProps = {
   header?: any;
   setHeader?: any;
   detail?: boolean;
+  data?: any;
+  serie?: any;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -47,6 +51,11 @@ const Form = (props: any) => {
     reset,
     formState: { errors, defaultValues },
   } = useForm();
+
+  // const { fields:, append, remove } = useFieldArray({
+  //   control,
+  //   name: "test"
+  // });
   const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
@@ -64,15 +73,15 @@ const Form = (props: any) => {
     gender: null,
     branch: null,
     status: "O",
-
   });
 
   const [branchAss, setBranchAss] = useState([]);
 
-  const [request, setRequest] = React.useState<any>();
+  const [requestS, setRequest] = React.useState<any>();
 
-  const collecttions = request?.TL_TR_ROWCollection;
+  const collecttions = requestS?.TL_TR_ROWCollection;
   const [emp, setEmp] = useState([]);
+  const [serie, setSerie] = useState([]);
   const [collection, setCollection] = useState<any[]>(collecttions ?? []);
   React.useEffect(() => {
     if (document && collecttions) {
@@ -85,6 +94,14 @@ const Form = (props: any) => {
   }, []);
 
   const fetchData = async () => {
+    let seriesList: any = props?.query?.find("tr-series");
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "TL_TR",
+      });
+      props?.query?.set("tr-series", seriesList);
+    }
+    setSerie(seriesList);
     if (id) {
       setState({
         ...state,
@@ -123,27 +140,21 @@ const Form = (props: any) => {
           U_Ref: e?.U_Ref,
         };
       }),
-    }
+    };
     const { id } = props?.match?.params || 0;
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
         await request("PATCH", `/TL_TR(${id})`, payload)
           .then((res: any) =>
-            dialog.current?.success(
-              "Update Successfully.",
-              res?.data?.EmployeeID
-            )
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/TL_TR", payload)
           .then((res: any) =>
-            dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.EmployeeID
-            )
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -164,7 +175,13 @@ const Form = (props: any) => {
     },
     [state]
   );
-
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
+  };
   const HeaderTaps = () => {
     return (
       <>
@@ -186,10 +203,10 @@ const Form = (props: any) => {
   };
 
   React.useEffect(() => {
-    if (request) {
-      reset({ ...request });
+    if (requestS) {
+      reset({ ...requestS });
     }
-  }, [request]);
+  }, [requestS]);
 
   const Left = ({ header, data }: any) => {
     const branchAss: any = useQuery({
@@ -202,7 +219,6 @@ const Form = (props: any) => {
       queryFn: () => new ManagerRepository().get(),
       staleTime: Infinity,
     });
-
     return (
       <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
@@ -216,16 +232,30 @@ const Form = (props: any) => {
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
             <span className="mb-[27px] inline-block">
-            {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.U_Branch ||
-                "_"}            </span>
+              {`${
+                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
+                  ?.FirstName ||
+                emp?.data?.find(
+                  (e: any) => e?.EmployeeID === header?.U_Requester
+                )?.FirstName ||
+                "_"
+              } ${
+                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
+                  ?.LastName ||
+                emp?.data?.find(
+                  (e: any) => e?.EmployeeID === header?.U_Requester
+                )?.LastName ||
+                "_"
+              }`}
+            </span>
           </div>
           <div>
             <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.U_Branch)
                 ?.BPLName ||
                 header?.U_Branch ||
+                branchAss?.data?.find((e: any) => e?.BPLID === header?.U_Branch)
+                  ?.BPLName ||
                 "_"}
             </span>
           </div>
@@ -249,7 +279,7 @@ const Form = (props: any) => {
             <span>{data?.U_Terminal || header?.base || "_"}</span>
           </div>
           <div className="mt-7">
-          <span>
+            <span>
               {data?.Status || header?.status == "O"
                 ? "Active"
                 : "Inactive" || "_"}
@@ -275,8 +305,8 @@ const Form = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={request} />
-                <Right header={header} data={request} />
+                <Left header={header} data={requestS} />
+                <Right header={header} data={requestS} />
                 {/* <TotalSummaryRightSide data={this.state} /> */}
               </>
             }
@@ -297,11 +327,12 @@ const Form = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
                 <General
+                  data={state}
                   register={register}
                   setValue={setValue}
                   control={control}
@@ -311,23 +342,25 @@ const Form = (props: any) => {
                   emp={emp}
                   header={header}
                   setHeader={setHeader}
+                  serie={serie}
                 />
               </h1>
             )}
-             {state.tapIndex === 1 && (
+            {state.tapIndex === 1 && (
               <div className="m-5">
                 <Document
                   collection={collection}
                   control={control}
                   setCollection={setCollection}
-                  data={request}
+                  data={requestS}
+  
                 />
               </div>
             )}
             <div className="absolute w-full bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
-                <LoadingButton
+                  <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
                     variant="outlined"
