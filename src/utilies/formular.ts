@@ -34,6 +34,7 @@ export default class Formular {
     return total;
   }
 
+
   public static findToTal(qty: string, price: string) {
     const total = parseFloat(price) * parseFloat(qty);
 

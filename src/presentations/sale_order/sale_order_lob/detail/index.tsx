@@ -25,6 +25,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
 import { useQuery } from "react-query";
 import DistributionRuleRepository from "@/services/actions/distributionRulesRepository";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -88,7 +89,8 @@ class DeliveryDetail extends Component<any, any> {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
                 Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
+                UnitPrice:
+                  item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                 GrossPrice: item.GrossPrice || item.total,
                 GrossTotal: item.GrossTotal,
                 Discount: item.DiscountPercent || 0,
@@ -226,8 +228,6 @@ function General(props: any) {
 
   const seriesName = seriesNames?.join(", ");
 
-  console.log(props.data);
-
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -330,50 +330,62 @@ function Content(props: any) {
     () => [
       {
         accessorKey: "ItemCode",
-        header: "Item NO.", //uses the default width from defaultColumn prop
+        header: "Item NO.",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 100,
+     
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
       },
       {
         accessorKey: "ItemName",
         header: "Item Name",
         enableClickToCopy: true,
-        size: 100,
+      
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
       },
       {
         accessorKey: "Quantity",
         header: "Quantity",
-        size: 60,
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
-            disabled
-            className="bg-white w-full"
-            decimalScale={props.data.Currency === "USD" ? 4 : 0}
-            fixedDecimalScale
-          />
-        ),
+      
+
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              disabled
+              value={cell.getValue()}
+              thousandSeparator
+              customInput={MUIRightTextField}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
+              // fixedDecimalScale
+            />
+          );
+        },
       },
       {
         accessorKey: "MeasureUnit",
         header: "UoM ",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+      
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
       },
       {
         accessorKey: "GrossPrice",
         header: "Unit Price",
-        size: 60,
+      
         Cell: ({ cell }: any) => (
           <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
             disabled
-            className="bg-white w-full"
-            decimalScale={props.data.Currency === "USD" ? 4 : 0}
-            fixedDecimalScale
+            key={"GrossPrice" + cell.getValue()}
+            thousandSeparator
+            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // fixedDecimalScale
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
           />
         ),
       },
@@ -381,25 +393,32 @@ function Content(props: any) {
       {
         accessorKey: "DiscountPercent",
         header: "Unit Discount",
-        size: 60,
+       
         Cell: ({ cell }: any) => {
-          const discountPercent = cell.getValue(); // Get the discount percentage value
-          return <span>% {discountPercent}</span>; // Concatenate the value with "%"
+          return (
+            <MUIRightTextField
+              placeholder="0.00"
+              type="number"
+              startAdornment={"%"}
+              value={props?.data?.DiscountPercent ?? 0}
+              disabled
+            />
+          );
         },
       },
 
       {
         accessorKey: "GrossTotal",
         header: "Amount",
-        size: 60,
+      
         Cell: ({ cell }: any) => (
           <NumericFormat
             value={cell.getValue() ?? 0}
             thousandSeparator
             disabled
-            className="bg-white w-full"
+            customInput={MUIRightTextField}
             decimalScale={props.data.Currency === "USD" ? 3 : 0}
-            fixedDecimalScale
+            // fixedDecimalScale
           />
         ),
       },
@@ -424,11 +443,11 @@ function Content(props: any) {
             muiTableBodyRowProps={{ hover: false }}
             columns={itemColumn}
             data={data?.Items || []}
-            muiTableProps={{
+            muiTableProps={() => ({
               sx: {
-                border: "1px solid rgba(211,211,211)",
+                border: "1px solid rgba(81, 81, 81, .5)",
               },
-            }}
+            })}
           />
           <div className="grid grid-cols-12 mt-2">
             <div className="col-span-5"></div>
@@ -446,15 +465,14 @@ function Content(props: any) {
                 </div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
                     value={docTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -464,7 +482,7 @@ function Content(props: any) {
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-7 text-gray-700">Discount</div>
                     <div className="col-span-5 text-gray-900 mr-2">
-                      <MUITextField
+                      <MUIRightTextField
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
@@ -489,15 +507,14 @@ function Content(props: any) {
                   <div className="grid grid-cols-4">
                     <div className="col-span-4">
                       <NumericFormat
-                        className="bg-white w-full"
                         thousandSeparator
                         value={discountAmount}
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                        fixedDecimalScale
+                        // fixedDecimalScale
                         placeholder="0.00"
                         readonly
-                        customInput={MUITextField}
+                        customInput={MUIRightTextField}
                         disabled
                       />
                     </div>
@@ -509,15 +526,14 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-700">Tax</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
                     value={docTaxTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -526,16 +542,15 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-700">Total</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
                     readOnly
                     value={props.data.DocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>

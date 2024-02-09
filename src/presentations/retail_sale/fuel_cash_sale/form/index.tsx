@@ -30,10 +30,17 @@ class Form extends CoreFormDocument {
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
-      cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
+      cashBankData: [
+        {
+          U_tl_paytype: "cash",
+          U_tl_paycur: "USD",
+          U_tl_amtcash: 0,
+          U_tl_amtbank: 0,
+        },
+      ],
       checkNumberData: [
         {
-          check_no: "",
+          check_no: "1",
           check_date: new Date(),
           bank: "",
           check_amount: 0,
@@ -77,48 +84,51 @@ class Form extends CoreFormDocument {
             ...data,
             vendor,
             CardCode: data.U_tl_cardcode,
+            CardName: data.U_tl_cardname,
             seriesList,
-            nozzleData: data.TL_RETAILSALE_CONHCollection?.map((item: any) => ({
-              U_tl_pumpcode: item.U_tl_nozzlecode,
-              U_tl_itemnum: item.U_tl_itemcode,
-              U_tl_itemdesc: item.U_tl_itemname,
-              U_tl_uom: item.U_tl_uom,
-              new_meter: item.U_tl_nmeter,
-              U_tl_upd_meter: item.U_tl_ometer,
-              U_tl_cmeter: item.U_tl_cmeter,
+            nozzleData: data.TL_RETAILSALE_CONHCollection,
+            // ?.map((item: any) => ({
+            //   U_tl_pumpcode: item.U_tl_nozzlecode,
+            //   U_tl_itemnum: item.U_tl_itemcode,
+            //   U_tl_itemdesc: item.U_tl_itemname,
+            //   U_tl_uom: item.U_tl_uom,
+            //   new_meter: item.U_tl_nmeter,
+            //   U_tl_upd_meter: item.U_tl_ometer,
+            //   U_tl_cmeter: item.U_tl_cmeter,
 
-              U_tl_cardallow: item.U_tl_cardallow,
-              U_tl_cashallow: item.U_tl_cashallow,
-              U_tl_ownallow: item.U_tl_ownallow,
-              U_tl_partallow: item.U_tl_partallow,
-              U_tl_pumpallow: item.U_tl_pumpallow,
-              U_tl_stockallow: item.U_tl_stockallow,
-              U_tl_totalallow: item.U_tl_totalallow,
-            })),
-            allocationData: data.TL_RETAILSALE_CONHCollection?.map(
-              (item: any) => ({
-                U_tl_pumpcode: item.U_tl_nozzlecode,
-                U_tl_itemnum: item.U_tl_itemcode,
-                U_tl_itemdesc: item.U_tl_itemname,
-                U_tl_uom: item.U_tl_uom,
-                new_meter: item.U_tl_nmeter,
-                U_tl_upd_meter: item.U_tl_ometer,
-                U_tl_cmeter: item.U_tl_cmeter,
+            //   U_tl_cardallow: item.U_tl_cardallow,
+            //   U_tl_cashallow: item.U_tl_cashallow,
+            //   U_tl_ownallow: item.U_tl_ownallow,
+            //   U_tl_partallow: item.U_tl_partallow,
+            //   U_tl_pumpallow: item.U_tl_pumpallow,
+            //   U_tl_stockallow: item.U_tl_stockallow,
+            //   U_tl_totalallow: item.U_tl_totalallow,
+            // })),
+            allocationData: data.TL_RETAILSALE_CONHCollection,
+            // ?.map(
+            //   (item: any) => ({
+            //     U_tl_pumpcode: item.U_tl_nozzlecode,
+            //     U_tl_itemnum: item.U_tl_itemcode,
+            //     U_tl_itemdesc: item.U_tl_itemname,
+            //     U_tl_uom: item.U_tl_uom,
+            //     new_meter: item.U_tl_nmeter,
+            //     U_tl_upd_meter: item.U_tl_ometer,
+            //     U_tl_cmeter: item.U_tl_cmeter,
 
-                U_tl_cardallow: item.U_tl_cardallow,
-                U_tl_cashallow: item.U_tl_cashallow,
-                U_tl_ownallow: item.U_tl_ownallow,
-                U_tl_partallow: item.U_tl_partallow,
-                U_tl_pumpallow: item.U_tl_pumpallow,
-                U_tl_stockallow: item.U_tl_stockallow,
-                U_tl_totalallow: item.U_tl_totalallow,
-              })
-            ),
+            //     U_tl_cardallow: item.U_tl_cardallow,
+            //     U_tl_cashallow: item.U_tl_cashallow,
+            //     U_tl_ownallow: item.U_tl_ownallow,
+            //     U_tl_partallow: item.U_tl_partallow,
+            //     U_tl_pumpallow: item.U_tl_pumpallow,
+            //     U_tl_stockallow: item.U_tl_stockallow,
+            //     U_tl_totalallow: item.U_tl_totalallow,
+            //   })
+            // ),
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid,
-                U_tl_itemnum: item.U_tl_itemcode,
-                U_tl_itemdesc: item.U_tl_itemname,
+                U_tl_itemcode: item.U_tl_itemcode,
+                U_tl_itemname: item.U_tl_itemname,
                 U_tl_qtyaloc: item.U_tl_qtyaloc,
                 U_tl_qtycon: item.U_tl_qtycon,
                 U_tl_qtyopen: item.U_tl_qtyopen,
@@ -158,26 +168,42 @@ class Form extends CoreFormDocument {
       const payload = {
         // general
         Series: data?.Series,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
         U_tl_bplid: data?.U_tl_bplid,
         U_tl_pump: data?.U_tl_pump,
         U_tl_cardcode: data?.CardCode,
         U_tl_cardname: data?.CardName,
         U_tl_shiftcode: data?.U_tl_shift_code,
-        // U_tl_docdate: "2024-01-24T00:00:00Z",
-        // U_tl_docduedate: "2024-01-24T00:00:00Z",
-        // U_tl_taxdate: "2024-01-24T00:00:00Z",
+        U_tl_docdate: new Date(),
+        U_tl_docduedate: new Date(),
+        U_tl_taxdate: new Date(),
         //Consumption
-        TL_RETAILSALE_CONHCollection: data?.TL_RETAILSALE_CONHCollection,
+        TL_RETAILSALE_CONHCollection: data?.nozzleData
+          ?.filter((e: any) => e.U_tl_nmeter > 0)
+          ?.map((item: any) => ({
+            U_tl_nozzlecode: item.U_tl_nozzlecode,
+            U_tl_itemcode: item.U_tl_itemcode,
+            U_tl_itemname: item.U_tl_itemname,
+            U_tl_uom: item.U_tl_uom,
+            U_tl_nmeter: item.U_tl_nmeter,
+            // U_tl_upd_meter: item.U_tl_ometer,
+            U_tl_ometer: item.U_tl_upd_meter,
+            U_tl_cmeter: item.U_tl_cmeter,
+            U_tl_cardallow: item.U_tl_cardallow,
+            U_tl_cashallow: item.U_tl_cashallow,
+            U_tl_ownallow: item.U_tl_ownallow,
+            U_tl_partallow: item.U_tl_partallow,
+            U_tl_pumpallow: item.U_tl_pumpallow,
+            U_tl_stockallow: item.U_tl_stockallow,
+            U_tl_totalallow: item.U_tl_totalallow,
+          })),
         //Stock Allocation Collection
-        TL_RETAILSALE_STACollection: data?.TL_RETAILSALE_STACollection,
+        TL_RETAILSALE_STACollection: data?.stockAllocationData,
         //  incoming payment
         TL_RETAILSALE_INCCollection: data?.TL_RETAILSALE_INCCollection,
       };
 
       if (id) {
-        return await request("PATCH", `/TL_RetailSale('${id}')`, payload)
+        return await request("PATCH", `/TL_RetailSale(${id})`, payload)
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )

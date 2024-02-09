@@ -158,19 +158,20 @@ class SalesOrderForm extends CoreFormDocument {
                   }
                 });
                 item.ItemPrices === apiResponse.ItemPrices;
+
                 return {
                   ItemCode: item.ItemCode || null,
                   ItemName: item.ItemDescription || item.Name || null,
                   Quantity: item.Quantity || null,
-                  UnitPrice: item.UnitPrice || item.total,
+                  UnitPrice:
+                    item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                   Discount: item.DiscountPercent || 0,
-                  VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,
                   TotalGross: item.GrossTotal,
                   TotalUnit: item.LineTotal,
                   LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
-                  TaxCode: item.VatGroup || item.taxCode || null,
+                  VatGroup: item.VatGroup ,
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
                   UomAbsEntry: item?.UoMEntry,
@@ -684,7 +685,8 @@ const getItem = (
       Quantity: item.Quantity || null,
       GrossPrice: item.GrossPrice || item.total,
       DiscountPercent: item.DiscountPercent || 0,
-      TaxCode: item.VatGroup || item.taxCode || null,
+      // TaxCode: item.VatGroup || item.taxCode || null,
+      VatGroup : item.VatGrup ,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       UomAbsEntry: item.UomAbsEntry,
