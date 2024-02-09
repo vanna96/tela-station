@@ -41,7 +41,6 @@ export default function ContentForm({
   const vendorPriceList = data.U_tl_sopricelist;
   const wh = data.U_tl_whsdesc;
   const lineofbusiness = data.U_tl_arbusi;
-  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -339,34 +338,7 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            // <MUITextField
-            //   disabled={cell.row.original.ItemCode === ""}
-            //   type="number"
-            //   placeholder={data.Currency === 'USD' ? "0.000" : "0"}
-            //   startAdornment={"%"}
-            //   value={cell.getValue()}
-            //   onChange={(event: any) => {
-            //     if (!(event.target.value <= 100 && event.target.value >= 0)) {
-            //       event.target.value = 0;
-            //     }
-            //     handlerUpdateRow(
-            //       cell.row.id,
-            //       ["DiscountPercent", event.target.value ],
-            //       "DiscountPercent"
-            //     );
-            //     const quantity = cell.row.original.Quantity;
-            //     const totalGross =
-            //       cell.row.original.GrossPrice * quantity -
-            //       cell.row.original.GrossPrice *
-            //         quantity *
-            //         (cell.row.original.DiscountPercent / 100);
-            //     handlerUpdateRow(
-            //       cell.row.id,
-            //       ["LineTotal", totalGross],
-            //       "LineTotal"
-            //     );
-            //   }}
-            // />
+          
             <NumericFormat
               disabled={cell.row.original.ItemCode === ""}
               className="bg-white w-full"

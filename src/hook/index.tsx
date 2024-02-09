@@ -12,12 +12,9 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity,
-        item.TaxCode === "VO00" ?item.GrossPrice : item.UnitPrice ,
+        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
         item.DiscountPercent
       );
-      console.log(item.UnitPrice);
-      console.log(item.GrossPrice);
-      console.log(item.TaxCode);
       return prevTotal + lineTotal;
     }, 0);
 
@@ -27,9 +24,24 @@ export const useDocumentTotalHook = (
   const docDiscountAmount = (discount / 100) * docTotal;
 
   // Include docDiscountAmount in the dependency array
+  // const docTaxTotal: number = React.useMemo(() => {
+  //   return (docTotal - docDiscountAmount) / 10;
+  // }, [docTotal, docDiscountAmount]);
+
   const docTaxTotal: number = React.useMemo(() => {
-    return (docTotal - docDiscountAmount) / 10;
-  }, [docTotal, docDiscountAmount]);
+    const totalTax = items.reduce((prevTax, item) => {
+      const lineTotal = formular.findLineTotal(
+        item.Quantity,
+        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        item.DiscountPercent
+      );
+      const TaxRate = item.VatGroup === "VO00" ? 0 : 10;
+      const lineTax = (lineTotal * TaxRate) / 100;
+      return prevTax + lineTax;
+    }, 0);
+
+    return formatNumberWithoutRounding(totalTax, 6);
+  }, [items]);
 
   const grossTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
@@ -39,6 +51,7 @@ export const useDocumentTotalHook = (
         item.DiscountPercent
       );
 
+      console.log(lineTotal);
       return prevTotal + lineTotal;
     }, 0);
 

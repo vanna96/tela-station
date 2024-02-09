@@ -81,7 +81,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       field.includes("UnitPrice") ||
       field.includes("GrossPrice") ||
       field.includes("DiscountPercent") ||
-      field.includes("TaxCode")
+      field.includes("VatGroup")
     ) {
       let total =
         parseFloat(temps["Quantity"] ?? 1) *
@@ -98,13 +98,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
       temps["LineTotal"] = totalGross;
     }
-    // if (field === "TaxCode") {
-    //   temps["TaxCode"] = event.target.value;
-    //   console.log(temps["TaxCode"]);
-    //   temps["TaxCode"] === "VO00"
-    //     ? (temps["UnitPrice"] = temps["GrossPrice"])
-    //     : 0;
-    // }
+
     if (field === "Quantity" || "UomAbsEntry") {
       const qty = temps["Quantity"];
       const Entry = temps["UomAbsEntry"];
@@ -133,7 +127,6 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     this.setState({ ...temps });
   }
   render() {
-    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -212,9 +205,9 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Tax Code</div>
                 <div className="mb-1"></div>
                 <SaleVatSelect
-                  value={this.state?.TaxCode}
+                  value={this.state?.VatGroup}
                   onChange={(event) => {
-                    this.handChange(event, "TaxCode");
+                    this.handChange(event, "VatGroup");
                   }}
                 />
               </div>
