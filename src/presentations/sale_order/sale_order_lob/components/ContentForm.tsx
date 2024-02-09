@@ -177,7 +177,7 @@ export default function ContentForm({
         accessorKey: "Quantity",
         header: "Quantity",
         visible: true,
-       
+
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -185,7 +185,7 @@ export default function ContentForm({
               disabled={cell.row.original.ItemCode === ""}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
-              fixedDecimalScale
+              // fixedDecimalScale
               customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(event) => {
@@ -307,7 +307,7 @@ export default function ContentForm({
               key={"Price_" + cell.getValue()}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
-              fixedDecimalScale
+              // fixedDecimalScale
               customInput={MUIRightTextField}
               value={cell.getValue()}
               onBlur={(event) => {
@@ -347,7 +347,7 @@ export default function ContentForm({
               thousandSeparator
               startAdornment={"%"}
               decimalScale={data.Currency === "USD" ? 3 : 0}
-              fixedDecimalScale
+              // fixedDecimalScale
               placeholder={data.Currency === "USD" ? "0.000" : "0"}
               onChange={(event: any) => {
                 if (!(event.target.value <= 100 && event.target.value >= 0)) {
@@ -380,7 +380,7 @@ export default function ContentForm({
         accessorKey: "LineTotal",
         header: "Amount",
         visible: true,
-       
+
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -388,7 +388,7 @@ export default function ContentForm({
               key={"Amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 3 : 0}
-              fixedDecimalScale
+              // fixedDecimalScale
               customInput={MUIRightTextField}
               value={cell.getValue()}
               onChange={(event) => {

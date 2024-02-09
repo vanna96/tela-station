@@ -360,7 +360,7 @@ function Content(props: any) {
               thousandSeparator
               customInput={MUIRightTextField}
               decimalScale={data.Currency === "USD" ? 3 : 0}
-              fixedDecimalScale
+              // fixedDecimalScale
             />
           );
         },
@@ -383,9 +383,9 @@ function Content(props: any) {
             key={"GrossPrice" + cell.getValue()}
             thousandSeparator
             decimalScale={data.Currency === "USD" ? 4 : 0}
-            fixedDecimalScale
+            // fixedDecimalScale
             customInput={MUIRightTextField}
-            value={cell.getValue()}
+            value={cell.getValue() || 0}
           />
         ),
       },
@@ -418,7 +418,7 @@ function Content(props: any) {
             disabled
             customInput={MUIRightTextField}
             decimalScale={props.data.Currency === "USD" ? 3 : 0}
-            fixedDecimalScale
+            // fixedDecimalScale
           />
         ),
       },
@@ -469,7 +469,7 @@ function Content(props: any) {
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUIRightTextField}
@@ -511,7 +511,7 @@ function Content(props: any) {
                         value={discountAmount}
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                        fixedDecimalScale
+                        // fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUIRightTextField}
@@ -530,7 +530,7 @@ function Content(props: any) {
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUIRightTextField}
@@ -547,7 +547,7 @@ function Content(props: any) {
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUIRightTextField}

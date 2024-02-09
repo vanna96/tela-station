@@ -217,7 +217,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUIRightTextField}
@@ -236,7 +236,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         thousandSeparator
                         startAdornment={"%"}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                        fixedDecimalScale
+                        // fixedDecimalScale
                         placeholder={
                           props.data.Currency === "USD" ? "0.000" : "0"
                         }
@@ -266,7 +266,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                        fixedDecimalScale
+                        // fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUIRightTextField}
@@ -286,7 +286,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUIRightTextField}
@@ -303,7 +303,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
+                    // fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUIRightTextField}
