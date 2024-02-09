@@ -12,10 +12,12 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity,
-        item.UnitPrice,
-        item.DiscountPercent,
-        item.VatGroup === "VO10" ? "10" : "0"
+        item.TaxCode === "VO00" ?item.GrossPrice : item.UnitPrice ,
+        item.DiscountPercent
       );
+      console.log(item.UnitPrice);
+      console.log(item.GrossPrice);
+      console.log(item.TaxCode);
       return prevTotal + lineTotal;
     }, 0);
 
@@ -34,12 +36,9 @@ export const useDocumentTotalHook = (
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.GrossPrice,
-        item.DiscountPercent,
-        item.VatGroup === "VO10" ? "10" : "0"
+        item.DiscountPercent
       );
 
-      console.log(item.VatGroup === "VO10" ? "10" : "0");
-      console.log(lineTotal)
       return prevTotal + lineTotal;
     }, 0);
 

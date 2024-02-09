@@ -19,6 +19,7 @@ import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import SaleVatSelect from "@/components/input/VatGroupSelect";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -75,19 +76,12 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     const temps = { ...this.state };
     temps[field] = event.target.value;
 
-    if (field === "GrossPrice") {
-      const value = event.target.value;
-      temps["GrossPrice"] = value;
-      const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
-      const unitPrice = parseFloat(value) / (1 + vatRate / 100);
-      temps["GrossPrice"] = value;
-      temps["UnitPrice"] = unitPrice;
-    }
     if (
       field.includes("Quantity") ||
       field.includes("UnitPrice") ||
       field.includes("GrossPrice") ||
-      field.includes("DiscountPercent")
+      field.includes("DiscountPercent") ||
+      field.includes("TaxCode")
     ) {
       let total =
         parseFloat(temps["Quantity"] ?? 1) *
@@ -104,11 +98,13 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
       temps["LineTotal"] = totalGross;
     }
-
-    if (field === "VatGroup") {
-      temps["VatGroup"] = event.target.value.code;
-      temps["VatRate"] = event.target.value.vatRate ?? 10;
-    }
+    // if (field === "TaxCode") {
+    //   temps["TaxCode"] = event.target.value;
+    //   console.log(temps["TaxCode"]);
+    //   temps["TaxCode"] === "VO00"
+    //     ? (temps["UnitPrice"] = temps["GrossPrice"])
+    //     : 0;
+    // }
     if (field === "Quantity" || "UomAbsEntry") {
       const qty = temps["Quantity"];
       const Entry = temps["UomAbsEntry"];
@@ -137,6 +133,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     this.setState({ ...temps });
   }
   render() {
+    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -211,13 +208,16 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                   this.handChange(event, "DiscountPercent");
                 }}
               />
-              <VatGroupTextField
-                label="Tax Code"
-                status={"tNO"}
-                value={this.state?.VatGroup}
-                onChange={(event) => this.handChange(event, "VatGroup")}
-                type={"OutputTax"}
-              />
+              <div className="flex flex-col">
+                <div className="text-sm">Tax Code</div>
+                <div className="mb-1"></div>
+                <SaleVatSelect
+                  value={this.state?.TaxCode}
+                  onChange={(event) => {
+                    this.handChange(event, "TaxCode");
+                  }}
+                />
+              </div>
 
               {/* <input hidden value={this.state?.UnitPrice} /> */}
               <NumericFormat

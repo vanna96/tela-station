@@ -172,7 +172,7 @@ class SalesOrderForm extends CoreFormDocument {
                   TotalUnit: item.LineTotal,
                   LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
-                  TaxCode: item.VatGroup || item.taxCode || null,
+                  TaxCode: item.TaxCode ,
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
                   UomAbsEntry: item?.UoMEntry,
