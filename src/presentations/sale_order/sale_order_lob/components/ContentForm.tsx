@@ -306,6 +306,7 @@ export default function ContentForm({
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
+              inputProps={{ style: { textAlign: "right" } }}
               customInput={MUITextField}
               value={cell.getValue()}
               onBlur={(event) => {
@@ -338,7 +339,6 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-          
             <NumericFormat
               disabled={cell.row.original.ItemCode === ""}
               className="bg-white w-full"

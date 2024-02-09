@@ -51,7 +51,6 @@ export const useDocumentTotalHook = (
         item.DiscountPercent
       );
 
-      console.log(lineTotal);
       return prevTotal + lineTotal;
     }, 0);
 
