@@ -124,7 +124,7 @@ export default function Commercial({
                           <MUISelect
                             disabled={detail}
                             items={[
-                              { label: "License", value: "License" },
+                              { label: "Road Tax", value: "Road Tax" },
                               { label: "Check", value: "Check" },
                             ]}
                             onChange={(e: any) => {

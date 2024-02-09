@@ -266,6 +266,7 @@ export default function TRModal(props: any) {
   };
   const handleClose = React.useCallback(() => {
     props?.setOpen(false);
+    setRowSelection({})
   }, [props?.open]);
 
   const onSelectData = React.useCallback(async () => {
@@ -296,6 +297,7 @@ export default function TRModal(props: any) {
       props?.setValue("Document",res?.data?.value);
       setOpenLoading(false);
       props?.setOpen(false);
+      setRowSelection({})
     });
   }, [rowSelection]);
 
@@ -503,7 +505,7 @@ export default function TRModal(props: any) {
                 // border: "1px solid red",
               }}
               disableElevation
-              onClick={() => props?.setOpen(false)}
+              onClick={handleClose}
             >
               <span className="px-3 text-[11px] py-1 text-red-500">Cancel</span>
             </Button>
