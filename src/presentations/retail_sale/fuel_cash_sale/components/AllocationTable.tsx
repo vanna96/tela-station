@@ -1,11 +1,5 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import ContentComponent from "./ContentComponents";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
-import { MdOutlineClose } from "react-icons/md";
-import shortid from "shortid";
-import MUISelect from "@/components/selectbox/MUISelect";
-import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
@@ -15,14 +9,18 @@ interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
   edit?: boolean;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function AllocationTable({
   data,
   onChange,
   edit,
+  handlerChangeObject,
 }: AllocationTableProps) {
-  data.allocationData = data.nozzleData?.filter((e: any) => e.U_tl_nmeter > 0);
+  data.allocationData = data.nozzleData?.filter(
+    (e: any) => parseFloat(e.U_tl_nmeter) > 0
+  );
 
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.allocationData?.map((item: any, index: number) => {
@@ -33,10 +31,8 @@ export default function AllocationTable({
     if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-  console.log(data.allocationData);
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    console.log(res);
     return res;
   };
 
@@ -204,22 +200,29 @@ export default function AllocationTable({
       {
         accessorKey: "U_tl_totalallow",
         header: "Total (Litre)",
-        visible: true,
         Cell: ({ cell }: any) => {
+          const total =
+            parseFloat(cell.row.original?.U_tl_cardallow) +
+            parseFloat(cell.row.original?.U_tl_cashallow) +
+            parseFloat(cell.row.original?.U_tl_ownallow) +
+            parseFloat(cell.row.original?.U_tl_partallow) +
+            parseFloat(cell.row.original?.U_tl_pumpallow) +
+            parseFloat(cell.row.original?.U_tl_stockallow);
+
+          const isValid = total === parseFloat(cell.row.original.U_tl_nmeter);
           return (
             <NumericFormat
-              // className=""
-              key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
+              // readOnly
               fixedDecimalScale
               customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_totalallow: e.target.value,
-                })
-              }
+              value={total}
+              inputProps={{
+                style: {
+                  color: isValid ? "inherit" : "red",
+                },
+              }}
             />
           );
         },

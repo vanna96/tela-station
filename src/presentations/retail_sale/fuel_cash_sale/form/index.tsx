@@ -371,6 +371,9 @@ class Form extends CoreFormDocument {
                         this.handlerChange(key, value)
                       }
                       edit={this.props?.edit}
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                     />
                   )}
 
