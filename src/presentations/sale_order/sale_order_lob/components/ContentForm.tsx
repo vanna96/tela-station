@@ -11,6 +11,7 @@ import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { TbEdit } from "react-icons/tb";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -176,6 +177,7 @@ export default function ContentForm({
         accessorKey: "Quantity",
         header: "Quantity",
         visible: true,
+       
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -184,7 +186,7 @@ export default function ContentForm({
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(event) => {
                 const newValue = parseFloat(
@@ -306,8 +308,7 @@ export default function ContentForm({
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
               fixedDecimalScale
-              inputProps={{ style: { textAlign: "right" } }}
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               value={cell.getValue()}
               onBlur={(event) => {
                 const newValue = parseFloat(
@@ -369,7 +370,7 @@ export default function ContentForm({
                   "LineTotal"
                 );
               }}
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
             />
           );
         },
@@ -379,6 +380,7 @@ export default function ContentForm({
         accessorKey: "LineTotal",
         header: "Amount",
         visible: true,
+       
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -387,7 +389,7 @@ export default function ContentForm({
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 3 : 0}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               value={cell.getValue()}
               onChange={(event) => {
                 const newValue = parseFloat(

@@ -9,6 +9,7 @@ import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import { useDocumentTotalHook } from "@/hook";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 interface ContentComponentProps {
   items: any[];
@@ -219,7 +220,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     fixedDecimalScale
                     placeholder="0.00"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -250,7 +251,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           }
                           onChange("DiscountPercent", event.target.value);
                         }}
-                        customInput={MUITextField}
+                        customInput={MUIRightTextField}
                       />
                     </div>
                   </div>
@@ -268,7 +269,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         fixedDecimalScale
                         placeholder="0.00"
                         readonly
-                        customInput={MUITextField}
+                        customInput={MUIRightTextField}
                         disabled
                       />
                     </div>
@@ -288,7 +289,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     fixedDecimalScale
                     placeholder="0.00"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -305,7 +306,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     fixedDecimalScale
                     placeholder="0.00"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
