@@ -171,11 +171,7 @@ const ItemModal: FC<ItemModalProps> = ({
       )?.map((item: any) => item.UoMEntry);
       const unitPriceValue =
         defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ?? 0;
-      const unitPriceString = formatNumberWithoutRounding(
-        unitPriceValue,
-        6
-      ).toFixed(6);
-
+ 
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,
@@ -196,7 +192,7 @@ const ItemModal: FC<ItemModalProps> = ({
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
-        UnitPrice: unitPriceString,
+        UnitPrice: unitPriceValue,
         COGSCostingCode: e?.U_tl_dim1,
         COGSCostingCode2: U_ti_revenue,
         COGSCostingCode3: e?.U_tl_dim2,

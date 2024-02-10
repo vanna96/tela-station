@@ -41,10 +41,10 @@ class Form extends CoreFormDocument {
       ],
       checkNumberData: [
         {
-          check_no: "CheckNo.",
-          check_date: new Date(),
-          bank: "",
-          check_amount: 0,
+          U_tl_acccheck: "111122",
+          U_tl_checkdate: new Date(),
+          U_tl_checkbank: "",
+          U_tl_amtcheck: 0,
         },
       ],
     } as any;
