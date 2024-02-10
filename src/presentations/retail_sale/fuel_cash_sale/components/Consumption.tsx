@@ -6,6 +6,7 @@ import { Button } from "@mui/material";
 export interface ConsumptionProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
+  handlerChangeObject: (obj: any) => void;
   edit?: boolean;
 }
 
@@ -13,6 +14,7 @@ export default function Consumption({
   data,
   handlerChange,
   edit,
+  handlerChangeObject,
 }: ConsumptionProps) {
   const [showAllocationTable, setShowAllocationTable] = React.useState(false);
 
@@ -51,6 +53,7 @@ export default function Consumption({
             <div className="mb-6" />
             {showAllocationTable && (
               <AllocationTable
+                handlerChangeObject={handlerChangeObject}
                 data={data}
                 onChange={handlerChange}
                 edit={edit}

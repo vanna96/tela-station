@@ -5,31 +5,34 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
-interface AllocationTableProps {
+import FormCard from "@/components/card/FormCard";
+interface CardCountProps {
   data: any;
   onChange: (key: any, value: any) => void;
   edit?: boolean;
   handlerChangeObject: (obj: any) => void;
 }
 
-export default function AllocationTable({
+export default function CardCount({
   data,
   onChange,
   edit,
   handlerChangeObject,
-}: AllocationTableProps) {
-  data.allocationData = data.nozzleData?.filter(
+}: CardCountProps) {
+  data.cardCountData = data.nozzleData?.filter(
     (e: any) => parseFloat(e.U_tl_nmeter) > 0
   );
 
+  console.log(data.cardCountData);
+
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.allocationData?.map((item: any, index: number) => {
+    const newData = data.cardCountData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
     });
     if (newData.length <= 0) return;
-    onChange("allocationData", newData);
+    onChange("cardCountData", newData);
   };
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
@@ -61,13 +64,20 @@ export default function AllocationTable({
             return <span>Error fetching itemName</span>;
           }
 
-          return <MUITextField disabled value={itemName?.data?.ItemName} />;
+          return (
+            <MUITextField
+              disabled
+              value={
+                itemName?.data?.ItemName || cell.row.original?.U_tl_itemCode
+              }
+            />
+          );
         },
       },
 
       {
-        accessorKey: "U_tl_cashallow",
-        header: "Cash Sales (Litre)",
+        accessorKey: "U_tl_1l",
+        header: "1L",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -80,7 +90,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_cashallow: e.target.value,
+                  U_tl_1l: e.target.value,
                 })
               }
             />
@@ -88,8 +98,8 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_partallow",
-        header: "Partnership (Litre)",
+        accessorKey: "U_tl_2l",
+        header: "2L",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -102,7 +112,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_partallow: e.target.value,
+                  U_tl_2l: e.target.value,
                 })
               }
             />
@@ -110,8 +120,8 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_stockallow",
-        header: "Stock Transfer (Liter)",
+        accessorKey: "U_tl_5l",
+        header: "5L",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -124,7 +134,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_stockallow: e.target.value,
+                  U_tl_5l: e.target.value,
                 })
               }
             />
@@ -132,8 +142,8 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_ownallow",
-        header: "Own Usage (Litre)",
+        accessorKey: "U_tl_10l",
+        header: "10L",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -146,7 +156,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_ownallow: e.target.value,
+                  U_tl_10l: e.target.value,
                 })
               }
             />
@@ -154,8 +164,8 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_cardallow",
-        header: "Tela Card (Litre)",
+        accessorKey: "U_tl_20l",
+        header: "20L",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -168,16 +178,17 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_cardallow: e.target.value,
+                  U_tl_20l: e.target.value,
                 })
               }
             />
           );
         },
       },
+
       {
-        accessorKey: "U_tl_pumpallow",
-        header: "Pump Test (Litre)",
+        accessorKey: "U_tl_50l",
+        header: "50L",
         visible: true,
         Cell: ({ cell }: any) => {
           return (
@@ -190,7 +201,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_pumpallow: e.target.value,
+                  U_tl_50l: e.target.value,
                 })
               }
             />
@@ -198,18 +209,20 @@ export default function AllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_totalallow",
+        accessorKey: "total",
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original?.U_tl_cardallow) +
-            parseFloat(cell.row.original?.U_tl_cashallow) +
-            parseFloat(cell.row.original?.U_tl_ownallow) +
-            parseFloat(cell.row.original?.U_tl_partallow) +
-            parseFloat(cell.row.original?.U_tl_pumpallow) +
-            parseFloat(cell.row.original?.U_tl_stockallow);
+            parseFloat(cell.row.original?.U_tl_1l) +
+            parseFloat(cell.row.original?.U_tl_2l) +
+            parseFloat(cell.row.original?.U_tl_5l) +
+            parseFloat(cell.row.original?.U_tl_10l) +
+            parseFloat(cell.row.original?.U_tl_20l) +
+            parseFloat(cell.row.original?.U_tl_50l);
 
           const isValid = total === parseFloat(cell.row.original.U_tl_nmeter);
+          console.log(parseFloat(cell.row.original.U_tl_nmeter));
+          console.log(total);
           return (
             <NumericFormat
               thousandSeparator
@@ -228,45 +241,45 @@ export default function AllocationTable({
         },
       },
     ],
-    [data.allocationData]
+    [data.cardCountData]
   );
 
   return (
     <>
-      <div
-        className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
-       overflow-hidden transition-height duration-300 `}
-      >
-        <div className=" data-table">
-          <MaterialReactTable
-            columns={[...itemColumns]}
-            data={data.allocationData}
-            enableStickyHeader={true}
-            enableColumnActions={false}
-            enableColumnFilters={false}
-            enablePagination={false}
-            enableSorting={false}
-            enableTopToolbar={false}
-            enableColumnResizing={true}
-            enableColumnFilterModes={false}
-            enableDensityToggle={false}
-            enableFilters={false}
-            enableFullScreenToggle={false}
-            enableGlobalFilter={false}
-            enableHiding={true}
-            enablePinning={true}
-            enableStickyFooter={false}
-            enableMultiRowSelection={true}
-            muiTableBodyRowProps={() => ({
-              sx: { cursor: "pointer" },
-            })}
-            initialState={{
-              density: "compact",
-            }}
-            enableTableFooter={false}
-          />
-        </div>
-      </div>
+      <FormCard title="Card Count ">
+        <>
+          <div className="col-span-2 data-table">
+            <MaterialReactTable
+              columns={[...itemColumns]}
+              data={[...data.cardCountData]}
+              enableStickyHeader={true}
+              enableColumnActions={false}
+              enableColumnFilters={false}
+              enablePagination={false}
+              enableSorting={false}
+              enableTopToolbar={false}
+              enableColumnResizing={true}
+              enableColumnFilterModes={false}
+              enableDensityToggle={false}
+              enableFilters={false}
+              enableFullScreenToggle={false}
+              enableGlobalFilter={false}
+              enableHiding={true}
+              enablePinning={true}
+              enableStickyFooter={false}
+              enableMultiRowSelection={true}
+              initialState={{
+                density: "compact",
+              }}
+              state={{}}
+              muiTableBodyRowProps={() => ({
+                sx: { cursor: "pointer" },
+              })}
+              enableTableFooter={false}
+            />
+          </div>
+        </>
+      </FormCard>
     </>
   );
 }
