@@ -5,9 +5,6 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import React, { useContext } from "react";
-
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import BusinessPartner from "@/models/BusinessParter";
@@ -18,6 +15,8 @@ import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -51,7 +50,7 @@ class Form extends CoreFormDocument {
         {
           U_tl_acccoupon: "11233",
           U_tl_amtcoupon: 0,
-          U_tl_couponcurr: "USD"
+          U_tl_couponcurr: "USD",
           // U_tl_totalusd: 0,
           // U_tl_totalkhr: 0,
           // U_tl_over: 0,
@@ -314,7 +313,7 @@ class Form extends CoreFormDocument {
                 disabled={this.state.tapIndex === 0}
                 style={{ textTransform: "none" }}
               >
-                Previous
+                <NavigateBeforeIcon />
               </Button>
             </div>
             <div className="flex items-center">
@@ -325,7 +324,7 @@ class Form extends CoreFormDocument {
                 disabled={this.state.tapIndex === 4}
                 style={{ textTransform: "none" }}
               >
-                Next
+                <NavigateNextIcon />
               </Button>
 
               <Snackbar

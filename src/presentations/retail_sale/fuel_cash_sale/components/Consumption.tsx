@@ -24,8 +24,8 @@ export default function Consumption({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 md:px-6 xl:px-8 h-screen">
-        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Nozzle Data</h2>{" "}
         </div>
         <NozzleData data={data} onChange={handlerChange} edit={edit} />
@@ -34,7 +34,12 @@ export default function Consumption({
           <h2>Allocation</h2>{" "}
         </div>
         {edit ? (
-          <AllocationTable data={data} onChange={handlerChange} edit={edit}  handlerChangeObject={handlerChangeObject}/>
+          <AllocationTable
+            data={data}
+            onChange={handlerChange}
+            edit={edit}
+            handlerChangeObject={handlerChangeObject}
+          />
         ) : (
           <div>
             <Button

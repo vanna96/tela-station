@@ -15,6 +15,7 @@ import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete"
 import MUITextField from "@/components/input/MUITextField";
 import CurrencySelect from "@/components/selectbox/Currency";
 import CouponTable from "./CouponTable";
+import { NumericFormat } from "react-number-format";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -37,8 +38,8 @@ export default function IncomingPaymentForm({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 md:px-6 xl:px-8 h-screen">
-        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Cash Sale</h2>{" "}
         </div>
         <CashBankTable data={data} onChange={handlerChange} />
@@ -46,37 +47,32 @@ export default function IncomingPaymentForm({
 
         <CouponTable data={data} onChange={handlerChange} />
 
-        {/* <h1 className="mt-8"> Coupon Account Name</h1>
-        <div className="grid grid-cols-4 gap-4 mt-4">
-          <AccountCodeAutoComplete
-            onChange={(e: any) => handlerChange("GLCash", e)}
-            value={data?.GLCash}
-            disabled={data?.edit}
-          />
-          <CurrencySelect value={"USD"} />
-          <TextField size="small" label="" className="text-field w-full" />
-          <TextField
-            size="small"
-            placeholder="0.00"
-            className="text-field w-full"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-2 gap-4 ">
           <div className="grid grid-cols-12">
-            <div className="col-span-4">
-              <h1 className="text-sm">Over / Shortage</h1>
-            </div>
+            <div className="col-span-4 col-start-1">Over / Shortage</div>
             <div className="col-span-7 col-start-5">
-              <TextField size="small" className="text-field w-full" />
+              <NumericFormat
+                key={"OverShortage"}
+                thousandSeparator
+                placeholder="0.000"
+                decimalScale={2}
+                fixedDecimalScale
+                customInput={MUITextField}
+                defaultValue={data.OverShortage}
+              />
             </div>
           </div>
           <div className="grid grid-cols-12">
             <div className="col-span-4 col-start-2">Total /KHR</div>
             <div className=" col-span-7 col-start-6 ">
-              <TextField
-                size="small"
-                placeholder="0.00"
-                className="text-field w-full"
+              <NumericFormat
+                key={"total"}
+                thousandSeparator
+                placeholder="0.000"
+                decimalScale={2}
+                fixedDecimalScale
+                customInput={MUITextField}
+                defaultValue={data.TotalKHR}
               />
             </div>
           </div>
@@ -87,14 +83,18 @@ export default function IncomingPaymentForm({
           <div className="grid grid-cols-12">
             <div className="col-span-4 col-start-2">Total /USD</div>
             <div className=" col-span-7 col-start-6 ">
-              <TextField
-                size="small"
-                placeholder="0.00"
-                className="text-field w-full"
+              <NumericFormat
+                key={"totalUSD"}
+                thousandSeparator
+                placeholder="0.000"
+                decimalScale={2}
+                fixedDecimalScale
+                customInput={MUITextField}
+                defaultValue={data.TotalUSD}
               />
             </div>
           </div>
-        </div> */}
+        </div>
       </div>
     </>
   );

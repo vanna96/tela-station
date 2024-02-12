@@ -5,6 +5,8 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
+import { commaFormatNum } from "@/utilies/formatNumber";
+
 interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -19,7 +21,7 @@ export default function AllocationTable({
   handlerChangeObject,
 }: AllocationTableProps) {
   data.allocationData = data.nozzleData?.filter(
-    (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    (e: any) => commaFormatNum(e.U_tl_nmeter) > 0
   );
 
   const handlerChangeItem = (key: number, obj: any) => {
@@ -74,6 +76,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -96,6 +99,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -118,6 +122,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -140,6 +145,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -162,6 +168,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -184,6 +191,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -202,19 +210,22 @@ export default function AllocationTable({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original?.U_tl_cardallow) +
-            parseFloat(cell.row.original?.U_tl_cashallow) +
-            parseFloat(cell.row.original?.U_tl_ownallow) +
-            parseFloat(cell.row.original?.U_tl_partallow) +
-            parseFloat(cell.row.original?.U_tl_pumpallow) +
-            parseFloat(cell.row.original?.U_tl_stockallow);
+            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
 
-          const isValid = total === parseFloat(cell.row.original.U_tl_nmeter);
+          const isValid =
+            total === commaFormatNum(cell.row.original?.U_tl_nmeter);
+          console.log(total);
+          console.log(commaFormatNum(cell.row.original?.U_tl_nmeter));
           return (
             <NumericFormat
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
-              // readOnly
               fixedDecimalScale
               customInput={MUITextField}
               value={total}

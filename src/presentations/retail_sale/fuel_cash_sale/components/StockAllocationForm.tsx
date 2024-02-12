@@ -226,6 +226,7 @@ export default function StockAllocationTable({
               key={"U_tl_qtycon" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
+              placeholder="0.000"
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}

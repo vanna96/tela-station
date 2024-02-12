@@ -168,8 +168,9 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
+              placeholder="0.000"
               customInput={MUITextField}
-              defaultValue={cell.getValue() ?? 0}
+              defaultValue={cell.getValue() === 0 ? "" : cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_nmeter: e.target.value,
