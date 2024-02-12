@@ -1,19 +1,48 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useForm } from "react-hook-form";
+import {
+  FieldValues,
+  UseFormRegister,
+  UseFormSetValue,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
+import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import request from "@/utilies/request";
+import { withRouter } from "@/routes/withRouter";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
+import General from "../components/General";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
+import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
-import General from "../components/General";
-import { useParams } from "react-router-dom";
 import ManagerRepository from "@/services/actions/ManagerRepository";
+import EmployeeRepository from "@/services/actions/employeeRepository";
+import Document from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
+import request from "@/utilies/request";
+import { log } from "util";
+import { useParams } from "react-router-dom";
 let dialog = React.createRef<FormMessageModal>();
-
+export type UseFormProps = {
+  register: UseFormRegister<FieldValues>;
+  setValue: UseFormSetValue<FieldValues>;
+  control?: any;
+  defaultValues?:
+    | Readonly<{
+        [x: string]: any;
+      }>
+    | undefined;
+  setBranchAss?: any;
+  branchAss?: any;
+  emp?: any;
+  header?: any;
+  setHeader?: any;
+  detail?: boolean;
+  data?: any;
+  serie?: any;
+};
 // const { id } = useParams();
 const TransportationRequestDetail = (props: any) => {
   const {
@@ -22,10 +51,11 @@ const TransportationRequestDetail = (props: any) => {
     setValue,
     control,
     reset,
-
+    getValues,
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = useParams();
+
+  const { id } = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -36,50 +66,50 @@ const TransportationRequestDetail = (props: any) => {
     DocNum: id,
   });
   const [header, setHeader] = useState({
-    code: null,
-    name: null,
-    number: null,
-    model: null,
-    owner: null,
-    base: null,
-    status: "tYES",
+    firstName: null,
+    lastName: null,
+    gender: null,
+    branch: null,
+    status: "O",
   });
 
-  const [requestS, setRequestS] = React.useState<any>([]);
-
-  const collecttions = requestS?.TL_TR_ROWCollection;
+  const [branchAss, setBranchAss] = useState([]);
+  const [requestS, setRequest] = React.useState<any>();
   const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
-  const [collection, setCollection] = useState<any[]>(collecttions ?? []);
+  const [collection, setCollection] = useState<any[]>([]);
 
-  React.useEffect(() => {
-    if (requestS) {
-      reset({ ...requestS });
-      setCollection(collecttions);
-    }
-  }, [requestS, collecttions]);
+  const {
+    fields: document,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control,
+    name: "TL_TR_ROWCollection", // name of the array field
+  });
+
   useEffect(() => {
     fetchData();
   }, []);
-  console.log(requestS);
 
   const fetchData = async () => {
-    let seriesList: any = props?.query?.find("tr-series");
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "TL_TR",
-      });
-      props?.query?.set("tr-series", seriesList);
-    }
-    setSerie(seriesList);
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-      await request("GET", `TL_TR(${id})`)
+          let seriesList: any = props?.query?.find("tr-series");
+          if (!seriesList) {
+            seriesList = await DocumentSerieRepository.getDocumentSeries({
+              Document: "TL_TR",
+            });
+            props?.query?.set("tr-series", seriesList);
+          }
+          setSerie(seriesList);
+      await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
-          setRequestS(res?.data);
+          setBranchAss(res?.data);
+          setRequest(res?.data);
           setState({
             ...state,
             loading: false,
@@ -88,6 +118,38 @@ const TransportationRequestDetail = (props: any) => {
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
         );
+    }
+  };
+
+  const onSubmit = async (e: any) => {
+    const payload = {
+      ...e,
+    };
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request(
+          "PATCH",
+          `/script/test/transportation_request(${id})`,
+          payload
+        )
+          .then((res: any) =>
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/script/test/transportation_request", payload)
+          .then((res: any) =>
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
     }
   };
 
@@ -100,7 +162,13 @@ const TransportationRequestDetail = (props: any) => {
     },
     [state]
   );
-
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
+  };
   const HeaderTaps = () => {
     return (
       <>
@@ -116,9 +184,16 @@ const TransportationRequestDetail = (props: any) => {
         >
           Document
         </MenuButton>
+        {/* ... Other menu buttons ... */}
       </>
     );
   };
+
+  React.useEffect(() => {
+    if (requestS) {
+      reset({ ...requestS });
+    }
+  }, [requestS]);
 
   const Left = ({ header, data }: any) => {
     const branchAss: any = useQuery({
@@ -132,60 +207,65 @@ const TransportationRequestDetail = (props: any) => {
       staleTime: Infinity,
     });
     return (
-      <div className="w-[100%] mt-0 pl-[25px] h-[100px] flex py-5 px-4">
-        <div className="w-[40%] text-[15px] text-gray-500 flex flex-col h-full">
+      <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
+        <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
             <span className="">Requester</span>
           </div>
-          <div className="mt-4">Branch</div>
-        </div>
-        <div className="w-[60%] text-[15px] flex flex-col h-full">
-          <div className="">
-            {`${
-              emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
-                ?.FirstName ||
-              emp?.data?.find((e: any) => e?.EmployeeID === header?.U_Requester)
-                ?.FirstName ||
-              "_"
-            } ${
-              emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
-                ?.LastName ||
-              emp?.data?.find((e: any) => e?.EmployeeID === header?.U_Requester)
-                ?.LastName ||
-              "_"
-            }`}
+          <div>
+            <span className="mt-10">Branch</span>
           </div>
-          <div className="mt-4">
-            {branchAss?.data?.find((e: any) => e?.BPLID === data?.U_Branch)
-              ?.BPLName ||
-              header?.U_Branch ||
-              "_"}
+        </div>
+        <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
+          <div>
+            <span className="mb-[27px] inline-block">
+              {`${
+                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
+                  ?.FirstName ||
+                emp?.data?.find(
+                  (e: any) => e?.EmployeeID === header?.U_Requester
+                )?.FirstName ||
+                "_"
+              } ${
+                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
+                  ?.LastName ||
+                emp?.data?.find(
+                  (e: any) => e?.EmployeeID === header?.U_Requester
+                )?.LastName ||
+                "_"
+              }`}
+            </span>
+          </div>
+          <div>
+            <span>
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.U_Branch)
+                ?.BPLName ||
+                header?.U_Branch ||
+                branchAss?.data?.find((e: any) => e?.BPLID === header?.U_Branch)
+                  ?.BPLName ||
+                "_"}
+            </span>
           </div>
         </div>
       </div>
     );
   };
   const Right = ({ header, data }: any) => {
-    const branchAss: any = useQuery({
-      queryKey: ["branchAss"],
-      queryFn: () => new BranchBPLRepository().get(),
-      staleTime: Infinity,
-    });
     return (
-      <div className="w-[100%] h-[165px] mt-0 flex py-5 px-4">
+      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[20px] inline-block">Terminal</span>
+            <span className="mr-10 mb-[27px] inline-block">Terminal</span>
           </div>
           <div>
-            <span className="mr-10 mb-[20px] inline-block">Base Station</span>
+            <span className="mr-10">Status</span>
           </div>
         </div>
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
-          <div className="mb-[20px] inline-block">
+          <div>
             <span>{data?.U_Terminal || header?.base || "_"}</span>
           </div>
-          <div>
+          <div className="mt-7">
             <span>
               {data?.Status || header?.status == "O"
                 ? "Active"
@@ -196,7 +276,6 @@ const TransportationRequestDetail = (props: any) => {
       </div>
     );
   };
-  console.log(defaultValues);
 
   return (
     <>
@@ -233,21 +312,81 @@ const TransportationRequestDetail = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
                 <General
+                  data={state}
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  setBranchAss={setBranchAss}
+                  branchAss={branchAss}
+                  emp={emp}
                   header={header}
                   setHeader={setHeader}
-                  detail={props?.detail}
-                  serie={serie}
+                    serie={serie}
+                    detail={props?.detail}
                 />
               </h1>
             )}
+            {state.tapIndex === 1 && (
+              <div className="m-5">
+                <Document
+                  register={register}
+                  collection={collection}
+                  control={control}
+                  setCollection={setCollection}
+                  data={requestS}
+                  document={document}
+                  setValue={setValue}
+                  appendDocument={appendDocument}
+                  removeDocument={removeDocument}
+                    getValues={getValues}
+                    detail={props?.detail}
+                />
+              </div>
+            )}
+            <div className="absolute w-full bottom-4  mt-2 ">
+              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                <div className="flex ">
+                  <LoadingButton
+                    size="small"
+                    sx={{ height: "25px" }}
+                    variant="outlined"
+                    style={{
+                      background: "white",
+                      border: "1px solid red",
+                    }}
+                    disableElevation
+                    onClick={() =>
+                      (window.location.href = "/master-data/pump-attendant")
+                    }
+                  >
+                    <span className="px-3 text-[11px] py-1 text-red-500">
+                      Cancel
+                    </span>
+                  </LoadingButton>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <LoadingButton
+                    type="submit"
+                    sx={{ height: "25px" }}
+                    className="bg-white"
+                    loading={state.isSubmitting}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      {props.edit ? "Update" : "Save"}
+                    </span>
+                  </LoadingButton>
+                </div>
+              </div>
+            </div>
           </form>
         </>
       )}
