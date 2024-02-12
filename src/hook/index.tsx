@@ -13,7 +13,7 @@ export const useDocumentTotalHook = (
       const lineTotal = formular.findLineTotal(
         item.Quantity,
         item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
-        item.DiscountPercent
+        item.DiscountPercent === '' ? 0 : item.DiscountPercent
       );
       return prevTotal + lineTotal;
     }, 0);
