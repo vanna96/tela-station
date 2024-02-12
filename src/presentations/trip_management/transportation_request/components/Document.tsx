@@ -163,7 +163,7 @@ export default function Document({
                   Delivery Date <span className="text-red-500 ml-1">*</span>
                 </th>
                 <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Quantity{" "}
+                  Quantity <span className="text-red-500 ml-1">*</span>
                 </th>
                 <th
                   className={`w-[90px] text-center font-normal py-2 text-[14px] text-gray-500 ${detail && "hidden"}`}
@@ -233,8 +233,7 @@ export default function Document({
                             placeholder="Ship To"
                             inputProps={{
                               ...register(
-                                `TL_TR_ROWCollection.${index}.U_ShipToCode`,
-                                { require: "Ship To is required" }
+                                `TL_TR_ROWCollection.${index}.U_ShipToCode`
                               ),
                             }}
                             defaultValue={e?.U_ShipToCode}
@@ -249,7 +248,8 @@ export default function Document({
                             placeholder="Ship To"
                             inputProps={{
                               ...register(
-                                `TL_TR_ROWCollection.${index}.U_ShipToCode`
+                                `TL_TR_ROWCollection.${index}.U_ShipToCode`,
+                                { require: "Ship To is required" }
                               ),
                             }}
                             defaultValue={e?.U_ShipToCode}
@@ -276,7 +276,10 @@ export default function Document({
                           />
                         ) : (
                           <Controller
-                            name="U_DeliveryDate"
+                            rules={{
+                              required: "Delivery Date is required",
+                            }}
+                            name={`TL_TR_ROWCollection.${index}.U_DeliveryDate`}
                             control={control}
                             render={({ field }) => {
                               return (
@@ -293,10 +296,9 @@ export default function Document({
                                         `TL_TR_ROWCollection.${index}.U_DeliveryDate`,
                                         `${val == "" ? "" : val}`
                                       );
-                                      setSS({ ...sS, deliver: val });
                                     }
                                   }}
-                                  value={sS?.deliver || e?.U_DeliveryDate}
+                                  value={e?.U_DeliveryDate}
                                 />
                               );
                             }}
@@ -361,10 +363,10 @@ export default function Document({
                               />
                             ) : (
                               <Controller
-                                // rules={{
-                                //   required: "Delivery Date is required",
-                                // }}
-                                name="U_DeliveryDate"
+                                rules={{
+                                  required: "Delivery Date is required",
+                                }}
+                                name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`}
                                 control={control}
                                 render={({ field }) => {
                                   return (
@@ -381,12 +383,9 @@ export default function Document({
                                             `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`,
                                             `${val == "" ? "" : val}`
                                           );
-                                          setSS({ ...sS, deliverC: val });
                                         }
                                       }}
-                                      value={
-                                        sS?.deliverC || child?.U_DeliveryDate
-                                      }
+                                      value={child?.U_DeliveryDate}
                                     />
                                   );
                                 }}

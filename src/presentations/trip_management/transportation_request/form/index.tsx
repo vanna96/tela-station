@@ -55,7 +55,7 @@ const Form = (props: any) => {
     formState: { errors, defaultValues },
   } = useForm();
 
-const {id}=useParams()
+  const { id } = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -78,36 +78,34 @@ const {id}=useParams()
   const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
   const [collection, setCollection] = useState<any[]>([]);
-    
-  const {
-      fields: document,
-      append: appendDocument,
-      remove: removeDocument,
-    } = useFieldArray({
-      control,
-      name: "TL_TR_ROWCollection", // name of the array field
-    });
 
+  const {
+    fields: document,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control,
+    name: "TL_TR_ROWCollection", // name of the array field
+  });
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
- 
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-         let seriesList: any = props?.query?.find("tr-series");
-         if (!seriesList) {
-           seriesList = await DocumentSerieRepository.getDocumentSeries({
-             Document: "TL_TR",
-           });
-           props?.query?.set("tr-series", seriesList);
-         }
-         setSerie(seriesList);
+      let seriesList: any = props?.query?.find("tr-series");
+      if (!seriesList) {
+        seriesList = await DocumentSerieRepository.getDocumentSeries({
+          Document: "TL_TR",
+        });
+        props?.query?.set("tr-series", seriesList);
+      }
+      setSerie(seriesList);
       await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
@@ -126,33 +124,30 @@ const {id}=useParams()
   const onSubmit = async (e: any) => {
     const payload = {
       ...e,
-    }
-    
+    };
+
     try {
       setState({ ...state, isSubmitting: true });
-          let isExceedance = false;
+      const isValid = payload.TL_TR_ROWCollection.every((row: any) => {
+        if (row?.U_Children?.length === 0) return true;
 
-          payload.TL_TR_ROWCollection.forEach((parentItem: any) => {
-            let totalChildQuantity = 0;
+        const childs = row.U_Children?.reduce(
+          (prev: number, cur: any) => prev + Number(cur?.U_Quantity),
+          0
+        );
+        return Number(row.U_Quantity) === childs;
+      });
 
-            parentItem.U_Children.forEach((childItem: any) => {
-              totalChildQuantity += parseInt(childItem.U_Quantity);
-            });
+      console.log(isValid);
 
-            if (totalChildQuantity > parseInt(parentItem.U_Quantity)) {
-              isExceedance = true;
-              return;
-            }
-          });
-
-      if (isExceedance) {
-             dialog.current?.error(
-               `Oops Total quantity in children exceeds parent quantity` ??
-                 "Oops something wrong!",
-               "Invalid Value"
-             );
-            return;
-          }
+      if (!isValid) {
+        dialog.current?.error(
+          `Oops Total quantity in children exceeds parent quantity` ??
+            "Oops something wrong!",
+          "Invalid Value"
+        );
+        return;
+      }
       if (props.edit) {
         await request(
           "PATCH",
@@ -189,11 +184,23 @@ const {id}=useParams()
     [state]
   );
   const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
+       console.log(invalids);
+    let message;
+    ;
+
+    // for (const err of invalids[Object.keys(invalids)[0]]) {
+    //   if (!err) continue;
+
+    //   if (!err?.U_Children) {
+    //     message = invalids[Object.keys(invalids)[0]]?.message?.toString();
+    //   } else {
+    //     console.log(err);
+    //     const keys = Object.keys(err?.U_Children[0]);
+    //     message = err?.U_Children[0][keys[0]]?.message?.toString();
+    //   }
+    // }
+
+    dialog.current?.error(message ?? "Oop something wrong!", "Invalid Value");
   };
   const HeaderTaps = () => {
     return (
@@ -303,7 +310,6 @@ const {id}=useParams()
     );
   };
 
-
   return (
     <>
       {state.loading ? (
@@ -360,17 +366,17 @@ const {id}=useParams()
             )}
             {state.tapIndex === 1 && (
               <div className="m-5">
-                  <Document
-                    register={register}
+                <Document
+                  register={register}
                   collection={collection}
                   control={control}
                   setCollection={setCollection}
                   data={requestS}
-                    document={document}
-                    setValue={setValue}
-                    appendDocument={appendDocument}
-                    removeDocument={removeDocument}
-                    getValues={getValues}
+                  document={document}
+                  setValue={setValue}
+                  appendDocument={appendDocument}
+                  removeDocument={removeDocument}
+                  getValues={getValues}
                 />
               </div>
             )}
