@@ -22,6 +22,8 @@ import EmployeeRepository from "@/services/actions/employeeRepository";
 import Document from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
+import { log } from "util";
+import { useParams } from "react-router-dom";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -49,15 +51,11 @@ const Form = (props: any) => {
     setValue,
     control,
     reset,
+    getValues,
     formState: { errors, defaultValues },
   } = useForm();
 
-  // const { fields:, append, remove } = useFieldArray({
-  //   control,
-  //   name: "test"
-  // });
-  const { id }: any = props?.match?.params || 0;
-
+const {id}=useParams()
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -76,38 +74,41 @@ const Form = (props: any) => {
   });
 
   const [branchAss, setBranchAss] = useState([]);
-
   const [requestS, setRequest] = React.useState<any>();
-
-  const collecttions = requestS?.TL_TR_ROWCollection;
   const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
-  const [collection, setCollection] = useState<any[]>(collecttions ?? []);
-  React.useEffect(() => {
-    if (document && collecttions) {
-      reset({ ...document });
-      setCollection(collecttions);
-    }
-  }, [document, collecttions]);
+  const [collection, setCollection] = useState<any[]>([]);
+    
+  const {
+      fields: document,
+      append: appendDocument,
+      remove: removeDocument,
+    } = useFieldArray({
+      control,
+      name: "TL_TR_ROWCollection", // name of the array field
+    });
+
+
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
-    let seriesList: any = props?.query?.find("tr-series");
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "TL_TR",
-      });
-      props?.query?.set("tr-series", seriesList);
-    }
-    setSerie(seriesList);
+ 
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-      await request("GET", `TL_TR(${id})`)
+         let seriesList: any = props?.query?.find("tr-series");
+         if (!seriesList) {
+           seriesList = await DocumentSerieRepository.getDocumentSeries({
+             Document: "TL_TR",
+           });
+           props?.query?.set("tr-series", seriesList);
+         }
+         setSerie(seriesList);
+      await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
           setRequest(res?.data);
@@ -123,36 +124,48 @@ const Form = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-    const data: any = Object.fromEntries(
-      Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
-      )
-    );
     const payload = {
-      ...data,
-      TL_TR_ROWCollection: collection?.map((e: any) => {
-        return {
-          U_IssueDate: e?.U_IssueDate,
-          U_ExpiredDate: e?.U_ExpiredDate,
-          U_Type: e?.U_Type,
-          U_Name: e?.U_Name,
-          U_Fee: e?.U_Fee,
-          U_Ref: e?.U_Ref,
-        };
-      }),
-    };
-    const { id } = props?.match?.params || 0;
+      ...e,
+    }
+    
     try {
       setState({ ...state, isSubmitting: true });
+          let isExceedance = false;
+
+          payload.TL_TR_ROWCollection.forEach((parentItem: any) => {
+            let totalChildQuantity = 0;
+
+            parentItem.U_Children.forEach((childItem: any) => {
+              totalChildQuantity += parseInt(childItem.U_Quantity);
+            });
+
+            if (totalChildQuantity > parseInt(parentItem.U_Quantity)) {
+              isExceedance = true;
+              return;
+            }
+          });
+
+      if (isExceedance) {
+             dialog.current?.error(
+               `Oops Total quantity in children exceeds parent quantity` ??
+                 "Oops something wrong!",
+               "Invalid Value"
+             );
+            return;
+          }
       if (props.edit) {
-        await request("PATCH", `/TL_TR(${id})`, payload)
+        await request(
+          "PATCH",
+          `/script/test/transportation_request(${id})`,
+          payload
+        )
           .then((res: any) =>
             dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
-        await request("POST", "/TL_TR", payload)
+        await request("POST", "/script/test/transportation_request", payload)
           .then((res: any) =>
             dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
           )
@@ -290,7 +303,6 @@ const Form = (props: any) => {
     );
   };
 
-  // console.log(state)
 
   return (
     <>
@@ -348,12 +360,17 @@ const Form = (props: any) => {
             )}
             {state.tapIndex === 1 && (
               <div className="m-5">
-                <Document
+                  <Document
+                    register={register}
                   collection={collection}
                   control={control}
                   setCollection={setCollection}
                   data={requestS}
-  
+                    document={document}
+                    setValue={setValue}
+                    appendDocument={appendDocument}
+                    removeDocument={removeDocument}
+                    getValues={getValues}
                 />
               </div>
             )}
@@ -402,4 +419,4 @@ const Form = (props: any) => {
   );
 };
 
-export default withRouter(Form);
+export default Form;

@@ -45,7 +45,7 @@ export default function TRModal(props: any) {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/sml.svc/TL_TR_DOCS/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/sml.svc/TLTR_MDOCS/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -66,7 +66,7 @@ export default function TRModal(props: any) {
       pagination.pageSize,
     ],
     queryFn: async () => {
-      const Url = `${url}/sml.svc/TL_TR_DOCS?$top=${
+      const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
         filter ? `&$filter=${filter}` : filter
@@ -109,7 +109,7 @@ export default function TRModal(props: any) {
         },
       },
       {
-        accessorKey: "Type",
+        accessorKey: "U_Type",
         header: "Type", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -117,7 +117,7 @@ export default function TRModal(props: any) {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Type ?? "N/A";
+          return cell.row.original.U_Type ?? "N/A";
         },
       },
 
@@ -180,7 +180,9 @@ export default function TRModal(props: any) {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return (cell.row.original["Quantity"] ?? "N/A").toString() + ".0";
+          return (
+            (cell.row.original["TotalQuantity"] ?? "N/A").toString() + ".0"
+          );
         },
       },
     ],
@@ -261,6 +263,8 @@ export default function TRModal(props: any) {
     }, 500);
   };
   const handleClose = () => {
+    setRowSelection({});
+
     props?.setOpen(false);
   };
   const onSelectData = React.useCallback(async () => {
@@ -270,26 +274,30 @@ export default function TRModal(props: any) {
       if (!value) continue;
 
       const docNum = key.split("_")?.at(-1);
-      ids.push(`DocNum eq ${docNum}`);
+      ids.push(`U_DocNum eq ${docNum}`);
     }
-    let apendQuery = "";
-    switch (searchValues.Type) {
-      case "SO":
-        apendQuery += ` and Type eq 'SO'`;
-        break;
-      case "ITR":
-        apendQuery += ` and Type eq 'ITR'`;
-        break;
-      default:
-        break;
-    }
+    // let apendQuery = "";
+    // switch (searchValues.Type) {
+    //   case "SO":
+    //     apendQuery += ` and Type eq 'SO'`;
+    //     break;
+    //   case "ITR":
+    //     apendQuery += ` and Type eq 'ITR'`;
+    //     break;
+    //   default:
+    //     break;
+    // }
     await request(
       "get",
-      "/sml.svc/TL_TR_DOCS?" + `$filter=${ids.join(" or ")}${apendQuery}`
-    ).then((res:any) => {
-      props?.setDocument(res?.data?.value);
+      "/sml.svc/TLTR_LINEDOCS?" + `$filter=${ids.join(" or ")}`
+    ).then((res: any) => {
+      props?.setValue("TL_TR_ROWCollection", [
+        ...props?.document,
+        ...res?.data?.value,
+      ]);
+      setRowSelection({});
       setOpenLoading(false);
-      props?.setOpen(false)
+      props?.setOpen(false);
     });
   }, [rowSelection]);
 
