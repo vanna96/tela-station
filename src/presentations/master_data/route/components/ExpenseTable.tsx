@@ -96,7 +96,7 @@ export default function ExpenseTable(
       accessorKey: "U_Amount",
       header: (
         <>
-          Amount<span style={{ color: "red" }}>*</span>
+          Amount
         </>
       ),
       Cell: ({ cell }: any) => (
