@@ -1,46 +1,44 @@
 import React from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
+import { AiOutlineSetting } from "react-icons/ai";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { Button, IconButton } from "@mui/material";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BankSelect from "@/components/selectbox/bank";
 import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
-import BankAutoComplete from "@/components/input/BankAutoComplete";
-export default function CashBankTable(props: any) {
+export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerRemoveCheck = (key: number) => {
-    const newData = (data?.checkNumberData || []).filter(
+    const newData = (data?.couponData || []).filter(
       (item: any, index: number) => index !== key
     );
     if (newData.length < 1) return;
-    onChange("checkNumberData", newData);
+    onChange("couponData", newData);
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.checkNumberData?.map((item: any, index: number) => {
+    const newData = data?.couponData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
     });
     if (newData.length <= 0) return;
-    onChange("checkNumberData", newData);
+    onChange("couponData", newData);
   };
 
   const handlerAdd = () => {
     let firstData = [
-      ...data.checkNumberData,
+      ...data.couponData,
       {
-        U_tl_acccheck: "1101011",
-        U_tl_checkdate: new Date(),
-        U_tl_checkbank: "",
-        U_tl_amtcheck: 0,
+        U_tl_acccoupon: "11233",
+        U_tl_amtcoupon: 0,
+        U_tl_totalusd: 0,
+        U_tl_totalkhr: 0,
+        U_tl_over: 0,
       },
     ];
-    onChange("checkNumberData", firstData);
+    onChange("couponData", firstData);
   };
 
   const columns = [
@@ -52,7 +50,7 @@ export default function CashBankTable(props: any) {
       align: "center",
       header: "",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_acccheck) return null;
+        if (!cell.row.original?.U_tl_acccoupon) return null;
         return (
           <div className="flex justify-center items-center">
             <GridDeleteIcon
@@ -64,10 +62,10 @@ export default function CashBankTable(props: any) {
       },
     },
     {
-      accessorKey: "U_tl_acccheck",
-      header: "Type",
+      accessorKey: "U_tl_acccoupon",
+      header: "Coupon Account Name",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_acccheck)
+        if (!cell.row.original?.U_tl_acccoupon)
           return (
             <Button
               onClick={() => handlerAdd()}
@@ -84,75 +82,100 @@ export default function CashBankTable(props: any) {
           );
         return (
           <GLAccountAutoComplete
-            key={"U_tl_acccheck" + cell.getValue() + cell?.row?.id}
+            key={"U_tl_acccoupon" + cell.getValue() + cell?.row?.id}
             // type="number"
             disabled={data?.edit}
-            value={cell.row.original?.U_tl_acccheck || ""}
+            value={cell.row.original?.U_tl_acccoupon || ""}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_acccheck: e
+                U_tl_acccoupon: e,
               });
             }}
           />
         );
       },
     },
+
     {
-      accessorKey: "U_tl_checkdate",
-      header: "Check Date",
-      Cell: ({ cell }: any) => {
-       if (!cell.row.original.U_tl_acccheck) return null
-        return (
-          <MUIDatePicker
-            key={"U_tl_checkdate" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_checkdate || new Date()}
-            disabled={data?.edit}
-            onChange={(e: any) =>
-              handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_checkdate: e,
-              })
-            }
-          />
-        );
-      },
-    },
-    {
-      accessorKey: "U_tl_amtcheck",
+      accessorKey: "U_tl_amtcoupon",
       header: "Check Amount",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null
+        if (!cell.row.original.U_tl_acccoupon) return null;
         return (
           <FormattedInputs
-            key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
-            disabled={data?.edit}
-            defaultValue={cell.row.original?.U_tl_amtcheck || 0}
+            key={"U_tl_amtcoupon" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit} 
+            defaultValue={cell.row.original?.U_tl_amtcoupon || 0}
             onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_amtcheck: e.target.value,
+                U_tl_amtcoupon: e.target.value,
               });
             }}
-            name={"U_tl_amtcheck"}
-            value={cell.row.original?.U_tl_amtcheck || ""}
+            name={"U_tl_amtcoupon"}
+            value={cell.row.original?.U_tl_amtcoupon || ""}
           />
         );
       },
     },
     {
-      accessorKey: "U_tl_checkbank",
-      header: "Bank",
-
+      accessorKey: "U_tl_totalusd",
+      header: "Total /USD",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null
+        if (!cell.row.original.U_tl_acccoupon) return null;
         return (
-          <BankAutoComplete
-            key={"U_tl_checkbank" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_checkbank || ""}
+          <FormattedInputs
+            key={"U_tl_totalusd" + cell.getValue() + cell?.row?.id}
             disabled={data?.edit}
-            onChange={(e: any) => {
+            defaultValue={cell.row.original?.U_tl_totalusd || 0}
+            onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_checkbank: e
+                U_tl_totalusd: e.target.value,
               });
             }}
+            name={"U_tl_totalusd"}
+            value={cell.row.original?.U_tl_totalusd || ""}
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "U_tl_totalkhr",
+      header: "Total /KHR",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original.U_tl_acccoupon) return null;
+        return (
+          <FormattedInputs
+            key={"U_tl_totalkhr" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit}
+            defaultValue={cell.row.original?.U_tl_totalkhr || 0}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_tl_totalkhr: e.target.value,
+              });
+            }}
+            name={"U_tl_totalkhr"}
+            value={cell.row.original?.U_tl_totalkhr || ""}
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "U_tl_over",
+      header: "Over/Shortage",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original.U_tl_acccoupon) return null;
+        return (
+          <FormattedInputs
+            key={"U_tl_over" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit}
+            defaultValue={cell.row.original?.U_tl_over || 0}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_tl_over: e.target.value,
+              });
+            }}
+            name={"U_tl_over"}
+            value={cell.row.original?.U_tl_over || ""}
           />
         );
       },
@@ -163,7 +186,7 @@ export default function CashBankTable(props: any) {
     <div className="data-table">
       <MaterialReactTable
         columns={[...columns]}
-        data={[...data?.checkNumberData, { U_tl_acccheck: "" }]}
+        data={[...data?.couponData, { U_tl_acccoupon: "" }]}
         enableStickyHeader={false}
         enableColumnActions={false}
         enableColumnFilters={false}
