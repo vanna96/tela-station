@@ -3,6 +3,7 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
@@ -18,6 +19,10 @@ import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import General from "../component/General";
+import Document from "../component/Document";
+import Expense from "../component/Expense";
+import Compartment from "../component/Compartment";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -57,20 +62,29 @@ const TransportationOrderForm = (props: any) => {
     DocNum: id,
   });
   const [header, setHeader] = useState({
-    firstName: null,
-    lastName: null,
-    gender: null,
-    department: null,
-    branch: null,
+    TripNumber: null,
+    Driver: null,
+    Vehicle: null,
+    Route: null,
+    BaseStation: null,
+    DispatchDate: null,
+    CompletedDate: null,
+    Status: "Initiated",
   });
 
   const [branchAss, setBranchAss] = useState([]);
   const [driver, setDriver] = React.useState<any>();
+  const [commer, setCommer] = React.useState<any>([]);
+  const [expense, setExpense] = React.useState<any>([]);
 
   useEffect(() => {
     // Fetch initial data if needed
     fetchData();
   }, []);
+  const { fields: document, remove: removeDocument } = useFieldArray({
+    control,
+    name: "Document",
+  });
 
   const fetchData = async () => {
     if (id) {
@@ -165,28 +179,26 @@ const TransportationOrderForm = (props: any) => {
           active={state.tapIndex === 1}
           onClick={() => handlerChangeMenu(1)}
         >
-          Address
+          Documents
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 2}
           onClick={() => handlerChangeMenu(2)}
         >
-          Personal
+          Expense
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 3}
           onClick={() => handlerChangeMenu(3)}
         >
-          Finance
+          Compartments
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 4}
           onClick={() => handlerChangeMenu(4)}
         >
-          Remarks
+          Transportation Detail
         </MenuButton>
-
-        {/* ... Other menu buttons ... */}
       </>
     );
   };
@@ -199,31 +211,33 @@ const TransportationOrderForm = (props: any) => {
 
   const Left = ({ header, data }: any) => {
     return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+      <div className="w-[100%] pl-[25px] h-[165px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
-            <span className="">First Name </span>
+            <span className="">Trip Number </span>
           </div>
           <div>
-            <span className="">Last Name </span>
+            <span className="">Driver</span>
           </div>
           <div>
-            <span className="">Gender </span>
+            <span className="">Vehicle</span>
+          </div>
+          <div>
+            <span className="">Route</span>
           </div>
         </div>
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
-            <span>{data?.FirstName || header?.firstName || "_"}</span>
+            <span>{data?.FirstName || header?.TripNumber || "_"}</span>
           </div>
           <div>
-            <span>{data?.LastName || header?.lastName || "_"}</span>
+            <span>{data?.LastName || header?.Driver || "_"}</span>
           </div>
           <div>
-            <span>
-              {data?.Gender?.replace("gt_", "") ||
-                header?.gender?.replace("gt_", "") ||
-                "_"}
-            </span>
+            <span>{data?.LastName || header?.Vehicle || "_"}</span>
+          </div>
+          <div>
+            <span>{data?.LastName || header?.Route || "_"}</span>
           </div>
         </div>
       </div>
@@ -236,30 +250,33 @@ const TransportationOrderForm = (props: any) => {
       staleTime: Infinity,
     });
     return (
-      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
-        <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
+      <div className="w-[100%] h-[165px] flex py-5 px-4">
+        <div className="w-[70%] text-[15px] text-gray-500 flex items-end justify-between flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department </span>
+            <span className="">Base Station </span>
           </div>
           <div>
-            <span className="mr-10">Branch</span>
+            <span className="">Dispatch Date</span>
+          </div>
+          <div>
+            <span className="">Completed Date</span>
+          </div>
+          <div>
+            <span className="">Status</span>
           </div>
         </div>
-        <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
+        <div className="w-[23%] text-[15px] items-end justify-between flex flex-col h-full">
           <div>
-            <span className="mb-[27px] inline-block">
-              {new DepartmentRepository()?.find(data?.Department)?.Name ||
-                header?.department ||
-                "_"}
-            </span>
+            <span>{data?.FirstName || header?.BaseStation || "_"}</span>
           </div>
           <div>
-            <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.branch ||
-                "_"}
-            </span>
+            <span>{data?.FirstName || header?.DispatchDate || "_"}</span>
+          </div>
+          <div>
+            <span>{data?.FirstName || header?.CompletedDate || "_"}</span>
+          </div>
+          <div>
+            <span>{data?.FirstName || header?.Status || "_"}</span>
           </div>
         </div>
       </div>
@@ -312,29 +329,23 @@ const TransportationOrderForm = (props: any) => {
           >
             {state.tapIndex === 0 && (
               <h1>
-              as
+                <General
+                  register={register}
+                  setValue={setValue}
+                  control={control}
+                  header={header}
+                  setHeader={setHeader}
+                />
               </h1>
             )}
             {state.tapIndex === 1 && (
               <h1>
-                as
+                <Document setValue={setValue} document={document} removeDocument={removeDocument} commer={commer} />
               </h1>
             )}
-            {state.tapIndex === 2 && (
-              <h1>
-               as
-              </h1>
-            )}
-            {state.tapIndex === 3 && (
-              <h1>
-                as
-              </h1>
-            )}
-            {state.tapIndex === 4 && (
-              <h1>
-               as
-              </h1>
-            )}
+              {state.tapIndex === 2 && <h1><Expense expense={ expense} /></h1>}
+            {state.tapIndex === 3 && <h1><Compartment/></h1>}
+            {state.tapIndex === 4 && <h1>as</h1>}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
@@ -349,7 +360,8 @@ const TransportationOrderForm = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      (window.location.href = "/master-data/pump-attendant")
+                      (window.location.href =
+                        "/trip-management/transportation-order")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">

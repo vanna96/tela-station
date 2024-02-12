@@ -47,10 +47,10 @@ class RouteForm extends CoreFormDocument {
     return (
       <>
         <div>
-          <Left data={this.state}/>
+          <Left data={this.state} />
         </div>
         <div>
-          <Right data={this.state}/>
+          <Right data={this.state} />
         </div>
       </>
     );
@@ -134,6 +134,7 @@ class RouteForm extends CoreFormDocument {
         data["error"] = { Name: "Route Name is Required!" };
         throw new FormValidateException("Route Name is Required!", 0);
       }
+
       const payload = {
         Code: data?.Code,
         Name: data?.Name,
@@ -147,6 +148,29 @@ class RouteForm extends CoreFormDocument {
         TL_RM_EXPENSCollection: data.TL_RM_EXPENSCollection,
         TL_RM_SEQUENCECollection: data.TL_RM_SEQUENCECollection,
       };
+
+      if (!payload.TL_RM_EXPENSCollection || !payload.TL_RM_EXPENSCollection?.length) {
+        data["error"] = { Name: "Expense Collection is Required!" };
+        throw new FormValidateException("Expense Collection is Required!", 0);
+      }
+
+      const expenses = payload.TL_RM_EXPENSCollection?.every((e: any) => e.U_Code === undefined || e.U_Code === '');
+      if (expenses) {
+        data["error"] = { Name: "Expense Code is Required!" };
+        throw new FormValidateException("Expense Code is Required!", 0);
+      }
+
+
+      if (!payload.TL_RM_SEQUENCECollection || !payload.TL_RM_SEQUENCECollection?.length) {
+        data["error"] = { Name: "Route Sequence Collection is Required!" };
+        throw new FormValidateException("Route Sequence Collection is Required!", 0);
+      }
+
+      const sequences = payload.TL_RM_EXPENSCollection?.every((e: any) => e.U_Code === undefined || e.U_Code === '' || e?.U_Order === undefined);
+      if (expenses) {
+        data["error"] = { Name: "Invaid Route Sequnce!" };
+        throw new FormValidateException("Invaid Route Sequnce!", 0);
+      }
 
       if (id) {
         return await request("PATCH", `/TL_ROUTE('${id}')`, payload)
@@ -301,7 +325,7 @@ class RouteForm extends CoreFormDocument {
             <div className="sticky w-full bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
-                <LoadingButton
+                  <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
                     variant="outlined"

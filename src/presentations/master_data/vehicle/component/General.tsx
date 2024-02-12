@@ -7,15 +7,12 @@ import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { useEffect, useState } from "react";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import { formatDate } from "@/helper/helper";
-import VendorModal from "@/components/modal/VendorModal";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
 import { UseFormProps } from "../form/VehicleForm";
-import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
+import YearDropdown from "./YearsDropDown";
+import { Checkbox, FormControlLabel } from "@mui/material";
+import { useWatch } from "react-hook-form";
 
 const General = ({
   register,
@@ -26,7 +23,7 @@ const General = ({
   branchAss,
   header,
   setHeader,
-  detail
+  detail,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     U_Type: "",
@@ -151,6 +148,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   disabled={detail}
                   inputProps={{
                     ...register("U_VH_NO", {
@@ -177,7 +175,7 @@ const General = ({
                         {...field}
                         value={defaultValues?.U_Driver}
                         onChange={(e: any) => {
-                          setValue("U_Driver", e);
+                          setValue("U_Driver", e?.EmployeeID);
                         }}
                       />
                     );
@@ -318,7 +316,7 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Inittialize Odometer
+                  Inittialize Odometer KM
                 </label>
               </div>
               <div className="col-span-3">
@@ -326,6 +324,9 @@ const General = ({
                   disabled={detail}
                   inputProps={{
                     ...register("U_InitializeOdometer"),
+                    onChange: (val) => {
+                      if (isNaN(Number(val))) return "1";
+                    },
                   }}
                 />
               </div>
@@ -343,7 +344,7 @@ const General = ({
                       inputProps={{
                         ...register("U_Status"),
                       }}
-                      value={"tYES"}
+                      value={"Active"}
                     />
                   </div>
                 )}
@@ -369,7 +370,7 @@ const General = ({
                         value={
                           staticSelect.U_Status ||
                           defaultValues?.U_Status ||
-                          "tYES"
+                          "Active"
                         }
                         aliasvalue="value"
                         aliaslabel="label"
@@ -380,17 +381,29 @@ const General = ({
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Under Maintenance
-                </label>
-              </div>
+              <div className="col-span-2"></div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("U_UnderMaintenance"),
-                  }}
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      disabled={detail}
+                      checked={
+                        useWatch({
+                          control: control,
+                          name: "U_UnderMaintenance",
+                        }) === "YES"
+                      } // Use checked prop for a controlled Checkbox
+                      onChange={(e) =>
+                        setValue(
+                          "U_UnderMaintenance",
+                          e.target.checked === true ? "YES" : "No"
+                        )
+                      }
+                    />
+                  }
+                  label={
+                    <span className="text-gray-500">Under Maintenance</span>
+                  }
                 />
               </div>
             </div>

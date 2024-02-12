@@ -46,7 +46,7 @@ const Form = (props: any) => {
     setValue,
     control,
     reset,
-
+    getValues,
     formState: { errors, defaultValues },
   } = useForm();
   const { id }: any = props?.match?.params || 0;
@@ -105,9 +105,12 @@ const Form = (props: any) => {
           value !== null && value !== undefined
       )
     );
+      const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
     const payload = {
       ...data,
       U_tl_driver: "Y",
+      U_tl_name: fullName,
+      HomeCountry: "KH",
       EmployeeBranchAssignment: branchAss?.map((e: any) => {
         return {
           BPLID: e?.BPLID,

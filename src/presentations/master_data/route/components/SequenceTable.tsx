@@ -5,18 +5,23 @@ import { MdDeleteOutline } from "react-icons/md";
 import MUITextField from "@/components/input/MUITextField";
 import StopsSelect from "@/components/selectbox/StopsSelect";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { DurationPicker } from "./duration-picker";
 export default function SequenceTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerAddCheck = () => {
+    const lists: any[] = data?.TL_RM_SEQUENCECollection ?? [];
     onChange("TL_RM_SEQUENCECollection", [
-      ...(data?.TL_RM_SEQUENCECollection || []),
+      ...lists,
       {
+        U_Order: lists?.length + 1,
         U_Code: "",
         U_Distance: "",
         U_Duration: "",
         U_Stop_Duration: "",
+        U_Lat: null,
+        U_Lng: null,
       },
     ]);
   };
@@ -51,18 +56,20 @@ export default function SequenceTable(props: any) {
           Priority<span style={{ color: "red" }}>*</span>
         </>
       ),
-      Cell: ({ cell }: any) => (
-        <MUITextField
-          key={"LineId" + cell.getValue() + cell?.row?.id}
-          disabled={data?.edit}
-          defaultValue={cell.row.original?.LineId || ""}
-          onBlur={(e: any) => {
-            handlerChangeItem(cell?.row?.id || 0, {
-              LineId: e.target.value,
-            });
-          }}
-        />
-      ),
+      Cell: ({ cell }: any) => {
+        return (
+          <MUITextField
+            type="number"
+            key={"S_LineId" + cell.row.original?.U_Order}
+            disabled={data?.edit}
+            defaultValue={cell.row.original?.U_Order || ""}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                LineId: e.target.value,
+              });
+            }} />
+        );
+      },
     },
     {
       accessorKey: "U_Code",
@@ -76,9 +83,15 @@ export default function SequenceTable(props: any) {
           key={"U_Code" + cell.getValue() + cell?.row?.id}
           value={cell.row.original?.U_Code || 0}
           disabled={data?.edit}
-          onChange={(e: any) => {
+          onHandlerChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Code: e.target.value,
+              U_Code: e.Code,
+            });
+            handlerChangeItem(cell?.row?.id || 0, {
+              U_Lat: e.U_lat,
+            });
+            handlerChangeItem(cell?.row?.id || 0, {
+              U_Lng: e.U_lng,
             });
           }}
         />
@@ -89,6 +102,7 @@ export default function SequenceTable(props: any) {
       header: "Distance",
       Cell: ({ cell }: any) => (
         <MUITextField
+          type="number"
           key={"U_Distance" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
           defaultValue={cell.row.original?.U_Distance || ""}
@@ -105,13 +119,24 @@ export default function SequenceTable(props: any) {
       accessorKey: "U_Duration",
       header: "Travel Duration",
       Cell: ({ cell }: any) => (
-        <MUITextField
+        // <MUITextField
+        //   key={"U_Duration" + cell.getValue() + cell?.row?.id}
+        //   disabled={data?.edit}
+        //   defaultValue={cell.row.original?.U_Duration || ""}
+        //   onBlur={(e: any) => {
+        //     handlerChangeItem(cell?.row?.id || 0, {
+        //       U_Duration: e.target.value,
+        //     });
+        //   }}
+        // />
+
+        <DurationPicker
+          value={cell.row.original?.U_Duration}
           key={"U_Duration" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
-          defaultValue={cell.row.original?.U_Duration || ""}
-          onBlur={(e: any) => {
+          onChange={(e) => {
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Duration: e.target.value,
+              U_Duration: e,
             });
           }}
         />
@@ -121,13 +146,23 @@ export default function SequenceTable(props: any) {
       accessorKey: "U_Stop_Duration",
       header: "Stops Duration",
       Cell: ({ cell }: any) => (
-        <MUITextField
+        // <MUITextField
+        //   key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
+        //   disabled={data?.edit}
+        //   defaultValue={cell.row.original?.U_Stop_Duration || ""}
+        //   onBlur={(e: any) => {
+        //     handlerChangeItem(cell?.row?.id || 0, {
+        //       U_Stop_Duration: e.target.value,
+        //     });
+        //   }}
+        // />
+        <DurationPicker
+          value={cell.row.original?.U_Stop_Duration}
           key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
-          defaultValue={cell.row.original?.U_Stop_Duration || ""}
-          onBlur={(e: any) => {
+          onChange={(e) => {
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Stop_Duration: e.target.value,
+              U_Stop_Duration: e,
             });
           }}
         />
@@ -146,28 +181,33 @@ export default function SequenceTable(props: any) {
           <span className="ml-[70px]">Pointed</span>
         </div>
       ),
-      Cell: ({ cell }: any) => (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <span
+      Cell: ({ cell }: any) => {
+        const lat = cell?.row?.original?.U_Lat;
+        const lng = cell?.row?.original?.U_Lng;
+
+        return (
+          <div
             style={{
-              color: "green",
-              fontSize: "20px",
-              verticalAlign: "middle",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <FaMapMarkerAlt />
-          </span>
-        </div>
-      ),
+            <span
+              style={{
+                color: "green",
+                fontSize: "20px",
+                verticalAlign: "middle",
+              }}
+            >
+              <FaMapMarkerAlt className={lat && lng ? 'text-green-600' : 'text-gray-400'} />
+            </span>
+          </div>
+        );
+      },
     },
   ];
-  console.log(data);
+
 
   return (
     <>

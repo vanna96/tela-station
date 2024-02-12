@@ -5,31 +5,43 @@ import { useQuery } from "react-query";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
-import ManagerRepository from "@/services/actions/ManagerRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
-  EmployeeID: number;
-  FirstName: string;
-  LastName: string
+  Code: string;
+  Name: string;
 }
 
-export default function ManagerAutoComplete(props: {
+export default function VehicleAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
 }) {
+  // const { data, isLoading }: any = useQuery({
+  //   queryKey: ["department"],
+  //   queryFn: () => new DepartmentRepository().get(),
+  //   staleTime: Infinity,
+  // });
   const { data, isLoading }: any = useQuery({
-    queryKey: ["manager"],
-    queryFn: () => new ManagerRepository().get(),
-    staleTime: Infinity,
+    queryKey: ["vehicles"],
+    queryFn: async () => {
+      const response: any = await request("GET", `${url}/TL_VEHICLE`)
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.EmployeeID === props.value);
+      const selected = data?.find((e: Type) => e.Code === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -45,8 +57,8 @@ export default function ManagerAutoComplete(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedCode = newValue ? newValue : null;
-      props.onChange(selectedCode);
+      const selected = newValue ? newValue : null;
+      props.onChange(selected);
     }
   };
   const disabled = props.disabled;
@@ -66,10 +78,10 @@ export default function ManagerAutoComplete(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.FirstName + ' '+option.LastName}
+        getOptionLabel={(option: Type) => option.Code}
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.FirstName + ' '+ option.LastName}
+            {option.Code}
           </Box>
         )}
         renderInput={(params) => (

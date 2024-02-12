@@ -65,7 +65,6 @@ export default function ExpenseTable(
             value={cell.row.original?.U_Code || 0}
             disabled={data?.edit}
             onChange={(e: any) => {
-              console.log(e);
               handlerChangeItem(cell?.row?.id || 0, {
                 U_Code: e,
               });
@@ -116,7 +115,6 @@ export default function ExpenseTable(
       ),
     },
   ];
-  console.log(data);
 
   return (
     <>

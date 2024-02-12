@@ -34,11 +34,12 @@ const Engine = ({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
-                Engine Size
+                Engine Size HP
               </label>
             </div>
             <div className="col-span-3">
               <MUITextField
+                type="number"
                 disabled={detail}
                 inputProps={{ ...register("U_EngineSize") }}
               />
@@ -134,7 +135,6 @@ const Engine = ({
                   );
                 }}
               />
-
             </div>
           </div>
           <div className="grid grid-cols-5 py-2">
