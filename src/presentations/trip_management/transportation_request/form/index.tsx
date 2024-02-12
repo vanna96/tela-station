@@ -51,6 +51,7 @@ const Form = (props: any) => {
     setValue,
     control,
     reset,
+    watch,
     getValues,
     formState: { errors, defaultValues },
   } = useForm();
@@ -183,25 +184,32 @@ const Form = (props: any) => {
     },
     [state]
   );
-  const onInvalidForm = (invalids: any) => {
-       console.log(invalids);
-    let message;
-    ;
+  // const onInvalidForm = (invalids: any) => {
+  //      console.log(invalids);
+  //   let message;
+  //   ;
 
-    // for (const err of invalids[Object.keys(invalids)[0]]) {
-    //   if (!err) continue;
+  //   // for (const err of invalids[Object.keys(invalids)[0]]) {
+  //   //   if (!err) continue;
 
-    //   if (!err?.U_Children) {
-    //     message = invalids[Object.keys(invalids)[0]]?.message?.toString();
-    //   } else {
-    //     console.log(err);
-    //     const keys = Object.keys(err?.U_Children[0]);
-    //     message = err?.U_Children[0][keys[0]]?.message?.toString();
-    //   }
-    // }
+  //   //   if (!err?.U_Children) {
+  //   //     message = invalids[Object.keys(invalids)[0]]?.message?.toString();
+  //   //   } else {
+  //   //     console.log(err);
+  //   //     const keys = Object.keys(err?.U_Children[0]);
+  //   //     message = err?.U_Children[0][keys[0]]?.message?.toString();
+  //   //   }
+  //   // }
 
-    dialog.current?.error(message ?? "Oop something wrong!", "Invalid Value");
-  };
+  //   dialog.current?.error(message ?? "Oop something wrong!", "Invalid Value");
+  // };
+    const onInvalidForm = (invalids: any) => {
+      dialog.current?.error(
+        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+          "Oop something wrong!",
+        "Invalid Value"
+      );
+    };
   const HeaderTaps = () => {
     return (
       <>
@@ -377,6 +385,7 @@ const Form = (props: any) => {
                   appendDocument={appendDocument}
                   removeDocument={removeDocument}
                   getValues={getValues}
+                  watch={watch}
                 />
               </div>
             )}

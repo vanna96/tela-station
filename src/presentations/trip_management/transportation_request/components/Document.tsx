@@ -20,10 +20,11 @@ export default function Document({
   detail,
   getValues,
   appendDocument,
+  watch,
   removeDocument,
 }: any) {
   const [open, setOpen] = useState(false);
-  const [sS, setSS] = useState({ deliver: "", deliverC: "" });
+
 
   const handleOpen = () => {
     setOpen(true);
@@ -199,7 +200,7 @@ export default function Document({
                       </td>
                       <td className="pr-4">
                         <span className="text-gray-500 text-[13.5px]">
-                          {e?.Type === "ITR"
+                          {e?.U_Type === "ITR"
                             ? "Inventory Transfer Request"
                             : "Sale Order"}
                         </span>
@@ -258,7 +259,8 @@ export default function Document({
                                 ? true
                                 : false
                             }
-                            disabled={
+                              disabled={
+                              e?.U_Type === "ITR"? true:
                               e?.U_Children?.length === 0 || !e?.U_Children
                                 ? false
                                 : true
@@ -298,7 +300,11 @@ export default function Document({
                                       );
                                     }
                                   }}
-                                  value={e?.U_DeliveryDate}
+                                  value={
+                                    watch(
+                                      `TL_TR_ROWCollection.${index}.U_DeliveryDate`
+                                    ) || e?.U_DeliveryDate
+                                  }
                                 />
                               );
                             }}
@@ -385,7 +391,11 @@ export default function Document({
                                           );
                                         }
                                       }}
-                                      value={child?.U_DeliveryDate}
+                                      value={
+                                        watch(
+                                          `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`
+                                        ) || child?.U_DeliveryDate
+                                      }
                                     />
                                   );
                                 }}
