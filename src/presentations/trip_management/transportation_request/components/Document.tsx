@@ -10,6 +10,7 @@ import TRModal from "./ModalTR";
 import React from "react";
 import { dateFormat } from "@/utilies";
 import { FaAngleRight } from "react-icons/fa6";
+import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
 
 export default function Document({
   register,
@@ -24,7 +25,6 @@ export default function Document({
   removeDocument,
 }: any) {
   const [open, setOpen] = useState(false);
-
 
   const handleOpen = () => {
     setOpen(true);
@@ -111,15 +111,22 @@ export default function Document({
 
   const handleDelete = (parentIndex: number, childIndex: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
-    if (parents[parentIndex]["U_Children"]) {
+    if (
+      parents[parentIndex]["U_Children"] &&
+      parents[parentIndex]["U_Children"]?.length === 2
+    ) {
       // Filter out the child to be deleted from the U_Children array
+      parents[parentIndex]["U_Children"] = [];
+
+      setValue("TL_TR_ROWCollection", parents);
+    } else {
       parents[parentIndex]["U_Children"] = parents[parentIndex][
         "U_Children"
       ].filter((_: any, index: any) => index !== childIndex);
-
       setValue("TL_TR_ROWCollection", parents);
     }
   };
+console.log(watch("TL_TR_ROWCollection"));
 
   return (
     <>
@@ -259,11 +266,12 @@ export default function Document({
                                 ? true
                                 : false
                             }
-                              disabled={
-                              e?.U_Type === "ITR"? true:
-                              e?.U_Children?.length === 0 || !e?.U_Children
-                                ? false
-                                : true
+                            disabled={
+                              e?.U_Type === "ITR"
+                                ? true
+                                : e?.U_Children?.length === 0 || !e?.U_Children
+                                  ? false
+                                  : true
                             }
                           />
                         </td>
@@ -335,14 +343,14 @@ export default function Document({
 
                     {e?.U_Children?.map((child: any, childIndex: number) => (
                       <>
-                        <tr key={`${index}_child_${childIndex}`}>
+                        <tr key={`${childIndex}_child_${childIndex}`}>
                           <td className="pr-4"></td>
                           <td className="pr-4"></td>
                           <td className="pr-4"></td>
                           <td className="pr-4"></td>
                           <td className="pr-4">
                             <div className="pb-2">
-                              <MUITextField
+                              {/* <MUITextField
                                 placeholder="Ship To"
                                 defaultValue={child?.U_ShipToCode}
                                 disabled={detail}
@@ -351,6 +359,26 @@ export default function Document({
                                     `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`,
                                     { required: "Ship To is required" }
                                   ),
+                                }}
+                              /> */}
+                              <Controller
+                                rules={{ required: "Terminal is required" }}
+                                name="U_Terminal"
+                                control={control}
+                                render={({ field }) => {
+                                  return (
+                                    <ShipToAutoComplete
+                                      cardCode={e?.CardCode}
+                                      {...field}
+                                      onChange={(e: any) => {
+                                        setValue(
+                                          `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`,
+                                          e?.AddressID
+                                        );
+                                      }}
+                                      value={child?.ShipToCode}
+                                    />
+                                  );
                                 }}
                               />
                             </div>

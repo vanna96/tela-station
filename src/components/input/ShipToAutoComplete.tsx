@@ -15,13 +15,14 @@ export default function ShipToAutoComplete(props: {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
+  cardCode?:any
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["shipto"],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `/sml.svc/TL_BPADDRESS?$filter=CardCode eq '20000002' and  AdresType eq 'S'`
+        `/sml.svc/TL_BPADDRESS?$filter=CardCode eq '${props?.cardCode}' and  AdresType eq 'S'`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -32,12 +33,12 @@ export default function ShipToAutoComplete(props: {
     cacheTime: 0,
     staleTime: 0,
   });
-  console.log(data);
+console.log(props?.cardCode);
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.CardCode === props.value);
+      const selected = data?.find((e: Type) => e.AddressID === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
