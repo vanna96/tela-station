@@ -424,31 +424,6 @@ class SalesOrderForm extends CoreFormDocument {
     this.setState({ ...this.state, tapIndex: index });
   }
 
-  handleNextTab = () => {
-    const currentTab = this.state.tapIndex;
-    const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field: any) => {
-      if (field === "Items") {
-        // Check if the "Items" array is empty
-        return !this.state[field] || this.state[field].length === 0;
-      }
-      return !this.state[field];
-    });
-
-    if (hasErrors) {
-      // Show the dialog if there are errors
-      this.setState({ isDialogOpen: true });
-    } else {
-      // If no errors, allow the user to move to the next tab
-      this.handlerChangeMenu(currentTab + 1);
-    }
-  };
-
-  handleCloseDialog = () => {
-    // Close the dialog
-    this.setState({ isDialogOpen: false });
-  };
-
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
@@ -458,61 +433,61 @@ class SalesOrderForm extends CoreFormDocument {
     };
     return requiredFieldsMap[tabIndex] || [];
   }
-
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
-    }
+  handleCloseDialog = () => {
+    this.setState({ isDialogOpen: false });
   };
 
+  handleMenuButtonClick = (index: any) => {
+    const requiredFields = this.getRequiredFieldsByTab(index - 1);
+    const hasErrors = requiredFields.some((field) => {
+      if (field === "Items") {
+        return !this.state[field] || this.state[field].length === 0;
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      this.setState({ isDialogOpen: true });
+    } else {
+      this.setState({ tapIndex: index });
+    }
+  };
   HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
+        <MenuButton
+          active={this.state.tapIndex === 0}
+          onClick={() => this.handleMenuButtonClick(0)}
+        >
+          General
+        </MenuButton>
+        <MenuButton
+          active={this.state.tapIndex === 1}
+          onClick={() => this.handleMenuButtonClick(1)}
+        >
+          Content
+        </MenuButton>
+        <MenuButton
+          active={this.state.tapIndex === 2}
+          onClick={() => this.handleMenuButtonClick(2)}
+        >
+          Logistic
+        </MenuButton>
         {/* <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
-        <div className="sticky w-full bottom-4   ">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <div className="flex ">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
-              >
-                <NavigateBeforeIcon />
-              </Button>
-            </div>
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 2}
-                style={{ textTransform: "none" }}
-              >
-                <NavigateNextIcon />
-              </Button>
-
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
-                onClose={this.handleCloseDialog}
-              >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
-            </div>
-          </div>
-        </div>
+        <Snackbar
+          open={this.state.isDialogOpen}
+          autoHideDuration={6000}
+          onClose={this.handleCloseDialog}
+        >
+          <Alert
+            onClose={this.handleCloseDialog}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            Please complete all required fields before proceeding to the next
+            tab.
+          </Alert>
+        </Snackbar>
       </>
     );
   };

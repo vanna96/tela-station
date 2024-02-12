@@ -58,7 +58,8 @@ export default function IncomingPaymentForm({
         if (item.U_tl_paycur === "KHR" && item.U_tl_amtcash) {
           const lineTotal = Formular.findLineTotal(
             commaFormatNum(item.U_tl_amtcash)?.toString(),
-            "1",
+            // "1",
+            item.ItemPrice,
             "0"
           );
           return prevTotal + lineTotal;

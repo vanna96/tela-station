@@ -34,7 +34,10 @@ export default function AllocationTable({
     onChange("allocationData", newData);
   };
   const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
+    const res = await request(
+      "GET",
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
+    );
     return res;
   };
 
@@ -84,6 +87,47 @@ export default function AllocationTable({
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_cashallow: e.target.value,
+                })
+              }
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "ItemPrice",
+        header: "Item Price",
+        visible: false,
+        Cell: ({ cell }: any) => {
+          const itemCode = cell.row.original.U_tl_itemcode;
+
+          const {
+            data: itemName,
+            isLoading,
+            isError,
+          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
+            enabled: !!itemCode,
+          });
+
+          if (isLoading) {
+            return <MUITextField disabled />;
+          }
+
+          if (isError) {
+            return <span>Error fetching itemName</span>;
+          }
+
+          return (
+            <MUITextField
+              disabled
+              value={
+                itemName?.data?.ItemPrices?.find(
+                  (e: any) => e.PriceList === data.PriceList
+                )?.Price
+              }
+              onBlur={(e: any) =>
+                handlerChangeItem(cell?.row?.id || 0, {
+                  ItemPrice: e.target.value,
                 })
               }
             />
