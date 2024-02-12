@@ -5,6 +5,7 @@ import FormattedInputs from "@/components/input/NumberFormatField";
 import { Button, IconButton } from "@mui/material";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
+import CurrencySelect from "@/components/selectbox/Currency";
 export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -33,9 +34,11 @@ export default function CouponTable(props: any) {
       {
         U_tl_acccoupon: "11233",
         U_tl_amtcoupon: 0,
-        U_tl_totalusd: 0,
-        U_tl_totalkhr: 0,
-        U_tl_over: 0,
+        U_tl_couponcurr: "USD",
+        U_tl_paytype: "Coupon",
+        // U_tl_totalusd: 0,
+        // U_tl_totalkhr: 0,
+        // U_tl_over: 0,
       },
     ];
     onChange("couponData", firstData);
@@ -95,7 +98,25 @@ export default function CouponTable(props: any) {
         );
       },
     },
-
+    {
+      accessorKey: "U_tl_couponcurr",
+      header: "Currency",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original.U_tl_acccoupon) return null;
+        return (
+          <CurrencySelect
+            key={"U_tl_couponcurr" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_tl_couponcurr || 0}
+            onChange={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_tl_couponcurr: e.target.value,
+              });
+            }}
+            name={"U_tl_couponcurr"}
+          />
+        );
+      },
+    },
     {
       accessorKey: "U_tl_amtcoupon",
       header: "Check Amount",
@@ -104,7 +125,7 @@ export default function CouponTable(props: any) {
         return (
           <FormattedInputs
             key={"U_tl_amtcoupon" + cell.getValue() + cell?.row?.id}
-            disabled={data?.edit} 
+            disabled={data?.edit}
             defaultValue={cell.row.original?.U_tl_amtcoupon || 0}
             onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
@@ -113,69 +134,6 @@ export default function CouponTable(props: any) {
             }}
             name={"U_tl_amtcoupon"}
             value={cell.row.original?.U_tl_amtcoupon || ""}
-          />
-        );
-      },
-    },
-    {
-      accessorKey: "U_tl_totalusd",
-      header: "Total /USD",
-      Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccoupon) return null;
-        return (
-          <FormattedInputs
-            key={"U_tl_totalusd" + cell.getValue() + cell?.row?.id}
-            disabled={data?.edit}
-            defaultValue={cell.row.original?.U_tl_totalusd || 0}
-            onBlur={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_totalusd: e.target.value,
-              });
-            }}
-            name={"U_tl_totalusd"}
-            value={cell.row.original?.U_tl_totalusd || ""}
-          />
-        );
-      },
-    },
-    {
-      accessorKey: "U_tl_totalkhr",
-      header: "Total /KHR",
-      Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccoupon) return null;
-        return (
-          <FormattedInputs
-            key={"U_tl_totalkhr" + cell.getValue() + cell?.row?.id}
-            disabled={data?.edit}
-            defaultValue={cell.row.original?.U_tl_totalkhr || 0}
-            onBlur={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_totalkhr: e.target.value,
-              });
-            }}
-            name={"U_tl_totalkhr"}
-            value={cell.row.original?.U_tl_totalkhr || ""}
-          />
-        );
-      },
-    },
-    {
-      accessorKey: "U_tl_over",
-      header: "Over/Shortage",
-      Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccoupon) return null;
-        return (
-          <FormattedInputs
-            key={"U_tl_over" + cell.getValue() + cell?.row?.id}
-            disabled={data?.edit}
-            defaultValue={cell.row.original?.U_tl_over || 0}
-            onBlur={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_over: e.target.value,
-              });
-            }}
-            name={"U_tl_over"}
-            value={cell.row.original?.U_tl_over || ""}
           />
         );
       },

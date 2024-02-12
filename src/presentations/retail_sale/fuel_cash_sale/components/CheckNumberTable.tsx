@@ -65,7 +65,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_acccheck",
-      header: "Type",
+      header: "Check Number",
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_acccheck)
           return (

@@ -54,6 +54,7 @@ export default function CashBankTable(props: any) {
         U_tl_paycur: "USD",
         U_tl_amtcash: 0,
         U_tl_amtbank: 0,
+        // U_tl_paytype: "Cash",
       },
     ];
     onChange("cashBankData", firstData);

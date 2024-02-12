@@ -51,9 +51,10 @@ class Form extends CoreFormDocument {
         {
           U_tl_acccoupon: "11233",
           U_tl_amtcoupon: 0,
-          U_tl_totalusd: 0,
-          U_tl_totalkhr: 0,
-          U_tl_over: 0,
+          U_tl_couponcurr: "USD"
+          // U_tl_totalusd: 0,
+          // U_tl_totalkhr: 0,
+          // U_tl_over: 0,
         },
       ],
     } as any;
