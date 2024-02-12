@@ -19,6 +19,7 @@ import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete"
 import { useCookies } from "react-cookie";
 import SeriesSelect from "./Series";
 import { TextField } from "@mui/material";
+import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
 
 const General = ({
   register,
@@ -146,6 +147,33 @@ const General = ({
                         onChange={(e: any) => {
                           setValue("U_Terminal", e);
                           setHeader({ ...header, base: e });
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Ship To
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  rules={{ required: "Terminal is required" }}
+                  name="U_Terminal"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ShipToAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_Terminal}
+                        onChange={(e: any) => {
+                          setValue("U_Terminal", e);
                         }}
                       />
                     );
