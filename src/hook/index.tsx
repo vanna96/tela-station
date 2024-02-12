@@ -1,6 +1,8 @@
-import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
+import {
+  commaFormatNum,
+  formatNumberWithoutRounding,
+} from "@/utilies/formatNumber";
 import formular from "@/utilies/formular";
-import Formular from "@/utilies/formular";
 import React from "react";
 
 export const useDocumentTotalHook = (
@@ -52,6 +54,9 @@ export const useDocumentTotalHook = (
 
     return docTotal - docDiscountAmount + docTaxTotal;
   }, [items, discount, docTotal, docDiscountAmount, docTaxTotal]);
+
+
+
 
   return [docTotal, docTaxTotal, grossTotal];
 };

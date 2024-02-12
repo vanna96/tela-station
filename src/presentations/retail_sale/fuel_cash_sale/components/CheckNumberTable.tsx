@@ -7,6 +7,7 @@ import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankAutoComplete from "@/components/input/BankAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import CurrencySelect from "@/components/selectbox/Currency";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -37,6 +38,7 @@ export default function CashBankTable(props: any) {
         U_tl_checkdate: new Date(),
         U_tl_checkbank: "",
         U_tl_amtcheck: 0,
+        U_tl_paycur: "USD",
       },
     ];
     onChange("checkNumberData", firstData);
@@ -111,6 +113,24 @@ export default function CashBankTable(props: any) {
                 U_tl_checkdate: e,
               })
             }
+          />
+        );
+      },
+    },
+    {
+      accessorKey: "U_tl_paycur",
+      header: "Currency",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original.U_tl_acccheck) return null;
+        return (
+          <CurrencySelect
+            key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_tl_paycur || 0}
+            onChange={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_tl_paycur: e.target.value,
+              });
+            }}
           />
         );
       },

@@ -14,20 +14,6 @@ export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  const handlerAddCheck = () => {
-    onChange("cashBankData", [
-      ...(data?.cashBankData || []),
-      {
-        U_tl_paytype: "cash" || "bank",
-        U_tl_paycur: "USD",
-        U_tl_amtcash: "",
-        U_tl_amtbank: "",
-      },
-    ]);
-  };
-
-  console.log(data);
-
   const handlerRemoveCheck = (key: number) => {
     const newData = (data?.cashBankData || []).filter(
       (item: any, index: number) => index !== key
