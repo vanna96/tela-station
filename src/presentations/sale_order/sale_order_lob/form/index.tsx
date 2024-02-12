@@ -131,7 +131,7 @@ class SalesOrderForm extends CoreFormDocument {
                   try {
                     const response = await request(
                       "GET",
-                      `/Items('${item.ItemCode}')?$select=InventoryUoMEntry, ItemPrices`
+                      `/Items('${item.ItemCode}')?$select=UoMGroupEntry, ItemPrices`
                     );
 
                     apiResponse = response.data;
@@ -145,7 +145,7 @@ class SalesOrderForm extends CoreFormDocument {
 
                 const uoms = await new UnitOfMeasurementRepository().get();
                 const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === apiResponse.InventoryUoMEntry
+                  (row: any) => row.AbsEntry === apiResponse.UoMGroupEntry
                 );
 
                 let uomLists: any[] = [];
@@ -171,7 +171,7 @@ class SalesOrderForm extends CoreFormDocument {
                   TotalUnit: item.LineTotal,
                   LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
-                  VatGroup: item.VatGroup ,
+                  VatGroup: item.VatGroup,
                   UoMEntry: item.UomAbsEntry || null,
                   WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
                   UomAbsEntry: item?.UoMEntry,
@@ -686,7 +686,7 @@ const getItem = (
       GrossPrice: item.GrossPrice || item.total,
       DiscountPercent: item.DiscountPercent || 0,
       // TaxCode: item.VatGroup || item.taxCode || null,
-      VatGroup : item.VatGrup ,
+      VatGroup: item.VatGrup,
       // UoMCode: item.UomGroupCode || null,
       UoMEntry: item.UomAbsEntry || null,
       UomAbsEntry: item.UomAbsEntry,
