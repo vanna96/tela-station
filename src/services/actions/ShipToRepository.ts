@@ -4,7 +4,7 @@ import request from "@/utilies/request";
 import ShipTo from "@/models/ShipTo";
 export default class ShipToRepository extends Repository<ShipTo> {
 
-  url = '/BPPriorities';
+  url = '/sml.svc/TL_BPADDRESS';
 
   // specific key
   key = 'ShipTo';
