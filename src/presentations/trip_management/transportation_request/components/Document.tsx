@@ -368,6 +368,7 @@ console.log(watch("TL_TR_ROWCollection"));
                                 render={({ field }) => {
                                   return (
                                     <ShipToAutoComplete
+                                      disabled={e?.U_Type === "ITR"}
                                       cardCode={e?.CardCode}
                                       {...field}
                                       onChange={(e: any) => {

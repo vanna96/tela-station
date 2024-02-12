@@ -227,8 +227,8 @@ export default function TRModal(props: any) {
       searchValues.Type === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and Type eq '${searchValues.Type}'`
-            : `Type eq '${searchValues.Type}'`);
+            ? ` and U_Type eq '${searchValues.Type}'`
+            : `U_Type eq '${searchValues.Type}'`);
     }
     if (searchValues.Branch) {
       queryFilters += queryFilters
