@@ -23,10 +23,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
   };
 
   const fetchItemName = async (itemCode: any) => {
-    const res = await request(
-      "GET",
-      `/Items('${itemCode}')?$select=ItemName`
-    );
+    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     return res;
   };
   console.log(data);
@@ -56,44 +53,15 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return <MUITextField value={cell.getValue()} disabled />;
         },
       },
- 
 
       {
         accessorKey: "U_tl_itemname",
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return (
-            <MUITextField
-              disabled
-              value={
-                edit
-                  ? cell.row.original.U_tl_itemname
-                  : itemName?.data?.ItemName
-              }
-            />
-          );
+          return <MUITextField value={cell.getValue()} disabled />;
         },
       },
-
       {
         accessorKey: "U_tl_uom",
         header: "UoM",

@@ -14,6 +14,8 @@ import { GridAddIcon } from "@mui/x-data-grid";
 import MUISelect from "@/components/selectbox/MUISelect";
 import shortid from "shortid";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -124,6 +126,26 @@ export default function StockAllocationTable({
         },
       },
       {
+        accessorKey: "Warehouse",
+        header: "Warehouse", //uses the default width from defaultColumn prop
+        visible: true,
+        type: "number",
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+          return (
+            <WarehouseAutoComplete
+              Branch={cell.row.original.U_tl_bplid}
+              onChange={(e: any) => {
+                onChangeItem(cell?.row?.id || 0, {
+                  Warehouse: e,
+                });
+              }}
+              value={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
         accessorKey: "U_tl_bin",
         header: "Bin Location", //uses the default width from defaultColumn prop
         visible: true,
@@ -132,8 +154,7 @@ export default function StockAllocationTable({
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <BinLocationToAsEntry
-              Warehouse={1}
-              // BPdata={userData?.UserBranchAssignment}
+              Warehouse={cell.row.original.Warehouse}
               onChange={(e: any) => {
                 // console.log(e);
                 onChangeItem(cell?.row?.id || 0, {

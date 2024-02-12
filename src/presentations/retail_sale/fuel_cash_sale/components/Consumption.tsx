@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NozzleData from "./NozzleDataTable";
 import AllocationTable from "./AllocationTable";
 import { Button } from "@mui/material";
@@ -16,22 +16,27 @@ export default function Consumption({
   edit,
   handlerChangeObject,
 }: ConsumptionProps) {
-  const [showAllocationTable, setShowAllocationTable] = React.useState(false);
+  const [showAllocationTable, setShowAllocationTable] = useState(
+    localStorage.getItem("showAllocationTable") === "true"
+  );
+
+  useEffect(() => {
+    // Update localStorage whenever showAllocationTable changes
+    localStorage.setItem("showAllocationTable", showAllocationTable.toString());
+  }, [showAllocationTable]);
 
   const handleGenerateAllocation = () => {
     setShowAllocationTable(!showAllocationTable);
   };
-
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Nozzle Data</h2>{" "}
+          <h2>Nozzle Data</h2>
         </div>
         <NozzleData data={data} onChange={handlerChange} edit={edit} />
-
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Allocation</h2>{" "}
+          <h2>Allocation</h2>
         </div>
         {edit ? (
           <AllocationTable
@@ -44,24 +49,17 @@ export default function Consumption({
           <div>
             <Button
               type="button"
-              sx={{ height: "30px", textTransform: "none" }}
-              className="bg-white"
-              size="small"
-              variant="outlined"
-              disableElevation
-              onClick={() => setShowAllocationTable(!showAllocationTable)}
+              onClick={handleGenerateAllocation}
+              // Rest of the button props
             >
-              <span className="px-6 text-[13px] py-4 ">
-                Generate Allocation
-              </span>
+              Generate Allocation
             </Button>
-            <div className="mb-6" />
             {showAllocationTable && (
               <AllocationTable
-                handlerChangeObject={handlerChangeObject}
                 data={data}
                 onChange={handlerChange}
                 edit={edit}
+                handlerChangeObject={handlerChangeObject}
               />
             )}
           </div>

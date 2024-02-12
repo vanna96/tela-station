@@ -44,29 +44,11 @@ export default function AllocationTable({
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_itemcode",
+        accessorKey: "U_tl_itemname",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return <MUITextField disabled value={itemName?.data?.ItemName} />;
+          return <MUITextField disabled value={cell.getValue()} />;
         },
       },
 
@@ -94,46 +76,6 @@ export default function AllocationTable({
         },
       },
 
-      {
-        accessorKey: "ItemPrice",
-        header: "Item Price",
-        visible: false,
-        Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return (
-            <MUITextField
-              disabled
-              value={
-                itemName?.data?.ItemPrices?.find(
-                  (e: any) => e.PriceList === data.PriceList
-                )?.Price
-              }
-              onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
-                  ItemPrice: e.target.value,
-                })
-              }
-            />
-          );
-        },
-      },
       {
         accessorKey: "U_tl_partallow",
         header: "Partnership (Litre)",
