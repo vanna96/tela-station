@@ -185,7 +185,7 @@ export default function ContentForm({
               disabled={cell.row.original.ItemCode === ""}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
-              // fixedDecimalScale
+              placeholder={data.Currency === "USD" ? "0.0000" : "0"}
               customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(event) => {
@@ -342,7 +342,6 @@ export default function ContentForm({
           return (
             <NumericFormat
               disabled={cell.row.original.ItemCode === ""}
-              className="bg-white w-full"
               value={cell.getValue()}
               thousandSeparator
               startAdornment={"%"}

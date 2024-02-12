@@ -34,7 +34,7 @@ export default function Consumption({
           <h2>Allocation</h2>{" "}
         </div>
         {edit ? (
-          <AllocationTable data={data} onChange={handlerChange} edit={edit} />
+          <AllocationTable data={data} onChange={handlerChange} edit={edit}  handlerChangeObject={handlerChangeObject}/>
         ) : (
           <div>
             <Button

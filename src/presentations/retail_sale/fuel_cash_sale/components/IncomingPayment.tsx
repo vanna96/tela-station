@@ -14,6 +14,7 @@ import CheckNumberTable from "./CheckNumberTable";
 import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
 import MUITextField from "@/components/input/MUITextField";
 import CurrencySelect from "@/components/selectbox/Currency";
+import CouponTable from "./CouponTable";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -41,11 +42,10 @@ export default function IncomingPaymentForm({
           <h2>Cash Sale</h2>{" "}
         </div>
         <CashBankTable data={data} onChange={handlerChange} />
-        {/* <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Check Number</h2>{" "}
-        </div> */}
-        {/* <CashBankTable data={data} onChange={handlerChange} /> */}
         <CheckNumberTable data={data} onChange={handlerChange} />
+
+        <CouponTable data={data} onChange={handlerChange} />
+
         {/* <h1 className="mt-8"> Coupon Account Name</h1>
         <div className="grid grid-cols-4 gap-4 mt-4">
           <AccountCodeAutoComplete

@@ -1,63 +1,47 @@
 import React from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
-import MUITextField from "@/components/input/MUITextField";
+import { AiOutlineSetting } from "react-icons/ai";
 import FormattedInputs from "@/components/input/NumberFormatField";
-import MUISelect from "@/components/selectbox/MUISelect";
-import ClearIcon from "@mui/icons-material/Clear";
-
 import { Button, IconButton } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
+import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
 import CurrencySelect from "@/components/selectbox/Currency";
-export default function CashBankTable(props: any) {
+export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  const handlerAddCheck = () => {
-    onChange("cashBankData", [
-      ...(data?.cashBankData || []),
-      {
-        U_tl_paytype: "cash" || "bank",
-        U_tl_paycur: "USD",
-        U_tl_amtcash: 0,
-        U_tl_amtbank: 0,
-      },
-    ]);
-  };
-
-  console.log(data);
-
   const handlerRemoveCheck = (key: number) => {
-    const newData = (data?.cashBankData || []).filter(
+    const newData = (data?.couponData || []).filter(
       (item: any, index: number) => index !== key
     );
     if (newData.length < 1) return;
-    onChange("cashBankData", newData);
+    onChange("couponData", newData);
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data?.cashBankData?.map((item: any, index: number) => {
+    const newData = data?.couponData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
       item[Object.keys(obj).toString()] = Object.values(obj).toString();
       return item;
     });
     if (newData.length <= 0) return;
-    onChange("cashBankData", newData);
+    onChange("couponData", newData);
   };
 
   const handlerAdd = () => {
     let firstData = [
-      ...data.cashBankData,
+      ...data.couponData,
       {
-        U_tl_paytype: "cash",
-        U_tl_paycur: "USD",
-        U_tl_amtcash: 0,
-        U_tl_amtbank: 0,
-        // U_tl_paytype: "Cash",
+        U_tl_acccoupon: "11233",
+        U_tl_amtcoupon: 0,
+        U_tl_couponcurr: "USD",
+        U_tl_paytype: "Coupon",
+        // U_tl_totalusd: 0,
+        // U_tl_totalkhr: 0,
+        // U_tl_over: 0,
       },
     ];
-    onChange("cashBankData", firstData);
+    onChange("couponData", firstData);
   };
 
   const columns = [
@@ -69,7 +53,7 @@ export default function CashBankTable(props: any) {
       align: "center",
       header: "",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_paytype) return null;
+        if (!cell.row.original?.U_tl_acccoupon) return null;
         return (
           <div className="flex justify-center items-center">
             <GridDeleteIcon
@@ -81,10 +65,10 @@ export default function CashBankTable(props: any) {
       },
     },
     {
-      accessorKey: "U_tl_paytype",
-      header: "Type",
+      accessorKey: "U_tl_acccoupon",
+      header: "Coupon Account Name",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_paytype)
+        if (!cell.row.original?.U_tl_acccoupon)
           return (
             <Button
               onClick={() => handlerAdd()}
@@ -100,93 +84,67 @@ export default function CashBankTable(props: any) {
             </Button>
           );
         return (
-          <MUISelect
-            key={"U_tl_paytype" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_paytype || ""}
+          <GLAccountAutoComplete
+            key={"U_tl_acccoupon" + cell.getValue() + cell?.row?.id}
+            // type="number"
             disabled={data?.edit}
+            value={cell.row.original?.U_tl_acccoupon || ""}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_paytype: e.target.value,
+                U_tl_acccoupon: e,
               });
             }}
-            items={[
-              { value: "cash", label: "Cash" },
-              { value: "bank", label: "Bank" },
-            ]}
           />
         );
       },
     },
     {
-      accessorKey: "U_tl_paycur",
+      accessorKey: "U_tl_couponcurr",
       header: "Currency",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_paytype) return null;
+        if (!cell.row.original.U_tl_acccoupon) return null;
         return (
           <CurrencySelect
-            key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_paycur || 0}
+            key={"U_tl_couponcurr" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_tl_couponcurr || 0}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_paycur: e.target.value,
+                U_tl_couponcurr: e.target.value,
               });
             }}
+            name={"U_tl_couponcurr"}
           />
         );
       },
     },
-    data?.cashBankData?.some((item: any) => item?.U_tl_paytype === "cash")
-      ? {
-          accessorKey: "U_tl_amtcash",
-          header: "Amount",
-          Cell: ({ cell }: any) => {
-            if (!cell.row.original?.U_tl_paytype) return null;
-            return (
-              <FormattedInputs
-                key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
-                disabled={data?.edit}
-                defaultValue={cell.row.original?.U_tl_amtcash || 0}
-                onBlur={(e: any) => {
-                  handlerChangeItem(cell?.row?.id || 0, {
-                    U_tl_amtcash: e.target.value,
-                  });
-                }}
-                name={"U_tl_amtcash"}
-                value={cell.row.original?.U_tl_amtcash || ""}
-                startAdornment={cell.row.original?.U_tl_paycur}
-              />
-            );
-          },
-        }
-      : {
-          accessorKey: "U_tl_amtbank",
-          header: "Amount",
-          Cell: ({ cell }: any) => {
-            if (!cell.row.original?.U_tl_paytype) return null;
-            return (
-              <FormattedInputs
-                key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
-                disabled={data?.edit}
-                defaultValue={cell.row.original?.U_tl_amtbank || 0}
-                onBlur={(e: any) => {
-                  handlerChangeItem(cell?.row?.id || 0, {
-                    U_tl_amtbank: e.target.value,
-                  });
-                }}
-                name={"U_tl_amtbank"}
-                value={cell.row.original?.U_tl_amtbank || ""}
-                startAdornment={cell.row.original?.U_tl_paycur}
-              />
-            );
-          },
-        },
+    {
+      accessorKey: "U_tl_amtcoupon",
+      header: "Check Amount",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original.U_tl_acccoupon) return null;
+        return (
+          <FormattedInputs
+            key={"U_tl_amtcoupon" + cell.getValue() + cell?.row?.id}
+            disabled={data?.edit}
+            defaultValue={cell.row.original?.U_tl_amtcoupon || 0}
+            onBlur={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_tl_amtcoupon: e.target.value,
+              });
+            }}
+            name={"U_tl_amtcoupon"}
+            value={cell.row.original?.U_tl_amtcoupon || ""}
+          />
+        );
+      },
+    },
   ];
 
   return (
     <div className="data-table">
       <MaterialReactTable
         columns={[...columns]}
-        data={[...data?.cashBankData, { U_tl_paytype: "" }]}
+        data={[...data?.couponData, { U_tl_acccoupon: "" }]}
         enableStickyHeader={false}
         enableColumnActions={false}
         enableColumnFilters={false}
