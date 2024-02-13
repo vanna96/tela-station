@@ -20,9 +20,9 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  data.allocationData = data.nozzleData?.filter(
-    (e: any) => parseFloat(e.U_tl_nmeter) > 0
-  );
+  // data.allocationData = data.nozzleData?.filter(
+  //   (e: any) => parseFloat(e.U_tl_nmeter) > 0
+  // );
 
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.allocationData?.map((item: any, index: number) => {

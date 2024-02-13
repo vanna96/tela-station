@@ -96,43 +96,9 @@ class Form extends NonCoreDcument {
             CardName: data.U_tl_cardname,
             seriesList,
             nozzleData: data.TL_RETAILSALE_CONHCollection,
-            // ?.map((item: any) => ({
-            //   U_tl_pumpcode: item.U_tl_nozzlecode,
-            //   U_tl_itemnum: item.U_tl_itemcode,
-            //   U_tl_itemdesc: item.U_tl_itemname,
-            //   U_tl_uom: item.U_tl_uom,
-            //   new_meter: item.U_tl_nmeter,
-            //   U_tl_upd_meter: item.U_tl_ometer,
-            //   U_tl_cmeter: item.U_tl_cmeter,
 
-            //   U_tl_cardallow: item.U_tl_cardallow,
-            //   U_tl_cashallow: item.U_tl_cashallow,
-            //   U_tl_ownallow: item.U_tl_ownallow,
-            //   U_tl_partallow: item.U_tl_partallow,
-            //   U_tl_pumpallow: item.U_tl_pumpallow,
-            //   U_tl_stockallow: item.U_tl_stockallow,
-            //   U_tl_totalallow: item.U_tl_totalallow,
-            // })),
             allocationData: data.TL_RETAILSALE_CONHCollection,
-            // ?.map(
-            //   (item: any) => ({
-            //     U_tl_pumpcode: item.U_tl_nozzlecode,
-            //     U_tl_itemnum: item.U_tl_itemcode,
-            //     U_tl_itemdesc: item.U_tl_itemname,
-            //     U_tl_uom: item.U_tl_uom,
-            //     new_meter: item.U_tl_nmeter,
-            //     U_tl_upd_meter: item.U_tl_ometer,
-            //     U_tl_cmeter: item.U_tl_cmeter,
 
-            //     U_tl_cardallow: item.U_tl_cardallow,
-            //     U_tl_cashallow: item.U_tl_cashallow,
-            //     U_tl_ownallow: item.U_tl_ownallow,
-            //     U_tl_partallow: item.U_tl_partallow,
-            //     U_tl_pumpallow: item.U_tl_pumpallow,
-            //     U_tl_stockallow: item.U_tl_stockallow,
-            //     U_tl_totalallow: item.U_tl_totalallow,
-            //   })
-            // ),
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid,
@@ -177,6 +143,18 @@ class Form extends NonCoreDcument {
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
+            cardCountData: data?.TL_RETAILSALE_CACCollection?.map(
+              (item: any) => ({
+                U_tl_itemcode: item.U_tl_itemCode,
+                U_tl_1l: item?.U_tl_1l,
+                U_tl_2l: item?.U_tl_2l,
+                U_tl_5l: item?.U_tl_5l,
+                U_tl_10l: item?.U_tl_10l,
+                U_tl_20l: item?.U_tl_20l,
+                U_tl_50l: item?.U_tl_50l,
+                U_tl_total: item?.U_tl_total,
+              })
+            ),
           };
         })
         .catch((err: any) => console.log(err))
@@ -244,24 +222,38 @@ class Form extends NonCoreDcument {
           ...data?.cashBankData,
           ...data?.couponData,
         ],
+        TL_RETAILSALE_CACCollection: data?.cardCountData?.map((item: any) => ({
+          U_tl_itemCode: item.U_tl_itemcode,
+          U_tl_1l: item?.U_tl_1l,
+          U_tl_2l: item?.U_tl_2l,
+          U_tl_5l: item?.U_tl_5l,
+          U_tl_10l: item?.U_tl_10l,
+          U_tl_20l: item?.U_tl_20l,
+          U_tl_50l: item?.U_tl_50l,
+          U_tl_total:
+            parseFloat(item?.U_tl_1l || 0) +
+            parseFloat(item?.U_tl_2l || 0) +
+            parseFloat(item?.U_tl_5l || 0) +
+            parseFloat(item?.U_tl_10l || 0) +
+            parseFloat(item?.U_tl_20l || 0) +
+            parseFloat(item?.U_tl_50l || 0),
+        })),
         //Stock Allocation Collection
         TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
           (item: any) => ({
             U_tl_nozzlecode: item.U_tl_nozzlecode,
             U_tl_itemcode: item.U_tl_itemcode,
             U_tl_itemname: item.U_tl_itemname,
+            U_tl_qtycon: item.U_tl_qtycon,
+            U_tl_qtyaloc: item.U_tl_qtyaloc,
             U_tl_uom: item.U_tl_uom,
-            U_tl_nmeter: item.U_tl_nmeter,
+            U_tl_qtyopen: item.U_tl_qtyopen,
+            U_tl_remark: item.U_tl_remark,
             // U_tl_upd_meter: item.U_tl_ometer,
-            U_tl_ometer: item.U_tl_upd_meter,
-            U_tl_cmeter: item.U_tl_cmeter,
-            U_tl_cardallow: item.U_tl_cardallow,
-            U_tl_cashallow: item.U_tl_cashallow,
-            U_tl_ownallow: item.U_tl_ownallow,
-            U_tl_partallow: item.U_tl_partallow,
-            U_tl_pumpallow: item.U_tl_pumpallow,
-            U_tl_stockallow: item.U_tl_stockallow,
-            U_tl_totalallow: item.U_tl_totalallow,
+
+            // U_tl_bplid: data.U_tl_bplid,
+            // U_tl_whs: warehouseCode,
+            // U_tl_bincode: parseInt(item.U_tl_bincode),
           })
         ),
       };
@@ -472,36 +464,35 @@ class Form extends NonCoreDcument {
                           </span>
                         </LoadingButton>
                       </div>
-                      {this.props.edit && (
-                        <div>
+                      <div>
+                        <LoadingButton
+                          variant="outlined"
+                          size="small"
+                          sx={{ height: "30px", textTransform: "none" }}
+                          disableElevation
+                        >
+                          <span className="px-3 text-[13px] py-1 text-green-500">
+                            {this.props.edit ? "Update" : "Add"}
+                          </span>
+                        </LoadingButton>
+                      </div>
+                      {!this.props.edit && (
+                        <div className="flex items-center space-x-4">
                           <LoadingButton
-                            variant="outlined"
-                            size="small"
+                            type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
+                            className="bg-white"
+                            loading={false}
+                            size="small"
+                            variant="contained"
                             disableElevation
                           >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              Add
+                            <span className="px-6 text-[13px] py-4 text-white">
+                              Post
                             </span>
                           </LoadingButton>
                         </div>
                       )}
-
-                      <div className="flex items-center space-x-4">
-                        <LoadingButton
-                          type="submit"
-                          sx={{ height: "30px", textTransform: "none" }}
-                          className="bg-white"
-                          loading={false}
-                          size="small"
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-6 text-[13px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Post"}
-                          </span>
-                        </LoadingButton>
-                      </div>
                     </div>
                   </div>
                 </div>
