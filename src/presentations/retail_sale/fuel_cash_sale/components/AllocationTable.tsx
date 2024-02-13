@@ -21,7 +21,7 @@ export default function AllocationTable({
   handlerChangeObject,
 }: AllocationTableProps) {
   data.allocationData = data.nozzleData?.filter(
-    (e: any) => commaFormatNum(e.U_tl_nmeter) > 0
+    (e: any) => parseFloat(e.U_tl_nmeter) > 0
   );
 
   const handlerChangeItem = (key: number, obj: any) => {

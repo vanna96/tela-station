@@ -52,61 +52,76 @@ export default function IncomingPaymentForm({
     return total;
   }, [data.allocationData]);
 
-  const totalKHRCash: number = React.useMemo(() => {
-    const total = data?.cashBankData?.reduce((prevTotal: number, item: any) => {
-      if (item?.U_tl_paycur === "KHR") {
-        const lineTotal = Formular.findLineTotal(
-          commaFormatNum(item.U_tl_amtcash || item.U_tl_amtbank)?.toString(),
-          "1",
-          "0"
-        );
-        return prevTotal + lineTotal;
-      }
-      return prevTotal;
-    }, 0);
-    return total;
-  }, [data?.cashBankData]);
-  const totalKHRCheck: number = React.useMemo(() => {
-    console.log(data?.cashBankData);
-    const total = data?.cashBankData?.reduce((prevTotal: number, item: any) => {
-      if (item?.U_tl_paycur === "KHR") {
-        const lineTotal = Formular.findLineTotal(
-          commaFormatNum(item.U_tl_amtcheck)?.toString(),
-          "1",
-          "0"
-        );
-        console.log(lineTotal);
-        return prevTotal + lineTotal;
-      }
+  const parseAmount = (amount: any) => {
+    return (
+      Number(typeof amount === "string" ? amount.replace(/,/g, "") : amount) ||
+      0
+    );
+  };
 
-      return prevTotal;
-    }, 0);
-    return total;
-  }, [data?.checkNumberData]);
+  const calculateTotalByCurrency = (data: any, currency: any) => {
+    let total = 0;
 
-  const totalKHRCoupon: number = React.useMemo(() => {
-    const total = data?.cashBankData?.reduce((prevTotal: number, item: any) => {
-      if (item?.U_tl_paycur === "KHR") {
-        const lineTotal = Formular.findLineTotal(
-          commaFormatNum(item.U_tl_amtcoupon)?.toString(),
-          "1",
-          "0"
-        );
-        return prevTotal + lineTotal;
+    // Aggregate CashBankData
+    total += data.cashBankData.reduce((acc: any, item: any) => {
+      if (item.U_tl_paycur === currency) {
+        const cashAmount = parseAmount(item.U_tl_amtcash) || 0;
+        const bankAmount = parseAmount(item.U_tl_amtbank) || 0;
+        return acc + cashAmount + bankAmount;
       }
-      return prevTotal;
+      return acc;
     }, 0);
+
+    // Aggregate CheckNumberData
+    total += data.checkNumberData.reduce((acc: any, item: any) => {
+      if (item.U_tl_paycur === currency) {
+        const checkAmount = parseAmount(item.U_tl_amtcheck) || 0;
+        return acc + checkAmount;
+      }
+      return acc;
+    }, 0);
+
+    // Aggregate CouponData
+    total += data.couponData.reduce((acc: any, item: any) => {
+      if (item.U_tl_couponcurr === currency) {
+        const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
+        return acc + couponAmount;
+      }
+      return acc;
+    }, 0);
+
     return total;
-  }, [data?.couponData]);
-  const finalTotalKHR = React.useMemo(() => {
-    return totalKHRCash + totalKHRCheck + totalKHRCoupon;
-  }, [totalKHRCash, totalKHRCheck, totalKHRCoupon]);
+  };
+
+  // Usage inside your component or a relevant function
+  const totalKHR = React.useMemo(
+    () => calculateTotalByCurrency(data, "KHR"),
+    [data]
+  );
+  const totalUSD = React.useMemo(
+    () => calculateTotalByCurrency(data, "USD"),
+    [data]
+  );
+
+  console.log(totalKHR);
+  console.log(totalUSD);
 
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Cash Sale - {numberWithCommas(totalCashSale)}</h2>{" "}
+        <div className="font-medium text-xl flex justify-start items-center border-b mb-6">
+          <h2>Cash Sale - </h2>
+          <div className="ml-2">
+            <NumericFormat
+              thousandSeparator
+              placeholder="0.000"
+              disabled
+              className="bg-white"
+              decimalScale={2}
+              // customInput={MUITextField}
+              value={totalCashSale}
+            />
+          </div>
         </div>
         <CashBankTable data={data} onChange={handlerChange} />
         <CheckNumberTable data={data} onChange={handlerChange} />
@@ -122,9 +137,8 @@ export default function IncomingPaymentForm({
                 thousandSeparator
                 placeholder="0.000"
                 decimalScale={2}
-                fixedDecimalScale
                 customInput={MUITextField}
-                defaultValue={data.OverShortage}
+                value={totalCashSale - totalUSD}
               />
             </div>
           </div>
@@ -136,9 +150,8 @@ export default function IncomingPaymentForm({
                 thousandSeparator
                 placeholder="0.000"
                 decimalScale={2}
-                fixedDecimalScale
                 customInput={MUITextField}
-                defaultValue={finalTotalKHR}
+                value={totalKHR}
               />
             </div>
           </div>
@@ -154,9 +167,8 @@ export default function IncomingPaymentForm({
                 thousandSeparator
                 placeholder="0.000"
                 decimalScale={2}
-                fixedDecimalScale
                 customInput={MUITextField}
-                defaultValue={data.TotalUSD}
+                value={totalUSD}
               />
             </div>
           </div>

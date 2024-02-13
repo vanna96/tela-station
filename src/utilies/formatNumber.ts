@@ -4,17 +4,16 @@ export function formatNumberWithoutRounding(number: number, decimals: number): n
   return roundedValue;
 }
 export function commaFormatNum(numberString: any) {
-  // Check if the input is 0 or a string representing 0
   if (numberString === 0 || numberString === "0" || numberString === "0.0" || numberString === "0.00") {
     return 0;
   }
 
-  // Remove the comma from the string
-  var stringWithoutComma = numberString?.replace(",", "");
+  // Ensure input is treated as a string and remove all commas
+  const inputString = String(numberString).replace(/,/g, "");
 
-  // Convert the string to a float
-  var number = parseFloat(stringWithoutComma);
+  // Attempt to parse the numeric value
+  const number = parseFloat(inputString);
 
-  return number;
+  // Check for NaN to return a fallback or the parsed number
+  return isNaN(number) ? 0 : number; // Consider how you wish to handle invalid numbers
 }
-
