@@ -3,6 +3,7 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  UseFormWatch,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -42,6 +43,7 @@ export type UseFormProps = {
   detail?: boolean;
   data?: any;
   serie?: any;
+  watch:UseFormWatch<FieldValues>
 };
 // const { id } = useParams();
 const TransportationRequestDetail = (props: any) => {
@@ -52,6 +54,7 @@ const TransportationRequestDetail = (props: any) => {
     control,
     reset,
     getValues,
+    watch,
     formState: { errors, defaultValues },
   } = useForm();
 
@@ -329,6 +332,7 @@ const TransportationRequestDetail = (props: any) => {
                   setHeader={setHeader}
                     serie={serie}
                     detail={props?.detail}
+                    watch={watch}
                 />
               </h1>
             )}
@@ -346,6 +350,7 @@ const TransportationRequestDetail = (props: any) => {
                   removeDocument={removeDocument}
                     getValues={getValues}
                     detail={props?.detail}
+                    watch={watch}
                 />
               </div>
             )}

@@ -12,9 +12,31 @@ import { dateFormat } from "@/utilies";
 import { FaAngleRight } from "react-icons/fa6";
 import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
 
+export type TRSourceDocument = {
+  U_SourceDocEntry: number;
+  // SourceId: string;
+  U_DocNum: number;
+  U_Type: string;
+  U_BPLId: number;
+  U_BPLName: string;
+  U_CardCode: string;
+  U_CardName: string;
+  U_DeliveryDate: string;
+  U_ShipToCode: null | string;
+  U_ItemCode: string;
+  U_ShipToAddress: null | string;
+  U_ItemName: string | undefined;
+  U_Quantity: number;
+  U_UomCode: string;
+  U_UomAbsEntry: number;
+  U_Status?: string | undefined;
+  U_Reference?: string | any;
+  U_Children?:any[] | any
+};
+
 export default function Document({
   register,
-  defaultValue,
+  defaultValues,
   setValue,
   document,
   control,
@@ -68,21 +90,24 @@ export default function Document({
     }
     const newChild = {
       ...parents[index],
-      U_Quantity: null,
+      U_Quantity: 0,
       U_ShipToCode: null,
       U_DeliveryDate: null,
       LineId: undefined,
+      U_Status: "O",
       U_ParentEntry: parents[index]?.U_SourceDocEntry,
     };
     const newChild1 = {
       ...parents[index],
-      U_Quantity: null,
+      U_Quantity: 0,
       U_ShipToCode: null,
       U_DeliveryDate: null,
       LineId: undefined,
+      U_Status: "O",
       U_ParentEntry: parents[index]?.U_SourceDocEntry,
     };
     delete newChild["U_Children"];
+    delete newChild1["U_Children"];
     parents[index]["U_Children"] = [
       ...parents[index]["U_Children"],
       newChild,
@@ -93,18 +118,16 @@ export default function Document({
 
   const addNewChild = (index: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
-    if (!parents[index]["U_Children"]) {
-      parents[index]["U_Children"] = [];
-    }
     const newChild = {
       ...parents[index],
-      U_Quantity: null,
+      U_Quantity: 0,
       U_ShipToCode: null,
       U_DeliveryDate: null,
       LineId: undefined,
+      U_Children: undefined,
+      U_Status: "O",
       U_ParentEntry: parents[index]?.U_SourceDocEntry,
     };
-    delete newChild["U_Children"];
     parents[index]["U_Children"] = [...parents[index]["U_Children"], newChild];
     setValue("TL_TR_ROWCollection", parents);
   };
@@ -112,21 +135,15 @@ export default function Document({
   const handleDelete = (parentIndex: number, childIndex: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
     if (
-      parents[parentIndex]["U_Children"] &&
-      parents[parentIndex]["U_Children"]?.length === 2
+      parents[parentIndex]["U_Children"]
     ) {
-      // Filter out the child to be deleted from the U_Children array
-      parents[parentIndex]["U_Children"] = [];
-
-      setValue("TL_TR_ROWCollection", parents);
-    } else {
       parents[parentIndex]["U_Children"] = parents[parentIndex][
         "U_Children"
-      ].filter((_: any, index: any) => index !== childIndex);
+      ]?.filter((_: any, index: any) => index !== childIndex);
       setValue("TL_TR_ROWCollection", parents);
     }
   };
-console.log(watch("TL_TR_ROWCollection"));
+
 
   return (
     <>
@@ -181,7 +198,7 @@ console.log(watch("TL_TR_ROWCollection"));
               </tr>
             </thead>
             <tbody>
-              {document?.length === 0 && (
+              {document && document?.length === 0 && (
                 <tr>
                   <td
                     colSpan={6}
@@ -191,7 +208,7 @@ console.log(watch("TL_TR_ROWCollection"));
                   </td>
                 </tr>
               )}
-              {document?.map((e: any, index: number) => {
+              {document?.map((e: TRSourceDocument, index: number) => {
                 return (
                   <>
                     <tr key={index}>
@@ -234,7 +251,7 @@ console.log(watch("TL_TR_ROWCollection"));
                           }}
                         />
                       </td>
-                      {detail ? (
+                      {detail || watch("U_Status") === "C" ? (
                         <td className="pr-4">
                           <MUITextField
                             onClick={() => addNewChilds(index)}
@@ -278,11 +295,18 @@ console.log(watch("TL_TR_ROWCollection"));
                       )}
 
                       <td className="pr-4 pb-1">
-                        {detail ? (
+                        {detail ||
+                        e?.U_Children?.length > 0 ||
+                        watch("U_Status") === "C" ? (
                           <MUITextField
                             placeholder="Delivery Date"
-                            defaultValue={dateFormat(e?.U_DeliveryDate)}
+                            value={dateFormat(e?.U_DeliveryDate)}
                             disabled={true}
+                            inputProps={{
+                              ...register(
+                                `TL_TR_ROWCollection.${index}.U_DeliveryDate`
+                              ),
+                            }}
                           />
                         ) : (
                           <Controller
@@ -331,7 +355,7 @@ console.log(watch("TL_TR_ROWCollection"));
                           defaultValue={e?.U_Quantity}
                         />
                       </td>
-                      <td className={`text-center ${detail && "hidden"}`}>
+                      <td className={`text-center ${(detail || watch("U_Status") === "C" || e?.U_Children?.length > 0)  && "hidden"}`}>
                         <div
                           onClick={() => removeDocument(index)}
                           className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
@@ -341,119 +365,133 @@ console.log(watch("TL_TR_ROWCollection"));
                       </td>
                     </tr>
 
-                    {e?.U_Children?.map((child: any, childIndex: number) => (
-                      <>
-                        <tr key={`${childIndex}_child_${childIndex}`}>
-                          <td className="pr-4"></td>
-                          <td className="pr-4"></td>
-                          <td className="pr-4"></td>
-                          <td className="pr-4"></td>
-                          <td className="pr-4">
-                            <div className="pb-2">
-                              {/* <MUITextField
-                                placeholder="Ship To"
-                                defaultValue={child?.U_ShipToCode}
-                                disabled={detail}
+                    {e?.U_Children?.map((child: any, childIndex: number) => {
+                      return (
+                        <>
+                          <tr key={`${childIndex}_child_${childIndex}`}>
+                            <td className="pr-4"></td>
+                            <td className="pr-4"></td>
+                            <td className="pr-4"></td>
+                            <td className="pr-4"></td>
+                            <td className="pr-4">
+                              <div className="pb-2">
+                                {e?.U_Type === "ITR" ||
+                                child?.U_Status === "C" ||
+                                watch("U_Status") === "C" ||
+                                detail ? (
+                                  <MUITextField
+                                    placeholder="Delivery Date"
+                                    value={e?.U_ShipToCode}
+                                    disabled={true}
+                                    inputProps={{
+                                      ...register(
+                                        `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`
+                                      ),
+                                    }}
+                                  />
+                                ) : (
+                                  <Controller
+                                    rules={{
+                                      required: "Ship To is required",
+                                    }}
+                                    name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`}
+                                    control={control}
+                                    render={({ field }) => {
+                                      return (
+                                        <ShipToAutoComplete
+                                          cardCode={e?.U_CardCode}
+                                          {...field}
+                                          onChange={(e: any) => {
+                                            setValue(
+                                              `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`,
+                                              e?.AddressID
+                                            );
+                                          }}
+                                          value={child?.U_ShipToCode}
+                                        />
+                                      );
+                                    }}
+                                  />
+                                )}
+                              </div>
+                            </td>
+                            <td className="pr-4 pb-2">
+                              {detail ||
+                              child?.U_Status === "C" ||
+                              watch("U_Status") === "C" ? (
+                                <MUITextField
+                                  placeholder="Delivery Date"
+                                  defaultValue={dateFormat(
+                                    child?.U_DeliveryDate
+                                  )}
+                                  disabled={true}
+                                />
+                              ) : (
+                                <Controller
+                                  rules={{
+                                    required: "Delivery Date is required",
+                                  }}
+                                  name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`}
+                                  control={control}
+                                  render={({ field }) => {
+                                    return (
+                                      <MUIDatePicker
+                                        {...field}
+                                        onChange={(e) => {
+                                          if (e !== null) {
+                                            const val =
+                                              e.toLowerCase() ===
+                                              "Invalid Date".toLocaleLowerCase()
+                                                ? ""
+                                                : e;
+                                            setValue(
+                                              `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`,
+                                              `${val == "" ? "" : val}`
+                                            );
+                                          }
+                                        }}
+                                        value={
+                                          watch(
+                                            `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`
+                                          ) || child?.U_DeliveryDate
+                                        }
+                                      />
+                                    );
+                                  }}
+                                />
+                              )}
+                            </td>
+                            <td className="">
+                              <MUITextField
+                                type="number"
+                                placeholder="Quantity"
+                                disabled={
+                                  detail ||
+                                  child?.U_Status === "C" ||
+                                  watch("U_Status") === "C"
+                                }
                                 inputProps={{
                                   ...register(
-                                    `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`,
-                                    { required: "Ship To is required" }
+                                    `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_Quantity`
                                   ),
                                 }}
-                              /> */}
-                              <Controller
-                                rules={{ required: "Terminal is required" }}
-                                name="U_Terminal"
-                                control={control}
-                                render={({ field }) => {
-                                  return (
-                                    <ShipToAutoComplete
-                                      disabled={e?.U_Type === "ITR"}
-                                      cardCode={e?.CardCode}
-                                      {...field}
-                                      onChange={(e: any) => {
-                                        setValue(
-                                          `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`,
-                                          e?.AddressID
-                                        );
-                                      }}
-                                      value={child?.ShipToCode}
-                                    />
-                                  );
-                                }}
+                                defaultValue={child?.U_Quantity}
                               />
-                            </div>
-                          </td>
-                          <td className="pr-4 pb-2">
-                            {/* <MUITextField
-                              placeholder="Delivery Date"
-                              name="TL_TR_Collections.${index}.U_Children.${index}.U_DeliveryDate"
-                              defaultValue={child?.U_DeliveryDate}
-                            /> */}
-                            {detail ? (
-                              <MUITextField
-                                placeholder="Delivery Date"
-                                defaultValue={dateFormat(child?.U_DeliveryDate)}
-                                disabled={true}
-                              />
-                            ) : (
-                              <Controller
-                                rules={{
-                                  required: "Delivery Date is required",
-                                }}
-                                name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`}
-                                control={control}
-                                render={({ field }) => {
-                                  return (
-                                    <MUIDatePicker
-                                      {...field}
-                                      onChange={(e) => {
-                                        if (e !== null) {
-                                          const val =
-                                            e.toLowerCase() ===
-                                            "Invalid Date".toLocaleLowerCase()
-                                              ? ""
-                                              : e;
-                                          setValue(
-                                            `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`,
-                                            `${val == "" ? "" : val}`
-                                          );
-                                        }
-                                      }}
-                                      value={
-                                        watch(
-                                          `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_DeliveryDate`
-                                        ) || child?.U_DeliveryDate
-                                      }
-                                    />
-                                  );
-                                }}
-                              />
-                            )}
-                          </td>
-                          <td className="">
-                            <MUITextField
-                              placeholder="Quantity"
-                              disabled={detail}
-                              inputProps={{
-                                ...register(
-                                  `TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_Quantity`
-                                ),
-                              }}
-                              defaultValue={child?.U_Quantity}
-                            />
-                          </td>
-                          <td className={`text-center ${detail && "hidden"}`}>
-                            <div
-                              onClick={() => handleDelete(index, childIndex)}
-                              className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
+                            </td>
+                            <td
+                              className={`text-center ${(child?.U_Status === "C"|| detail || watch("U_Status") === "C") && "hidden"}`}
                             >
-                              -
-                            </div>
-                          </td>
-                        </tr>
-                      </>
-                    ))}
+                              <div
+                                onClick={() => handleDelete(index, childIndex)}
+                                className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
+                              >
+                                -
+                              </div>
+                            </td>
+                          </tr>
+                        </>
+                      );
+                    })}
                     <tr>
                       <td></td>
                       <td></td>
@@ -461,7 +499,9 @@ console.log(watch("TL_TR_ROWCollection"));
                       <td></td>
                       {e.U_Children && e.U_Children.length > 0 ? (
                         <td colSpan={4} className="">
-                          <div className={`pt-1 ${detail && "hidden"}`}>
+                          <div
+                            className={`pt-1 ${ (watch("U_Status") === "C"||detail) && "hidden"}`}
+                          >
                             <Button
                               onClick={() => addNewChild(index)}
                               sx={{ height: "25px" }}
@@ -470,7 +510,9 @@ console.log(watch("TL_TR_ROWCollection"));
                               variant="outlined"
                               disableElevation
                             >
-                              <span className="inline-block w-[80px]">Add</span>
+                              <span className="inline-block w-[80px]">
+                                + Add
+                              </span>
                             </Button>
                           </div>
                         </td>

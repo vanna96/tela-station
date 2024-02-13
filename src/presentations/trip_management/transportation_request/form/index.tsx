@@ -3,6 +3,7 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  UseFormWatch,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -19,7 +20,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import ManagerRepository from "@/services/actions/ManagerRepository";
 import EmployeeRepository from "@/services/actions/employeeRepository";
-import Document from "../components/Document";
+import Document, { TRSourceDocument } from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
 import { log } from "util";
@@ -42,6 +43,7 @@ export type UseFormProps = {
   detail?: boolean;
   data?: any;
   serie?: any;
+  watch: UseFormWatch<FieldValues>;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -91,22 +93,25 @@ const Form = (props: any) => {
 
   useEffect(() => {
     fetchData();
+    fethSeries()
   }, []);
-
+  const fethSeries = async() => {
+   let seriesList: any = props?.query?.find("tr-series");
+   if (!seriesList) {
+     seriesList = await DocumentSerieRepository.getDocumentSeries({
+       Document: "TL_TR",
+     });
+     props?.query?.set("tr-series", seriesList);
+   }
+   setSerie(seriesList);
+}
   const fetchData = async () => {
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-      let seriesList: any = props?.query?.find("tr-series");
-      if (!seriesList) {
-        seriesList = await DocumentSerieRepository.getDocumentSeries({
-          Document: "TL_TR",
-        });
-        props?.query?.set("tr-series", seriesList);
-      }
-      setSerie(seriesList);
+     
       await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
@@ -115,6 +120,7 @@ const Form = (props: any) => {
             ...state,
             loading: false,
           });
+          
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -123,32 +129,14 @@ const Form = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-    const payload = {
-      ...e,
-    };
-
+     const payload: any = Object.fromEntries(
+       Object.entries(e).filter(
+         ([key, value]): any => value !== null && value !== undefined && key!=="id"
+       )
+     );
     try {
+
       setState({ ...state, isSubmitting: true });
-      const isValid = payload.TL_TR_ROWCollection.every((row: any) => {
-        if (row?.U_Children?.length === 0) return true;
-
-        const childs = row.U_Children?.reduce(
-          (prev: number, cur: any) => prev + Number(cur?.U_Quantity),
-          0
-        );
-        return Number(row.U_Quantity) === childs;
-      });
-
-      console.log(isValid);
-
-      if (!isValid) {
-        dialog.current?.error(
-          `Oops Total quantity in children exceeds parent quantity` ??
-            "Oops something wrong!",
-          "Invalid Value"
-        );
-        return;
-      }
       if (props.edit) {
         await request(
           "PATCH",
@@ -184,32 +172,45 @@ const Form = (props: any) => {
     },
     [state]
   );
-  // const onInvalidForm = (invalids: any) => {
-  //      console.log(invalids);
-  //   let message;
-  //   ;
+const onInvalidForm = (invalids: any) => {
+  console.log(invalids);
+  let message = invalids[Object.keys(invalids)[0]]?.message?.toString();
 
-  //   // for (const err of invalids[Object.keys(invalids)[0]]) {
-  //   //   if (!err) continue;
+  // Iterate over all invalid entries
+  for (const invalidKey of Object.keys(invalids)) {
+    const invalidEntry = invalids[invalidKey];
+    if (!invalidEntry || !Array.isArray(invalidEntry)) continue;
 
-  //   //   if (!err?.U_Children) {
-  //   //     message = invalids[Object.keys(invalids)[0]]?.message?.toString();
-  //   //   } else {
-  //   //     console.log(err);
-  //   //     const keys = Object.keys(err?.U_Children[0]);
-  //   //     message = err?.U_Children[0][keys[0]]?.message?.toString();
-  //   //   }
-  //   // }
+    for (const err of invalidEntry) {
+      if (!err) continue;
 
-  //   dialog.current?.error(message ?? "Oop something wrong!", "Invalid Value");
-  // };
-    const onInvalidForm = (invalids: any) => {
-      dialog.current?.error(
-        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-          "Oop something wrong!",
-        "Invalid Value"
-      );
-    };
+      if (!err?.U_Children) {
+        message = err?.message?.toString();
+      } else {
+        console.log(err);
+        if (Array.isArray(err.U_Children) && err.U_Children.length > 0) {
+          for (const child of err.U_Children) {
+            if (child && typeof child === "object") {
+              const keys = Object.keys(child);
+              if (keys.length > 0) {
+                message = child[keys[0]]?.message?.toString();
+                // Assuming you only want the first message found, you might want to adjust this behavior if needed
+                if (message) break;
+              }
+            }
+          }
+        }
+      }
+      // If message is found, break the loop
+      if (message) break;
+    }
+    // If message is found, break the loop
+    if (message) break;
+  }
+
+  dialog.current?.error(message ?? "Oops something wrong!", "Invalid Value");
+};
+
   const HeaderTaps = () => {
     return (
       <>
@@ -232,6 +233,8 @@ const Form = (props: any) => {
 
   React.useEffect(() => {
     if (requestS) {
+      console.log(requestS);
+      
       reset({ ...requestS });
     }
   }, [requestS]);
@@ -369,6 +372,7 @@ const Form = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                   serie={serie}
+                  watch={watch}
                 />
               </h1>
             )}
@@ -381,6 +385,7 @@ const Form = (props: any) => {
                   setCollection={setCollection}
                   data={requestS}
                   document={document}
+                  defaultValues={defaultValues}
                   setValue={setValue}
                   appendDocument={appendDocument}
                   removeDocument={removeDocument}
