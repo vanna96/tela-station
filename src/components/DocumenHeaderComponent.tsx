@@ -301,10 +301,10 @@ export const TotalSummaryRightSide = (props: any) => {
               <NumericFormat
                 value={docTotal}
                 thousandSeparator
-                // fixedDecimalScale
+                fixedDecimalScale
                 disabled
                 className="bg-white w-1/2"
-                decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                decimalScale={props.data.Currency === "USD" ? 3 : 0}
               />
             }
           </div>
@@ -320,10 +320,10 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={discountAmount}
               thousandSeparator
-              // fixedDecimalScale
+              fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+              decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
           </div>
         </div>
@@ -338,10 +338,10 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={docTaxTotal}
               thousandSeparator
-              // fixedDecimalScale
+              fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+              decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
           </div>
         </div>
@@ -357,10 +357,10 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={grossTotal}
               thousandSeparator
-              // fixedDecimalScale
+              fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+              decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
           </div>
         </div>

@@ -19,6 +19,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 class SalesOrderForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
@@ -111,17 +112,16 @@ class SalesOrderForm extends CoreFormDocument {
             .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = [];
           let disabledFields: any = {
             CurrencyType: true,
           };
-
           state = {
             ...data,
 
             vendor,
             warehouseCode: data.U_tl_whsdesc,
             lob: data.U_tl_arbusi,
+            Currency: data.DocCurrency,
 
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
@@ -293,11 +293,11 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Ship To Address is Required!",
           getTabIndex: () => 2,
         },
-        // {
-        //   field: "U_tl_dnsuppo",
-        //   message: "Ship From Address is Required!",
-        //   getTabIndex: () => 2,
-        // },
+        {
+          field: "U_tl_attn_ter",
+          message: "Attention Terminal is Required!",
+          getTabIndex: () => 2,
+        },
       ];
 
       validations.forEach(({ field, message, isArray, getTabIndex }) => {
@@ -317,8 +317,7 @@ class SalesOrderForm extends CoreFormDocument {
         data.LineOfBusiness,
         data.U_ti_revenue
       );
-      const isUSD = (data?.Currency || "USD") === "USD";
-      const roundingValue = data?.RoundingValue || 0;
+
       const payloads = {
         // general
         // SOSeries: data?.Series,
@@ -340,10 +339,14 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
         U_ti_revenue: data?.U_ti_revenue,
+        DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
         // logistic
         ShipToCode: data?.ShipToCode || "",
+        ShipFrom: new BranchBPLRepository().find(
+          data?.BPL_IDAssignedToInvoice || 1
+        )?.Address,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
         U_tl_dnsuppo: data?.U_tl_whsdesc,
@@ -368,7 +371,7 @@ class SalesOrderForm extends CoreFormDocument {
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
         U_ti_revenue: data?.U_ti_revenue,
-        // U_tl_arbusi: data?.U_tl_arbusi,
+        DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
         // logistic
@@ -449,7 +452,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["ShipToCode"],
+      2: ["ShipToCode", "U_tl_attn_ter"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -539,7 +542,6 @@ class SalesOrderForm extends CoreFormDocument {
     const itemGroupCode = getGroupByLineofBusiness(
       this.props.edit ? this.state.lob : this.state.lineofBusiness
     );
-    
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();

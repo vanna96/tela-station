@@ -226,6 +226,8 @@ function General(props: any) {
 
   const seriesName = seriesNames?.join(", ");
 
+  console.log(props.data);
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -303,13 +305,10 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  const itemGroupRepo = new ItemGroupRepository();
-
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     props?.data?.DocDiscount,
-    // props?.data?.ExchangeRate ?? 1
-    1
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {
@@ -338,13 +337,28 @@ function Content(props: any) {
       },
       {
         accessorKey: "ItemName",
-        header: "Item Description",
+        header: "Item Name",
         enableClickToCopy: true,
         size: 100,
       },
       {
         accessorKey: "Quantity",
         header: "Quantity",
+        size: 60,
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            value={cell.getValue() ?? 0}
+            thousandSeparator
+            disabled
+            className="bg-white w-full"
+            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            fixedDecimalScale
+          />
+        ),
+      },
+      {
+        accessorKey: "MeasureUnit",
+        header: "UoM ",
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
       },
@@ -358,57 +372,25 @@ function Content(props: any) {
             thousandSeparator
             disabled
             className="bg-white w-full"
-            decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            fixedDecimalScale
           />
         ),
       },
+
       {
         accessorKey: "DiscountPercent",
-        header: "Discount %",
+        header: "Unit Discount",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "VatGroup",
-        header: "Tax Code",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      // {
-      //   accessorKey: "ItemsGroupCode",
-      //   header: "Item Group",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => {
-      //     const value = cell.getValue();
-      //     switch (value) {
-      //       case "201001":
-      //         return "Oil";
-      //       case "201002":
-      //         return "Lube";
-      //       case "201003":
-      //         return "LPG";
-      //       default:
-      //         return value;
-      //     }
-      //   },
-      // },
-      {
-        accessorKey: "MeasureUnit",
-        header: "UoM Group",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "UomEntry",
-        header: "UoM Name",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
+        Cell: ({ cell }: any) => {
+          const discountPercent = cell.getValue(); // Get the discount percentage value
+          return <span>% {discountPercent}</span>; // Concatenate the value with "%"
+        },
       },
 
       {
         accessorKey: "GrossTotal",
-        header: "Total(LC)",
+        header: "Amount",
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
@@ -416,20 +398,13 @@ function Content(props: any) {
             thousandSeparator
             disabled
             className="bg-white w-full"
-            decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+            decimalScale={props.data.Currency === "USD" ? 3 : 0}
+            fixedDecimalScale
           />
         ),
       },
-      {
-        accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
-          "N/A",
-      },
     ],
-    [data]
+    []
   );
 
   return (
@@ -475,7 +450,8 @@ function Content(props: any) {
                     value={docTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -514,10 +490,11 @@ function Content(props: any) {
                     <div className="col-span-4">
                       <NumericFormat
                         className="bg-white w-full"
-                        value={props.data.TotalDiscount}
                         thousandSeparator
+                        value={discountAmount}
                         startAdornment={props?.data?.Currency}
-                        decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
@@ -536,7 +513,8 @@ function Content(props: any) {
                     value={docTaxTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -553,7 +531,8 @@ function Content(props: any) {
                     value={props.data.DocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={import.meta.env.VITE_DECIMAL_SCALE}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
@@ -592,6 +571,7 @@ function Logistic(props: any) {
                       props?.data?.BPL_IDAssignedToInvoice
                     )?.Address ?? "N/A"
                   }
+                  // value={props.data.ShipFrom}
                   InputProps={{ readOnly: true }}
                 />
               </div>
