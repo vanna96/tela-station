@@ -1,11 +1,5 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import ContentComponent from "./ContentComponents";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
-import { MdOutlineClose } from "react-icons/md";
-import shortid from "shortid";
-import MUISelect from "@/components/selectbox/MUISelect";
-import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
@@ -32,11 +26,19 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     return res;
   };
-
+  console.log(data);
+  //   U_tl_nozzlecode: item.U_tl_pumpcode,
+  // U_tl_itemcode: item.U_tl_itemcode,
+  // U_tl_itemname: item.U_tl_desc,
+  // U_tl_uom: item.U_tl_uom,
+  // U_tl_nmeter: item.U_tl_nmeter,
+  // // U_tl_upd_meter: item.U_tl_ometer,
+  // U_tl_ometer: item.U_tl_upd_meter,
+  // U_tl_cmeter: item.U_tl_cmeter,
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_pumpcode",
+        accessorKey: "U_tl_nozzlecode",
         header: "Nozzle Code",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -44,49 +46,22 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
         },
       },
       {
-        accessorKey: "U_tl_itemnum",
+        accessorKey: "U_tl_itemcode",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
           return <MUITextField value={cell.getValue()} disabled />;
         },
       },
+
       {
-        accessorKey: "U_tl_itemdesc",
+        accessorKey: "U_tl_itemname",
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemnum;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return (
-            <MUITextField
-              disabled
-              value={
-                edit
-                  ? cell.row.original.U_tl_itemdesc
-                  : itemName?.data?.ItemName
-              }
-            />
-          );
+          return <MUITextField value={cell.getValue()} disabled />;
         },
       },
-
       {
         accessorKey: "U_tl_uom",
         header: "UoM",
@@ -111,7 +86,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
             New Meter <span className="text-red-500">*</span>
           </label>
         ),
-        accessorKey: "new_meter",
+        accessorKey: "U_tl_nmeter",
         header: "New Meter",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -122,11 +97,12 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
+              placeholder="0.000"
               customInput={MUITextField}
-              defaultValue={cell.getValue() ?? 0}
+              defaultValue={cell.getValue() === 0 ? "" : cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  new_meter: e.target.value,
+                  U_tl_nmeter: e.target.value,
                 })
               }
             />
@@ -134,7 +110,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
         },
       },
       {
-        accessorKey: "U_tl_upd_meter",
+        accessorKey: "U_tl_ometer",
         header: "Old Meter",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -147,7 +123,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={
-                cell.row.original.U_tl_upd_meter
+                cell.row.original.U_tl_ometer
                   ? cell.getValue()
                   : cell.row.original.U_tl_reg_meter
               }

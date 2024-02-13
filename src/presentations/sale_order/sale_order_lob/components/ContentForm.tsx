@@ -11,6 +11,7 @@ import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { TbEdit } from "react-icons/tb";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -41,7 +42,6 @@ export default function ContentForm({
   const vendorPriceList = data.U_tl_sopricelist;
   const wh = data.U_tl_whsdesc;
   const lineofbusiness = data.U_tl_arbusi;
-  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -177,6 +177,7 @@ export default function ContentForm({
         accessorKey: "Quantity",
         header: "Quantity",
         visible: true,
+
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -184,8 +185,8 @@ export default function ContentForm({
               disabled={cell.row.original.ItemCode === ""}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
-              fixedDecimalScale
-              customInput={MUITextField}
+              placeholder={data.Currency === "USD" ? "0.0000" : "0"}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(event) => {
                 const newValue = parseFloat(
@@ -306,8 +307,8 @@ export default function ContentForm({
               key={"Price_" + cell.getValue()}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 4 : 0}
-              fixedDecimalScale
-              customInput={MUITextField}
+              // fixedDecimalScale
+              customInput={MUIRightTextField}
               value={cell.getValue()}
               onBlur={(event) => {
                 const newValue = parseFloat(
@@ -339,18 +340,21 @@ export default function ContentForm({
         visible: true,
         Cell: ({ cell }: any) => {
           return (
-            <MUITextField
+            <NumericFormat
               disabled={cell.row.original.ItemCode === ""}
-              type="number"
+              value={cell.getValue()}
+              thousandSeparator
               startAdornment={"%"}
-              value={cell.getValue() || 0}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
+              // fixedDecimalScale
+              placeholder={data.Currency === "USD" ? "0.000" : "0"}
               onChange={(event: any) => {
                 if (!(event.target.value <= 100 && event.target.value >= 0)) {
                   event.target.value = 0;
                 }
                 handlerUpdateRow(
                   cell.row.id,
-                  ["DiscountPercent", event.target.value || 0],
+                  ["DiscountPercent", event.target.value],
                   "DiscountPercent"
                 );
                 const quantity = cell.row.original.Quantity;
@@ -365,6 +369,7 @@ export default function ContentForm({
                   "LineTotal"
                 );
               }}
+              customInput={MUIRightTextField}
             />
           );
         },
@@ -374,6 +379,7 @@ export default function ContentForm({
         accessorKey: "LineTotal",
         header: "Amount",
         visible: true,
+
         Cell: ({ cell }: any) => {
           return (
             <NumericFormat
@@ -381,8 +387,8 @@ export default function ContentForm({
               key={"Amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={data.Currency === "USD" ? 3 : 0}
-              fixedDecimalScale
-              customInput={MUITextField}
+              // fixedDecimalScale
+              customInput={MUIRightTextField}
               value={cell.getValue()}
               onChange={(event) => {
                 const newValue = parseFloat(

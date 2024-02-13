@@ -9,6 +9,7 @@ import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import { useDocumentTotalHook } from "@/hook";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 interface ContentComponentProps {
   items: any[];
@@ -27,18 +28,6 @@ interface ContentComponentProps {
 }
 
 export default function ContentComponent(props: ContentComponentProps) {
-  const columnRef = React.createRef<ContentTableSelectColumn>();
-
-  // Initialize the discount state with the initial value from props
-  const [discount, setDiscount] = React.useState(
-    props?.data?.DiscountPercent || 0
-  );
-
-  // Update the discount state when props.data.DiscountPercent changes
-  React.useEffect(() => {
-    setDiscount(props?.data?.DiscountPercent || 0);
-  }, [props?.data?.DiscountPercent]); // Update whenever props.data.DiscountPercent changes
-
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
@@ -104,30 +93,18 @@ export default function ContentComponent(props: ContentComponentProps) {
   };
   const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
-    discount,
+    props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DiscountPercent ?? 0;
+    const dataDiscount: number =
+      props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
   }, [props?.data?.DiscountPercent, props.data.Items]);
 
-  let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
-  if (props.data) {
-    props.data.DocTaxTotal = docTaxTotal;
-    props.data.DocTotalBeforeDiscount = docTotal;
-    props.data.DocDiscountPercent = props.data?.DiscountPercent;
-    props.data.DocDiscountPrice = discountAmount;
-    props.data.DocTotal = TotalPaymentDue;
-  }
-
-  const handleDiscountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(event.target.value); // Parse the input value to a number
-    setDiscount(isNaN(value) ? 0 : value); // Update the discount state
-  };
   return (
     <FormCard
       title="Content"
@@ -212,14 +189,13 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={docTotal}
+                    value={docTotal === 0 ? "" : docTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
-                    placeholder="0.00"
+                    placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -227,14 +203,18 @@ export default function ContentComponent(props: ContentComponentProps) {
               <div className="grid grid-cols-12 py-1">
                 <div className="col-span-6 text-gray-700">
                   <div className="grid grid-cols-12 gap-2">
-                    <div className="col-span-7 text-gray-700">Discount</div>
-                    <div className="col-span-5 text-gray-900 mr-2">
-                      <MUITextField
-                        placeholder="0.00"
-                        type="number"
+                    <div className="col-span-6 text-gray-700">Discount</div>
+                    <div className="col-span-6  text-gray-900 mr-2">
+                      <NumericFormat
+                        className="bg-white w-full"
+                        value={props?.data?.DiscountPercent}
+                        thousandSeparator
                         startAdornment={"%"}
-                        value={props?.data?.DiscountPercent ?? 0}
-                        // value={props.data.DocDiscount || discount}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        // fixedDecimalScale
+                        placeholder={
+                          props.data.Currency === "USD" ? "0.000" : "0"
+                        }
                         onChange={(event: any) => {
                           if (
                             !(
@@ -246,6 +226,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           }
                           onChange("DiscountPercent", event.target.value);
                         }}
+                        customInput={MUIRightTextField}
                       />
                     </div>
                   </div>
@@ -260,10 +241,11 @@ export default function ContentComponent(props: ContentComponentProps) {
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                        fixedDecimalScale
-                        placeholder="0.00"
+                        placeholder={
+                          props.data.Currency === "USD" ? "0.000" : "0"
+                        }
                         readonly
-                        customInput={MUITextField}
+                        customInput={MUIRightTextField}
                         disabled
                       />
                     </div>
@@ -276,14 +258,13 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={docTaxTotal}
+                    value={docTaxTotal === 0 ? "" : docTaxTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
-                    placeholder="0.00"
+                    placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -293,14 +274,13 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={grossTotal}
+                    value={grossTotal === 0 ? "" : grossTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
-                    placeholder="0.00"
+                    placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>

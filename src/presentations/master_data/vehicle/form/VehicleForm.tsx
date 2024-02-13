@@ -133,7 +133,6 @@ const VehicleForm = (props: any) => {
         "U_IssueDate",
         "U_ExpiredDate",
         "U_Fee",
-        "U_Ref",
       ];
 
       missingField = requiredFields.find(
@@ -153,7 +152,6 @@ const VehicleForm = (props: any) => {
           U_IssueDate: "Issue Date",
           U_ExpiredDate: "Expired Date",
           U_Fee: "Fee",
-          U_Ref: "	Reference",
         };
 
         // Replace missingField with the mapped value or keep the original value

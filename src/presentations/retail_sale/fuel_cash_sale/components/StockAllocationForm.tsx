@@ -13,6 +13,9 @@ import { AiOutlineSetting } from "react-icons/ai";
 import { GridAddIcon } from "@mui/x-data-grid";
 import MUISelect from "@/components/selectbox/MUISelect";
 import shortid from "shortid";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -123,7 +126,48 @@ export default function StockAllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_itemnum",
+        accessorKey: "Warehouse",
+        header: "Warehouse", //uses the default width from defaultColumn prop
+        visible: true,
+        type: "number",
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+          return (
+            <WarehouseAutoComplete
+              Branch={cell.row.original.U_tl_bplid}
+              onChange={(e: any) => {
+                onChangeItem(cell?.row?.id || 0, {
+                  Warehouse: e,
+                });
+              }}
+              value={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_bin",
+        header: "Bin Location", //uses the default width from defaultColumn prop
+        visible: true,
+        type: "number",
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_bplid) return null;
+          return (
+            <BinLocationToAsEntry
+              Warehouse={cell.row.original.Warehouse}
+              onChange={(e: any) => {
+                // console.log(e);
+                onChangeItem(cell?.row?.id || 0, {
+                  U_tl_bin: e,
+                });
+              }}
+              value={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_itemcode",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -140,13 +184,13 @@ export default function StockAllocationTable({
           return (
             <MUISelect
               items={data.nozzleData?.map((e: any) => ({
-                value: e.U_tl_itemnum,
-                label: e.U_tl_itemnum,
+                value: e.U_tl_itemcode,
+                label: e.U_tl_itemcode,
               }))}
               value={cell.getValue()}
               onChange={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_itemnum: e.target.value,
+                  U_tl_itemcode: e.target.value,
                 })
               }
             />
@@ -154,13 +198,13 @@ export default function StockAllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_itemdesc",
+        accessorKey: "U_tl_itemname",
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
 
-          const itemCode = cell.row.original.U_tl_itemnum;
+          const itemCode = cell.row.original.U_tl_itemcode;
 
           const {
             data: itemName,
@@ -183,7 +227,7 @@ export default function StockAllocationTable({
               disabled
               value={
                 edit
-                  ? cell.row.original.U_tl_itemdesc
+                  ? cell.row.original.U_tl_itemname
                   : itemName?.data?.ItemName
               }
             />
@@ -203,6 +247,7 @@ export default function StockAllocationTable({
               key={"U_tl_qtycon" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
+              placeholder="0.000"
               fixedDecimalScale
               customInput={MUITextField}
               value={cell.getValue()}

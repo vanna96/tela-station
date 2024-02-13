@@ -5,6 +5,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import MUITextField from "@/components/input/MUITextField";
 import StopsSelect from "@/components/selectbox/StopsSelect";
 import { FaMapMarkerAlt } from "react-icons/fa";
+import { DurationPicker } from "./duration-picker";
 export default function SequenceTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -59,7 +60,7 @@ export default function SequenceTable(props: any) {
         return (
           <MUITextField
             type="number"
-            key={"LineId" + cell.row.original?.U_Order}
+            key={"S_LineId" + cell.row.original?.U_Order}
             disabled={data?.edit}
             defaultValue={cell.row.original?.U_Order || ""}
             onBlur={(e: any) => {
@@ -98,7 +99,7 @@ export default function SequenceTable(props: any) {
     },
     {
       accessorKey: "U_Distance",
-      header: "Distance",
+      header: "Distance KM",
       Cell: ({ cell }: any) => (
         <MUITextField
           type="number"
@@ -118,13 +119,24 @@ export default function SequenceTable(props: any) {
       accessorKey: "U_Duration",
       header: "Travel Duration",
       Cell: ({ cell }: any) => (
-        <MUITextField
+        // <MUITextField
+        //   key={"U_Duration" + cell.getValue() + cell?.row?.id}
+        //   disabled={data?.edit}
+        //   defaultValue={cell.row.original?.U_Duration || ""}
+        //   onBlur={(e: any) => {
+        //     handlerChangeItem(cell?.row?.id || 0, {
+        //       U_Duration: e.target.value,
+        //     });
+        //   }}
+        // />
+
+        <DurationPicker
+          value={cell.row.original?.U_Duration}
           key={"U_Duration" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
-          defaultValue={cell.row.original?.U_Duration || ""}
-          onBlur={(e: any) => {
+          onChange={(e) => {
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Duration: e.target.value,
+              U_Duration: e,
             });
           }}
         />
@@ -134,13 +146,23 @@ export default function SequenceTable(props: any) {
       accessorKey: "U_Stop_Duration",
       header: "Stops Duration",
       Cell: ({ cell }: any) => (
-        <MUITextField
+        // <MUITextField
+        //   key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
+        //   disabled={data?.edit}
+        //   defaultValue={cell.row.original?.U_Stop_Duration || ""}
+        //   onBlur={(e: any) => {
+        //     handlerChangeItem(cell?.row?.id || 0, {
+        //       U_Stop_Duration: e.target.value,
+        //     });
+        //   }}
+        // />
+        <DurationPicker
+          value={cell.row.original?.U_Stop_Duration}
           key={"U_Stop_Duration" + cell.getValue() + cell?.row?.id}
           disabled={data?.edit}
-          defaultValue={cell.row.original?.U_Stop_Duration || ""}
-          onBlur={(e: any) => {
+          onChange={(e) => {
             handlerChangeItem(cell?.row?.id || 0, {
-              U_Stop_Duration: e.target.value,
+              U_Stop_Duration: e,
             });
           }}
         />

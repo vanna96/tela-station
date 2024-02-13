@@ -2,6 +2,7 @@ import MUISelect from "./MUISelect";
 import { useQuery } from "react-query";
 import { SelectInputProps } from "@mui/material/Select/SelectInput";
 import StopsRepository from "@/services/actions/StopsRepository";
+import React from "react";
 
 
 interface StopsProps<T = unknown> {
@@ -24,16 +25,27 @@ function StopsSelect(props: StopsProps) {
 
   const onHandlerChange = (event: any) => {
     const val = data?.find((e: StopSchema) => e.Code === event?.target?.value);
+
     if (props.onHandlerChange) {
       props.onHandlerChange(val)
     }
   }
 
+
+  const values = React.useMemo(() => {
+    if (!data) return [];
+
+    return data?.map((e: StopSchema) => ({ ...e, FullName: e?.Code + " - " + e?.Name }));
+  }, [data])
+
+
+
+
   return <MUISelect
     {...props}
     onChange={onHandlerChange}
-    items={data ?? []}
-    aliaslabel="Code"
+    items={values ?? []}
+    aliaslabel="FullName"
     aliasvalue="Code"
     loading={isLoading}
   />

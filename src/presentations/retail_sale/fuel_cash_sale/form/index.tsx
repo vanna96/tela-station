@@ -5,9 +5,6 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import React, { useContext } from "react";
-
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import BusinessPartner from "@/models/BusinessParter";
@@ -17,6 +14,9 @@ import StockAllocationForm from "../components/StockAllocationForm";
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
+import CardCount from "../components/CardCountTable";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -30,13 +30,30 @@ class Form extends CoreFormDocument {
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
-      cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
+      cashBankData: [
+        {
+          U_tl_paytype: "cash",
+          U_tl_paycur: "USD",
+          U_tl_amtcash: 0,
+          U_tl_amtbank: 0,
+        },
+      ],
       checkNumberData: [
         {
-          check_no: "",
-          check_date: new Date(),
-          bank: "",
-          check_amount: 0,
+          U_tl_acccheck: "111122",
+          U_tl_checkdate: new Date(),
+          U_tl_checkbank: "",
+          U_tl_amtcheck: 0,
+        },
+      ],
+      couponData: [
+        {
+          U_tl_acccoupon: "11233",
+          U_tl_amtcoupon: 0,
+          U_tl_couponcurr: "USD",
+          // U_tl_totalusd: 0,
+          // U_tl_totalkhr: 0,
+          // U_tl_over: 0,
         },
       ],
     } as any;
@@ -77,48 +94,51 @@ class Form extends CoreFormDocument {
             ...data,
             vendor,
             CardCode: data.U_tl_cardcode,
+            CardName: data.U_tl_cardname,
             seriesList,
-            nozzleData: data.TL_RETAILSALE_CONHCollection?.map((item: any) => ({
-              U_tl_pumpcode: item.U_tl_nozzlecode,
-              U_tl_itemnum: item.U_tl_itemcode,
-              U_tl_itemdesc: item.U_tl_itemname,
-              U_tl_uom: item.U_tl_uom,
-              new_meter: item.U_tl_nmeter,
-              U_tl_upd_meter: item.U_tl_ometer,
-              U_tl_cmeter: item.U_tl_cmeter,
+            nozzleData: data.TL_RETAILSALE_CONHCollection,
+            // ?.map((item: any) => ({
+            //   U_tl_pumpcode: item.U_tl_nozzlecode,
+            //   U_tl_itemnum: item.U_tl_itemcode,
+            //   U_tl_itemdesc: item.U_tl_itemname,
+            //   U_tl_uom: item.U_tl_uom,
+            //   new_meter: item.U_tl_nmeter,
+            //   U_tl_upd_meter: item.U_tl_ometer,
+            //   U_tl_cmeter: item.U_tl_cmeter,
 
-              U_tl_cardallow: item.U_tl_cardallow,
-              U_tl_cashallow: item.U_tl_cashallow,
-              U_tl_ownallow: item.U_tl_ownallow,
-              U_tl_partallow: item.U_tl_partallow,
-              U_tl_pumpallow: item.U_tl_pumpallow,
-              U_tl_stockallow: item.U_tl_stockallow,
-              U_tl_totalallow: item.U_tl_totalallow,
-            })),
-            allocationData: data.TL_RETAILSALE_CONHCollection?.map(
-              (item: any) => ({
-                U_tl_pumpcode: item.U_tl_nozzlecode,
-                U_tl_itemnum: item.U_tl_itemcode,
-                U_tl_itemdesc: item.U_tl_itemname,
-                U_tl_uom: item.U_tl_uom,
-                new_meter: item.U_tl_nmeter,
-                U_tl_upd_meter: item.U_tl_ometer,
-                U_tl_cmeter: item.U_tl_cmeter,
+            //   U_tl_cardallow: item.U_tl_cardallow,
+            //   U_tl_cashallow: item.U_tl_cashallow,
+            //   U_tl_ownallow: item.U_tl_ownallow,
+            //   U_tl_partallow: item.U_tl_partallow,
+            //   U_tl_pumpallow: item.U_tl_pumpallow,
+            //   U_tl_stockallow: item.U_tl_stockallow,
+            //   U_tl_totalallow: item.U_tl_totalallow,
+            // })),
+            allocationData: data.TL_RETAILSALE_CONHCollection,
+            // ?.map(
+            //   (item: any) => ({
+            //     U_tl_pumpcode: item.U_tl_nozzlecode,
+            //     U_tl_itemnum: item.U_tl_itemcode,
+            //     U_tl_itemdesc: item.U_tl_itemname,
+            //     U_tl_uom: item.U_tl_uom,
+            //     new_meter: item.U_tl_nmeter,
+            //     U_tl_upd_meter: item.U_tl_ometer,
+            //     U_tl_cmeter: item.U_tl_cmeter,
 
-                U_tl_cardallow: item.U_tl_cardallow,
-                U_tl_cashallow: item.U_tl_cashallow,
-                U_tl_ownallow: item.U_tl_ownallow,
-                U_tl_partallow: item.U_tl_partallow,
-                U_tl_pumpallow: item.U_tl_pumpallow,
-                U_tl_stockallow: item.U_tl_stockallow,
-                U_tl_totalallow: item.U_tl_totalallow,
-              })
-            ),
+            //     U_tl_cardallow: item.U_tl_cardallow,
+            //     U_tl_cashallow: item.U_tl_cashallow,
+            //     U_tl_ownallow: item.U_tl_ownallow,
+            //     U_tl_partallow: item.U_tl_partallow,
+            //     U_tl_pumpallow: item.U_tl_pumpallow,
+            //     U_tl_stockallow: item.U_tl_stockallow,
+            //     U_tl_totalallow: item.U_tl_totalallow,
+            //   })
+            // ),
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid,
-                U_tl_itemnum: item.U_tl_itemcode,
-                U_tl_itemdesc: item.U_tl_itemname,
+                U_tl_itemcode: item.U_tl_itemcode,
+                U_tl_itemname: item.U_tl_itemname,
                 U_tl_qtyaloc: item.U_tl_qtyaloc,
                 U_tl_qtycon: item.U_tl_qtycon,
                 U_tl_qtyopen: item.U_tl_qtyopen,
@@ -158,26 +178,42 @@ class Form extends CoreFormDocument {
       const payload = {
         // general
         Series: data?.Series,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
         U_tl_bplid: data?.U_tl_bplid,
         U_tl_pump: data?.U_tl_pump,
         U_tl_cardcode: data?.CardCode,
         U_tl_cardname: data?.CardName,
         U_tl_shiftcode: data?.U_tl_shift_code,
-        // U_tl_docdate: "2024-01-24T00:00:00Z",
-        // U_tl_docduedate: "2024-01-24T00:00:00Z",
-        // U_tl_taxdate: "2024-01-24T00:00:00Z",
+        U_tl_docdate: new Date(),
+        U_tl_docduedate: new Date(),
+        U_tl_taxdate: new Date(),
         //Consumption
-        TL_RETAILSALE_CONHCollection: data?.TL_RETAILSALE_CONHCollection,
+        TL_RETAILSALE_CONHCollection: data?.nozzleData
+          ?.filter((e: any) => e.U_tl_nmeter > 0)
+          ?.map((item: any) => ({
+            U_tl_nozzlecode: item.U_tl_nozzlecode,
+            U_tl_itemcode: item.U_tl_itemcode,
+            U_tl_itemname: item.U_tl_itemname,
+            U_tl_uom: item.U_tl_uom,
+            U_tl_nmeter: item.U_tl_nmeter,
+            // U_tl_upd_meter: item.U_tl_ometer,
+            U_tl_ometer: item.U_tl_upd_meter,
+            U_tl_cmeter: item.U_tl_cmeter,
+            U_tl_cardallow: item.U_tl_cardallow,
+            U_tl_cashallow: item.U_tl_cashallow,
+            U_tl_ownallow: item.U_tl_ownallow,
+            U_tl_partallow: item.U_tl_partallow,
+            U_tl_pumpallow: item.U_tl_pumpallow,
+            U_tl_stockallow: item.U_tl_stockallow,
+            U_tl_totalallow: item.U_tl_totalallow,
+          })),
         //Stock Allocation Collection
-        TL_RETAILSALE_STACollection: data?.TL_RETAILSALE_STACollection,
+        TL_RETAILSALE_STACollection: data?.stockAllocationData,
         //  incoming payment
         TL_RETAILSALE_INCCollection: data?.TL_RETAILSALE_INCCollection,
       };
 
       if (id) {
-        return await request("PATCH", `/TL_RetailSale('${id}')`, payload)
+        return await request("PATCH", `/TL_RetailSale(${id})`, payload)
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )
@@ -207,26 +243,6 @@ class Form extends CoreFormDocument {
     this.setState({ ...this.state, tapIndex: index });
   }
 
-  handleNextTab = () => {
-    const currentTab = this.state.tapIndex;
-    const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field: any) => {
-      if (field === "Items") {
-        // Check if the "Items" array is empty
-        return !this.state[field] || this.state[field].length === 0;
-      }
-      return !this.state[field];
-    });
-
-    if (hasErrors) {
-      // Show the dialog if there are errors
-      this.setState({ isDialogOpen: true });
-    } else {
-      // If no errors, allow the user to move to the next tab
-      this.handlerChangeMenu(currentTab + 1);
-    }
-  };
-
   handleCloseDialog = () => {
     this.setState({ isDialogOpen: false });
   };
@@ -241,70 +257,71 @@ class Form extends CoreFormDocument {
     return requiredFieldsMap[tabIndex] || [];
   }
 
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
+  handleMenuButtonClick = (index: any) => {
+    const requiredFields = this.getRequiredFieldsByTab(index - 1);
+    const hasErrors = requiredFields.some((field) => {
+      if (field === "Items") {
+        return !this.state[field] || this.state[field].length === 0;
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      this.setState({ isDialogOpen: true });
+    } else {
+      this.setState({ tapIndex: index });
     }
   };
-
   HeaderTaps = () => {
     return (
       <>
         <div className="w-full flex justify-start">
-          <MenuButton active={this.state.tapIndex === 0}>
+          <MenuButton
+            active={this.state.tapIndex === 0}
+            onClick={() => this.handleMenuButtonClick(0)}
+          >
             <span className="flex">Basic Information</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>
+          <MenuButton
+            active={this.state.tapIndex === 1}
+            onClick={() => this.handleMenuButtonClick(1)}
+          >
             Consumption
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 2}>
+          <MenuButton
+            active={this.state.tapIndex === 2}
+            onClick={() => this.handleMenuButtonClick(2)}
+          >
             <span> Incoming Payment</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 3}>
+          <MenuButton
+            active={this.state.tapIndex === 3}
+            onClick={() => this.handleMenuButtonClick(3)}
+          >
             <span> Stock Allocation</span>
           </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 4}
+            onClick={() => this.handleMenuButtonClick(4)}
+          >
+            <span>Card Count</span>
+          </MenuButton>
         </div>
-        <div className="sticky w-full bottom-4   ">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <div className="flex ">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
-              >
-                Previous
-              </Button>
-            </div>
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
-                style={{ textTransform: "none" }}
-              >
-                Next
-              </Button>
 
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
-                onClose={this.handleCloseDialog}
-              >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
-            </div>
-          </div>
-        </div>
+        <Snackbar
+          open={this.state.isDialogOpen}
+          autoHideDuration={6000}
+          onClose={this.handleCloseDialog}
+        >
+          <Alert
+            onClose={this.handleCloseDialog}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            Please complete all required fields before proceeding to the next
+            tab.
+          </Alert>
+        </Snackbar>
       </>
     );
   };
@@ -345,6 +362,9 @@ class Form extends CoreFormDocument {
                         this.handlerChange(key, value)
                       }
                       edit={this.props?.edit}
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                     />
                   )}
 
@@ -360,6 +380,18 @@ class Form extends CoreFormDocument {
 
                   {this.state.tapIndex === 3 && (
                     <StockAllocationForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      onChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                  {this.state.tapIndex === 4 && (
+                    <CardCount
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                       data={this.state}
                       edit={this.props?.edit}
                       onChange={(key, value) => {

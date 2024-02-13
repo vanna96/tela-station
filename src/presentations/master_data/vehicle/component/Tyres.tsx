@@ -10,7 +10,7 @@ const Tyres = ({
   control,
   defaultValues,
   setValue,
-  detail
+  detail,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     salaryUnit: "",
@@ -87,7 +87,7 @@ const Tyres = ({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
-                Pressure (Rear Tyre)
+                Pressure (Rear Tyre) kPa
               </label>
             </div>
             <div className="col-span-3">
@@ -101,7 +101,7 @@ const Tyres = ({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
-                Pressure (Front Type)
+                Pressure (Front Type) kPa
               </label>
             </div>
             <div className="col-span-3">
