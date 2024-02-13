@@ -103,9 +103,6 @@ export default function IncomingPaymentForm({
     [data]
   );
 
-  console.log(totalKHR);
-  console.log(totalUSD);
-
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">

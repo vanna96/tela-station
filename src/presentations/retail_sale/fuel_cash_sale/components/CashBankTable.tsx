@@ -40,7 +40,6 @@ export default function CashBankTable(props: any) {
         U_tl_paycur: "USD",
         U_tl_amtcash: "",
         U_tl_amtbank: "",
-        // U_tl_paytype: "Cash",
       },
     ];
     onChange("cashBankData", firstData);
@@ -129,7 +128,7 @@ export default function CashBankTable(props: any) {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
               <FormattedInputs
-              placeholder="0.000"
+                placeholder="0.000"
                 key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
                 defaultValue={cell.row.original?.U_tl_amtcash || 0}
