@@ -49,6 +49,7 @@ class DispenserForm extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
+      U_tl_bplid: 1 || "1",
       type: "sale", // Initialize type with a default value
       warehouseCode: "",
       tabErrors: {
@@ -60,7 +61,7 @@ class DispenserForm extends CoreFormDocument {
       },
       isDialogOpen: false,
       Status: "New",
-      lineofBusiness: "Oil"
+      lineofBusiness: "Oil",
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -103,13 +104,14 @@ class DispenserForm extends CoreFormDocument {
             Attendant1: data?.U_tl_attend1,
             Attendant2: data?.U_tl_attend2,
             U_tl_bplid: data?.U_tl_bplid,
+            U_tl_whs: data?.U_tl_whs,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const UoMGroupEntry = await request(
                   "GET",
                   `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
                 );
-                const UoMGroup = UoMGroupEntry
+                const UoMGroup = UoMGroupEntry;
                 const uomGroups: any =
                   await new UnitOfMeasurementGroupRepository().get();
 
@@ -212,15 +214,21 @@ class DispenserForm extends CoreFormDocument {
         Name: this.state?.PumpName,
         U_tl_pumpnum: this.state?.NumOfPump,
         U_tl_bplid: `${this.state?.U_tl_bplid}`,
+        U_tl_whs: data?.U_tl_whs,
         U_tl_type: this.state?.lineofBusiness,
         U_tl_status: this.state?.Status,
         TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
           return {
             U_tl_pumpcode: e?.pumpCode,
             U_tl_itemnum: e?.itemCode,
+            U_tl_bincode: e?.U_tl_bincode,
             U_tl_uom: e?.UomAbsEntry,
-            U_tl_reg_meter: parseFloat((e?.registerMeeting ?? "0.00").toString().replace(/,/g, '')),
-            U_tl_upd_meter: parseFloat((e?.updateMetering ?? "0.00").toString().replace(/,/g, '')),
+            U_tl_reg_meter: parseFloat(
+              (e?.registerMeeting ?? "0.00").toString().replace(/,/g, "")
+            ),
+            U_tl_upd_meter: parseFloat(
+              (e?.updateMetering ?? "0.00").toString().replace(/,/g, "")
+            ),
             U_tl_status: e?.status,
           };
         }),
@@ -228,9 +236,8 @@ class DispenserForm extends CoreFormDocument {
 
       if (id) {
         return await request("PATCH", `/TL_Dispenser('${id}')`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -329,7 +336,7 @@ class DispenserForm extends CoreFormDocument {
               >
                 <NavigateBeforeIcon />
               </Button>
-            </div> 
+            </div>
             <div className="flex items-center">
               <Button
                 size="small"
@@ -463,11 +470,13 @@ class DispenserForm extends CoreFormDocument {
                           sx={{ height: "25px" }}
                           variant="outlined"
                           style={{
-                            background: 'white',
-                            border: '1px solid red'
+                            background: "white",
+                            border: "1px solid red",
                           }}
                           disableElevation
-                          onClick={() => window.location.href = '/master-data/pump'}
+                          onClick={() =>
+                            (window.location.href = "/master-data/pump")
+                          }
                         >
                           <span className="px-3 text-[11px] py-1 text-red-500">
                             Cancel
