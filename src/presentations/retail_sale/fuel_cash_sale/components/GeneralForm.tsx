@@ -55,11 +55,11 @@ export default function GeneralForm({
   );
 
   const seriesSO =
-    data.seriesList.find((series: any) => series.BPLID === BPL)?.Series || "";
+    data.seriesList?.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0].NextNumber;
-  }
+  // if (filteredSeries[0]?.NextNumber && data) {
+  //   data.DocNum = filteredSeries[0]?.NextNumber;
+  // }
   console.log(data);
   console.log(data.U_tl_pump);
   async function getPriceListNum(CardCode: any) {
@@ -269,7 +269,7 @@ export default function GeneralForm({
                 //   // "PriceList" : vendor.priceLists
                 // })}
                 key={data?.CardCode}
-                error={"CardCode" in data?.error}
+                // error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
@@ -344,16 +344,18 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={edit ? data?.Series : filteredSeries[0]?.Series}
+                  // value={edit ? data?.Series : filteredSeries[0]?.Series}
+                  value={data?.Series}
                   disabled={edit}
                 />
                 <div className="-mt-1">
                   <MUITextField
                     size="small"
                     name="DocNum"
-                    value={
-                      edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
-                    }
+                    // value={
+                    //   edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
+                    // }
+                    value={data.DocNum}
                     disabled
                     placeholder="Document No"
                   />

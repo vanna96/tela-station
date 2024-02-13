@@ -34,7 +34,7 @@ export default function CouponTable(props: any) {
       {
         U_tl_acccoupon: "11233",
         U_tl_amtcoupon: "",
-        U_tl_couponcurr: "USD",
+        U_tl_paycur: "USD",
         U_tl_paytype: "Coupon",
         // U_tl_totalusd: 0,
         // U_tl_totalkhr: 0,
@@ -99,20 +99,20 @@ export default function CouponTable(props: any) {
       },
     },
     {
-      accessorKey: "U_tl_couponcurr",
+      accessorKey: "U_tl_paycur",
       header: "Currency",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccoupon) return null;
         return (
           <CurrencySelect
-            key={"U_tl_couponcurr" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_couponcurr || 0}
+            key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_tl_paycur || 0}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_couponcurr: e.target.value,
+                U_tl_paycur: e.target.value,
               });
             }}
-            name={"U_tl_couponcurr"}
+            name={"U_tl_paycur"}
           />
         );
       },

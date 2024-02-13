@@ -17,9 +17,8 @@ import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import NonCoreDcument from "@/components/core/NonCoreDocument";
 
-class Form extends NonCoreDcument {
+class Form extends CoreFormDocument {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -147,38 +146,6 @@ class Form extends NonCoreDcument {
                 U_tl_uom: item.U_tl_uom,
               })
             ),
-            cashBankData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
-            )?.map((item: any) => ({
-              U_tl_acccash: item.U_tl_acccash,
-              U_tl_acccoupon: item.U_tl_acccoupon,
-              U_tl_accbank: item?.U_tl_accbank,
-              U_tl_amtcash: item?.U_tl_amtcash,
-              U_tl_amtbank: item?.U_tl_amtbank,
-              U_tl_paytype: item?.U_tl_paytype,
-              U_tl_paycur: item?.U_tl_paycur,
-            })),
-
-            checkNumberData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "Check"
-            )?.map((item: any) => ({
-              U_tl_acccheck: item.U_tl_acccheck,
-              U_tl_amtcheck: item?.U_tl_amtcheck,
-              U_tl_paytype: item?.U_tl_paytype,
-              U_tl_paycur: item?.U_tl_paycur,
-              U_tl_checkdate: item?.U_tl_checkdate,
-              U_tl_checkbank: item?.U_tl_checkbank,
-            })),
-
-            couponData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "Coupon"
-            )?.map((item: any) => ({
-              U_tl_acccoupon: item.U_tl_acccoupon,
-              U_tl_accbank: item?.U_tl_accbank,
-              U_tl_amtcoupon: item?.U_tl_amtcoupon,
-              U_tl_paytype: item?.U_tl_paytype,
-              U_tl_paycur: item?.U_tl_paycur,
-            })),
           };
         })
         .catch((err: any) => console.log(err))

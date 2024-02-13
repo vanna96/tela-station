@@ -10,6 +10,7 @@ import { Button, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
+import { useExchangeRate } from "../../components/hook/useExchangeRate";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -44,6 +45,8 @@ export default function CashBankTable(props: any) {
     ];
     onChange("cashBankData", firstData);
   };
+
+  useExchangeRate(data?.Currency, onChange);
 
   const columns = [
     {
