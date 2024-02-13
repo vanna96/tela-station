@@ -138,6 +138,7 @@ class DispenserForm extends CoreFormDocument {
                   updateMetering: e?.U_tl_upd_meter,
                   status: e?.U_tl_status,
                   LineId: e?.LineId,
+                  binCode: e?.U_tl_bincode,
                 };
 
                 if (e?.U_tl_itemnum) {
@@ -221,7 +222,7 @@ class DispenserForm extends CoreFormDocument {
           return {
             U_tl_pumpcode: e?.pumpCode,
             U_tl_itemnum: e?.itemCode,
-            U_tl_bincode: e?.U_tl_bincode,
+            U_tl_bincode: e?.binCode,
             U_tl_uom: e?.UomAbsEntry,
             U_tl_reg_meter: parseFloat(
               (e?.registerMeeting ?? "0.00").toString().replace(/,/g, "")
@@ -304,7 +305,7 @@ class DispenserForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness"],
+      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness", "U_tl_whs"],
       // 1: ["Items"]
     };
     return requiredFieldsMap[tabIndex] || [];

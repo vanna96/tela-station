@@ -64,7 +64,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <WarehouseAutoComplete
-                  Branch={data.U_tl_bplid}
+                  Branch={parseInt(BPL)}
                   value={data?.U_tl_whs}
                   onChange={(e) => handlerChange("U_tl_whs", e)}
                 />
