@@ -36,7 +36,15 @@ export default function Consumption({
         </div>
         <NozzleData data={data} onChange={handlerChange} edit={edit} />
         <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Allocation</h2>
+          <h2>Allocation</h2>{" "}
+          <Button
+            type="button"
+            size="small"
+            variant="outlined"
+            onClick={handleGenerateAllocation}
+          >
+            Generate Allocation
+          </Button>
         </div>
         {edit ? (
           <AllocationTable
@@ -47,13 +55,6 @@ export default function Consumption({
           />
         ) : (
           <div>
-            <Button
-              type="button"
-              onClick={handleGenerateAllocation}
-              // Rest of the button props
-            >
-              Generate Allocation
-            </Button>
             {showAllocationTable && (
               <AllocationTable
                 data={data}

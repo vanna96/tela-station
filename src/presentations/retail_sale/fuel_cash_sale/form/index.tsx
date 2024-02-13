@@ -15,8 +15,6 @@ import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import NonCoreDcument from "@/components/core/NonCoreDocument";
 
 class Form extends NonCoreDcument {
@@ -210,7 +208,7 @@ class Form extends NonCoreDcument {
 
       const payload = {
         // general
-        Series: data?.Series,
+        // Series: data?.Series,
         U_tl_bplid: data?.U_tl_bplid,
         U_tl_pump: data?.U_tl_pump,
         U_tl_cardcode: data?.CardCode,
@@ -220,8 +218,8 @@ class Form extends NonCoreDcument {
         U_tl_docduedate: new Date(),
         U_tl_taxdate: new Date(),
         //Consumption
-        TL_RETAILSALE_CONHCollection: data?.nozzleData
-          ?.filter((e: any) => e.U_tl_nmeter > 0)
+        TL_RETAILSALE_CONHCollection: data?.allocationData
+          ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
           ?.map((item: any) => ({
             U_tl_nozzlecode: item.U_tl_nozzlecode,
             U_tl_itemcode: item.U_tl_itemcode,

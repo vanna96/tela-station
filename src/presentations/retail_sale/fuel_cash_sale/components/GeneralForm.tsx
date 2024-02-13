@@ -54,12 +54,6 @@ export default function GeneralForm({
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
 
-  const seriesSO =
-    data.seriesList?.find((series: any) => series.BPLID === BPL)?.Series || "";
-
-  // if (filteredSeries[0]?.NextNumber && data) {
-  //   data.DocNum = filteredSeries[0]?.NextNumber;
-  // }
   console.log(data);
   console.log(data.U_tl_pump);
   async function getPriceListNum(CardCode: any) {
@@ -76,8 +70,6 @@ export default function GeneralForm({
   if (data.vendor) {
     data.PriceList = data.vendor.priceLists;
   }
-
-  console.log(data.PriceList);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -339,23 +331,28 @@ export default function GeneralForm({
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={filteredSeries ?? data.seriesList}
+                  items={data.seriesList ? filteredSeries : data?.seriesList}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  // value={edit ? data?.Series : filteredSeries[0]?.Series}
-                  value={data?.Series}
+                  value={7914}
+                  // value={
+                  //   data?.Series
+                  //     ? parseInt(filteredSeries[0]?.Series)
+                  //     : data?.Series
+                  // }
                   disabled={edit}
                 />
                 <div className="-mt-1">
                   <MUITextField
                     size="small"
                     name="DocNum"
-                    // value={
-                    //   edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
-                    // }
-                    value={data.DocNum}
+                    value={
+                      data?.seriesList
+                        ? filteredSeries[0]?.NextNumber
+                        : data.DocNum
+                    }
                     disabled
                     placeholder="Document No"
                   />

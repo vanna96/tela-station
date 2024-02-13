@@ -102,7 +102,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               defaultValue={cell.getValue() === 0 ? "" : cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_nmeter: e.target.value,
+                  U_tl_nmeter: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />

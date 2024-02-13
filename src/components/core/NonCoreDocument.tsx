@@ -15,6 +15,7 @@ export interface NonCoreDcumentState {
   Currency?: string | undefined | null;
   PriceLists?: string | undefined | null;
   Series: any;
+  loading: boolean;
   DocNum: any;
   isSubmitting: boolean;
   title: string;
@@ -43,6 +44,7 @@ export default abstract class NonCoreDcument extends React.Component<
     this.state = {
       collapse: false,
       CardCode: "",
+      loading: false,
       CardName: "",
       Currency: "",
       PriceLists: "",
@@ -155,20 +157,6 @@ export default abstract class NonCoreDcument extends React.Component<
           (e: any) => e.Series === value
         );
         temps["DocNum"] = document?.NextNumber;
-        break;
-
-        const total = parseFloat(value) > DocTotalBeforeDiscount;
-        DocDiscountPercent = total
-          ? 100
-          : (value / DocTotalBeforeDiscount) * 100;
-        temps["DocDiscountPercent"] =
-          DocDiscountPercent >= 10
-            ? DocDiscountPercent
-            : DocDiscountPercent / 10;
-        temps["DocDiscountPrice"] = total ? 0 : value;
-        temps = this.findTotalVatRate(temps);
-        break;
-      default:
         break;
     }
     this.setState(temps);
