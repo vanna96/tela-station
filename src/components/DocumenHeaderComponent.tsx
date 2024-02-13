@@ -300,7 +300,6 @@ export const TotalSummaryRightSide = (props: any) => {
               <NumericFormat
                 value={docTotal}
                 thousandSeparator
-                fixedDecimalScale
                 disabled
                 className="bg-white w-1/2"
                 decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -315,11 +314,10 @@ export const TotalSummaryRightSide = (props: any) => {
             </label>
           </div>
           <div className="col-span-4">
-            {"%"} {props?.data?.DiscountPercent} {props.data?.Currency}{" "}
+            {"%"} {props?.data?.DiscountPercent || 0} {props.data?.Currency}{" "}
             <NumericFormat
-              value={discountAmount}
+              value={discountAmount || 0}
               thousandSeparator
-              fixedDecimalScale
               disabled
               className="bg-white w-1/2"
               decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -337,7 +335,6 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={docTaxTotal}
               thousandSeparator
-              fixedDecimalScale
               disabled
               className="bg-white w-1/2"
               decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -356,7 +353,6 @@ export const TotalSummaryRightSide = (props: any) => {
             <NumericFormat
               value={grossTotal}
               thousandSeparator
-              fixedDecimalScale
               disabled
               className="bg-white w-1/2"
               decimalScale={props.data.Currency === "USD" ? 3 : 0}

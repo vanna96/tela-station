@@ -1,13 +1,13 @@
 import React from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { AiOutlinePlus, AiOutlineSetting } from "react-icons/ai";
+import { AiOutlineSetting } from "react-icons/ai";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { Button, IconButton } from "@mui/material";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BankSelect from "@/components/selectbox/bank";
-import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
 import BankAutoComplete from "@/components/input/BankAutoComplete";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import CurrencySelect from "@/components/selectbox/Currency";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -38,6 +38,7 @@ export default function CashBankTable(props: any) {
         U_tl_checkdate: new Date(),
         U_tl_checkbank: "",
         U_tl_amtcheck: 0,
+        U_tl_paycur: "USD",
       },
     ];
     onChange("checkNumberData", firstData);
@@ -83,14 +84,14 @@ export default function CashBankTable(props: any) {
             </Button>
           );
         return (
-          <GLAccountAutoComplete
+          <CashACAutoComplete
             key={"U_tl_acccheck" + cell.getValue() + cell?.row?.id}
             // type="number"
             disabled={data?.edit}
             value={cell.row.original?.U_tl_acccheck || ""}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_acccheck: e
+                U_tl_acccheck: e,
               });
             }}
           />
@@ -101,7 +102,7 @@ export default function CashBankTable(props: any) {
       accessorKey: "U_tl_checkdate",
       header: "Check Date",
       Cell: ({ cell }: any) => {
-       if (!cell.row.original.U_tl_acccheck) return null
+        if (!cell.row.original.U_tl_acccheck) return null;
         return (
           <MUIDatePicker
             key={"U_tl_checkdate" + cell.getValue() + cell?.row?.id}
@@ -117,13 +118,32 @@ export default function CashBankTable(props: any) {
       },
     },
     {
+      accessorKey: "U_tl_paycur",
+      header: "Currency",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original.U_tl_acccheck) return null;
+        return (
+          <CurrencySelect
+            key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_tl_paycur || 0}
+            onChange={(e: any) => {
+              handlerChangeItem(cell?.row?.id || 0, {
+                U_tl_paycur: e.target.value,
+              });
+            }}
+          />
+        );
+      },
+    },
+    {
       accessorKey: "U_tl_amtcheck",
       header: "Check Amount",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null
+        if (!cell.row.original.U_tl_acccheck) return null;
         return (
           <FormattedInputs
             key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
+            placeholder="0.000"
             disabled={data?.edit}
             defaultValue={cell.row.original?.U_tl_amtcheck || 0}
             onBlur={(e: any) => {
@@ -142,7 +162,7 @@ export default function CashBankTable(props: any) {
       header: "Bank",
 
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null
+        if (!cell.row.original.U_tl_acccheck) return null;
         return (
           <BankAutoComplete
             key={"U_tl_checkbank" + cell.getValue() + cell?.row?.id}
@@ -150,7 +170,7 @@ export default function CashBankTable(props: any) {
             disabled={data?.edit}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_checkbank: e
+                U_tl_checkbank: e,
               });
             }}
           />

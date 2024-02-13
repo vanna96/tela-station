@@ -5,6 +5,8 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
+import { commaFormatNum } from "@/utilies/formatNumber";
+
 interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -32,36 +34,21 @@ export default function AllocationTable({
     onChange("allocationData", newData);
   };
   const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
+    const res = await request(
+      "GET",
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
+    );
     return res;
   };
 
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_itemcode",
+        accessorKey: "U_tl_itemname",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return <MUITextField disabled value={itemName?.data?.ItemName} />;
+          return <MUITextField disabled value={cell.getValue()} />;
         },
       },
 
@@ -74,6 +61,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -87,6 +75,7 @@ export default function AllocationTable({
           );
         },
       },
+
       {
         accessorKey: "U_tl_partallow",
         header: "Partnership (Litre)",
@@ -96,6 +85,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -118,6 +108,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -140,6 +131,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -162,6 +154,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -184,6 +177,7 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
@@ -202,19 +196,22 @@ export default function AllocationTable({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original?.U_tl_cardallow) +
-            parseFloat(cell.row.original?.U_tl_cashallow) +
-            parseFloat(cell.row.original?.U_tl_ownallow) +
-            parseFloat(cell.row.original?.U_tl_partallow) +
-            parseFloat(cell.row.original?.U_tl_pumpallow) +
-            parseFloat(cell.row.original?.U_tl_stockallow);
+            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
 
-          const isValid = total === parseFloat(cell.row.original.U_tl_nmeter);
+          const isValid =
+            total === commaFormatNum(cell.row.original?.U_tl_nmeter);
+          console.log(total);
+          console.log(commaFormatNum(cell.row.original?.U_tl_nmeter));
           return (
             <NumericFormat
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
-              // readOnly
               fixedDecimalScale
               customInput={MUITextField}
               value={total}

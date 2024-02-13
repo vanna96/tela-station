@@ -5,9 +5,6 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import React, { useContext } from "react";
-
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import BusinessPartner from "@/models/BusinessParter";
@@ -18,6 +15,8 @@ import IncomingPaymentForm from "../components/IncomingPayment";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 
 class Form extends CoreFormDocument {
   constructor(props: any) {
@@ -51,7 +50,7 @@ class Form extends CoreFormDocument {
         {
           U_tl_acccoupon: "11233",
           U_tl_amtcoupon: 0,
-          U_tl_couponcurr: "USD"
+          U_tl_couponcurr: "USD",
           // U_tl_totalusd: 0,
           // U_tl_totalkhr: 0,
           // U_tl_over: 0,
@@ -244,26 +243,6 @@ class Form extends CoreFormDocument {
     this.setState({ ...this.state, tapIndex: index });
   }
 
-  handleNextTab = () => {
-    const currentTab = this.state.tapIndex;
-    const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field: any) => {
-      if (field === "Items") {
-        // Check if the "Items" array is empty
-        return !this.state[field] || this.state[field].length === 0;
-      }
-      return !this.state[field];
-    });
-
-    if (hasErrors) {
-      // Show the dialog if there are errors
-      this.setState({ isDialogOpen: true });
-    } else {
-      // If no errors, allow the user to move to the next tab
-      this.handlerChangeMenu(currentTab + 1);
-    }
-  };
-
   handleCloseDialog = () => {
     this.setState({ isDialogOpen: false });
   };
@@ -278,73 +257,71 @@ class Form extends CoreFormDocument {
     return requiredFieldsMap[tabIndex] || [];
   }
 
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
+  handleMenuButtonClick = (index: any) => {
+    const requiredFields = this.getRequiredFieldsByTab(index - 1);
+    const hasErrors = requiredFields.some((field) => {
+      if (field === "Items") {
+        return !this.state[field] || this.state[field].length === 0;
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      this.setState({ isDialogOpen: true });
+    } else {
+      this.setState({ tapIndex: index });
     }
   };
-
   HeaderTaps = () => {
     return (
       <>
         <div className="w-full flex justify-start">
-          <MenuButton active={this.state.tapIndex === 0}>
+          <MenuButton
+            active={this.state.tapIndex === 0}
+            onClick={() => this.handleMenuButtonClick(0)}
+          >
             <span className="flex">Basic Information</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>
+          <MenuButton
+            active={this.state.tapIndex === 1}
+            onClick={() => this.handleMenuButtonClick(1)}
+          >
             Consumption
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 2}>
+          <MenuButton
+            active={this.state.tapIndex === 2}
+            onClick={() => this.handleMenuButtonClick(2)}
+          >
             <span> Incoming Payment</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 3}>
+          <MenuButton
+            active={this.state.tapIndex === 3}
+            onClick={() => this.handleMenuButtonClick(3)}
+          >
             <span> Stock Allocation</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 4}>
+          <MenuButton
+            active={this.state.tapIndex === 4}
+            onClick={() => this.handleMenuButtonClick(4)}
+          >
             <span>Card Count</span>
           </MenuButton>
         </div>
-        <div className="sticky w-full bottom-4   ">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <div className="flex ">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
-              >
-                Previous
-              </Button>
-            </div>
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 4}
-                style={{ textTransform: "none" }}
-              >
-                Next
-              </Button>
 
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
-                onClose={this.handleCloseDialog}
-              >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
-            </div>
-          </div>
-        </div>
+        <Snackbar
+          open={this.state.isDialogOpen}
+          autoHideDuration={6000}
+          onClose={this.handleCloseDialog}
+        >
+          <Alert
+            onClose={this.handleCloseDialog}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            Please complete all required fields before proceeding to the next
+            tab.
+          </Alert>
+        </Snackbar>
       </>
     );
   };

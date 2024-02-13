@@ -6,6 +6,9 @@ import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import FormCard from "@/components/card/FormCard";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { commaFormatNum } from "@/utilies/formatNumber";
+
 interface CardCountProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -85,8 +88,8 @@ export default function CardCount({
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -107,8 +110,8 @@ export default function CardCount({
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -129,8 +132,8 @@ export default function CardCount({
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -151,8 +154,8 @@ export default function CardCount({
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -173,8 +176,8 @@ export default function CardCount({
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -196,8 +199,8 @@ export default function CardCount({
               key={"amount_" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -213,23 +216,24 @@ export default function CardCount({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original?.U_tl_1l) +
-            parseFloat(cell.row.original?.U_tl_2l) +
-            parseFloat(cell.row.original?.U_tl_5l) +
-            parseFloat(cell.row.original?.U_tl_10l) +
-            parseFloat(cell.row.original?.U_tl_20l) +
-            parseFloat(cell.row.original?.U_tl_50l);
+            commaFormatNum(cell.row.original?.U_tl_1l || 0) +
+            commaFormatNum(cell.row.original?.U_tl_2l || 0) +
+            commaFormatNum(cell.row.original?.U_tl_5l || 0) +
+            commaFormatNum(cell.row.original?.U_tl_10l || 0) +
+            commaFormatNum(cell.row.original?.U_tl_20l || 0) +
+            commaFormatNum(cell.row.original?.U_tl_50l || 0);
 
-          const isValid = total === parseFloat(cell.row.original.U_tl_nmeter);
-          console.log(parseFloat(cell.row.original.U_tl_nmeter));
+          const isValid =
+            total === commaFormatNum(cell.row.original.U_tl_nmeter);
+          console.log(commaFormatNum(cell.row.original.U_tl_nmeter));
           console.log(total);
           return (
             <NumericFormat
               thousandSeparator
               decimalScale={2}
               // readOnly
-              fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
               value={total}
               inputProps={{
                 style: {

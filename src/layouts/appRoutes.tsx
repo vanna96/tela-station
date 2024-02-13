@@ -1,31 +1,14 @@
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
-import AppsOutlinedIcon from "@mui/icons-material/AppsOutlined";
-import ArticleOutlinedIcon from "@mui/icons-material/ArticleOutlined";
-import FormatListBulletedOutlinedIcon from "@mui/icons-material/FormatListBulletedOutlined";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import SaleMasterPage from "@/presentations/retail_sale";
-import ExpensePage from "@/presentations/expense";
 import { ReactNode } from "react";
-import MasterDataPage from "@/presentations/master";
-import DispenserList from "../presentations/master_data/dispenser/index";
-import CashAccountList from "@/presentations/master_data/cash_account/index";
-import ExpenseDictionaryList from "@/presentations/master_data/expense_dictionary";
-import MorphPriceLists from "@/presentations/retail_sale/morph_price";
 import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import { MdPointOfSale, MdReceipt } from "react-icons/md";
 import DatasetLinkedIcon from "@mui/icons-material/DatasetLinked";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import PaymentIcon from "@mui/icons-material/Payment";
-import ShowChartIcon from "@mui/icons-material/ShowChart";
-import SettleReceiptLists from "@/presentations/collection/settle_receipt";
-import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
-import ExpenseLogLists from "@/presentations/expense/log";
-import ClearenceLists from "@/presentations/expense/clearence";
-import DirectAccountLists from "@/presentations/collection/direct_account";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AdsClickIcon from "@mui/icons-material/AdsClick";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import SwitchAccountIcon from "@mui/icons-material/SwitchAccount";
+import DescriptionIcon from '@mui/icons-material/Description';
 
 type RouteType = {
   state: string;
@@ -99,7 +82,7 @@ const appRoutes: RouteType[] = [
         state: "vehicle",
         sidebarProps: {
           displayText: "Vehicle",
-        }
+        },
       },
       {
         path: "/master-data/stops",
@@ -113,7 +96,7 @@ const appRoutes: RouteType[] = [
         state: "route",
         sidebarProps: {
           displayText: "Route",
-        }
+        },
       },
     ],
   },
@@ -147,7 +130,7 @@ const appRoutes: RouteType[] = [
     state: "sale-order",
     sidebarProps: {
       displayText: "Sale Order",
-      icon: <LocalShippingIcon />,
+      icon: <DescriptionIcon />,
     },
     child: [
       {
@@ -366,7 +349,7 @@ const appRoutes: RouteType[] = [
     state: "trip-management",
     sidebarProps: {
       displayText: "Trip Management",
-      icon: <PaymentIcon />,
+      icon: <LocalShippingIcon />,
     },
     child: [
       {

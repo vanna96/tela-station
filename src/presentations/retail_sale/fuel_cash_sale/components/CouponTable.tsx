@@ -4,8 +4,8 @@ import { AiOutlineSetting } from "react-icons/ai";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { Button, IconButton } from "@mui/material";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
-import GLAccountAutoComplete from "@/components/input/GLAccountAutoComplete";
 import CurrencySelect from "@/components/selectbox/Currency";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -33,7 +33,7 @@ export default function CouponTable(props: any) {
       ...data.couponData,
       {
         U_tl_acccoupon: "11233",
-        U_tl_amtcoupon: 0,
+        U_tl_amtcoupon: "",
         U_tl_couponcurr: "USD",
         U_tl_paytype: "Coupon",
         // U_tl_totalusd: 0,
@@ -84,7 +84,7 @@ export default function CouponTable(props: any) {
             </Button>
           );
         return (
-          <GLAccountAutoComplete
+          <CashACAutoComplete
             key={"U_tl_acccoupon" + cell.getValue() + cell?.row?.id}
             // type="number"
             disabled={data?.edit}
@@ -119,7 +119,7 @@ export default function CouponTable(props: any) {
     },
     {
       accessorKey: "U_tl_amtcoupon",
-      header: "Check Amount",
+      header: " Amount",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccoupon) return null;
         return (
@@ -127,6 +127,7 @@ export default function CouponTable(props: any) {
             key={"U_tl_amtcoupon" + cell.getValue() + cell?.row?.id}
             disabled={data?.edit}
             defaultValue={cell.row.original?.U_tl_amtcoupon || 0}
+            placeholder="0.000"
             onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
                 U_tl_amtcoupon: e.target.value,

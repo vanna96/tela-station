@@ -14,20 +14,6 @@ export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  const handlerAddCheck = () => {
-    onChange("cashBankData", [
-      ...(data?.cashBankData || []),
-      {
-        U_tl_paytype: "cash" || "bank",
-        U_tl_paycur: "USD",
-        U_tl_amtcash: 0,
-        U_tl_amtbank: 0,
-      },
-    ]);
-  };
-
-  console.log(data);
-
   const handlerRemoveCheck = (key: number) => {
     const newData = (data?.cashBankData || []).filter(
       (item: any, index: number) => index !== key
@@ -52,9 +38,8 @@ export default function CashBankTable(props: any) {
       {
         U_tl_paytype: "cash",
         U_tl_paycur: "USD",
-        U_tl_amtcash: 0,
-        U_tl_amtbank: 0,
-        // U_tl_paytype: "Cash",
+        U_tl_amtcash: "",
+        U_tl_amtbank: "",
       },
     ];
     onChange("cashBankData", firstData);
@@ -143,6 +128,7 @@ export default function CashBankTable(props: any) {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
               <FormattedInputs
+                placeholder="0.000"
                 key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
                 defaultValue={cell.row.original?.U_tl_amtcash || 0}
@@ -165,6 +151,7 @@ export default function CashBankTable(props: any) {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
               <FormattedInputs
+                placeholder="0.000"
                 key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
                 defaultValue={cell.row.original?.U_tl_amtbank || 0}

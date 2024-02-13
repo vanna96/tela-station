@@ -23,10 +23,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
   };
 
   const fetchItemName = async (itemCode: any) => {
-    const res = await request(
-      "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
-    );
+    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
     return res;
   };
   console.log(data);
@@ -56,83 +53,15 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return <MUITextField value={cell.getValue()} disabled />;
         },
       },
-      // {
-      //   accessorKey: "ItemPrice",
-      //   header: "Item Price",
-      //   visible: false,
-      //   Cell: ({ cell }: any) => {
-      //     const itemCode = cell.row.original.U_tl_itemcode;
-
-      //     const {
-      //       data: itemName,
-      //       isLoading,
-      //       isError,
-      //     } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-      //       enabled: !!itemCode,
-      //     });
-
-      //     if (isLoading) {
-      //       return <MUITextField disabled />;
-      //     }
-
-      //     if (isError) {
-      //       return <span>Error fetching itemName</span>;
-      //     }
-
-      //     return (
-      //       <MUITextField
-      //         disabled
-      //         value={
-      //           itemName?.data?.ItemPrices?.find(
-      //             (e: any) => e.PriceList === data.PriceList
-      //           )?.Price
-      //         }
-      //         onBlur={(e: any) =>
-      //           handlerChangeItem(cell?.row?.id || 0, {
-      //             ItemPrice: e.target.value,
-      //           })
-      //         }
-      //       />
-      //     );
-      //   },
-      // },
 
       {
         accessorKey: "U_tl_itemname",
         header: "Item Name",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return (
-            <MUITextField
-              disabled
-              value={
-                edit
-                  ? cell.row.original.U_tl_itemname
-                  : itemName?.data?.ItemName
-              }
-            />
-          );
+          return <MUITextField value={cell.getValue()} disabled />;
         },
       },
-
       {
         accessorKey: "U_tl_uom",
         header: "UoM",
@@ -168,8 +97,9 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
+              placeholder="0.000"
               customInput={MUITextField}
-              defaultValue={cell.getValue() ?? 0}
+              defaultValue={cell.getValue() === 0 ? "" : cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_nmeter: e.target.value,
