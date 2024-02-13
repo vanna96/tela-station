@@ -116,7 +116,7 @@ export default function CashBankTable(props: any) {
             value={cell.row.original?.U_tl_paycur || 0}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_paycur: e.target.value,
+                U_tl_paycur: (e.target.value),
               });
             }}
           />
@@ -137,7 +137,7 @@ export default function CashBankTable(props: any) {
                 defaultValue={cell.row.original?.U_tl_amtcash || 0}
                 onBlur={(e: any) => {
                   handlerChangeItem(cell?.row?.id || 0, {
-                    U_tl_amtcash: e.target.value,
+                    U_tl_amtcash: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
                 name={"U_tl_amtcash"}
@@ -160,7 +160,7 @@ export default function CashBankTable(props: any) {
                 defaultValue={cell.row.original?.U_tl_amtbank || 0}
                 onBlur={(e: any) => {
                   handlerChangeItem(cell?.row?.id || 0, {
-                    U_tl_amtbank: e.target.value,
+                    U_tl_amtbank: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
                 name={"U_tl_amtbank"}

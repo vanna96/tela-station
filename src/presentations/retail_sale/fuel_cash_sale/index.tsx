@@ -201,7 +201,7 @@ export default function SaleOrderLists() {
         `${url}/TL_RetailSale?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter ? ` and ${filter}` : filter}${
-          sortBy !== "" ? "&$orderby=" + sortBy : ""
+          sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
         }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`
       )
         .then((res: any) => res?.data?.value)

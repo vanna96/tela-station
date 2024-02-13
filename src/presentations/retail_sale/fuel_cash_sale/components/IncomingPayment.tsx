@@ -44,10 +44,11 @@ export default function IncomingPaymentForm({
   const totalCashSale: number = React.useMemo(() => {
     const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
       const lineTotal = Formular.findLineTotal(
-        commaFormatNum(item.U_tl_cashallow || 0)?.toString(),
+        (item.U_tl_cashallow || 0)?.toString(),
         item.ItemPrice || 0,
         "0"
       );
+      console.log(item.U_tl_cashallow);
       return prevTotal + lineTotal;
     }, 0);
     return total;
@@ -59,7 +60,11 @@ export default function IncomingPaymentForm({
       0
     );
   };
-
+  console.log([
+    ...data?.checkNumberData,
+    ...data?.cashBankData,
+    ...data?.couponData,
+  ]);
   const calculateTotalByCurrency = (data: any, currency: any) => {
     let total = 0;
 
@@ -84,7 +89,7 @@ export default function IncomingPaymentForm({
 
     // Aggregate CouponData
     total += data.couponData.reduce((acc: any, item: any) => {
-      if (item.U_tl_couponcurr === currency) {
+      if (item.U_tl_paycur === currency) {
         const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
         return acc + couponAmount;
       }

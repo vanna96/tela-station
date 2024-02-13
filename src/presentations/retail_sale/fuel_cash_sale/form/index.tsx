@@ -33,8 +33,8 @@ class Form extends NonCoreDcument {
         {
           U_tl_paytype: "cash",
           U_tl_paycur: "USD",
-          U_tl_amtcash: 0,
-          U_tl_amtbank: 0,
+          U_tl_amtcash: "",
+          U_tl_amtbank: "",
         },
       ],
       checkNumberData: [
@@ -42,17 +42,17 @@ class Form extends NonCoreDcument {
           U_tl_acccheck: "111122",
           U_tl_checkdate: new Date(),
           U_tl_checkbank: "",
-          U_tl_amtcheck: 0,
+          U_tl_paytype: "check",
+          U_tl_amtcheck: "",
+          U_tl_paycur: "USD",
         },
       ],
       couponData: [
         {
-          U_tl_acccoupon: "11233",
-          U_tl_amtcoupon: 0,
-          U_tl_couponcurr: "USD",
-          // U_tl_totalusd: 0,
-          // U_tl_totalkhr: 0,
-          // U_tl_over: 0,
+          U_tl_acccoupon: "101111",
+          U_tl_amtcoupon: "",
+          U_tl_paycur: "USD",
+          U_tl_paytype: "coupon",
         },
       ],
     } as any;
@@ -146,7 +146,7 @@ class Form extends NonCoreDcument {
               })
             ),
             cashBankData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
+              (e: any) => e.U_tl_paytype === "cash" || e.U_tl_paytype === "bank"
             )?.map((item: any) => ({
               U_tl_acccash: item.U_tl_acccash,
               U_tl_acccoupon: item.U_tl_acccoupon,
@@ -158,7 +158,7 @@ class Form extends NonCoreDcument {
             })),
 
             checkNumberData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "Check"
+              (e: any) => e.U_tl_paytype === "check"
             )?.map((item: any) => ({
               U_tl_acccheck: item.U_tl_acccheck,
               U_tl_amtcheck: item?.U_tl_amtcheck,
@@ -169,7 +169,7 @@ class Form extends NonCoreDcument {
             })),
 
             couponData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "Coupon"
+              (e: any) => e.U_tl_paytype === "coupon"
             )?.map((item: any) => ({
               U_tl_acccoupon: item.U_tl_acccoupon,
               U_tl_accbank: item?.U_tl_accbank,
@@ -237,10 +237,33 @@ class Form extends NonCoreDcument {
             U_tl_stockallow: item.U_tl_stockallow,
             U_tl_totalallow: item.U_tl_totalallow,
           })),
-        //Stock Allocation Collection
-        TL_RETAILSALE_STACollection: data?.stockAllocationData,
+
         //  incoming payment
-        TL_RETAILSALE_INCCollection: data?.TL_RETAILSALE_INCCollection,
+        TL_RETAILSALE_INCCollection: [
+          ...data?.checkNumberData,
+          ...data?.cashBankData,
+          ...data?.couponData,
+        ],
+        //Stock Allocation Collection
+        TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
+          (item: any) => ({
+            U_tl_nozzlecode: item.U_tl_nozzlecode,
+            U_tl_itemcode: item.U_tl_itemcode,
+            U_tl_itemname: item.U_tl_itemname,
+            U_tl_uom: item.U_tl_uom,
+            U_tl_nmeter: item.U_tl_nmeter,
+            // U_tl_upd_meter: item.U_tl_ometer,
+            U_tl_ometer: item.U_tl_upd_meter,
+            U_tl_cmeter: item.U_tl_cmeter,
+            U_tl_cardallow: item.U_tl_cardallow,
+            U_tl_cashallow: item.U_tl_cashallow,
+            U_tl_ownallow: item.U_tl_ownallow,
+            U_tl_partallow: item.U_tl_partallow,
+            U_tl_pumpallow: item.U_tl_pumpallow,
+            U_tl_stockallow: item.U_tl_stockallow,
+            U_tl_totalallow: item.U_tl_totalallow,
+          })
+        ),
       };
 
       if (id) {
@@ -254,7 +277,10 @@ class Form extends NonCoreDcument {
 
       await request("POST", "/TL_RetailSale", payload)
         .then((res: any) =>
-          this.dialog.current?.success("Create Successfully.", res?.data?.Code)
+          this.dialog.current?.success(
+            "Create Successfully.",
+            res?.data?.DocNum
+          )
         )
         .catch((err: any) => this.dialog.current?.error(err.message))
         .finally(() => this.setState({ ...this.state, isSubmitting: false }));

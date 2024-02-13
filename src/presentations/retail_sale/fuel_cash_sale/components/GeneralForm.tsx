@@ -188,11 +188,13 @@ export default function GeneralForm({
                   );
 
                   console.log(itemsWithPrices);
-
+                  const warehouseCode = dispenserData?.U_tl_whs;
                   // Prepare the stockAllocationData and nozzleData with the fetched item details
                   const updatedStockAllocationData = itemsWithPrices.map(
                     (item: any) => ({
                       U_tl_bplid: data.U_tl_bplid,
+                      U_tl_whs: warehouseCode,
+                      U_tl_bincode: item.U_tl_bincode,
                       U_tl_itemcode: item.U_tl_itemnum,
                       U_tl_itemname: item.ItemName, // Use the fetched item name
                       U_tl_qtyaloc: item.U_tl_qtyaloc,
@@ -224,6 +226,9 @@ export default function GeneralForm({
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice, // Use the fetched price
+                      U_tl_bplid: data.U_tl_bplid,
+                      U_tl_whs: warehouseCode,
+                      U_tl_bincode: parseInt(item.U_tl_bincode),
                     })
                   );
 
