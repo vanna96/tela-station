@@ -14,13 +14,15 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
+      console.log(lineTotal);
+
       return prevTotal + lineTotal;
     }, 0);
-
-    return formatNumberWithoutRounding(total, 6);
+console.log(total)
+    return total;
   }, [items, ExchangeRate]);
 
   const docDiscountAmount =
@@ -30,7 +32,7 @@ export const useDocumentTotalHook = (
     const totalTax = items.reduce((prevTax, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
       const TaxRate = item.VatGroup === "VO00" ? 0 : 10;
@@ -45,7 +47,7 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
 
@@ -57,4 +59,3 @@ export const useDocumentTotalHook = (
 
   return [docTotal, docTaxTotal, grossTotal];
 };
-//since we can't change tax code ? Gross Price is always the same
