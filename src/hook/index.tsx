@@ -17,12 +17,10 @@ export const useDocumentTotalHook = (
         (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
-      console.log(lineTotal);
 
       return prevTotal + lineTotal;
     }, 0);
-console.log(total)
-    return total;
+    return formatNumberWithoutRounding(total, 4);
   }, [items, ExchangeRate]);
 
   const docDiscountAmount =
@@ -40,7 +38,7 @@ console.log(total)
       return prevTax + lineTax;
     }, 0);
 
-    return formatNumberWithoutRounding(totalTax, 6);
+    return formatNumberWithoutRounding(totalTax, 4);
   }, [items]);
 
   const grossTotal: number = React.useMemo(() => {
@@ -51,7 +49,7 @@ console.log(total)
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
 
-      return prevTotal + lineTotal;
+      return formatNumberWithoutRounding(prevTotal + lineTotal, 4);
     }, 0);
 
     return docTotal - docDiscountAmount + docTaxTotal;
