@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { HiRefresh } from "react-icons/hi";
-import { BiFilterAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineSetting } from "react-icons/ai";
 import MaterialReactTable from "material-react-table";
 import { BsPencilSquare, BsSortDown } from "react-icons/bs";
 import MenuCompoment from "@/components/data_table/MenuComponent";
@@ -50,51 +48,36 @@ export default function DataTable(props: DataTableProps) {
 
   const [exportButtonClicked, setExportButtonClicked] = useState(false);
 
+  const fetchDataForExport = async () => {
+    setExportButtonClicked(true); // To trigger refetch
+  };
+
+  // Adjust the useQuery hook to automatically refetch when exportButtonClicked changes
   const {
     data: dataCSV,
     isLoading,
     refetch,
-    isFetching,
-  }: any = useQuery({
-    queryKey: ["export-to-csv", props.dataUrl, exportButtonClicked],
-    enabled: exportButtonClicked,
-    queryFn: async () => {
-      const response: any = await request("GET", props.dataUrl)
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
+  } = useQuery(
+    ["export-to-csv", props.dataUrl, exportButtonClicked],
+    async () => {
+      const response = await request("GET", props.dataUrl)
+        .then((res) => res?.data?.value)
+        .catch((e) => {
           throw new Error(e.message);
         });
+      setExportButtonClicked(false); // Reset the trigger
       return response;
     },
-  });
-  const handleExportToCSV = async () => {
-    // Trigger refetching the data
-    await refetch();
-
-    // Check if data is available
-    if (dataCSV && dataCSV.length > 0) {
-      const csvContent = convertToCSV(dataCSV);
-
-      // Prepend the UTF-8 Byte Order Mark (BOM)
-      const bom = "\ufeff";
-      const csvContentWithBom = bom + csvContent;
-
-      // Create a blob with the CSV content
-      const blob = new Blob([csvContentWithBom], {
-        type: "text/csv;charset=utf-8;",
-      });
-
-      // Create a download link and trigger the download
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "exported_data.csv";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      console.log("No data available to export.");
+    {
+      enabled: exportButtonClicked, // This ensures the query does not automatically run
+      onSettled: (data) => {
+        if (data && data.length > 0) {
+          // Directly call to convert and download CSV
+          convertToCSVAndDownload(data);
+        }
+      },
     }
-  };
+  );
 
   const convertToCSV = (data: any[]) => {
     // Specify the desired field names
@@ -131,6 +114,22 @@ export default function DataTable(props: DataTableProps) {
 
     return csvContent;
   };
+
+  const convertToCSVAndDownload = (data: any) => {
+    const csvContent = convertToCSV(data);
+    const bom = "\ufeff";
+    const csvContentWithBom = bom + csvContent;
+    const blob = new Blob([csvContentWithBom], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "exported_data.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
@@ -172,21 +171,26 @@ export default function DataTable(props: DataTableProps) {
           <Button
             size="small"
             variant="text"
-            onClick={() => {
-              if (props.data && props.data.length > 0) {
-                handleExportToCSV();
-              } else {
-                // Handle the case when there is no data to export
-                console.log("No data to export");
-              }
-            }}
+            onClick={fetchDataForExport}
+            disabled={isLoading || exportButtonClicked} // Adjust based on the actual loading state
           >
-            <span className="text-sm mr-2">
-              <InsertDriveFileOutlinedIcon
-                style={{ fontSize: "18px", marginBottom: "2px" }}
-              />
-            </span>
-            <span className="capitalize text-[13px] ">Export to CSV</span>
+            {isLoading || exportButtonClicked ? (
+              <>
+                <span className="text-sm mr-2">
+                  <CircularProgress size={16} />
+                </span>
+                <span className="capitalize text-[13px]">Exporting...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-sm mr-2">
+                  <InsertDriveFileOutlinedIcon
+                    style={{ fontSize: "18px", marginBottom: "2px" }}
+                  />
+                </span>
+                <span className="capitalize text-[13px]">Export to CSV</span>
+              </>
+            )}
           </Button>
         </div>
       </div>
