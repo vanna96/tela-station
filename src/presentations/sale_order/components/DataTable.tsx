@@ -67,28 +67,31 @@ export default function DataTable(props: DataTableProps) {
       return response;
     },
   });
-
-  const handleExportToCSV = () => {
-    setExportButtonClicked(true); // Set the exportButtonClicked state to true when the button is clicked
-
-    const csvContent = convertToCSV(dataCSV);
-
-    // const blob = new Blob([csvContent], { type: "text/csv" });
-    const blob = new Blob([new Uint8Array([0xef, 0xbb, 0xbf]), csvContent], {
-      type: "text/csv;charset=utf-16le;", // or use utf-16le or utf-8
-    });
-    // Create a link element to download the CSV file
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "exported_data.csv";
-
-    // Simulate a click on the link to trigger the download
-    document.body.appendChild(link);
-    link.click();
-
-    // Remove the link from the DOM
-    document.body.removeChild(link);
+  const handleExportToCSV = async () => {
+    // Fetch the data
+    await refetch();
+  
+    // Check if dataCSV is available
+    if (dataCSV && dataCSV.length > 0) {
+      const csvContent = convertToCSV(dataCSV);
+  
+      // Create a blob and download link for the CSV file
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "exported_data.csv";
+  
+      // Simulate a click on the link to trigger the download
+      document.body.appendChild(link);
+      link.click();
+  
+      // Remove the link from the DOM
+      document.body.removeChild(link);
+    } else {
+      console.log("No data available to export.");
+    }
   };
+  
   const convertToCSV = (data: any[]) => {
     // Specify the desired field names
     const fields = [
