@@ -101,7 +101,7 @@ class Form extends NonCoreDcument {
 
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
-                U_tl_bplid: item.U_tl_bplid,
+                U_tl_bplid: item.U_tl_bplid || 1,
                 U_tl_itemcode: item.U_tl_itemcode,
                 U_tl_itemname: item.U_tl_itemname,
                 U_tl_qtyaloc: item.U_tl_qtyaloc,
@@ -187,7 +187,7 @@ class Form extends NonCoreDcument {
       const payload = {
         // general
         // Series: data?.Series,
-        U_tl_bplid: data?.U_tl_bplid,
+        U_tl_bplid: data?.U_tl_bplid || 1,
         U_tl_pump: data?.U_tl_pump,
         U_tl_cardcode: data?.CardCode,
         U_tl_cardname: data?.CardName,
@@ -251,7 +251,7 @@ class Form extends NonCoreDcument {
             U_tl_remark: item.U_tl_remark,
             // U_tl_upd_meter: item.U_tl_ometer,
 
-            // U_tl_bplid: data.U_tl_bplid,
+            U_tl_bplid: data.U_tl_bplid || 1,
             // U_tl_whs: warehouseCode,
             // U_tl_bincode: parseInt(item.U_tl_bincode),
           })

@@ -22,12 +22,11 @@ export default function CardCount({
   edit,
   handlerChangeObject,
 }: CardCountProps) {
-  // data.cardCountData = data.nozzleData?.filter(
-  //   (e: any) => parseFloat(e.U_tl_nmeter) > 0
-  // );
-
-  // console.log(data.cardCountData);
-
+  if (!edit) {
+    data.cardCountData = data.nozzleData?.filter(
+      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    );
+  }
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.cardCountData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;

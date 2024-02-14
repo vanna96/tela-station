@@ -117,7 +117,6 @@ export default function StockAllocationTable({
             <BranchAutoComplete
               BPdata={userData?.UserBranchAssignment}
               onChange={(e: any) => {
-                console.log(e);
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_bplid: e,
                 });
@@ -134,13 +133,13 @@ export default function StockAllocationTable({
         visible: true,
         type: "number",
         Cell: ({ cell }: any) => {
-          if (!cell.row.original?.U_tl_whs) return null;
+          if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <WarehouseAutoComplete
               Branch={parseInt(cell.row.original.U_tl_bplid || 1)}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
-                  Warehouse: e,
+                  U_tl_whs: e,
                 });
               }}
               value={cell.getValue()}
@@ -287,7 +286,7 @@ export default function StockAllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtyaloc:parseFloat(e.target.value.replace(/,/g, "")),
+                  U_tl_qtyaloc: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
