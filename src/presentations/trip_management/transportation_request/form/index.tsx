@@ -131,7 +131,7 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
      const payload: any = Object.fromEntries(
        Object.entries(e).filter(
-         ([key, value]): any => value !== null && value !== undefined && key!=="id"
+         ([key, value]): any => value !== null && value !== undefined
        )
      );
     try {
