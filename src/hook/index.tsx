@@ -55,8 +55,6 @@ export const useDocumentTotalHook = (
     return docTotal - docDiscountAmount + docTaxTotal;
   }, [items, discount, docTotal, docDiscountAmount, docTaxTotal]);
 
-
-
-
   return [docTotal, docTaxTotal, grossTotal];
 };
+//since we can't change tax code ? Gross Price is always the same

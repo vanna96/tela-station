@@ -73,6 +73,8 @@ export default function StockAllocationTable({
         U_tl_qtyopen: "",
         U_tl_remark: "",
         U_tl_uom: "",
+        U_tl_whs: "",
+        U_tl_bincode: "",
       },
     ];
     console.log(firstData);
@@ -125,16 +127,17 @@ export default function StockAllocationTable({
           );
         },
       },
+
       {
-        accessorKey: "Warehouse",
+        accessorKey: "U_tl_whs",
         header: "Warehouse", //uses the default width from defaultColumn prop
         visible: true,
         type: "number",
         Cell: ({ cell }: any) => {
-          if (!cell.row.original?.U_tl_bplid) return null;
+          if (!cell.row.original?.U_tl_whs) return null;
           return (
             <WarehouseAutoComplete
-              Branch={cell.row.original.U_tl_bplid}
+              Branch={parseInt(cell.row.original.U_tl_bplid || 1)}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   Warehouse: e,
@@ -146,7 +149,7 @@ export default function StockAllocationTable({
         },
       },
       {
-        accessorKey: "U_tl_bin",
+        accessorKey: "U_tl_bincode",
         header: "Bin Location", //uses the default width from defaultColumn prop
         visible: true,
         type: "number",
@@ -154,13 +157,14 @@ export default function StockAllocationTable({
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <BinLocationToAsEntry
-              Warehouse={cell.row.original.Warehouse}
+              Warehouse={cell.row.original.U_tl_whs}
               onChange={(e: any) => {
-                // console.log(e);
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_bin: e,
+                  U_tl_bincode: e,
                 });
               }}
+              // value={cell.getValue()}
+              // value={parseInt(cell.row.original.U_tl_bincode)}
               value={cell.getValue()}
             />
           );
@@ -253,7 +257,7 @@ export default function StockAllocationTable({
               value={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtycon: e.target.value,
+                  U_tl_qtycon: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -283,7 +287,7 @@ export default function StockAllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtyaloc: e.target.value,
+                  U_tl_qtyaloc:parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />

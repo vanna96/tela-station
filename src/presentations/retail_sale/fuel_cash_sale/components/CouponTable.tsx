@@ -130,7 +130,7 @@ export default function CouponTable(props: any) {
             placeholder="0.000"
             onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_amtcoupon: e.target.value,
+                U_tl_amtcoupon: parseFloat(e.target.value.replace(/,/g, "")),
               });
             }}
             name={"U_tl_amtcoupon"}

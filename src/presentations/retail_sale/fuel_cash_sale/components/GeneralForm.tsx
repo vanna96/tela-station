@@ -54,12 +54,6 @@ export default function GeneralForm({
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
 
-  const seriesSO =
-    data.seriesList?.find((series: any) => series.BPLID === BPL)?.Series || "";
-
-  // if (filteredSeries[0]?.NextNumber && data) {
-  //   data.DocNum = filteredSeries[0]?.NextNumber;
-  // }
   console.log(data);
   console.log(data.U_tl_pump);
   async function getPriceListNum(CardCode: any) {
@@ -76,8 +70,6 @@ export default function GeneralForm({
   if (data.vendor) {
     data.PriceList = data.vendor.priceLists;
   }
-
-  console.log(data.PriceList);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -196,11 +188,13 @@ export default function GeneralForm({
                   );
 
                   console.log(itemsWithPrices);
-
+                  const warehouseCode = dispenserData?.U_tl_whs;
                   // Prepare the stockAllocationData and nozzleData with the fetched item details
                   const updatedStockAllocationData = itemsWithPrices.map(
                     (item: any) => ({
                       U_tl_bplid: data.U_tl_bplid,
+                      U_tl_whs: warehouseCode,
+                      U_tl_bincode: parseInt(item.U_tl_bincode),
                       U_tl_itemcode: item.U_tl_itemnum,
                       U_tl_itemname: item.ItemName, // Use the fetched item name
                       U_tl_qtyaloc: item.U_tl_qtyaloc,
@@ -232,14 +226,30 @@ export default function GeneralForm({
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice, // Use the fetched price
+                      U_tl_bplid: data.U_tl_bplid,
+                      U_tl_whs: warehouseCode,
+                      U_tl_bincode: item.U_tl_bincode,
                     })
                   );
+                  const updatedCardCountData = updatedNozzleData
+                    ?.filter((e: any) => e?.U_tl_nmeter > 0)
+                    .map((item: any) => ({
+                      U_tl_itemcode: item.U_tl_itemcode,
+                      U_tl_1l: item?.U_tl_1l,
+                      U_tl_2l: item?.U_tl_2l,
+                      U_tl_5l: item?.U_tl_5l,
+                      U_tl_10l: item?.U_tl_10l,
+                      U_tl_20l: item?.U_tl_20l,
+                      U_tl_50l: item?.U_tl_50l,
+                      U_tl_total: item?.U_tl_total,
+                    }));
 
                   // Update your component state or pass this data as needed
                   handlerChangeObject({
                     U_tl_pump: e,
                     stockAllocationData: updatedStockAllocationData,
                     nozzleData: updatedNozzleData,
+                    cardCountData: updatedCardCountData,
                   });
                 }}
               />
@@ -339,23 +349,28 @@ export default function GeneralForm({
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={filteredSeries ?? data.seriesList}
+                  items={data.seriesList ? filteredSeries : data?.seriesList}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  // value={edit ? data?.Series : filteredSeries[0]?.Series}
-                  value={data?.Series}
+                  value={7914}
+                  // value={
+                  //   data?.Series
+                  //     ? parseInt(filteredSeries[0]?.Series)
+                  //     : data?.Series
+                  // }
                   disabled={edit}
                 />
                 <div className="-mt-1">
                   <MUITextField
                     size="small"
                     name="DocNum"
-                    // value={
-                    //   edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
-                    // }
-                    value={data.DocNum}
+                    value={
+                      data?.seriesList
+                        ? filteredSeries[0]?.NextNumber
+                        : data.DocNum
+                    }
                     disabled
                     placeholder="Document No"
                   />

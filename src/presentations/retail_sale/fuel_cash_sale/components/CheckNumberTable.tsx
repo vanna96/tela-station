@@ -148,7 +148,7 @@ export default function CashBankTable(props: any) {
             defaultValue={cell.row.original?.U_tl_amtcheck || 0}
             onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_amtcheck: e.target.value,
+                U_tl_amtcheck: parseFloat(e.target.value.replace(/,/g, "")),
               });
             }}
             name={"U_tl_amtcheck"}
