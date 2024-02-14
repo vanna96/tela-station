@@ -14,8 +14,7 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        // item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
-        item.GrossPrice,
+        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
       return prevTotal + lineTotal;
@@ -31,7 +30,7 @@ export const useDocumentTotalHook = (
     const totalTax = items.reduce((prevTax, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.GrossPrice,
+        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
       const TaxRate = item.VatGroup === "VO00" ? 0 : 10;
@@ -46,7 +45,7 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.GrossPrice,
+        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
 
