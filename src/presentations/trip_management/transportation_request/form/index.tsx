@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
+  UseFormGetValues,
   UseFormRegister,
   UseFormSetValue,
   UseFormWatch,
@@ -44,6 +45,7 @@ export type UseFormProps = {
   data?: any;
   serie?: any;
   watch: UseFormWatch<FieldValues>;
+  getValues: UseFormGetValues<FieldValues>;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -372,7 +374,8 @@ const onInvalidForm = (invalids: any) => {
                   header={header}
                   setHeader={setHeader}
                   serie={serie}
-                  watch={watch}
+                    watch={watch}
+                    getValues={getValues}
                 />
               </h1>
             )}

@@ -33,7 +33,8 @@ const General = ({
   detail,
   data,
   serie,
-  watch
+  watch,
+  getValues,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     requestDate: null,
@@ -295,7 +296,17 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-               
+                {getValues("U_Status") === undefined && (
+                  <div className="hidden">
+                    <MUITextField
+                      inputProps={{
+                        ...register("U_Status"),
+                      }}
+                      value={"O"}
+                    />
+                  </div>
+                )}
+
                 <Controller
                   name="U_Status"
                   control={control}
