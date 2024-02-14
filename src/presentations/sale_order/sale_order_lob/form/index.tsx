@@ -148,23 +148,16 @@ class SalesOrderForm extends CoreFormDocument {
                   (row: any) => row.AbsEntry === apiResponse.UoMGroupEntry
                 );
 
-                let UomLists: any[] = [];
+                let uomLists: any[] = [];
                 uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
                   const itemUOM = uoms.find(
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
                   );
                   if (itemUOM) {
-                    // Add base quantity to the itemUOM object
-                    const baseQuantity = row.BaseQuantity; // Default to 1 if base quantity is not provided
-                    const uomWithBaseQuantity = {
-                      ...itemUOM,
-                      BaseQuantity: baseQuantity,
-                    };
-                    UomLists.push(uomWithBaseQuantity);
+                    uomLists.push(itemUOM);
                   }
                 });
                 item.ItemPrices === apiResponse.ItemPrices;
-                console.log(UomLists)
 
                 return {
                   ItemCode: item.ItemCode || null,
@@ -183,7 +176,7 @@ class SalesOrderForm extends CoreFormDocument {
                   WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
                   UomAbsEntry: item?.UoMEntry,
                   VatRate: item.TaxPercentagePerRow,
-                  UomLists: UomLists,
+                  UomLists: uomLists,
                   ItemPrices: apiResponse.ItemPrices,
                   ExchangeRate: data?.DocRate || 1,
                   JournalMemo: data?.JournalMemo,

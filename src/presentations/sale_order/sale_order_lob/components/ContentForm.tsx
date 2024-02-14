@@ -105,8 +105,7 @@ export default function ContentForm({
     }
   };
 
-  console.log(data.Items);
-  console.log(data.U_tl_sopricelist);
+  // console.log(data);
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
@@ -247,17 +246,9 @@ export default function ContentForm({
                 let uomPrice = itemPrices?.find(
                   (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
                 );
-                const selectedUOMEntry = event.target.value;
 
-                const baseQuantity =
-                  cell.row.original.UomLists?.find(
-                    (e: any) => e?.AbsEntry === selectedUOMEntry
-                  )?.BaseQuantity || 1;
                 if (uomPrice && event.target.value === uomPrice.UoMEntry) {
-                  const grossPrice =  uomPrice.Price;
-                  console.log(baseQuantity);
-                  console.log(uomPrice?.Price);
-                  // console.log(grossPrice);
+                  const grossPrice = uomPrice.Price;
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
                     grossPrice * quantity -
@@ -276,8 +267,7 @@ export default function ContentForm({
                     "LineTotal"
                   );
                 } else {
-                  const grossPrice = baseQuantity * defaultPrice;
-                  // grossPrice = baseQuantity * unitPrice
+                  const grossPrice = defaultPrice;
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
                     grossPrice * quantity -

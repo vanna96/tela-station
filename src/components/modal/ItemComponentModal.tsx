@@ -152,39 +152,26 @@ const ItemModal: FC<ItemModalProps> = ({
       const uomGroup: any = uomGroups.find(
         (row: any) => row.AbsEntry === e?.UoMGroupEntry
       );
-      const uomLists: any[] = [];
-
-      // Define the getBaseQuantity function
-      const getBaseQuantity = (alternateUoM: number) => {
-        const uomDefinition = uomGroup?.UoMGroupDefinitionCollection?.find(
-          (e: any) => e?.AlternateUoM === alternateUoM
-        );
-        return uomDefinition?.BaseQuantity || 1; // Default to 1 if BaseQuantity is not found
-      };
-
-      // Populate uomLists
+      let uomLists: any[] = [];
       uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
         const itemUOM = uoms.find(
           (record: any) => record?.AbsEntry === row?.AlternateUoM
         );
         if (itemUOM) {
-          const uomWithBaseQuantity = {
-            ...itemUOM,
-            BaseQuantity: getBaseQuantity(row.AlternateUoM),
-          };
-          uomLists.push(uomWithBaseQuantity);
+          uomLists.push(itemUOM);
         }
       });
       const baseUOM: any = uoms.find(
         (row: any) => row.AbsEntry === uomGroup?.BaseUoM
       );
+
       const total = (defaultPrice ?? 0) * 1;
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
       const unitPriceValue =
         defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ?? 0;
-
+ 
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,
