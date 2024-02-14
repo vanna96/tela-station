@@ -10,6 +10,7 @@ import { useQuery } from "react-query";
 import request from "@/utilies/request";
 import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
 import itemRepository from "@/services/actions/itemRepostory";
+import { TextField } from "@mui/material";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -390,6 +391,24 @@ export default function GeneralForm({
                 disabled={edit}
                 value={data.U_tl_docdate}
                 onChange={(e: any) => handlerChange("U_tl_docdate", e)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Own Usage Remark
+              </label>
+            </div>
+            <div className="col-span-3">
+              <TextField
+                multiline
+                className="w-full"
+                rows={2}
+                value={data.U_tl_usageremark}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_usageremark", e.target.value)
+                }
               />
             </div>
           </div>
