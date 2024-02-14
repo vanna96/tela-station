@@ -14,13 +14,13 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
+
       return prevTotal + lineTotal;
     }, 0);
-
-    return formatNumberWithoutRounding(total, 6);
+    return formatNumberWithoutRounding(total, 4);
   }, [items, ExchangeRate]);
 
   const docDiscountAmount =
@@ -30,7 +30,7 @@ export const useDocumentTotalHook = (
     const totalTax = items.reduce((prevTax, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
       const TaxRate = item.VatGroup === "VO00" ? 0 : 10;
@@ -38,18 +38,18 @@ export const useDocumentTotalHook = (
       return prevTax + lineTax;
     }, 0);
 
-    return formatNumberWithoutRounding(totalTax, 6);
+    return formatNumberWithoutRounding(totalTax, 4);
   }, [items]);
 
   const grossTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        (item.GrossPrice / 1.1)?.toString(),
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
 
-      return prevTotal + lineTotal;
+      return formatNumberWithoutRounding(prevTotal + lineTotal, 4);
     }, 0);
 
     return docTotal - docDiscountAmount + docTaxTotal;
@@ -57,4 +57,3 @@ export const useDocumentTotalHook = (
 
   return [docTotal, docTaxTotal, grossTotal];
 };
-//since we can't change tax code ? Gross Price is always the same
