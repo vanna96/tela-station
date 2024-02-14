@@ -68,24 +68,28 @@ export default function DataTable(props: DataTableProps) {
     },
   });
   const handleExportToCSV = async () => {
-    // Fetch the data
+    // Trigger refetching the data
     await refetch();
 
-    // Check if dataCSV is available
+    // Check if data is available
     if (dataCSV && dataCSV.length > 0) {
       const csvContent = convertToCSV(dataCSV);
 
-      // Create a blob and download link for the CSV file
-      const blob = new Blob([csvContent], { type: "text/csv" });
+      // Prepend the UTF-8 Byte Order Mark (BOM)
+      const bom = "\ufeff";
+      const csvContentWithBom = bom + csvContent;
+
+      // Create a blob with the CSV content
+      const blob = new Blob([csvContentWithBom], {
+        type: "text/csv;charset=utf-8;",
+      });
+
+      // Create a download link and trigger the download
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
       link.download = "exported_data.csv";
-
-      // Simulate a click on the link to trigger the download
       document.body.appendChild(link);
       link.click();
-
-      // Remove the link from the DOM
       document.body.removeChild(link);
     } else {
       console.log("No data available to export.");
