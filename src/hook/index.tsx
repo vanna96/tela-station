@@ -14,7 +14,8 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        // item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        item.GrossPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
       return prevTotal + lineTotal;
@@ -30,7 +31,7 @@ export const useDocumentTotalHook = (
     const totalTax = items.reduce((prevTax, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        item.GrossPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
       const TaxRate = item.VatGroup === "VO00" ? 0 : 10;
@@ -45,7 +46,7 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        item.VatGroup === "VO00" ? item.GrossPrice : item.UnitPrice,
+        item.GrossPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
 
@@ -55,8 +56,6 @@ export const useDocumentTotalHook = (
     return docTotal - docDiscountAmount + docTaxTotal;
   }, [items, discount, docTotal, docDiscountAmount, docTaxTotal]);
 
-
-
-
   return [docTotal, docTaxTotal, grossTotal];
 };
+//since we can't change tax code ? Gross Price is always the same

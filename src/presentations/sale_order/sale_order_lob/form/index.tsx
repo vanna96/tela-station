@@ -154,7 +154,13 @@ class SalesOrderForm extends CoreFormDocument {
                     (record: any) => record?.AbsEntry === row?.AlternateUoM
                   );
                   if (itemUOM) {
-                    uomLists.push(itemUOM);
+                    // Add base quantity to the itemUOM object
+                    const baseQuantity = row.BaseQuantity || 1; // Default to 1 if base quantity is not provided
+                    const uomWithBaseQuantity = {
+                      ...itemUOM,
+                      BaseQuantity: baseQuantity,
+                    };
+                    uomLists.push(uomWithBaseQuantity);
                   }
                 });
                 item.ItemPrices === apiResponse.ItemPrices;

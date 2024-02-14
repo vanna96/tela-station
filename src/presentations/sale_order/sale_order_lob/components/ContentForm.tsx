@@ -105,7 +105,8 @@ export default function ContentForm({
     }
   };
 
-  console.log(data);
+  console.log(data.Items);
+  console.log(data.U_tl_sopricelist)
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
@@ -230,104 +231,69 @@ export default function ContentForm({
               }))}
               aliaslabel="label"
               aliasvalue="value"
-              // onChange={(event: any) => {
-              //   handlerUpdateRow(
-              //     cell.row.id,
-              //     ["UomAbsEntry", event.target.value],
-              //     "UomAbsEntry"
-              //   );
-              //   let defaultPrice = cell.row.original.ItemPrices?.find(
-              //     (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-              //   )?.Price;
-              //   let itemPrices = cell.row.original.ItemPrices?.find(
-              //     (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-              //   )?.UoMPrices;
-
-              //   let uomPrice = itemPrices?.find(
-              //     (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-              //   );
-
-              //   if (uomPrice && event.target.value === uomPrice.UoMEntry) {
-              //     const grossPrice = uomPrice.Price;
-              //     const quantity = cell.row.original.Quantity;
-              //     const totalGross =
-              //       grossPrice * quantity -
-              //       grossPrice *
-              //         quantity *
-              //         (cell.row.original.DiscountPercent / 100);
-
-              //     handlerUpdateRow(
-              //       cell.row.id,
-              //       ["GrossPrice", grossPrice],
-              //       "GrossPrice"
-              //     );
-              //     handlerUpdateRow(
-              //       cell.row.id,
-              //       ["LineTotal", totalGross],
-              //       "LineTotal"
-              //     );
-              //   } else {
-              //     const grossPrice = defaultPrice;
-              //     const quantity = cell.row.original.Quantity;
-              //     const totalGross =
-              //       grossPrice * quantity -
-              //       grossPrice *
-              //         quantity *
-              //         (cell.row.original.DiscountPercent / 100);
-
-              //     handlerUpdateRow(
-              //       cell.row.id,
-              //       ["GrossPrice", grossPrice],
-              //       "GrossPrice"
-              //     );
-              //     handlerUpdateRow(
-              //       cell.row.id,
-              //       ["LineTotal", totalGross],
-              //       "LineTotal"
-              //     );
-              //   }
-              // }}
               onChange={(event: any) => {
                 handlerUpdateRow(
                   cell.row.id,
                   ["UomAbsEntry", event.target.value],
                   "UomAbsEntry"
                 );
+                let defaultPrice = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.Price;
+                let itemPrices = cell.row.original.ItemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                )?.UoMPrices;
 
-                // Get the selected UOM entry
+                let uomPrice = itemPrices?.find(
+                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                );
                 const selectedUOMEntry = event.target.value;
 
-                // Find the corresponding UOM price
-                const uomPrice = cell.row.original.ItemPrices?.find(
-                  (e: any) => e.UoMEntry === selectedUOMEntry
-                );
-
-                // Calculate the gross price based on the base quantity and unit price
                 const baseQuantity =
-                  cell.row.original.UnitsOfMeasurements?.UoMGroupDefinitionCollection?.find(
-                    (e: any) => e?.AlternateUoM === selectedUOMEntry
+                  cell.row.original.uomLists?.find(
+                    (e: any) => e?.AbsEntry === selectedUOMEntry
                   )?.BaseQuantity || 1;
-                const unitPrice = cell.row.original.UnitPrice;
-                const grossPrice = baseQuantity * unitPrice;
+                if (uomPrice && event.target.value === uomPrice.UoMEntry) {
+                  const grossPrice = baseQuantity * uomPrice.Price;
+                  console.log(grossPrice);
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
 
-                // Update the gross price and line total
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["GrossPrice", grossPrice],
-                  "GrossPrice"
-                );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", grossPrice],
+                    "GrossPrice"
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                } else {
+                  const grossPrice = baseQuantity * defaultPrice;
+                  // grossPrice = baseQuantity * unitPrice
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
 
-                const quantity = cell.row.original.Quantity;
-                const totalGross =
-                  grossPrice * quantity -
-                  grossPrice *
-                    quantity *
-                    (cell.row.original.DiscountPercent / 100);
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", grossPrice],
+                    "GrossPrice"
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }
               }}
             />
           );
