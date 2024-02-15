@@ -52,11 +52,11 @@ class DeliveryDetail extends Component<any, any> {
 
       if (!seriesList) {
         seriesList = await DocumentSerieRepository.getDocumentSeries({
-          Document: "TL_RetailSale",
+          Document: "TL_RETAILSALE",
         });
         this.props?.query?.set("retail-sale-series", seriesList);
       }
-      await request("GET", `TL_RetailSale(${id})`)
+      await request("GET", `TL_RETAILSALE(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           this.setState({
@@ -1032,7 +1032,7 @@ function Stock({ data }: any) {
 function CardCount({ data }: any) {
   const cardCountColumn = React.useMemo(
     () => [
-      { key: "U_tl_itemcode", header: "Item Code" },
+      { key: "U_tl_itemCode", header: "Item Code" },
       { key: "U_tl_1l", header: "1L" },
       { key: "U_tl_2l", header: "2L" },
       { key: "U_tl_5l", header: "5L" },

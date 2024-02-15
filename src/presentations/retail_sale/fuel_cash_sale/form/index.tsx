@@ -72,11 +72,11 @@ class Form extends NonCoreDcument {
     let state: any = { ...this.state };
 
     let seriesList = await DocumentSerieRepository.getDocumentSeries({
-      Document: "TL_RetailSale",
+      Document: "TL_RETAILSALE",
     });
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_RetailSale(${id})`)
+      await request("GET", `TL_RETAILSALE(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -260,7 +260,7 @@ class Form extends NonCoreDcument {
       };
 
       if (id) {
-        return await request("PATCH", `/TL_RetailSale(${id})`, payload)
+        return await request("PATCH", `/TL_RETAILSALE(${id})`, payload)
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )
@@ -268,7 +268,7 @@ class Form extends NonCoreDcument {
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
 
-      await request("POST", "/TL_RetailSale", payload)
+      await request("POST", "/TL_RETAILSALE", payload)
         .then((res: any) =>
           this.dialog.current?.success(
             "Create Successfully.",
@@ -439,6 +439,9 @@ class Form extends NonCoreDcument {
                         onChange={(key, value) =>
                           this.handlerChange(key, value)
                         }
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
                       />
                     )}
                     {this.state.tapIndex === 4 && (
@@ -472,6 +475,7 @@ class Form extends NonCoreDcument {
                           <LoadingButton
                             variant="outlined"
                             size="small"
+                            type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
                           >

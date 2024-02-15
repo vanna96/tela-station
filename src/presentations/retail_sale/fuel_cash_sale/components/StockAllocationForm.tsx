@@ -20,16 +20,18 @@ interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
   edit?: boolean;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function StockAllocationTable({
   data,
   onChange,
   edit,
+  handlerChangeObject,
 }: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
-  // data.stockAllocationData = [...data.nozzleData]
+  
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
       (item: any, index: number) => {
@@ -42,23 +44,18 @@ export default function StockAllocationTable({
     onChange("stockAllocationData", newData);
   };
 
-  const branchChange = (key: number, obj: any) => {
+  const onChangeItemObj = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
       (item: any, index: number) => {
-        if (index.toString() !== key.toString()) return item;
-
-        const newValues: Record<string, number> = {};
-        for (const [prop, value] of Object.entries(obj)) {
-          newValues[prop] = parseInt(value, 10) || 0; // Convert to number or use 0 if not a valid number
+        if (index.toString() === key.toString()) {
+          return { ...item, ...obj };
+        } else {
+          return item;
         }
-
-        return { ...item, ...newValues };
       }
     );
 
-    if (!newData || newData.length <= 0) return {};
-
-    return { stockAllocationData: newData };
+    handlerChangeObject({ stockAllocationData: newData });
   };
 
   const handlerAdd = () => {
@@ -93,7 +90,7 @@ export default function StockAllocationTable({
     () => [
       {
         accessorKey: "U_tl_bplid",
-        header: "Branch", //uses the default width from defaultColumn prop
+        header: "Branch",
         visible: true,
         type: "number",
         Cell: ({ cell }: any) => {
@@ -129,7 +126,7 @@ export default function StockAllocationTable({
 
       {
         accessorKey: "U_tl_whs",
-        header: "Warehouse", //uses the default width from defaultColumn prop
+        header: "Warehouse",
         visible: true,
         type: "number",
         Cell: ({ cell }: any) => {
@@ -149,7 +146,7 @@ export default function StockAllocationTable({
       },
       {
         accessorKey: "U_tl_bincode",
-        header: "Bin Location", //uses the default width from defaultColumn prop
+        header: "Bin Location",
         visible: true,
         type: "number",
         Cell: ({ cell }: any) => {
@@ -162,8 +159,6 @@ export default function StockAllocationTable({
                   U_tl_bincode: e,
                 });
               }}
-              // value={cell.getValue()}
-              // value={parseInt(cell.row.original.U_tl_bincode)}
               value={cell.getValue()}
             />
           );
@@ -176,14 +171,6 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
 
-          const nozzleDataLength = data.nozzleData.length;
-          const stockAllocationDataLength = data.stockAllocationData.length;
-
-          // Check if the stockAllocationData has less objects than nozzleData
-          const disableField =
-            stockAllocationDataLength < nozzleDataLength &&
-            cell.row.index >= stockAllocationDataLength;
-
           return (
             <MUISelect
               items={data.nozzleData?.map((e: any) => ({
@@ -191,11 +178,16 @@ export default function StockAllocationTable({
                 label: e.U_tl_itemcode,
               }))}
               value={cell.getValue()}
-              onChange={(e: any) =>
-                onChangeItem(cell?.row?.id || 0, {
+              onChange={(e: any) => {
+                const selectedNozzle = data.nozzleData.find(
+                  (item: any) => item.U_tl_itemcode === e.target.value
+                );
+                onChangeItemObj(cell.row.id, {
                   U_tl_itemcode: e.target.value,
-                })
-              }
+                  U_tl_itemname: selectedNozzle.U_tl_itemname,
+                  U_tl_uom: selectedNozzle.U_tl_uom,
+                });
+              }}
             />
           );
         },
@@ -207,33 +199,8 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
 
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
           return (
-            <MUITextField
-              disabled
-              value={
-                edit
-                  ? cell.row.original.U_tl_itemname
-                  : itemName?.data?.ItemName
-              }
-            />
+            <MUITextField disabled value={cell.row.original.U_tl_itemname} />
           );
         },
       },

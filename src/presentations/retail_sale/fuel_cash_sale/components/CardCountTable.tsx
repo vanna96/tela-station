@@ -48,31 +48,8 @@ export default function CardCount({
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
           return (
-            <MUITextField
-              disabled
-              value={
-                itemName?.data?.ItemName || cell.row.original?.U_tl_itemCode
-              }
-            />
+            <MUITextField disabled value={cell.row.original?.U_tl_itemcode} />
           );
         },
       },
