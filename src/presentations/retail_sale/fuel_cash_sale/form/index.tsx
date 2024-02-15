@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
 import NonCoreDcument from "@/components/core/NonCoreDocument";
+import { motion } from "framer-motion";
 
 class Form extends NonCoreDcument {
   constructor(props: any) {
@@ -109,6 +110,8 @@ class Form extends NonCoreDcument {
                 U_tl_qtyopen: item.U_tl_qtyopen,
                 U_tl_remark: item.U_tl_remark,
                 U_tl_uom: item.U_tl_uom,
+                U_tl_whs: item.U_tl_whs,
+                U_tl_bincode: item.U_tl_bincode,
               })
             ),
             cashBankData: data?.TL_RETAILSALE_INCCollection?.filter(
@@ -249,11 +252,9 @@ class Form extends NonCoreDcument {
             U_tl_uom: item.U_tl_uom,
             U_tl_qtyopen: item.U_tl_qtyopen,
             U_tl_remark: item.U_tl_remark,
-            // U_tl_upd_meter: item.U_tl_ometer,
-
+            U_tl_whs: item.U_tl_whs,
+            U_tl_bincode: item.U_tl_bincode,
             U_tl_bplid: data.U_tl_bplid || 1,
-            // U_tl_whs: warehouseCode,
-            // U_tl_bincode: parseInt(item.U_tl_bincode),
           })
         ),
       };
@@ -392,109 +393,113 @@ class Form extends NonCoreDcument {
             ) : (
               <>
                 <div className="grow">
-                  {this.state.tapIndex === 0 && (
-                    <GeneralForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
-                      handlerChangeObject={(value: any) =>
-                        this.handlerChangeObject(value)
-                      }
-                    />
-                  )}
-                  {this.state.tapIndex === 1 && (
-                    <Consumption
-                      data={this.state}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
-                      edit={this.props?.edit}
-                      handlerChangeObject={(value: any) =>
-                        this.handlerChangeObject(value)
-                      }
-                    />
-                  )}
-
-                  {this.state.tapIndex === 2 && (
-                    <IncomingPaymentForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-
-                  {this.state.tapIndex === 3 && (
-                    <StockAllocationForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      onChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-                  {this.state.tapIndex === 4 && (
-                    <CardCount
-                      handlerChangeObject={(value: any) =>
-                        this.handlerChangeObject(value)
-                      }
-                      data={this.state}
-                      edit={this.props?.edit}
-                      onChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-
-                  <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                      <div className="flex gap-2">
-                        <LoadingButton
-                          onClick={() => navigate(-1)}
-                          variant="outlined"
-                          size="small"
-                          sx={{ height: "30px", textTransform: "none" }}
-                          disableElevation
-                        >
-                          <span className="px-3 text-[13px] py-1 text-red-500 font-no">
-                            Cancel
-                          </span>
-                        </LoadingButton>
-                      </div>
-                      <div>
-                        <LoadingButton
-                          variant="outlined"
-                          size="small"
-                          sx={{ height: "30px", textTransform: "none" }}
-                          disableElevation
-                        >
-                          <span className="px-3 text-[13px] py-1 text-green-500">
-                            {this.props.edit ? "Update" : "Add"}
-                          </span>
-                        </LoadingButton>
-                      </div>
-                      {!this.props.edit && (
-                        <div className="flex items-center space-x-4">
+                  <motion.div
+                    key={this.state.tapIndex}
+                    transition={{ duration: 0.2 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    {this.state.tapIndex === 0 && (
+                      <GeneralForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 1 && (
+                      <Consumption
+                        data={this.state}
+                        handlerChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                        edit={this.props?.edit}
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 2 && (
+                      <IncomingPaymentForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 3 && (
+                      <StockAllocationForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        onChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 4 && (
+                      <CardCount
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                        data={this.state}
+                        edit={this.props?.edit}
+                        onChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                      />
+                    )}
+                    <div className="sticky w-full bottom-4 mt-2">
+                      <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                        <div className="flex gap-2">
                           <LoadingButton
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            className="bg-white"
-                            loading={false}
+                            onClick={() => navigate(-1)}
+                            variant="outlined"
                             size="small"
-                            variant="contained"
+                            sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
                           >
-                            <span className="px-6 text-[13px] py-4 text-white">
-                              Post
+                            <span className="px-3 text-[13px] py-1 text-red-500 font-no">
+                              Cancel
                             </span>
                           </LoadingButton>
                         </div>
-                      )}
+                        <div>
+                          <LoadingButton
+                            variant="outlined"
+                            size="small"
+                            sx={{ height: "30px", textTransform: "none" }}
+                            disableElevation
+                          >
+                            <span className="px-3 text-[13px] py-1 text-green-500">
+                              {this.props.edit ? "Update" : "Add"}
+                            </span>
+                          </LoadingButton>
+                        </div>
+                        {!this.props.edit && (
+                          <div className="flex items-center space-x-4">
+                            <LoadingButton
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
+                              className="bg-white"
+                              loading={false}
+                              size="small"
+                              variant="contained"
+                              disableElevation
+                            >
+                              <span className="px-6 text-[13px] py-4 text-white">
+                                Post
+                              </span>
+                            </LoadingButton>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </>
             )}

@@ -4,9 +4,9 @@ import Bank from "@/models/bank";
 import request from "@/utilies/request";
 
 export default class BankRepository extends Repository<Bank> {
-   
-    url = '/Banks';
-    
+
+    url = '/Banks?$select=BankCode,BankName';
+
     // specific key
     key = 'Banks';
 
