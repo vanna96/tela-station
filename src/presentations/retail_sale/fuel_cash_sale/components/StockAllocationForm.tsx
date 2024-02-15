@@ -31,7 +31,7 @@ export default function StockAllocationTable({
 }: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
-  
+
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
       (item: any, index: number) => {
@@ -207,10 +207,31 @@ export default function StockAllocationTable({
 
       {
         accessorKey: "U_tl_qtycon",
-        header: "Cons. Qty ",
+        header: "Cons. Qty",
         visible: true,
-        Cell: ({ cell }: any) => {
-          if (!cell.row.original?.U_tl_bplid) return null;
+        Cell: ({ cell, row }: any) => {
+          if (!row.original?.U_tl_bplid) return null;
+
+          const rowsWithSameItemCode = data?.stockAllocationData?.filter(
+            (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          );
+          console.log(rowsWithSameItemCode);
+          const totalQuantity = rowsWithSameItemCode.reduce(
+            (sum: number, r: any) => {
+              console.log(r);
+              return sum + parseFloat(r.U_tl_qtycon);
+            },
+            0
+          );
+
+          const nozzle = data.nozzleData?.find(
+            (nozzle: any) =>
+              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          );
+
+          const isValid = nozzle
+            ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
+            : false;
 
           return (
             <NumericFormat
@@ -220,6 +241,11 @@ export default function StockAllocationTable({
               placeholder="0.000"
               fixedDecimalScale
               customInput={MUITextField}
+              inputProps={{
+                style: {
+                  color: isValid ? "inherit" : "red",
+                },
+              }}
               value={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
@@ -230,6 +256,7 @@ export default function StockAllocationTable({
           );
         },
       },
+
       {
         Header: (header: any) => (
           <label>

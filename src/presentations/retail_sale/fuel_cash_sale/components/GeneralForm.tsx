@@ -54,7 +54,8 @@ export default function GeneralForm({
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-
+  console.log(year);
+  console.log(filteredSeries)
   console.log(data);
   console.log(data.U_tl_pump);
   async function getPriceListNum(CardCode: any) {
@@ -355,12 +356,12 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={7914}
-                  // value={
-                  //   data?.Series
-                  //     ? parseInt(filteredSeries[0]?.Series)
-                  //     : data?.Series
-                  // }
+                  // value={7914}
+                  value={
+                    data?.Series
+                      ? parseInt(filteredSeries[0]?.Series)
+                      : data?.Series
+                  }
                   disabled={edit}
                 />
                 <div className="-mt-1">
@@ -405,10 +406,8 @@ export default function GeneralForm({
                 multiline
                 className="w-full"
                 rows={2}
-                value={data.U_tl_usageremark}
-                onChange={(e: any) =>
-                  handlerChange("U_tl_usageremark", e.target.value)
-                }
+                value={data.Remark}
+                onChange={(e: any) => handlerChange("Remark", e.target.value)}
               />
             </div>
           </div>

@@ -74,6 +74,7 @@ class Form extends NonCoreDcument {
     let seriesList = await DocumentSerieRepository.getDocumentSeries({
       Document: "TL_RETAILSALE",
     });
+    console.log(seriesList);
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -87,8 +88,6 @@ class Form extends NonCoreDcument {
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
-          console.log(vendor);
-          console.log(this.props.edit);
 
           state = {
             ...data,
