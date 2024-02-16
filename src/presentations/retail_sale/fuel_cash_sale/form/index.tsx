@@ -29,7 +29,6 @@ class Form extends NonCoreDcument {
       dispenserData: [],
       U_tl_docdate: new Date(),
       allocationData: [],
-      stockAllocationData: [],
       cashBankData: [
         {
           U_tl_paytype: "cash",
@@ -272,7 +271,7 @@ class Form extends NonCoreDcument {
         .then((res: any) =>
           this.dialog.current?.success(
             "Create Successfully.",
-            res?.data?.DocNum
+            res?.data?.DocEntry
           )
         )
         .catch((err: any) => this.dialog.current?.error(err.message))

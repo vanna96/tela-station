@@ -10,7 +10,7 @@ import FormCard from "@/components/card/FormCard";
 import MaterialReactTable from "material-react-table";
 import { useCookies } from "react-cookie";
 import { AiOutlineSetting } from "react-icons/ai";
-import { GridAddIcon } from "@mui/x-data-grid";
+import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import MUISelect from "@/components/selectbox/MUISelect";
 import shortid from "shortid";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
@@ -31,6 +31,14 @@ export default function StockAllocationTable({
 }: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
+  let stockAllocationData = data.stockAllocationData; // Temporary variable
+
+  if (!edit) {
+    stockAllocationData = data.nozzleData?.filter(
+      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    );
+  }
+
 
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
@@ -40,7 +48,7 @@ export default function StockAllocationTable({
         return item;
       }
     );
-    if (newData.length <= 0) return;
+    if (newData?.length <= 0) return;
     onChange("stockAllocationData", newData);
   };
 
@@ -56,6 +64,13 @@ export default function StockAllocationTable({
     );
 
     handlerChangeObject({ stockAllocationData: newData });
+  };
+  const handlerRemove = (key: number) => {
+    const newData = (data?.stockAllocationData || []).filter(
+      (item: any, index: number) => index !== key
+    );
+    if (newData.length < 1) return;
+    onChange("stockAllocationData", newData);
   };
 
   const handlerAdd = () => {
@@ -74,13 +89,8 @@ export default function StockAllocationTable({
         U_tl_bincode: "",
       },
     ];
-    console.log(firstData);
     onChange("stockAllocationData", firstData);
   };
-
-  useEffect(() => {
-    console.log("Updated Data:", data);
-  }, [data]);
 
   const fetchItemName = async (itemCode: any) => {
     const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
@@ -88,6 +98,25 @@ export default function StockAllocationTable({
   };
   const itemColumns = React.useMemo(
     () => [
+      {
+        size: 5,
+        minSize: 5,
+        maxSize: 5,
+        accessorKey: "deleteButton",
+        align: "center",
+        header: "",
+        Cell: ({ cell }: any) => {
+          if (!cell.row.original?.U_tl_paytype) return null;
+          return (
+            <div className="flex justify-center items-center">
+              <GridDeleteIcon
+                className="text-red-500 cursor-pointer"
+                onClick={() => handlerRemove(cell?.row?.index)}
+              />
+            </div>
+          );
+        },
+      },
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",

@@ -1,8 +1,6 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import request from "@/utilies/request";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import FormCard from "@/components/card/FormCard";
@@ -35,10 +33,6 @@ export default function CardCount({
     });
     if (newData.length <= 0) return;
     onChange("cardCountData", newData);
-  };
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    return res;
   };
 
   const itemColumns = React.useMemo(
