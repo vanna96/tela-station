@@ -59,6 +59,7 @@ class Form extends NonCoreDcument {
 
     this.onInit = this.onInit.bind(this);
     this.handlerSubmit = this.handlerSubmit.bind(this);
+    this.handlerSubmitPost = this.handlerSubmitPost.bind(this);
     this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
   }
 
@@ -288,6 +289,272 @@ class Form extends NonCoreDcument {
     }
   }
 
+  async handlerSubmitPost(event: any) {
+    event.preventDefault();
+    const data: any = { ...this.state };
+
+    try {
+      this.setState({ ...this.state, isSubmitting: true });
+      await new Promise((resolve) => setTimeout(() => resolve(""), 800));
+
+      const PostPayload = {
+        SANumber: "123456789", //doc number of fuel cash sale, lube case sale or lPG case sale,
+        ToWarehouse: "WH02", // to warehouse take from pump warehouse
+        InvoiceSeries: 7638,
+        IncomingSeries: 183,
+        DocDate: "2024-02-15T00: 00: 00Z",
+        DocCurrency: "USD",
+        DocRate: "4000.0",
+        CardCode: data?.CardCode,
+        CardName: data?.CardName,
+        DiscountPercent: 0.0,
+        BPL_IDAssignedToInvoice: data?.U_tl_bplid,
+        U_tl_whsdesc: "WH03",
+        CashAccount: "110101",
+        TransferAccount: "110101",
+        CheckAccount: "110101",
+        CouponAccount: "110101",
+        Remarks: data.Remark,
+
+        IncomingPayment: [
+          ...data?.cashBankData?.map((item: any) => ({
+            Type: item.U_tl_paytype,
+            DocCurrency: item.U_tl_paycur,
+            Amount: item.U_tl_amtcash,
+          })),
+          ...data?.checkNumberData?.map((item: any) => ({
+            Type: item.U_tl_paytype,
+            DocCurrency: item.U_tl_paycur,
+            DueDate: item.U_tl_checkdate,
+            Amount: item.U_tl_amtcash,
+            Bank: item.U_tl_checkbank,
+            CheckNum: item.U_tl_acccheck,
+          })),
+        ],
+        IncomingPaymentCoupon: [
+          ...data?.couponData?.map((item: any) => ({
+            Type: item.U_tl_paytype,
+            DocCurrency: item.U_tl_paycur,
+            DueDate: "",
+            Amount: item.U_tl_amtcoupon,
+            CounNum: item.U_tl_acccoupon,
+          })),
+        ],
+        StockAllocation: data?.stockAllocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_qtycon,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_qtycon,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
+        CardCount: [
+          {
+            ItemCode: "FUE0001-01",
+            Quantity: 10.0,
+            UoMCode: "L",
+            UoMEntry: 19,
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 1.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+        CashSale: [
+          {
+            ItemCode: "FUE0001",
+            Quantity: 1.0,
+            GrossPrice: 100,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMCode: "L",
+            UoMEntry: 19,
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 1.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+
+        Partnership: [
+          {
+            ItemCode: "FUE0001",
+            Quantity: 1.0,
+            GrossPrice: 100,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMCode: "L",
+            UoMEntry: 19,
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 1.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+        StockTransfer: [
+          {
+            ItemCode: "FUE0001",
+            Quantity: 3.0,
+            GrossPrice: 100,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMCode: "L",
+            UoMEntry: 19,
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 3.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+
+        OwnUsage: [
+          {
+            ItemCode: "FUE0001",
+            Quantity: 1.0,
+            GrossPrice: 100,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMCode: "L",
+            UoMEntry: 19,
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 1.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+        TelaCard: [
+          {
+            ItemCode: "FUE0001",
+            Quantity: 1.0,
+            GrossPrice: 100,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMCode: "L",
+            UoMEntry: 19,
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 1.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+
+        PumpTest: [
+          {
+            ItemCode: "FUE0001",
+            Quantity: 10.0,
+            GrossPrice: 100,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMCode: "L",
+            UoMEntry: 19,
+
+            LineOfBussiness: "201001", // item.LineOfBussiness
+            RevenueLine: "202004", // item.RevenueLine
+            ProductLine: "203004", // item.ProductLine
+            BinAbsEntry: 101,
+            WarehouseCode: "WH03",
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: 101,
+                Quantity: 1.0,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          },
+        ],
+      };
+
+      await request("POST", "/TL_RETAILSALE", PostPayload)
+        .then((res: any) =>
+          this.dialog.current?.success(
+            "Create Successfully.",
+            res?.data?.DocEntry
+          )
+        )
+        .catch((err: any) => this.dialog.current?.error(err.message))
+        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+    } catch (error: any) {
+      if (error instanceof FormValidateException) {
+        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
+        this.dialog.current?.error(error.message, "Invalid");
+        return;
+      }
+
+      this.setState({ ...data, isSubmitting: false });
+      this.dialog.current?.error(error.message, "Invalid");
+    }
+  }
+
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
@@ -486,7 +753,7 @@ class Form extends NonCoreDcument {
                         {!this.props.edit && (
                           <div className="flex items-center space-x-4">
                             <LoadingButton
-                              type="submit"
+                              onClick={this.handlerSubmitPost}
                               sx={{ height: "30px", textTransform: "none" }}
                               className="bg-white"
                               loading={false}

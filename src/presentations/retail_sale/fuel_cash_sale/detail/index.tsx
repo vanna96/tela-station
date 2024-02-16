@@ -249,7 +249,7 @@ function General({ data }: any) {
                   multiline
                   disabled
                   className="bg-gray-100"
-                  value={data?.U_tl_ownusageremark || "N/A"}
+                  value={data?.Remark || "N/A"}
                   InputProps={{ readOnly: true }}
                 />
               </div>

@@ -31,10 +31,10 @@ export default function StockAllocationTable({
 }: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
-  let stockAllocationData = data.stockAllocationData; // Temporary variable
+  // let stockAllocationData = data.stockAllocationData; // Temporary variable
 
   if (!edit) {
-    stockAllocationData = data.nozzleData?.filter(
+    data.stockAllocationData = data.nozzleData?.filter(
       (e: any) => parseFloat(e.U_tl_nmeter) > 0
     );
   }
