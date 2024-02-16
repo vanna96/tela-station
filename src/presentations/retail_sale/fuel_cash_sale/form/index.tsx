@@ -197,6 +197,7 @@ class Form extends NonCoreDcument {
         U_tl_docdate: new Date(),
         U_tl_docduedate: new Date(),
         U_tl_taxdate: new Date(),
+        U_tl_attend: data?.U_tl_attend,
         //Consumption
         TL_RETAILSALE_CONHCollection: data?.allocationData
           ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
@@ -298,7 +299,7 @@ class Form extends NonCoreDcument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["U_tl_pump", "CardCode"],
+      0: ["U_tl_pump", "CardCode", "U_tl_attend"],
       1: [],
       2: [],
       3: [],

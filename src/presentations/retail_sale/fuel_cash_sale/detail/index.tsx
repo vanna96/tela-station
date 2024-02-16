@@ -232,7 +232,7 @@ function General({ data }: any) {
             {renderKeyValue("Name", data.U_tl_cardname)}
 
             {renderKeyValue("Shift", data?.U_tl_shiftcode)}
-            {renderKeyValue("Pump Attendant", data?.U_tl_pump)}
+            {renderKeyValue("Pump Attendant", data?.U_tl_attend)}
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">

@@ -55,7 +55,7 @@ export default function GeneralForm({
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
   console.log(year);
-  console.log(filteredSeries)
+  console.log(filteredSeries);
   console.log(data);
   console.log(data.U_tl_pump);
   async function getPriceListNum(CardCode: any) {
@@ -329,12 +329,12 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <DispenserAutoComplete
-                value={data?.PumpAttendant}
+                value={data?.U_tl_attend}
                 isStatusActive
                 branch={data?.U_tl_bplid ?? BPL}
                 pumpType="Oil"
                 onChange={(e) => {
-                  handlerChange("PumpAttendant", e);
+                  handlerChange("U_tl_attend", e);
                 }}
               />
             </div>
