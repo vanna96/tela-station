@@ -23,8 +23,9 @@ const RetailSalePage = () => {
         try {
           const response = await request(
             "GET",
-            `Orders/$count?$filter=${filter}`
+            `TL_RETAILSALE/$count${filter ? `?$filter=${filter}` : ""}`
           );
+
           return (response as { data?: number })?.data as number;
         } catch (error) {
           console.error(`Error fetching data for ${queryKey}:`, error);
@@ -42,21 +43,21 @@ const RetailSalePage = () => {
       title: "Fuel Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "fuelOrders",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      filter: "",
       route: "fuel-cash-sale",
     },
     {
       title: "Lube Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lubeOrders",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      filter: "",
       route: "lube-cash-sale",
     },
     {
       title: "LPG Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lpgOrders",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      filter: "",
       route: "lpg-cash-sale",
     },
   ];

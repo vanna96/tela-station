@@ -215,10 +215,8 @@ export default function StockAllocationTable({
           const rowsWithSameItemCode = data?.stockAllocationData?.filter(
             (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
           );
-          console.log(rowsWithSameItemCode);
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              console.log(r);
               return sum + parseFloat(r.U_tl_qtycon);
             },
             0
