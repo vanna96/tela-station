@@ -1,19 +1,12 @@
-import React from "react";
-import { useQuery } from "react-query";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import MUITextField from "@/components/input/MUITextField";
-import MUISelect from "@/components/selectbox/MUISelect";
-import VendorByBranch from "@/components/input/VendorByBranch";
-import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
-import request from "@/utilies/request";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import React, { useEffect, useState } from "react";
 import NozzleData from "./NozzleDataTable";
 import AllocationTable from "./AllocationTable";
-import FormCard from "@/components/card/FormCard";
+import { Button } from "@mui/material";
 
 export interface ConsumptionProps {
   handlerChange: (key: string, value: any) => void;
   data: any;
+  handlerChangeObject: (obj: any) => void;
   edit?: boolean;
 }
 
@@ -21,15 +14,57 @@ export default function Consumption({
   data,
   handlerChange,
   edit,
+  handlerChangeObject,
 }: ConsumptionProps) {
-  // You c
+  const [showAllocationTable, setShowAllocationTable] = useState(
+    localStorage.getItem("showAllocationTable") === "true"
+  );
+
+  useEffect(() => {
+    // Update localStorage whenever showAllocationTable changes
+    localStorage.setItem("showAllocationTable", showAllocationTable.toString());
+  }, [showAllocationTable]);
+
+  const handleGenerateAllocation = () => {
+    setShowAllocationTable(!showAllocationTable);
+  };
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 md:px-6 xl:px-8 h-screen">
-        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Nozzle Data</h2>{" "}
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Nozzle Data</h2>
         </div>
-        <NozzleData data={data} onChange={handlerChange} />
+        <NozzleData data={data} onChange={handlerChange} edit={edit} />
+        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
+          <h2>Allocation</h2>{" "}
+          <Button
+            type="button"
+            size="small"
+            variant="outlined"
+            onClick={handleGenerateAllocation}
+          >
+            Generate Allocation
+          </Button>
+        </div>
+        {edit ? (
+          <AllocationTable
+            data={data}
+            onChange={handlerChange}
+            edit={edit}
+            handlerChangeObject={handlerChangeObject}
+          />
+        ) : (
+          <div>
+            {showAllocationTable && (
+              <AllocationTable
+                data={data}
+                onChange={handlerChange}
+                edit={edit}
+                handlerChangeObject={handlerChangeObject}
+              />
+            )}
+          </div>
+        )}
       </div>
     </>
   );

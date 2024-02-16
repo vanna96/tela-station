@@ -10,10 +10,10 @@ const payload = {
     "CardName": "General Customer",
     "DiscountPercent": 0.0,
     "BPL_IDAssignedToInvoice": 1,
-    "U_tl_whsdesc": "WH03",
-    "CashAccount": "110101",
-    "TransferAccount": "110101",
-    "CheckAccount": "110101",
+    "U_tl_whsdesc": "WHC", //remark : warehouse headoffice
+    "CashAccount": "110101", //fixed
+    "TransferAccount": "110101", //fixed 
+    "CheckAccount": "110101", // fixed
     "CouponAccount": "110101",
     "Remarks": "",
    
@@ -58,15 +58,9 @@ const payload = {
             "DocCurrency": "USD",
             "DueDate": "",
             "Amount": 25,
-            "CounNum": "2324234"
+            // "CounNum": "2324234"
         },
-        {
-            "Type": "Cash",
-            "DocCurrency": "KHR",
-            "DueDate": "",
-            "Amount": 100000,
-            "CounNum": "2324234"
-        }
+       
     ],
     "StockAllocation": [
         {

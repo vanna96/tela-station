@@ -33,11 +33,11 @@ export default function StockAllocationTable({
   const userData = cookies.user;
   // let stockAllocationData = data.stockAllocationData; // Temporary variable
 
-  if (!edit) {
-    data.stockAllocationData = data.nozzleData?.filter(
-      (e: any) => parseFloat(e.U_tl_nmeter) > 0
-    );
-  }
+    // if (!edit) {
+    //   data.stockAllocationData = data.nozzleData?.filter(
+    //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    //   );
+    // }
 
 
   const onChangeItem = (key: number, obj: any) => {
