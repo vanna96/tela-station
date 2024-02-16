@@ -17,6 +17,7 @@ import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
 import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
+import ErrorLogForm from "../../components/ErrorLogFOrm";
 
 class Form extends NonCoreDcument {
   constructor(props: any) {
@@ -622,6 +623,12 @@ class Form extends NonCoreDcument {
           >
             <span>Card Count</span>
           </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 5}
+            onClick={() => this.handleMenuButtonClick(5)}
+          >
+            <span>Error Log</span>
+          </MenuButton>
         </div>
 
         <Snackbar
@@ -718,6 +725,18 @@ class Form extends NonCoreDcument {
                         data={this.state}
                         edit={this.props?.edit}
                         onChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 5&& (
+                      <ErrorLogForm
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) =>
                           this.handlerChange(key, value)
                         }
                       />
