@@ -199,6 +199,7 @@ class Form extends NonCoreDcument {
         U_tl_docduedate: new Date(),
         U_tl_taxdate: new Date(),
         U_tl_attend: data?.U_tl_attend,
+        U_tl_status: data?.U_tl_status || "added",
         //Consumption
         TL_RETAILSALE_CONHCollection: data?.allocationData
           ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
@@ -300,21 +301,21 @@ class Form extends NonCoreDcument {
 
       const PostPayload = {
         SANumber: "123456789", //doc number of fuel cash sale, lube case sale or lPG case sale,
-        ToWarehouse: "WH02", // to warehouse take from pump warehouse
+        ToWarehouse: data?.U_tl_whs, // to warehouse take from pump warehouse
         InvoiceSeries: 7638,
         IncomingSeries: 183,
-        DocDate: "2024-02-15T00: 00: 00Z",
+        DocDate: data?.U_tl_taxdate,
         DocCurrency: "USD",
         DocRate: "4000.0",
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        U_tl_whsdesc: "WH03",
+        U_tl_whsdesc: "WH0C",
         CashAccount: "110101",
         TransferAccount: "110101",
         CheckAccount: "110101",
-        CouponAccount: "110101",
+        CouponAccount: data?.couponData?.U_tl_amtcoupon,
         Remarks: data.Remark,
 
         IncomingPayment: [
@@ -364,174 +365,230 @@ class Form extends NonCoreDcument {
             },
           ],
         })),
-        CardCount: [
-          {
-            ItemCode: "FUE0001-01",
-            Quantity: 10.0,
-            UoMCode: "L",
-            UoMEntry: 19,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: 101,
-                Quantity: 1.0,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          },
-        ],
+        CardCount: [].concat(
+          ...data?.allocationData?.map((item: any) => {
+            const mappedData = [];
+            const itemCode = item.U_tl_itemcode;
+            for (let i = 1; i <= 50; i++) {
+              // considering up to 50L
+              const quantityKey = `U_tl_${i}l`;
+              const allowKey = `U_tl_${i}l`;
+              if (item[quantityKey]) {
+                let quantity = parseFloat(item[quantityKey]);
+                let allow = parseFloat(item[allowKey]);
+                if (quantity > 0) {
+                  // Adjust quantity based on the specified rules
+                  if (i > 1) {
+                    quantity /= i;
+                    allow /= i;
+                  }
+                  mappedData.push({
+                    ItemCode: `${itemCode}-${i.toString().padStart(2, "0")}`,
+                    Quantity: quantity,
+                    GrossPrice: item.ItemPrice,
+                    DiscountPercent: 0,
+                    TaxCode: "VO10",
+                    // UoMCode: "L"
+                    UoMEntry: item.U_tl_uom,
+                    LineOfBussiness: "201001", // item.LineOfBussiness
+                    RevenueLine: "202004", // item.RevenueLine
+                    ProductLine: "203004", // item.ProductLine
+                    BinAbsEntry: item.U_tl_bincode,
+                    BranchCode: item.U_tl_bplid || 1,
+                    WarehouseCode: item.U_tl_whs,
+                    DocumentLinesBinAllocations: [
+                      {
+                        BinAbsEntry: item.U_tl_bincode,
+                        Quantity: item.U_tl_qtycon,
+                        AllowNegativeQuantity: "tNO",
+                        BaseLineNumber: 0,
+                      },
+                    ],
+                  });
+                }
+              }
+            }
+            return mappedData;
+          })
+        ),
+
+        // CardCount: [
+        //   data?.allocationData?.map((item: any) => ({
+        //     ItemCode: item.U_tl_itemcode,
+        //     Quantity: item.U_tl_cardallow,
+        //     GrossPrice: item.ItemPrice,
+        //     DiscountPercent: 0,
+        //     TaxCode: "VO10",
+        //     // UoMCode: "L"
+        //     UoMEntry: item.U_tl_uom,
+        //     LineOfBussiness: "201001", // item.LineOfBussiness
+        //     RevenueLine: "202004", // item.RevenueLine
+        //     ProductLine: "203004", // item.ProductLine
+        //     BinAbsEntry: item.U_tl_bincode,
+        //     BranchCode: item.U_tl_bplid || 1,
+        //     WarehouseCode: item.U_tl_whs,
+        //     DocumentLinesBinAllocations: [
+        //       {
+        //         BinAbsEntry: item.U_tl_bincode,
+        //         Quantity: item.U_tl_qtycon,
+        //         AllowNegativeQuantity: "tNO",
+        //         BaseLineNumber: 0,
+        //       },
+        //     ],
+        //   })),
+        // ],
         CashSale: [
-          {
-            ItemCode: "FUE0001",
-            Quantity: 1.0,
-            GrossPrice: 100,
+          data?.allocationData?.map((item: any) => ({
+            ItemCode: item.U_tl_itemcode,
+            Quantity: item.U_tl_cashallow,
+            GrossPrice: item.ItemPrice,
             DiscountPercent: 0,
             TaxCode: "VO10",
-            UoMCode: "L",
-            UoMEntry: 19,
+            // UoMCode: "L"
+            UoMEntry: item.U_tl_uom,
             LineOfBussiness: "201001", // item.LineOfBussiness
             RevenueLine: "202004", // item.RevenueLine
             ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
-                BinAbsEntry: 101,
-                Quantity: 1.0,
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: item.U_tl_cashallow,
                 AllowNegativeQuantity: "tNO",
                 BaseLineNumber: 0,
               },
             ],
-          },
+          })),
         ],
 
         Partnership: [
-          {
-            ItemCode: "FUE0001",
-            Quantity: 1.0,
-            GrossPrice: 100,
+          data?.allocationData?.map((item: any) => ({
+            ItemCode: item.U_tl_itemcode,
+            Quantity: item.U_tl_partallow,
+            GrossPrice: item.ItemPrice,
             DiscountPercent: 0,
             TaxCode: "VO10",
-            UoMCode: "L",
-            UoMEntry: 19,
+            // UoMCode: "L"
+            UoMEntry: item.U_tl_uom,
             LineOfBussiness: "201001", // item.LineOfBussiness
             RevenueLine: "202004", // item.RevenueLine
             ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
-                BinAbsEntry: 101,
-                Quantity: 1.0,
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: item.U_tl_partallow,
                 AllowNegativeQuantity: "tNO",
                 BaseLineNumber: 0,
               },
             ],
-          },
+          })),
         ],
         StockTransfer: [
-          {
-            ItemCode: "FUE0001",
-            Quantity: 3.0,
-            GrossPrice: 100,
+          data?.allocationData?.map((item: any) => ({
+            ItemCode: item.U_tl_itemcode,
+            Quantity: item.U_tl_stockallow,
+            GrossPrice: item.ItemPrice,
             DiscountPercent: 0,
             TaxCode: "VO10",
-            UoMCode: "L",
-            UoMEntry: 19,
+            // UoMCode: "L"
+            UoMEntry: item.U_tl_uom,
             LineOfBussiness: "201001", // item.LineOfBussiness
             RevenueLine: "202004", // item.RevenueLine
             ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
-                BinAbsEntry: 101,
-                Quantity: 3.0,
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: item.U_tl_stockallow,
                 AllowNegativeQuantity: "tNO",
                 BaseLineNumber: 0,
               },
             ],
-          },
+          })),
         ],
 
         OwnUsage: [
-          {
-            ItemCode: "FUE0001",
-            Quantity: 1.0,
-            GrossPrice: 100,
+          data?.allocationData?.map((item: any) => ({
+            ItemCode: item.U_tl_itemcode,
+            Quantity: item.U_tl_ownallow,
+            GrossPrice: item.ItemPrice,
             DiscountPercent: 0,
             TaxCode: "VO10",
-            UoMCode: "L",
-            UoMEntry: 19,
+            // UoMCode: "L"
+            UoMEntry: item.U_tl_uom,
             LineOfBussiness: "201001", // item.LineOfBussiness
             RevenueLine: "202004", // item.RevenueLine
             ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
-                BinAbsEntry: 101,
-                Quantity: 1.0,
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: item.U_tl_ownallow,
                 AllowNegativeQuantity: "tNO",
                 BaseLineNumber: 0,
               },
             ],
-          },
+          })),
         ],
         TelaCard: [
-          {
-            ItemCode: "FUE0001",
-            Quantity: 1.0,
-            GrossPrice: 100,
+          data?.allocationData?.map((item: any) => ({
+            ItemCode: item.U_tl_itemcode,
+            Quantity: item.U_tl_cardallow,
+            GrossPrice: item.ItemPrice,
             DiscountPercent: 0,
             TaxCode: "VO10",
-            UoMCode: "L",
-            UoMEntry: 19,
+            // UoMCode: "L"
+            UoMEntry: item.U_tl_uom,
             LineOfBussiness: "201001", // item.LineOfBussiness
             RevenueLine: "202004", // item.RevenueLine
             ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
-                BinAbsEntry: 101,
-                Quantity: 1.0,
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: item.U_tl_cardallow,
                 AllowNegativeQuantity: "tNO",
                 BaseLineNumber: 0,
               },
             ],
-          },
+          })),
         ],
 
         PumpTest: [
-          {
-            ItemCode: "FUE0001",
-            Quantity: 10.0,
-            GrossPrice: 100,
+          data?.allocationData?.map((item: any) => ({
+            ItemCode: item.U_tl_itemcode,
+            Quantity: item.U_tl_pumpallow,
+            GrossPrice: item.ItemPrice,
             DiscountPercent: 0,
             TaxCode: "VO10",
-            UoMCode: "L",
-            UoMEntry: 19,
-
+            // UoMCode: "L"
+            UoMEntry: item.U_tl_uom,
             LineOfBussiness: "201001", // item.LineOfBussiness
             RevenueLine: "202004", // item.RevenueLine
             ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: 101,
-            WarehouseCode: "WH03",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
-                BinAbsEntry: 101,
-                Quantity: 1.0,
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: item.U_tl_pumpallow,
                 AllowNegativeQuantity: "tNO",
                 BaseLineNumber: 0,
               },
             ],
-          },
+          })),
         ],
       };
 
@@ -729,7 +786,7 @@ class Form extends NonCoreDcument {
                         }
                       />
                     )}
-                    {this.state.tapIndex === 5&& (
+                    {this.state.tapIndex === 5 && (
                       <ErrorLogForm
                         handlerChangeObject={(value) =>
                           this.handlerChangeObject(value)

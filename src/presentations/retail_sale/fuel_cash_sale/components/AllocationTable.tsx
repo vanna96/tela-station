@@ -140,7 +140,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_stockallow: parseFloat(e.target.value.replace(/,/g, "")),
+                  U_tl_ownallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
