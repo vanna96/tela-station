@@ -319,21 +319,21 @@ const TransportationRequestDetail = (props: any) => {
           >
             {state.tapIndex === 0 && (
               <h1>
-                <General
-                  data={state}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
-                  emp={emp}
-                  header={header}
-                  setHeader={setHeader}
+                  <General
+                    getValues={getValues}
+                    data={state}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    defaultValues={defaultValues}
+                    setBranchAss={setBranchAss}
+                    branchAss={branchAss}
+                    emp={emp}
+                    header={header}
+                    setHeader={setHeader}
                     serie={serie}
                     detail={props?.detail}
-                    watch={watch}
-                />
+                    watch={watch}                />
               </h1>
             )}
             {state.tapIndex === 1 && (

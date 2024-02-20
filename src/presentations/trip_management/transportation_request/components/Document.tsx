@@ -201,7 +201,7 @@ export default function Document({
               {document && document?.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="text-center p-10 text-[16px] text-gray-400"
                   >
                     No Record
