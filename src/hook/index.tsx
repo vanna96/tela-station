@@ -14,7 +14,6 @@ export const useDocumentTotalHook = (
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
         item.Quantity === "" ? 0 : item.Quantity,
-        // (item.GrossPrice / 1.1)?.toString(),
         item.UnitPrice,
         item.DiscountPercent === "" ? 0 : item.DiscountPercent
       );
@@ -27,20 +26,6 @@ export const useDocumentTotalHook = (
   const docDiscountAmount =
     ((discount === undefined || "" ? 0 : discount) / 100) * docTotal;
 
-  // const docTaxTotal: number = React.useMemo(() => {
-  //   const totalTax = items.reduce((prevTax, item) => {
-  //     const lineTotal = formular.findLineTotal(
-  //       item.LineTotal,
-  //       "0.10",
-  //       item.DiscountPercent === "" ? 0 : item.DiscountPercent
-  //     );
-  //     const TaxRate = item.VatGroup === "VO00" ? 0 : 10;
-  //     const lineTax = (lineTotal * TaxRate) / 100;
-  //     return prevTax + lineTax;
-  //   }, 0);
-
-  //   return formatNumberWithoutRounding(totalTax, 4);
-  // }, [items]);
   const docTaxTotal = React.useMemo(() => {
     return items.reduce((prevTax, item) => {
       const discountPercent = item.DiscountPercent === "" ? 0 : parseFloat(item.DiscountPercent);
@@ -55,9 +40,7 @@ export const useDocumentTotalHook = (
   const grossTotal: number = React.useMemo(() => {
     const total = items.reduce((prevTotal, item) => {
       const lineTotal = formular.findLineTotal(
-        // item.Quantity === "" ? 0 : item.Quantity,
         "1",
-        // (item.GrossPrice / 1.1)?.toString(),
         item.LineTotal,
         "0"
       );
