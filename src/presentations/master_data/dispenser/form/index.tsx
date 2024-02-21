@@ -83,7 +83,7 @@ class DispenserForm extends CoreFormDocument {
     this.onInit();
   }
 
-  handleModalItem = () => {};
+  handleModalItem = () => { };
 
   async onInit() {
     let state: any = { ...this.state };
@@ -210,6 +210,36 @@ class DispenserForm extends CoreFormDocument {
         throw new FormValidateException("PumpData is missing", 1);
       }
 
+      
+      let DISPENSER_LINESCollection = this.state?.PumpData?.map((e: any) => {
+        let status = "";
+        const registerM =  parseFloat((e?.registerMeeting ?? "0.00").toString().replace(/,/g, '')) || 0;
+        const updateM = parseFloat((e?.updateMetering ?? "0.00").toString().replace(/,/g, '')) || 0;
+
+        if(registerM <= 0 && updateM <= 0) status = "New";
+        if(registerM > 0) status = "Initialized";
+        if(updateM > 0) status = "Active";
+        if(e?.status == 'Inactive') status = "Inactive"; 
+
+        return {
+          U_tl_pumpcode: e?.pumpCode,
+          U_tl_itemnum: e?.itemCode,
+          U_tl_uom: e?.UomAbsEntry,
+          U_tl_reg_meter: registerM,
+          U_tl_upd_meter: updateM,
+          U_tl_status: status,
+          U_tl_bincode: e?.binCode
+        };
+      })
+
+      let status = this.state?.Status;
+      let statusCondition = DISPENSER_LINESCollection?.filter((p: any) => (
+        ((p.U_tl_reg_meter || 0) > 0 
+        ||
+        ( p?.U_tl_upd_meter || 0 > 0)))).length > 0 ? "Active":"New";
+
+      if (status !== "Inactive") status = statusCondition;
+
       const payloads = {
         Code: this.state?.PumpCode,
         Name: this.state?.PumpName,
@@ -217,22 +247,8 @@ class DispenserForm extends CoreFormDocument {
         U_tl_bplid: `${this.state?.U_tl_bplid}`,
         U_tl_whs: data?.U_tl_whs,
         U_tl_type: this.state?.lineofBusiness,
-        U_tl_status: this.state?.Status,
-        TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
-          return {
-            U_tl_pumpcode: e?.pumpCode,
-            U_tl_itemnum: e?.itemCode,
-            U_tl_bincode: e?.binCode,
-            U_tl_uom: e?.UomAbsEntry,
-            U_tl_reg_meter: parseFloat(
-              (e?.registerMeeting ?? "0.00").toString().replace(/,/g, "")
-            ),
-            U_tl_upd_meter: parseFloat(
-              (e?.updateMetering ?? "0.00").toString().replace(/,/g, "")
-            ),
-            U_tl_status: e?.status,
-          };
-        }),
+        U_tl_status: status,
+        TL_DISPENSER_LINESCollection: DISPENSER_LINESCollection
       };
 
       if (id) {

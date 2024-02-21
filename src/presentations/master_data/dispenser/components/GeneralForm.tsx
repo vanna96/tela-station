@@ -113,15 +113,16 @@ export default function GeneralForm({
                   value={data?.NumOfPump}
                   placeholder="Number of Pump"
                   onChange={(e) => {
+                    let no_pump:string = ((parseInt(e.target.value) <= 10 ? parseInt(e.target.value) : 10) ?? 0).toString();
                     const PumpData = [];
                     for (
                       let index = 0;
-                      index < parseInt(e.target.value ?? 0);
+                      index < parseInt(no_pump);
                       index++
                     ) {
                       const formattedIndex = `${index + 1}`.padStart(3, "0");
                       PumpData.push({
-                        pumpCode: `${data?.PumpCode || ""} - ${formattedIndex}`,
+                        pumpCode: `${data?.PumpCode || ""} - N${formattedIndex}`,
                         itemCode: "",
                         itemName: "",
                         uom: "",
@@ -132,7 +133,7 @@ export default function GeneralForm({
                     }
                     handlerChangeObject({
                       PumpData,
-                      NumOfPump: e.target.value,
+                      NumOfPump: no_pump,
                     });
                   }}
                 />
@@ -216,8 +217,7 @@ export default function GeneralForm({
                 <MUISelect
                   items={[
                     { id: "New", name: "New" },
-                    { id: "Initialized", name: "Initialized" },
-                    { id: "OutOfOrder", name: "Out Of Order" },
+                    { id: "Active", name: "Active" },
                     { id: "Inactive", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("Status", e.target.value)}
