@@ -2,7 +2,15 @@ import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Collapse,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  TextField,
+} from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
 import shortid from "shortid";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -12,6 +20,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { TbEdit } from "react-icons/tb";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { FiCopy } from "react-icons/fi";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -121,49 +130,51 @@ export default function ContentForm({
         accessorKey: "ItemCode",
         Header: (header: any) => (
           <label>
-            Item No <span className="text-red-500">*</span>
+            Item Code <span className="text-red-500">*</span>
           </label>
         ),
-        header: "Item No",
-        visible: true,
-        size: 140,
-        Cell: ({ cell }: any) => (
-          <MUITextField
-            value={cell.getValue()}
-            disabled={data?.isStatusClose || false}
-            onBlur={(event) =>
-              handlerChangeInput(event, cell?.row?.original, "ItemCode")
-            }
-            endAdornment={!(data?.isStatusClose || false)}
-            onClick={() => {
-              if (cell.getValue() === "") {
-                handlerAddItem();
-              } else {
-                updateRef.current?.onOpen(cell.row.original);
-              }
-            }}
-            endIcon={
-              cell.getValue() === "" ? null : <TbEdit className="text-lg" />
-            }
-            readOnly={true}
-          />
-        ),
-      },
-
-      {
-        Header: (header: any) => (
-          <label>
-            Item Name <span className="text-red-500">*</span>
-          </label>
-        ),
-        accessorKey: "ItemName",
-        header: "Item Name ",
+        size: 200,
         visible: true,
         Cell: ({ cell }: any) => {
+          const cellValue = cell.getValue() === "" ? "Add" : cell.getValue();
+
           return (
-            <MUITextField
-              value={cell.row.original.ItemCode ? cell.getValue() : ""}
-              disabled
+            <OutlinedInput
+              className={`text-field w-full ${cellValue === "Add" ? "center-text cursor-pointer" : ""}`}
+              value={cellValue}
+              onBlur={(event) =>
+                handlerChangeInput(event, cell?.row?.original, "ItemCode")
+              }
+              disabled={data?.isStatusClose || false}
+              onClick={() => {
+                if (cellValue === "Add") {
+                  handlerAddItem();
+                }
+              }}
+              sx={{
+                padding: "1px 1px",
+              }}
+              inputProps={{
+                readOnly: true,
+                style: {
+                  textAlign: cellValue === "Add" ? "center" : "left",
+                  cursor: cellValue === "Add" ? "pointer" : "text",
+                },
+                className: `${data?.isStatusClose ? "bg-gray-100" : ""}`,
+              }}
+              endAdornment={
+                cellValue !== "Add" && !data?.isStatusClose ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        updateRef.current?.onOpen(cell.row.original);
+                      }}
+                    >
+                      <FiCopy className="text-lg" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null
+              }
             />
           );
         },
@@ -171,7 +182,27 @@ export default function ContentForm({
       {
         Header: (header: any) => (
           <label>
-            Quantity <span className="text-red-500">*</span>
+            Item Name <span className="text-red-500">*</span>
+          </label>
+        ),
+        size: 220,
+        accessorKey: "ItemName",
+        header: "Item Name ",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (cell.row.original?.ItemCode)
+            return (
+              <MUITextField
+                value={cell.row.original.ItemCode ? cell.getValue() : ""}
+                disabled
+              />
+            );
+        },
+      },
+      {
+        Header: (header: any) => (
+          <label>
+            Qty <span className="text-red-500">*</span>
           </label>
         ),
         accessorKey: "Quantity",
@@ -179,35 +210,36 @@ export default function ContentForm({
         visible: true,
 
         Cell: ({ cell }: any) => {
-          return (
-            <NumericFormat
-              key={"Quantity_" + cell.getValue()}
-              disabled={cell.row.original.ItemCode === ""}
-              thousandSeparator
-              decimalScale={data.Currency === "USD" ? 4 : 0}
-              placeholder={data.Currency === "USD" ? "0.0000" : "0"}
-              customInput={MUIRightTextField}
-              defaultValue={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["Quantity", newValue],
-                  "Quantity"
-                );
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                key={"Quantity_" + cell.getValue()}
+                disabled={cell.row.original.ItemCode === ""}
+                thousandSeparator
+                decimalScale={data.Currency === "USD" ? 4 : 0}
+                placeholder={data.Currency === "USD" ? "0.0000" : "0"}
+                customInput={MUIRightTextField}
+                defaultValue={cell.getValue()}
+                onBlur={(event) => {
+                  const newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["Quantity", newValue],
+                    "Quantity"
+                  );
 
-                const gross = cell.row.original.GrossPrice;
-                const totalGross = newValue * gross;
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
+                  const gross = cell.row.original.GrossPrice;
+                  const totalGross = newValue * gross;
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }}
+              />
+            );
         },
       },
       {
@@ -220,75 +252,76 @@ export default function ContentForm({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <MUISelect
-              disabled={cell.row.original.ItemCode === ""}
-              value={cell.getValue()}
-              items={cell.row.original.UomLists?.map((e: any) => ({
-                label: e.Name,
-                value: e.AbsEntry,
-              }))}
-              aliaslabel="label"
-              aliasvalue="value"
-              onChange={(event: any) => {
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["UomAbsEntry", event.target.value],
-                  "UomAbsEntry"
-                );
-                let defaultPrice = cell.row.original.ItemPrices?.find(
-                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-                )?.Price;
-                let itemPrices = cell.row.original.ItemPrices?.find(
-                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-                )?.UoMPrices;
-
-                let uomPrice = itemPrices?.find(
-                  (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-                );
-
-                if (uomPrice && event.target.value === uomPrice.UoMEntry) {
-                  const grossPrice = uomPrice.Price;
-                  const quantity = cell.row.original.Quantity;
-                  const totalGross =
-                    grossPrice * quantity -
-                    grossPrice *
-                      quantity *
-                      (cell.row.original.DiscountPercent / 100);
-
+          if (cell.row.original?.ItemCode)
+            return (
+              <MUISelect
+                disabled={cell.row.original.ItemCode === ""}
+                value={cell.getValue()}
+                items={cell.row.original.UomLists?.map((e: any) => ({
+                  label: e.Name,
+                  value: e.AbsEntry,
+                }))}
+                aliaslabel="label"
+                aliasvalue="value"
+                onChange={(event: any) => {
                   handlerUpdateRow(
                     cell.row.id,
-                    ["GrossPrice", grossPrice],
-                    "GrossPrice"
+                    ["UomAbsEntry", event.target.value],
+                    "UomAbsEntry"
                   );
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["LineTotal", totalGross],
-                    "LineTotal"
-                  );
-                } else {
-                  const grossPrice = defaultPrice;
-                  const quantity = cell.row.original.Quantity;
-                  const totalGross =
-                    grossPrice * quantity -
-                    grossPrice *
-                      quantity *
-                      (cell.row.original.DiscountPercent / 100);
+                  let defaultPrice = cell.row.original.ItemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                  )?.Price;
+                  let itemPrices = cell.row.original.ItemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                  )?.UoMPrices;
 
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["GrossPrice", grossPrice],
-                    "GrossPrice"
+                  let uomPrice = itemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
                   );
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["LineTotal", totalGross],
-                    "LineTotal"
-                  );
-                }
-              }}
-            />
-          );
+
+                  if (uomPrice && event.target.value === uomPrice.UoMEntry) {
+                    const grossPrice = uomPrice.Price;
+                    const quantity = cell.row.original.Quantity;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (cell.row.original.DiscountPercent / 100);
+
+                    handlerUpdateRow(
+                      cell.row.id,
+                      ["GrossPrice", grossPrice],
+                      "GrossPrice"
+                    );
+                    handlerUpdateRow(
+                      cell.row.id,
+                      ["LineTotal", totalGross],
+                      "LineTotal"
+                    );
+                  } else {
+                    const grossPrice = defaultPrice;
+                    const quantity = cell.row.original.Quantity;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (cell.row.original.DiscountPercent / 100);
+
+                    handlerUpdateRow(
+                      cell.row.id,
+                      ["GrossPrice", grossPrice],
+                      "GrossPrice"
+                    );
+                    handlerUpdateRow(
+                      cell.row.id,
+                      ["LineTotal", totalGross],
+                      "LineTotal"
+                    );
+                  }
+                }}
+              />
+            );
         },
       },
       {
@@ -301,77 +334,79 @@ export default function ContentForm({
         header: "Unit Price",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <NumericFormat
-              disabled
-              key={"Price_" + cell.getValue()}
-              thousandSeparator
-              decimalScale={data.Currency === "USD" ? 4 : 0}
-              // fixedDecimalScale
-              customInput={MUIRightTextField}
-              value={cell.getValue()}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["GrossPrice", newValue],
-                  "GrossPrice"
-                );
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                disabled
+                key={"Price_" + cell.getValue()}
+                thousandSeparator
+                decimalScale={data.Currency === "USD" ? 4 : 0}
+                // fixedDecimalScale
+                customInput={MUIRightTextField}
+                value={cell.getValue()}
+                onBlur={(event) => {
+                  const newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["GrossPrice", newValue],
+                    "GrossPrice"
+                  );
 
-                // Update TotalGross based on the new GrossPrice
-                const quantity = cell.row.original.Quantity;
-                const totalGross = newValue * quantity;
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
+                  // Update TotalGross based on the new GrossPrice
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross = newValue * quantity;
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }}
+              />
+            );
         },
       },
 
       {
         accessorKey: "DiscountPercent",
-        header: "Unit Discount",
+        header: " Discount %",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <NumericFormat
-              disabled={cell.row.original.ItemCode === ""}
-              value={cell.getValue()}
-              thousandSeparator
-              startAdornment={"%"}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
-              // fixedDecimalScale
-              placeholder={data.Currency === "USD" ? "0.000" : "0"}
-              onChange={(event: any) => {
-                if (!(event.target.value <= 100 && event.target.value >= 0)) {
-                  event.target.value = 0;
-                }
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["DiscountPercent", event.target.value],
-                  "DiscountPercent"
-                );
-                const quantity = cell.row.original.Quantity;
-                const totalGross =
-                  cell.row.original.GrossPrice * quantity -
-                  cell.row.original.GrossPrice *
-                    quantity *
-                    (cell.row.original.DiscountPercent / 100);
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
-              }}
-              customInput={MUIRightTextField}
-            />
-          );
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                disabled={cell.row.original.ItemCode === ""}
+                value={cell.getValue()}
+                thousandSeparator
+                startAdornment={"%"}
+                decimalScale={data.Currency === "USD" ? 3 : 0}
+                // fixedDecimalScale
+                placeholder={data.Currency === "USD" ? "0.000" : "0"}
+                onChange={(event: any) => {
+                  if (!(event.target.value <= 100 && event.target.value >= 0)) {
+                    event.target.value = 0;
+                  }
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["DiscountPercent", event.target.value],
+                    "DiscountPercent"
+                  );
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    cell.row.original.GrossPrice * quantity -
+                    cell.row.original.GrossPrice *
+                      quantity *
+                      (cell.row.original.DiscountPercent / 100);
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }}
+                customInput={MUIRightTextField}
+              />
+            );
         },
       },
 
@@ -381,27 +416,28 @@ export default function ContentForm({
         visible: true,
 
         Cell: ({ cell }: any) => {
-          return (
-            <NumericFormat
-              disabled
-              key={"Amount_" + cell.getValue()}
-              thousandSeparator
-              decimalScale={data.Currency === "USD" ? 3 : 0}
-              // fixedDecimalScale
-              customInput={MUIRightTextField}
-              value={cell.getValue()}
-              onChange={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", newValue],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                disabled
+                key={"Amount_" + cell.getValue()}
+                thousandSeparator
+                decimalScale={data.Currency === "USD" ? 3 : 0}
+                // fixedDecimalScale
+                customInput={MUIRightTextField}
+                value={cell.getValue()}
+                onChange={(event) => {
+                  const newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", newValue],
+                    "LineTotal"
+                  );
+                }}
+              />
+            );
         },
       },
     ],
@@ -420,11 +456,8 @@ export default function ContentForm({
             <IconButton
               aria-label="close"
               color="inherit"
-              size="small"
               onClick={onClose}
-            >
-              <MdOutlineClose fontSize="inherit" />
-            </IconButton>
+            ></IconButton>
           }
         >
           {data?.error["Items"]}

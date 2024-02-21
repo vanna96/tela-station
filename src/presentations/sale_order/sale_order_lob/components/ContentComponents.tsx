@@ -113,11 +113,17 @@ export default function ContentComponent(props: ContentComponentProps) {
   console.log(props.data);
   return (
     <FormCard
-      title="Content"
+      title=""
       action={
         <div className="flex ">
-          <Button size="small" disabled={props?.data?.isStatusClose || false}>
-            <span className="capitalize text-sm" onClick={handlerRemove}>
+          <Button
+            disableElevation
+            size="small"
+            variant="outlined"
+            style={{ borderColor: "#d1d5db", color: "#dc2626" }}
+            disabled={props?.data?.isStatusClose || false}
+          >
+            <span className="capitalize text-xs " onClick={handlerRemove}>
               Remove
             </span>
           </Button>
@@ -130,15 +136,19 @@ export default function ContentComponent(props: ContentComponentProps) {
             columns={[
               {
                 accessorKey: "id",
-                size: 30,
-
-                Cell: (cell) => (
-                  <Checkbox
-                    checked={cell.row.index in rowSelection}
-                    size="small"
-                    onChange={(event) => onCheckRow(event, cell.row.index)}
-                  />
-                ),
+                size: 0,
+                minSize: 0,
+                maxSize: 0,
+                Cell: ({ cell }: any) => {
+                  if (cell.row.original?.ItemCode)
+                    return (
+                      <Checkbox
+                        checked={cell.row.index in rowSelection}
+                        size="small"
+                        onChange={(event) => onCheckRow(event, cell.row.index)}
+                      />
+                    );
+                },
               },
               ...columns,
             ]}
@@ -150,7 +160,7 @@ export default function ContentComponent(props: ContentComponentProps) {
             enablePagination={false}
             enableSorting={false}
             enableTopToolbar={false}
-            enableColumnResizing={true}
+            enableColumnResizing={false}
             enableColumnFilterModes={false}
             enableDensityToggle={false}
             enableFilters={false}
@@ -176,18 +186,30 @@ export default function ContentComponent(props: ContentComponentProps) {
             muiTableBodyRowProps={() => ({
               sx: { cursor: "pointer" },
             })}
+            defaultColumn={{
+              maxSize: 400,
+              minSize: 80,
+              size: 160,
+            }}
+            muiTableProps={() => ({
+              sx: {
+                "& .MuiTableHead-root .MuiTableCell-root": {
+                  backgroundColor: "#e4e4e7",
+                  fontWeight: "500",
+                  paddingTop: "8px",
+                  paddingBottom: "8px",
+                },
+                border: "1px solid #d1d5db",
+              },
+            })}
             enableTableFooter={false}
           />
-          <div className="grid grid-cols-12 mt-2">
+          <div className="grid grid-cols-12 ">
             <div className="col-span-5"></div>
 
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
-              <div className="grid grid-cols-2 py-2">
-                <div className="col-span-1 text-lg font-medium">
-                  Total Summary
-                </div>
-              </div>
+             
               <div className="grid grid-cols-12 py-1">
                 <div className="col-span-6 text-gray-700">
                   Total Before Discount
