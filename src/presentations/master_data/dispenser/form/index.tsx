@@ -49,6 +49,7 @@ class DispenserForm extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
+      U_tl_bplid: 1 || "1",
       type: "sale", // Initialize type with a default value
       warehouseCode: "",
       tabErrors: {
@@ -60,7 +61,7 @@ class DispenserForm extends CoreFormDocument {
       },
       isDialogOpen: false,
       Status: "New",
-      lineofBusiness: "Oil"
+      lineofBusiness: "Oil",
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -103,13 +104,14 @@ class DispenserForm extends CoreFormDocument {
             Attendant1: data?.U_tl_attend1,
             Attendant2: data?.U_tl_attend2,
             U_tl_bplid: data?.U_tl_bplid,
+            U_tl_whs: data?.U_tl_whs,
             PumpData: await Promise.all(
               (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
                 const UoMGroupEntry = await request(
                   "GET",
                   `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
                 );
-                const UoMGroup = UoMGroupEntry
+                const UoMGroup = UoMGroupEntry;
                 const uomGroups: any =
                   await new UnitOfMeasurementGroupRepository().get();
 
@@ -136,6 +138,7 @@ class DispenserForm extends CoreFormDocument {
                   updateMetering: e?.U_tl_upd_meter,
                   status: e?.U_tl_status,
                   LineId: e?.LineId,
+                  binCode: e?.U_tl_bincode,
                 };
 
                 if (e?.U_tl_itemnum) {
@@ -225,6 +228,7 @@ class DispenserForm extends CoreFormDocument {
           U_tl_reg_meter: registerM,
           U_tl_upd_meter: updateM,
           U_tl_status: status,
+          U_tl_bincode: e?.binCode
         };
       })
 
@@ -241,16 +245,16 @@ class DispenserForm extends CoreFormDocument {
         Name: this.state?.PumpName,
         U_tl_pumpnum: this.state?.NumOfPump,
         U_tl_bplid: `${this.state?.U_tl_bplid}`,
+        U_tl_whs: data?.U_tl_whs,
         U_tl_type: this.state?.lineofBusiness,
         U_tl_status: status,
-        TL_DISPENSER_LINESCollection: DISPENSER_LINESCollection,
+        TL_DISPENSER_LINESCollection: DISPENSER_LINESCollection
       };
 
       if (id) {
         return await request("PATCH", `/TL_Dispenser('${id}')`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -290,26 +294,21 @@ class DispenserForm extends CoreFormDocument {
     this.setState({ ...this.state, tapIndex: index });
   }
 
-  handleNextTab = () => {
-    const currentTab = this.state.tapIndex;
-    const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field: any) => {
+  handleMenuButtonClick = (index: any) => {
+    const requiredFields = this.getRequiredFieldsByTab(index - 1);
+    const hasErrors = requiredFields.some((field) => {
       if (field === "Items") {
-        // Check if the "Items" array is empty
         return !this.state[field] || this.state[field].length === 0;
       }
       return !this.state[field];
     });
 
     if (hasErrors) {
-      // Show the dialog if there are errors
       this.setState({ isDialogOpen: true });
     } else {
-      // If no errors, allow the user to move to the next tab
-      this.handlerChangeMenu(currentTab + 1);
+      this.setState({ tapIndex: index });
     }
   };
-
   handleCloseDialog = () => {
     // Close the dialog
     this.setState({ isDialogOpen: false });
@@ -317,67 +316,44 @@ class DispenserForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness"],
+      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness", "U_tl_whs"],
       // 1: ["Items"]
     };
     return requiredFieldsMap[tabIndex] || [];
   }
 
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
-    }
-  };
-
   HeaderTaps = () => {
     return (
       <>
         <div className="w-full mt-2">
-          <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>Nozzle</MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 0}
+            onClick={() => this.handleMenuButtonClick(0)}
+          >
+            General
+          </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 1}
+            onClick={() => this.handleMenuButtonClick(1)}
+          >
+            Nozzle
+          </MenuButton>
         </div>
 
-        <div className="sticky w-full bottom-4">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <div className="flex ">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
-              >
-                <NavigateBeforeIcon />
-              </Button>
-            </div>
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 1}
-                style={{ textTransform: "none" }}
-              >
-                <NavigateNextIcon />
-              </Button>
-
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
-                onClose={this.handleCloseDialog}
-              >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
-            </div>
-          </div>
-        </div>
+        <Snackbar
+          open={this.state.isDialogOpen}
+          autoHideDuration={6000}
+          onClose={this.handleCloseDialog}
+        >
+          <Alert
+            onClose={this.handleCloseDialog}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            Please complete all required fields before proceeding to the next
+            tab.
+          </Alert>
+        </Snackbar>
       </>
     );
   };
@@ -483,11 +459,13 @@ class DispenserForm extends CoreFormDocument {
                           sx={{ height: "25px" }}
                           variant="outlined"
                           style={{
-                            background: 'white',
-                            border: '1px solid red'
+                            background: "white",
+                            border: "1px solid red",
                           }}
                           disableElevation
-                          onClick={() => window.location.href = '/master-data/pump'}
+                          onClick={() =>
+                            (window.location.href = "/master-data/pump")
+                          }
                         >
                           <span className="px-3 text-[11px] py-1 text-red-500">
                             Cancel

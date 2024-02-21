@@ -8,7 +8,7 @@ import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import { getShippingAddress } from "@/models/BusinessParter";
 import { TextField } from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import CashBankTable from "./CashBankTable";
 import CheckNumberTable from "./CheckNumberTable";
 import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
@@ -20,6 +20,8 @@ import { useDocumentTotalHook } from "@/hook";
 import Formular from "@/utilies/formular";
 import { commaFormatNum } from "@/utilies/formatNumber";
 import { numberWithCommas } from "@/helper/helper";
+import { APIContext } from "@/presentations/collection/settle_receipt/context/APIContext";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -43,10 +45,11 @@ export default function IncomingPaymentForm({
   const totalCashSale: number = React.useMemo(() => {
     const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
       const lineTotal = Formular.findLineTotal(
-        commaFormatNum(item.U_tl_cashallow || 0)?.toString(),
+        (item.U_tl_cashallow || 0)?.toString(),
         item.ItemPrice || 0,
         "0"
       );
+      console.log(item.U_tl_cashallow);
       return prevTotal + lineTotal;
     }, 0);
     return total;
@@ -58,7 +61,11 @@ export default function IncomingPaymentForm({
       0
     );
   };
-
+  console.log([
+    ...data?.checkNumberData,
+    ...data?.cashBankData,
+    ...data?.couponData,
+  ]);
   const calculateTotalByCurrency = (data: any, currency: any) => {
     let total = 0;
 
@@ -83,7 +90,7 @@ export default function IncomingPaymentForm({
 
     // Aggregate CouponData
     total += data.couponData.reduce((acc: any, item: any) => {
-      if (item.U_tl_couponcurr === currency) {
+      if (item.U_tl_paycur === currency) {
         const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
         return acc + couponAmount;
       }
@@ -93,11 +100,18 @@ export default function IncomingPaymentForm({
     return total;
   };
 
-  // Usage inside your component or a relevant function
+  let exchangeRate = data?.ExchangeRate || 4100;
+  console.log(exchangeRate);
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
   );
+  const TotalKHRtoUSD: number = React.useMemo(() => {
+    const convertedKHRToUSD =
+      exchangeRate > 0 ? parseAmount(totalKHR) / exchangeRate : 0;
+    return convertedKHRToUSD;
+  }, [totalKHR, exchangeRate]);
+
   const totalUSD = React.useMemo(
     () => calculateTotalByCurrency(data, "USD"),
     [data]
@@ -132,10 +146,11 @@ export default function IncomingPaymentForm({
               <NumericFormat
                 key={"OverShortage"}
                 thousandSeparator
+                disabled
                 placeholder="0.000"
                 decimalScale={2}
                 customInput={MUITextField}
-                value={totalCashSale - totalUSD}
+                value={totalCashSale - totalUSD - TotalKHRtoUSD}
               />
             </div>
           </div>
@@ -147,6 +162,7 @@ export default function IncomingPaymentForm({
                 thousandSeparator
                 placeholder="0.000"
                 decimalScale={2}
+                disabled
                 customInput={MUITextField}
                 value={totalKHR}
               />
@@ -162,6 +178,7 @@ export default function IncomingPaymentForm({
               <NumericFormat
                 key={"totalUSD"}
                 thousandSeparator
+                disabled
                 placeholder="0.000"
                 decimalScale={2}
                 customInput={MUITextField}

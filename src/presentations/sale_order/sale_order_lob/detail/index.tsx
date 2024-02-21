@@ -26,6 +26,7 @@ import { TextField } from "@mui/material";
 import { useQuery } from "react-query";
 import DistributionRuleRepository from "@/services/actions/distributionRulesRepository";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { motion } from "framer-motion";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -192,11 +193,17 @@ class DeliveryDetail extends Component<any, any> {
           ) : (
             <>
               <div className="relative">
-                <div className="grow  px-16 py-4 ">
+                <motion.div
+                  className="grow px-16 py-4"
+                  key={this.state.tapIndex}
+                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
                   {this.state.tapIndex === 2 && <Logistic data={this.state} />}
-                </div>
+                </motion.div>
               </div>
             </>
           )}
@@ -333,7 +340,7 @@ function Content(props: any) {
         header: "Item NO.",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-     
+
         Cell: ({ cell }: any) => {
           return <MUITextField disabled value={cell.getValue()} />;
         },
@@ -342,7 +349,7 @@ function Content(props: any) {
         accessorKey: "ItemName",
         header: "Item Name",
         enableClickToCopy: true,
-      
+
         Cell: ({ cell }: any) => {
           return <MUITextField disabled value={cell.getValue()} />;
         },
@@ -350,7 +357,6 @@ function Content(props: any) {
       {
         accessorKey: "Quantity",
         header: "Quantity",
-      
 
         Cell: ({ cell }: any) => {
           return (
@@ -368,7 +374,7 @@ function Content(props: any) {
       {
         accessorKey: "MeasureUnit",
         header: "UoM ",
-      
+
         Cell: ({ cell }: any) => {
           return <MUITextField disabled value={cell.getValue()} />;
         },
@@ -376,7 +382,7 @@ function Content(props: any) {
       {
         accessorKey: "GrossPrice",
         header: "Unit Price",
-      
+
         Cell: ({ cell }: any) => (
           <NumericFormat
             disabled
@@ -393,7 +399,7 @@ function Content(props: any) {
       {
         accessorKey: "DiscountPercent",
         header: "Unit Discount",
-       
+
         Cell: ({ cell }: any) => {
           return (
             <MUIRightTextField
@@ -410,7 +416,7 @@ function Content(props: any) {
       {
         accessorKey: "GrossTotal",
         header: "Amount",
-      
+
         Cell: ({ cell }: any) => (
           <NumericFormat
             value={cell.getValue() ?? 0}

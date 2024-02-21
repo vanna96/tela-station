@@ -7,6 +7,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import { useCookies } from "react-cookie";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 
 export interface IGeneralFormProps {
   data: any;
@@ -58,6 +59,20 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
+                  Warehouse<span className="text-red-500">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <WarehouseAutoComplete
+                  Branch={parseInt(BPL)}
+                  value={data?.U_tl_whs}
+                  onChange={(e) => handlerChange("U_tl_whs", e)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
                   Pump Code <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -66,9 +81,7 @@ export default function GeneralForm({
                   size="small"
                   value={data?.PumpCode}
                   placeholder="Pump  Code"
-                  onChange={(e) =>
-                    handlerChange("PumpCode", e.target.value)
-                  }
+                  onChange={(e) => handlerChange("PumpCode", e.target.value)}
                 />
               </div>
             </div>
@@ -83,9 +96,7 @@ export default function GeneralForm({
                   size="small"
                   value={data?.PumpName}
                   placeholder="Pump Name"
-                  onChange={(e) =>
-                    handlerChange("PumpName", e.target.value)
-                  }
+                  onChange={(e) => handlerChange("PumpName", e.target.value)}
                 />
               </div>
             </div>
@@ -109,7 +120,7 @@ export default function GeneralForm({
                       index < parseInt(no_pump);
                       index++
                     ) {
-                      const formattedIndex = `${(index + 1)}`.padStart(3, '0');
+                      const formattedIndex = `${index + 1}`.padStart(3, "0");
                       PumpData.push({
                         pumpCode: `${data?.PumpCode || ""} - N${formattedIndex}`,
                         itemCode: "",

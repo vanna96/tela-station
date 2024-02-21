@@ -34,7 +34,7 @@ export default function CouponTable(props: any) {
       {
         U_tl_acccoupon: "11233",
         U_tl_amtcoupon: "",
-        U_tl_couponcurr: "USD",
+        U_tl_paycur: "USD",
         U_tl_paytype: "Coupon",
         // U_tl_totalusd: 0,
         // U_tl_totalkhr: 0,
@@ -46,43 +46,22 @@ export default function CouponTable(props: any) {
 
   const columns = [
     {
-      size: 10,
-      minSize: 10,
-      maxSize: 10,
+      size: 20,
+      minSize: 20,
+      maxSize: 20,
       accessorKey: "deleteButton",
       align: "center",
       header: "",
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_acccoupon) return null;
-        return (
-          <div className="flex justify-center items-center">
-            <GridDeleteIcon
-              className="text-red-500 cursor-pointer"
-              onClick={() => handlerRemoveCheck(cell?.row?.index)}
-            />
-          </div>
-        );
+        return null;
       },
     },
     {
       accessorKey: "U_tl_acccoupon",
       header: "Coupon Account Name",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_acccoupon)
-          return (
-            <Button
-              onClick={() => handlerAdd()}
-              variant="outlined"
-              size="small"
-              sx={{ height: "30px", textTransform: "none", width: "100%" }}
-              disableElevation
-            >
-              <span className="px-3 text-[13px] py-1 text-green-500 font-no">
-                <GridAddIcon />
-                Add Row
-              </span>
-            </Button>
-          );
+        if (!cell.row.original?.U_tl_acccoupon) return null;
         return (
           <CashACAutoComplete
             key={"U_tl_acccoupon" + cell.getValue() + cell?.row?.id}
@@ -99,20 +78,16 @@ export default function CouponTable(props: any) {
       },
     },
     {
-      accessorKey: "U_tl_couponcurr",
+      accessorKey: "U_tl_paycur",
       header: "Currency",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccoupon) return null;
         return (
           <CurrencySelect
-            key={"U_tl_couponcurr" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_couponcurr || 0}
-            onChange={(e: any) => {
-              handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_couponcurr: e.target.value,
-              });
-            }}
-            name={"U_tl_couponcurr"}
+            key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
+            value={cell.row.original?.U_tl_paycur || 0}
+            name={"U_tl_paycur"}
+            disabled
           />
         );
       },
@@ -130,13 +105,25 @@ export default function CouponTable(props: any) {
             placeholder="0.000"
             onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_amtcoupon: e.target.value,
+                U_tl_amtcoupon: parseFloat(e.target.value.replace(/,/g, "")),
               });
             }}
             name={"U_tl_amtcoupon"}
             value={cell.row.original?.U_tl_amtcoupon || ""}
           />
         );
+      },
+    },
+    {
+      size: 15,
+      minSize: 15,
+      maxSize: 15,
+      accessorKey: "deleteButton",
+      align: "center",
+      header: "",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original?.U_tl_acccoupon) return null;
+        return null;
       },
     },
   ];

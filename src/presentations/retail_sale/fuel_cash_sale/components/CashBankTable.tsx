@@ -10,6 +10,7 @@ import { Button, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
+import { useExchangeRate } from "../../components/hook/useExchangeRate";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -45,11 +46,13 @@ export default function CashBankTable(props: any) {
     onChange("cashBankData", firstData);
   };
 
+  useExchangeRate(data?.Currency, onChange);
+
   const columns = [
     {
-      size: 10,
-      minSize: 10,
-      maxSize: 10,
+      size: 5,
+      minSize: 5,
+      maxSize: 5,
       accessorKey: "deleteButton",
       align: "center",
       header: "",
@@ -68,6 +71,8 @@ export default function CashBankTable(props: any) {
     {
       accessorKey: "U_tl_paytype",
       header: "Type",
+      size: 40,
+
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_paytype)
           return (
@@ -105,6 +110,8 @@ export default function CashBankTable(props: any) {
     {
       accessorKey: "U_tl_paycur",
       header: "Currency",
+      size: 40,
+
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_paytype) return null;
         return (
@@ -124,6 +131,8 @@ export default function CashBankTable(props: any) {
       ? {
           accessorKey: "U_tl_amtcash",
           header: "Amount",
+          size: 40,
+
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
@@ -134,7 +143,7 @@ export default function CashBankTable(props: any) {
                 defaultValue={cell.row.original?.U_tl_amtcash || 0}
                 onBlur={(e: any) => {
                   handlerChangeItem(cell?.row?.id || 0, {
-                    U_tl_amtcash: e.target.value,
+                    U_tl_amtcash: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
                 name={"U_tl_amtcash"}
@@ -147,6 +156,7 @@ export default function CashBankTable(props: any) {
       : {
           accessorKey: "U_tl_amtbank",
           header: "Amount",
+          size: 40,
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
@@ -157,7 +167,7 @@ export default function CashBankTable(props: any) {
                 defaultValue={cell.row.original?.U_tl_amtbank || 0}
                 onBlur={(e: any) => {
                   handlerChangeItem(cell?.row?.id || 0, {
-                    U_tl_amtbank: e.target.value,
+                    U_tl_amtbank: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
                 name={"U_tl_amtbank"}
@@ -167,6 +177,17 @@ export default function CashBankTable(props: any) {
             );
           },
         },
+    {
+      size: 5,
+      minSize: 5,
+      maxSize: 5,
+      accessorKey: "deleteButton",
+      align: "center",
+      header: "",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original?.U_tl_paytype) return null;
+      },
+    },
   ];
 
   return (
@@ -190,6 +211,11 @@ export default function CashBankTable(props: any) {
         enablePinning={true}
         enableStickyFooter={false}
         enableMultiRowSelection={false}
+        defaultColumn={{
+          maxSize: 400,
+          minSize: 80,
+          size: 160,
+        }}
         initialState={{
           density: "compact",
           rowSelection,

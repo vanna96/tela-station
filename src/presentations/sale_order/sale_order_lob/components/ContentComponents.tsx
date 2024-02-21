@@ -98,13 +98,19 @@ export default function ContentComponent(props: ContentComponentProps) {
   );
 
   const discountAmount = useMemo(() => {
-    const dataDiscount: number =
-      props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent;
+    // Check if docTotal is null or undefined
+    if (docTotal == null) {
+      return 0; // or handle appropriately
+    }
+
+    // Calculate discountAmount
+    const dataDiscount: number = props?.data?.DiscountPercent || 0;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [props?.data?.DiscountPercent, props.data.Items]);
+  }, [props?.data?.DiscountPercent, props.data.Items, docTotal]); // Include docTotal as a dependency
 
+  console.log(props.data);
   return (
     <FormCard
       title="Content"
@@ -187,6 +193,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                   Total Before Discount
                 </div>
                 <div className="col-span-6 text-gray-900">
+                 
                   <NumericFormat
                     className="bg-white w-full"
                     value={docTotal === 0 ? "" : docTotal}
@@ -237,7 +244,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-4">
                       <NumericFormat
                         className="bg-white w-full"
-                        value={discountAmount}
+                        value={discountAmount === 0 ? "" : discountAmount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -258,7 +265,8 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={docTaxTotal === 0 ? "" : docTaxTotal}
+                    // value={docTaxTotal === 0 ? "" : docTaxTotal}
+                    value={(docTotal - discountAmount) / 10 || ""}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -274,7 +282,12 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={grossTotal === 0 ? "" : grossTotal}
+                    // value={grossTotal === 0 ? "" : grossTotal}
+                    value={
+                      docTotal -
+                        discountAmount +
+                        (docTotal - discountAmount) / 10 || ""
+                    }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}

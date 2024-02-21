@@ -333,7 +333,7 @@ export const TotalSummaryRightSide = (props: any) => {
           <div className="col-span-4">
             {props.data?.Currency}{" "}
             <NumericFormat
-              value={docTaxTotal}
+              value={(docTotal - discountAmount) / 10}
               thousandSeparator
               disabled
               className="bg-white w-1/2"
@@ -351,7 +351,10 @@ export const TotalSummaryRightSide = (props: any) => {
             {" "}
             {props.data?.Currency}{" "}
             <NumericFormat
-              value={grossTotal}
+              // value={grossTotal}
+              value={
+                docTotal - discountAmount + (docTotal - discountAmount) / 10
+              }
               thousandSeparator
               disabled
               className="bg-white w-1/2"
