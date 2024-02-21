@@ -111,6 +111,14 @@ export default function ContentComponent(props: ContentComponentProps) {
   }, [props?.data?.DiscountPercent, props.data.Items, docTotal]); // Include docTotal as a dependency
 
   console.log(props.data);
+  const dataForTable = useMemo(() => {
+    if (props.data?.Items && props.data.Items.length > 0) {
+      return [...props.data.Items, { ItemCode: "" }];
+    } else {
+      return [{ ItemCode: " " }, { ItemCode: "" }];
+    }
+  }, [props.data?.Items]);
+
   return (
     <FormCard
       title=""
@@ -152,7 +160,8 @@ export default function ContentComponent(props: ContentComponentProps) {
               },
               ...columns,
             ]}
-            data={[...props?.data?.Items, { ItemCode: "" }]}
+            // data={[...props?.data?.Items, { ItemCode: " " } ,{ ItemCode: "" }]}
+            data={dataForTable}
             enableRowNumbers={false}
             enableStickyHeader={true}
             enableColumnActions={false}
@@ -209,7 +218,6 @@ export default function ContentComponent(props: ContentComponentProps) {
 
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
-             
               <div className="grid grid-cols-12 py-1">
                 <div className="col-span-6 text-gray-700">
                   Total Before Discount

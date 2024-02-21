@@ -141,11 +141,12 @@ export default function ContentForm({
           return (
             <OutlinedInput
               className={`text-field w-full ${cellValue === "Add" ? "center-text cursor-pointer" : ""}`}
-              value={cellValue}
+              value={cellValue == " " ? "Item Code" : cellValue}
               onBlur={(event) =>
                 handlerChangeInput(event, cell?.row?.original, "ItemCode")
               }
-              disabled={data?.isStatusClose || false}
+              placeholder="Item Code"
+              disabled={cellValue === " "}
               onClick={() => {
                 if (cellValue === "Add") {
                   handlerAddItem();
@@ -163,7 +164,9 @@ export default function ContentForm({
                 className: `${data?.isStatusClose ? "bg-gray-100" : ""}`,
               }}
               endAdornment={
-                cellValue !== "Add" && !data?.isStatusClose ? (
+                cellValue !== "Add" &&
+                cellValue !== " " &&
+                !data?.isStatusClose ? (
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() => {
@@ -193,7 +196,9 @@ export default function ContentForm({
           if (cell.row.original?.ItemCode)
             return (
               <MUITextField
-                value={cell.row.original.ItemCode ? cell.getValue() : ""}
+                placeholder="Item Name"
+                // value={cell.row.original.ItemCode ? cell.getValue() : ""}
+                value={cell.row.original.ItemCode && cell.row.original.ItemCode.trim() !== '' ? cell.getValue() : ""}
                 disabled
               />
             );
@@ -334,37 +339,37 @@ export default function ContentForm({
         header: "Unit Price",
         visible: true,
         Cell: ({ cell }: any) => {
-          if (cell.row.original?.ItemCode)
-            return (
-              <NumericFormat
-                disabled
-                key={"Price_" + cell.getValue()}
-                thousandSeparator
-                decimalScale={data.Currency === "USD" ? 4 : 0}
-                // fixedDecimalScale
-                customInput={MUIRightTextField}
-                value={cell.getValue()}
-                onBlur={(event) => {
-                  const newValue = parseFloat(
-                    event.target.value.replace(/,/g, "")
-                  );
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["GrossPrice", newValue],
-                    "GrossPrice"
-                  );
+          if (!cell.row.original?.ItemCode) return null;
+          return (
+            <NumericFormat
+              disabled
+              key={"Price_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={data.Currency === "USD" ? 4 : 0}
+              // fixedDecimalScale
+              customInput={MUIRightTextField}
+              value={cell.getValue()}
+              onBlur={(event) => {
+                const newValue = parseFloat(
+                  event.target.value.replace(/,/g, "")
+                );
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["GrossPrice", newValue],
+                  "GrossPrice"
+                );
 
-                  // Update TotalGross based on the new GrossPrice
-                  const quantity = cell.row.original.Quantity;
-                  const totalGross = newValue * quantity;
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["LineTotal", totalGross],
-                    "LineTotal"
-                  );
-                }}
-              />
-            );
+                // Update TotalGross based on the new GrossPrice
+                const quantity = cell.row.original.Quantity;
+                const totalGross = newValue * quantity;
+                handlerUpdateRow(
+                  cell.row.id,
+                  ["LineTotal", totalGross],
+                  "LineTotal"
+                );
+              }}
+            />
+          );
         },
       },
 

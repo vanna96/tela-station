@@ -36,6 +36,7 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <TextField
+                className="bg-gray-100"
                   size="small"
                   fullWidth
                   multiline
@@ -100,6 +101,7 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <TextField
+                className="bg-gray-100"
                   size="small"
                   fullWidth
                   multiline
