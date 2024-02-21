@@ -75,6 +75,7 @@ export default function GeneralForm({
               <MUISelect
                   items={[
                     { id: "Expense", name: "Expense" },
+                    { id: "Revenue", name: "Revenue" },
                   ]}
                   onChange={(e) =>
                     handlerChange("Type", e.target.value)

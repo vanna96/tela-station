@@ -52,6 +52,7 @@ export default function GeneralForm({
                   items={[
                     { id: "Payment Method", name: "Payment Method" },
                     { id: "Cash Account", name: "Cash Account" },
+                    { id: "Deposit", name: "Deposit" },
                   ]}
                   onChange={(e) =>
                     handlerChange("U_tl_cashtype", e.target.value)
