@@ -50,9 +50,9 @@ export default function CashBankTable(props: any) {
 
   const columns = [
     {
-      size: 10,
-      minSize: 10,
-      maxSize: 10,
+      size: 5,
+      minSize: 5,
+      maxSize: 5,
       accessorKey: "deleteButton",
       align: "center",
       header: "",
@@ -71,6 +71,8 @@ export default function CashBankTable(props: any) {
     {
       accessorKey: "U_tl_paytype",
       header: "Type",
+      size: 40,
+
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_paytype)
           return (
@@ -108,6 +110,8 @@ export default function CashBankTable(props: any) {
     {
       accessorKey: "U_tl_paycur",
       header: "Currency",
+      size: 40,
+
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_paytype) return null;
         return (
@@ -116,7 +120,7 @@ export default function CashBankTable(props: any) {
             value={cell.row.original?.U_tl_paycur || 0}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_paycur: (e.target.value),
+                U_tl_paycur: e.target.value,
               });
             }}
           />
@@ -127,6 +131,8 @@ export default function CashBankTable(props: any) {
       ? {
           accessorKey: "U_tl_amtcash",
           header: "Amount",
+          size: 40,
+
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
@@ -150,6 +156,7 @@ export default function CashBankTable(props: any) {
       : {
           accessorKey: "U_tl_amtbank",
           header: "Amount",
+          size: 40,
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
@@ -170,6 +177,17 @@ export default function CashBankTable(props: any) {
             );
           },
         },
+    {
+      size: 5,
+      minSize: 5,
+      maxSize: 5,
+      accessorKey: "deleteButton",
+      align: "center",
+      header: "",
+      Cell: ({ cell }: any) => {
+        if (!cell.row.original?.U_tl_paytype) return null;
+      },
+    },
   ];
 
   return (
@@ -193,6 +211,11 @@ export default function CashBankTable(props: any) {
         enablePinning={true}
         enableStickyFooter={false}
         enableMultiRowSelection={false}
+        defaultColumn={{
+          maxSize: 400,
+          minSize: 80,
+          size: 160,
+        }}
         initialState={{
           density: "compact",
           rowSelection,

@@ -18,9 +18,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import Formular from "@/utilies/formular";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
-import { motion } from "framer-motion";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BankRepository from "@/services/actions/bankRepository";
+
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -52,11 +50,11 @@ class DeliveryDetail extends Component<any, any> {
 
       if (!seriesList) {
         seriesList = await DocumentSerieRepository.getDocumentSeries({
-          Document: "TL_RETAILSALE",
+          Document: "TL_RetailSale",
         });
         this.props?.query?.set("retail-sale-series", seriesList);
       }
-      await request("GET", `TL_RETAILSALE(${id})`)
+      await request("GET", `TL_RetailSale(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           this.setState({
@@ -79,33 +77,26 @@ class DeliveryDetail extends Component<any, any> {
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
-  HeaderTabs = () => {
-    const menuItems = [
-      { label: "Basic Information" },
-      { label: "Nozzle Data" },
-      { label: "Incoming Payment" },
-      { label: "Stock Allocation" },
-      { label: "Card Count" },
-    ];
-
-    return (
-      <div className="w-full flex justify-between">
-        <div className="">
-          {menuItems.map((menuItem, index) => (
+  HeaderTabs = () => (
+    <div className="w-full flex justify-between">
+      <div className="">
+        {["Basic Information", "Nozzle Data", "Incoming Payment"].map(
+          (label, index) => (
             <MenuButton
               key={index}
               active={this.state.tapIndex === index}
               onClick={() => this.handlerChangeMenu(index)}
             >
-              <span>{menuItem.label}</span>
+              <span>{label}</span>
             </MenuButton>
-          ))}
-        </div>
+          )
+        )}
       </div>
-    );
-  };
+    </div>
+  );
 
   render() {
+    const { loading, tapIndex, seriesList, ...data } = this.state;
     return (
       <>
         <DocumentHeader
@@ -125,13 +116,7 @@ class DeliveryDetail extends Component<any, any> {
           ) : (
             <>
               <div className="relative">
-                <motion.div
-                  className="grow px-16 py-4"
-                  key={this.state.tapIndex}
-                  transition={{ duration: 0.2 }}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
+                <div className="grow  px-16 py-4 ">
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && (
                     <NozzleData data={this.state} />
@@ -141,7 +126,7 @@ class DeliveryDetail extends Component<any, any> {
                   )}
                   {this.state.tapIndex === 3 && <Stock data={this.state} />}
                   {this.state.tapIndex === 4 && <CardCount data={this.state} />}
-                </motion.div>
+                </div>
               </div>
             </>
           )}
@@ -152,22 +137,6 @@ class DeliveryDetail extends Component<any, any> {
 }
 
 export default withRouter(DeliveryDetail);
-
-const renderCell =
-  (key: string) =>
-  ({ cell }: any) => {
-    return (
-      <NumericFormat
-        key={key + cell.getValue()}
-        thousandSeparator
-        disabled
-        decimalScale={2}
-        customInput={MUIRightTextField}
-        placeholder="0.000"
-        defaultValue={cell.getValue()}
-      />
-    );
-  };
 
 function renderKeyValue(label: string, value: any) {
   return (
@@ -180,32 +149,6 @@ function renderKeyValue(label: string, value: any) {
   );
 }
 
-function CustomMaterialReactTable({
-  columns,
-  data,
-}: {
-  columns: any[];
-  data: any[];
-}) {
-  return (
-    <MaterialReactTable
-      enableColumnActions={false}
-      enableColumnFilters={false}
-      enablePagination={false}
-      enableSorting={false}
-      enableBottomToolbar={false}
-      enableTopToolbar={false}
-      muiTableBodyRowProps={{ hover: false }}
-      columns={columns}
-      data={data}
-      muiTableProps={() => ({
-        sx: {
-          border: "1px solid rgba(81, 81, 81, .5)",
-        },
-      })}
-    />
-  );
-}
 function General({ data }: any) {
   const filteredSeries = data?.seriesList?.filter(
     (e: any) => e.Series === data?.Series
@@ -232,7 +175,7 @@ function General({ data }: any) {
             {renderKeyValue("Name", data.U_tl_cardname)}
 
             {renderKeyValue("Shift", data?.U_tl_shiftcode)}
-            {renderKeyValue("Pump Attendant", data?.U_tl_attend)}
+            {renderKeyValue("Pump Attendant", data?.U_tl_pump)}
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">
@@ -249,7 +192,7 @@ function General({ data }: any) {
                   multiline
                   disabled
                   className="bg-gray-100"
-                  value={data?.Remark || "N/A"}
+                  value={data?.U_tl_ownusageremark || "N/A"}
                   InputProps={{ readOnly: true }}
                 />
               </div>
@@ -509,10 +452,27 @@ function NozzleData({ data }: any) {
           <h2>Nozzle Data</h2>
         </div>
         <div className="col-span-2 data-table">
-          <CustomMaterialReactTable
+          {/* <MaterialReactTable
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            defaultColumn={{
+              maxSize: 400,
+              minSize: 80,
+              size: 160,
+            }}
+            muiTableBodyRowProps={{ hover: false }}
             columns={NozzleDataColumn}
             data={data?.TL_RETAILSALE_CONHCollection || []}
-          />
+            muiTableProps={{
+              sx: {
+                border: "1px solid rgba(81, 81, 81, .5)",
+              },
+            }}
+          /> */}
         </div>
       </div>
       <div className="mt-8" />
@@ -521,9 +481,21 @@ function NozzleData({ data }: any) {
           <h2>Generate Allocation </h2>
         </div>
         <div className="col-span-2 data-table">
-          <CustomMaterialReactTable
+          <MaterialReactTable
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            muiTableBodyRowProps={{ hover: false }}
             columns={GenerateAllocationColumn}
             data={data?.TL_RETAILSALE_CONHCollection || []}
+            muiTableProps={() => ({
+              sx: {
+                border: "1px solid rgba(81, 81, 81, .5)",
+              },
+            })}
           />
         </div>
       </div>
@@ -606,8 +578,20 @@ function IncomingPayment({ data }: any) {
   const cashBankColumn: any = useMemo(
     () => [
       {
+        size: 5,
+        minSize: 5,
+        maxSize: 5,
+        accessorKey: "deleteButton",
+        align: "center",
+        header: "",
+        Cell: ({ cell }: any) => {
+          return null;
+        },
+      },
+      {
         accessorKey: "U_tl_paytype",
         header: "Type",
+        size: 40,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
@@ -621,6 +605,7 @@ function IncomingPayment({ data }: any) {
       {
         accessorKey: "U_tl_paycur",
         header: "Currency",
+        size: 40,
         Cell: ({ cell }: any) => {
           return (
             <MUITextField
@@ -637,14 +622,16 @@ function IncomingPayment({ data }: any) {
         ? {
             accessorKey: "U_tl_amtcash",
             header: "Amount",
+            size: 40,
+
             Cell: ({ cell }: any) => {
               return (
-                <NumericFormat
+                <FormattedInputs
                   placeholder="0.000"
                   key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                   disabled
+                  defaultValue={cell.row.original?.U_tl_amtcash || 0}
                   name={"U_tl_amtcash"}
-                  customInput={MUIRightTextField}
                   value={cell.row.original?.U_tl_amtcash || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
                 />
@@ -654,13 +641,14 @@ function IncomingPayment({ data }: any) {
         : {
             accessorKey: "U_tl_amtbank",
             header: "Amount",
+            size: 40,
             Cell: ({ cell }: any) => {
               return (
-                <NumericFormat
+                <FormattedInputs
                   placeholder="0.000"
                   key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
-                  customInput={MUIRightTextField}
                   disabled
+                  defaultValue={cell.row.original?.U_tl_amtbank || 0}
                   name={"U_tl_amtbank"}
                   value={cell.row.original?.U_tl_amtbank || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
@@ -668,123 +656,14 @@ function IncomingPayment({ data }: any) {
               );
             },
           },
-    ],
-    []
-  );
-  const checkNumberColumn: any = useMemo(
-    () => [
       {
-        accessorKey: "U_tl_acccheck",
-        header: "Check Number",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_acccheck" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_acccheck || ""}
-              disabled
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "U_tl_checkdate",
-        header: "Check Date",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_checkdate" + cell.getValue() + cell?.row?.id}
-              value={dateFormat(cell.row.original?.U_tl_checkdate || "")}
-              disabled
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "U_tl_paycur",
-        header: "Currency",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              disabled
-              key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_paycur || 0}
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "U_tl_amtcheck",
-        header: "Check Amount",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_amtcheck || ""}
-              disabled
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "U_tl_checkbank",
-        header: "Bank",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_checkbank" + cell.getValue() + cell?.row?.id}
-              value={
-                new BankRepository().find(cell.row.original?.U_tl_checkbank)
-                  ?.BankName
-              }
-              disabled
-            />
-          );
-        },
-      },
-    ],
-    []
-  );
-  const couponColumn: any = useMemo(
-    () => [
-      {
-        accessorKey: "U_tl_acccoupon",
-        header: "Check Number",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_acccoupon" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_acccoupon || ""}
-              disabled
-            />
-          );
-        },
-      },
-
-      {
-        accessorKey: "U_tl_paycur",
-        header: "Currency",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              disabled
-              key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_paycur || 0}
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "U_tl_amtcoupon",
-        header: "Coupon Amount",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_amtcoupon" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_amtcoupon || ""}
-              disabled
-            />
-          );
-        },
+        size: 5,
+        minSize: 5,
+        maxSize: 5,
+        accessorKey: "deleteButton",
+        align: "center",
+        header: "",
+        Cell: ({ cell }: any) => {},
       },
     ],
     []
@@ -805,51 +684,116 @@ function IncomingPayment({ data }: any) {
         </div>
       </div>
       <div className="col-span-2 data-table">
-        <CustomMaterialReactTable
+        <MaterialReactTable
+          enableColumnActions={false}
+          enableColumnFilters={false}
+          enablePagination={false}
+          enableSorting={false}
+          enableBottomToolbar={false}
+          enableTopToolbar={false}
+          muiTableBodyRowProps={{ hover: false }}
           columns={cashBankColumn}
           data={
             data?.TL_RETAILSALE_INCCollection?.filter(
               (e: any) => e.U_tl_paytype === "cash" || e.U_tl_paytype === "bank"
             ) || []
           }
+          muiTableProps={() => ({
+            sx: {
+              border: "1px solid rgba(81, 81, 81, .5)",
+            },
+          })}
         />
       </div>
-      <div className="mt-4" />
       <div className="col-span-2 data-table">
-        <CustomMaterialReactTable
-          columns={checkNumberColumn}
+        <MaterialReactTable
+          enableColumnActions={false}
+          enableColumnFilters={false}
+          enablePagination={false}
+          enableSorting={false}
+          enableBottomToolbar={false}
+          enableTopToolbar={false}
+          muiTableBodyRowProps={{ hover: false }}
+          columns={cashBankColumn}
           data={
             data?.TL_RETAILSALE_INCCollection?.filter(
               (e: any) => e.U_tl_paytype === "check"
             ) || []
           }
+          muiTableProps={() => ({
+            sx: {
+              border: "1px solid rgba(81, 81, 81, .5)",
+            },
+          })}
         />
       </div>
-      <div className="mt-4" />
-
       <div className="col-span-2 data-table">
-        <CustomMaterialReactTable
-          columns={couponColumn}
+        <MaterialReactTable
+          enableColumnActions={false}
+          enableColumnFilters={false}
+          enablePagination={false}
+          enableSorting={false}
+          enableBottomToolbar={false}
+          enableTopToolbar={false}
+          muiTableBodyRowProps={{ hover: false }}
+          columns={cashBankColumn}
           data={
             data?.TL_RETAILSALE_INCCollection?.filter(
               (e: any) => e.U_tl_paytype === "coupon"
             ) || []
           }
+          muiTableProps={() => ({
+            sx: {
+              border: "1px solid rgba(81, 81, 81, .5)",
+            },
+          })}
         />
       </div>
-
-      <div className="py-4 px-8">
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
-            {renderKeyValue(
-              "Over /Shortage",
-              totalCashSale - totalUSD - TotalKHRtoUSD
-            )}
+      <div className="grid grid-cols-2 gap-4 ">
+        <div className="grid grid-cols-12">
+          <div className="col-span-4 col-start-1">Over / Shortage</div>
+          <div className="col-span-7 col-start-5">
+            <NumericFormat
+              key={"OverShortage"}
+              thousandSeparator
+              disabled
+              placeholder="0.000"
+              decimalScale={2}
+              customInput={MUITextField}
+              value={totalCashSale - totalUSD - TotalKHRtoUSD}
+            />
           </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
-            {renderKeyValue("Total /KHR", totalKHR)}
-            {renderKeyValue("Total /USD", totalUSD)}
+        </div>
+        <div className="grid grid-cols-12">
+          <div className="col-span-4 col-start-2">Total /KHR</div>
+          <div className=" col-span-7 col-start-6 ">
+            <NumericFormat
+              key={"total"}
+              thousandSeparator
+              placeholder="0.000"
+              decimalScale={2}
+              disabled
+              customInput={MUITextField}
+              value={totalKHR}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-12"></div>
+        <div className="grid grid-cols-12">
+          <div className="col-span-4 col-start-2">Total /USD</div>
+          <div className=" col-span-7 col-start-6 ">
+            <NumericFormat
+              key={"totalUSD"}
+              thousandSeparator
+              disabled
+              placeholder="0.000"
+              decimalScale={2}
+              customInput={MUITextField}
+              value={totalUSD}
+            />
           </div>
         </div>
       </div>
@@ -895,7 +839,7 @@ function Stock({ data }: any) {
       },
       {
         accessorKey: "U_tl_bincode",
-        header: "Bin Location",
+        header: "Bin Location", //uses the default width from defaultColumn prop
         type: "number",
         Cell: ({ cell }: any) => {
           return (
@@ -947,6 +891,11 @@ function Stock({ data }: any) {
         },
       },
       {
+        Header: (header: any) => (
+          <label>
+            Aloc. Qty <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "U_tl_qtyaloc",
         header: "Aloc. Qty",
         Cell: ({ cell }: any) => {
@@ -1019,9 +968,26 @@ function Stock({ data }: any) {
           <h2>Stock Allocation</h2>
         </div>
         <div className="col-span-2 data-table">
-          <CustomMaterialReactTable
+          <MaterialReactTable
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            defaultColumn={{
+              maxSize: 400,
+              minSize: 80,
+              size: 160,
+            }}
+            muiTableBodyRowProps={{ hover: false }}
             columns={stockColumns}
             data={data?.TL_RETAILSALE_STACollection || []}
+            muiTableProps={{
+              sx: {
+                border: "1px solid rgba(81, 81, 81, .5)",
+              },
+            }}
           />
         </div>
       </div>
@@ -1032,14 +998,135 @@ function Stock({ data }: any) {
 function CardCount({ data }: any) {
   const cardCountColumn = React.useMemo(
     () => [
-      { key: "U_tl_itemCode", header: "Item Code" },
-      { key: "U_tl_1l", header: "1L" },
-      { key: "U_tl_2l", header: "2L" },
-      { key: "U_tl_5l", header: "5L" },
-      { key: "U_tl_10l", header: "10L" },
-      { key: "U_tl_20l", header: "20L" },
-      { key: "U_tl_50l", header: "50L" },
-      { key: "U_tl_total", header: "Total (Litre)" },
+      {
+        accessorKey: "U_tl_itemcode",
+        header: "Item Code",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField disabled value={cell.row.original?.U_tl_itemCode} />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_1l",
+        header: "1L",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_1l" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_2l",
+        header: "2L",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_2l" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_5l",
+        header: "5L",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_5l" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_10l",
+        header: "10L",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_10l" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_20l",
+        header: "20L",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_20l" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "U_tl_50l",
+        header: "50L",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_50l" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_total",
+        header: "Total (Litre)",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_total" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              placeholder="0.000"
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
     ],
     []
   );
@@ -1047,16 +1134,29 @@ function CardCount({ data }: any) {
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Card Count </h2>
+          <h2>Stock Allocation</h2>
         </div>
         <div className="col-span-2 data-table">
-          <CustomMaterialReactTable
-            columns={cardCountColumn.map(({ key, header }) => ({
-              accessorKey: key,
-              header,
-              Cell: renderCell(key),
-            }))}
+          <MaterialReactTable
+            enableColumnActions={false}
+            enableColumnFilters={false}
+            enablePagination={false}
+            enableSorting={false}
+            enableBottomToolbar={false}
+            enableTopToolbar={false}
+            defaultColumn={{
+              maxSize: 400,
+              minSize: 80,
+              size: 160,
+            }}
+            muiTableBodyRowProps={{ hover: false }}
+            columns={cardCountColumn}
             data={data?.TL_RETAILSALE_CACCollection || []}
+            muiTableProps={{
+              sx: {
+                border: "1px solid rgba(81, 81, 81, .5)",
+              },
+            }}
           />
         </div>
       </div>

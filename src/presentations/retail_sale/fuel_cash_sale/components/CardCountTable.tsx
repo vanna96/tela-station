@@ -1,8 +1,6 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import request from "@/utilies/request";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import FormCard from "@/components/card/FormCard";
@@ -22,12 +20,11 @@ export default function CardCount({
   edit,
   handlerChangeObject,
 }: CardCountProps) {
-  // data.cardCountData = data.nozzleData?.filter(
-  //   (e: any) => parseFloat(e.U_tl_nmeter) > 0
-  // );
-
-  // console.log(data.cardCountData);
-
+  if (!edit) {
+    data.cardCountData = data.nozzleData?.filter(
+      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    );
+  }
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.cardCountData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -37,10 +34,6 @@ export default function CardCount({
     if (newData.length <= 0) return;
     onChange("cardCountData", newData);
   };
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    return res;
-  };
 
   const itemColumns = React.useMemo(
     () => [
@@ -49,31 +42,8 @@ export default function CardCount({
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemcode;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
           return (
-            <MUITextField
-              disabled
-              value={
-                itemName?.data?.ItemName || cell.row.original?.U_tl_itemCode
-              }
-            />
+            <MUITextField disabled value={cell.row.original?.U_tl_itemcode} />
           );
         },
       },

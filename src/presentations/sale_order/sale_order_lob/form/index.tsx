@@ -20,6 +20,7 @@ import { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { motion } from "framer-motion";
 
 class SalesOrderForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
@@ -544,96 +545,103 @@ class SalesOrderForm extends CoreFormDocument {
             ) : (
               <>
                 <div className="grow">
-                  {this.state.tapIndex === 0 && (
-                    <GeneralForm
-                      handlerChangeObject={(value: any) =>
-                        this.handlerChangeObject(value)
-                      }
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
-                      lineofBusiness={this.state.lineofBusiness}
-                      warehouseCode={this.state.warehouseCode}
-                      onWarehouseChange={this.handleWarehouseChange}
-                      onLineofBusinessChange={this.handleLineofBusinessChange}
-                    />
-                  )}
-                  {this.state.tapIndex === 1 && (
-                    <ContentForm
-                      data={this.state}
-                      handlerAddItem={() => {
-                        this.hanndAddNewItem();
-                      }}
-                      handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Items: items })
-                      }
-                      handlerChangeItem={this.handlerChangeItems}
-                      onChangeItemByCode={this.handlerChangeItemByCode}
-                      onChange={this.handlerChange}
-                      ContentLoading={undefined}
-                      edit={this.props?.edit}
-                    />
-                  )}
+                  <motion.div
+                    key={this.state.tapIndex}
+                    transition={{ duration: 0.2 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    {this.state.tapIndex === 0 && (
+                      <GeneralForm
+                        handlerChangeObject={(value: any) =>
+                          this.handlerChangeObject(value)
+                        }
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                        lineofBusiness={this.state.lineofBusiness}
+                        warehouseCode={this.state.warehouseCode}
+                        onWarehouseChange={this.handleWarehouseChange}
+                        onLineofBusinessChange={this.handleLineofBusinessChange}
+                      />
+                    )}
+                    {this.state.tapIndex === 1 && (
+                      <ContentForm
+                        data={this.state}
+                        handlerAddItem={() => {
+                          this.hanndAddNewItem();
+                        }}
+                        handlerRemoveItem={(items: any[]) =>
+                          this.setState({ ...this.state, Items: items })
+                        }
+                        handlerChangeItem={this.handlerChangeItems}
+                        onChangeItemByCode={this.handlerChangeItemByCode}
+                        onChange={this.handlerChange}
+                        ContentLoading={undefined}
+                        edit={this.props?.edit}
+                      />
+                    )}
 
-                  {this.state.tapIndex === 2 && (
-                    <LogisticForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
+                    {this.state.tapIndex === 2 && (
+                      <LogisticForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) => {
+                          this.handlerChange(key, value);
+                        }}
+                      />
+                    )}
 
-                  <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                      <div className="flex gap-2">
-                        <LoadingButton
-                          onClick={() => navigate(-1)}
-                          variant="outlined"
-                          size="small"
-                          sx={{ height: "30px", textTransform: "none" }}
-                          disableElevation
-                        >
-                          <span className="px-3 text-[13px] py-1 text-red-500 font-no">
-                            Cancel
-                          </span>
-                        </LoadingButton>
-                      </div>
-                      {this.props.edit && (
-                        <div>
+                    <div className="sticky w-full bottom-4 mt-2">
+                      <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                        <div className="flex gap-2">
                           <LoadingButton
+                            onClick={() => navigate(-1)}
                             variant="outlined"
                             size="small"
                             sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
                           >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              Copy to Invoice
+                            <span className="px-3 text-[13px] py-1 text-red-500 font-no">
+                              Cancel
                             </span>
                           </LoadingButton>
                         </div>
-                      )}
+                        {this.props.edit && (
+                          <div>
+                            <LoadingButton
+                              variant="outlined"
+                              size="small"
+                              sx={{ height: "30px", textTransform: "none" }}
+                              disableElevation
+                            >
+                              <span className="px-3 text-[13px] py-1 text-green-500">
+                                Copy to Invoice
+                              </span>
+                            </LoadingButton>
+                          </div>
+                        )}
 
-                      <div className="flex items-center space-x-4">
-                        <LoadingButton
-                          type="submit"
-                          sx={{ height: "30px", textTransform: "none" }}
-                          className="bg-white"
-                          loading={false}
-                          size="small"
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-6 text-[13px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Post"}
-                          </span>
-                        </LoadingButton>
+                        <div className="flex items-center space-x-4">
+                          <LoadingButton
+                            type="submit"
+                            sx={{ height: "30px", textTransform: "none" }}
+                            className="bg-white"
+                            loading={false}
+                            size="small"
+                            variant="contained"
+                            disableElevation
+                          >
+                            <span className="px-6 text-[13px] py-4 text-white">
+                              {this.props.edit ? "Update" : "Post"}
+                            </span>
+                          </LoadingButton>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </>
             )}

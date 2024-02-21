@@ -20,9 +20,11 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  // data.allocationData = data.nozzleData?.filter(
-  //   (e: any) => parseFloat(e.U_tl_nmeter) > 0
-  // );
+  if (!edit) {
+    data.allocationData = data.nozzleData?.filter(
+      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    );
+  }
 
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.allocationData?.map((item: any, index: number) => {
@@ -92,7 +94,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_partallow: parseFloat(e.target.value.replace(/,/g, '')),
+                  U_tl_partallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -115,8 +117,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_stockallow: parseFloat(e.target.value.replace(/,/g, '')),
-
+                  U_tl_stockallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -139,8 +140,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_stockallow: parseFloat(e.target.value.replace(/,/g, '')),
-
+                  U_tl_ownallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -163,8 +163,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_cardallow: parseFloat(e.target.value.replace(/,/g, '')),
-
+                  U_tl_cardallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -187,8 +186,7 @@ export default function AllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_pumpallow: parseFloat(e.target.value.replace(/,/g, '')),
-
+                  U_tl_pumpallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />

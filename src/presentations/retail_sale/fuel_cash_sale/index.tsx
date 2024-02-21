@@ -177,7 +177,7 @@ export default function SaleOrderLists() {
   const Count: any = useQuery({
     queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RetailSale/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -198,7 +198,7 @@ export default function SaleOrderLists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_RetailSale?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter ? ` and ${filter}` : filter}${
           sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"

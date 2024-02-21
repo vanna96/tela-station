@@ -66,6 +66,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_acccheck",
+      size: 40,
       header: "Check Number",
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_acccheck)
@@ -100,6 +101,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_checkdate",
+      size: 40,
       header: "Check Date",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
@@ -119,6 +121,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_paycur",
+      size: 40,
       header: "Currency",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
@@ -137,6 +140,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_amtcheck",
+      size: 40,
       header: "Check Amount",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
@@ -159,6 +163,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_checkbank",
+      size: 40,
       header: "Bank",
 
       Cell: ({ cell }: any) => {
@@ -176,6 +181,14 @@ export default function CashBankTable(props: any) {
           />
         );
       },
+    },
+    {
+      size: 10,
+      minSize: 10,
+      maxSize: 10,
+      accessorKey: "deleteButton",
+      align: "center",
+      header: "",
     },
   ];
 
@@ -215,6 +228,11 @@ export default function CashBankTable(props: any) {
             backgroundColor: "#ffffff",
           },
         })}
+        defaultColumn={{
+          maxSize: 400,
+          minSize: 80,
+          size: 160,
+        }}
         state={{
           rowSelection,
           isLoading: props.loading,
