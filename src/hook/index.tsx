@@ -30,7 +30,7 @@ export const useDocumentTotalHook = (
     return items.reduce((prevTax, item) => {
       const discountPercent = item.DiscountPercent === "" ? 0 : parseFloat(item.DiscountPercent);
       const lineTotalAfterDiscount = item.LineTotal - (item.LineTotal * discountPercent / 100);
-      const taxRate = item.VatGroup === "VO00" ? 0 : 10; // Assuming a 10% default tax rate unless specified otherwise
+      const taxRate = item.VatGroup === "VO00" ? 0 : 10;
       const lineTax = (lineTotalAfterDiscount * taxRate) / 100;
       return (prevTax + lineTax)/1.1;
     }, 0);

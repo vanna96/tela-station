@@ -193,7 +193,6 @@ export default function ContentComponent(props: ContentComponentProps) {
                   Total Before Discount
                 </div>
                 <div className="col-span-6 text-gray-900">
-                 
                   <NumericFormat
                     className="bg-white w-full"
                     value={docTotal === 0 ? "" : docTotal}
@@ -284,9 +283,11 @@ export default function ContentComponent(props: ContentComponentProps) {
                     className="bg-white w-full"
                     // value={grossTotal === 0 ? "" : grossTotal}
                     value={
-                      docTotal -
-                        discountAmount +
-                        (docTotal - discountAmount) / 10 || ""
+                      props?.data?.DiscountPercent === 0 || ""
+                        ? grossTotal
+                        : docTotal -
+                            discountAmount +
+                            (docTotal - discountAmount) / 10 || ""
                     }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
