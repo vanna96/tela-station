@@ -140,11 +140,12 @@ export default function ContentForm({
 
           return (
             <OutlinedInput
-              className={`text-field w-full ${cellValue === "Add" ? "center-text cursor-pointer" : ""}`}
+              className={`text-field w-full cursor-pointer ${data?.isStatusClose || cellValue === " " ? "bg-gray-100" : ""} ${cellValue === "Add" ? "center-text cursor-pointer" : "cursor-pointer"}`}
               value={cellValue == " " ? "Item Code" : cellValue}
               onBlur={(event) =>
                 handlerChangeInput(event, cell?.row?.original, "ItemCode")
               }
+              readOnly
               placeholder="Item Code"
               disabled={cellValue === " "}
               onClick={() => {
@@ -159,9 +160,8 @@ export default function ContentForm({
                 readOnly: true,
                 style: {
                   textAlign: cellValue === "Add" ? "center" : "left",
-                  cursor: cellValue === "Add" ? "pointer" : "text",
+                  cursor: cellValue === "Add" ? "pointer" : "",
                 },
-                className: `${data?.isStatusClose ? "bg-gray-100" : ""}`,
               }}
               endAdornment={
                 cellValue !== "Add" &&
@@ -198,7 +198,12 @@ export default function ContentForm({
               <MUITextField
                 placeholder="Item Name"
                 // value={cell.row.original.ItemCode ? cell.getValue() : ""}
-                value={cell.row.original.ItemCode && cell.row.original.ItemCode.trim() !== '' ? cell.getValue() : ""}
+                value={
+                  cell.row.original.ItemCode &&
+                  cell.row.original.ItemCode.trim() !== ""
+                    ? cell.getValue()
+                    : ""
+                }
                 disabled
               />
             );
@@ -219,7 +224,7 @@ export default function ContentForm({
             return (
               <NumericFormat
                 key={"Quantity_" + cell.getValue()}
-                disabled={cell.row.original.ItemCode === ""}
+                disabled={cell.row.original.ItemCode === " "}
                 thousandSeparator
                 decimalScale={data.Currency === "USD" ? 4 : 0}
                 placeholder={data.Currency === "USD" ? "0.0000" : "0"}
@@ -260,7 +265,7 @@ export default function ContentForm({
           if (cell.row.original?.ItemCode)
             return (
               <MUISelect
-                disabled={cell.row.original.ItemCode === ""}
+                disabled={cell.row.original.ItemCode === " "}
                 value={cell.getValue()}
                 items={cell.row.original.UomLists?.map((e: any) => ({
                   label: e.Name,
@@ -381,7 +386,7 @@ export default function ContentForm({
           if (cell.row.original?.ItemCode)
             return (
               <NumericFormat
-                disabled={cell.row.original.ItemCode === ""}
+                disabled={cell.row.original.ItemCode === " "}
                 value={cell.getValue()}
                 thousandSeparator
                 startAdornment={"%"}
