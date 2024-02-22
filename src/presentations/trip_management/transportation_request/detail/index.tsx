@@ -44,7 +44,7 @@ export type UseFormProps = {
   serie?: any;
 };
 // const { id } = useParams();
-const Form = (props: any) => {
+const TransportationRequestDetail = (props: any) => {
   const {
     handleSubmit,
     register,
@@ -55,7 +55,7 @@ const Form = (props: any) => {
     formState: { errors, defaultValues },
   } = useForm();
 
-const {id}=useParams()
+  const { id } = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -78,36 +78,34 @@ const {id}=useParams()
   const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
   const [collection, setCollection] = useState<any[]>([]);
-    
-  const {
-      fields: document,
-      append: appendDocument,
-      remove: removeDocument,
-    } = useFieldArray({
-      control,
-      name: "TL_TR_ROWCollection", // name of the array field
-    });
 
+  const {
+    fields: document,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control,
+    name: "TL_TR_ROWCollection", // name of the array field
+  });
 
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = async () => {
- 
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-         let seriesList: any = props?.query?.find("tr-series");
-         if (!seriesList) {
-           seriesList = await DocumentSerieRepository.getDocumentSeries({
-             Document: "TL_TR",
-           });
-           props?.query?.set("tr-series", seriesList);
-         }
-         setSerie(seriesList);
+          let seriesList: any = props?.query?.find("tr-series");
+          if (!seriesList) {
+            seriesList = await DocumentSerieRepository.getDocumentSeries({
+              Document: "TL_TR",
+            });
+            props?.query?.set("tr-series", seriesList);
+          }
+          setSerie(seriesList);
       await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
@@ -126,33 +124,9 @@ const {id}=useParams()
   const onSubmit = async (e: any) => {
     const payload = {
       ...e,
-    }
-    
+    };
     try {
       setState({ ...state, isSubmitting: true });
-          let isExceedance = false;
-
-          payload.TL_TR_ROWCollection.forEach((parentItem: any) => {
-            let totalChildQuantity = 0;
-
-            parentItem.U_Children.forEach((childItem: any) => {
-              totalChildQuantity += parseInt(childItem.U_Quantity);
-            });
-
-            if (totalChildQuantity > parseInt(parentItem.U_Quantity)) {
-              isExceedance = true;
-              return;
-            }
-          });
-
-      if (isExceedance) {
-             dialog.current?.error(
-               `Oops Total quantity in children exceeds parent quantity` ??
-                 "Oops something wrong!",
-               "Invalid Value"
-             );
-            return;
-          }
       if (props.edit) {
         await request(
           "PATCH",
@@ -303,7 +277,6 @@ const {id}=useParams()
     );
   };
 
-
   return (
     <>
       {state.loading ? (
@@ -354,23 +327,25 @@ const {id}=useParams()
                   emp={emp}
                   header={header}
                   setHeader={setHeader}
-                  serie={serie}
+                    serie={serie}
+                    detail={props?.detail}
                 />
               </h1>
             )}
             {state.tapIndex === 1 && (
               <div className="m-5">
-                  <Document
-                    register={register}
+                <Document
+                  register={register}
                   collection={collection}
                   control={control}
                   setCollection={setCollection}
                   data={requestS}
-                    document={document}
-                    setValue={setValue}
-                    appendDocument={appendDocument}
-                    removeDocument={removeDocument}
+                  document={document}
+                  setValue={setValue}
+                  appendDocument={appendDocument}
+                  removeDocument={removeDocument}
                     getValues={getValues}
+                    detail={props?.detail}
                 />
               </div>
             )}
@@ -419,4 +394,4 @@ const {id}=useParams()
   );
 };
 
-export default Form;
+export default TransportationRequestDetail;

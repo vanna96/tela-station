@@ -16,6 +16,10 @@ import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
+import { useCookies } from "react-cookie";
+import SeriesSelect from "./Series";
+import { TextField } from "@mui/material";
+import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
 
 const General = ({
   register,
@@ -23,19 +27,21 @@ const General = ({
   defaultValues,
   setValue,
   setBranchAss,
-  branchAss,
   header,
   setHeader,
   detail,
+  data,
+  serie,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     requestDate: null,
-    status: "",
+    status: null,
     expiredDate: null,
     branchASS: null,
-    emp: null
+    emp: null,
+    serie: 7916,
   });
-
+  const [number, setNumber] = useState(null);
   useEffect(() => {
     if (defaultValues) {
       defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
@@ -43,6 +49,11 @@ const General = ({
       );
     }
   }, [defaultValues]);
+  const [cookies] = useCookies(["user"]);
+  const [selectedSeries, setSelectedSeries] = useState("");
+  const nextNumber = serie?.find(
+    (e: any) => e?.Series === staticSelect?.serie
+  )?.NextNumber;
 
   return (
     <>
@@ -56,10 +67,14 @@ const General = ({
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Requester
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{
+                    required: "Requester is required",
+                  }}
                   name="U_Requester"
                   control={control}
                   render={({ field }) => {
@@ -69,8 +84,9 @@ const General = ({
                         {...field}
                         value={defaultValues?.U_Requester}
                         onChange={(e: any) => {
-                          setValue("U_Requester", e?.FirstName);
-                          setHeader({ ...header, U_Requester: e?.FirstName });
+                          setValue("U_Requester", e);
+                          setHeader({ ...header, U_Requester: e });
+                          console.log(e);
                         }}
                       />
                     );
@@ -81,33 +97,50 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch Assignment
+                  Branch Assignment{" "}
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <BranchAssignmentAuto
-                  disabled={detail}
-                  onChange={(e: any) => {
-                    setBranchAss([e]);
-                    setHeader({ ...header, U_Branch: e?.BPLName });
+                <Controller
+                  rules={{ required: "Branch is required" }}
+                  name="U_Branch"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BranchAssignmentAuto
+                        {...field}
+                        disabled={detail}
+                        onChange={(e: any) => {
+                          setValue("U_Branch", e?.BPLID);
+                          setBranchAss([e]);
+                          setHeader({ ...header, U_Branch: e?.BPLName });
+                        }}
+                        value={
+                          staticSelect?.branchASS || defaultValues?.U_Branch
+                        }
+                      />
+                    );
                   }}
-                  value={staticSelect?.branchASS}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                Terminal
+                  Terminal
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{ required: "Terminal is required" }}
                   name="U_Terminal"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BaseStationAutoComplete
+                      <WarehouseAttendTo
+                        U_tl_attn_ter={true}
                         disabled={detail}
                         {...field}
                         value={defaultValues?.U_Terminal}
@@ -121,47 +154,95 @@ const General = ({
                 />
               </div>
             </div>
-          </div>
-
-          <div className="col-span-5 w-[50%]">
-            {/* <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Mobile Phone
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("MobilePhone"),
-                  }}
-                />
-              </div>
-            </div> */}
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Document Number
+                  Ship To
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("MobilePhone"),
+                <Controller
+                  rules={{ required: "Terminal is required" }}
+                  name="U_Terminal"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ShipToAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={defaultValues?.U_Terminal}
+                        onChange={(e: any) => {
+                          setValue("U_Terminal", e);
+                        }}
+                      />
+                    );
                   }}
                 />
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-5 w-[50%]">
+            <div className="col-span-3">
+              <div className="grid grid-cols-5 py-2">
+                <div className="col-span-2">
+                  <label htmlFor="Code" className="text-gray-600 ">
+                    Series <span className="text-red-500">*</span>
+                  </label>
+                </div>
+                <div className="col-span-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Controller
+                      // rules={{ required: "Terminal is required" }}
+                      name="Series"
+                      control={control}
+                      render={({ field }) => {
+                        return (
+                          <MUISelect
+                            {...field}
+                            items={serie}
+                            disabled={detail}
+                            value={staticSelect.serie || defaultValues?.serie}
+                            aliasvalue="Series"
+                            aliaslabel="Name"
+                            name="Series"
+                            onChange={(e: any) => {
+                              console.log(e);
+                              setValue("Series", e?.target?.value);
+                              setStaticSelect({
+                                ...staticSelect,
+                                serie: e?.target?.value,
+                              });
+                            }}
+                          />
+                        );
+                      }}
+                    />
+
+                    <div className="-mt-1">
+                      <MUITextField
+                        size="small"
+                        name="DocNum"
+                        value={nextNumber || defaultValues?.nextNumber}
+                        disabled
+                        placeholder="Document No"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
                   Request Date
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
+                  rules={{ required: "Request Date is required" }}
                   name="U_RequestDate"
                   control={control}
                   render={({ field }) => {
@@ -170,7 +251,8 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.U_RequestDate || staticSelect.requestDate
+                          defaultValues?.U_RequestDate ||
+                          staticSelect.requestDate
                         }
                         key={`request_date_${staticSelect.requestDate}`}
                         onChange={(e: any) => {
@@ -217,10 +299,7 @@ const General = ({
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue(
-                            "U_ExpiredDate",
-                            `${val == "" ? "" : val}`
-                          );
+                          setValue("U_ExpiredDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
                             expiredDate: e,
@@ -278,11 +357,29 @@ const General = ({
                 />
               </div>
             </div>
-
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Extra Remarks
+                </label>
+              </div>
+              <div className="col-span-3">
+                <TextField
+                  disabled={detail}
+                  size="small"
+                  fullWidth
+                  multiline
+                  inputProps={{
+                    ...register("U_Remark"),
+                  }}
+                  rows={2}
+                  value={data?.U_Remark}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      {/* <VendorModal open={true} /> */}
     </>
   );
 };
