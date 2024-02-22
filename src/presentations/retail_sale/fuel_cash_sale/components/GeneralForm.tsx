@@ -54,20 +54,6 @@ export default function GeneralForm({
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-  async function getPriceListNum(CardCode: any) {
-    try {
-      const result = await new BusinessPartnerRepository().find(CardCode);
-      return result?.PriceListNum;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
-
-  const globalPriceListNum = getPriceListNum(data.U_tl_cardcode); // Removed an extra closing parenthesis here
-  if (data.vendor) {
-    data.PriceList = data.vendor.priceLists;
-  }
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -87,7 +73,7 @@ export default function GeneralForm({
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("U_tl_bplid", e)}
-                value={BPL}
+                value={BPL || 1}
               />
             </div>
           </div>
@@ -101,44 +87,6 @@ export default function GeneralForm({
                 handlerChange("U_tl_arbusi", e.target.value);
               }}
             />
-          </div>
-          <div className="grid grid-cols-5 py-1">
-            <div className="col-span-2 text-gray-600 ">
-              Customer <span className="text-red-500">*</span>
-            </div>
-            <div className="col-span-3 text-gray-900">
-              <VendorByBranch
-                branch={data?.U_tl_bplid}
-                vtype="customer"
-                onChange={(vendor) => handlerChange("vendor", vendor)}
-                // onChange={(vendor) => handlerChangeObject({
-                //   "vendor" : vendor,
-                //   // "PriceList" : vendor.priceLists
-                // })}
-                key={data?.CardCode}
-                // error={"CardCode" in data?.error}
-                helpertext={data?.error?.CardCode}
-                autoComplete="off"
-                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
-                name="BPCode"
-                disabled={edit}
-                endAdornment={!edit}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Name
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={edit ? data.U_tl_cardname : data?.CardName}
-                disabled
-                name="BPName"
-              />
-            </div>
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
@@ -297,6 +245,40 @@ export default function GeneralForm({
               />
             </div>
           </div>
+          <div className="grid grid-cols-5 py-1">
+            <div className="col-span-2 text-gray-600 ">
+              Customer <span className="text-red-500">*</span>
+            </div>
+            <div className="col-span-3 text-gray-900">
+              <VendorByBranch
+                branch={data?.U_tl_bplid}
+                vtype="customer"
+                onChange={(vendor) => handlerChange("vendor", vendor)}
+                key={data?.CardCode}
+                helpertext={data?.error?.CardCode}
+                autoComplete="off"
+                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
+                name="BPCode"
+                disabled={edit}
+                endAdornment={!edit}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Name
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={edit ? data.U_tl_cardname : data?.CardName}
+                disabled
+                name="BPName"
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -383,6 +365,28 @@ export default function GeneralForm({
                 disabled={edit}
                 value={data.U_tl_docdate}
                 onChange={(e: any) => handlerChange("U_tl_docdate", e)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Status
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={[
+                  { label: "Open", value: "open" },
+                  { label: "Closed", value: "closed" },
+                ]}
+                name="U_tl_status"
+                loading={data?.isLoadingSerie}
+                value={data?.U_tl_status}
+                disabled={edit}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_status", e.target.value)
+                }
               />
             </div>
           </div>

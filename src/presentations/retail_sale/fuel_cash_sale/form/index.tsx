@@ -26,6 +26,7 @@ class Form extends NonCoreDcument {
       ...this.state,
       showCollapse: false,
       nozzleData: [],
+      PriceList: 2,
       U_tl_bplid: 1,
       dispenserData: [],
       U_tl_docdate: new Date(),
