@@ -32,8 +32,8 @@ const BaseStationAutoComplete = forwardRef<
         });
       return response;
     },
-    cacheTime: 0,
     staleTime: 0,
+    cacheTime: 0,
   });
 
   useEffect(() => {
@@ -59,7 +59,6 @@ const BaseStationAutoComplete = forwardRef<
       props.onChange(selected);
     }
   };
-
   const disabled = props.disabled;
 
   return (
@@ -70,7 +69,6 @@ const BaseStationAutoComplete = forwardRef<
       >
         {props?.label}
       </label>
-
       <Autocomplete
         disabled={disabled}
         options={data ?? []}

@@ -205,6 +205,7 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus: false,
   });
  const handlerSortby = (value: any) => {
    setSortBy(value);

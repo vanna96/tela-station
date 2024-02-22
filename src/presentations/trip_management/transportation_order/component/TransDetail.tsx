@@ -3,7 +3,7 @@ import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { Button, Checkbox, CircularProgress } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 import TRModal from "./TRModal";
 import { FaAngleDown } from "react-icons/fa6";
@@ -12,9 +12,8 @@ import { FaAngleLeft } from "react-icons/fa6";
 import request from "@/utilies/request";
 import { useQuery } from "react-query";
 import StopsRepository from "@/services/actions/StopsRepository";
-import { log } from "util";
-import shortid from "shortid";
 import React from "react";
+import shortid from "shortid";
 
 export default function TransDetail({
   register,
@@ -25,6 +24,8 @@ export default function TransDetail({
   getValues,
   setValues,
   transDetail,
+  setTransDetail,
+  setTrans
 }: any) {
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -42,21 +43,21 @@ export default function TransDetail({
     ) {
       const newDataListing = [...dataListing];
       newDataListing[index].U_Order = 1;
-      setValues("TL_TO_ORDERCollection", [...transDetail, newDataListing]);
+      setTransDetail([...transDetail, newDataListing]);
     } else {
       let max = dataListing2.reduce((max: any, obj: any) => {
         return obj["U_Order"] > max["U_Order"] ? obj : max;
       }, dataListing2[0]);
       const newDataListing = [...dataListing];
       newDataListing[index].U_Order = max?.U_Order + 1;
-      setValues("TL_TO_ORDERCollection", [...transDetail, newDataListing]);
+      setTransDetail([...transDetail, newDataListing]);
     }
   };
 
   const handleRowClick2 = (index2: number) => {
     const newDataListing = [...dataListing2];
     newDataListing[index2].U_Order = 0;
-    setValues("TL_TO_ORDERCollection", [...transDetail, newDataListing]);
+    setTransDetail([...transDetail, newDataListing]);
   };
 
   const dataListing = React.useMemo(() => {
@@ -84,6 +85,9 @@ export default function TransDetail({
     return temp.filter((e) => e.U_Order !== 0);
   }, [dataListing]);
 
+  useEffect(() => {
+    setTrans(dataListing2);
+  }, [transDetail]);
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -117,7 +121,7 @@ export default function TransDetail({
               </tr>
               {dataListing2?.map((e: any, index: number) => {
                 return (
-                  <>
+                  <Fragment key={shortid.generate()}>
                     <tr
                       className={`border-t ${e?.Object === "TL_ROUTE" && "bg-zinc-200"} border-[#dadde0]`}
                     >
@@ -206,13 +210,11 @@ export default function TransDetail({
                               type="text"
                               value={e?.U_ItemCode ?? "N/A"}
                               readOnly
-                           
                               style={{
                                 background: "transparent",
                                 border: "none",
-                                outline: 'none'
-                                ,
-                              }} 
+                                outline: "none",
+                              }}
                             />
                           </td>
                           <td className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
@@ -230,7 +232,7 @@ export default function TransDetail({
                         </tr>
                       </>
                     )}
-                  </>
+                  </Fragment>
                 );
               })}
             </table>
@@ -300,17 +302,15 @@ export default function TransDetail({
 
                             <td className="pr-4 h-[20px]">
                               <span
-                                className={`${t?.Object === "TL_ROUTE" ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
+                                className={`${t?.U_StopCode ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
                               >
-                                {t?.Object === "TL_ROUTE"
-                                  ? t?.U_StopCode
-                                  : "Drop-Off"}
+                                {t?.U_StopCode ? t?.U_StopCode : "Drop-Off"}
                               </span>
                             </td>
                             <td className="pr-4">
                               {" "}
                               <span className="text-gray-500 text-[13.5px]">
-                                {t?.Object === "TL_ROUTE"
+                                {t?.U_StopCode
                                   ? t?.U_StopCode
                                   : t?.U_ShipToCode}
                               </span>
@@ -374,10 +374,9 @@ export default function TransDetail({
                   ?.sort?.((a: any, b: any) => a?.U_Order - b?.U_Order)
                   ?.map((t: any, index: number) => {
                     return (
-                      <tbody>
+                      <tbody key={t.id}>
                         <>
                           <tr
-                            key={t.id}
                             className=" cursor-default border-b "
                             onClick={() => handleRowClick2(index)}
                           >
@@ -387,11 +386,9 @@ export default function TransDetail({
 
                             <td className="pr-4 h-[20px]">
                               <span
-                                className={`${t?.Object === "TL_ROUTE" ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
+                                className={`${t?.U_StopCode ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
                               >
-                                {t?.Object === "TL_ROUTE"
-                                  ? t?.U_StopCode
-                                  : "Drop-Off"}
+                                {t?.U_StopCode ? t?.U_StopCode : "Drop-Off"}
                               </span>
                             </td>
                             <td className="pr-4">

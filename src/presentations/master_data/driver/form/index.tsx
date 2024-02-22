@@ -319,7 +319,7 @@ const Form = (props: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <h1>
+              <div>
                 <General
                   register={register}
                   setValue={setValue}
@@ -330,15 +330,15 @@ const Form = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 1 && (
-              <h1>
+              <div>
                 <Address setValue={setValue} register={register} />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 2 && (
-              <h1>
+              <div>
                 <Personal
                   register={register}
                   setValue={setValue}
@@ -347,22 +347,22 @@ const Form = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 3 && (
-              <h1>
+              <div>
                 <Finance
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 4 && (
-              <h1>
+              <div>
                 <Remarks setValue={setValue} register={register} />
-              </h1>
+              </div>
             )}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">

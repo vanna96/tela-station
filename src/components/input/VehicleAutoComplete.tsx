@@ -28,8 +28,8 @@ const VehicleAutoComplete = forwardRef<
         });
       return response;
     },
-    cacheTime: 0,
     staleTime: 0,
+    cacheTime:0
   });
 
   useEffect(() => {
@@ -57,6 +57,7 @@ const VehicleAutoComplete = forwardRef<
   };
 
   const disabled = props.disabled;
+console.log(selectedValue);
 
   return (
     <div className="block text-[14px] xl:text-[13px]">

@@ -86,6 +86,7 @@ export default function TRModal(props: any) {
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus: false
   });
 
   const columns = React.useMemo(
@@ -304,11 +305,12 @@ export default function TRModal(props: any) {
       }));
       await request("POST", "/script/test/get_trans_order_source", data).then(
         (res: any) => {
-          props?.setValue("Document", [...document, ...res?.data?.value]);
-          props?.setValue("TL_TO_ORDERCollection", [
+          props?.setDocument([...document, ...res?.data?.value]);
+          props?.setTransDetail([
             ...props?.transDetail,
-            ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0, })),
+            ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0 })),
           ]);
+          props?.setHeadTrans(res?.data?.value);
           setRowSelection({});
           setOpenLoading(false);
           props?.setOpen(false);

@@ -46,7 +46,8 @@ export type UseFormProps = {
   serie?: any;
   getValues: UseFormGetValues<FieldValues>;
   compartment: any;
-  transDetail:any
+  transDetail: any;
+  setTransDetail: any;
 };
 // const { id } = useParams();
 const TransportationOrderForm = (props: any) => {
@@ -60,7 +61,7 @@ const TransportationOrderForm = (props: any) => {
     watch,
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = props?.match?.params || 0;
+  const { id }: any = useParams();
 
   const [state, setState] = useState({
     loading: false,
@@ -87,23 +88,27 @@ const TransportationOrderForm = (props: any) => {
   const [commer, setCommer] = React.useState<any>([]);
   const [expense, setExpense] = React.useState<any>([]);
   const [serie, setSerie] = useState([]);
+  const [transDetail, setTransDetail] = useState([]);
+  const [headTrans, setHeadTrans] = useState<any>([]);
+  const [document, setDocument] = useState([]);
+  const [trans, setTrans] = useState([]);
 
   useEffect(() => {
     fethSeries();
     fetchData();
   }, []);
-  const { fields: document, remove: removeDocument } = useFieldArray({
+  // const { fields: document, remove: removeDocument } = useFieldArray({
+  //   control,
+  //   name: "Document",
+  // });
+  const { fields: compartment } = useFieldArray({
     control,
-    name: "Document",
+    name: "TL_TO_COMPARTMENTCollection", // name of the array field
   });
-    const { fields: compartment } = useFieldArray({
-      control,
-      name: "TL_TO_COMPARTMENTCollection", // name of the array field
-    });
-     const { fields: transDetail, remove: removeTransDetail } = useFieldArray({
-       control,
-       name: "TL_TO_ORDERCollection", // name of the array field
-     });
+  //  const { fields: transDetail, remove: removeTransDetail } = useFieldArray({
+  //    control,
+  //    name: "TL_TO_ORDERCollection", // name of the array field
+  //  });
   const fethSeries = async () => {
     let seriesList: any = props?.query?.find("tr-series");
     if (!seriesList) {
@@ -121,7 +126,7 @@ const TransportationOrderForm = (props: any) => {
       });
       await request("GET", `script/test/transportation_order(${id})`)
         .then((res: any) => {
-          setBranchAss(res?.data?.EmployeeBranchAssignment);
+        //  setTransDetail(res?.data?.);
           setDriver(res?.data);
           setState({
             ...state,
@@ -136,21 +141,95 @@ const TransportationOrderForm = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-    const data: any = Object.fromEntries(
-      Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
-      )
+    const order = Object.values(
+      trans.reduce((acc: any, obj: any, index: number) => {
+        if (obj.U_DocNum !== null) {
+          // Handle non-null U_DocNum objects
+          const { U_DocNum } = obj;
+          if (!acc[U_DocNum]) {
+            acc[U_DocNum] = {
+              U_DocNum,
+              U_Terminal: headTrans?.find(
+                (e: any) => e?.U_DocNum === obj?.U_DocNum
+              )?.U_Terminal,
+              U_TotalQuantity: headTrans?.find(
+                (e: any) => e?.U_DocNum === obj?.U_DocNum
+              )?.U_TotalQuantity,
+              U_BPLId: headTrans?.find(
+                (e: any) => e?.U_DocNum === obj?.U_DocNum
+              )?.U_BPLId,
+              U_BPLName: null,
+              U_Type: headTrans?.find((e: any) => e?.U_DocNum === obj?.U_DocNum)
+                ?.U_Type,
+              U_StopCode: null,
+              U_Description: null,
+              U_SourceDocEntry: headTrans?.find(
+                (e: any) => e?.U_DocNum === obj?.U_DocNum
+              )?.U_SourceDocEntry,
+              U_TotalItem: headTrans?.find(
+                (e: any) => e?.U_DocNum === obj?.U_DocNum
+              )?.U_TotalItem,
+              TL_TO_DETAIL_ROWCollection: [],
+            };
+          }
+          acc[U_DocNum].TL_TO_DETAIL_ROWCollection.push({
+            VisOrder: 0,
+            U_DocType: obj.U_DocType || null,
+            U_DocNum,
+            U_SourceDocEntry: obj.U_SourceDocEntry || null,
+            U_ShipToCode: obj.U_ShipToCode || null,
+            U_ShipToAddress: obj.U_ShipToAddress || null,
+            U_ItemCode: obj.U_ItemCode || null,
+            U_ItemName: null,
+            U_DeliveryDate: null,
+            U_Quantity: obj.U_Quantity || null,
+            U_Status: "O",
+            U_UomCode: obj.U_UomCode || null,
+            U_UomAbsEntry: obj.U_UomAbsEntry || null,
+            U_Order: obj.U_Order || 0,
+          });
+        } else {
+          // Handle null U_DocNum objects
+          acc[index] = {
+            U_DocNum: null,
+            U_Terminal: null,
+            U_TotalQuantity: null,
+            U_BPLId: null,
+            U_BPLName: null,
+            U_Type: "S",
+            U_StopCode: obj?.U_StopCode || null,
+            U_Description: obj?.U_Description || null,
+            U_SourceDocEntry: null,
+            U_TotalItem: null,
+            U_TOAbsEntry: 201,
+            TL_TO_DETAIL_ROWCollection: [
+              {
+                VisOrder: 0,
+                U_DocType: "S",
+                U_DocNum: null,
+                U_SourceDocEntry: null,
+                U_ShipToCode: obj?.U_ShipToCode || null,
+                U_ShipToAddress: obj.U_ShipToAddress || null,
+                U_ItemCode: obj.U_ItemCode || null,
+                U_ItemName: null,
+                U_DeliveryDate: null,
+                U_Quantity: null,
+                U_Status: "O",
+                U_UomCode: null,
+                U_UomAbsEntry: null,
+                U_Order: obj.U_Order,
+              },
+            ],
+          };
+        }
+        return acc;
+      }, {})
     );
     const payload = {
-      ...data,
-      U_tl_driver: "Y",
-      EmployeeBranchAssignment: branchAss?.map((e: any) => {
-        return {
-          BPLID: e?.BPLID,
-        };
-      }),
+      ...e,
+      TL_TO_ORDERCollection: order,
     };
-    const { id } = props?.match?.params || 0;
+
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
@@ -160,20 +239,14 @@ const TransportationOrderForm = (props: any) => {
           payload
         )
           .then((res: any) =>
-            dialog.current?.success(
-              "Update Successfully.",
-              res?.data?.EmployeeID
-            )
+            dialog.current?.success("Update Successfully.", res?.data?.DocNum)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/script/test/transportation_order", payload)
           .then((res: any) =>
-            dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.EmployeeID
-            )
+            dialog.current?.success("Create Successfully.", res?.data?.DocNum)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -319,6 +392,7 @@ const TransportationOrderForm = (props: any) => {
       "Invalid Value"
     );
   };
+
   return (
     <>
       {state.loading ? (
@@ -357,7 +431,7 @@ const TransportationOrderForm = (props: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <h1>
+              <div className="grow">
                 <General
                   register={register}
                   setValue={setValue}
@@ -369,50 +443,57 @@ const TransportationOrderForm = (props: any) => {
                   getValues={getValues}
                   compartment={compartment}
                   transDetail={transDetail}
+                  setTransDetail={setTransDetail}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 1 && (
-              <h1>
+              <div className="grow">
+                {" "}
                 <Document
                   setValue={setValue}
                   document={document}
-                  removeDocument={removeDocument}
+                  setDocument={setDocument}
                   commer={commer}
-                    control={control}
-                    transDetail={transDetail}
+                  control={control}
+                  transDetail={transDetail}
+                  setTransDetail={setTransDetail}
+                  setHeadTrans={setHeadTrans}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 2 && (
-              <h1>
-                <Expense expense={expense} />
-              </h1>
+              <div className="grow">
+                {" "}
+                <Expense control={control} expense={expense} />
+              </div>
             )}
             {state.tapIndex === 3 && (
-              <h1>
+              <div className="grow">
                 <Compartment
                   setValue={setValue}
                   control={control}
                   getValues={getValues}
                   watch={watch}
-                    compartment={compartment}
-                    register={register}
+                  compartment={compartment}
+                  register={register}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 4 && (
-              <h1>
+              <div className="grow">
                 <TransDetail
                   getValues={getValues}
                   setValues={setValue}
                   control={control}
                   transDetail={transDetail}
+                  setTransDetail={setTransDetail}
+                  setTrans={setTrans}
                 />
-              </h1>
+              </div>
             )}
             {/* ... Other form fields ... */}
-            <div className="absolute w-full bottom-4  mt-2 ">
+            <div className="sticky bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex">
                   <LoadingButton

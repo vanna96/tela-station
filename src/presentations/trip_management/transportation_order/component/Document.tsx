@@ -3,7 +3,7 @@ import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { Button, Checkbox } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 import TRModal from "./TRModal";
 import { FaAngleDown } from "react-icons/fa6";
@@ -16,20 +16,25 @@ export default function Document({
   control,
   detail,
   transDetail,
+  setTransDetail,
+  setDocument,
+  document,
+  setHeadTrans
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: undefined,
     u_ExpiredDate: undefined,
     u_Type: "",
   });
-  const { fields: document, remove: removeDocument } = useFieldArray({
-    control,
-    name: "Document",
-  });
   const [open, setOpen] = useState(false);
   const handleOpen = () => {
     setOpen(true);
   };
+const removeDocument = (index:number) => {
+  const updatedDocuments = [...document];
+  updatedDocuments.splice(index, 1);
+  setDocument(updatedDocuments);
+};
 
   return (
     <>
@@ -97,7 +102,7 @@ export default function Document({
             )}
             {document?.map((e: any, index: number) => {
               return (
-                <>
+                <Fragment key={e?.id}>
                   <tr key={e?.id} className="border-t border-[#dadde0]">
                     <td className="py-5 flex justify-center gap-8 items-center">
                       <div className={`text-gray-700 `}>
@@ -157,91 +162,92 @@ export default function Document({
                     </td>
                   </tr>
                   {e?.TL_TO_DETAIL_ROWCollection &&
-                    e?.TL_TO_DETAIL_ROWCollection?.map((c: any, indexc: number) => {
-                      return (
-                        <>
-                          <tr
-                            className="border-t-[1px] border-[#dadde0] "
-                            key={indexc}
-                          >
-                            <th className="w-[120px] "></th>
-                            <th className="w-[200px] border-l-[1px]  border-b border-[#dadde0] pl-5 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
-                              Source Type{" "}
-                            </th>
+                    e?.TL_TO_DETAIL_ROWCollection?.map(
+                      (c: any, indexc: number) => {
+                        return (
+                          <>
+                            <tr
+                              className="border-t-[1px] border-[#dadde0] "
+                              key={indexc}
+                            >
+                              <th className="w-[120px] "></th>
+                              <th className="w-[200px] border-l-[1px]  border-b border-[#dadde0] pl-5 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
+                                Source Type{" "}
+                              </th>
 
-                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
-                              Document Number{" "}
-                            </th>
+                              <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
+                                Document Number{" "}
+                              </th>
 
-                            <th className="text-left bg-gray-50  border-b border-[#dadde0]  font-normal  py-2 text-[14px] text-gray-500">
-                              Ship To
-                            </th>
-                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
-                              Item{" "}
-                            </th>
-                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
-                              Delivery Date
-                            </th>
-                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
-                              Qty{" "}
-                            </th>
-                            <th className="bg-gray-50  border-b border-[#dadde0] "></th>
-                          </tr>
-                          <tr key={index} className="">
-                            <td className="py-6 flex justify-center gap-8 items-center"></td>
+                              <th className="text-left bg-gray-50  border-b border-[#dadde0]  font-normal  py-2 text-[14px] text-gray-500">
+                                Ship To
+                              </th>
+                              <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
+                                Item{" "}
+                              </th>
+                              <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
+                                Delivery Date
+                              </th>
+                              <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
+                                Qty{" "}
+                              </th>
+                              <th className="bg-gray-50  border-b border-[#dadde0] "></th>
+                            </tr>
+                            <tr key={index} className="">
+                              <td className="py-6 flex justify-center gap-8 items-center"></td>
 
-                            <td className="pr-4 bg-gray-50 border-l-[1px] border-[#dadde0]">
-                              <span className="text-black flex items-center gap-3 text-[13.5px] ml-1">
-                                <Checkbox
-                                  className=""
+                              <td className="pr-4 bg-gray-50 border-l-[1px] border-[#dadde0]">
+                                <span className="text-black flex items-center gap-3 text-[13.5px] ml-1">
+                                  <Checkbox
+                                    className=""
+                                    disabled={true}
+                                    checked={true}
+                                  />
+                                  {c?.U_DocType}
+                                </span>
+                              </td>
+                              <td className="pr-4 bg-gray-50">
+                                <MUITextField
                                   disabled={true}
-                                  checked={true}
+                                  placeholder="Document Number"
+                                  value={c?.U_DocNum}
                                 />
-                                {c?.U_DocType}
-                              </span>
-                            </td>
-                            <td className="pr-4 bg-gray-50">
-                              <MUITextField
-                                disabled={true}
-                                placeholder="Document Number"
-                                value={c?.U_DocNum}
-                              />
-                            </td>
+                              </td>
 
-                            <td className="pr-4 bg-gray-50">
-                              <MUITextField
-                                disabled={true}
-                                placeholder="Ship To"
-                                value={c?.U_ShipToCode}
-                              />
-                            </td>
-                            <td className="pr-4 bg-gray-50">
-                              <MUITextField
-                                disabled={true}
-                                placeholder="Item"
-                                value={c?.U_ItemCode}
-                              />
-                            </td>
-                            <td className="pr-4 bg-gray-50">
-                              <MUITextField
-                                disabled={true}
-                                placeholder="Delivery Date"
-                                value={dateFormat(c?.U_DeliveryDate)}
-                              />
-                            </td>
-                            <td colSpan={2} className="bg-gray-50">
-                              <MUITextField
-                                disabled={true}
-                                placeholder="Qty"
-                                value={c?.U_Quantity}
-                              />
-                            </td>
-                          </tr>
-                        </>
-                      );
-                    })}
-
-                </>
+                              <td className="pr-4 bg-gray-50">
+                                <MUITextField
+                                  disabled={true}
+                                  placeholder="Ship To"
+                                  value={c?.U_ShipToCode}
+                                />
+                              </td>
+                              <td className="pr-4 bg-gray-50">
+                                <MUITextField
+                                  disabled={true}
+                                  placeholder="Item"
+                                  value={c?.U_ItemCode}
+                                />
+                              </td>
+                              <td className="pr-4 bg-gray-50">
+                                <MUITextField
+                                  disabled={true}
+                                  placeholder="Delivery Date"
+                                  value={dateFormat(c?.U_DeliveryDate)}
+                                />
+                              </td>
+                              <td colSpan={2} className="bg-gray-50">
+                                <MUITextField
+                                  disabled={true}
+                                  placeholder="Qty"
+                                  value={c?.U_Quantity}
+                                />
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      }
+                    )}
+                </Fragment>
               );
             })}
           </table>
@@ -250,9 +256,12 @@ export default function Document({
       <TRModal
         document={document}
         setValue={setValue}
+        setDocument={setDocument}
         open={open}
         setOpen={setOpen}
         transDetail={transDetail}
+        setTransDetail={setTransDetail}
+        setHeadTrans={setHeadTrans}
       />
     </>
   );

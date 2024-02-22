@@ -22,7 +22,7 @@ export default function Compartment({
 }: any) {
   const [loading, setLoading] = useState(false);
 
-  const USD = () => {
+  const L = () => {
     return <div className="text-lg w-[15px] pl-1 text-center">L</div>;
   };
   const Down = () => {
@@ -96,77 +96,127 @@ export default function Compartment({
                 </tr>
               ) : (
                 compartment.map((e: any, index: number) => (
-                  <tr key={e?.id}>
-                    <td className="py-5 flex justify-center gap-5 items-center">
-                      <span className="text-gray-500">{index + 1}</span>
-                    </td>
-                    <td className="pr-4">
-                      <MUITextField
-                        disabled={detail}
-                        placeholder="Document Number"
-                        endAdornment={true}
-                      />
-                    </td>
-                    <td className="pr-4">
-                      <MUITextField
-                        disabled={true}
-                        placeholder="Product"
-                        // inputProps={{
-                        //   defaultValue: e?.product,
-                        // }}
-                        endAdornment={true}
-                      />
-                    </td>
-                    <td className="pr-4">
-                      <MUITextField
-                        disabled={detail}
-                        placeholder="Volume Litre"
-                        inputProps={{
-                          defaultValue: e?.U_VOLUME,
-                          ...register(
-                            `TL_TO_COMPARTMENTCollection.${index}.U_Volume`
-                          ),
-                        }}
-                        startAdornment={USD()}
-                      />
-                    </td>
-                    <td className="pr-4">
-                      <MUITextField
-                        disabled={true}
-                        placeholder="Compartment Number"
-                        inputProps={{
-                          defaultValue: e?.U_CM_NO,
-                          ...register(
-                            `TL_TO_COMPARTMENTCollection.${index}.U_Compartment`
-                          ),
-                        }}
-                      />
-                    </td>
-                    <td className="pr-4">
-                      <MUITextField
-                        disabled={true}
-                        placeholder="Bottom Hatch"
-                        inputProps={{
-                          defaultValue: e?.U_BOTTOM_HATCH,
-                          ...register(
-                            `TL_TO_COMPARTMENTCollection.${index}.U_BottomHatch`
-                          ),
-                        }}
-                      />
-                    </td>
-                    <td className="pr-4">
-                      <MUITextField
-                        disabled={true}
-                        placeholder="Top Hatch"
-                        inputProps={{
-                          defaultValue: e?.U_TOP_HATCH,
-                          ...register(
-                            `TL_TO_COMPARTMENTCollection.${index}.U_TopHatch`
-                          ),
-                        }}
-                      />
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={e?.id}>
+                      <td className="py-5 flex justify-center gap-5 items-center">
+                        <span className="text-gray-500">{index + 1}</span>
+                      </td>
+                      <td className="pr-4">
+                        <MUITextField
+                          disabled={detail}
+                          placeholder="Document Number"
+                          endAdornment={true}
+                        />
+                      </td>
+                      <td className="pr-4">
+                        <MUITextField
+                          disabled={true}
+                          placeholder="Product"
+                          // inputProps={{
+                          //   defaultValue: e?.product,
+                          // }}
+                          endAdornment={true}
+                        />
+                      </td>
+                      <td className="pr-4">
+                        <MUITextField
+                          disabled={detail}
+                          placeholder="Volume Litre"
+                          inputProps={{
+                            defaultValue: e?.U_VOLUME,
+                            ...register(
+                              `TL_TO_COMPARTMENTCollection.${index}.U_Volume`
+                            ),
+                          }}
+                          startAdornment={L()}
+                        />
+                      </td>
+                      <td className="pr-4">
+                        <MUITextField
+                          disabled={true}
+                          placeholder="Compartment Number"
+                          inputProps={{
+                            defaultValue: e?.U_CM_NO,
+                            ...register(
+                              `TL_TO_COMPARTMENTCollection.${index}.U_Compartment`
+                            ),
+                          }}
+                        />
+                      </td>
+                      <td className="pr-4">
+                        <MUITextField
+                          disabled={true}
+                          placeholder="Bottom Hatch"
+                          inputProps={{
+                            defaultValue: e?.U_BOTTOM_HATCH,
+                            ...register(
+                              `TL_TO_COMPARTMENTCollection.${index}.U_BottomHatch`
+                            ),
+                          }}
+                        />
+                      </td>
+                      <td className="pr-4">
+                        <MUITextField
+                          disabled={true}
+                          placeholder="Top Hatch"
+                          inputProps={{
+                            defaultValue: e?.U_TOP_HATCH,
+                            ...register(
+                              `TL_TO_COMPARTMENTCollection.${index}.U_TopHatch`
+                            ),
+                          }}
+                        />
+                      </td>
+                    </tr>
+                    {
+                      e?.Children?.map((e: any,indexC:number) => {
+                        return (
+                          <>
+                            <tr className="bg-zinc-50 border-t border-[#dadde0]">
+                              <th></th>
+                              <th className="w-[200px] text-left font-normal  py-2 pt-3 text-[14px] text-gray-500">
+                                Seal Number
+                              </th>
+                              <th
+                                colSpan={5}
+                                className="w-[200px] text-left font-normal  py-2 pt-3 text-[14px] text-gray-500"
+                              >
+                                Seal Reference
+                              </th>
+                            </tr>
+                            <tr className="bg-zinc-50">
+                              <td></td>
+                              <td className="pr-4">
+                                <MUITextField
+                                  disabled={detail}
+                                  className="bg-white"
+                                  placeholder="Seal Number"
+                                  inputProps={{
+                                    defaultValue: e?.U_SealNumber,
+                                    ...register(
+                                      `TL_TO_COMPARTMENTCollection.${index}.Children.${indexC}.U_SealNumber`
+                                    ),
+                                  }}
+                                />
+                              </td>
+                              <td colSpan={5}>
+                                <MUITextField
+                                  disabled={detail}
+                                  className="bg-white"
+                                  placeholder="Seal Reference"
+                                  inputProps={{
+                                    defaultValue: e?.U_SealReference,
+                                    ...register(
+                                      `TL_TO_COMPARTMENTCollection.${index}.Children.${indexC}.U_SealReference`
+                                    ),
+                                  }}
+                                />
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      })}
+                  </>
                 ))
               )}
             </tbody>
