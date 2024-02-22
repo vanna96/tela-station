@@ -2,12 +2,7 @@ import React, { useMemo } from "react";
 import MaterialReactTable from "material-react-table";
 import { Button, Checkbox, IconButton, TextField } from "@mui/material";
 import FormCard from "@/components/card/FormCard";
-import Modal from "@/components/modal/Modal";
-import { BiSearch } from "react-icons/bi";
-import MUITextField from "@/components/input/MUITextField";
-import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
-import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
 import { useDocumentTotalHook } from "@/hook";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
@@ -248,7 +243,6 @@ export default function ContentComponent(props: ContentComponentProps) {
                   Total Before Discount
                 </div>
                 <div className="col-span-6 text-gray-900">
-                  {totalBefore}
                   <NumericFormat
                     className="bg-white w-full"
                     value={totalBefore === 0 ? "" : totalBefore}
