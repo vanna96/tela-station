@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
-import PositionRepository from "@/services/actions/positionRepository";
-import DepartmentRepository from "@/services/actions/departmentRepository";
 import request, { url } from "@/utilies/request";
 
 interface Type {
@@ -12,19 +8,17 @@ interface Type {
   Name: string;
 }
 
-export default function VehicleAutoComplete(props: {
-  label?: any;
-  value?: any;
-  onChange?: (value: any) => void;
-  name?: any;
-  disabled?: any;
-}) {
-  // const { data, isLoading }: any = useQuery({
-  //   queryKey: ["department"],
-  //   queryFn: () => new DepartmentRepository().get(),
-  //   staleTime: Infinity,
-  // });
-  const { data, isLoading }: any = useQuery({
+const VehicleAutoComplete = forwardRef<
+  HTMLInputElement,
+  {
+    label?: any;
+    value?: any;
+    onChange?: (value: any) => void;
+    name?: any;
+    disabled?: any;
+  }
+>((props, ref) => {
+  const { data, isLoading } = useQuery<Type[], Error>({
     queryKey: ["vehicles"],
     queryFn: async () => {
       const response: any = await request("GET", `${url}/TL_VEHICLE`)
@@ -40,8 +34,8 @@ export default function VehicleAutoComplete(props: {
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
-      const selected = data?.find((e: Type) => e.Code === props.value);
+    if (props.value && data) {
+      const selected = data.find((e: Type) => e.Code === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -49,7 +43,7 @@ export default function VehicleAutoComplete(props: {
   }, [props.value, data]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [selectedValue, setSelectedValue] = useState<Type | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -61,18 +55,20 @@ export default function VehicleAutoComplete(props: {
       props.onChange(selected);
     }
   };
+
   const disabled = props.disabled;
+
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
-        htmlFor=""
+        htmlFor={props.name}
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
 
       <Autocomplete
-        disabled={props?.disabled}
+        disabled={disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}
@@ -87,6 +83,7 @@ export default function VehicleAutoComplete(props: {
         renderInput={(params) => (
           <TextField
             {...params}
+            id={props.name}
             className={`w-full text-field text-xs ${
               disabled ? "bg-gray-100" : ""
             }`}
@@ -101,9 +98,12 @@ export default function VehicleAutoComplete(props: {
                 </React.Fragment>
               ),
             }}
+            inputRef={ref}
           />
         )}
       />
     </div>
   );
-}
+});
+
+export default VehicleAutoComplete;

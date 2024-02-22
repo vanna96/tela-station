@@ -7,14 +7,11 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import MUITextField from "@/components/input/MUITextField";
 import { Backdrop, Box, Button, CircularProgress, Modal } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import TRTable from "./TRTable";
 import { MRT_RowSelectionState } from "material-react-table";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import { TbRuler } from "react-icons/tb";
-
+import shortid from "shortid";
+import DataTable from "./DataTabaleO";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -24,7 +21,10 @@ const style = {
   bgcolor: "background.paper",
   p: 4,
 };
-
+type selectData = {
+  U_Type: string;
+  U_SourceDocEntry: number;
+};
 export default function TRModal(props: any) {
   const [searchValues, setSearchValues] = React.useState({
     DocumentNumber: "",
@@ -38,6 +38,7 @@ export default function TRModal(props: any) {
   const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+  const [docSelect, setDocselect] = useState<any[]>([]);
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -45,11 +46,11 @@ export default function TRModal(props: any) {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_TR_DOCS`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_TO_DOCS`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/sml.svc/TL_TR_DOCS/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/sml.svc/TLTO_MDOCS/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -70,7 +71,7 @@ export default function TRModal(props: any) {
       pagination.pageSize,
     ],
     queryFn: async () => {
-      const Url = `${url}/sml.svc/TL_TR_DOCS?$top=${
+      const Url = `${url}/sml.svc/TLTO_MDOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
         filter ? `&$filter=${filter}` : filter
@@ -113,7 +114,7 @@ export default function TRModal(props: any) {
         },
       },
       {
-        accessorKey: "Type",
+        accessorKey: "U_Type",
         header: "Type", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -121,7 +122,7 @@ export default function TRModal(props: any) {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Type ?? "N/A";
+          return cell.row.original.U_Type ?? "N/A";
         },
       },
 
@@ -184,7 +185,9 @@ export default function TRModal(props: any) {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return (cell.row.original["Quantity"] ?? "N/A").toString() + ".0";
+          return (
+            (cell.row.original["TotalQuantity"] ?? "N/A").toString() + ".0"
+          );
         },
       },
     ],
@@ -229,8 +232,8 @@ export default function TRModal(props: any) {
       searchValues.Type === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and Type eq '${searchValues.Type}'`
-            : `Type eq '${searchValues.Type}'`);
+            ? ` and U_Type eq '${searchValues.Type}'`
+            : `U_Type eq '${searchValues.Type}'`);
     }
     if (searchValues.Branch) {
       queryFilters += queryFilters
@@ -264,45 +267,57 @@ export default function TRModal(props: any) {
       refetch();
     }, 500);
   };
-  const handleClose = React.useCallback(() => {
-    props?.setOpen(false);
-    setRowSelection({})
-  }, [props?.open]);
+  const handleClose = () => {
+    setRowSelection({});
 
+    props?.setOpen(false);
+  };
   const onSelectData = React.useCallback(async () => {
     setOpenLoading(true);
     let ids = [];
-    for (const [key, value] of Object.entries(rowSelection)) {
-      if (!value) continue;
+    if (rowSelection) {
+      for (const [key, value] of Object.entries(rowSelection)) {
+        if (!value) continue;
 
-      const docNum = key.split("_")?.at(-1);
-      ids.push(`DocNum eq ${docNum}`);
+        const docNum = key.split("_")?.at(-1);
+        ids.push(`DocNum eq ${docNum}`);
+      }
     }
-
-    let apendQuery = "";
-    switch (searchValues.Type) {
-      case "SO":
-        apendQuery += ` and Type eq 'SO'`;
-        break;
-      case "ITR":
-        apendQuery += ` and Type eq 'ITR'`;
-        break;
-      default:
-        break;
-    }
-    await request(
-      "get",
-      "/sml.svc/TL_TR_DOCS?" + `$filter=${ids.join(" or ")}${apendQuery}`
+    const selectRow = await request(
+      "GET",
+      "/sml.svc/TLTO_MDOCS?" + `$filter=${ids.join(" or ")}`
     ).then((res: any) => {
-      props?.setValue("Document",res?.data?.value);
-      setOpenLoading(false);
-      props?.setOpen(false);
-      setRowSelection({})
+      return res?.data?.value;
     });
+    if (selectRow) {
+      const data = {
+        Documents: selectRow?.map((e: any) => {
+          return {
+            U_Type: e?.U_Type,
+            U_SourceDocEntry: e?.U_SourceDocEntry,
+          };
+        }),
+      };
+      const document = props?.document?.map((e: any) => ({
+        ...e,
+        id: undefined,
+      }));
+      await request("POST", "/script/test/get_trans_order_source", data).then(
+        (res: any) => {
+          props?.setValue("Document", [...document, ...res?.data?.value]);
+          props?.setValue("TL_TO_ORDERCollection", [
+            ...props?.transDetail,
+            ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0, })),
+          ]);
+          setRowSelection({});
+          setOpenLoading(false);
+          props?.setOpen(false);
+        }
+      );
+    }
   }, [rowSelection]);
 
   const lists = React.useMemo(() => data, [data]);
-
   return (
     <>
       <Modal
@@ -351,7 +366,7 @@ export default function TRModal(props: any) {
                   <MUISelect
                     items={[
                       { value: "All", label: "All" },
-                      { value: "SO", label: "Sale Order" },
+                      { value: "TR", label: "Transportation Request" },
                       { value: "ITR", label: "Inventory Transfer Request" },
                     ]}
                     onChange={(e: any) => {
@@ -478,7 +493,7 @@ export default function TRModal(props: any) {
               </div>
             </div>
           </div>
-          <TRTable
+          <DataTable
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
             columns={columns}
@@ -505,7 +520,7 @@ export default function TRModal(props: any) {
                 // border: "1px solid red",
               }}
               disableElevation
-              onClick={handleClose}
+              onClick={() => props?.setOpen(false)}
             >
               <span className="px-3 text-[11px] py-1 text-red-500">Cancel</span>
             </Button>

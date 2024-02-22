@@ -115,15 +115,6 @@ const VehicleForm = (props: any) => {
         ([key, value]): any => value !== null && value !== undefined
       )
     );
-    if (!commer || commer.length === 0) {
-      // Alert the user if commer is an empty array
-      dialog.current?.error(
-        "Please provide at least one item in commercial." ??
-          "Oops something wrong!",
-        "Invalid Value"
-      );
-      return;
-    }
     let missingField: any = null;
 
     const isCommercialValid = commer?.every((e: any) => {
@@ -165,15 +156,6 @@ const VehicleForm = (props: any) => {
       return;
     }
 
-    if (!compart || compart.length === 0) {
-      // Alert the user if commer is an empty array
-      dialog.current?.error(
-        "Please provide at least one item in compartment." ??
-          "Oops something wrong!",
-        "Invalid Value"
-      );
-      return;
-    }
     let missingFieldP: any = null;
 
     const isCompartValid = compart?.every((e: any) => {

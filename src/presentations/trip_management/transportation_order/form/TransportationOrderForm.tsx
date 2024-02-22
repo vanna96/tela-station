@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
+  UseFormGetValues,
   UseFormRegister,
   UseFormSetValue,
+  UseFormWatch,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -23,6 +25,8 @@ import General from "../component/General";
 import Document from "../component/Document";
 import Expense from "../component/Expense";
 import Compartment from "../component/Compartment";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
+import TransDetail from "../component/TransDetail";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -38,6 +42,11 @@ export type UseFormProps = {
   header?: any;
   setHeader?: any;
   detail?: boolean;
+  watch: UseFormWatch<FieldValues>;
+  serie?: any;
+  getValues: UseFormGetValues<FieldValues>;
+  compartment: any;
+  transDetail:any
 };
 // const { id } = useParams();
 const TransportationOrderForm = (props: any) => {
@@ -47,7 +56,8 @@ const TransportationOrderForm = (props: any) => {
     setValue,
     control,
     reset,
-
+    getValues,
+    watch,
     formState: { errors, defaultValues },
   } = useForm();
   const { id }: any = props?.match?.params || 0;
@@ -76,23 +86,40 @@ const TransportationOrderForm = (props: any) => {
   const [driver, setDriver] = React.useState<any>();
   const [commer, setCommer] = React.useState<any>([]);
   const [expense, setExpense] = React.useState<any>([]);
+  const [serie, setSerie] = useState([]);
 
   useEffect(() => {
-    // Fetch initial data if needed
+    fethSeries();
     fetchData();
   }, []);
   const { fields: document, remove: removeDocument } = useFieldArray({
     control,
     name: "Document",
   });
-
+    const { fields: compartment } = useFieldArray({
+      control,
+      name: "TL_TO_COMPARTMENTCollection", // name of the array field
+    });
+     const { fields: transDetail, remove: removeTransDetail } = useFieldArray({
+       control,
+       name: "TL_TO_ORDERCollection", // name of the array field
+     });
+  const fethSeries = async () => {
+    let seriesList: any = props?.query?.find("tr-series");
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "TL_TR",
+      });
+    }
+    setSerie(seriesList);
+  };
   const fetchData = async () => {
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-      await request("GET", `EmployeesInfo(${id})`)
+      await request("GET", `script/test/transportation_order(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data?.EmployeeBranchAssignment);
           setDriver(res?.data);
@@ -127,24 +154,26 @@ const TransportationOrderForm = (props: any) => {
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/EmployeesInfo(${id})`, payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Update Successfully.",
-                res?.data?.EmployeeID
-              )
+        await request(
+          "PATCH",
+          `/script/test/transportation_order(${id})`,
+          payload
+        )
+          .then((res: any) =>
+            dialog.current?.success(
+              "Update Successfully.",
+              res?.data?.EmployeeID
+            )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
-        await request("POST", "/EmployeesInfo", payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Create Successfully.",
-                res?.data?.EmployeeID
-              )
+        await request("POST", "/script/test/transportation_order", payload)
+          .then((res: any) =>
+            dialog.current?.success(
+              "Create Successfully.",
+              res?.data?.EmployeeID
+            )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -335,17 +364,53 @@ const TransportationOrderForm = (props: any) => {
                   control={control}
                   header={header}
                   setHeader={setHeader}
+                  watch={watch}
+                  serie={serie}
+                  getValues={getValues}
+                  compartment={compartment}
+                  transDetail={transDetail}
                 />
               </h1>
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Document setValue={setValue} document={document} removeDocument={removeDocument} commer={commer} />
+                <Document
+                  setValue={setValue}
+                  document={document}
+                  removeDocument={removeDocument}
+                  commer={commer}
+                    control={control}
+                    transDetail={transDetail}
+                />
               </h1>
             )}
-              {state.tapIndex === 2 && <h1><Expense expense={ expense} /></h1>}
-            {state.tapIndex === 3 && <h1><Compartment/></h1>}
-            {state.tapIndex === 4 && <h1>as</h1>}
+            {state.tapIndex === 2 && (
+              <h1>
+                <Expense expense={expense} />
+              </h1>
+            )}
+            {state.tapIndex === 3 && (
+              <h1>
+                <Compartment
+                  setValue={setValue}
+                  control={control}
+                  getValues={getValues}
+                  watch={watch}
+                    compartment={compartment}
+                    register={register}
+                />
+              </h1>
+            )}
+            {state.tapIndex === 4 && (
+              <h1>
+                <TransDetail
+                  getValues={getValues}
+                  setValues={setValue}
+                  control={control}
+                  transDetail={transDetail}
+                />
+              </h1>
+            )}
             {/* ... Other form fields ... */}
             <div className="absolute w-full bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">

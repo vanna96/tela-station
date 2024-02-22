@@ -18,7 +18,8 @@ import request, { url } from "@/utilies/request";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
-interface DataTableProps {
+import shortid from "shortid";
+interface DataTableSProps {
   filter: any;
   columns: any[];
   data: any[];
@@ -31,16 +32,16 @@ interface DataTableProps {
   paginationChange: (value: any) => void;
   title?: string;
   createRoute?: string;
+  setRowSelection: any;
+  rowSelection: any;
 }
 
-export default function DataTable(props: DataTableProps) {
+export default function DataTable(props: DataTableSProps) {
   const route: any = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
-
-  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
 
   React.useEffect(() => {
     const cols: any = {};
@@ -59,180 +60,22 @@ export default function DataTable(props: DataTableProps) {
     queryFn: () => new BranchBPLRepository().get(),
     staleTime: Infinity,
   });
-  const handleExportToCSV = async () => {
-    const response: any = await request(
-      "GET",
-      `${url}/EmployeesInfo?$filter=U_tl_driver eq 'Y'${props?.filter.replace(
-        "&",
-        ""
-      )}`
-    )
-      .then(async (res: any) => res?.data)
-      .catch((e: Error) => {
-        throw new Error(e.message);
-      });
-
-    const csvContent = convertToCSV(response?.value);
-
-    // Create a Blob containing the CSV data
-    const blob = new Blob([csvContent], { type: "text/csv" });
-
-    // Create a link element to download the CSV file
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Driver_list.csv";
-
-    // Simulate a click on the link to trigger the download
-    document.body.appendChild(link);
-    link.click();
-
-    // Remove the link from the DOM
-    document.body.removeChild(link);
-  };
-
-  const convertToCSV = (data: any[]) => {
-    // Specify the desired field names
-    const fields = ["No", "Name", "Gender", "Department", "Branch", "Active"];
-
-    // Map the data to the desired field names
-    const mappedData = data?.map((row, index) => ({
-      // EmployeeID: row?.EmployeeID,
-      No: index + 1,
-      Name: row?.FirstName + " " + row?.LastName,
-      Gender: row?.Gender?.replace("gt_", ""),
-      Department: new DepartmentRepository().find(row?.Department)?.Name,
-      Branch: branchAss?.data?.find((e: any) => e?.BPLID === row?.BPLID)
-        ?.BPLName,
-      Active: row?.Active === "tYES" ? "Active" : "Inactive",
-    }));
-
-    // Create CSV content with the specified fields
-    const csvContent = Papa.unparse(
-      {
-        fields,
-        data: mappedData,
-      },
-      {
-        delimiter: ",", // Specify the delimiter
-        header: true, // Include headers in the CSV
-      }
-    );
-
-    return csvContent;
-  };
-
-  const onSelectData = React.useCallback(async () => {
-    let ids = [];
-
-    console.log(rowSelection);
-    for (const [key, value] of Object.entries(rowSelection)) {
-      if (!value) continue;
-      ids.push(`EmployeeID eq ${key}`);
-    }
-
-    console.log(ids.join(" or "));
-    const response = await request(
-      "get",
-      "/EmployeesInfo?" + `$filter=${ids.join(" or ")}`
-    );
-
-    console.log(response);
-  }, [rowSelection]);
 
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
     >
       <div className="flex justify-between">
-        <div className="flex gap-4 items-center justify-center">
+        <div className="flex gap-4 items-center w-full justify-between">
           <h3 className="text-base">{props.title}</h3>
-          {/* <DataTableColumnFilter
-            handlerClearFilter={props.handlerRefresh}
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BiFilterAlt />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Filter</span>
-              </div>
-            }
-            items={props.columns?.filter((e) => e?.accessorKey !== "DocEntry")}
-            onClick={handlerSearch}
-          /> */}
-        </div>
-        <div className="flex justify-end gap-2 items-center text-[13px]">
-          {/* <Button size="small" variant="text" onClick={props.handlerRefresh}>
-            <span className="text-lg mr-2">
-              <HiRefresh />
-            </span>
-            <span className="capitalize text-sm">Refresh</span>
-          </Button>*/}
-
-          <Button
-            size="small"
-            variant="text"
-            onClick={() => route(props?.createRoute)}
-          >
-            <span className="text-lg mr-2">
-              <BsPencilSquare />
-            </span>
-            <span className="capitalize text-sm">Create</span>
-          </Button>
           <Button size="small" variant="text" onClick={props.handlerRefresh}>
             <span className="text-lg mr-2">
               <HiRefresh />
             </span>
             <span className="capitalize text-sm">Refresh</span>
           </Button>
-          <MenuCompoment
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BsSortDown />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Sort By</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={props.handlerSortby}
-          />
-          <Button
-            size="small"
-            variant="text"
-            onClick={() => {
-              if (props.data && props.data.length > 0) {
-                handleExportToCSV();
-              }
-            }}
-          >
-            <span className="text-sm mr-2">
-              <InsertDriveFileOutlinedIcon
-                style={{ fontSize: "18px", marginBottom: "2px" }}
-              />
-            </span>
-            <span className="capitalize text-[13px] ">Export to CSV</span>
-          </Button>
-          {/* <DataTableColumnVisibility
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <AiOutlineSetting />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Columns</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={(value) => {
-              setColVisibility(value)
-            }}
-          /> */}
         </div>
       </div>
-
-      <div>
-        <Button onClick={onSelectData}>Get</Button>
-      </div>
-
       <div className="grow data-grid border-t bg-inherit ">
         <MaterialReactTable
           columns={props.columns}
@@ -246,7 +89,7 @@ export default function DataTable(props: DataTableProps) {
           // enableColumnResizing
           enableRowSelection={true}
           enableMultiRowSelection={true}
-          onRowSelectionChange={setRowSelection}
+          onRowSelectionChange={props?.setRowSelection}
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}
@@ -261,13 +104,13 @@ export default function DataTable(props: DataTableProps) {
           enableFilters={false}
           enableGlobalFilter={false}
           rowCount={props.count ?? 0}
-          getRowId={(row: any) => row.EmployeeID}
+          getRowId={(row: any) => `${shortid.generate()}_${row?.DocNum}`}
           onPaginationChange={props.paginationChange}
           state={{
             isLoading: props.loading,
             pagination: props.pagination,
             columnVisibility: colVisibility,
-            rowSelection,
+            rowSelection: props?.rowSelection,
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
