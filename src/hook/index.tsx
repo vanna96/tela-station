@@ -1,30 +1,45 @@
-import Formular from "@/utilies/formular"
-import React from "react"
+import formular from "@/utilies/formular";
+import Formular from "@/utilies/formular";
+import React from "react";
 
 export const useDocumentTotalHook = (
   items: any[],
-  discount = 0,
+  discount: number,
   ExchangeRate: any
 ) => {
+
   const docTotal: number = React.useMemo(() => {
-    let total = items.reduce((prev: number, cur: any) => {
-      return prev + cur?.LineTotal
-      // Formular.findLineTotal(cur?.Quantity, cur?.UnitPrice, cur?.LineDiscount)
-    }, 0)
-    return total * ExchangeRate
-  }, [items, ExchangeRate])
+    const total = items.reduce((prevTotal, item) => {
+    
+      const lineTotal = formular.findLineTotal(
+        item.Quantity,
+        item.UnitPrice,
+        item.DiscountPercent
+      );
+      return prevTotal + lineTotal;
+    }, 0);
+    return total ;
+  }, [items, ExchangeRate]);
 
-  let docTaxTotal: number = React.useMemo(() => {
-    let total = items.reduce((prev: number, cur: any) => {
-      return (
-        prev +
-        (parseFloat(cur?.VatRate ?? 0) * parseFloat(cur?.LineTotal ?? 1)) / 100
-      )
-    }, 0)
+  const docDiscountAmount = (discount / 100) * docTotal;
 
-    return total * ExchangeRate
-  }, [items, discount, ExchangeRate])
+  // Include docDiscountAmount in the dependency array
+  const docTaxTotal: number = React.useMemo(() => {
+    return (docTotal - docDiscountAmount) / 10;
+  }, [docTotal, docDiscountAmount]);
 
-  docTaxTotal = docTaxTotal - (docTaxTotal * discount) / 100
-  return [docTotal, docTaxTotal]
-}
+  const grossTotal: number = React.useMemo(() => {
+    const total = items.reduce((prevTotal, item) => {
+      const lineTotal = formular.findLineTotal(
+        item.Quantity,
+        item.GrossPrice,
+        item.DiscountPercent
+      );
+      return prevTotal + lineTotal;
+    }, 0);
+
+    return docTotal - docDiscountAmount + docTaxTotal ;
+  }, [items,  discount, docTotal, docDiscountAmount, docTaxTotal]);
+
+  return [docTotal, docTaxTotal, grossTotal, ];
+};

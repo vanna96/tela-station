@@ -3,6 +3,7 @@ import {
   FieldValues,
   UseFormRegister,
   UseFormSetValue,
+  UseFormWatch,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -42,6 +43,7 @@ export type UseFormProps = {
   detail?: boolean;
   data?: any;
   serie?: any;
+  watch:UseFormWatch<FieldValues>
 };
 // const { id } = useParams();
 const TransportationRequestDetail = (props: any) => {
@@ -52,6 +54,7 @@ const TransportationRequestDetail = (props: any) => {
     control,
     reset,
     getValues,
+    watch,
     formState: { errors, defaultValues },
   } = useForm();
 
@@ -316,20 +319,21 @@ const TransportationRequestDetail = (props: any) => {
           >
             {state.tapIndex === 0 && (
               <h1>
-                <General
-                  data={state}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
-                  emp={emp}
-                  header={header}
-                  setHeader={setHeader}
+                  <General
+                    getValues={getValues}
+                    data={state}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    defaultValues={defaultValues}
+                    setBranchAss={setBranchAss}
+                    branchAss={branchAss}
+                    emp={emp}
+                    header={header}
+                    setHeader={setHeader}
                     serie={serie}
                     detail={props?.detail}
-                />
+                    watch={watch}                />
               </h1>
             )}
             {state.tapIndex === 1 && (
@@ -346,6 +350,7 @@ const TransportationRequestDetail = (props: any) => {
                   removeDocument={removeDocument}
                     getValues={getValues}
                     detail={props?.detail}
+                    watch={watch}
                 />
               </div>
             )}

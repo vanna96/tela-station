@@ -6,9 +6,7 @@ import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
 import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
@@ -60,7 +58,7 @@ export default function SaleOrderLists() {
         size: 60,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.row.original.TaxDate).format(
-            "YYYY-MM-DD"
+            "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
         },
@@ -83,21 +81,19 @@ export default function SaleOrderLists() {
         size: 70,
         Cell: ({ cell }: any) => (
           <>
-            {"$"} {cell.getValue().toFixed(2)}
+            {cell.row.original.DocCurrency} {cell.getValue().toFixed(3)}
           </>
         ),
       },
-      // {
-      //   accessorKey: "BPL_IDAssignedToInvoice",
-      //   header: "Branch",
-      //   enableClickToCopy: true,
-      //   visible: false,
-      //   Cell: ({ cell }: any) =>
-      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-      //   size: 60,
-      // },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
+        size: 60,
+      },
 
-      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -250,13 +246,13 @@ export default function SaleOrderLists() {
         numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice, DocCurrency"}`;
 
       const dataUrl = `${url}/Orders?$filter=U_tl_salestype eq null${
         numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice, DocCurrency"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
@@ -307,8 +303,8 @@ export default function SaleOrderLists() {
 
     if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and TaxDate ge '${searchValues.postingDate}'`
-        : `TaxDate ge '${searchValues.postingDate}'`;
+        ? ` and TaxDate eq '${searchValues.postingDate}'`
+        : `TaxDate eq '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -466,7 +462,9 @@ export default function SaleOrderLists() {
                     <MUISelect
                       items={[
                         { id: "bost_Open", name: "Open" },
-                        { id: "bost_Closed", name: "Close" },
+                        { id: "bost_Close", name: "Closed" },
+                        { id: "bost_Paid", name: "Paid" },
+                        { id: "bost_Delivered", name: "Delivered" },
                         { id: "", name: "None" },
                       ]}
                       value={searchValues.status}
@@ -496,32 +494,6 @@ export default function SaleOrderLists() {
                 >
                   Go
                 </Button>
-              </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "TaxDate" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
               </div>
             </div>
           </div>

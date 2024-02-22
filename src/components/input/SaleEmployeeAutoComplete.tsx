@@ -4,12 +4,11 @@ import { useQuery } from "react-query";
 import request from "@/utilies/request";
 
 interface Type {
-  CardCode: number;
-  AddressID: string;
-  Address: string;
+  SalesEmployeeCode: number;
+  SalesEmployeeName: string;
 }
 
-export default function ShipToAutoComplete(props: {
+export default function SaleEmployeeAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
@@ -18,12 +17,9 @@ export default function ShipToAutoComplete(props: {
   cardCode?: any;
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["TL_BPADDRESS_" + props.cardCode],
+    queryKey: ["SalesPersons"],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `/sml.svc/TL_BPADDRESS?$filter=CardCode eq '${props?.cardCode}' and  AdresType eq 'S'`
-      )
+      const response: any = await request("GET", `/SalesPersons`)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -37,7 +33,9 @@ export default function ShipToAutoComplete(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.AddressID === props.value);
+      const selected = data?.find(
+        (e: Type) => e.SalesEmployeeCode === props.value
+      );
       if (selected) {
         setSelectedValue(selected);
       }
@@ -74,9 +72,7 @@ export default function ShipToAutoComplete(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) =>
-          option.AddressID
-        }
+        getOptionLabel={(option: Type) => option.SalesEmployeeName}
         renderInput={(params) => (
           <TextField
             {...params}

@@ -132,7 +132,7 @@ export default function Lists() {
       },
       {
         accessorKey: "Active",
-        header: "Active",
+        header: "Status",
         size: 60,
         visible: true,
         type: "string",

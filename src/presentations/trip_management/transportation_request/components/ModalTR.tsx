@@ -11,6 +11,8 @@ import { MRT_RowSelectionState } from "material-react-table";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import DataTableS from "./DataTableS";
+import { TRSourceDocument } from "./Document";
+import shortid from "shortid";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -227,8 +229,8 @@ export default function TRModal(props: any) {
       searchValues.Type === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and Type eq '${searchValues.Type}'`
-            : `Type eq '${searchValues.Type}'`);
+            ? ` and U_Type eq '${searchValues.Type}'`
+            : `U_Type eq '${searchValues.Type}'`);
     }
     if (searchValues.Branch) {
       queryFilters += queryFilters
@@ -276,25 +278,34 @@ export default function TRModal(props: any) {
       const docNum = key.split("_")?.at(-1);
       ids.push(`U_DocNum eq ${docNum}`);
     }
-    // let apendQuery = "";
-    // switch (searchValues.Type) {
-    //   case "SO":
-    //     apendQuery += ` and Type eq 'SO'`;
-    //     break;
-    //   case "ITR":
-    //     apendQuery += ` and Type eq 'ITR'`;
-    //     break;
-    //   default:
-    //     break;
-    // }
     await request(
       "get",
       "/sml.svc/TLTR_LINEDOCS?" + `$filter=${ids.join(" or ")}`
     ).then((res: any) => {
-      props?.setValue("TL_TR_ROWCollection", [
-        ...props?.document,
-        ...res?.data?.value,
-      ]);
+      const selected: TRSourceDocument[] = res?.data?.value?.map(
+        (e: TRSourceDocument) => {
+          return {
+            U_SourceDocEntry: e.U_SourceDocEntry,
+            // SourceId: e,
+            U_DocNum: e.U_DocNum,
+            U_Type: e.U_Type,
+            U_CardCode: e.U_CardCode,
+            U_CardName: e.U_CardName,
+            U_DeliveryDate: e.U_DeliveryDate,
+            U_ShipToCode: e.U_ShipToCode,
+            U_ItemCode: e.U_ItemCode,
+            U_ShipToAddress: e.U_ShipToAddress,
+            U_Quantity: e.U_Quantity,
+            U_UomCode: e.U_UomCode,
+            U_UomAbsEntry: e.U_UomAbsEntry,
+          };
+        }
+      );
+      const document = props?.document?.map((e: any) => ({
+        ...e,
+        id:undefined
+      }))
+      props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
       setRowSelection({});
       setOpenLoading(false);
       props?.setOpen(false);

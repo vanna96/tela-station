@@ -19,6 +19,12 @@ import PriceListRepository from "@/services/actions/pricelistRepository";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import BinlocationRepository from "@/services/actions/BinlocationRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
+import { useDocumentTotalHook } from "@/hook";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { TextField } from "@mui/material";
+import { useQuery } from "react-query";
+import DistributionRuleRepository from "@/services/actions/distributionRulesRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -46,6 +52,15 @@ class DeliveryDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
+
+      let seriesList: any = this.props?.query?.find("orders-series");
+
+      if (!seriesList) {
+        seriesList = await DocumentSerieRepository.getDocumentSeries({
+          Document: "17",
+        });
+        this.props?.query?.set("orders-series", seriesList);
+      }
       await request("GET", `Orders(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
@@ -63,6 +78,7 @@ class DeliveryDetail extends Component<any, any> {
           };
 
           this.setState({
+            seriesList,
             ...data,
             Description: data?.Comments,
             Owner: data?.DocumentsOwner,
@@ -202,6 +218,16 @@ function renderKeyValue(label: string, value: any) {
 }
 
 function General(props: any) {
+  const filteredSeries = props.data?.seriesList?.filter(
+    (e: any) => e.Series === props.data?.Series
+  );
+
+  const seriesNames = filteredSeries?.map((series: any) => series.Name);
+
+  const seriesName = seriesNames?.join(", ");
+
+  console.log(props.data);
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -231,8 +257,9 @@ function General(props: any) {
             )}
             {renderKeyValue(
               "Price List",
-              new PriceListRepository().find(parseInt(props.data.U_tl_sopricelist))
-                ?.PriceListName ?? "N/A"
+              new PriceListRepository().find(
+                parseInt(props.data.U_tl_sopricelist)
+              )?.PriceListName ?? "N/A"
             )}
             {renderKeyValue(
               "Currency",
@@ -241,18 +268,34 @@ function General(props: any) {
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">
-            {renderKeyValue("Series", props.data.Series)}
+            {renderKeyValue("Series", seriesName)}
             {renderKeyValue("DocNum", props.data.DocNum)}
             {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
             {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
             {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
             {renderKeyValue(
               "Sale Employee",
-              new SalePersonRepository().find(
-                props.data?.SalesPersonCode
-              )?.name
+              new SalePersonRepository().find(props.data?.SalesPersonCode)?.name
             )}
-            {renderKeyValue("Remark", props?.data?.Comments ?? "N/A")}
+            {renderKeyValue(
+              "Revenue Line",
+              new DistributionRuleRepository().find(props.data?.U_ti_revenue)
+                ?.FactorDescription
+            )}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Remark </div>
+              <div className="col-span-1 text-gray-900">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  disabled
+                  className="bg-gray-100"
+                  value={props?.data?.Comments}
+                  InputProps={{ readOnly: true }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -262,8 +305,27 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  const itemGroupRepo = new ItemGroupRepository();
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
+    props.data.Items ?? [],
+    props?.data?.DocDiscount,
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
+  );
 
+  const discountAmount = useMemo(() => {
+    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
+    if (dataDiscount <= 0) return 0;
+    if (dataDiscount > 100) return 100;
+    return docTotal * (dataDiscount / 100);
+  }, [props?.data?.DocDiscount, props.data.Items]);
+
+  let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
+  if (props.data) {
+    props.data.DocTaxTotal = docTaxTotal;
+    props.data.DocTotalBeforeDiscount = docTotal;
+    props.data.DocDiscountPercent = props.data?.DocDiscount;
+    props.data.DocDiscountPrice = discountAmount;
+    props.data.DocTotal = TotalPaymentDue;
+  }
   const itemColumn: any = useMemo(
     () => [
       {
@@ -271,17 +333,32 @@ function Content(props: any) {
         header: "Item NO.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 150,
+        size: 100,
       },
       {
         accessorKey: "ItemName",
-        header: "Item Description",
+        header: "Item Name",
         enableClickToCopy: true,
-        size: 200,
+        size: 100,
       },
       {
         accessorKey: "Quantity",
         header: "Quantity",
+        size: 60,
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            value={cell.getValue() ?? 0}
+            thousandSeparator
+            disabled
+            className="bg-white w-full"
+            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            fixedDecimalScale
+          />
+        ),
+      },
+      {
+        accessorKey: "MeasureUnit",
+        header: "UoM ",
         size: 60,
         Cell: ({ cell }: any) => cell.getValue(),
       },
@@ -293,82 +370,41 @@ function Content(props: any) {
           <NumericFormat
             value={cell.getValue() ?? 0}
             thousandSeparator
-            fixedDecimalScale
             disabled
             className="bg-white w-full"
-            decimalScale={2}
+            decimalScale={props.data.Currency === "USD" ? 4 : 0}
+            fixedDecimalScale
           />
         ),
       },
+
       {
         accessorKey: "DiscountPercent",
-        header: "Discount %",
+        header: "Unit Discount",
         size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "VatGroup",
-        header: "Tax Code",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      // {
-      //   accessorKey: "ItemsGroupCode",
-      //   header: "Item Group",
-      //   size: 60,
-      //   Cell: ({ cell }: any) => {
-      //     const value = cell.getValue();
-      //     switch (value) {
-      //       case "201001":
-      //         return "Oil";
-      //       case "201002":
-      //         return "Lube";
-      //       case "201003":
-      //         return "LPG";
-      //       default:
-      //         return value;
-      //     }
-      //   },
-      // },
-      {
-        accessorKey: "MeasureUnit",
-        header: "UoM Group",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
-      },
-      {
-        accessorKey: "UomEntry",
-        header: "UoM Name",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new UnitOfMeasurementGroupRepository().find(cell.getValue())?.Name,
+        Cell: ({ cell }: any) => {
+          const discountPercent = cell.getValue(); // Get the discount percentage value
+          return <span>% {discountPercent}</span>; // Concatenate the value with "%"
+        },
       },
 
       {
         accessorKey: "GrossTotal",
-        header: "Total(LC)",
+        header: "Amount",
         size: 60,
         Cell: ({ cell }: any) => (
           <NumericFormat
             value={cell.getValue() ?? 0}
             thousandSeparator
-            fixedDecimalScale
             disabled
             className="bg-white w-full"
-            decimalScale={2}
+            decimalScale={props.data.Currency === "USD" ? 3 : 0}
+            fixedDecimalScale
           />
         ),
       },
-      {
-        accessorKey: "WarehouseCode",
-        header: "Warehouse",
-        size: 60,
-        Cell: ({ cell }: any) =>
-          new WarehouseRepository()?.find(cell.getValue())?.WarehouseName ??
-          "N/A",
-      },
     ],
-    [data]
+    []
   );
 
   return (
@@ -377,7 +413,7 @@ function Content(props: any) {
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Content Information</h2>
         </div>
-        <div className="overflow-y-auto max-h-[calc(100vh-100px)]">
+        <div className="col-span-2 data-table">
           <MaterialReactTable
             enableColumnActions={false}
             enableColumnFilters={false}
@@ -394,6 +430,118 @@ function Content(props: any) {
               },
             }}
           />
+          <div className="grid grid-cols-12 mt-2">
+            <div className="col-span-5"></div>
+
+            <div className="col-span-2"></div>
+            <div className="col-span-5 ">
+              <div className="grid grid-cols-2 py-2">
+                <div className="col-span-1 text-lg font-medium">
+                  Total Summary
+                </div>
+              </div>
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">
+                  Total Before Discount
+                </div>
+                <div className="col-span-6 text-gray-900">
+                  <NumericFormat
+                    className="bg-white w-full"
+                    value={docTotal}
+                    thousandSeparator
+                    startAdornment={props?.data?.Currency}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
+                    placeholder="0.00"
+                    readonly
+                    customInput={MUITextField}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">
+                  <div className="grid grid-cols-12 gap-2">
+                    <div className="col-span-7 text-gray-700">Discount</div>
+                    <div className="col-span-5 text-gray-900 mr-2">
+                      <MUITextField
+                        placeholder="0.00"
+                        type="number"
+                        startAdornment={"%"}
+                        value={props?.data?.DiscountPercent ?? 0}
+                        onChange={(event: any) => {
+                          if (
+                            !(
+                              event.target.value <= 100 &&
+                              event.target.value >= 0
+                            )
+                          ) {
+                            event.target.value = 0;
+                          }
+                        }}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-span-6 text-gray-900 ">
+                  <div className="grid grid-cols-4">
+                    <div className="col-span-4">
+                      <NumericFormat
+                        className="bg-white w-full"
+                        thousandSeparator
+                        value={discountAmount}
+                        startAdornment={props?.data?.Currency}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
+                        placeholder="0.00"
+                        readonly
+                        customInput={MUITextField}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">Tax</div>
+                <div className="col-span-6 text-gray-900">
+                  <NumericFormat
+                    className="bg-white w-full"
+                    value={docTaxTotal}
+                    thousandSeparator
+                    startAdornment={props?.data?.Currency}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
+                    placeholder="0.00"
+                    readonly
+                    customInput={MUITextField}
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-12 py-1">
+                <div className="col-span-6 text-gray-700">Total</div>
+                <div className="col-span-6 text-gray-900">
+                  <NumericFormat
+                    className="bg-white w-full"
+                    readOnly
+                    value={props.data.DocTotal}
+                    thousandSeparator
+                    startAdornment={props?.data?.Currency}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
+                    placeholder="0.00"
+                    readonly
+                    customInput={MUITextField}
+                    disabled
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>
@@ -409,11 +557,25 @@ function Logistic(props: any) {
       <div className="py-2 px-4">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-            {renderKeyValue(
-              "Ship From Address",
-              new WarehouseRepository().find(props?.data?.U_tl_dnsuppo)
-                ?.WarehouseName ?? "N/A"
-            )}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Ship From Address</div>
+              <div className="col-span-1 text-gray-900">
+                <TextField
+                  size="small"
+                  fullWidth
+                  disabled
+                  multiline
+                  className="bg-gray-100"
+                  value={
+                    new BranchBPLRepository().find(
+                      props?.data?.BPL_IDAssignedToInvoice
+                    )?.Address ?? "N/A"
+                  }
+                  // value={props.data.ShipFrom}
+                  InputProps={{ readOnly: true }}
+                />
+              </div>
+            </div>
             {renderKeyValue(
               "Attention Terminal",
               new WarehouseRepository().find(props?.data?.U_tl_attn_ter)
@@ -426,7 +588,20 @@ function Logistic(props: any) {
               "Ship-To Address",
               props?.data?.ShipToCode ?? "N/A"
             )}
-            {renderKeyValue("Shipping Address", props?.data?.Address2 ?? "N/A")}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Shipping Address</div>
+              <div className="col-span-1 text-gray-900">
+                <TextField
+                  size="small"
+                  fullWidth
+                  multiline
+                  disabled
+                  className="bg-gray-100"
+                  value={props?.data?.Address2}
+                  InputProps={{ readOnly: true }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>

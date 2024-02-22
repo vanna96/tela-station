@@ -17,6 +17,19 @@ module.exports = {
       },
     },
     extend: {
+      backgroundImage: {
+        "hero-pattern": "url('../src/assets/img/bg-img.png')",
+      },
+      transitionProperty: {
+        width: "width",
+        height: "height",
+      },
+      backgroundColor: {
+        skin: {
+          fill: "var(--fill-color)",
+          indicator: "var(--fill-color-indicator)",
+        },
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -70,6 +83,13 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      screens: {
+        "2xl": { max: "1535px" },
+        xl: { max: "1280px" },
+        lg: { max: "1023px" },
+        md: { max: "767px" },
+        sm: { max: "639px" },
       },
     },
   },

@@ -20,12 +20,13 @@ export default function Lists() {
   });
 
   const route = useNavigate();
-    const driver: any = useQuery({
-      queryKey: ["drivers"],
-      queryFn: () => new DriverRepository().get(),
-      staleTime: Infinity,
-    });
-  
+  const driver: any = useQuery({
+    queryKey: ["drivers"],
+    queryFn: () => new DriverRepository().get(),
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+
   const columns = React.useMemo(
     () => [
       {
@@ -37,7 +38,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Code ?? "N/A";
+          return cell.row.original?.Code;
         },
       },
       {
@@ -49,7 +50,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return cell.row.original?.Name;
         },
       },
       {
@@ -61,7 +62,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Type ?? "N/A";
+          return cell.row.original?.U_Type;
         },
       },
 
@@ -75,7 +76,7 @@ export default function Lists() {
         type: "number",
         Cell: (cell: any) => {
           const driverInfo = driver?.data?.find(
-            (e: any) => e?.EmployeeID === cell.row.original.U_Driver
+            (e: any) => e?.EmployeeID === cell.row.original?.U_Driver
           );
 
           if (driverInfo) {
@@ -94,7 +95,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_BaseStation ?? "N/A";
+          return cell.row.original?.U_BaseStation;
         },
       },
       {
@@ -106,7 +107,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Status ?? "N/A";
+          return cell.row.original?.U_Status;
         },
       },
       {
@@ -126,7 +127,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/vehicle/" + cell.row.original.Code, {
+                route("/master-data/vehicle/" + cell.row.original?.Code, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -138,7 +139,7 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/master-data/vehicle/${cell.row.original.Code}/edit`, {
+                route(`/master-data/vehicle/${cell.row.original?.Code}/edit`, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -184,17 +185,14 @@ export default function Lists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "vehicles",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
-      const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${
-        pagination.pageIndex * pagination.pageSize
-      }${filter ? `&$filter=${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : ""
-      }`;
+      const Url = `${url}/TL_VEHICLE?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
+        }${filter ? `&$filter=${filter}` : filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""
+        }`;
 
       const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
@@ -206,17 +204,18 @@ export default function Lists() {
     cacheTime: 0,
     staleTime: 0,
   });
- const handlerSortby = (value: any) => {
-   setSortBy(value);
-   setPagination({
-     pageIndex: 0,
-     pageSize: 10,
-   });
+  const handlerSortby = (value: any) => {
+    setSortBy(value);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 10,
+    });
 
-   setTimeout(() => {
-     refetch();
-   }, 500);
- };
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
+
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -233,18 +232,18 @@ export default function Lists() {
   let queryFilters = "";
   const handlerSearch = (value: string) => {
     if (searchValues.code) {
-      queryFilters += queryFilters 
+      queryFilters += queryFilters
         ? ` and (contains(Code, '${searchValues.code}'))`
         : `(contains(Code, '${searchValues.code}'))`;
     }
- 
+
 
     if (searchValues.status) {
       searchValues.status === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and U_Status eq '${searchValues.status}'`
-            : `U_Status eq '${searchValues.status}'`);
+          ? ` and U_Status eq '${searchValues.status}'`
+          : `U_Status eq '${searchValues.status}'`);
     }
 
     let query = queryFilters;

@@ -9,7 +9,7 @@ import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import { Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
 import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -20,6 +20,7 @@ import { useCookies } from "react-cookie";
 import SeriesSelect from "./Series";
 import { TextField } from "@mui/material";
 import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
+import SaleEmployeeAutoComplete from "@/components/input/SaleEmployeeAutoComplete";
 
 const General = ({
   register,
@@ -32,6 +33,8 @@ const General = ({
   detail,
   data,
   serie,
+  watch,
+  getValues,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     requestDate: null,
@@ -79,14 +82,16 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <ManagerAutoComplete
-                        disabled={detail}
+                      <SaleEmployeeAutoComplete
+                        disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
                         value={defaultValues?.U_Requester}
                         onChange={(e: any) => {
-                          setValue("U_Requester", e);
-                          setHeader({ ...header, U_Requester: e });
-                          console.log(e);
+                          setValue("U_Requester", e?.SalesEmployeeCode);
+                          setHeader({
+                            ...header,
+                            U_Requester: e?.SalesEmployeeName,
+                          });
                         }}
                       />
                     );
@@ -97,7 +102,7 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Branch Assignment{" "}
+                  Branch{" "}
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
@@ -110,7 +115,7 @@ const General = ({
                     return (
                       <BranchAssignmentAuto
                         {...field}
-                        disabled={detail}
+                        disabled={detail || defaultValues?.U_Status === "C"}
                         onChange={(e: any) => {
                           setValue("U_Branch", e?.BPLID);
                           setBranchAss([e]);
@@ -141,39 +146,12 @@ const General = ({
                     return (
                       <WarehouseAttendTo
                         U_tl_attn_ter={true}
-                        disabled={detail}
+                        disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
                         value={defaultValues?.U_Terminal}
                         onChange={(e: any) => {
                           setValue("U_Terminal", e);
                           setHeader({ ...header, base: e });
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Ship To
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Terminal is required" }}
-                  name="U_Terminal"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <ShipToAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={defaultValues?.U_Terminal}
-                        onChange={(e: any) => {
-                          setValue("U_Terminal", e);
                         }}
                       />
                     );
@@ -202,7 +180,7 @@ const General = ({
                           <MUISelect
                             {...field}
                             items={serie}
-                            disabled={detail}
+                            disabled={detail || defaultValues?.U_Status === "C"}
                             value={staticSelect.serie || defaultValues?.serie}
                             aliasvalue="Series"
                             aliaslabel="Name"
@@ -248,7 +226,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
                         defaultValue={
                           defaultValues?.U_RequestDate ||
@@ -286,7 +264,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
                         defaultValue={
                           defaultValues?.U_ExpiredDate ||
@@ -318,37 +296,32 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {staticSelect?.status === "" && (
+                {getValues("U_Status") === undefined && (
                   <div className="hidden">
                     <MUITextField
                       inputProps={{
-                        ...register("Status"),
+                        ...register("U_Status"),
                       }}
                       value={"O"}
                     />
                   </div>
                 )}
+
                 <Controller
-                  name="Status"
+                  name="U_Status"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        disabled={detail}
+                        disabled={detail || defaultValues?.U_Status === "C"}
                         items={[
-                          { value: "O", label: "Active" },
-                          { value: "Y", label: "Inactive" },
+                          { value: "O", label: "Open" },
+                          { value: "C", label: "Closed" },
                         ]}
                         onChange={(e: any) => {
-                          setValue("Status", e.target.value);
-                          setStaticSelect({
-                            ...staticSelect,
-                            status: e.target.value,
-                          });
+                          setValue("U_Status", e.target.value);
                         }}
-                        value={
-                          staticSelect.status || defaultValues?.Status || "O"
-                        }
+                        value={watch("U_Status") ?? "O"}
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -360,7 +333,7 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Extra Remarks
+                  Remark
                 </label>
               </div>
               <div className="col-span-3">

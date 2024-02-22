@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
+  UseFormGetValues,
   UseFormRegister,
   UseFormSetValue,
+  UseFormWatch,
   useFieldArray,
   useForm,
 } from "react-hook-form";
@@ -19,7 +21,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import ManagerRepository from "@/services/actions/ManagerRepository";
 import EmployeeRepository from "@/services/actions/employeeRepository";
-import Document from "../components/Document";
+import Document, { TRSourceDocument } from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
 import { log } from "util";
@@ -42,6 +44,8 @@ export type UseFormProps = {
   detail?: boolean;
   data?: any;
   serie?: any;
+  watch: UseFormWatch<FieldValues>;
+  getValues: UseFormGetValues<FieldValues>;
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -51,11 +55,12 @@ const Form = (props: any) => {
     setValue,
     control,
     reset,
+    watch,
     getValues,
     formState: { errors, defaultValues },
   } = useForm();
 
-const {id}=useParams()
+  const { id } = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -78,36 +83,37 @@ const {id}=useParams()
   const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
   const [collection, setCollection] = useState<any[]>([]);
-    
-  const {
-      fields: document,
-      append: appendDocument,
-      remove: removeDocument,
-    } = useFieldArray({
-      control,
-      name: "TL_TR_ROWCollection", // name of the array field
-    });
 
+  const {
+    fields: document,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control,
+    name: "TL_TR_ROWCollection", // name of the array field
+  });
 
   useEffect(() => {
     fetchData();
+    fethSeries()
   }, []);
-
+  const fethSeries = async() => {
+   let seriesList: any = props?.query?.find("tr-series");
+   if (!seriesList) {
+     seriesList = await DocumentSerieRepository.getDocumentSeries({
+       Document: "TL_TR",
+     });
+     props?.query?.set("tr-series", seriesList);
+   }
+   setSerie(seriesList);
+}
   const fetchData = async () => {
- 
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-         let seriesList: any = props?.query?.find("tr-series");
-         if (!seriesList) {
-           seriesList = await DocumentSerieRepository.getDocumentSeries({
-             Document: "TL_TR",
-           });
-           props?.query?.set("tr-series", seriesList);
-         }
-         setSerie(seriesList);
+     
       await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
@@ -116,6 +122,7 @@ const {id}=useParams()
             ...state,
             loading: false,
           });
+          
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -124,35 +131,14 @@ const {id}=useParams()
   };
 
   const onSubmit = async (e: any) => {
-    const payload = {
-      ...e,
-    }
-    
+     const payload: any = Object.fromEntries(
+       Object.entries(e).filter(
+         ([key, value]): any => value !== null && value !== undefined
+       )
+     );
     try {
+
       setState({ ...state, isSubmitting: true });
-          let isExceedance = false;
-
-          payload.TL_TR_ROWCollection.forEach((parentItem: any) => {
-            let totalChildQuantity = 0;
-
-            parentItem.U_Children.forEach((childItem: any) => {
-              totalChildQuantity += parseInt(childItem.U_Quantity);
-            });
-
-            if (totalChildQuantity > parseInt(parentItem.U_Quantity)) {
-              isExceedance = true;
-              return;
-            }
-          });
-
-      if (isExceedance) {
-             dialog.current?.error(
-               `Oops Total quantity in children exceeds parent quantity` ??
-                 "Oops something wrong!",
-               "Invalid Value"
-             );
-            return;
-          }
       if (props.edit) {
         await request(
           "PATCH",
@@ -188,13 +174,45 @@ const {id}=useParams()
     },
     [state]
   );
-  const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
-  };
+const onInvalidForm = (invalids: any) => {
+  console.log(invalids);
+  let message = invalids[Object.keys(invalids)[0]]?.message?.toString();
+
+  // Iterate over all invalid entries
+  for (const invalidKey of Object.keys(invalids)) {
+    const invalidEntry = invalids[invalidKey];
+    if (!invalidEntry || !Array.isArray(invalidEntry)) continue;
+
+    for (const err of invalidEntry) {
+      if (!err) continue;
+
+      if (!err?.U_Children) {
+        message = err?.message?.toString();
+      } else {
+        console.log(err);
+        if (Array.isArray(err.U_Children) && err.U_Children.length > 0) {
+          for (const child of err.U_Children) {
+            if (child && typeof child === "object") {
+              const keys = Object.keys(child);
+              if (keys.length > 0) {
+                message = child[keys[0]]?.message?.toString();
+                // Assuming you only want the first message found, you might want to adjust this behavior if needed
+                if (message) break;
+              }
+            }
+          }
+        }
+      }
+      // If message is found, break the loop
+      if (message) break;
+    }
+    // If message is found, break the loop
+    if (message) break;
+  }
+
+  dialog.current?.error(message ?? "Oops something wrong!", "Invalid Value");
+};
+
   const HeaderTaps = () => {
     return (
       <>
@@ -217,6 +235,8 @@ const {id}=useParams()
 
   React.useEffect(() => {
     if (requestS) {
+      console.log(requestS);
+      
       reset({ ...requestS });
     }
   }, [requestS]);
@@ -303,7 +323,6 @@ const {id}=useParams()
     );
   };
 
-
   return (
     <>
       {state.loading ? (
@@ -355,22 +374,26 @@ const {id}=useParams()
                   header={header}
                   setHeader={setHeader}
                   serie={serie}
+                    watch={watch}
+                    getValues={getValues}
                 />
               </h1>
             )}
             {state.tapIndex === 1 && (
               <div className="m-5">
-                  <Document
-                    register={register}
+                <Document
+                  register={register}
                   collection={collection}
                   control={control}
                   setCollection={setCollection}
                   data={requestS}
-                    document={document}
-                    setValue={setValue}
-                    appendDocument={appendDocument}
-                    removeDocument={removeDocument}
-                    getValues={getValues}
+                  document={document}
+                  defaultValues={defaultValues}
+                  setValue={setValue}
+                  appendDocument={appendDocument}
+                  removeDocument={removeDocument}
+                  getValues={getValues}
+                  watch={watch}
                 />
               </div>
             )}

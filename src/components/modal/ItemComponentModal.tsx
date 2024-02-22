@@ -16,7 +16,7 @@ import WarehouseRepository from "@/services/warehouseRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 
 export type ItemType = "purchase" | "sale" | "inventory";
-export type ItemGroup = 100 | 101 | 102 | 0;
+export type ItemGroup = 100 | 101 | 102;
 
 interface ItemModalProps {
   open: boolean;
@@ -30,6 +30,7 @@ interface ItemModalProps {
   Currency?: any;
   multipleSelect?: any;
   priceList?: number;
+  U_ti_revenue?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -43,18 +44,23 @@ const ItemModal: FC<ItemModalProps> = ({
   Currency,
   multipleSelect,
   priceList,
+  U_ti_revenue,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
 
   const itemsGroupCodes = [100, 101, 102];
+
+  const groupCondition =
+    group == undefined ? `(ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)`: `ItemsGroupCode eq ${group}`;
   const { data, isFetching }: any = useQuery({
-    queryKey: ["items"],
+    queryKey: ["items", group],
     queryFn: () =>
       new itemRepository().getSaleItem(
-        ` &$filter=ItemType eq 'itItems' and (ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)&$orderby=ItemCode asc`
+        `&$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and ${groupCondition} &$orderby=ItemCode asc`
       ),
-    staleTime: 180000,
+      
+   
   });
 
   const [pagination, setPagination] = React.useState({
@@ -92,43 +98,6 @@ const ItemModal: FC<ItemModalProps> = ({
     ],
     []
   );
-
-  const items = useMemo(() => {
-    switch (type) {
-      case "purchase":
-        return data?.filter((e: any) => e?.PurchaseItem === "tYES");
-      case "sale":
-        return data?.filter((e: any) => e?.SalesItem === "tYES");
-      case "inventory":
-        return data?.filter((e: any) => e?.InventoryItem === "tYES");
-      default:
-        return [];
-    }
-  }, [data]);
-  // const itemFilter = useMemo(() => {
-  //   const filterFunctions = {
-  //     100: (e: any) => e?.ItemsGroupCode === 100,
-  //     101: (e: any) => e?.ItemsGroupCode === 101,
-  //     102: (e: any) => e?.ItemsGroupCode === 102,
-  //     0: () => true, // Return true for group 0 to include all items
-  //   };
-
-  //   return data?.filter((e: any) => filterFunctions[Number(group)](e));
-  // }, [data, group]);
-  const itemFilter = useMemo(() => {
-    switch (Number(group)) {
-      case 100:
-        return data?.filter((e: any) => e?.ItemsGroupCode === 100);
-      case 101:
-        return data?.filter((e: any) => e?.ItemsGroupCode === 101);
-      case 102:
-        return data?.filter((e: any) => e?.ItemsGroupCode === 102);
-      case 0:
-        return data;
-      default:
-        return data;
-    }
-  }, [Number(group), data]);
 
   const handlerConfirm = async () => {
     const keys = Object.keys(rowSelection);
@@ -199,7 +168,7 @@ const ItemModal: FC<ItemModalProps> = ({
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
-      // const warehouseCode = WarehouseCode;
+
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,
@@ -212,7 +181,7 @@ const ItemModal: FC<ItemModalProps> = ({
         VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
         VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
         Quantity: defaultPrice !== null ? 1 : 0,
-        UnitPrice: defaultPrice ?? 0,
+        // UnitPrice: defaultPrice ?? 0,
         DiscountPercent: 0,
         LineTotal: total,
         Total: total,
@@ -224,11 +193,11 @@ const ItemModal: FC<ItemModalProps> = ({
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
         // ProductLine: item.ProductLine ?? "203004",
-        // GrossPrice:
-        //   defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-        //   0,
+        UnitPrice:
+          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
+          0,
         COGSCostingCode: e?.U_tl_dim1,
-        OGSCostingCode2: "202001",
+        COGSCostingCode2: U_ti_revenue,
         COGSCostingCode3: e?.U_tl_dim2,
         GrossPrice: defaultPrice,
         ItemPrices: e.ItemPrices,
@@ -314,7 +283,7 @@ const ItemModal: FC<ItemModalProps> = ({
                     <MaterialReactTable
                       columns={columns}
                       // data={items ?? []}
-                      data={itemFilter ?? []}
+                      data={data ?? []}
                       enableStickyHeader={true}
                       enableStickyFooter={true}
                       enablePagination={true}
@@ -430,13 +399,14 @@ export class ItemModalComponent extends React.Component<
         open={this.state.isOpen}
         onClose={this.onClose}
         type={this.state.type || this.props.type || "sale"}
-        group={this.props.group || 0}
+        group={this.props.group}
         onOk={this.handlerOk}
         CardCode={this.state.CardCode}
         WarehouseCode={this.state.WarehouseCode}
         Currency={this.state.Currency}
         multipleSelect={this.props.multipleSelect}
         priceList={this.props.priceList}
+        U_ti_revenue={this.props.U_ti_revenue}
       />
     );
   }

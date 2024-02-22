@@ -183,23 +183,33 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Unit Price"
                 value={this.state?.GrossPrice}
                 startAdornment={this.state.Currency}
-                type="text"
-                decimalScale={2}
                 fixedDecimalScale
+                decimalScale={this.state.Currency === "USD" ? 4 : 0}
                 thousandSeparator
                 customInput={MUITextField}
               />
 
-              <MUITextField
+              <NumericFormat
                 label="Quantity"
-                defaultValue={this.state?.Quantity}
+                placeholder="0.00"
+                thousandSeparator
+                decimalScale={this.state.Currency === "USD" ? 4 : 0}
+                fixedDecimalScale
+                customInput={MUITextField}
+                startAdornment={this.state.Currency}
                 onChange={(event) => this.handChange(event, "Quantity")}
+                defaultValue={this.state?.Quantity}
               />
               <MUITextField
                 label="Discount"
                 startAdornment={"%"}
-                value={this.state?.DiscountPercent}
-                onChange={(event) => this.handChange(event, "DiscountPercent")}
+                value={this.state?.DiscountPercent || 0}
+                onChange={(event: any) => {
+                  if (!(event.target.value <= 100 && event.target.value >= 0)) {
+                    event.target.value = 0;
+                  }
+                  this.handChange(event, "DiscountPercent");
+                }}
               />
               <VatGroupTextField
                 label="Tax Code"
@@ -214,7 +224,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Total"
                 placeholder="0.00"
                 thousandSeparator
-                decimalScale={2}
+                decimalScale={this.state.Currency === "USD" ? 3 : 0}
                 fixedDecimalScale
                 customInput={MUITextField}
                 startAdornment={this.state.Currency}
@@ -320,7 +330,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 label="Revenue Line"
                 inWhichNum={2}
                 aliasvalue="FactorCode"
-                value={this.state?.COGSCostingCode2 ?? "202001"}
+                value={this.state?.COGSCostingCode2}
                 onChange={(event) => this.handChange(event, "COGSCostingCode2")}
               />
               <DistributionRuleText
