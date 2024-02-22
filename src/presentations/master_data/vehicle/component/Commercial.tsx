@@ -75,7 +75,7 @@ export default function Commercial({
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Commercial</h2>
-          <Button variant="outlined" onClick={handlerDelete} className="px-4 border-gray-400"><span className="px-2 text-xs">Remove</span></Button>
+          {!detail && <Button variant="outlined" onClick={handlerDelete} className="px-4 border-gray-400"><span className="px-2 text-xs">Remove</span></Button>}
         </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
@@ -123,7 +123,7 @@ export default function Commercial({
               return (
                 <tr key={`row_${index}`}>
                   <td className="py-5 flex justify-center gap-5 items-center">
-                    <Checkbox key={`row_${index}_row_${e?.U_Type}`} defaultChecked={false} onChange={(event) => onSelectChange(event, index)} />
+                    {!detail && <Checkbox key={`row_${index}_row_${e?.U_Type}`} defaultChecked={false} onChange={(event) => onSelectChange(event, index)} />}
                   </td>
 
                   <td className="pr-4">

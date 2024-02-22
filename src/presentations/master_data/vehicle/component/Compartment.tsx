@@ -64,7 +64,7 @@ export default function Compartment({
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Compartment</h2>
-          <Button variant="outlined" onClick={handlerDelete} className="px-4 border-gray-400"><span className="px-2 text-xs">Remove</span></Button>
+          {!detail && <Button variant="outlined" onClick={handlerDelete} className="px-4 border-gray-400"><span className="px-2 text-xs">Remove</span></Button>}
         </div>
         <div className="w-full  overflow-x-auto">
           <table className="table table-auto border min-w-full shadow-sm bg-white border-[#dadde0]">
@@ -101,7 +101,7 @@ export default function Compartment({
               return (
                 <tr key={index}>
                   <td className=" py-5 flex justify-center gap-5 items-center">
-                    <Checkbox key={`row_${index}_row_${e?.U_CM_NO}`} defaultChecked={false} onChange={(event) => onSelectChange(event, index)} />
+                    {!detail && <Checkbox key={`row_${index}_row_${e?.U_CM_NO}`} defaultChecked={false} onChange={(event) => onSelectChange(event, index)} />}
                   </td>
                   <td className="pr-4">
                     <MUITextField
