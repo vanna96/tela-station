@@ -9,14 +9,13 @@ interface Warehouse {
   WarehouseName: string;
 }
 
-export default function WarehouseAutoComplete(props: {
+export default function SaleWarehouse(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
   Branch?: any;
   Warehouse?: Warehouse[];
   disabled?: boolean;
-  isSOWarehouse?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["warehouse"],
@@ -26,11 +25,11 @@ export default function WarehouseAutoComplete(props: {
   let filteredWarehouses = data?.filter(
     (warehouse: any) => warehouse.BusinessPlaceID === props?.Branch
   );
-  if (props.isSOWarehouse) {
-    filteredWarehouses = filteredWarehouses?.filter(
-      (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Yes"
-    );
-  }
+
+  // Apply additional filter unconditionally
+  filteredWarehouses = filteredWarehouses?.filter(
+    (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Yes"
+  );
 
   useEffect(() => {
     if (props.value) {

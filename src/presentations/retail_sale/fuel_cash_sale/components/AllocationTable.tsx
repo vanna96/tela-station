@@ -1,28 +1,30 @@
 import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import ContentComponent from "./ContentComponents";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
-import { MdOutlineClose } from "react-icons/md";
-import shortid from "shortid";
-import MUISelect from "@/components/selectbox/MUISelect";
-import UserCodeAutoComplete from "@/components/input/UserCodeAutoCeomplete";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
+import { commaFormatNum } from "@/utilies/formatNumber";
+
 interface AllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
   edit?: boolean;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function AllocationTable({
   data,
   onChange,
   edit,
+  handlerChangeObject,
 }: AllocationTableProps) {
-  data.allocationData = data.nozzleData?.filter((e: any) => e.new_meter > 0);
+  if (!edit) {
+    data.allocationData = data.nozzleData?.filter(
+      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    );
+  }
 
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.allocationData?.map((item: any, index: number) => {
@@ -33,39 +35,22 @@ export default function AllocationTable({
     if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-  console.log(data.allocationData);
   const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    console.log(res);
+    const res = await request(
+      "GET",
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
+    );
     return res;
   };
 
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_itemdesc",
+        accessorKey: "U_tl_itemname",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {
-          const itemCode = cell.row.original.U_tl_itemnum;
-
-          const {
-            data: itemName,
-            isLoading,
-            isError,
-          } = useQuery(["itemName", itemCode], () => fetchItemName(itemCode), {
-            enabled: !!itemCode,
-          });
-
-          if (isLoading) {
-            return <MUITextField disabled />;
-          }
-
-          if (isError) {
-            return <span>Error fetching itemName</span>;
-          }
-
-          return <MUITextField disabled value={itemName?.data?.ItemName} />;
+          return <MUITextField disabled value={cell.getValue()} />;
         },
       },
 
@@ -78,19 +63,21 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_cashallow: e.target.value,
+                  U_tl_cashallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
           );
         },
       },
+
       {
         accessorKey: "U_tl_partallow",
         header: "Partnership (Litre)",
@@ -100,13 +87,14 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_partallow: e.target.value,
+                  U_tl_partallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -122,13 +110,14 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_stockallow: e.target.value,
+                  U_tl_stockallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -144,13 +133,14 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_ownallow: e.target.value,
+                  U_tl_ownallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -166,13 +156,14 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_cardallow: e.target.value,
+                  U_tl_cardallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -188,13 +179,14 @@ export default function AllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_pumpallow: e.target.value,
+                  U_tl_pumpallow: parseFloat(e.target.value.replace(/,/g, "")),
                 })
               }
             />
@@ -204,22 +196,32 @@ export default function AllocationTable({
       {
         accessorKey: "U_tl_totalallow",
         header: "Total (Litre)",
-        visible: true,
         Cell: ({ cell }: any) => {
+          const total =
+            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
+
+          const isValid =
+            total === commaFormatNum(cell.row.original?.U_tl_nmeter);
+          console.log(total);
+          console.log(commaFormatNum(cell.row.original?.U_tl_nmeter));
           return (
             <NumericFormat
-              // className=""
-              key={"amount_" + cell.getValue()}
               thousandSeparator
+              placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
               customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                handlerChangeItem(cell?.row?.id || 0, {
-                  U_tl_totalallow: e.target.value,
-                })
-              }
+              value={total}
+              inputProps={{
+                style: {
+                  color: isValid ? "inherit" : "red",
+                },
+              }}
             />
           );
         },

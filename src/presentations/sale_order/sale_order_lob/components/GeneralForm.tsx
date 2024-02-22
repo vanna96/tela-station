@@ -18,6 +18,7 @@ import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 import PriceListRepository from "@/services/actions/pricelistRepository";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+import SaleWarehouse from "@/components/input/SaleWarehouse";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -136,10 +137,9 @@ z
               </label>
             </div>
             <div className="col-span-3">
-              <WarehouseAutoComplete
+              <SaleWarehouse
                 disabled={edit}
-                isSOWarehouse={true}
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+                Branch={parseInt(BPL)}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
                   handlerChange("U_tl_whsdesc", e);
@@ -156,7 +156,7 @@ z
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                disabled={edit}
+                disabled
                 value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
@@ -242,7 +242,6 @@ z
             <div className="col-span-3">
               <PriceListAutoComplete
                 onChange={(e) => {
-                 
                   handlerChangeObject({
                     U_tl_sopricelist: e,
                     Currency: new PriceListRepository().find(e)

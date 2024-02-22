@@ -11,6 +11,7 @@ import { ItemModal } from "./ItemModal";
 import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
 import FormCard from "@/components/card/FormCard";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 
 export default function PaymentTable(props: any) {
   const { data, onChange, handlerAddItem, edit }: any = props;
@@ -43,7 +44,6 @@ export default function PaymentTable(props: any) {
     onChange("PumpData", newData);
     setRowSelection({});
   };
-
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data?.PumpData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -66,6 +66,23 @@ export default function PaymentTable(props: any) {
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               pumpCode: e.target.value,
+            });
+          }}
+        />
+      ),
+    },
+
+    {
+      accessorKey: "binCode",
+      header: "Bin Locaition",
+      Cell: ({ cell }: any) => (
+        <BinLocationToAsEntry
+          Warehouse={data?.U_tl_whs}
+          key={"binCode" + cell.getValue() + cell?.row?.id}
+          value={parseInt(cell.getValue())}
+          onChange={(e: any) => {
+            handlerChangeItem(cell?.row?.id || 0, {
+              binCode: e,
             });
           }}
         />
@@ -179,7 +196,7 @@ export default function PaymentTable(props: any) {
           items={[
             { id: "New", name: "New" },
             { id: "Initialized", name: "Initialized" },
-            { id: "OutOfOrder", name: "Out Of Order" },
+            { id: "Active", name: "Active" },
             { id: "Inactive", name: "Inactive" },
           ]}
           onChange={(e) =>
