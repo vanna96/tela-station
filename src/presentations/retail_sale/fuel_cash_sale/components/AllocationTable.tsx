@@ -35,13 +35,6 @@ export default function AllocationTable({
     if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request(
-      "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
-    );
-    return res;
-  };
 
   const itemColumns = React.useMemo(
     () => [
@@ -246,7 +239,7 @@ export default function AllocationTable({
             enablePagination={false}
             enableSorting={false}
             enableTopToolbar={false}
-            enableColumnResizing={true}
+            enableColumnResizing={false}
             enableColumnFilterModes={false}
             enableDensityToggle={false}
             enableFilters={false}
@@ -262,6 +255,17 @@ export default function AllocationTable({
             initialState={{
               density: "compact",
             }}
+            muiTableProps={() => ({
+              sx: {
+                "& .MuiTableHead-root .MuiTableCell-root": {
+                  backgroundColor: "#e4e4e7",
+                  fontWeight: "500",
+                  paddingTop: "8px",
+                  paddingBottom: "8px",
+                },
+                border: "1px solid #d1d5db",
+              },
+            })}
             enableTableFooter={false}
           />
         </div>

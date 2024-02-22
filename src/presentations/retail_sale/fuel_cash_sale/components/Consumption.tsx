@@ -35,16 +35,25 @@ export default function Consumption({
           <h2>Nozzle Data</h2>
         </div>
         <NozzleData data={data} onChange={handlerChange} edit={edit} />
-        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Allocation</h2>{" "}
-          <Button
+        <div
+          className="flex items-center my-6 gap-16"
+          onClick={handleGenerateAllocation}
+        >
+          <div className="border border-gray-400 rounded cursor-pointer">
+            <h4 className="border-b-1 border-gray-400 py-1 px-4">
+              Generate Allocation
+            </h4>
+          </div>
+          {/* <Button
             type="button"
             size="small"
             variant="outlined"
+
+            style={{ textDecoration: "none", textTransform: "none" , color: "black" , border: "black" }}
             onClick={handleGenerateAllocation}
           >
             Generate Allocation
-          </Button>
+          </Button> */}
         </div>
         {edit ? (
           <AllocationTable

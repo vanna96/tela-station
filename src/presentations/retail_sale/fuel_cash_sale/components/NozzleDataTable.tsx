@@ -22,19 +22,6 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     onChange("nozzleData", newData);
   };
 
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    return res;
-  };
-  console.log(data);
-  //   U_tl_nozzlecode: item.U_tl_pumpcode,
-  // U_tl_itemcode: item.U_tl_itemcode,
-  // U_tl_itemname: item.U_tl_desc,
-  // U_tl_uom: item.U_tl_uom,
-  // U_tl_nmeter: item.U_tl_nmeter,
-  // // U_tl_upd_meter: item.U_tl_ometer,
-  // U_tl_ometer: item.U_tl_upd_meter,
-  // U_tl_cmeter: item.U_tl_cmeter,
   const itemColumns = React.useMemo(
     () => [
       {
@@ -174,7 +161,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           enablePagination={false}
           enableSorting={false}
           enableTopToolbar={false}
-          enableColumnResizing={true}
+          enableColumnResizing={false}
           enableColumnFilterModes={false}
           enableDensityToggle={false}
           enableFilters={false}
@@ -190,6 +177,17 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           initialState={{
             density: "compact",
           }}
+          muiTableProps={() => ({
+            sx: {
+              "& .MuiTableHead-root .MuiTableCell-root": {
+                backgroundColor: "#e4e4e7",
+                fontWeight: "500",
+                paddingTop: "8px",
+                paddingBottom: "8px",
+              },
+              border: "1px solid #d1d5db",
+            },
+          })}
           enableTableFooter={false}
         />
       </div>

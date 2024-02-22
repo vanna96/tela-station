@@ -17,7 +17,6 @@ import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
 import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
-import ErrorLogForm from "../../components/ErrorLogFOrm";
 
 class Form extends NonCoreDcument {
   constructor(props: any) {
