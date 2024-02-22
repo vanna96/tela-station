@@ -29,7 +29,7 @@ export default function GeneralForm({
           <h2>Information</h2>
         </div>
         <div className="grid grid-cols-12 ">
-          <div className="col-span-12 md:col-span-5">
+          <div className="col-span-5 md:col-span-12">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500">
@@ -96,8 +96,8 @@ export default function GeneralForm({
               </div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-2"></div>
-          <div className="col-span-12 md:col-span-5">
+          <div className="col-span-2 md:col-span-2"></div>
+          <div className="col-span-5 md:col-span-12">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Latitude" className="text-gray-500">

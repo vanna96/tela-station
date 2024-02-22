@@ -26,7 +26,7 @@ export default function GeneralForm({
         <h2>Information</h2>
       </div>
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 md:col-span-5">
+        <div className="col-span-5 md:col-span-12">
           <FormField
             label="Base Station"
             required
@@ -87,8 +87,8 @@ export default function GeneralForm({
             }
           />
         </div>
-        <div className="col-span-12 md:col-span-2"></div>
-        <div className="col-span-12 md:col-span-5">
+        <div className="col-span-2 md:col-span-2"></div>
+        <div className="col-span-5 md:col-span-12">
           <FormField
             label="Status"
             inputComponent={
