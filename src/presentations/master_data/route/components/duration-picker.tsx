@@ -92,22 +92,22 @@ export const DurationPicker = ({ value, className, onChange }: { className?: str
 
     return <Popover>
         <PopoverTrigger asChild>
-            <Button variant="outline" className={cn(['h-8 text-left w-full flex justify-between ', className])}>
+            <Button variant="outline" className={cn(['h-8 text-left w-full border-gray-400/60  flex justify-between rounded-[4px]', className])}>
                 <span className="text-left">{hourTime ?? '00'} h : {minuteTime ?? '00'} min </span>
                 <Timer className="w-4" />
             </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[15rem] px-1 py-2 bg-white" align="end">
-            <div className="grid gap-2">
+        <PopoverContent className="w-[17rem] px-0 pt-2 pb-0 bg-gray-100 rounded-[4px]" align="end">
+            <div className="grid w-full gap-2">
                 {/* <div className="space-y-2">
                                                 <h4 className="font-medium leading-none text-sm">Duration Picker</h4>
                                             </div> */}
                 {/* <Separator /> */}
-                <div className="w-full grid grid-cols-2 text-sm">
-                    <div className="flex flex-col justify-center items-center ">
-                        <div className="mb-2">Hour</div>
+                <div className="w-full flex text-sm">
+                    <div className="flex flex-col justify-center items-center w-[50%]">
+                        <div className="mb-2 ">Hour</div>
                         <Separator />
-                        <ScrollArea className="h-72 w-full flex flex-col p-2" >
+                        <ScrollArea className="h-72 w-full flex flex-col p-2 bg-white" >
                             {hours().map((e) => <Button
                                 key={"_hour_" + e}
                                 className={`w-full hover:bg-green-100 ${e === hour ? 'bg-green-100' : ''}`}
@@ -117,10 +117,13 @@ export const DurationPicker = ({ value, className, onChange }: { className?: str
                             >{e}h</Button>)}
                         </ScrollArea >
                     </div>
-                    <div className="flex flex-col justify-center items-center ">
+
+                    <Separator orientation="vertical" />
+
+                    <div className="flex flex-col justify-center items-center  w-[50%] ">
                         <div className="mb-2">Minute</div>
                         <Separator />
-                        <ScrollArea className="h-72 w-full flex flex-col p-2" >
+                        <ScrollArea className="h-72 w-full flex flex-col p-2 bg-white" >
                             {minute()?.map((e: number | string) => <Button
                                 key={"_minute_" + e}
                                 className={`w-full hover:bg-green-100 ${e === minutes ? 'bg-green-100' : ''}`}
