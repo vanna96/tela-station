@@ -17,7 +17,7 @@ import { useQuery } from "react-query";
 import CardCount from "../components/CardCountTable";
 import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
-
+import ErrorLogForm from "../../components/ErrorLogForm";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -788,12 +788,9 @@ class Form extends NonCoreDcument {
                     )}
                     {this.state.tapIndex === 5 && (
                       <ErrorLogForm
-                        handlerChangeObject={(value) =>
-                          this.handlerChangeObject(value)
-                        }
                         data={this.state}
                         edit={this.props?.edit}
-                        handlerChange={(key, value) =>
+                        onChange={(key, value) =>
                           this.handlerChange(key, value)
                         }
                       />

@@ -232,7 +232,7 @@ export default function CardCount({
               enablePagination={false}
               enableSorting={false}
               enableTopToolbar={false}
-              enableColumnResizing={true}
+              enableColumnResizing={false}
               enableColumnFilterModes={false}
               enableDensityToggle={false}
               enableFilters={false}
@@ -248,6 +248,17 @@ export default function CardCount({
               state={{}}
               muiTableBodyRowProps={() => ({
                 sx: { cursor: "pointer" },
+              })}
+              muiTableProps={() => ({
+                sx: {
+                  "& .MuiTableHead-root .MuiTableCell-root": {
+                    backgroundColor: "#e4e4e7",
+                    fontWeight: "500",
+                    paddingTop: "8px",
+                    paddingBottom: "8px",
+                  },
+                  border: "1px solid #d1d5db",
+                },
               })}
               enableTableFooter={false}
             />

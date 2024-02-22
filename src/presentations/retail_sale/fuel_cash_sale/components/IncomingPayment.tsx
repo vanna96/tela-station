@@ -1,27 +1,11 @@
 import FormCard from "@/components/card/FormCard";
-import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
-import BPAddress from "@/components/selectbox/BPAddress";
-import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseSelect from "@/components/selectbox/Warehouse";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import { getShippingAddress } from "@/models/BusinessParter";
-import { TextField } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useState } from "react";
 import CashBankTable from "./CashBankTable";
 import CheckNumberTable from "./CheckNumberTable";
-import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
 import MUITextField from "@/components/input/MUITextField";
-import CurrencySelect from "@/components/selectbox/Currency";
 import CouponTable from "./CouponTable";
 import { NumericFormat } from "react-number-format";
-import { useDocumentTotalHook } from "@/hook";
 import Formular from "@/utilies/formular";
-import { commaFormatNum } from "@/utilies/formatNumber";
-import { numberWithCommas } from "@/helper/helper";
-import { APIContext } from "@/presentations/collection/settle_receipt/context/APIContext";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 
 export interface IncomingPaymentProps {
   data: any;

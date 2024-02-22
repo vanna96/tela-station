@@ -33,12 +33,11 @@ export default function StockAllocationTable({
   const userData = cookies.user;
   // let stockAllocationData = data.stockAllocationData; // Temporary variable
 
-    // if (!edit) {
-    //   data.stockAllocationData = data.nozzleData?.filter(
-    //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
-    //   );
-    // }
-
+  // if (!edit) {
+  //   data.stockAllocationData = data.nozzleData?.filter(
+  //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
+  //   );
+  // }
 
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
@@ -122,6 +121,7 @@ export default function StockAllocationTable({
         header: "Branch",
         visible: true,
         type: "number",
+        size: 280,
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid)
             return (
@@ -129,13 +129,16 @@ export default function StockAllocationTable({
                 onClick={() => handlerAdd()}
                 variant="outlined"
                 size="small"
-                sx={{ height: "30px", textTransform: "none", width: "100%" }}
+                sx={{
+                  height: "30px",
+                  textTransform: "none",
+                  width: "100%",
+                  borderColor: "black",
+                  color: "black",
+                }}
                 disableElevation
               >
-                <span className="px-3 text-[13px] py-1 text-green-500 font-no">
-                  <GridAddIcon />
-                  Add Row
-                </span>
+                <span className="px-3 text-[13px] py-1">Add </span>
               </Button>
             );
 
@@ -157,6 +160,7 @@ export default function StockAllocationTable({
         accessorKey: "U_tl_whs",
         header: "Warehouse",
         visible: true,
+        size: 250,
         type: "number",
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
@@ -414,6 +418,17 @@ export default function StockAllocationTable({
               state={{}}
               muiTableBodyRowProps={() => ({
                 sx: { cursor: "pointer" },
+              })}
+              muiTableProps={() => ({
+                sx: {
+                  "& .MuiTableHead-root .MuiTableCell-root": {
+                    backgroundColor: "#e4e4e7",
+                    fontWeight: "500",
+                    paddingTop: "8px",
+                    paddingBottom: "8px",
+                  },
+                  border: "1px solid #d1d5db",
+                },
               })}
               icons={{
                 ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
