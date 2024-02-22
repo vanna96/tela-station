@@ -156,7 +156,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                disabled={edit}
+                disabled
                 value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
