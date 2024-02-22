@@ -19,6 +19,7 @@ import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 class SalesOrderForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
@@ -57,6 +58,7 @@ class SalesOrderForm extends CoreFormDocument {
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
+      U_ti_revenue: "202001",
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -110,17 +112,16 @@ class SalesOrderForm extends CoreFormDocument {
             .catch((err: any) => console.log(err));
 
           // attachment
-          let AttachmentList: any = [];
           let disabledFields: any = {
             CurrencyType: true,
           };
-
           state = {
             ...data,
 
             vendor,
             warehouseCode: data.U_tl_whsdesc,
             lob: data.U_tl_arbusi,
+            Currency: data.DocCurrency,
 
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
@@ -166,6 +167,7 @@ class SalesOrderForm extends CoreFormDocument {
                   VatGroup: item.VatGroup || "",
                   GrossPrice: item.GrossPrice,
                   TotalGross: item.GrossTotal,
+                  TotalUnit: item.LineTotal,
                   LineTotal: item.GrossTotal,
                   DiscountPercent: item.DiscountPercent || 0,
                   TaxCode: item.VatGroup || item.taxCode || null,
@@ -292,8 +294,8 @@ class SalesOrderForm extends CoreFormDocument {
           getTabIndex: () => 2,
         },
         {
-          field: "U_tl_dnsuppo",
-          message: "Ship From Address is Required!",
+          field: "U_tl_attn_ter",
+          message: "Attention Terminal is Required!",
           getTabIndex: () => 2,
         },
       ];
@@ -312,10 +314,10 @@ class SalesOrderForm extends CoreFormDocument {
         data?.DocType,
         warehouseCodeGet,
         data.BinLocation,
-        data.LineOfBusiness
+        data.LineOfBusiness,
+        data.U_ti_revenue
       );
-      const isUSD = (data?.Currency || "USD") === "USD";
-      const roundingValue = data?.RoundingValue || 0;
+
       const payloads = {
         // general
         // SOSeries: data?.Series,
@@ -326,22 +328,28 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        DiscountPercent: data?.DocDiscount,
+        DiscountPercent: data?.DiscountPercent,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
+        NumAtCard: data?.U_tl_arbusi,
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
+        U_ti_revenue: data?.U_ti_revenue,
+        DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
         // logistic
         ShipToCode: data?.ShipToCode || "",
+        ShipFrom: new BranchBPLRepository().find(
+          data?.BPL_IDAssignedToInvoice || 1
+        )?.Address,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
+        U_tl_dnsuppo: data?.U_tl_whsdesc,
         // AttachmentEntry,
       };
 
@@ -355,20 +363,21 @@ class SalesOrderForm extends CoreFormDocument {
         TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        DiscountPercent: data?.DocDiscount,
+        DiscountPercent: data?.DiscountPercent,
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
         U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
-        // U_tl_arbusi: data?.U_tl_arbusi,
+        U_ti_revenue: data?.U_ti_revenue,
+        DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
         // logistic
         ShipToCode: data?.ShipToCode || null,
         U_tl_attn_ter: data?.U_tl_attn_ter,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
+        U_tl_dnsuppo: data?.U_tl_whsdesc,
         U_tl_sobincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
         // AttachmentEntry,
@@ -443,7 +452,7 @@ class SalesOrderForm extends CoreFormDocument {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
       1: ["Items"],
-      2: ["U_tl_dnsuppo", "ShipToCode"],
+      2: ["ShipToCode", "U_tl_attn_ter"],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -536,7 +545,6 @@ class SalesOrderForm extends CoreFormDocument {
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();
-
     return (
       <>
         <ItemModalComponent
@@ -545,6 +553,7 @@ class SalesOrderForm extends CoreFormDocument {
           onOk={this.handlerConfirmItem}
           ref={this.itemModalRef}
           priceList={priceList}
+          U_ti_revenue={this.state.U_ti_revenue}
         />
         <form
           id="formData"
@@ -561,6 +570,9 @@ class SalesOrderForm extends CoreFormDocument {
                 <div className="grow">
                   {this.state.tapIndex === 0 && (
                     <GeneralForm
+                      handlerChangeObject={(value: any) =>
+                        this.handlerChangeObject(value)
+                      }
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) =>
@@ -663,7 +675,8 @@ const getItem = (
   type: any,
   warehouseCode: any,
   BinLocation: any,
-  LineOfBussiness: any
+  LineOfBussiness: any,
+  U_ti_revenue: any
 ) =>
   items?.map((item: any, index: number) => {
     return {
@@ -679,7 +692,7 @@ const getItem = (
       // RevenueLine: item.revenueLine ?? "202001",
       // ProductLine: item.REV ?? "203004",
       COGSCostingCode: item.COGSCostingCode ?? "201001",
-      COGSCostingCode2: item.COGSCostingCode2 ?? "202001",
+      COGSCostingCode2: U_ti_revenue,
       COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
       // BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || warehouseCode,

@@ -29,10 +29,10 @@ export type UseFormProps = {
   useWatch?: any;
   control?: any;
   defaultValues?:
-    | Readonly<{
-        [x: string]: any;
-      }>
-    | undefined;
+  | Readonly<{
+    [x: string]: any;
+  }>
+  | undefined;
   setBranchAss?: any;
   branchAss?: any;
   header?: any;
@@ -47,7 +47,7 @@ const VehicleForm = (props: any) => {
     setValue,
     control,
     reset,
-
+    getValues,
     formState: { errors, defaultValues },
   } = useForm();
   const { id }: any = useParams();
@@ -249,42 +249,55 @@ const VehicleForm = (props: any) => {
     [state]
   );
 
+  const isNextTap = (tapIndex: number) => {
+    if (!getValues('Code') || getValues('Code') === '') return;
+    if (!getValues('Name') || getValues('Name') === '') return;
+    if (!getValues('U_Type') || getValues('U_Type') === '') return;
+    if (!getValues('U_VH_NO') || getValues('U_VH_NO') === '') return;
+    if (!getValues('U_PlateNumber') || getValues('U_PlateNumber') === '') return;
+    if (!getValues('U_PlateNumber') || getValues('U_PlateNumber') === '') return;
+    if (!getValues('U_Owner') || getValues('U_Owner') === '') return;
+
+    handlerChangeMenu(tapIndex)
+  }
+
+
   const HeaderTaps = () => {
     return (
       <>
         <MenuButton
           active={state.tapIndex === 0}
-          onClick={() => handlerChangeMenu(0)}
+          onClick={() => isNextTap(0)}
         >
           General
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 1}
-          onClick={() => handlerChangeMenu(1)}
+          onClick={() => isNextTap(1)}
         >
           Spec Detail
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 2}
-          onClick={() => handlerChangeMenu(2)}
+          onClick={() => isNextTap(2)}
         >
           Engine / Transmission
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 3}
-          onClick={() => handlerChangeMenu(3)}
+          onClick={() => isNextTap(3)}
         >
           Tyres
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 4}
-          onClick={() => handlerChangeMenu(4)}
+          onClick={() => isNextTap(4)}
         >
           Commercial
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 5}
-          onClick={() => handlerChangeMenu(5)}
+          onClick={() => isNextTap(5)}
         >
           Compartment
         </MenuButton>
@@ -327,6 +340,8 @@ const VehicleForm = (props: any) => {
       </div>
     );
   };
+
+
   const Right = ({ header, data }: any) => {
     const branchAss: any = useQuery({
       queryKey: ["branchAss"],
@@ -369,10 +384,13 @@ const VehicleForm = (props: any) => {
   const onInvalidForm = (invalids: any) => {
     dialog.current?.error(
       invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
+      "Oop something wrong!",
       "Invalid Value"
     );
   };
+
+
+
   return (
     <>
       {state.loading ? (
@@ -411,7 +429,7 @@ const VehicleForm = (props: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <h1>
+              <div className="grow ">
                 <General
                   register={register}
                   setValue={setValue}
@@ -421,10 +439,10 @@ const VehicleForm = (props: any) => {
                   setHeader={setHeader}
                   useWatch={useWatch}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 1 && (
-              <h1>
+              <div className="grow">
                 <SpecDetail
                   setValue={setValue}
                   header={header}
@@ -433,10 +451,10 @@ const VehicleForm = (props: any) => {
                   control={control}
                   defaultValues={defaultValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 2 && (
-              <h1>
+              <div className="grow">
                 <Engine
                   register={register}
                   setValue={setValue}
@@ -445,20 +463,20 @@ const VehicleForm = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 3 && (
-              <h1>
+              <div className="grow">
                 <Tyres
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 4 && (
-              <div className="m-5">
+              <div className="grow">
                 <Commercial
                   commer={commer}
                   control={control}
@@ -468,7 +486,7 @@ const VehicleForm = (props: any) => {
               </div>
             )}
             {state.tapIndex === 5 && (
-              <div className="m-5">
+              <div className="grow">
                 <Compartment
                   compart={compart}
                   setCompart={setCompart}
@@ -479,7 +497,7 @@ const VehicleForm = (props: any) => {
               </div>
             )}
             {/* ... Other form fields ... */}
-            <div className="absolute w-full bottom-4  mt-2 ">
+            <div className="sticky w-full  bottom-4 md:bottom-0 md:p-3  mt-2 p-3">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
                   <LoadingButton

@@ -22,7 +22,6 @@ export default function SaleOrderLists() {
   const route = useNavigate();
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
-  console.log(salesType);
   let numAtCardFilter = "";
   switch (salesType) {
     case "fuel-cash-sale":

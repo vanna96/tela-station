@@ -38,7 +38,7 @@ export default function Routelistpage() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return cell.row.original.Name;
         },
       },
 
@@ -51,7 +51,7 @@ export default function Routelistpage() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_BaseStation ?? "N/A";
+          return cell.row.original.U_BaseStation;
         },
       },
 
@@ -62,7 +62,7 @@ export default function Routelistpage() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Destination ?? "N/A";
+          return cell.row.original.U_Destination;
         },
       },
       {
@@ -72,7 +72,7 @@ export default function Routelistpage() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_Distance ?? "N/A";
+          return cell.row.original.U_Distance;
         },
       },
       {

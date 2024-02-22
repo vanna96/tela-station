@@ -16,6 +16,9 @@ import { NumericFormat } from "react-number-format";
 import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
 import ArrowCircleDownRoundedIcon from "@mui/icons-material/ArrowCircleDownRounded";
 import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
+import PriceListRepository from "@/services/actions/pricelistRepository";
 interface DocumentHeaderComponentProps {
   leftSideField: JSX.Element | React.ReactNode;
   rightSideField: JSX.Element | React.ReactNode;
@@ -192,7 +195,14 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
 export default DocumentHeaderComponent;
 
 export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
-  // console.log(props.data);
+  const { data: sysInfoData }: any = useQuery({
+    queryKey: ["sysInfo"],
+    queryFn: () =>
+      request("POST", "CompanyService_GetAdminInfo")
+        .then((res: any) => res?.data)
+        .catch((err: any) => console.log(err)),
+    staleTime: Infinity,
+  });
   return (
     <div className=" grid grid-cols-1 text-left w-full px-12">
       <div className="col-span-5  col-start-1">
@@ -237,7 +247,12 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
           <div className="col-span-4">
             <span>
               {props.data?.Currency || 1}
-              {" - "} {props.data?.ExchangeRate}
+              {props.data?.Currency !== sysInfoData?.SystemCurrency && (
+                <>
+                  {" - "}
+                  {props.data?.ExchangeRate}
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -247,22 +262,30 @@ export const StatusCustomerBranchCurrencyInfoLeftSide = (props: any) => {
 };
 
 export const TotalSummaryRightSide = (props: any) => {
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount ?? 0);
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
-    props.data?.Items ?? [],
+  const [discount, setDiscount] = React.useState(
+    props?.data?.DiscountPercent || 0
+  );
+
+  React.useEffect(() => {
+    setDiscount(props?.data?.DiscountPercent || 0);
+  }, [props?.data?.DiscountPercent]);
+
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
+    props.data.Items ?? [],
     discount,
-    1
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount || discount;
+    const dataDiscount: number = props?.data?.DiscountPercent || discount;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [discount, props?.data?.DocDiscount]);
+  }, [discount, props?.data?.DiscountPercent]);
 
   let TotalPaymentDue =
-    docTotal - (docTotal * props.data?.DocDiscount) / 100 + docTaxTotal || 0;
+    docTotal - (docTotal * props.data?.DiscountPercent) / 100 + docTaxTotal ||
+    0;
   return (
     <div className="grid grid-cols-1 px-12 text-right w-full">
       <div className="col-span-5  col-start-3">
@@ -281,7 +304,7 @@ export const TotalSummaryRightSide = (props: any) => {
                 fixedDecimalScale
                 disabled
                 className="bg-white w-1/2"
-                decimalScale={2}
+                decimalScale={props.data.Currency === "USD" ? 3 : 0}
               />
             }
           </div>
@@ -293,14 +316,14 @@ export const TotalSummaryRightSide = (props: any) => {
             </label>
           </div>
           <div className="col-span-4">
-            {"%"} {props?.data?.DocDiscount} {props.data?.Currency}{" "}
+            {"%"} {props?.data?.DiscountPercent} {props.data?.Currency}{" "}
             <NumericFormat
               value={discountAmount}
               thousandSeparator
               fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={2}
+              decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
           </div>
         </div>
@@ -318,7 +341,7 @@ export const TotalSummaryRightSide = (props: any) => {
               fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={2}
+              decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
           </div>
         </div>
@@ -332,12 +355,12 @@ export const TotalSummaryRightSide = (props: any) => {
             {" "}
             {props.data?.Currency}{" "}
             <NumericFormat
-              value={TotalPaymentDue}
+              value={grossTotal}
               thousandSeparator
               fixedDecimalScale
               disabled
               className="bg-white w-1/2"
-              decimalScale={2}
+              decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
           </div>
         </div>

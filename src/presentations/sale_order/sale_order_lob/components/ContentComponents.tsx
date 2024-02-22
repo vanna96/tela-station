@@ -1,16 +1,14 @@
 import React, { useMemo } from "react";
 import MaterialReactTable from "material-react-table";
 import { Button, Checkbox, IconButton, TextField } from "@mui/material";
-import { AiOutlineSetting } from "react-icons/ai";
 import FormCard from "@/components/card/FormCard";
-import { TbSettings } from "react-icons/tb";
 import Modal from "@/components/modal/Modal";
 import { BiSearch } from "react-icons/bi";
 import MUITextField from "@/components/input/MUITextField";
 import shortid from "shortid";
 import { NumericFormat } from "react-number-format";
 import SalePersonAutoComplete from "@/components/input/SalesPersonAutoComplete";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
+import { useDocumentTotalHook } from "@/hook";
 
 interface ContentComponentProps {
   items: any[];
@@ -30,7 +28,17 @@ interface ContentComponentProps {
 
 export default function ContentComponent(props: ContentComponentProps) {
   const columnRef = React.createRef<ContentTableSelectColumn>();
-  const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
+
+  // Initialize the discount state with the initial value from props
+  const [discount, setDiscount] = React.useState(
+    props?.data?.DiscountPercent || 0
+  );
+
+  // Update the discount state when props.data.DiscountPercent changes
+  React.useEffect(() => {
+    setDiscount(props?.data?.DiscountPercent || 0);
+  }, [props?.data?.DiscountPercent]); // Update whenever props.data.DiscountPercent changes
+
   const [colVisibility, setColVisibility] = React.useState<
     Record<string, boolean>
   >({});
@@ -94,28 +102,32 @@ export default function ContentComponent(props: ContentComponentProps) {
   const onChange = (key: string, value: any) => {
     if (props.onChange) props.onChange(key, value);
   };
-  const [docTotal, docTaxTotal] = useDocumentTotalHook(
+  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
     discount,
-    // props?.data?.ExchangeRate ?? 1
-    1
+    props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
+    const dataDiscount: number = props?.data?.DiscountPercent ?? 0;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     return docTotal * (dataDiscount / 100);
-  }, [props?.data?.DocDiscount, props.data.Items]);
+  }, [props?.data?.DiscountPercent, props.data.Items]);
 
   let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
   if (props.data) {
     props.data.DocTaxTotal = docTaxTotal;
     props.data.DocTotalBeforeDiscount = docTotal;
-    props.data.DocDiscountPercent = props.data?.DocDiscount;
+    props.data.DocDiscountPercent = props.data?.DiscountPercent;
     props.data.DocDiscountPrice = discountAmount;
     props.data.DocTotal = TotalPaymentDue;
   }
+
+  const handleDiscountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseFloat(event.target.value); // Parse the input value to a number
+    setDiscount(isNaN(value) ? 0 : value); // Update the discount state
+  };
   return (
     <FormCard
       title="Content"
@@ -126,10 +138,6 @@ export default function ContentComponent(props: ContentComponentProps) {
               Remove
             </span>
           </Button>
-
-          <IconButton onClick={() => columnRef.current?.onOpen()}>
-            <TbSettings className="text-2lg" />
-          </IconButton>
         </div>
       }
     >
@@ -185,9 +193,6 @@ export default function ContentComponent(props: ContentComponentProps) {
             muiTableBodyRowProps={() => ({
               sx: { cursor: "pointer" },
             })}
-            icons={{
-              ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,
-            }}
             enableTableFooter={false}
           />
           <div className="grid grid-cols-12 mt-2">
@@ -209,13 +214,13 @@ export default function ContentComponent(props: ContentComponentProps) {
                     className="bg-white w-full"
                     value={docTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
@@ -225,11 +230,10 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-7 text-gray-700">Discount</div>
                     <div className="col-span-5 text-gray-900 mr-2">
                       <MUITextField
-                        disabled={props?.data?.isStatusClose || false}
                         placeholder="0.00"
                         type="number"
                         startAdornment={"%"}
-                        value={props?.data?.DocDiscount ?? 0}
+                        value={props?.data?.DiscountPercent ?? 0}
                         // value={props.data.DocDiscount || discount}
                         onChange={(event: any) => {
                           if (
@@ -240,7 +244,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           ) {
                             event.target.value = 0;
                           }
-                          onChange("DocDiscount", event.target.value);
+                          onChange("DiscountPercent", event.target.value);
                         }}
                       />
                     </div>
@@ -254,13 +258,13 @@ export default function ContentComponent(props: ContentComponentProps) {
                         className="bg-white w-full"
                         value={discountAmount}
                         thousandSeparator
-                        fixedDecimalScale
                         startAdornment={props?.data?.Currency}
-                        decimalScale={2}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        fixedDecimalScale
                         placeholder="0.00"
                         readonly
                         customInput={MUITextField}
-                        disabled={props?.data?.isStatusClose || false}
+                        disabled
                       />
                     </div>
                   </div>
@@ -274,13 +278,13 @@ export default function ContentComponent(props: ContentComponentProps) {
                     className="bg-white w-full"
                     value={docTaxTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
@@ -289,158 +293,22 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     className="bg-white w-full"
-                    value={TotalPaymentDue}
+                    value={grossTotal}
                     thousandSeparator
-                    fixedDecimalScale
                     startAdornment={props?.data?.Currency}
-                    decimalScale={2}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    fixedDecimalScale
                     placeholder="0.00"
                     readonly
                     customInput={MUITextField}
-                    disabled={props?.data?.isStatusClose || false}
+                    disabled
                   />
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <ContentTableSelectColumn
-          ref={columnRef}
-          columns={props.columns}
-          visibles={colVisibility}
-          onSave={(value) => {
-            setColVisibility(value);
-          }}
-        />
       </>
     </FormCard>
   );
-}
-
-interface ContentTableSelectColumnProps {
-  ref?: React.RefObject<ContentTableSelectColumn | undefined>;
-  onSave?: (value: any) => void;
-  columns: any[];
-  visibles: any;
-}
-
-class ContentTableSelectColumn extends React.Component<
-  ContentTableSelectColumnProps,
-  any
-> {
-  constructor(props: any) {
-    super(props);
-
-    this.state = {
-      open: false,
-      searchColumn: "",
-      showChecks: false,
-      visibles: {},
-    } as any;
-
-    this.onOpen = this.onOpen.bind(this);
-    this.onClose = this.onClose.bind(this);
-    this.onSave = this.onSave.bind(this);
-    this.handChange = this.handChange.bind(this);
-    this.handlerChangeColVisibility =
-      this.handlerChangeColVisibility.bind(this);
-  }
-
-  componentDidMount(): void {}
-
-  onOpen(data?: any) {
-    this.setState({ open: true, visibles: { ...this.props.visibles } });
-  }
-
-  onClose() {
-    this.setState({ open: false });
-  }
-
-  onSave() {
-    if (this.props.onSave) {
-      this.props.onSave(this.state.visibles);
-    }
-
-    this.setState({ open: false });
-  }
-
-  handChange(event: any) {
-    this.setState({ ...this.state, searchColumn: event.target.value });
-  }
-
-  handlerChangeColVisibility(event: any, field: string) {
-    const visibles = { ...this.state.visibles };
-    visibles[field] = event.target.checked;
-    this.setState({
-      ...this.state,
-      visibles: { ...this.props.visibles, ...visibles },
-    });
-  }
-
-  render() {
-    return (
-      <Modal
-        title={`Columns Setting`}
-        titleClass="pt-3 px-2 font-bold w-full"
-        open={this.state.open}
-        widthClass="w-[40rem]"
-        heightClass="h-[80vh]"
-        onClose={this.onClose}
-        onOk={this.onSave}
-        okLabel="Save"
-      >
-        <div className="w-full h-full flex flex-col ">
-          <div className="flex justify-between sticky top-0 bg-white py-2 z-10 border-b">
-            <div className="flex">
-              <div>
-                {" "}
-                <Checkbox
-                  size="small"
-                  className="mt-2"
-                  defaultChecked={this.state.showChecks}
-                  onChange={(e) =>
-                    this.setState({
-                      ...this.state,
-                      showChecks: !this.state.showChecks,
-                    })
-                  }
-                />
-              </div>
-              <label htmlFor="showAll" className="flex items-center ">
-                Show Selected
-              </label>
-            </div>
-            <div className="flex w-[15rem] items-center">
-              <MUITextField
-                placeholder="Search Column..."
-                onChange={this.handChange}
-                endAdornment
-                endIcon={<BiSearch className="text-sm" />}
-              />
-            </div>
-          </div>
-          <ul className=" text-[14px] grid grid-cols-1 mt-3 ">
-            {this.props.columns
-              .filter((val) =>
-                val.header
-                  .toLowerCase()
-                  .includes(this.state.searchColumn.toLowerCase())
-              )
-              .map((e) => (
-                <li key={shortid.generate()} className={`border-b`}>
-                  <Checkbox
-                    checked={this.state.visibles[e?.accessorKey] ?? false}
-                    onChange={(event) =>
-                      this.handlerChangeColVisibility(event, e?.accessorKey)
-                    }
-                    size="small"
-                  />{" "}
-                  <span>{e?.header} </span>
-                </li>
-              ))}
-          </ul>
-        </div>
-      </Modal>
-    );
-  }
 }

@@ -134,7 +134,7 @@ function renderKeyValue(label: string, value: any) {
     <div className="grid grid-cols-2 py-2">
       <div className="col-span-1 text-gray-700">{label}</div>
       <div className="col-span-1 text-gray-900">
-        <MUITextField disabled value={value ?? "N/A"} />
+        <MUITextField disabled value={value} />
       </div>
     </div>
   );
@@ -172,8 +172,8 @@ function General(props: any) {
                 "Status",
                 props.data.U_Status === "Y" ? "Active" : "Inactive"
               )}
-              {renderKeyValue("Distance", duration)}
-              {renderKeyValue("Travel Hour", props.data.U_Duration)}
+              {renderKeyValue("Distance (KM)", props.data?.U_Distance)}
+              {renderKeyValue("Travel Hour", duration)}
             </div>
           </div>
         </div>
@@ -203,7 +203,7 @@ function Expense(props: any) {
       },
       {
         accessorKey: "U_Amount",
-        header: "Expense Amount",
+        header: "Expense Amount (USD)",
         size: 60,
         Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
       },
@@ -263,7 +263,7 @@ function Sequence(props: any) {
       },
       {
         accessorKey: "U_Distance",
-        header: "Distance",
+        header: "Distance (KM)",
         enableClickToCopy: true,
         size: 200,
         Cell: ({ cell }: any) => <MUITextField className="w-full" disabled={true} value={cell.getValue()} />,
