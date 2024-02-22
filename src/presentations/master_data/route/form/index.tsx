@@ -15,7 +15,6 @@ import Right from "../components/RightHeader";
 import DataTable from "../components/DataTable";
 
 class RouteForm extends CoreFormDocument {
-
   serviceRef = React.createRef<ServiceModalComponent>();
 
   constructor(props: any) {
@@ -29,7 +28,6 @@ class RouteForm extends CoreFormDocument {
       U_Distance: null,
       U_Duration: null,
       headerRoute: true,
-
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -149,24 +147,37 @@ class RouteForm extends CoreFormDocument {
         TL_RM_SEQUENCECollection: data.TL_RM_SEQUENCECollection,
       };
 
-      if (!payload.TL_RM_EXPENSCollection || !payload.TL_RM_EXPENSCollection?.length) {
+      if (
+        !payload.TL_RM_EXPENSCollection ||
+        !payload.TL_RM_EXPENSCollection?.length
+      ) {
         data["error"] = { Name: "Expense Collection is Required!" };
         throw new FormValidateException("Expense Collection is Required!", 0);
       }
 
-      const expenses = payload.TL_RM_EXPENSCollection?.every((e: any) => e.U_Code === undefined || e.U_Code === '');
+      const expenses = payload.TL_RM_EXPENSCollection?.every(
+        (e: any) => e.U_Code === undefined || e.U_Code === ""
+      );
       if (expenses) {
         data["error"] = { Name: "Expense Code is Required!" };
         throw new FormValidateException("Expense Code is Required!", 0);
       }
 
-
-      if (!payload.TL_RM_SEQUENCECollection || !payload.TL_RM_SEQUENCECollection?.length) {
+      if (
+        !payload.TL_RM_SEQUENCECollection ||
+        !payload.TL_RM_SEQUENCECollection?.length
+      ) {
         data["error"] = { Name: "Route Sequence Collection is Required!" };
-        throw new FormValidateException("Route Sequence Collection is Required!", 0);
+        throw new FormValidateException(
+          "Route Sequence Collection is Required!",
+          0
+        );
       }
 
-      const sequences = payload.TL_RM_EXPENSCollection?.every((e: any) => e.U_Code === undefined || e.U_Code === '' || e?.U_Order === undefined);
+      const sequences = payload.TL_RM_EXPENSCollection?.every(
+        (e: any) =>
+          e.U_Code === undefined || e.U_Code === "" || e?.U_Order === undefined
+      );
       if (expenses) {
         data["error"] = { Name: "Invaid Route Sequnce!" };
         throw new FormValidateException("Invaid Route Sequnce!", 0);
@@ -245,13 +256,27 @@ class RouteForm extends CoreFormDocument {
         </MenuButton>
         <MenuButton
           active={this.state.tapIndex === 1}
-          onClick={() => this.handlerChangeMenu(1)}
+          className="bg-gray-200"
+          onClick={() => {
+            if (!this.state.Code) return;
+            if (!this.state.U_BaseStation) return;
+            if (!this.state.U_Destination) return;
+            if (!this.state.Name) return;
+
+            this.handlerChangeMenu(1);
+          }}
         >
           Expense
         </MenuButton>
         <MenuButton
           active={this.state.tapIndex === 2}
-          onClick={() => this.handlerChangeMenu(2)}
+          onClick={() => {
+            if (!this.state.Code) return;
+            if (!this.state.U_BaseStation) return;
+            if (!this.state.U_Destination) return;
+            if (!this.state.Name) return;
+            this.handlerChangeMenu(2);
+          }}
         >
           Sequence
         </MenuButton>

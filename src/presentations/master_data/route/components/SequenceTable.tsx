@@ -6,6 +6,7 @@ import MUITextField from "@/components/input/MUITextField";
 import StopsSelect from "@/components/selectbox/StopsSelect";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { DurationPicker } from "./duration-picker";
+import { Button } from "@mui/material";
 export default function SequenceTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -67,7 +68,8 @@ export default function SequenceTable(props: any) {
               handlerChangeItem(cell?.row?.id || 0, {
                 LineId: e.target.value,
               });
-            }} />
+            }}
+          />
         );
       },
     },
@@ -200,7 +202,9 @@ export default function SequenceTable(props: any) {
                 verticalAlign: "middle",
               }}
             >
-              <FaMapMarkerAlt className={lat && lng ? 'text-green-600' : 'text-gray-400'} />
+              <FaMapMarkerAlt
+                className={lat && lng ? "text-green-600" : "text-gray-400"}
+              />
             </span>
           </div>
         );
@@ -208,20 +212,17 @@ export default function SequenceTable(props: any) {
     },
   ];
 
-
   return (
     <>
       <div className="flex space-x-4 text-[25px] justify-end mb-2">
         {!data?.edit && (
           <>
-            <AiOutlinePlus
-              className="text-blue-700 cursor-pointer"
-              onClick={handlerAddCheck}
-            />
-            <MdDeleteOutline
-              className="text-red-500 cursor-pointer"
+            <span
               onClick={handlerRemoveCheck}
-            />
+              className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
+            >
+              Remove
+            </span>
           </>
         )}
       </div>
@@ -254,6 +255,12 @@ export default function SequenceTable(props: any) {
           sx: { cursor: "pointer", height: "60px" },
         }}
       />
+      <span
+        onClick={handlerAddCheck}
+        className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
+      >
+        + Add
+      </span>
     </>
   );
 }
