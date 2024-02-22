@@ -2,7 +2,9 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { dateFormat } from "@/utilies";
+import { Button, Checkbox } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
+import React from "react";
 import { useState } from "react";
 import { Controller } from "react-hook-form";
 export default function Commercial({
@@ -27,15 +29,6 @@ export default function Commercial({
     setCommer([...(commer ?? []), newRow]);
   };
 
-  const handlerDelete = (index: number) => {
-    if (index >= 0 && detail !== true) {
-      const state: any[] = [...commer];
-      state.splice(index, 1);
-      setCommer(state);
-    } else {
-      return;
-    }
-  };
 
   const handlerChangeCommer = (key: string, value: any, index: number) => {
     const updated = commer.map((item: any, idx: number) => {
@@ -50,16 +43,44 @@ export default function Commercial({
     setCommer(updated);
   };
 
+
+  const [selected, setSelected] = React.useState<number[]>([]);
+
+
+  const onSelectChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    let state = [...selected];
+    const rowIndex = state.findIndex((e) => e === index);
+
+    if (rowIndex >= 0 && !event.target.checked) {
+      state = state.filter((e) => e !== index)
+    } else {
+      state.push(index)
+    }
+
+    setSelected(state)
+  }
+
+  const handlerDelete = () => {
+    if (selected.length === 0) return;
+    let state = [...commer];
+    state = state.filter((item, index) => !selected.includes(index));
+    setCommer(state);
+    setSelected([])
+  };
+
+  console.log(selected)
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Commercial</h2>
+          <Button variant="outlined" onClick={handlerDelete} className="px-4 border-gray-400"><span className="px-2 text-xs">Remove</span></Button>
         </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
-              <th className="w-[100px] "></th>
+              <th className="w-[4rem]"></th>
 
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Type{" "}
@@ -100,19 +121,9 @@ export default function Commercial({
             )}
             {commer?.map((e: any, index: number) => {
               return (
-                <tr key={index}>
+                <tr key={`row_${index}`}>
                   <td className="py-5 flex justify-center gap-5 items-center">
-                    <div
-                      onClick={() => handlerDelete(index)}
-                      className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
-                        detail
-                          ? "hidden"
-                          : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
-                      }  rounded-sm flex justify-center items-center `}
-                    >
-                      -
-                    </div>
-                    <span className="text-gray-500">{index + 1}</span>
+                    <Checkbox key={`row_${index}_row_${e?.U_Type}`} defaultChecked={false} onChange={(event) => onSelectChange(event, index)} />
                   </td>
 
                   <td className="pr-4">
@@ -123,6 +134,7 @@ export default function Commercial({
                         return (
                           <MUISelect
                             disabled={detail}
+                            key={`row_${index}_U_Type_${field.value}`}
                             items={[
                               { label: "Road Tax", value: "Road Tax" },
                               { label: "Check", value: "Check" },
@@ -150,6 +162,7 @@ export default function Commercial({
                     <MUITextField
                       disabled={detail}
                       placeholder="Name"
+                      key={`row_${index}U_Name${e?.U_Name}`}
                       inputProps={{
                         defaultValue: e?.U_Name,
                         onChange: (e: any) =>
@@ -165,6 +178,7 @@ export default function Commercial({
                     {detail ? (
                       <MUITextField
                         disabled={detail}
+                        key={`row_${index}U_IssueDate${e?.U_IssueDate}`}
                         placeholder="U_IssueDate"
                         inputProps={{
                           defaultValue: dateFormat(e?.U_IssueDate),
@@ -182,11 +196,11 @@ export default function Commercial({
                               value={
                                 e?.U_IssueDate || staticSelect?.u_IssueDate
                               }
-                              key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
+                              key={`row_${index}U_IssueDate_${field.value}`}
                               onChange={(e: any) => {
                                 const val =
                                   e.toLowerCase() ===
-                                  "Invalid Date".toLocaleLowerCase()
+                                    "Invalid Date".toLocaleLowerCase()
                                     ? ""
                                     : e;
                                 setStaticSelect({
@@ -206,6 +220,7 @@ export default function Commercial({
                       <MUITextField
                         disabled={detail}
                         placeholder="U_ExpiredDate"
+                        key={`row_${index}U_ExpiredDate${e?.U_ExpiredDate}`}
                         inputProps={{
                           defaultValue: dateFormat(e?.U_ExpiredDate),
                         }}
@@ -217,16 +232,16 @@ export default function Commercial({
                         render={({ field }) => {
                           return (
                             <MUIDatePicker
+                              key={`row_${index}U_ExpiredDate${field.value}`}
                               disabled={detail}
                               {...field}
                               value={
                                 e?.U_ExpiredDate || staticSelect.u_ExpiredDate
                               }
-                              key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
                               onChange={(e: any) => {
                                 const val =
                                   e.toLowerCase() ===
-                                  "Invalid Date".toLocaleLowerCase()
+                                    "Invalid Date".toLocaleLowerCase()
                                     ? ""
                                     : e;
                                 setStaticSelect({
@@ -251,6 +266,7 @@ export default function Commercial({
                       type="number"
                       disabled={detail}
                       placeholder="Fee"
+                      key={`row_${index}Fee${e?.U_Fee}`}
                       inputProps={{
                         defaultValue: e?.U_Fee,
                         onChange: (e: any) =>
@@ -262,6 +278,7 @@ export default function Commercial({
                     <MUITextField
                       disabled={detail}
                       placeholder="Reference"
+                      key={`row_${index}Reference${e?.U_Ref}`}
                       inputProps={{
                         defaultValue: e?.U_Ref,
                         onChange: (e: any) =>
@@ -281,7 +298,7 @@ export default function Commercial({
               onClick={addNewRow}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
-              + Add
+              Add
             </span>
           )}
         </div>
