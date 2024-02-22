@@ -54,9 +54,6 @@ export default function SaleOrderLists() {
         visible: true,
         type: "string",
         align: "center",
-        size: 65,
-        Cell: ({ cell }: any) =>
-          new DispenserRepository()?.find("Sopen2")?.Name,
       },
       {
         accessorKey: "U_tl_cardcode",
@@ -65,7 +62,6 @@ export default function SaleOrderLists() {
         visible: true,
         type: "string",
         align: "center",
-        size: 65,
       },
       {
         accessorKey: "U_tl_cardname",
@@ -73,23 +69,22 @@ export default function SaleOrderLists() {
         visible: true,
         type: "string",
         align: "center",
-        size: 90,
       },
+
       {
-        accessorKey: "U_tl_docdate",
+        accessorKey: "TaxDate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
-            "YYYY-MM-DD"
+          const formattedDate = moment(cell.row.original.TaxDate).format(
+            "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
         },
       },
-
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",
@@ -97,7 +92,6 @@ export default function SaleOrderLists() {
         visible: true,
         Cell: ({ cell }: any) =>
           new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-        size: 60,
       },
 
       //
@@ -366,19 +360,7 @@ export default function SaleOrderLists() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                />
-              </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
                   label="Posting Date"
@@ -424,32 +406,7 @@ export default function SaleOrderLists() {
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "TaxDate" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
+             
             </div>
           </div>
         </div>
