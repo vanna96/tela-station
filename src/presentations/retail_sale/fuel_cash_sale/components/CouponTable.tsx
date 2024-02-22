@@ -158,10 +158,13 @@ export default function CouponTable(props: any) {
             "& .MuiTableCell-root": {
               padding: "8px",
             },
+            "& .MuiTableHead-root .MuiTableCell-root": {
+              fontWeight: "600",
+              paddingTop: "8px",
+              paddingBottom: "8px",
+              color: "#6b7280",
+            },
             border: "1px solid rgba(81, 81, 81, .5)",
-            borderRadius: "5px",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#ffffff",
           },
         })}
         state={{

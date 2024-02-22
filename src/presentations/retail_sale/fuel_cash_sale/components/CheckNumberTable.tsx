@@ -45,6 +45,25 @@ export default function CashBankTable(props: any) {
   };
 
   const columns = [
+    // {
+    //   size: 10,
+    //   minSize: 10,
+    //   maxSize: 10,
+    //   accessorKey: "deleteButton",
+    //   align: "center",
+    //   header: "",
+    //   Cell: ({ cell }: any) => {
+    //     if (!cell.row.original?.U_tl_acccheck) return null;
+    //     return (
+    //       <div className="flex justify-center items-center">
+    //         <GridDeleteIcon
+    //           className="text-red-500 cursor-pointer"
+    //           onClick={() => handlerRemoveCheck(cell?.row?.index)}
+    //         />
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       size: 10,
       minSize: 10,
@@ -52,17 +71,6 @@ export default function CashBankTable(props: any) {
       accessorKey: "deleteButton",
       align: "center",
       header: "",
-      Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_acccheck) return null;
-        return (
-          <div className="flex justify-center items-center">
-            <GridDeleteIcon
-              className="text-red-500 cursor-pointer"
-              onClick={() => handlerRemoveCheck(cell?.row?.index)}
-            />
-          </div>
-        );
-      },
     },
     {
       accessorKey: "U_tl_acccheck",
@@ -75,13 +83,16 @@ export default function CashBankTable(props: any) {
               onClick={() => handlerAdd()}
               variant="outlined"
               size="small"
-              sx={{ height: "30px", textTransform: "none", width: "100%" }}
+              sx={{
+                height: "30px",
+                textTransform: "none",
+                width: "100%",
+                borderColor: "black",
+                color: "black",
+              }}
               disableElevation
             >
-              <span className="px-3 text-[13px] py-1 text-green-500 font-no">
-                <GridAddIcon />
-                Add Row
-              </span>
+              <span className="px-3 text-[13px] py-1">Add </span>
             </Button>
           );
         return (
@@ -222,10 +233,13 @@ export default function CashBankTable(props: any) {
             "& .MuiTableCell-root": {
               padding: "8px",
             },
+            "& .MuiTableHead-root .MuiTableCell-root": {
+              fontWeight: "600",
+              paddingTop: "8px",
+              paddingBottom: "8px",
+              color: "#6b7280",
+            },
             border: "1px solid rgba(81, 81, 81, .5)",
-            borderRadius: "5px",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#ffffff",
           },
         })}
         defaultColumn={{

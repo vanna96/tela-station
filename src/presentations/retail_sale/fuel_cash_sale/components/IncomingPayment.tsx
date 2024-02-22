@@ -148,6 +148,7 @@ export default function IncomingPaymentForm({
                 thousandSeparator
                 disabled
                 placeholder="0.000"
+                className="bg-white"
                 decimalScale={2}
                 customInput={MUITextField}
                 value={totalCashSale - totalUSD - TotalKHRtoUSD}
@@ -163,6 +164,7 @@ export default function IncomingPaymentForm({
                 placeholder="0.000"
                 decimalScale={2}
                 disabled
+                className="bg-white"
                 customInput={MUITextField}
                 value={totalKHR}
               />
@@ -179,6 +181,7 @@ export default function IncomingPaymentForm({
                 key={"totalUSD"}
                 thousandSeparator
                 disabled
+                className="bg-white"
                 placeholder="0.000"
                 decimalScale={2}
                 customInput={MUITextField}
