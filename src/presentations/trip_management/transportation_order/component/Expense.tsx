@@ -1,6 +1,7 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
+import StopsSelect from "@/components/selectbox/StopsSelect";
 import { Button } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
@@ -112,17 +113,8 @@ export default function Expense({
             <tr>
               <td className="py-5 flex justify-center gap-5 items-center"></td>
               <td className="pr-4 ">
-                <MUISelect
-                  disabled={detail}
-                  onChange={() => addExpense({})}
-                  items={[
-                    { label: "Truck", value: "Truck" },
-                    { label: "Train", value: "Train" },
-                    { label: "Van", value: "Van" },
-                  ]}
-                  value={staticSelect.u_Type}
-                  aliasvalue="value"
-                  aliaslabel="label"
+                <StopsSelect
+                onHandlerChange={()=>addExpense({})}
                 />
               </td>
               <td className="pr-4">

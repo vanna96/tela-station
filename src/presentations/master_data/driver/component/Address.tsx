@@ -17,7 +17,7 @@ const Address = ({ register, detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Street
+                  Address 1
                 </label>
               </div>
               <div className="col-span-3">
@@ -30,7 +30,7 @@ const Address = ({ register, detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Street No
+                  Address 2
                 </label>
               </div>
               <div className="col-span-3">
@@ -43,7 +43,7 @@ const Address = ({ register, detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  City
+                  Address 3
                 </label>
               </div>
               <div className="col-span-3">
@@ -66,7 +66,7 @@ const Address = ({ register, detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Street
+                  Address 1
                 </label>
               </div>
               <div className="col-span-3">
@@ -79,7 +79,7 @@ const Address = ({ register, detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Street No
+                  Address 2
                 </label>
               </div>
               <div className="col-span-3">
@@ -92,7 +92,7 @@ const Address = ({ register, detail }: UseFormProps) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  City
+                  Address 3
                 </label>
               </div>
               <div className="col-span-3">
