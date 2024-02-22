@@ -259,7 +259,7 @@ export default function SequenceTable(props: any) {
         onClick={handlerAddCheck}
         className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
       >
-        + Add
+       Add
       </span>
     </>
   );

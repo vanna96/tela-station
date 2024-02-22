@@ -1,7 +1,6 @@
+import React from "react";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCookies } from "react-cookie";
-import { TextField } from "@mui/material";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import StopsSelect from "@/components/selectbox/StopsSelect";
 import { DurationPicker } from "./duration-picker";
@@ -21,159 +20,137 @@ export default function GeneralForm({
   setData,
   detail,
 }: IGeneralFormProps) {
-  const [cookies, setCookie] = useCookies(["user"]);
-  const branchId =
-    data?.Branch || cookies?.user?.Branch || (cookies?.user?.Branch < 0 && 1);
   return (
-    <>
-      <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
-        <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
-          <h2>Information</h2>
-        </div>
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Base Station
-                  <span className="text-red-500">*</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <div className="col-span-3">
-                  <WarehouseAttendTo
-                    U_tl_attn_ter={true}
-                    value={data?.U_BaseStation}
-                    onChange={(e) => {
-                      handlerChange("U_BaseStation", e);
-                    }}
-                    onBlur={(e: any) => setData({ ...data, U_BaseStation: e })}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Destination
-                  <span className="text-red-500">*</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <StopsSelect
-                  value={data?.U_Destination}
-                  onHandlerChange={(val) => {
-                    handlerChange("U_Destination", val?.Code);
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Route Code
-                  <span className="text-red-500">*</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  value={data?.Code}
-                  name="Code"
-                  onChange={(e) => handlerChange("Code", e.target.value)}
-                  disabled={edit || detail}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Route Name
-                  <span className="text-red-500">*</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  value={data?.Name}
-                  name="Name"
-                  onChange={(e) => handlerChange("Name", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Driver Incentive
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  value={data?.U_Incentive}
-                  name="U_Incentive"
-                  type="number"
-                  onChange={(e) => handlerChange("U_Incentive", e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Status
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUISelect
-                  items={[
-                    { id: "Y", name: "Active" },
-                    { id: "N", name: "Inactive" },
-                  ]}
-                  onChange={(e) => handlerChange("U_Status", e.target.value)}
-                  value={data?.U_Status || "Y"}
-                  aliasvalue="id"
-                  aliaslabel="name"
-                  name="U_Status"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Latitude" className="text-gray-500 ">
-                  Distance (KM)
-                </label>
-              </div>
-              <div className="col-span-3">
+    <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
+      <div className="font-medium text-xl flex justify-between items-center border-b mb-4">
+        <h2>Information</h2>
+      </div>
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-12 md:col-span-5">
+          <FormField
+            label="Base Station"
+            required
+            inputComponent={
+              <WarehouseAttendTo
+                U_tl_attn_ter={true}
+                value={data?.U_BaseStation}
+                onChange={(e) => handlerChange("U_BaseStation", e)}
+                onBlur={(e: any) => setData({ ...data, U_BaseStation: e })}
+              />
+            }
+          />
+          <FormField
+            label="Destination"
+            required
+            inputComponent={
+              <StopsSelect
+                value={data?.U_Destination}
+                onHandlerChange={(val) =>
+                  handlerChange("U_Destination", val?.Code)
+                }
+              />
+            }
+          />
+          <FormField
+            label="Route Code"
+            required
+            inputComponent={
+              <MUITextField
+                value={data?.Code}
+                name="Code"
+                onChange={(e) => handlerChange("Code", e.target.value)}
+                disabled={edit || detail}
+              />
+            }
+          />
+          <FormField
+            label="Route Name"
+            required
+            inputComponent={
+              <MUITextField
+                value={data?.Name}
+                name="Name"
+                onChange={(e) => handlerChange("Name", e.target.value)}
+              />
+            }
+          />
 
-                <MUITextField
-                  value={data?.U_Distance}
-                  name="U_Distance"
-                  type="number"
-                  onChange={(e) => handlerChange("U_Distance", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Latitude" className="text-gray-500 ">
-                  Travel Hour
-                </label>
-              </div>
-              <div className="col-span-3">
-                {/* <MUITextField
-                  value={data?.U_Duration}
-                  name="U_Duration"
-                  onChange={(e) => handlerChange("U_Duration", e.target.value)}
-                /> */}
-                <DurationPicker
-                  value={data?.U_Distance}
-                  onChange={(e) => handlerChange("U_Duration", e)}
-                />
-              </div>
-            </div>
-          </div>
+          <FormField
+            label="Driver Incentive"
+            inputComponent={
+              <MUITextField
+                value={data?.U_Incentive}
+                name="U_Incentive"
+                type="number"
+                onChange={(e) => handlerChange("U_Incentive", e.target.value)}
+              />
+            }
+          />
+        </div>
+        <div className="col-span-12 md:col-span-2"></div>
+        <div className="col-span-12 md:col-span-5">
+          <FormField
+            label="Status"
+            inputComponent={
+              <MUISelect
+                items={[
+                  { id: "Y", name: "Active" },
+                  { id: "N", name: "Inactive" },
+                ]}
+                onChange={(e) => handlerChange("U_Status", e.target.value)}
+                value={data?.U_Status || "Y"}
+                aliasvalue="id"
+                aliaslabel="name"
+                name="U_Status"
+              />
+            }
+          />
+
+          <FormField
+            label="Distance (KM)"
+            inputComponent={
+              <MUITextField
+                value={data?.U_Distance}
+                name="U_Distance"
+                type="number"
+                onChange={(e) => handlerChange("U_Distance", e.target.value)}
+              />
+            }
+          />
+
+          <FormField
+            label="Travel Hour"
+            inputComponent={
+              <DurationPicker
+                value={data?.U_Distance}
+                onChange={(e) => handlerChange("U_Duration", e)}
+              />
+            }
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 }
+
+interface FormFieldProps {
+  label: string;
+  required?: boolean;
+  inputComponent: React.ReactNode;
+}
+
+const FormField: React.FC<FormFieldProps> = ({
+  label,
+  required,
+  inputComponent,
+}) => (
+  <div className="grid grid-cols-5 py-2">
+    <div className="col-span-2">
+      <label htmlFor={label} className="text-gray-500">
+        {label}
+        {required && <span className="text-red-500">*</span>}
+      </label>
+    </div>
+    <div className="col-span-3">{inputComponent}</div>
+  </div>
+);
