@@ -23,6 +23,8 @@ export default function SaleOrderLists() {
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
   let numAtCardFilter = "";
+  const [dataUrl, setDataUrl] = React.useState("");
+
   switch (salesType) {
     case "fuel-cash-sale":
       numAtCardFilter = "Oil";
@@ -189,26 +191,31 @@ export default function SaleOrderLists() {
       salesType,
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
+
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }${filter ? ` and ${filter}` : filter}${
-          sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-        }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`
-      )
+      const Url = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`;
+
+      const dataUrl = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`;
+
+      setDataUrl(dataUrl);
+      const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-
       return response;
     },
     // staleTime: Infinity,
     retry: 1,
   });
-
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -406,13 +413,25 @@ export default function SaleOrderLists() {
                   Go
                 </Button>
               </div>
-             
             </div>
           </div>
         </div>
         <DataTable
-          columns={columns}
-          data={data}
+          dataUrl={dataUrl}
+          columns={[
+            {
+              accessorKey: "index",
+              header: "No.",
+              size: 20,
+              visible: true,
+              type: "number",
+            },
+            ...columns,
+          ]}
+          data={data?.map((item: any, index: any) => ({
+            ...item,
+            index: index + 1,
+          }))}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}

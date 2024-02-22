@@ -27,7 +27,7 @@ export default function SaleOrderLists() {
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
@@ -511,7 +511,7 @@ export default function SaleOrderLists() {
             },
             ...columns,
           ]}
-          data={data.map((item: any, index: any) => ({
+          data={data?.map((item: any, index: any) => ({
             ...item,
             index: index + 1,
           }))}
