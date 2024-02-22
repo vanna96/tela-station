@@ -11,7 +11,8 @@ const Finance = ({
   control,
   defaultValues,
   setValue,
-  detail
+  detail,
+  watch,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     salaryUnit: "",
@@ -22,8 +23,8 @@ const Finance = ({
       <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
         <h2>Finance</h2>
       </div>
-      <div className="  flex gap-[100px]">
-        <div className="col-span-5  w-[50%]">
+      <div className="grid grid-cols-2 md:grid-cols-1 gap-[6rem] md:gap-0 ">
+        <div className="">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
@@ -64,15 +65,8 @@ const Finance = ({
                       ]}
                       onChange={(e: any) => {
                         setValue("SalaryUnit", e.target.value);
-
-                        setStaticSelect({
-                          ...staticSelect,
-                          salaryUnit: e.target.value,
-                        });
                       }}
-                      value={
-                        staticSelect.salaryUnit || defaultValues?.SalaryUnit
-                      }
+                      value={watch("SalaryUnit") || defaultValues?.SalaryUnit}
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -96,7 +90,7 @@ const Finance = ({
                     <BankAutoComplete
                       disabled={detail}
                       {...field}
-                      value={defaultValues?.BankCode}
+                      value={watch('BankCode') || defaultValues?.BankCode}
                       onChange={(e: any) => {
                         setValue("BankCode", e);
                       }}
