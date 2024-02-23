@@ -174,7 +174,7 @@ function renderKeyValue(label: string, value: any) {
     <div className="grid grid-cols-2 py-2">
       <div className="col-span-1 text-gray-700">{label}</div>
       <div className="col-span-1 text-gray-900">
-        <MUITextField disabled value={value ?? "N/A"} />
+        <MUITextField disabled className="" value={value ?? "N/A"} />
       </div>
     </div>
   );
@@ -189,6 +189,17 @@ function CustomMaterialReactTable({
 }) {
   return (
     <MaterialReactTable
+      muiTableProps={() => ({
+        sx: {
+          "& .MuiTableHead-root .MuiTableCell-root": {
+            backgroundColor: "#e4e4e7",
+            fontWeight: "500",
+            paddingTop: "8px",
+            paddingBottom: "8px",
+          },
+          border: "1px solid #d1d5db",
+        },
+      })}
       enableColumnActions={false}
       enableColumnFilters={false}
       enablePagination={false}
@@ -198,11 +209,6 @@ function CustomMaterialReactTable({
       muiTableBodyRowProps={{ hover: false }}
       columns={columns}
       data={data}
-      muiTableProps={() => ({
-        sx: {
-          border: "1px solid rgba(81, 81, 81, .5)",
-        },
-      })}
     />
   );
 }
@@ -216,7 +222,7 @@ function General({ data }: any) {
   const seriesName = seriesNames?.join(", ");
 
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+    <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
@@ -504,7 +510,7 @@ function NozzleData({ data }: any) {
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Nozzle Data</h2>
         </div>
@@ -516,7 +522,7 @@ function NozzleData({ data }: any) {
         </div>
       </div>
       <div className="mt-8" />
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Generate Allocation </h2>
         </div>
@@ -790,7 +796,7 @@ function IncomingPayment({ data }: any) {
     []
   );
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+    <div className="rounded-lg shadow-sm  border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-start items-center border-b mb-6">
         <h2>Cash Sale - </h2>
         <div className="ml-2">
@@ -798,7 +804,7 @@ function IncomingPayment({ data }: any) {
             thousandSeparator
             placeholder="0.000"
             disabled
-            className="bg-white"
+            className=""
             decimalScale={2}
             value={totalCashSale}
           />
@@ -1014,7 +1020,7 @@ function Stock({ data }: any) {
   );
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Stock Allocation</h2>
         </div>
@@ -1045,7 +1051,7 @@ function CardCount({ data }: any) {
   );
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Card Count </h2>
         </div>

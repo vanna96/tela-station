@@ -34,48 +34,49 @@ export default function CouponTable(props: any) {
   return (
     <>
       {data.couponData.map((item: any, index: number) => (
-        <div key={index} className="grid grid-cols-12 gap-4 mb-8">
-          <div className="col-span-5 mb-2">
-            <div className="grid grid-cols-12">
-              <div className="col-span-4 mt-2">{"Coupon Account Name"}</div>
-              <div className="col-span-8 mt-1">
-                <CashACAutoComplete
-                  value={item.U_tl_acccoupon}
-                  disabled={data.edit}
-                  onChange={(value: any) =>
-                    handlerChangeItem(index, "U_tl_acccoupon", value)
-                  }
-                />
+        <div key={index}>
+          <div className="col-span-5 mb-4">
+            <div className="grid grid-cols-2 gap-4 ">
+              <div className="grid grid-cols-12">
+                <div className="col-span-4 mt-1  ">Coupon Account </div>
+                <div className="col-span-4 ">
+                  <CashACAutoComplete
+                    value={item.U_tl_acccoupon}
+                    disabled={data.edit}
+                    onChange={(value: any) =>
+                      handlerChangeItem(index, "U_tl_acccoupon", value)
+                    }
+                  />
+                </div>
+                <div className="col-span-4 ml-2">
+                  <CurrencySelect
+                    value={item.U_tl_paycur}
+                    name="U_tl_paycur"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-12 ">
+                <div className="col-span-4  col-start-5">Coupon Amount</div>
+                {/* <div className=" col-span-4  col-start-9"> */}
+                <div className=" col-span-4 ">
+                  <FormattedInputs
+                    placeholder="0.000"
+                    disabled={data.edit}
+                    defaultValue={item.U_tl_amtcoupon}
+                    onBlur={(e: any) =>
+                      handlerChangeItem(
+                        index,
+                        "U_tl_amtcoupon",
+                        parseFloat(e.target.value.replace(/,/g, ""))
+                      )
+                    }
+                    name="U_tl_amtcoupon"
+                    value={item.U_tl_amtcoupon}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          <div className="col-span-3 mt-1 col-start-6">
-            <CurrencySelect
-              value={item.U_tl_paycur}
-              name="U_tl_paycur"
-              disabled
-            />
-            {/* <MUITextField
-              disabled
-              name="U_tl_paycur"
-              value={item.U_tl_paycur || "USD"}
-            /> */}
-          </div>
-          <div className="col-span-4 col-start-9 ml-16">
-            <FormattedInputs
-              placeholder="0.000"
-              disabled={data.edit}
-              defaultValue={item.U_tl_amtcoupon}
-              onBlur={(e: any) =>
-                handlerChangeItem(
-                  index,
-                  "U_tl_amtcoupon",
-                  parseFloat(e.target.value.replace(/,/g, ""))
-                )
-              }
-              name="U_tl_amtcoupon"
-              value={item.U_tl_amtcoupon}
-            />
           </div>
         </div>
       ))}

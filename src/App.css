@@ -2,7 +2,6 @@ hr {
   margin: 10px 0px;
 }
 
-
 div.data-table .css-80pr5n-MuiPaper-root {
   padding: 0rem 1.5rem;
   border-radius: 0px;
@@ -179,7 +178,10 @@ button > svg {
 input[type="number"]::-webkit-inner-spin-button {
   display: none;
 }
-
+.MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-input {
+  color: #1f2937 !important;
+  -webkit-text-fill-color: #1f2937 !important;
+}
 input[type="number"] {
   -moz-appearance: textfield;
 }
@@ -227,7 +229,7 @@ MuiButton-contained {
   color: #111749;
 }
 
-.absolute.z-10.w-full.bg-white.shadow-lg.border.rounded.py-1.text-sm.text-gray-700{
+.absolute.z-10.w-full.bg-white.shadow-lg.border.rounded.py-1.text-sm.text-gray-700 {
   position: fixed;
   z-index: 9999;
   background-color: white;

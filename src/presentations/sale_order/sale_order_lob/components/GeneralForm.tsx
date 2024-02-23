@@ -19,6 +19,7 @@ import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 import PriceListRepository from "@/services/actions/pricelistRepository";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
 import SaleWarehouse from "@/components/input/SaleWarehouse";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -320,7 +321,7 @@ z
                   // onChange={handleSeriesChange}
                 />
                 <div className="-mt-1">
-                  <MUITextField
+                  <MUIRightTextField
                     size="small"
                     name="DocNum"
                     value={

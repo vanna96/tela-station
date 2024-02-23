@@ -1,29 +1,23 @@
 import { withRouter } from "@/routes/withRouter";
 import { Component } from "react";
 import { useMemo } from "react";
-import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import { dateFormat } from "@/utilies";
 import DocumentHeader from "@/components/DocumenHeader";
-import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
-import shortid from "shortid";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
-import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
 import WarehouseRepository from "@/services/warehouseRepository";
-import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import MUITextField from "@/components/input/MUITextField";
 import PriceListRepository from "@/services/actions/pricelistRepository";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
-import BinlocationRepository from "@/services/actions/BinlocationRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDocumentTotalHook } from "@/hook";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { OutlinedInput, TextField } from "@mui/material";
-import { useQuery } from "react-query";
+import { TextField } from "@mui/material";
 import DistributionRuleRepository from "@/services/actions/distributionRulesRepository";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { motion } from "framer-motion";
@@ -552,7 +546,9 @@ function Content(props: any) {
                     <div className="col-span-4">
                       <NumericFormat
                         thousandSeparator
-                        value={discountAmount === 0 || "" ? "0.000" : discountAmount}
+                        value={
+                          discountAmount === 0 || "" ? "0.000" : discountAmount
+                        }
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         // fixedDecimalScale

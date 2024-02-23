@@ -2,10 +2,11 @@ import FormCard from "@/components/card/FormCard";
 import React, { useState } from "react";
 import CashBankTable from "./CashBankTable";
 import CheckNumberTable from "./CheckNumberTable";
-import MUITextField from "@/components/input/MUITextField";
 import CouponTable from "./CouponTable";
 import { NumericFormat } from "react-number-format";
 import Formular from "@/utilies/formular";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
+import MUITextField from "@/components/input/MUITextField";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -104,9 +105,8 @@ export default function IncomingPaymentForm({
               thousandSeparator
               placeholder="0.000"
               disabled
-              className="bg-white"
-              decimalScale={2}
-              // customInput={MUITextField}
+              decimalScale={3}
+              // customInput={MUIRightTextField}
               value={totalCashSale}
             />
           </div>
@@ -118,32 +118,34 @@ export default function IncomingPaymentForm({
 
         <div className="grid grid-cols-2 gap-4 ">
           <div className="grid grid-cols-12">
-            <div className="col-span-4 col-start-1">Over / Shortage</div>
-            <div className="col-span-7 col-start-5">
+            <div className="col-span-4 mt-1  ">Over / Shortage</div>
+            <div className="col-span-4 ">
               <NumericFormat
                 key={"OverShortage"}
                 thousandSeparator
                 disabled
                 placeholder="0.000"
-                className="bg-white"
-                decimalScale={2}
+                decimalScale={3}
                 customInput={MUITextField}
-                value={totalCashSale - totalUSD - TotalKHRtoUSD}
+                value={
+                  totalCashSale - totalUSD - TotalKHRtoUSD === 0 || ""
+                    ? ""
+                    : totalCashSale - totalUSD - TotalKHRtoUSD
+                }
               />
             </div>
           </div>
-          <div className="grid grid-cols-12">
-            <div className="col-span-4 col-start-2">Total /KHR</div>
-            <div className=" col-span-7 col-start-6 ">
+          <div className="grid grid-cols-12 ">
+            <div className="col-span-4  col-start-5">Total /KHR</div>
+            <div className=" col-span-4  ">
               <NumericFormat
                 key={"total"}
                 thousandSeparator
                 placeholder="0.000"
-                decimalScale={2}
+                decimalScale={3}
                 disabled
-                className="bg-white"
-                customInput={MUITextField}
-                value={totalKHR}
+                customInput={MUIRightTextField}
+                value={totalKHR === 0 ? "" : totalKHR}
               />
             </div>
           </div>
@@ -152,17 +154,16 @@ export default function IncomingPaymentForm({
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="grid grid-cols-12"></div>
           <div className="grid grid-cols-12">
-            <div className="col-span-4 col-start-2">Total /USD</div>
-            <div className=" col-span-7 col-start-6 ">
+            <div className="col-span-4  col-start-5">Total /USD</div>
+            <div className=" col-span-4 ">
               <NumericFormat
                 key={"totalUSD"}
                 thousandSeparator
                 disabled
-                className="bg-white"
                 placeholder="0.000"
-                decimalScale={2}
-                customInput={MUITextField}
-                value={totalUSD}
+                decimalScale={3}
+                customInput={MUIRightTextField}
+                value={totalUSD === 0 ? "" : totalUSD}
               />
             </div>
           </div>
