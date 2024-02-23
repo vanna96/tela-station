@@ -81,7 +81,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch
+                Branch <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -285,7 +285,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Series
+                Series <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -317,7 +317,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Document Date
+                Document Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">

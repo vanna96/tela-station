@@ -92,7 +92,6 @@ export default function StockAllocationTable({
     onChange("stockAllocationData", firstData);
   };
 
-
   const itemColumns = React.useMemo(
     () => [
       {
@@ -120,6 +119,11 @@ export default function StockAllocationTable({
         visible: true,
         type: "number",
         size: 280,
+        Header: (header: any) => (
+          <label>
+            Branch <span className="text-red-500">*</span>
+          </label>
+        ),
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid)
             return (
@@ -159,6 +163,11 @@ export default function StockAllocationTable({
         header: "Warehouse",
         visible: true,
         size: 250,
+        Header: (header: any) => (
+          <label>
+            WHS Code <span className="text-red-500">*</span>
+          </label>
+        ),
         type: "number",
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
@@ -180,6 +189,11 @@ export default function StockAllocationTable({
         header: "Bin Location",
         visible: true,
         type: "number",
+        Header: (header: any) => (
+          <label>
+            Bin Code <span className="text-red-500">*</span>
+          </label>
+        ),
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
@@ -196,6 +210,11 @@ export default function StockAllocationTable({
         },
       },
       {
+        Header: (header: any) => (
+          <label>
+            Item Code <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "U_tl_itemcode",
         header: "Item Code",
         visible: true,
