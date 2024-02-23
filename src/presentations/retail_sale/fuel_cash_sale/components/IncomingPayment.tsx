@@ -97,7 +97,7 @@ export default function IncomingPaymentForm({
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
-        <div className="font-medium text-xl flex justify-start items-center border-b mb-6">
+        <div className="font-medium text-xl flex justify-start items-center border-b mb-4">
           <h2>Cash Sale - </h2>
           <div className="ml-2">
             <NumericFormat
