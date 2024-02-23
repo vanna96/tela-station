@@ -21,7 +21,10 @@ export interface IGeneralFormProps {
 }
 
 const fetchDispenserData = async (pump: string) => {
-  const res = await request("GET", `TL_Dispenser('${pump}')`);
+  const res = await request(
+    "GET",
+    `TL_Dispenser('${pump}')?$select=Code,Name,U_tl_type,U_tl_status,U_tl_bplid,U_tl_whs,TL_DISPENSER_LINESCollection`
+  );
   return res.data;
 };
 
@@ -65,6 +68,8 @@ export default function GeneralForm({
   if (data) {
     data.Series = seriesSO;
   }
+
+  const [isDispenserLoading, setIsDispenserLoading] = useState(false);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -110,7 +115,9 @@ export default function GeneralForm({
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
+                loading={isDispenserLoading}
                 onChange={async (e: any) => {
+                  setIsDispenserLoading(true);
                   const dispenserData = await fetchDispenserData(e);
 
                   // Fetch item details and prices for each item in the dispenser data
@@ -200,6 +207,7 @@ export default function GeneralForm({
                     nozzleData: updatedNozzleData,
                     cardCountData: updatedCardCountData,
                   });
+                  setIsDispenserLoading(false);
                 }}
               />
             </div>

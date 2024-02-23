@@ -118,7 +118,7 @@ export default function IncomingPaymentForm({
 
         <div className="grid grid-cols-2 gap-4 ">
           <div className="grid grid-cols-12">
-            <div className="col-span-4 mt-1  ">Over / Shortage</div>
+            <div className="col-span-4 mt-1 text-gray-700 ">Over / Shortage</div>
             <div className="col-span-4 ">
               <NumericFormat
                 key={"OverShortage"}
@@ -136,7 +136,7 @@ export default function IncomingPaymentForm({
             </div>
           </div>
           <div className="grid grid-cols-12 ">
-            <div className="col-span-4  col-start-5">Total /KHR</div>
+            <div className="col-span-4  col-start-5 text-gray-700 ">Total /KHR</div>
             <div className=" col-span-4  ">
               <NumericFormat
                 key={"total"}
@@ -154,7 +154,7 @@ export default function IncomingPaymentForm({
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="grid grid-cols-12"></div>
           <div className="grid grid-cols-12">
-            <div className="col-span-4  col-start-5">Total /USD</div>
+            <div className="col-span-4  col-start-5 text-gray-700 ">Total /USD</div>
             <div className=" col-span-4 ">
               <NumericFormat
                 key={"totalUSD"}

@@ -40,7 +40,7 @@ export default function CouponTable(props: any) {
           <div className="col-span-5 mb-4">
             <div className="grid grid-cols-2 gap-4 ">
               <div className="grid grid-cols-12">
-                <div className="col-span-4 mt-1  ">Coupon Account </div>
+                <div className="col-span-4 mt-1 text-gray-700   ">Coupon Account </div>
                 <div className="col-span-4 ">
                   <CashACAutoComplete
                     value={item.U_tl_acccoupon}
@@ -59,7 +59,7 @@ export default function CouponTable(props: any) {
                 </div>
               </div>
               <div className="grid grid-cols-12 ">
-                <div className="col-span-4  col-start-5">Coupon Amount</div>
+                <div className="col-span-4  col-start-5 text-gray-700 ">Coupon Amount</div>
                 {/* <div className=" col-span-4  col-start-9"> */}
                 <div className=" col-span-4 ">
                   <NumericFormat

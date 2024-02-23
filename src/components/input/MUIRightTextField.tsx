@@ -49,7 +49,7 @@ const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
                 // ...props.inputProps?.style,
               },
             }}
-            className={`w-full text-xs text-field pr-0 ${
+            className={`w-full text-xs text-field ${
               props.disabled ? "bg-gray-100" : ""
             } ${props.className ?? ""}`}
             startAdornment={
@@ -59,19 +59,6 @@ const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
                 >
                   {props.startAdornment}
                 </span>
-              ) : null
-            }
-            endAdornment={
-              props.endAdornment ? (
-                <InputAdornment position="end" className="">
-                  <IconButton onClick={props.onClick}>
-                    {props.endIcon ? (
-                      props.endIcon
-                    ) : (
-                      <FiCopy className="text-lg text-white" />
-                    )}
-                  </IconButton>
-                </InputAdornment>
               ) : null
             }
           />

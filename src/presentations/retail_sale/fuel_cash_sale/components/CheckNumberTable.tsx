@@ -247,16 +247,13 @@ export default function CashBankTable(props: any) {
         }}
         muiTableProps={() => ({
           sx: {
-            "& .MuiTableCell-root": {
-              padding: "8px",
-            },
             "& .MuiTableHead-root .MuiTableCell-root": {
-              fontWeight: "600",
+              backgroundColor: "#e4e4e7",
+              fontWeight: "500",
               paddingTop: "8px",
               paddingBottom: "8px",
-              color: "#6b7280",
             },
-            border: "1px solid rgba(81, 81, 81, .5)",
+            border: "1px solid #d1d5db",
           },
         })}
         defaultColumn={{
