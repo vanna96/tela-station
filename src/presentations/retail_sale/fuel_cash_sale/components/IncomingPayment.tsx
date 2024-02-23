@@ -107,7 +107,7 @@ export default function IncomingPaymentForm({
               disabled
               decimalScale={3}
               // customInput={MUIRightTextField}
-              value={totalCashSale}
+              value={totalCashSale === 0 ? "" : totalCashSale}
             />
           </div>
         </div>
@@ -126,7 +126,7 @@ export default function IncomingPaymentForm({
                 disabled
                 placeholder="0.000"
                 decimalScale={3}
-                customInput={MUITextField}
+                customInput={MUIRightTextField}
                 value={
                   totalCashSale - totalUSD - TotalKHRtoUSD === 0 || ""
                     ? ""

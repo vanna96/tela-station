@@ -7,6 +7,8 @@ import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import MUITextField from "@/components/input/MUITextField";
+import { NumericFormat } from "react-number-format";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -60,9 +62,10 @@ export default function CouponTable(props: any) {
                 <div className="col-span-4  col-start-5">Coupon Amount</div>
                 {/* <div className=" col-span-4  col-start-9"> */}
                 <div className=" col-span-4 ">
-                  <FormattedInputs
+                  <NumericFormat
                     placeholder="0.000"
                     disabled={data.edit}
+                    customInput={MUIRightTextField}
                     defaultValue={item.U_tl_amtcoupon}
                     onBlur={(e: any) =>
                       handlerChangeItem(

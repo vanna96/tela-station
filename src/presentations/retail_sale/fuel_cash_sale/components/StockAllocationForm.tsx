@@ -16,6 +16,7 @@ import shortid from "shortid";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -68,7 +69,7 @@ export default function StockAllocationTable({
     const newData = (data?.stockAllocationData || []).filter(
       (item: any, index: number) => index !== key
     );
-    if (newData.length < 1) return;
+    if (newData?.length < 1) return;
     onChange("stockAllocationData", newData);
   };
 
@@ -91,10 +92,7 @@ export default function StockAllocationTable({
     onChange("stockAllocationData", firstData);
   };
 
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    return res;
-  };
+
   const itemColumns = React.useMemo(
     () => [
       {
@@ -271,7 +269,7 @@ export default function StockAllocationTable({
               decimalScale={2}
               placeholder="0.000"
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               inputProps={{
                 style: {
                   color: isValid ? "inherit" : "red",
@@ -307,7 +305,7 @@ export default function StockAllocationTable({
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
@@ -352,7 +350,7 @@ export default function StockAllocationTable({
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {

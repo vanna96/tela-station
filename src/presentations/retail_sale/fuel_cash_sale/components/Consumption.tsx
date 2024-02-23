@@ -40,7 +40,7 @@ export default function Consumption({
           onClick={handleGenerateAllocation}
         >
           <div className="border border-gray-400 rounded cursor-pointer">
-            <h4 className="border-b-1 border-gray-400 py-1 px-4">
+            <h4 className="border-b-1 border-gray-400 py-1 px-4 select-none">
               Generate Allocation
             </h4>
           </div>

@@ -1,11 +1,12 @@
 import React from "react";
-import MUITextField from "../../../../components/input/MUITextField";
+import MUIRightTextField from "../../../../components/input/MUIRightTextField";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import { commaFormatNum } from "@/utilies/formatNumber";
+import MUITextField from "@/components/input/MUITextField";
 
 interface AllocationTableProps {
   data: any;
@@ -59,7 +60,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -83,7 +84,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -106,7 +107,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -129,7 +130,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -152,7 +153,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -175,7 +176,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -206,7 +207,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               value={total}
               inputProps={{
                 style: {

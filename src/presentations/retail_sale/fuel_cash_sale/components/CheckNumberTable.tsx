@@ -8,6 +8,8 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankAutoComplete from "@/components/input/BankAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import CurrencySelect from "@/components/selectbox/Currency";
+import { NumericFormat } from "react-number-format";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -157,7 +159,7 @@ export default function CashBankTable(props: any) {
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
         return (
-          <FormattedInputs
+          <NumericFormat
             key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
             placeholder="0.000"
             disabled={data?.edit}
@@ -167,6 +169,7 @@ export default function CashBankTable(props: any) {
                 U_tl_amtcheck: parseFloat(e.target.value.replace(/,/g, "")),
               });
             }}
+            customInput={MUIRightTextField}
             name={"U_tl_amtcheck"}
             value={cell.row.original?.U_tl_amtcheck || ""}
           />

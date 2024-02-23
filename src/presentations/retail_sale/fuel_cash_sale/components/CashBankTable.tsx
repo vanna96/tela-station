@@ -11,6 +11,8 @@ import AddIcon from "@mui/icons-material/Add";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
 import { useExchangeRate } from "../../components/hook/useExchangeRate";
+import { NumericFormat } from "react-number-format";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
@@ -143,7 +145,7 @@ export default function CashBankTable(props: any) {
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
-              <FormattedInputs
+              <NumericFormat
                 placeholder="0.000"
                 key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
@@ -153,6 +155,7 @@ export default function CashBankTable(props: any) {
                     U_tl_amtcash: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
+                customInput={MUIRightTextField}
                 name={"U_tl_amtcash"}
                 value={cell.row.original?.U_tl_amtcash || ""}
                 startAdornment={cell.row.original?.U_tl_paycur}

@@ -57,7 +57,7 @@ export default function CardCount({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               customInput={MUIRightTextField}
               placeholder="0.000"
               defaultValue={cell.getValue()}
@@ -79,7 +79,7 @@ export default function CardCount({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               customInput={MUIRightTextField}
               placeholder="0.000"
               defaultValue={cell.getValue()}
@@ -101,7 +101,7 @@ export default function CardCount({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               customInput={MUIRightTextField}
               placeholder="0.000"
               defaultValue={cell.getValue()}
@@ -123,7 +123,7 @@ export default function CardCount({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               customInput={MUIRightTextField}
               placeholder="0.000"
               defaultValue={cell.getValue()}
@@ -145,7 +145,7 @@ export default function CardCount({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               customInput={MUIRightTextField}
               placeholder="0.000"
               defaultValue={cell.getValue()}
@@ -168,7 +168,7 @@ export default function CardCount({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               customInput={MUIRightTextField}
               placeholder="0.000"
               defaultValue={cell.getValue()}
@@ -195,16 +195,14 @@ export default function CardCount({
 
           const isValid =
             total === commaFormatNum(cell.row.original.U_tl_nmeter);
-          console.log(commaFormatNum(cell.row.original.U_tl_nmeter));
-          console.log(total);
           return (
             <NumericFormat
               thousandSeparator
-              decimalScale={2}
+              decimalScale={3}
               // readOnly
               customInput={MUIRightTextField}
               placeholder="0.000"
-              value={total}
+              value={total=== 0 ? "" : total}
               inputProps={{
                 style: {
                   color: isValid ? "inherit" : "red",

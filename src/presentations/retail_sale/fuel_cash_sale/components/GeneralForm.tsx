@@ -11,6 +11,7 @@ import request from "@/utilies/request";
 import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
 import itemRepository from "@/services/actions/itemRepostory";
 import { TextField } from "@mui/material";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -64,8 +65,6 @@ export default function GeneralForm({
   if (data) {
     data.Series = seriesSO;
   }
-console.log(data?.SerieLists)
-console.log(data.Series)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -293,7 +292,7 @@ console.log(data.Series)
                   disabled={edit}
                 />
                 <div className="-mt-1">
-                  <MUITextField
+                  <MUIRightTextField
                     size="small"
                     name="DocNum"
                     value={

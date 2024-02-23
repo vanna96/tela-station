@@ -5,6 +5,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 interface NozzleDataProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -85,7 +86,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               decimalScale={2}
               fixedDecimalScale
               placeholder="0.000"
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue() === 0 ? "" : cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -108,7 +109,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={
                 cell.row.original.U_tl_ometer
                   ? cell.getValue()
@@ -131,7 +132,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
