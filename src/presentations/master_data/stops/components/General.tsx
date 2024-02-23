@@ -3,7 +3,6 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import MUISelect from "@/components/selectbox/MUISelect";
-// import { useExchangeRate } from "../hook/useExchangeRate";
 import { useCookies } from "react-cookie";
 import CashAccount from "@/components/selectbox/CashAccount";
 import { APIContext } from "../../context/APIContext";
@@ -22,6 +21,7 @@ export default function GeneralForm({
   const [staticSelect, setStaticSelect] = useState({
     status: "",
   });
+
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-6 px-8 h-[calc(100vh-200px)]">
@@ -29,10 +29,10 @@ export default function GeneralForm({
           <h2>Information</h2>
         </div>
         <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
+          <div className="col-span-5 md:col-span-12">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Code" className="text-gray-500">
                   Code
                   <span className="text-red-500">*</span>
                 </label>
@@ -40,14 +40,14 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUITextField
                   inputProps={{
-                    ...register("Code", { required: 'Code is required' })
+                    ...register("Code", { required: "Code is required" }),
                   }}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Code" className="text-gray-500">
                   Description
                   <span className="text-red-500">*</span>
                 </label>
@@ -55,14 +55,14 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUITextField
                   inputProps={{
-                    ...register("Name", { required: 'Description is required' })
+                    ...register("Name", { required: "Description is required" }),
                   }}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Code" className="text-gray-500">
                   Status
                 </label>
               </div>
@@ -96,38 +96,36 @@ export default function GeneralForm({
               </div>
             </div>
           </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
-            <div className="col-span-5">
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2">
-                  <label htmlFor="Latitude" className="text-gray-500 ">
-                    Latitude
-                    <span className="text-red-500">*</span>
-                  </label>
-                </div>
-                <div className="col-span-3">
-                  <MUITextField
-                    inputProps={{
-                      ...register("U_lat", { required: 'Latitude is required' })
-                    }}
-                  />
-                </div>
+          <div className="col-span-2 md:col-span-2"></div>
+          <div className="col-span-5 md:col-span-12">
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Latitude" className="text-gray-500">
+                  Latitude
+                  <span className="text-red-500">*</span>
+                </label>
               </div>
-              <div className="grid grid-cols-5 py-2">
-                <div className="col-span-2">
-                  <label htmlFor="Latitude" className="text-gray-500 ">
-                    Longitude
-                    <span className="text-red-500">*</span>
-                  </label>
-                </div>
-                <div className="col-span-3">
-                  <MUITextField
-                    inputProps={{
-                      ...register("U_lng", { required: 'Longitude is required' })
-                    }}
-                  />
-                </div>
+              <div className="col-span-3">
+                <MUITextField
+                  inputProps={{
+                    ...register("U_lat", { required: "Latitude is required" }),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Latitude" className="text-gray-500">
+                  Longitude
+                  <span className="text-red-500">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  inputProps={{
+                    ...register("U_lng", { required: "Longitude is required" }),
+                  }}
+                />
               </div>
             </div>
           </div>

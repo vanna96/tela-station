@@ -1,29 +1,30 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
-  UseFormGetValues,
   UseFormRegister,
   UseFormSetValue,
   UseFormWatch,
+  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
-import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import General from "../component/General";
-import Address from "../component/Address";
-import Personal from "../component/Personal";
-import Finance from "../component/Finance";
-import Remarks from "../component/Remaks";
-import { useParams } from "react-router-dom";
+import General from "../components/General";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import ManagerRepository from "@/services/actions/ManagerRepository";
+import EmployeeRepository from "@/services/actions/employeeRepository";
+import Document from "../components/Document";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
+import request from "@/utilies/request";
+import { log } from "util";
+import { useParams } from "react-router-dom";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -36,14 +37,16 @@ export type UseFormProps = {
     | undefined;
   setBranchAss?: any;
   branchAss?: any;
+  emp?: any;
   header?: any;
   setHeader?: any;
   detail?: boolean;
-  watch: UseFormWatch<FieldValues>;
-  getValues: UseFormGetValues<FieldValues>
+  data?: any;
+  serie?: any;
+  watch:UseFormWatch<FieldValues>
 };
 // const { id } = useParams();
-const Form = (props: any) => {
+const TransportationRequestDetail = (props: any) => {
   const {
     handleSubmit,
     register,
@@ -54,8 +57,8 @@ const Form = (props: any) => {
     watch,
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = props?.match?.params || 0;
 
+  const { id } = useParams();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -69,15 +72,26 @@ const Form = (props: any) => {
     firstName: null,
     lastName: null,
     gender: null,
-    department: null,
     branch: null,
+    status: "O",
   });
 
   const [branchAss, setBranchAss] = useState([]);
-  const [driver, setDriver] = React.useState<any>();
+  const [requestS, setRequest] = React.useState<any>();
+  const [emp, setEmp] = useState([]);
+  const [serie, setSerie] = useState([]);
+  const [collection, setCollection] = useState<any[]>([]);
+
+  const {
+    fields: document,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control,
+    name: "TL_TR_ROWCollection", // name of the array field
+  });
 
   useEffect(() => {
-    // Fetch initial data if needed
     fetchData();
   }, []);
 
@@ -87,14 +101,21 @@ const Form = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `EmployeesInfo(${id})`)
+          let seriesList: any = props?.query?.find("tr-series");
+          if (!seriesList) {
+            seriesList = await DocumentSerieRepository.getDocumentSeries({
+              Document: "TL_TR",
+            });
+            props?.query?.set("tr-series", seriesList);
+          }
+          setSerie(seriesList);
+      await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
-          setBranchAss(res?.data?.EmployeeBranchAssignment);
-          setDriver(res?.data);
+          setBranchAss(res?.data);
+          setRequest(res?.data);
           setState({
             ...state,
             loading: false,
-            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
           });
         })
         .catch((err: any) =>
@@ -104,43 +125,26 @@ const Form = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-    const data: any = Object.fromEntries(
-      Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
-      )
-    );
-    const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
     const payload = {
-      ...data,
-      U_tl_driver: "Y",
-      U_tl_name: fullName,
-      HomeCountry: "KH",
-      EmployeeBranchAssignment: branchAss?.map((e: any) => {
-        return {
-          BPLID: e?.BPLID,
-        };
-      }),
+      ...e,
     };
-    const { id } = props?.match?.params || 0;
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/EmployeesInfo(${id})`, payload)
+        await request(
+          "PATCH",
+          `/script/test/transportation_request(${id})`,
+          payload
+        )
           .then((res: any) =>
-            dialog.current?.success(
-              "Update Successfully.",
-              res?.data?.EmployeeID
-            )
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
-        await request("POST", "/EmployeesInfo", payload)
+        await request("POST", "/script/test/transportation_request", payload)
           .then((res: any) =>
-            dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.EmployeeID
-            )
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -161,74 +165,87 @@ const Form = (props: any) => {
     },
     [state]
   );
-  const isNextTap = (tapIndex: number) => {
-    if (!getValues("FirstName") || getValues("FirstName") === "") return;
-    if (!getValues("LastName") || getValues("LastName") === "") return;
-    if (!getValues("EmployeeCode") || getValues("EmployeeCode") === "") return;
-    if (!getValues("BPLID") || getValues("BPLID") === "") return;
-    if (!getValues("U_tl_terminal") || getValues("U_tl_terminal") === "")
-      return;
-    if (!getValues("StartDate") || getValues("StartDate") === "") return;
-    if (!getValues("Position") || getValues("Position") === "") return;
-
-    handlerChangeMenu(tapIndex);
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
   };
-
   const HeaderTaps = () => {
     return (
       <>
-        <MenuButton active={state.tapIndex === 0} onClick={() => isNextTap(0)}>
+        <MenuButton
+          active={state.tapIndex === 0}
+          onClick={() => handlerChangeMenu(0)}
+        >
           General
         </MenuButton>
-        <MenuButton active={state.tapIndex === 1} onClick={() => isNextTap(1)}>
-          Address
+        <MenuButton
+          active={state.tapIndex === 1}
+          onClick={() => handlerChangeMenu(1)}
+        >
+          Document
         </MenuButton>
-        <MenuButton active={state.tapIndex === 2} onClick={() => isNextTap(2)}>
-          Personal
-        </MenuButton>
-        <MenuButton active={state.tapIndex === 3} onClick={() => isNextTap(3)}>
-          Finance
-        </MenuButton>
-        <MenuButton active={state.tapIndex === 4} onClick={() => isNextTap(4)}>
-          Remarks
-        </MenuButton>
-
         {/* ... Other menu buttons ... */}
       </>
     );
   };
 
   React.useEffect(() => {
-    if (driver) {
-      reset({ ...driver });
+    if (requestS) {
+      reset({ ...requestS });
     }
-  }, [driver]);
+  }, [requestS]);
 
   const Left = ({ header, data }: any) => {
+    const branchAss: any = useQuery({
+      queryKey: ["branchAss"],
+      queryFn: () => new BranchBPLRepository().get(),
+      staleTime: Infinity,
+    });
+    const emp: any = useQuery({
+      queryKey: ["manager"],
+      queryFn: () => new ManagerRepository().get(),
+      staleTime: Infinity,
+    });
     return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[150px] flex py-5 px-4">
+      <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
           <div>
-            <span className="">First Name </span>
+            <span className="">Requester</span>
           </div>
           <div>
-            <span className="">Last Name </span>
-          </div>
-          <div>
-            <span className="">Gender </span>
+            <span className="mt-10">Branch</span>
           </div>
         </div>
         <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
           <div>
-            <span>{data?.FirstName || header?.firstName || "_"}</span>
-          </div>
-          <div>
-            <span>{data?.LastName || header?.lastName || "_"}</span>
+            <span className="mb-[27px] inline-block">
+              {`${
+                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
+                  ?.FirstName ||
+                emp?.data?.find(
+                  (e: any) => e?.EmployeeID === header?.U_Requester
+                )?.FirstName ||
+                "_"
+              } ${
+                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
+                  ?.LastName ||
+                emp?.data?.find(
+                  (e: any) => e?.EmployeeID === header?.U_Requester
+                )?.LastName ||
+                "_"
+              }`}
+            </span>
           </div>
           <div>
             <span>
-              {data?.Gender?.replace("gt_", "") ||
-                header?.gender?.replace("gt_", "") ||
+              {branchAss?.data?.find((e: any) => e?.BPLID === data?.U_Branch)
+                ?.BPLName ||
+                header?.U_Branch ||
+                branchAss?.data?.find((e: any) => e?.BPLID === header?.U_Branch)
+                  ?.BPLName ||
                 "_"}
             </span>
           </div>
@@ -237,35 +254,25 @@ const Form = (props: any) => {
     );
   };
   const Right = ({ header, data }: any) => {
-    const branchAss: any = useQuery({
-      queryKey: ["branchAss"],
-      queryFn: () => new BranchBPLRepository().get(),
-      staleTime: Infinity,
-    });
     return (
       <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
         <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
           <div>
-            <span className="mr-10 mb-[27px] inline-block">Department </span>
+            <span className="mr-10 mb-[27px] inline-block">Terminal</span>
           </div>
           <div>
-            <span className="mr-10">Branch</span>
+            <span className="mr-10">Status</span>
           </div>
         </div>
         <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
           <div>
-            <span className="mb-[27px] inline-block">
-              {new DepartmentRepository()?.find(data?.Department)?.Name ||
-                header?.department ||
-                "_"}
-            </span>
+            <span>{data?.U_Terminal || header?.base || "_"}</span>
           </div>
-          <div>
+          <div className="mt-7">
             <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.BPLID)
-                ?.BPLName ||
-                header?.branch ||
-                "_"}
+              {data?.Status || header?.status == "O"
+                ? "Active"
+                : "Inactive" || "_"}
             </span>
           </div>
         </div>
@@ -273,13 +280,6 @@ const Form = (props: any) => {
     );
   };
 
-  const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
-  };
   return (
     <>
       {state.loading ? (
@@ -293,8 +293,8 @@ const Form = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={driver} />
-                <Right header={header} data={driver} />
+                <Left header={header} data={requestS} />
+                <Right header={header} data={requestS} />
                 {/* <TotalSummaryRightSide data={this.state} /> */}
               </>
             }
@@ -318,71 +318,45 @@ const Form = (props: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <div className="grow">
-                <General
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  setBranchAss={setBranchAss}
-                  branchAss={branchAss}
-                  header={header}
-                  setHeader={setHeader}
-                  watch={watch}
-                  getValues={getValues}
-                />
-              </div>
+              <h1>
+                  <General
+                    getValues={getValues}
+                    data={state}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    defaultValues={defaultValues}
+                    setBranchAss={setBranchAss}
+                    branchAss={branchAss}
+                    emp={emp}
+                    header={header}
+                    setHeader={setHeader}
+                    serie={serie}
+                    detail={props?.detail}
+                    watch={watch}                />
+              </h1>
             )}
             {state.tapIndex === 1 && (
-              <div className="grow">
-                <Address
-                  setValue={setValue}
+              <div className="m-5">
+                <Document
                   register={register}
-                  watch={watch}
-                  getValues={getValues}
-                />
-              </div>
-            )}
-            {state.tapIndex === 2 && (
-              <div className="grow">
-                <Personal
-                  register={register}
-                  setValue={setValue}
+                  collection={collection}
                   control={control}
-                  defaultValues={defaultValues}
-                  header={header}
-                  setHeader={setHeader}
-                  watch={watch}
-                  getValues={getValues}
-                />
-              </div>
-            )}
-            {state.tapIndex === 3 && (
-              <div className="grow">
-                <Finance
-                  register={register}
+                  setCollection={setCollection}
+                  data={requestS}
+                  document={document}
                   setValue={setValue}
-                  control={control}
-                  defaultValues={defaultValues}
-                  watch={watch}
-                  getValues={getValues}
+                  appendDocument={appendDocument}
+                  removeDocument={removeDocument}
+                    getValues={getValues}
+                    detail={props?.detail}
+                    watch={watch}
                 />
               </div>
             )}
-            {state.tapIndex === 4 && (
-              <div className="grow">
-                <Remarks
-                  setValue={setValue}
-                  register={register}
-                  watch={watch}
-                  getValues={getValues}
-                />
-              </div>
-            )}
-            {/* ... Other form fields ... */}
-            <div className="sticky bottom-4  mt-2 ">
+            <div className="absolute w-full bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                <div className="flex">
+                <div className="flex ">
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
@@ -393,7 +367,7 @@ const Form = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      (window.location.href = "/master-data/driver")
+                      (window.location.href = "/master-data/pump-attendant")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
@@ -412,7 +386,7 @@ const Form = (props: any) => {
                     disableElevation
                   >
                     <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Add"}
+                      {props.edit ? "Update" : "Save"}
                     </span>
                   </LoadingButton>
                 </div>
@@ -425,4 +399,4 @@ const Form = (props: any) => {
   );
 };
 
-export default withRouter(Form);
+export default TransportationRequestDetail;

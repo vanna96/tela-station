@@ -121,14 +121,12 @@ export default function ExpenseTable(
       <div className="flex text-[25px] justify-end mb-2">
         {!data?.edit && (
           <>
-            <AiOutlinePlus
-              className="text-blue-700 cursor-pointer"
-              onClick={handlerAddCheck}
-            />
-            <MdDeleteOutline
-              className="text-red-500 cursor-pointer"
+            <span
               onClick={handlerRemoveCheck}
-            />
+              className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
+            >
+              Remove
+            </span>
           </>
         )}
       </div>
@@ -161,6 +159,12 @@ export default function ExpenseTable(
           sx: { cursor: "pointer", height: "60px" },
         }}
       />
+      <span
+        onClick={handlerAddCheck}
+        className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
+      >
+         Add
+      </span>
     </>
   );
 }

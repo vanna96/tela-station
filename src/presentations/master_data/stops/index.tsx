@@ -42,7 +42,7 @@ export default function Stopslistpage() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Name ?? "N/A";
+          return cell.row.original.Name;
         },
       },
 
@@ -55,7 +55,7 @@ export default function Stopslistpage() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_lat ?? "N/A";
+          return cell.row.original.U_lat;
         },
       },
       {
@@ -65,18 +65,18 @@ export default function Stopslistpage() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_lng ?? "N/A";
+          return cell.row.original.U_lng;
         },
       },
       {
         accessorKey: "U_active",
-        header: "Active",
+        header: "Status",
         size: 40,
         visible: true,
         Cell: (cell: any) => {
           return cell.row.original.U_active === "Y"
             ? "Active"
-            : "Inactive" ?? "N/A";
+            : "Inactive";
         },
       },
       {

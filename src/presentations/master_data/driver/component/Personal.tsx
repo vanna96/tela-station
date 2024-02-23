@@ -15,12 +15,13 @@ const Personal = ({
   setValue,
   header,
   setHeader,
-detail
+  detail,
+  watch,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     gender: "",
     status: "",
-    checkList:"",
+    checkList: "",
     dateOfbirth: null,
     passportExpirationDate: null,
     passportIssuedDate: null,
@@ -30,14 +31,14 @@ detail
       setHeader({ ...header, gender: staticSelect.gender });
     }
   }, [staticSelect]);
-  
+
   return (
     <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
       <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
         <h2>Personal</h2>
       </div>
-      <div className="  flex gap-[100px]">
-        <div className="col-span-5  w-[50%]">
+      <div className="grid grid-cols-2 md:grid-cols-1 gap-[6rem] md:gap-0 ">
+        <div className="">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
@@ -58,14 +59,9 @@ detail
                       ]}
                       onChange={(e: any) => {
                         setValue("Gender", e.target.value);
-
-                        setStaticSelect({
-                          ...staticSelect,
-                          gender: e.target.value,
-                        });
                         //  setHeader({ ...header, branch: e?.e.target.label });
                       }}
-                      value={staticSelect.gender || defaultValues?.Gender}
+                      value={watch("Gender") || defaultValues?.Gender}
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -90,7 +86,7 @@ detail
                       disabled={detail}
                       {...field}
                       defaultValue={
-                        defaultValues?.DateOfBirth || staticSelect.dateOfbirth
+                        defaultValues?.DateOfBirth || watch("DateOfBirth")
                       }
                       key={`date_birth_${staticSelect.dateOfbirth}`}
                       onChange={(e: any) => {
@@ -140,14 +136,9 @@ detail
                       ]}
                       onChange={(e: any) => {
                         setValue("MartialStatus", e.target.value);
-
-                        setStaticSelect({
-                          ...staticSelect,
-                          status: e.target.value,
-                        });
                       }}
                       value={
-                        staticSelect.status || defaultValues?.MartialStatus
+                        watch("MartialStatus") || defaultValues?.MartialStatus
                       }
                       aliasvalue="value"
                       aliaslabel="label"
@@ -184,14 +175,8 @@ detail
                       ]}
                       onChange={(e: any) => {
                         setValue("U_CheckList", e.target.value);
-                        setStaticSelect({
-                          ...staticSelect,
-                          checkList: e.target.value,
-                        });
                       }}
-                      value={
-                        staticSelect.checkList || defaultValues?.U_CheckList
-                      }
+                      value={watch("U_CheckList") || defaultValues?.U_CheckList}
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -202,7 +187,7 @@ detail
           </div>
         </div>
 
-        <div className="col-span-5  w-[50%]">
+        <div className="">
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-500 ">
@@ -335,19 +320,6 @@ detail
                     />
                   );
                 }}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-500 ">
-                Passport Issuer
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                disabled={detail}
-                inputProps={{ ...register("PassportIssuer") }}
               />
             </div>
           </div>

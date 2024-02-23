@@ -1,49 +1,39 @@
-import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import request, { url } from "@/utilies/request";
+import ExpdicRepository from "@/services/actions/ExpDicRepository";
+import SeriesRepository from "@/services/actions/SeriesRepository";
+export default function SeriesAutoComplete(props: {
+  label?: any;
+  value?: any;
+  onChange?: (value: any) => void;
+  BPdata?: any;
+  disabled?: any;
+  name?: any;
+}) {
 
-interface Type {
-  Code: string;
-  Name: string;
-}
 
-const VehicleAutoComplete = forwardRef<
-  HTMLInputElement,
-  {
-    label?: any;
-    value?: any;
-    onChange?: (value: any) => void;
-    name?: any;
-    disabled?: any;
-  }
->((props, ref) => {
-  const { data, isLoading } = useQuery<Type[], Error>({
-    queryKey: ["vehicles"],
-    queryFn: async () => {
-      const response: any = await request("GET", `${url}/TL_VEHICLE`)
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: 0,
-    cacheTime:0
+  const { data, isLoading }: any = useQuery({
+    queryKey: ["series"],
+    queryFn: () => new SeriesRepository().getDocumentSeries({ "Document": "TL_TR"}),
+    // staleTime: Infinity,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
-    if (props.value && data) {
-      const selected = data.find((e: Type) => e.Code === props.value);
-      if (selected) {
-        setSelectedValue(selected);
+    if (props.value) {
+      const selectedBranch = data?.find(
+        (branch: any) => branch?.Code === props.value
+      );
+      if (selectedBranch) {
+        setSelectedValue(selectedBranch);
       }
     }
   }, [props.value, data]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState<Type | null>(null);
+  const [selectedValue, setSelectedValue] = useState(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -51,18 +41,16 @@ const VehicleAutoComplete = forwardRef<
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue : null;
-      props.onChange(selected);
+      const selectedId = newValue ? newValue.Code : null;
+      props.onChange(selectedId);
     }
   };
-
   const disabled = props.disabled;
-console.log(selectedValue);
 
   return (
-    <div className="block text-[14px] xl:text-[13px]">
+    <div className="block text-[14px] xl:text-[13px] ">
       <label
-        htmlFor={props.name}
+        htmlFor=""
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
@@ -70,21 +58,21 @@ console.log(selectedValue);
 
       <Autocomplete
         disabled={disabled}
-        options={data ?? []}
+        options={data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.Code}
-        renderOption={(props, option: Type) => (
+        getOptionLabel={(option: any) => option.Code}
+        renderOption={(props, option) => (
           <Box component="li" {...props}>
-            {option.Code}
+            <BsDot />
+            {option.Code} - {option.Name}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
-            id={props.name}
             className={`w-full text-field text-xs ${
               disabled ? "bg-gray-100" : ""
             }`}
@@ -99,12 +87,9 @@ console.log(selectedValue);
                 </React.Fragment>
               ),
             }}
-            inputRef={ref}
           />
         )}
       />
     </div>
   );
-});
-
-export default VehicleAutoComplete;
+}

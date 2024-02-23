@@ -19,7 +19,7 @@ import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import shortid from "shortid";
-interface DataTableProps {
+interface DataTableSProps {
   filter: any;
   columns: any[];
   data: any[];
@@ -36,7 +36,7 @@ interface DataTableProps {
   rowSelection: any;
 }
 
-export default function TRTable(props: DataTableProps) {
+export default function DataTableS(props: DataTableSProps) {
   const route: any = useNavigate();
   const search = React.createRef<ColumnSearch>();
   const [colVisibility, setColVisibility] = React.useState<

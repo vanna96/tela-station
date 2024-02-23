@@ -26,11 +26,10 @@ const General = ({
   header,
   setHeader,
   detail,
+  watch,
+  getValues
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
-    startDate: null,
-    status: "",
-    termination: null,
     branchASS: null,
   });
 
@@ -48,8 +47,8 @@ const General = ({
         <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
           <h2>Information</h2>
         </div>
-        <div className="  flex gap-[100px]">
-          <div className="col-span-5  w-[50%]">
+        <div className="grid grid-cols-2 md:grid-cols-1 gap-[6rem] md:gap-0">
+          <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -140,7 +139,7 @@ const General = ({
                       <PositionAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.Position}
+                        value={watch("Position") || defaultValues?.Position}
                         onChange={(e: any) => {
                           setValue("Position", e);
 
@@ -167,7 +166,7 @@ const General = ({
                       <DepartmentAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.Department}
+                        value={watch("Department") || defaultValues?.Department}
                         onChange={(e: any) => {
                           setValue("Department", e?.Code);
                           setHeader({ ...header, department: e?.Name });
@@ -194,7 +193,7 @@ const General = ({
                       <ManagerAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.Manager}
+                        value={watch("Manager") || defaultValues?.Manager}
                         onChange={(e: any) => {
                           setValue("Manager", e?.EmployeeID);
 
@@ -228,7 +227,7 @@ const General = ({
                           setBranchAss([e]);
                           setHeader({ ...header, branch: e?.BPLName });
                         }}
-                        value={staticSelect?.branchASS}
+                        value={watch("BPLID")}
                       />
                     );
                   }}
@@ -237,7 +236,7 @@ const General = ({
             </div>
           </div>
 
-          <div className="col-span-5 w-[50%]">
+          <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -255,7 +254,9 @@ const General = ({
                       <BaseStationAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_tl_terminal}
+                        value={
+                          watch("U_tl_terminal") || defaultValues?.U_tl_terminal
+                        }
                         onChange={(e: any) => {
                           setValue("U_tl_terminal", e);
                         }}
@@ -328,9 +329,8 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.StartDate || staticSelect.startDate
+                          defaultValues?.StartDate || watch("StartDate")
                         }
-                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -338,10 +338,6 @@ const General = ({
                               ? ""
                               : e;
                           setValue("StartDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            startDate: e,
-                          });
                         }}
                       />
                     );
@@ -356,7 +352,7 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {staticSelect?.status === "" && (
+                {getValues("Active") === undefined && (
                   <div className="hidden">
                     <MUITextField
                       inputProps={{
@@ -379,13 +375,9 @@ const General = ({
                         ]}
                         onChange={(e: any) => {
                           setValue("Active", e.target.value);
-                          setStaticSelect({
-                            ...staticSelect,
-                            status: e.target.value,
-                          });
                         }}
                         value={
-                          staticSelect.status || defaultValues?.Active || "tYES"
+                          watch("Active") || defaultValues?.Active || "tYES"
                         }
                         aliasvalue="value"
                         aliaslabel="label"
@@ -412,9 +404,8 @@ const General = ({
                         {...field}
                         defaultValue={
                           defaultValues?.TerminationDate ||
-                          staticSelect.termination
+                          watch("TerminationDate")
                         }
-                        key={`termination_date_${staticSelect.termination}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -425,10 +416,6 @@ const General = ({
                             "TerminationDate",
                             `${val == "" ? "" : val}`
                           );
-                          setStaticSelect({
-                            ...staticSelect,
-                            termination: e,
-                          });
                         }}
                       />
                     );
@@ -451,7 +438,10 @@ const General = ({
                       <ReasonAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.TreminationReason}
+                        value={
+                          watch("TreminationReason") ||
+                          defaultValues?.TreminationReason
+                        }
                         onChange={(e: any) => {
                           setValue("TreminationReason", e);
 

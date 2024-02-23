@@ -57,7 +57,7 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-
+z
   // Finding date and to filter DN and INVOICE series Name
 
   const route = useParams();
