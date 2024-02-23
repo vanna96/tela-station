@@ -26,8 +26,6 @@ export default function CashACAutoComplete(props: {
       const selectedBranch = data?.find(
         (branch: any) => branch?.Code === props.value
       );
-      console.log(selectedBranch)
-      console.log(props.value)
       if (selectedBranch) {
         setSelectedValue(selectedBranch);
       }

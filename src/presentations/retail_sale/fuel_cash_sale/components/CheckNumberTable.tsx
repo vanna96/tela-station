@@ -2,7 +2,7 @@ import React from "react";
 import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
 import { AiOutlineSetting } from "react-icons/ai";
 import FormattedInputs from "@/components/input/NumberFormatField";
-import { Button, IconButton } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankAutoComplete from "@/components/input/BankAutoComplete";
@@ -12,14 +12,24 @@ export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  const handlerRemoveCheck = (key: number) => {
-    const newData = (data?.checkNumberData || []).filter(
-      (item: any, index: number) => index !== key
-    );
-    if (newData.length < 1) return;
-    onChange("checkNumberData", newData);
+  const handlerRemove = () => {
+    let filteredData = data.cashBankData.filter((item: any, index: number) => {
+      return !(index.toString() in rowSelection);
+    });
+    onChange("cashBankData", filteredData);
+    setRowSelection({});
   };
 
+  const onCheckRow = (event: any, index: number) => {
+    const rowSelects: any = { ...rowSelection };
+    rowSelects[index] = true;
+
+    if (!event.target.checked) {
+      delete rowSelects[index];
+    }
+
+    setRowSelection(rowSelects);
+  };
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data?.checkNumberData?.map((item: any, index: number) => {
       if (index.toString() !== key.toString()) return item;
@@ -45,36 +55,27 @@ export default function CashBankTable(props: any) {
   };
 
   const columns = [
-    // {
-    //   size: 10,
-    //   minSize: 10,
-    //   maxSize: 10,
-    //   accessorKey: "deleteButton",
-    //   align: "center",
-    //   header: "",
-    //   Cell: ({ cell }: any) => {
-    //     if (!cell.row.original?.U_tl_acccheck) return null;
-    //     return (
-    //       <div className="flex justify-center items-center">
-    //         <GridDeleteIcon
-    //           className="text-red-500 cursor-pointer"
-    //           onClick={() => handlerRemoveCheck(cell?.row?.index)}
-    //         />
-    //       </div>
-    //     );
-    //   },
-    // },
     {
-      size: 10,
-      minSize: 10,
-      maxSize: 10,
-      accessorKey: "deleteButton",
-      align: "center",
+      accessorKey: "index",
+      size: 0,
+      minSize: 0,
+      maxSize: 0,
       header: "",
+      Cell: ({ cell }: any) => {
+        if (cell.row.original?.U_tl_acccheck)
+          return (
+            <Checkbox
+              checked={cell.row.index in rowSelection}
+              size="small"
+              onChange={(event) => onCheckRow(event, cell.row.index)}
+            />
+          );
+      },
     },
+
     {
       accessorKey: "U_tl_acccheck",
-      size: 40,
+      size: 220,
       header: "Check Number",
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_acccheck)
@@ -112,7 +113,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_checkdate",
-      size: 40,
+      size: 220,
       header: "Check Date",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
@@ -132,7 +133,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_paycur",
-      size: 40,
+      size: 220,
       header: "Currency",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
@@ -151,7 +152,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_amtcheck",
-      size: 40,
+      size: 220,
       header: "Check Amount",
       Cell: ({ cell }: any) => {
         if (!cell.row.original.U_tl_acccheck) return null;
@@ -174,7 +175,7 @@ export default function CashBankTable(props: any) {
     },
     {
       accessorKey: "U_tl_checkbank",
-      size: 40,
+      size: 220,
       header: "Bank",
 
       Cell: ({ cell }: any) => {
@@ -205,6 +206,19 @@ export default function CashBankTable(props: any) {
 
   return (
     <div className="data-table">
+      <div className="flex justify-end mb-1">
+        <Button
+          disableElevation
+          size="small"
+          variant="outlined"
+          style={{ borderColor: "#d1d5db", color: "#dc2626" }}
+          disabled={props?.data?.isStatusClose || false}
+        >
+          <span className="capitalize text-xs " onClick={handlerRemove}>
+            Remove
+          </span>
+        </Button>
+      </div>
       <MaterialReactTable
         columns={[...columns]}
         data={[...data?.checkNumberData, { U_tl_acccheck: "" }]}

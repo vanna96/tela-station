@@ -200,8 +200,6 @@ export default function AllocationTable({
 
           const isValid =
             total === commaFormatNum(cell.row.original?.U_tl_nmeter);
-          console.log(total);
-          console.log(commaFormatNum(cell.row.original?.U_tl_nmeter));
           return (
             <NumericFormat
               thousandSeparator
