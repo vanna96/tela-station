@@ -217,6 +217,7 @@ export default function SaleOrderLists() {
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
+    refetchOnWindowFocus: false,
     queryKey: [
       "sales-order-lob",
       salesType,

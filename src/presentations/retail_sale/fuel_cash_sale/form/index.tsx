@@ -71,11 +71,14 @@ class Form extends NonCoreDcument {
 
   async onInit() {
     let state: any = { ...this.state };
+    let seriesList: any = this.props?.query?.find("retail-series");
 
-    let seriesList = await DocumentSerieRepository.getDocumentSeries({
-      Document: "TL_RETAILSALE",
-    });
-    console.log(seriesList);
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "TL_RETAILSALE",
+      });
+      this.props?.query?.set("retail-series", seriesList);
+    }
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -95,11 +98,8 @@ class Form extends NonCoreDcument {
             vendor,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
-            seriesList,
             nozzleData: data.TL_RETAILSALE_CONHCollection,
-
             allocationData: data.TL_RETAILSALE_CONHCollection,
-
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid || 1,
@@ -163,15 +163,14 @@ class Form extends NonCoreDcument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["loading"] = false;
-          state["seriesList"] = seriesList;
+          state["SerieLists"] = seriesList;
           state["isLoadingSerie"] = false;
           this.setState(state);
           console.log(state);
         });
     } else {
-      state["seriesList"] = seriesList;
+      state["SerieLists"] = seriesList;
       state["loading"] = false;
-
       state["isLoadingSerie"] = false;
       this.setState(state);
       console.log(state);
@@ -189,7 +188,7 @@ class Form extends NonCoreDcument {
 
       const payload = {
         // general
-        // Series: data?.Series,
+        Series: data?.Series,
         U_tl_bplid: data?.U_tl_bplid || 1,
         U_tl_pump: data?.U_tl_pump,
         U_tl_cardcode: data?.CardCode,

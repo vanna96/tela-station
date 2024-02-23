@@ -14,6 +14,7 @@ export interface NonCoreDcumentState {
   CardName?: any;
   Currency?: string | undefined | null;
   PriceLists?: string | undefined | null;
+  SerieLists: any[];
   Series: any;
   loading: boolean;
   DocNum: any;
@@ -23,7 +24,6 @@ export interface NonCoreDcumentState {
   showDialogMessage: boolean;
   disable: any;
   error: any;
-  SerieLists: any[];
   tapIndex: number;
   ContentLoading?: any;
   isDialogOpen: boolean;

@@ -50,11 +50,22 @@ export default function GeneralForm({
   const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
-  const filteredSeries = data?.seriesList?.filter(
+  const filteredSeries = data?.SerieLists?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
 
+  const seriesSO =
+    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+
+  if (filteredSeries[0]?.NextNumber && data) {
+    data.DocNum = filteredSeries[0].NextNumber;
+  }
+  if (data) {
+    data.Series = seriesSO;
+  }
+console.log(data?.SerieLists)
+console.log(data.Series)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -100,57 +111,6 @@ export default function GeneralForm({
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
-                // onChange={async (e: any) => {
-                //   const dispenserData = await fetchDispenserData(e);
-
-                //   handlerChangeObject({
-                //     U_tl_pump: e,
-
-                //     stockAllocationData:
-                //       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
-                //         (e: any) =>
-                //           e.U_tl_status === "Initialized" ||
-                //           e.U_tl_status === "Active"
-                //       )?.map((item: any) => ({
-                //         U_tl_bplid: data.U_tl_bplid,
-                //         U_tl_itemcode: item.U_tl_itemnum,
-                //         U_tl_itemname: item.U_tl_desc,
-                //         U_tl_qtyaloc: item.U_tl_qtyaloc,
-                //         U_tl_qtycon: item.U_tl_qtycon,
-                //         U_tl_qtyopen: item.U_tl_qtyopen,
-                //         U_tl_remark: item.U_tl_remark,
-                //         U_tl_uom: item.U_tl_uom,
-                //         // ItemPrices: item.ItemPrices,
-                //         // ItemPrices: new itemRepository().find(
-                //         //   `'${item.U_tl_itemnum}'`
-                //         // ),
-                //       })),
-                //     nozzleData:
-                //       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
-                //         (e: any) =>
-                //           e.U_tl_status === "Initialized" ||
-                //           e.U_tl_status === "Active"
-                //       )?.map((item: any) => ({
-                //         U_tl_nozzlecode: item.U_tl_pumpcode,
-                //         U_tl_itemcode: item.U_tl_itemnum,
-                //         U_tl_itemname: item.U_tl_desc,
-                //         U_tl_uom: item.U_tl_uom,
-                //         U_tl_nmeter: item.U_tl_nmeter,
-                //         // U_tl_upd_meter: item.U_tl_ometer,
-                //         U_tl_ometer: item.U_tl_upd_meter,
-                //         U_tl_cmeter: item.U_tl_cmeter,
-                //         U_tl_reg_meter: item.U_tl_reg_meter,
-                //         U_tl_cardallow: item.U_tl_cardallow,
-                //         U_tl_cashallow: item.U_tl_cashallow,
-                //         U_tl_ownallow: item.U_tl_ownallow,
-                //         U_tl_partallow: item.U_tl_partallow,
-                //         U_tl_pumpallow: item.U_tl_pumpallow,
-                //         U_tl_stockallow: item.U_tl_stockallow,
-                //         U_tl_totalallow: item.U_tl_totalallow,
-                //         ItemPrice: "",
-                //       })),
-                //   });
-                // }}
                 onChange={async (e: any) => {
                   const dispenserData = await fetchDispenserData(e);
 
@@ -324,17 +284,12 @@ export default function GeneralForm({
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={data.seriesList ? filteredSeries : data?.seriesList}
+                  items={filteredSeries ?? data.SerieLists}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  // value={7914}
-                  value={
-                    data?.Series
-                      ? parseInt(filteredSeries[0]?.Series)
-                      : data?.Series
-                  }
+                  value={filteredSeries[0]?.Series}
                   disabled={edit}
                 />
                 <div className="-mt-1">
@@ -342,9 +297,7 @@ export default function GeneralForm({
                     size="small"
                     name="DocNum"
                     value={
-                      data?.seriesList
-                        ? filteredSeries[0]?.NextNumber
-                        : data.DocNum
+                      edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
                     }
                     disabled
                     placeholder="Document No"
@@ -377,8 +330,8 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUISelect
                 items={[
-                  { label: "Open", value: "open" },
-                  { label: "Closed", value: "closed" },
+                  { label: "Open", value: "1" },
+                  { label: "Closed", value: "0" },
                 ]}
                 name="U_tl_status"
                 loading={data?.isLoadingSerie}

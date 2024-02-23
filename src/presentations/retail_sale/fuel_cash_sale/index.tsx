@@ -36,13 +36,12 @@ export default function SaleOrderLists() {
       numAtCardFilter = "LPG";
       break;
     default:
-    // Handle the default case or log an error if needed
   }
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No.",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
@@ -189,7 +188,10 @@ export default function SaleOrderLists() {
     queryKey: [
       "retail-sale-lob",
       salesType,
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
 
     queryFn: async () => {
@@ -213,6 +215,7 @@ export default function SaleOrderLists() {
         });
       return response;
     },
+    refetchOnWindowFocus: false,
     // staleTime: Infinity,
     retry: 1,
   });
