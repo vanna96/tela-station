@@ -152,7 +152,7 @@ export default function GeneralForm({
                     (item: any) => ({
                       U_tl_nozzlecode: item.U_tl_pumpcode,
                       U_tl_itemcode: item.U_tl_itemnum,
-                      U_tl_itemname: item.ItemName, // Use the fetched item name
+                      U_tl_itemname: item.ItemName,
                       U_tl_uom: item.U_tl_uom,
                       U_tl_nmeter: item.U_tl_nmeter,
                       U_tl_ometer: item.U_tl_upd_meter,
@@ -165,28 +165,45 @@ export default function GeneralForm({
                       U_tl_pumpallow: item.U_tl_pumpallow,
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
-                      ItemPrice: item.ItemPrice, // Use the fetched price
+                      ItemPrice: item.ItemPrice,
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
                       U_tl_bincode: item.U_tl_bincode,
                     })
                   );
-                  const updatedStockAllocationData = itemsWithPrices.map(
-                    (item: any) => ({
-                      U_tl_bplid: data.U_tl_bplid,
-                      U_tl_whs: warehouseCode,
+                  // const updatedStockAllocationData = itemsWithPrices.map(
+                  //   (item: any) => ({
+                  //     U_tl_bplid: data.U_tl_bplid,
+                  //     U_tl_whs: warehouseCode,
+                  //     U_tl_bincode: parseInt(item.U_tl_bincode),
+                  //     U_tl_itemcode: item.U_tl_itemnum,
+                  //     U_tl_itemname: item.ItemName,
+                  //     U_tl_qtyaloc: item.U_tl_qtyaloc,
+                  //     U_tl_qtycon: item.U_tl_qtycon,
+                  //     U_tl_qtyopen: item.U_tl_qtyopen,
+                  //     U_tl_remark: item.U_tl_remark,
+                  //     U_tl_uom: item.U_tl_uom,
+                  //     ItemPrice: item.ItemPrice,
+                  //   })
+                  // );
+                  const updatedStockAllocationData = updatedNozzleData
+                    // ?.filter((e: any) => e?.U_tl_nmeter > 0)
+                    .map((item: any) => ({
+                      U_tl_bplid: item.U_tl_bplid,
+                      U_tl_whs: item.U_tl_whs,
                       U_tl_bincode: parseInt(item.U_tl_bincode),
-                      U_tl_itemcode: item.U_tl_itemnum,
-                      U_tl_itemname: item.ItemName, // Use the fetched item name
+                      U_tl_itemcode: item.U_tl_itemcode,
+                      U_tl_itemname: item.U_tl_itemname,
                       U_tl_qtyaloc: item.U_tl_qtyaloc,
                       U_tl_qtycon: item.U_tl_qtycon,
                       U_tl_qtyopen: item.U_tl_qtyopen,
                       U_tl_remark: item.U_tl_remark,
                       U_tl_uom: item.U_tl_uom,
-                      ItemPrice: item.ItemPrice, // Use the fetched price
-                    })
-                  );
-
+                      ItemPrice: item.ItemPrice,
+                      U_tl_nmeter: item.U_tl_nmeter,
+                      U_tl_ometer: item.U_tl_upd_meter,
+                      U_tl_reg_meter: item.U_tl_reg_meter,
+                    }));
                   const updatedCardCountData = updatedNozzleData
                     ?.filter((e: any) => e?.U_tl_nmeter > 0)
                     .map((item: any) => ({
@@ -337,13 +354,13 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUISelect
                 items={[
-                  { label: "Open", value: "1" },
-                  { label: "Closed", value: "0" },
+                  { label: "Open", value: "O" },
+                  { label: "Closed", value: "Close" },
                 ]}
                 name="U_tl_status"
+                disabled
                 loading={data?.isLoadingSerie}
-                value={data?.U_tl_status}
-                disabled={edit}
+                value={data?.U_tl_status !== "Close" ? "O" : "Close"}
                 onChange={(e: any) =>
                   handlerChange("U_tl_status", e.target.value)
                 }

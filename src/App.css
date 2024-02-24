@@ -179,8 +179,8 @@ input[type="number"]::-webkit-inner-spin-button {
   display: none;
 }
 .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-input {
-  color: #1f2937 !important;
-  -webkit-text-fill-color: #1f2937 !important;
+  color: #1f2937 ;
+  -webkit-text-fill-color: #1f2937;
 }
 input[type="number"] {
   -moz-appearance: textfield;

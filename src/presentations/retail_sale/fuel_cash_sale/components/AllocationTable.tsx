@@ -28,12 +28,34 @@ export default function AllocationTable({
   }
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.allocationData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+    const newData = data.allocationData.map((item: any, index: number) => {
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
+
+        if (
+          [
+            "U_tl_cardallow",
+            "U_tl_cashallow",
+            "U_tl_ownallow",
+            "U_tl_partallow",
+            "U_tl_pumpallow",
+            "U_tl_stockallow",
+          ].includes(objKey)
+        ) {
+          const total =
+            parseFloat(item.U_tl_cardallow || 0) +
+            parseFloat(item.U_tl_cashallow || 0) +
+            parseFloat(item.U_tl_ownallow || 0) +
+            parseFloat(item.U_tl_partallow || 0) +
+            parseFloat(item.U_tl_pumpallow || 0) +
+            parseFloat(item.U_tl_stockallow || 0);
+
+          item.U_tl_totalallow = total;
+        }
+      }
       return item;
     });
-    if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
 
@@ -191,29 +213,34 @@ export default function AllocationTable({
         accessorKey: "U_tl_totalallow",
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
-          const total =
-            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
+          const originalValue = parseFloat(
+            cell.row.original?.U_tl_nmeter?.replace(/,/g, "")
+          );
+          const meterValue = cell.row.original.U_tl_ometer;
+          const regMeterValue = cell.row.original.U_tl_reg_meter;
 
-          const isValid =
-            total === commaFormatNum(cell.row.original?.U_tl_nmeter);
+          let value = 0;
+
+          if (meterValue !== undefined) {
+            value = originalValue - meterValue;
+          } else if (regMeterValue > 0) {
+            value =
+              commaFormatNum(cell.row.original?.U_tl_nmeter || 0) -
+              regMeterValue;
+          }
+          const isValid = cell.row.original.U_tl_totalallow === value;
           return (
             <NumericFormat
               thousandSeparator
+              // disabled
+              className="bg-gray-100 cursor-pointer"
+              readOnly
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
+              redColor={!isValid}
               customInput={MUIRightTextField}
-              value={total}
-              inputProps={{
-                style: {
-                  color: isValid ? "inherit" : "red",
-                },
-              }}
+              value={cell.getValue()}
             />
           );
         },

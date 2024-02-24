@@ -176,7 +176,83 @@ class Form extends NonCoreDcument {
       console.log(state);
     }
   }
+  createPayload() {
+    const data: any = { ...this.state };
+    const payload = {
+      // general
+      Series: data?.Series,
+      U_tl_bplid: data?.U_tl_bplid || 1,
+      U_tl_pump: data?.U_tl_pump,
+      U_tl_cardcode: data?.CardCode,
+      U_tl_cardname: data?.CardName,
+      U_tl_shiftcode: data?.U_tl_shift_code,
+      U_tl_docdate: new Date(),
+      U_tl_docduedate: new Date(),
+      U_tl_taxdate: new Date(),
+      U_tl_attend: data?.U_tl_attend,
+      U_tl_status: data?.U_tl_status || "1",
+      //Consumption
+      TL_RETAILSALE_CONHCollection: data?.allocationData
+        ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
+        ?.map((item: any) => ({
+          U_tl_nozzlecode: item.U_tl_nozzlecode,
+          U_tl_itemcode: item.U_tl_itemcode,
+          U_tl_itemname: item.U_tl_itemname,
+          U_tl_uom: item.U_tl_uom,
+          U_tl_nmeter: item.U_tl_nmeter,
+          // U_tl_upd_meter: item.U_tl_ometer,
+          U_tl_ometer: item.U_tl_upd_meter,
+          U_tl_cmeter: item.U_tl_cmeter,
+          U_tl_cardallow: item.U_tl_cardallow,
+          U_tl_cashallow: item.U_tl_cashallow,
+          U_tl_ownallow: item.U_tl_ownallow,
+          U_tl_partallow: item.U_tl_partallow,
+          U_tl_pumpallow: item.U_tl_pumpallow,
+          U_tl_stockallow: item.U_tl_stockallow,
+          U_tl_totalallow: item.U_tl_totalallow,
+        })),
 
+      //  incoming payment
+      TL_RETAILSALE_INCCollection: [
+        ...data?.checkNumberData,
+        ...data?.cashBankData,
+        ...data?.couponData,
+      ],
+      TL_RETAILSALE_CACCollection: data?.cardCountData?.map((item: any) => ({
+        U_tl_itemCode: item.U_tl_itemcode,
+        U_tl_1l: item?.U_tl_1l,
+        U_tl_2l: item?.U_tl_2l,
+        U_tl_5l: item?.U_tl_5l,
+        U_tl_10l: item?.U_tl_10l,
+        U_tl_20l: item?.U_tl_20l,
+        U_tl_50l: item?.U_tl_50l,
+        U_tl_total:
+          parseFloat(item?.U_tl_1l || 0) +
+          parseFloat(item?.U_tl_2l || 0) +
+          parseFloat(item?.U_tl_5l || 0) +
+          parseFloat(item?.U_tl_10l || 0) +
+          parseFloat(item?.U_tl_20l || 0) +
+          parseFloat(item?.U_tl_50l || 0),
+      })),
+      //Stock Allocation Collection
+      TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
+        (item: any) => ({
+          U_tl_nozzlecode: item.U_tl_nozzlecode,
+          U_tl_itemcode: item.U_tl_itemcode,
+          U_tl_itemname: item.U_tl_itemname,
+          U_tl_qtycon: item.U_tl_qtycon,
+          U_tl_qtyaloc: item.U_tl_qtyaloc,
+          U_tl_uom: item.U_tl_uom,
+          U_tl_qtyopen: item.U_tl_qtyopen,
+          U_tl_remark: item.U_tl_remark,
+          U_tl_whs: item.U_tl_whs,
+          U_tl_bincode: item.U_tl_bincode,
+          U_tl_bplid: data.U_tl_bplid || 1,
+        })
+      ),
+    };
+    return payload;
+  }
   async handlerSubmit(event: any) {
     event.preventDefault();
     const data: any = { ...this.state };
@@ -185,80 +261,7 @@ class Form extends NonCoreDcument {
       this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
-
-      const payload = {
-        // general
-        Series: data?.Series,
-        U_tl_bplid: data?.U_tl_bplid || 1,
-        U_tl_pump: data?.U_tl_pump,
-        U_tl_cardcode: data?.CardCode,
-        U_tl_cardname: data?.CardName,
-        U_tl_shiftcode: data?.U_tl_shift_code,
-        U_tl_docdate: new Date(),
-        U_tl_docduedate: new Date(),
-        U_tl_taxdate: new Date(),
-        U_tl_attend: data?.U_tl_attend,
-        U_tl_status: data?.U_tl_status || "1",
-        //Consumption
-        TL_RETAILSALE_CONHCollection: data?.allocationData
-          ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
-          ?.map((item: any) => ({
-            U_tl_nozzlecode: item.U_tl_nozzlecode,
-            U_tl_itemcode: item.U_tl_itemcode,
-            U_tl_itemname: item.U_tl_itemname,
-            U_tl_uom: item.U_tl_uom,
-            U_tl_nmeter: item.U_tl_nmeter,
-            // U_tl_upd_meter: item.U_tl_ometer,
-            U_tl_ometer: item.U_tl_upd_meter,
-            U_tl_cmeter: item.U_tl_cmeter,
-            U_tl_cardallow: item.U_tl_cardallow,
-            U_tl_cashallow: item.U_tl_cashallow,
-            U_tl_ownallow: item.U_tl_ownallow,
-            U_tl_partallow: item.U_tl_partallow,
-            U_tl_pumpallow: item.U_tl_pumpallow,
-            U_tl_stockallow: item.U_tl_stockallow,
-            U_tl_totalallow: item.U_tl_totalallow,
-          })),
-
-        //  incoming payment
-        TL_RETAILSALE_INCCollection: [
-          ...data?.checkNumberData,
-          ...data?.cashBankData,
-          ...data?.couponData,
-        ],
-        TL_RETAILSALE_CACCollection: data?.cardCountData?.map((item: any) => ({
-          U_tl_itemCode: item.U_tl_itemcode,
-          U_tl_1l: item?.U_tl_1l,
-          U_tl_2l: item?.U_tl_2l,
-          U_tl_5l: item?.U_tl_5l,
-          U_tl_10l: item?.U_tl_10l,
-          U_tl_20l: item?.U_tl_20l,
-          U_tl_50l: item?.U_tl_50l,
-          U_tl_total:
-            parseFloat(item?.U_tl_1l || 0) +
-            parseFloat(item?.U_tl_2l || 0) +
-            parseFloat(item?.U_tl_5l || 0) +
-            parseFloat(item?.U_tl_10l || 0) +
-            parseFloat(item?.U_tl_20l || 0) +
-            parseFloat(item?.U_tl_50l || 0),
-        })),
-        //Stock Allocation Collection
-        TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
-          (item: any) => ({
-            U_tl_nozzlecode: item.U_tl_nozzlecode,
-            U_tl_itemcode: item.U_tl_itemcode,
-            U_tl_itemname: item.U_tl_itemname,
-            U_tl_qtycon: item.U_tl_qtycon,
-            U_tl_qtyaloc: item.U_tl_qtyaloc,
-            U_tl_uom: item.U_tl_uom,
-            U_tl_qtyopen: item.U_tl_qtyopen,
-            U_tl_remark: item.U_tl_remark,
-            U_tl_whs: item.U_tl_whs,
-            U_tl_bincode: item.U_tl_bincode,
-            U_tl_bplid: data.U_tl_bplid || 1,
-          })
-        ),
-      };
+      const payload = this.createPayload();
 
       if (id) {
         return await request("PATCH", `/TL_RETAILSALE(${id})`, payload)
@@ -293,13 +296,15 @@ class Form extends NonCoreDcument {
   async handlerSubmitPost(event: any) {
     event.preventDefault();
     const data: any = { ...this.state };
-
+    const payload = this.createPayload();
     try {
       this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
 
+      const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
+      const docEntry = firstResponse.data.DocEntry;
       const PostPayload = {
-        SANumber: "123456789", //doc number of fuel cash sale, lube case sale or lPG case sale,
+        SaleDocEntry: docEntry,
         ToWarehouse: data?.U_tl_whs, // to warehouse take from pump warehouse
         InvoiceSeries: 7638,
         IncomingSeries: 183,
@@ -591,7 +596,7 @@ class Form extends NonCoreDcument {
         ],
       };
 
-      await request("POST", "/TL_RETAILSALE", PostPayload)
+      await request("POST", "/script/test/FuelCashSales", PostPayload)
         .then((res: any) =>
           this.dialog.current?.success(
             "Create Successfully.",
@@ -623,28 +628,140 @@ class Form extends NonCoreDcument {
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
       0: ["U_tl_pump", "CardCode", "U_tl_attend"],
-      1: [],
+      1: ["nozzleData"],
       2: [],
-      3: [],
+      3: ["stockAllocationData"],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
 
-  handleMenuButtonClick = (index: any) => {
-    const requiredFields = this.getRequiredFieldsByTab(index - 1);
-    const hasErrors = requiredFields.some((field) => {
-      if (field === "Items") {
-        return !this.state[field] || this.state[field].length === 0;
-      }
-      return !this.state[field];
-    });
+  // handleMenuButtonClick = (index: any) => {
+  //   const requiredFields = this.getRequiredFieldsByTab(index - 1);
+  //   const hasErrors = requiredFields.some((field) => {
+  //     if (field === "Items") {
+  //       return !this.state[field] || this.state[field].length === 0;
+  //     }
+  //     return !this.state[field];
+  //   });
 
-    if (hasErrors) {
-      this.setState({ isDialogOpen: true });
-    } else {
+  //   if (hasErrors) {
+  //     this.setState({ isDialogOpen: true });
+  //   } else {
+  //     this.setState({ tapIndex: index });
+  //   }
+  // };
+
+  // handleMenuButtonClick = (index: any) => {
+  //   const currentTab = this.state.tapIndex;
+  //   const requiredFields = this.getRequiredFieldsByTab(currentTab);
+  //   const hasErrors = requiredFields.some((field) => {
+  //     if (field === "nozzleData") {
+  //       // Check if nozzleData is not present, empty, or any U_tl_nmeter value is missing or empty
+  //       return (
+  //         !this.state[field] ||
+  //         this.state[field].length === 0 ||
+  //         this.state[field].some(
+  //           (item) => !item.U_tl_nmeter || item.U_tl_nmeter.trim() === ""
+  //         )
+  //       );
+  //     }
+  //     // Check for other fields if they are not present or empty
+  //     return !this.state[field] || this.state[field].trim() === "";
+  //   });
+
+  //   if (hasErrors) {
+  //     // Prevent tab change and show an error message/dialog
+  //     this.setState({ isDialogOpen: true });
+  //     // You can use a Snackbar, Alert, or any other component to show the error message
+  //   } else {
+  //     // No errors, proceed to change tab
+  //     this.setState({ tapIndex: index, isDialogOpen: false });
+  //   }
+  // };
+
+  // handleMenuButtonClick = (index: any) => {
+  //   const currentTab = this.state.tapIndex;
+
+  //   // Allow navigating to previous tabs without validation
+  //   if (index < currentTab) {
+  //     this.setState({ tapIndex: index });
+  //     return;
+  //   }
+
+  //   // When moving forward, perform validation based on the current tab
+  //   let allowChange = true;
+  //   if (currentTab === 1) {
+  //     // Assuming tab index 1 is where nozzleData needs to be validated
+  //     allowChange = this.state.nozzleData.some(
+  //       (item: any) => item.U_tl_nmeter && item.U_tl_nmeter.trim() !== ""
+  //     );
+  //     if (!allowChange) {
+  //       this.setState({
+  //         isDialogOpen: true,
+  //         // dialogMessage:
+  //         //   "Please complete all required fields in the Nozzle Data section before proceeding.",
+  //       });
+  //     }
+  //   }
+
+  //   // If validation passes or navigating back, change tab
+  //   if (allowChange) {
+  //     this.setState({ tapIndex: index, isDialogOpen: false });
+  //   }
+  // };
+
+  handleMenuButtonClick = (index: any) => {
+    const currentTab = this.state.tapIndex;
+
+    // Allow navigating to previous tabs without validation
+    if (index < currentTab) {
       this.setState({ tapIndex: index });
+      return;
+    }
+
+    // Get required fields for the current tab
+    const requiredFields = this.getRequiredFieldsByTab(currentTab);
+    let allowChange = true; // Assume we can proceed unless a check fails
+    let errorMessage = ""; // To store the error message if validation fails
+
+    // Iterate over required fields to ensure they meet the criteria
+    for (const field of requiredFields) {
+      if (field === "nozzleData") {
+        // Special handling for nozzleData
+        allowChange = this.state[field].some(
+          (item: any) => item.U_tl_nmeter && item.U_tl_nmeter.trim() !== ""
+        );
+        errorMessage = `Please complete all required fields in the ${field} section before proceeding.`;
+      } else if (field === "stockAllocationData") {
+        // Special handling for stockAllocationData, focusing on U_tl_alocqty
+        allowChange = this.state[field].some(
+          (item: any) => item.U_tl_qtyaloc && parseFloat(item.U_tl_qtyaloc) > 0
+        );
+        errorMessage = `Please ensure at least one allocation quantity Allocation Qty is greater than 0 in the ${field} section before proceeding.`;
+      } else {
+        // Generic handling for other fields (strings, numbers, etc.)
+        allowChange =
+          this.state[field] !== undefined &&
+          this.state[field].toString().trim() !== "";
+        errorMessage = `Please complete the field "${field}" before proceeding.`;
+      }
+
+      if (!allowChange) {
+        // If validation fails, set the error state and exit the loop
+        this.setState({
+          isDialogOpen: true,
+          dialogMessage: errorMessage, // Make sure to display the errorMessage
+        });
+        break; // Exit loop if validation fails
+      }
+    }
+
+    // If validation passes or navigating back, change tab
+    if (allowChange) {
+      this.setState({ tapIndex: index, isDialogOpen: false });
     }
   };
+
   HeaderTaps = () => {
     return (
       <>

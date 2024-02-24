@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import { Button } from "@mui/material";
+import { Button, Checkbox } from "@mui/material";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
@@ -39,6 +39,36 @@ export default function StockAllocationTable({
   //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
   //   );
   // }
+  const [rowSelection, setRowSelection] = React.useState<any>({});
+  const onCheckRow = (event: any, index: number) => {
+    const rowSelects: any = { ...rowSelection };
+    rowSelects[index] = true;
+
+    if (!event.target.checked) {
+      delete rowSelects[index];
+    }
+
+    setRowSelection(rowSelects);
+  };
+  const synchronizeStockAllocationData = () => {
+    const updatedStockAllocationData = data.stockAllocationData.map(
+      (stockItem: any) => {
+        const allocationItem = data.allocationData.find(
+          (allocationItem: any) =>
+            allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
+        );
+        if (allocationItem) {
+          return { ...stockItem, U_tl_qtycon: allocationItem.U_tl_totalallow };
+        }
+        return stockItem;
+      }
+    );
+
+    onChange("stockAllocationData", updatedStockAllocationData);
+  };
+  useEffect(() => {
+    synchronizeStockAllocationData();
+  }, [data.allocationData]); // Re-run when allocationData changes
 
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
@@ -65,13 +95,6 @@ export default function StockAllocationTable({
 
     handlerChangeObject({ stockAllocationData: newData });
   };
-  const handlerRemove = (key: number) => {
-    const newData = (data?.stockAllocationData || []).filter(
-      (item: any, index: number) => index !== key
-    );
-    if (newData?.length < 1) return;
-    onChange("stockAllocationData", newData);
-  };
 
   const handlerAdd = () => {
     let firstData = [
@@ -95,24 +118,23 @@ export default function StockAllocationTable({
   const itemColumns = React.useMemo(
     () => [
       {
-        size: 5,
-        minSize: 5,
-        maxSize: 5,
-        accessorKey: "deleteButton",
-        align: "center",
+        accessorKey: "index",
+        size: 2,
+        minSize: 2,
+        maxSize: 2,
         header: "",
         Cell: ({ cell }: any) => {
-          if (!cell.row.original?.U_tl_paytype) return null;
-          return (
-            <div className="flex justify-center items-center">
-              <GridDeleteIcon
-                className="text-red-500 cursor-pointer"
-                onClick={() => handlerRemove(cell?.row?.index)}
+          if (cell.row.original?.U_tl_paytype)
+            return (
+              <Checkbox
+                checked={cell.row.index in rowSelection}
+                size="small"
+                onChange={(event) => onCheckRow(event, cell.row.index)}
               />
-            </div>
-          );
+            );
         },
       },
+
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",
@@ -262,38 +284,15 @@ export default function StockAllocationTable({
         Cell: ({ cell, row }: any) => {
           if (!row.original?.U_tl_bplid) return null;
 
-          const rowsWithSameItemCode = data?.stockAllocationData?.filter(
-            (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
-          );
-          const totalQuantity = rowsWithSameItemCode.reduce(
-            (sum: number, r: any) => {
-              return sum + parseFloat(r.U_tl_qtycon);
-            },
-            0
-          );
-
-          const nozzle = data.nozzleData?.find(
-            (nozzle: any) =>
-              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
-          );
-
-          const isValid = nozzle
-            ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
-            : false;
-
           return (
             <NumericFormat
               key={"U_tl_qtycon" + cell.getValue()}
               thousandSeparator
+              disabled
               decimalScale={2}
               placeholder="0.000"
               fixedDecimalScale
               customInput={MUIRightTextField}
-              inputProps={{
-                style: {
-                  color: isValid ? "inherit" : "red",
-                },
-              }}
               value={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
@@ -316,12 +315,36 @@ export default function StockAllocationTable({
         visible: true,
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
+          const rowsWithSameItemCode = data?.stockAllocationData?.filter(
+            (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          );
+          const totalQuantity = rowsWithSameItemCode.reduce(
+            (sum: number, r: any) => {
+              return sum + parseFloat(r.U_tl_qtycon);
+            },
+            0
+          );
 
+          const nozzle = data.nozzleData?.find(
+            (nozzle: any) =>
+              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          );
+
+          // const isValid = nozzle
+          //   ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
+          //   : false;
+          console.log(cell.row.original.U_tl_qtycon);
+          console.log(cell.row.original.U_tl_qtyaloc);
+          const isValid =
+            cell.row.original.U_tl_qtycon ===
+            // parseFloat(cell.row.original.U_tl_qtyaloc?.replace(/,/g, ""));
+            totalQuantity;
+          console.log(isValid);
           return (
             <NumericFormat
-              disabled
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              redColor={!isValid}
               decimalScale={2}
               fixedDecimalScale
               customInput={MUIRightTextField}
@@ -404,12 +427,32 @@ export default function StockAllocationTable({
     ],
     [data.stockAllocationData]
   );
-
+  const handlerRemove = () => {
+    let filteredData = data.stockAllocationData.filter(
+      (item: any, index: number) => {
+        return !(index.toString() in rowSelection);
+      }
+    );
+    onChange("stockAllocationData", filteredData);
+    setRowSelection({});
+  };
   return (
     <>
       <FormCard title="Stock Allocation ">
         <>
           <div className="col-span-2 data-table">
+            <div className="flex justify-end mb-1">
+              <Button
+                disableElevation
+                size="small"
+                variant="outlined"
+                style={{ borderColor: "#d1d5db", color: "#dc2626" }}
+              >
+                <span className="capitalize text-xs " onClick={handlerRemove}>
+                  Remove
+                </span>
+              </Button>
+            </div>
             <MaterialReactTable
               columns={[...itemColumns]}
               data={[...data.stockAllocationData, { U_tl_bplid: "" }]}

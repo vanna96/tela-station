@@ -6,6 +6,7 @@ import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { commaFormatNum } from "@/utilies/formatNumber";
 interface NozzleDataProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -22,6 +23,8 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     if (newData.length <= 0) return;
     onChange("nozzleData", newData);
   };
+
+  console.log(data);
 
   const itemColumns = React.useMemo(
     () => [
@@ -125,6 +128,22 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
         header: "Consumption",
         visible: true,
         Cell: ({ cell }: any) => {
+          const originalValue = parseFloat(
+            cell.row.original?.U_tl_nmeter?.replace(/,/g, "")
+          );
+          const meterValue = cell.row.original.U_tl_ometer;
+          const regMeterValue = cell.row.original.U_tl_reg_meter;
+
+          let value = 0;
+
+          if (meterValue !== undefined) {
+            value = originalValue - meterValue;
+          } else if (regMeterValue > 0) {
+            value =
+              commaFormatNum(cell.row.original?.U_tl_nmeter || 0) -
+              regMeterValue;
+          }
+
           return (
             <NumericFormat
               disabled
@@ -133,7 +152,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
               decimalScale={2}
               fixedDecimalScale
               customInput={MUIRightTextField}
-              defaultValue={cell.getValue()}
+              value={value}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_cmeter: e.target.value,
@@ -146,6 +165,8 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     ],
     []
   );
+
+  console.log(data.nozzleData);
 
   return (
     <div
