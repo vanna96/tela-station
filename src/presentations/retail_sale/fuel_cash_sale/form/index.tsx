@@ -72,6 +72,22 @@ class Form extends NonCoreDcument {
   async onInit() {
     let state: any = { ...this.state };
     let seriesList: any = this.props?.query?.find("retail-series");
+    let incomingSeries: any = this.props?.query?.find("incomingSeries-series");
+
+    if (!incomingSeries) {
+      incomingSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "24",
+      });
+      this.props?.query?.set("dn-series", incomingSeries);
+    }
+    let invoiceSeries: any = this.props?.query?.find("invoice-series");
+
+    if (!invoiceSeries) {
+      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "13",
+      });
+      this.props?.query?.set("invoice-series", invoiceSeries);
+    }
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
@@ -165,6 +181,8 @@ class Form extends NonCoreDcument {
           state["loading"] = false;
           state["SerieLists"] = seriesList;
           state["isLoadingSerie"] = false;
+          state["incomingSeries"] = incomingSeries;
+          state["invoiceSeries"] = invoiceSeries;
           this.setState(state);
           console.log(state);
         });
@@ -172,6 +190,8 @@ class Form extends NonCoreDcument {
       state["SerieLists"] = seriesList;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
+      state["incomingSeries"] = incomingSeries;
+      state["invoiceSeries"] = invoiceSeries;
       this.setState(state);
       console.log(state);
     }
@@ -296,6 +316,7 @@ class Form extends NonCoreDcument {
   async handlerSubmitPost(event: any) {
     event.preventDefault();
     const data: any = { ...this.state };
+    console.log(data);
     const payload = this.createPayload();
     try {
       this.setState({ ...this.state, isSubmitting: true });
@@ -308,7 +329,9 @@ class Form extends NonCoreDcument {
         ToWarehouse: data?.U_tl_whs, // to warehouse take from pump warehouse
         InvoiceSeries: 7638,
         IncomingSeries: 183,
-        DocDate: data?.U_tl_taxdate,
+        // DNSeries: data?.DNSeries,
+        // INSeries: data?.INSeries,
+        DocDate: Date.now(),
         DocCurrency: "USD",
         DocRate: "4000.0",
         CardCode: data?.CardCode,
@@ -441,159 +464,149 @@ class Form extends NonCoreDcument {
         //     ],
         //   })),
         // ],
-        CashSale: [
-          data?.allocationData?.map((item: any) => ({
-            ItemCode: item.U_tl_itemcode,
-            Quantity: item.U_tl_cashallow,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            // UoMCode: "L"
-            UoMEntry: item.U_tl_uom,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: item.U_tl_cashallow,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          })),
-        ],
+        CashSale: data?.allocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_cashallow,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_cashallow,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
 
-        Partnership: [
-          data?.allocationData?.map((item: any) => ({
-            ItemCode: item.U_tl_itemcode,
-            Quantity: item.U_tl_partallow,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            // UoMCode: "L"
-            UoMEntry: item.U_tl_uom,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: item.U_tl_partallow,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          })),
-        ],
-        StockTransfer: [
-          data?.allocationData?.map((item: any) => ({
-            ItemCode: item.U_tl_itemcode,
-            Quantity: item.U_tl_stockallow,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            // UoMCode: "L"
-            UoMEntry: item.U_tl_uom,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: item.U_tl_stockallow,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          })),
-        ],
+        Partnership: data?.allocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_partallow,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_partallow,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
 
-        OwnUsage: [
-          data?.allocationData?.map((item: any) => ({
-            ItemCode: item.U_tl_itemcode,
-            Quantity: item.U_tl_ownallow,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            // UoMCode: "L"
-            UoMEntry: item.U_tl_uom,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: item.U_tl_ownallow,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          })),
-        ],
-        TelaCard: [
-          data?.allocationData?.map((item: any) => ({
-            ItemCode: item.U_tl_itemcode,
-            Quantity: item.U_tl_cardallow,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            // UoMCode: "L"
-            UoMEntry: item.U_tl_uom,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: item.U_tl_cardallow,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          })),
-        ],
+        StockTransfer: data?.allocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_stockallow,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_stockallow,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
 
-        PumpTest: [
-          data?.allocationData?.map((item: any) => ({
-            ItemCode: item.U_tl_itemcode,
-            Quantity: item.U_tl_pumpallow,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            // UoMCode: "L"
-            UoMEntry: item.U_tl_uom,
-            LineOfBussiness: "201001", // item.LineOfBussiness
-            RevenueLine: "202004", // item.RevenueLine
-            ProductLine: "203004", // item.ProductLine
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: item.U_tl_pumpallow,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          })),
-        ],
+        OwnUsage: data?.allocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_ownallow,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_ownallow,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
+
+        TelaCard: data?.allocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_cardallow,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_cardallow,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
+
+        PumpTest: data?.allocationData?.map((item: any) => ({
+          ItemCode: item.U_tl_itemcode,
+          Quantity: item.U_tl_pumpallow,
+          GrossPrice: item.ItemPrice,
+          DiscountPercent: 0,
+          TaxCode: "VO10",
+          // UoMCode: "L"
+          UoMEntry: item.U_tl_uom,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry: item.U_tl_bincode,
+          BranchCode: item.U_tl_bplid || 1,
+          WarehouseCode: item.U_tl_whs,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry: item.U_tl_bincode,
+              Quantity: item.U_tl_pumpallow,
+              AllowNegativeQuantity: "tNO",
+              BaseLineNumber: 0,
+            },
+          ],
+        })),
       };
 
       await request("POST", "/script/test/FuelCashSales", PostPayload)

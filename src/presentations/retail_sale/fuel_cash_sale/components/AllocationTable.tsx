@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import MUIRightTextField from "../../../../components/input/MUIRightTextField";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
@@ -58,6 +58,23 @@ export default function AllocationTable({
     });
     onChange("allocationData", newData);
   };
+  const synchronizeAllocationData = () => {
+    const updatedAllocationData = data.allocationData.map((stockItem: any) => {
+      const allocationItem = data.stockAllocationData.find(
+        (allocationItem: any) =>
+          allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
+      );
+      if (allocationItem) {
+        return { ...stockItem, U_tl_bincode: allocationItem.U_tl_bincode };
+      }
+      return stockItem;
+    });
+
+    onChange("allocationData", updatedAllocationData);
+  };
+  useEffect(() => {
+    synchronizeAllocationData();
+  }, [data.stockAllocationData]);
 
   const itemColumns = React.useMemo(
     () => [

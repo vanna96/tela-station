@@ -54,6 +54,8 @@ export default function GeneralForm({
   const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
+  const yearLastTwoDigits = year.toString().slice(-2); // Get last two digits of the year
+
   const filteredSeries = data?.SerieLists?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
@@ -65,7 +67,31 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
+
+  const month = currentDate.getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
+  const formattedDateB = `${yearLastTwoDigits}B${formattedMonth}`;
+
+  const seriesIncoming = data?.incomingSeries
+    ?.filter(
+      (series: any) =>
+        series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    )
+    ?.find((series: any) => series.BPLID === BPL)?.Series;
+
+  const seriesINV = (
+    data?.invoiceSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
   if (data) {
+    data.DNSeries = seriesIncoming;
+    data.INSeries = seriesINV;
     data.Series = seriesSO;
   }
 

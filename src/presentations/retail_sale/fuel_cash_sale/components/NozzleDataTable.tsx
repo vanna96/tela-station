@@ -24,7 +24,6 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     onChange("nozzleData", newData);
   };
 
-  console.log(data);
 
   const itemColumns = React.useMemo(
     () => [
@@ -166,7 +165,6 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     []
   );
 
-  console.log(data.nozzleData);
 
   return (
     <div

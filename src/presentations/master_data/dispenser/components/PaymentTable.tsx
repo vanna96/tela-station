@@ -12,6 +12,7 @@ import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
 import FormCard from "@/components/card/FormCard";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import BinLocationItemCode from "@/components/input/BinLocationItemCode";
 
 export default function PaymentTable(props: any) {
   const { data, onChange, handlerAddItem, edit }: any = props;
@@ -34,7 +35,7 @@ export default function PaymentTable(props: any) {
       },
     ]);
   };
-
+  console.log(data);
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
@@ -95,22 +96,34 @@ export default function PaymentTable(props: any) {
       size: 120,
       Cell: ({ cell }: any) => {
         return (
-          <MUITextField
-            value={cell.getValue()}
-            endAdornment={!(data?.isStatusClose || false)}
-            onClick={() => {
-              if ((cell.getValue() ?? "") === "") {
-                handlerAddItem(cell?.row.id);
-              } else {
-                handlerAddItem(cell?.row.id);
-                // updateRef.current?.onOpen(cell.row.original);
+          <div>
+            <MUITextField
+              value={cell.getValue()}
+              endAdornment={!(data?.isStatusClose || false)}
+              onClick={() => {
+                if ((cell.getValue() ?? "") === "") {
+                  handlerAddItem(cell?.row.id);
+                } else {
+                  handlerAddItem(cell?.row.id);
+                  // updateRef.current?.onOpen(cell.row.original);
+                }
+              }}
+              endIcon={
+                cell.getValue() === "" ? null : <TbEdit className="text-lg" />
               }
-            }}
-            endIcon={
-              cell.getValue() === "" ? null : <TbEdit className="text-lg" />
-            }
-            readOnly={true}
-          />
+              readOnly={true}
+            />
+            <BinLocationItemCode
+              Warehouse={data?.U_tl_whs}
+              BinAbsEntry={cell.row.original.binCode}
+              value={cell.getValue()}
+              onChange={(e: any) => {
+                handlerChangeItem(cell?.row?.id || 0, {
+                  itemCode: e,
+                });
+              }}
+            />
+          </div>
         );
       },
     },

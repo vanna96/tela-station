@@ -20,8 +20,8 @@ export default function ErrorLogForm({
         multiline
         className="w-full"
         rows={15}
-        value={data.Error}
-        onChange={(e: any) => handlerChange("Remark", e.target.value)}
+        value={data.U_tl_errormsg}
+        onChange={(e: any) => handlerChange("U_tl_errormsg", e.target.value)}
       />
     </div>
   );

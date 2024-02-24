@@ -53,7 +53,7 @@ export default function StockAllocationTable({
   const synchronizeStockAllocationData = () => {
     const updatedStockAllocationData = data.stockAllocationData.map(
       (stockItem: any) => {
-        const allocationItem = data.allocationData.find(
+        const allocationItem = data.allocationData?.find(
           (allocationItem: any) =>
             allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
         );
@@ -66,9 +66,10 @@ export default function StockAllocationTable({
 
     onChange("stockAllocationData", updatedStockAllocationData);
   };
+
   useEffect(() => {
     synchronizeStockAllocationData();
-  }, [data.allocationData]); // Re-run when allocationData changes
+  }, [data?.allocationData]);
 
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
@@ -333,13 +334,10 @@ export default function StockAllocationTable({
           // const isValid = nozzle
           //   ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
           //   : false;
-          console.log(cell.row.original.U_tl_qtycon);
-          console.log(cell.row.original.U_tl_qtyaloc);
           const isValid =
             cell.row.original.U_tl_qtycon ===
             // parseFloat(cell.row.original.U_tl_qtyaloc?.replace(/,/g, ""));
             totalQuantity;
-          console.log(isValid);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
