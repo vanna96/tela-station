@@ -119,8 +119,6 @@ const TransportationOrderForm = (props: any) => {
       });
       props?.query?.set("to-series", seriesList);
     }
-    console.log(seriesList);
-
     setSerie(seriesList);
   };
   const fetchData = async () => {
@@ -144,15 +142,16 @@ const TransportationOrderForm = (props: any) => {
             )
           );
           setTo(res?.data);
-                    setValue("TL_TO_COMPARTMENTCollection", [
-                      ...res?.data?.TL_TO_ORDERCollection?.filter(
-                        (e: any) => e?.U_DocNum !== null
-                      )?.map((e: any) => ({
-                        U_DocNum: e?.U_DocNum,
-                        U_SourceDocEntry: e?.U_SourceDocEntry,
-                        U_ItemCode: e?.U_ItemCode,
-                      })),
-                    ]);
+          setValue("TL_TO_COMPARTMENTCollection", [
+            ...res?.data?.TL_TO_COMPARTMENTCollection?.map((e: any) => ({
+              ...e,
+              U_Children: e?.U_Children?.map((e: any) => ({
+                ...e,
+                U_SealNumber: e?.U_SealNumber,
+                U_SealReference: e?.U_SealReference,
+              })),
+            })),
+          ]);
 
           setState({
             ...state,
@@ -174,7 +173,7 @@ const TransportationOrderForm = (props: any) => {
           const { U_DocNum } = obj;
           if (!acc[U_DocNum]) {
             acc[U_DocNum] = {
-              DocEntry:obj?.DocEntry || null,
+              DocEntry: obj?.DocEntry || null,
               U_DocNum,
               U_Terminal: headTrans?.find(
                 (e: any) => e?.U_DocNum === obj?.U_DocNum
@@ -437,8 +436,6 @@ const TransportationOrderForm = (props: any) => {
       "Invalid Value"
     );
   };
-  console.log(compartment);
-  
   return (
     <>
       {state.loading ? (
@@ -507,8 +504,8 @@ const TransportationOrderForm = (props: any) => {
                   transDetail={transDetail}
                   setTransDetail={setTransDetail}
                   setHeadTrans={setHeadTrans}
-                    detail={props?.detail}
-                    compartment={compartment}
+                  detail={props?.detail}
+                  compartment={compartment}
                 />
               </div>
             )}
@@ -549,8 +546,8 @@ const TransportationOrderForm = (props: any) => {
                   transDetail={transDetail}
                   setTransDetail={setTransDetail}
                   setTrans={setTrans}
-                    detail={props?.detail}
-                    defaultValue={defaultValues}
+                  detail={props?.detail}
+                  defaultValue={defaultValues}
                 />
               </div>
             )}

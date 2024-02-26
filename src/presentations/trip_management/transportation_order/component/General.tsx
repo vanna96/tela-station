@@ -170,6 +170,8 @@ const General = ({
                                     U_Volume: e?.U_VOLUME,
                                     U_BottomHatch: e?.U_BOTTOM_HATCH,
                                     U_TopHatch: e?.U_TOP_HATCH,
+                                    U_SealNumber: null,
+                                    U_SealReference: null,
                                   })
                                 );
                                 return {

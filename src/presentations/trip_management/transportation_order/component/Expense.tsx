@@ -27,6 +27,7 @@ export default function Expense({
       </div>
     );
   };
+console.log(expense);
 
   return (
     <>
