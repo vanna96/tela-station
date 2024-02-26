@@ -35,13 +35,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`Driver`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_TR`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/EmployeesInfo/$count?$filter=U_tl_driver eq 'Y'${
-          filter ? ` and ${filter}` : ""
-        }`
+        `${url}/TL_TR/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -53,28 +51,46 @@ export default function Lists() {
     staleTime: 0,
   });
 
+  const { data, isLoading, refetch, isFetching }: any = useQuery({
+    queryKey: [
+      "TL_TR",
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
+    ],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/TL_TR?$top=${pagination.pageSize}&$skip=${
+          pagination.pageIndex * pagination.pageSize
+        }&$orderby= DocNum desc &${filter}`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    cacheTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+  });
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "EmployeeID",
-        header: "No", //uses the default width from defaultColumn prop
+        accessorKey: "Index",
+        header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        Cell: (cell: any, index: number) => {
-          console.log(sortBy);
-          return (
-            <span>
-              {sortBy.includes("asc") || sortBy === ""
-                ? cell?.row?.index + 1
-                : Count?.data - cell?.row?.index}
-            </span>
-          );
+        Cell: (cell: any) => {
+          return cell?.row?.index + 1;
         },
       },
       {
-        accessorKey: "Name",
+        accessorKey: "DocNum",
         header: "Document Number", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -82,63 +98,51 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return (
-            cell.row.original.FirstName + " " + cell.row.original.LastName ??
-            "N/A"
-          );
+          return cell.row.original.DocNum;
         },
       },
+
       {
-        accessorKey: "Gender",
+        accessorKey: "U_Branch",
         header: "Branch", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 60,
-        visible: true,
-        type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.Gender?.replace("gt_", "") ?? "N/A";
-        },
-      },
-      {
-        accessorKey: "Department",
-        header: "Terminal", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 88,
-        visible: true,
-        type: "number",
-        Cell: (cell: any) => {
-          return (
-            new DepartmentRepository().find(cell.row.original.Department)
-              ?.Name ?? "N/A"
-          );
-        },
-      },
-      {
-        accessorKey: "BPLID",
-        header: "Document Date", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 100,
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return (
-            branchAss?.data?.find(
-              (e: any) => e?.BPLID === cell.row.original.BPLID
-            )?.BPLName ?? "N/A"
-          );
+          return branchAss?.data?.find(
+            (e: any) => e?.BPLID === cell.row.original.U_Branch
+          )?.BPLName;
         },
       },
       {
-        accessorKey: "Active",
+        accessorKey: "U_Terminal",
+        header: "Terminal",
+        size: 40,
+        visible: true,
+        type: "number",
+        Cell: (cell: any) => {
+          return cell.row.original.U_Terminal;
+        },
+      },
+      {
+        accessorKey: "CreateDate",
+        header: "Document Date",
+        size: 40,
+        visible: true,
+        type: "number",
+        Cell: (cell: any) => {
+          return cell.row.original.CreateDate?.split("T")[0];
+        },
+      },
+      {
+        accessorKey: "Status",
         header: "Status",
         size: 60,
         visible: true,
         type: "string",
-        Cell: ({ cell }: any) =>
-          cell.getValue() === "tYES" ? "Active" : "Inactive",
+        Cell: ({ cell }: any) => (cell.getValue() === "O" ? "Open" : "Close"),
       },
       {
         accessorKey: "DocEntry",
@@ -157,20 +161,24 @@ export default function Lists() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/master-data/driver/" + cell.row.original.EmployeeID, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  "/trip-management/transportation-order/" +
+                    cell.row.original.DocEntry,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
-              <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
+              <VisibilityIcon fontSize="small" className="text-gray-600 " />
               View
             </button>
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/master-data/driver/${cell.row.original.EmployeeID}/edit`,
+                  `/trip-management/transportation-order/${cell.row.original.DocEntry}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -190,33 +198,6 @@ export default function Lists() {
     ],
     [Count, sortBy]
   );
-
-  const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: [
-      "Driver",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
-      }`,
-      pagination.pageSize,
-    ],
-    queryFn: async () => {
-      const Url = `${url}/EmployeesInfo?$top=${pagination.pageSize}&$skip=${
-        pagination.pageIndex * pagination.pageSize
-      }&$filter=U_tl_driver eq 'Y'${filter ? ` and ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : ""
-      }${"&$select =EmployeeID,FirstName,LastName,Gender,Department,BPLID,Active"}`;
-
-      const response: any = await request("GET", `${Url}`)
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-    refetchOnWindowFocus: false,
-  });
 
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
@@ -244,7 +225,6 @@ export default function Lists() {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-
     if (searchValues.DocumentNumber) {
       queryFilters += queryFilters
         ? ` and (contains(DocumentNo, '${searchValues.DocumentNumber}'))`
@@ -275,6 +255,7 @@ export default function Lists() {
       refetch();
     }, 500);
   };
+  const statusParams = ["i", "b", "c"]; // Possible status parameters
 
   return (
     <>
@@ -378,7 +359,7 @@ export default function Lists() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Driver"
-          createRoute="/trip-management/transportation-order/create"
+          createRoute="create"
           // filter={filter}
         />
       </div>

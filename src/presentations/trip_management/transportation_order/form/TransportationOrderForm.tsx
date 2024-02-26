@@ -48,6 +48,7 @@ export type UseFormProps = {
   compartment: any;
   transDetail: any;
   setTransDetail: any;
+  setFuel: any;
 };
 // const { id } = useParams();
 const TransportationOrderForm = (props: any) => {
@@ -84,7 +85,7 @@ const TransportationOrderForm = (props: any) => {
   });
 
   const [branchAss, setBranchAss] = useState([]);
-  const [driver, setDriver] = React.useState<any>();
+  const [to, setTo] = React.useState<any>();
   const [commer, setCommer] = React.useState<any>([]);
   const [expense, setExpense] = React.useState<any>([]);
   const [serie, setSerie] = useState([]);
@@ -92,6 +93,7 @@ const TransportationOrderForm = (props: any) => {
   const [headTrans, setHeadTrans] = useState<any>([]);
   const [document, setDocument] = useState([]);
   const [trans, setTrans] = useState([]);
+  const [fuel, setFuel] = useState<any>([]);
 
   useEffect(() => {
     fethSeries();
@@ -110,12 +112,15 @@ const TransportationOrderForm = (props: any) => {
   //    name: "TL_TO_ORDERCollection", // name of the array field
   //  });
   const fethSeries = async () => {
-    let seriesList: any = props?.query?.find("tr-series");
+    let seriesList: any = props?.query?.find("to-series");
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "TL_TR",
+        Document: "TL_TO",
       });
+      props?.query?.set("to-series", seriesList);
     }
+    console.log(seriesList);
+
     setSerie(seriesList);
   };
   const fetchData = async () => {
@@ -124,14 +129,35 @@ const TransportationOrderForm = (props: any) => {
         ...state,
         loading: true,
       });
+
       await request("GET", `script/test/transportation_order(${id})`)
         .then((res: any) => {
-        //  setTransDetail(res?.data?.);
-          setDriver(res?.data);
+          setTransDetail(res?.data?.TL_TO_ORDERCollection);
+          setHeadTrans(
+            res?.data?.TL_TO_ORDERCollection?.filter(
+              (e: any) => e?.U_DocNum !== null
+            )
+          );
+          setDocument(
+            res?.data?.TL_TO_ORDERCollection?.filter(
+              (e: any) => e?.U_DocNum !== null
+            )
+          );
+          setTo(res?.data);
+                    setValue("TL_TO_COMPARTMENTCollection", [
+                      ...res?.data?.TL_TO_ORDERCollection?.filter(
+                        (e: any) => e?.U_DocNum !== null
+                      )?.map((e: any) => ({
+                        U_DocNum: e?.U_DocNum,
+                        U_SourceDocEntry: e?.U_SourceDocEntry,
+                        U_ItemCode: e?.U_ItemCode,
+                      })),
+                    ]);
+
           setState({
             ...state,
             loading: false,
-            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
+            DocNum: res?.data?.DocEntry,
           });
         })
         .catch((err: any) =>
@@ -148,6 +174,7 @@ const TransportationOrderForm = (props: any) => {
           const { U_DocNum } = obj;
           if (!acc[U_DocNum]) {
             acc[U_DocNum] = {
+              DocEntry:obj?.DocEntry || null,
               U_DocNum,
               U_Terminal: headTrans?.find(
                 (e: any) => e?.U_DocNum === obj?.U_DocNum
@@ -173,13 +200,14 @@ const TransportationOrderForm = (props: any) => {
             };
           }
           acc[U_DocNum].TL_TO_DETAIL_ROWCollection.push({
+            U_LineId: obj?.U_LineId || null,
             VisOrder: 0,
             U_DocType: obj.U_DocType || null,
             U_DocNum,
             U_SourceDocEntry: obj.U_SourceDocEntry || null,
             U_ShipToCode: obj.U_ShipToCode || null,
             U_ShipToAddress: obj.U_ShipToAddress || null,
-            U_ItemCode: obj.U_ItemCode || null,
+            U_ItemCode: obj.U_ItemCode || obj?.U_StopCode || null,
             U_ItemName: null,
             U_DeliveryDate: null,
             U_Quantity: obj.U_Quantity || null,
@@ -191,17 +219,19 @@ const TransportationOrderForm = (props: any) => {
         } else {
           // Handle null U_DocNum objects
           acc[index] = {
+            DocEntry: obj?.DocEntry || null,
             U_DocNum: null,
             U_Terminal: null,
             U_TotalQuantity: null,
             U_BPLId: null,
             U_BPLName: null,
             U_Type: "S",
-            U_StopCode: obj?.U_StopCode || null,
+            U_StopCode: obj?.U_StopCode || obj?.U_ItemCode || null,
             U_Description: obj?.U_Description || null,
             U_SourceDocEntry: null,
             U_TotalItem: null,
             U_TOAbsEntry: 201,
+            U_Order: obj.U_Order,
             TL_TO_DETAIL_ROWCollection: [
               {
                 VisOrder: 0,
@@ -210,7 +240,7 @@ const TransportationOrderForm = (props: any) => {
                 U_SourceDocEntry: null,
                 U_ShipToCode: obj?.U_ShipToCode || null,
                 U_ShipToAddress: obj.U_ShipToAddress || null,
-                U_ItemCode: obj.U_ItemCode || null,
+                U_ItemCode: obj?.U_StopCode || obj?.U_ItemCode || null,
                 U_ItemName: null,
                 U_DeliveryDate: null,
                 U_Quantity: null,
@@ -228,6 +258,9 @@ const TransportationOrderForm = (props: any) => {
     const payload = {
       ...e,
       TL_TO_ORDERCollection: order,
+      U_Fuel: fuel[0]["U_Fuel"] || null,
+      U_FuelAmount: fuel[0]["U_FuelAmount"] || null,
+      U_FuelRemark: fuel[0]["U_FuelRemark"] || null,
     };
 
     try {
@@ -239,14 +272,14 @@ const TransportationOrderForm = (props: any) => {
           payload
         )
           .then((res: any) =>
-            dialog.current?.success("Update Successfully.", res?.data?.DocNum)
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/script/test/transportation_order", payload)
           .then((res: any) =>
-            dialog.current?.success("Create Successfully.", res?.data?.DocNum)
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -257,7 +290,12 @@ const TransportationOrderForm = (props: any) => {
       setState({ ...state, isSubmitting: false });
     }
   };
-
+  const handleChangeFuel = (index: number, e: any, key: string) => {
+    const { value } = e.target;
+    const updatedFuel: any = [...fuel];
+    updatedFuel[index][key] = value;
+    setFuel(updatedFuel);
+  };
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -306,10 +344,17 @@ const TransportationOrderForm = (props: any) => {
   };
 
   React.useEffect(() => {
-    if (driver) {
-      reset({ ...driver });
+    if (to) {
+      reset({ ...to });
+      setFuel([
+        {
+          U_Fuel: watch("U_Fuel"),
+          U_FuelAmount: watch("U_FuelAmount"),
+          U_FuelRemark: watch("U_FuelRemark"),
+        },
+      ]);
     }
-  }, [driver]);
+  }, [to]);
 
   const Left = ({ header, data }: any) => {
     return (
@@ -392,7 +437,8 @@ const TransportationOrderForm = (props: any) => {
       "Invalid Value"
     );
   };
-
+  console.log(compartment);
+  
   return (
     <>
       {state.loading ? (
@@ -406,8 +452,8 @@ const TransportationOrderForm = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={driver} />
-                <Right header={header} data={driver} />
+                <Left header={header} data={to} />
+                <Right header={header} data={to} />
                 {/* <TotalSummaryRightSide data={this.state} /> */}
               </>
             }
@@ -444,6 +490,8 @@ const TransportationOrderForm = (props: any) => {
                   compartment={compartment}
                   transDetail={transDetail}
                   setTransDetail={setTransDetail}
+                  setFuel={setFuel}
+                  detail={props?.detail}
                 />
               </div>
             )}
@@ -459,13 +507,24 @@ const TransportationOrderForm = (props: any) => {
                   transDetail={transDetail}
                   setTransDetail={setTransDetail}
                   setHeadTrans={setHeadTrans}
+                    detail={props?.detail}
+                    compartment={compartment}
                 />
               </div>
             )}
             {state.tapIndex === 2 && (
               <div className="grow">
                 {" "}
-                <Expense control={control} expense={expense} />
+                <Expense
+                  fuel={fuel}
+                  setValue={setValue}
+                  control={control}
+                  watch={watch}
+                  register={register}
+                  expense={expense}
+                  handleChangeFuel={handleChangeFuel}
+                  detail={props?.detail}
+                />
               </div>
             )}
             {state.tapIndex === 3 && (
@@ -477,6 +536,7 @@ const TransportationOrderForm = (props: any) => {
                   watch={watch}
                   compartment={compartment}
                   register={register}
+                  detail={props?.detail}
                 />
               </div>
             )}
@@ -489,6 +549,8 @@ const TransportationOrderForm = (props: any) => {
                   transDetail={transDetail}
                   setTransDetail={setTransDetail}
                   setTrans={setTrans}
+                    detail={props?.detail}
+                    defaultValue={defaultValues}
                 />
               </div>
             )}

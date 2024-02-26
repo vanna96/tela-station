@@ -14,6 +14,7 @@ import { useQuery } from "react-query";
 import StopsRepository from "@/services/actions/StopsRepository";
 import React from "react";
 import shortid from "shortid";
+import { useParams } from "react-router-dom";
 
 export default function TransDetail({
   register,
@@ -29,7 +30,7 @@ export default function TransDetail({
 }: any) {
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
-
+const {id}= useParams()
   const stop: any = useQuery({
     queryKey: ["stops"],
     queryFn: () => new StopsRepository().get(),
@@ -63,38 +64,58 @@ export default function TransDetail({
   const dataListing = React.useMemo(() => {
     const temp: any[] = [];
 
-    for (const item of transDetail as any[]) {
-      if (item?.U_Type === "S") {
-        temp.push(item);
-      } else {
+    if (id) {
+      for (const item of transDetail as any[]) {
         temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
       }
+      return temp.filter((e) => e.U_Order === 0);
+    } else {
+      for (const item of transDetail as any[]) {
+        if (item?.U_Type === "S") {
+          temp.push(item);
+        } else {
+          temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
+        }
+      }
+      return temp.filter((e) => e.U_Order === 0);
     }
-    return temp.filter((e) => e.U_Order === 0);
   }, [transDetail]);
 
   const dataListing2 = React.useMemo(() => {
     const temp: any[] = [];
-    for (const item of transDetail as any[]) {
-      if (item?.U_Type === "S") {
-        temp.push(item);
-      } else {
-        temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
-      }
+    if (id) {
+       for (const item of transDetail as any[]) {
+           temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
+       }
+       return temp.filter((e) => e.U_Order !== 0);
+    } else {
+        for (const item of transDetail as any[]) {
+          if (item?.U_Type === "S") {
+            temp.push(item);
+          } else {
+            temp.push(
+              ...(item.TL_TO_DETAIL_ROWCollection?.map((e: any) => ({
+                ...e,
+                FromLocation: getValues("U_BaseStation"),
+              })) ?? [])
+            );
+          }
+        }
+        return temp.filter((e) => e.U_Order !== 0);
     }
-    return temp.filter((e) => e.U_Order !== 0);
+  
   }, [dataListing]);
 
-  useEffect(() => {
-    setTrans(dataListing2);
-  }, [transDetail]);
+console.log(dataListing2);
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
           <h2 className="mr-3">Transportation Detail</h2>
         </div>{" "}
-        {confirm ? (
+        {confirm ||
+        (id && defaultValue?.U_Status !== "I" && dataListing?.length === 0) ? (
           <div className="w-full">
             <table className="border w-full shadow-sm bg-white border-[#dadde0]">
               <tr className="border-[1px] border-[#dadde0]">
@@ -123,11 +144,11 @@ export default function TransDetail({
                 return (
                   <Fragment key={shortid.generate()}>
                     <tr
-                      className={`border-t ${e?.Object === "TL_ROUTE" && "bg-zinc-200"} border-[#dadde0]`}
+                      className={`border-t ${e?.U_Type === "S" && "bg-zinc-200"} border-[#dadde0]`}
                     >
                       <td className="py-4 flex justify-center gap-8 items-center">
                         <span
-                          className={`${e?.Object === "TL_ROUTE" ? "bg-white border border-gray-300" : ""} w-[33px] flex items-center justify-center border rounded-lg raduire text-sm text-black`}
+                          className={`${e?.U_Type === "S" ? "bg-white border border-gray-300" : ""} w-[33px] flex items-center justify-center border rounded-lg raduire text-sm text-black`}
                         >
                           {index + 1}
                         </span>
@@ -135,8 +156,8 @@ export default function TransDetail({
 
                       <td className="pr-4">
                         <span className="text-black text-[13.5px] ml-11 font-bold">
-                          {e?.Object === "TL_ROUTE"
-                            ? e?.U_StopCode
+                          {e?.U_DocType === "S"
+                            ? e?.U_StopCode || e?.U_ItemCode
                             : "Drop-Off"}
                         </span>
                       </td>
@@ -155,7 +176,7 @@ export default function TransDetail({
 
                       <td colSpan={2} className="pr-4 w-[100px] ">
                         <div
-                          className={`${e?.Object === "TL_ROUTE" && "hidden"} text-left font-normal  py-2 text-[14px] text-gray-500`}
+                          className={`${e?.U_Type === "S" && "hidden"} text-left font-normal  py-2 text-[14px] text-gray-500`}
                         >
                           {" "}
                           <MUITextField
@@ -165,7 +186,7 @@ export default function TransDetail({
                         </div>
                       </td>
                     </tr>
-                    {e?.Object !== "TL_ROUTE" && (
+                    {e?.U_DocType === "SO" && (
                       <>
                         <tr className="border-t-[1px] border-[#dadde0] ">
                           <th className="w-[120px] "></th>
@@ -302,16 +323,18 @@ export default function TransDetail({
 
                             <td className="pr-4 h-[20px]">
                               <span
-                                className={`${t?.U_StopCode ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
+                                className={`${t?.U_DocType === "S" || t?.U_Type === "S" ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
                               >
-                                {t?.U_StopCode ? t?.U_StopCode : "Drop-Off"}
+                                {t?.U_DocType === "S" || t?.U_Type === "S"
+                                  ? t?.U_ItemCode || t?.U_StopCode
+                                  : "Drop-Off"}
                               </span>
                             </td>
                             <td className="pr-4">
                               {" "}
                               <span className="text-gray-500 text-[13.5px]">
-                                {t?.U_StopCode
-                                  ? t?.U_StopCode
+                                {t?.U_DocType === "S"
+                                  ? t?.U_ItemCode || t?.U_StopCode
                                   : t?.U_ShipToCode}
                               </span>
                             </td>
@@ -386,16 +409,18 @@ export default function TransDetail({
 
                             <td className="pr-4 h-[20px]">
                               <span
-                                className={`${t?.U_StopCode ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
+                                className={`${t?.U_DocType === "S" || t?.U_Type === "S" ? "text-red-500" : "text-gray-500"} text-[13.5px]`}
                               >
-                                {t?.U_StopCode ? t?.U_StopCode : "Drop-Off"}
+                                {t?.U_DocType === "S" || t?.U_Type === "S"
+                                  ? t?.U_StopCode || t?.U_ItemCode
+                                  : "Drop-Off"}
                               </span>
                             </td>
                             <td className="pr-4">
                               {" "}
                               <span className="text-gray-500 text-[13.5px]">
-                                {t?.Object === "TL_ROUTE"
-                                  ? t?.U_StopCode
+                                {t?.U_DocType === "S"
+                                  ? t?.U_StopCode || t?.U_ItemCode
                                   : t?.U_ShipToCode}
                               </span>
                             </td>
@@ -414,7 +439,8 @@ export default function TransDetail({
             </div>
           </div>
         )}
-        {confirm ? null : (
+        {confirm ||
+        (id && defaultValue?.U_Status !== "I" && dataListing?.length === 0) ? null : (
           <div className="w-full mt-5 text-right">
             <Button
               sx={{ height: "25px" }}
@@ -422,7 +448,7 @@ export default function TransDetail({
               size="small"
               variant="contained"
               disableElevation
-              onClick={() => setConfirm(true)}
+              onClick={()=>setConfirm(true)}
             >
               <span className="px-4 text-[11px] py-4 text-white">Confirm</span>
             </Button>

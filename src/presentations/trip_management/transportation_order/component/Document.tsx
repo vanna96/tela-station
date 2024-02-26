@@ -19,7 +19,8 @@ export default function Document({
   setTransDetail,
   setDocument,
   document,
-  setHeadTrans
+  setHeadTrans,
+  compartment
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: undefined,
@@ -35,6 +36,7 @@ const removeDocument = (index:number) => {
   updatedDocuments.splice(index, 1);
   setDocument(updatedDocuments);
 };
+console.log();
 
   return (
     <>
@@ -87,7 +89,7 @@ const removeDocument = (index:number) => {
                 Quantity{" "}
               </th>
               <th className="w-[100px] text-center font-normal py-2 text-[14px] text-gray-500">
-                Action{" "}
+                <span className={`${detail?"hidden":""}`}>Action</span>{" "}
               </th>
             </tr>
             {document?.length === 0 && (
@@ -145,7 +147,7 @@ const removeDocument = (index:number) => {
                         value={e?.U_TotalItem}
                       />
                     </td>
-                    <td className="">
+                    <td colSpan={detail?2:undefined} className="">
                       <MUITextField
                         disabled={true}
                         placeholder="Quantity"
@@ -155,7 +157,7 @@ const removeDocument = (index:number) => {
                     <td className="text-center">
                       <div
                         onClick={() => removeDocument(index)}
-                        className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
+                        className={`w-[17px] ${detail ? "hidden" : ""} cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
                       >
                         -
                       </div>
@@ -262,6 +264,7 @@ const removeDocument = (index:number) => {
         transDetail={transDetail}
         setTransDetail={setTransDetail}
         setHeadTrans={setHeadTrans}
+        compartment={compartment}
       />
     </>
   );

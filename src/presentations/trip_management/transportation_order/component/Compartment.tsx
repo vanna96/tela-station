@@ -168,54 +168,53 @@ export default function Compartment({
                         />
                       </td>
                     </tr>
-                    {
-                      e?.Children?.map((e: any,indexC:number) => {
-                        return (
-                          <>
-                            <tr className="bg-zinc-50 border-t border-[#dadde0]">
-                              <th></th>
-                              <th className="w-[200px] text-left font-normal  py-2 pt-3 text-[14px] text-gray-500">
-                                Seal Number
-                              </th>
-                              <th
-                                colSpan={5}
-                                className="w-[200px] text-left font-normal  py-2 pt-3 text-[14px] text-gray-500"
-                              >
-                                Seal Reference
-                              </th>
-                            </tr>
-                            <tr className="bg-zinc-50">
-                              <td></td>
-                              <td className="pr-4">
-                                <MUITextField
-                                  disabled={detail}
-                                  className="bg-white"
-                                  placeholder="Seal Number"
-                                  inputProps={{
-                                    defaultValue: e?.U_SealNumber,
-                                    ...register(
-                                      `TL_TO_COMPARTMENTCollection.${index}.Children.${indexC}.U_SealNumber`
-                                    ),
-                                  }}
-                                />
-                              </td>
-                              <td colSpan={5}>
-                                <MUITextField
-                                  disabled={detail}
-                                  className="bg-white"
-                                  placeholder="Seal Reference"
-                                  inputProps={{
-                                    defaultValue: e?.U_SealReference,
-                                    ...register(
-                                      `TL_TO_COMPARTMENTCollection.${index}.Children.${indexC}.U_SealReference`
-                                    ),
-                                  }}
-                                />
-                              </td>
-                            </tr>
-                          </>
-                        );
-                      })}
+                    {e?.U_Children?.map((e: any, indexC: number) => {
+                      return (
+                        <>
+                          <tr className="bg-zinc-50 border-t border-[#dadde0]">
+                            <th></th>
+                            <th className="w-[200px] text-left font-normal  py-2 pt-3 text-[14px] text-gray-500">
+                              Seal Number
+                            </th>
+                            <th
+                              colSpan={5}
+                              className="w-[200px] text-left font-normal  py-2 pt-3 text-[14px] text-gray-500"
+                            >
+                              Seal Reference
+                            </th>
+                          </tr>
+                          <tr className="bg-zinc-50">
+                            <td></td>
+                            <td className="pr-4">
+                              <MUITextField
+                                disabled={detail}
+                                className="bg-white"
+                                placeholder="Seal Number"
+                                inputProps={{
+                                  defaultValue: e?.U_SealNumber,
+                                  ...register(
+                                    `TL_TO_COMPARTMENTCollection.${index}.U_Children.${indexC}.U_SealNumber`
+                                  ),
+                                }}
+                              />
+                            </td>
+                            <td colSpan={5}>
+                              <MUITextField
+                                disabled={detail}
+                                className="bg-white"
+                                placeholder="Seal Reference"
+                                inputProps={{
+                                  defaultValue: e?.U_SealReference,
+                                  ...register(
+                                    `TL_TO_COMPARTMENTCollection.${index}.U_Children.${indexC}.U_SealReference`
+                                  ),
+                                }}
+                              />
+                            </td>
+                          </tr>
+                        </>
+                      );
+                    })}
                   </>
                 ))
               )}

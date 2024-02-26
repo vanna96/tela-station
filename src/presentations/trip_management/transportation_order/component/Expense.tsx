@@ -1,9 +1,5 @@
-import MUIDatePicker from "@/components/input/MUIDatePicker";
+import ExpenseCodeAutoComplete from "@/components/input/ExpenseCode";
 import MUITextField from "@/components/input/MUITextField";
-import MUISelect from "@/components/selectbox/MUISelect";
-import StopsSelect from "@/components/selectbox/StopsSelect";
-import { Button } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
 export default function Expense({
@@ -12,20 +8,26 @@ export default function Expense({
   setValue,
   control,
   detail,
+  watch,
+  fuel,
+  handleChangeFuel,
 }: any) {
-  const [staticSelect, setStaticSelect] = useState({
-    u_IssueDate: undefined,
-    u_ExpiredDate: undefined,
-    u_Type: "",
+  const {
+    fields: expense,
+    remove: removeExpense,
+    append: addExpense,
+  } = useFieldArray({
+    control,
+    name: "TL_TO_EXPENSECollection", // name of the array field
   });
-   const { fields: expense, remove: removeExpense, append:addExpense } = useFieldArray({
-     control,
-     name: "TL_TO_EXPENSECollection", // name of the array field
-   });
-  const [fuel, setFuel] = useState([])
-   const USD = () => {
-     return <div className="text-[14.5px] mt-1 text-gray-500 w-[47px] pr-1 text-center">USD</div>;
-   };
+  const USD = () => {
+    return (
+      <div className="text-[14.5px] mt-1 text-gray-500 w-[47px] pr-1 text-center">
+        USD
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -52,14 +54,14 @@ export default function Expense({
             {expense?.map((e: any, index: number) => {
               return (
                 <tr key={index}>
-                  <td className="py-5 flex justify-center gap-8 items-center">
+                  <td className="py-4 flex justify-center gap-8 items-center">
                     <span className="text-black">{index + 1}</span>
 
                     <div
-                      onClick={() => removeExpense()}
+                      onClick={() => removeExpense(index)}
                       className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
                         detail
-                          ? "bg-gray-100 text-gray-600 "
+                          ? "hidden"
                           : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
                       }  rounded-sm flex justify-center items-center `}
                     >
@@ -69,20 +71,20 @@ export default function Expense({
 
                   <td className="pr-4">
                     <Controller
-                      name="U_Type"
+                      name="U_Code"
                       control={control}
+                      disabled={detail}
                       render={({ field }) => {
                         return (
-                          <MUISelect
-                            disabled={detail}
-                            items={[
-                              { label: "Truck", value: "Truck" },
-                              { label: "Train", value: "Train" },
-                              { label: "Van", value: "Van" },
-                            ]}
-                            value={e?.U_Type || staticSelect.u_Type}
-                            aliasvalue="value"
-                            aliaslabel="label"
+                          <ExpenseCodeAutoComplete
+                            {...field}
+                            onChange={(e) => {
+                              setValue(
+                                `TL_TO_EXPENSECollection.${index}.U_Code`,
+                                e?.Code
+                              );
+                            }}
+                            value={watch("U_Code") || e?.U_Code}
                           />
                         );
                       }}
@@ -94,7 +96,10 @@ export default function Expense({
                       disabled={detail}
                       placeholder="Amount"
                       inputProps={{
-                        defaultValue: e?.U_Name,
+                        ...register(
+                          `TL_TO_EXPENSECollection.${index}.U_Amount`
+                        ),
+                        defaultValue: e?.U_Amount,
                       }}
                     />
                   </td>
@@ -103,18 +108,34 @@ export default function Expense({
                       disabled={detail}
                       placeholder="Description"
                       inputProps={{
-                        defaultValue: e?.U_Ref,
+                        ...register(
+                          `TL_TO_EXPENSECollection.${index}.U_Description`
+                        ),
+                        defaultValue: e?.U_Description,
                       }}
                     />
                   </td>
                 </tr>
               );
             })}
-            <tr>
-              <td className="py-5 flex justify-center gap-5 items-center"></td>
+            <tr className={`${detail? "hidden":""}`}>
+              <td className="py-6 flex justify-center gap-5 items-center"></td>
               <td className="pr-4 ">
-                <StopsSelect
-                onHandlerChange={()=>addExpense({})}
+                <Controller
+                  name="U_Code"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ExpenseCodeAutoComplete
+                      disabled={detail}
+                        {...field}
+                        onChange={(e: any) => {
+                          addExpense({ U_Code: e });
+                        }}
+                        value={watch("U_Code")}
+                      />
+                    );
+                  }}
                 />
               </td>
               <td className="pr-4">
@@ -137,22 +158,20 @@ export default function Expense({
         </div>
         <div className="font-medium text-lg mt-[50px] flex gap-x-3 items-center mb-3 pb-1">
           <h2 className="mr-3">Fuel Expense</h2>
-        </div>{" "}
+        </div>
         <table className="border w-full shadow-sm bg-white border-[#dadde0]">
           <tr className="border-[1px] border-[#dadde0]">
             <th className="w-[150px] "></th>
-
             <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Fuel{" "}
+              Fuel
               <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
             </th>
             <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Quantity{" "}
+              Amount{" "}
               <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
             </th>
             <th className="text-left font-normal  py-2 text-[14px] text-gray-500">
-              Description{" "}
-              <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+              Description
             </th>
           </tr>
           {fuel?.length === 0 && (
@@ -171,66 +190,13 @@ export default function Expense({
                 <td className="py-5 flex justify-center gap-5 items-center">
                   <span className="text-gray-500">{index + 1}</span>
                 </td>
-
-                <td className="pr-4">
-                  <Controller
-                    name="U_Type"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <MUISelect
-                          disabled={detail}
-                          items={[
-                            { label: "Truck", value: "Truck" },
-                            { label: "Train", value: "Train" },
-                            { label: "Van", value: "Van" },
-                          ]}
-                          value={e?.U_Type || staticSelect.u_Type}
-                          aliasvalue="value"
-                          aliaslabel="label"
-                        />
-                      );
-                    }}
-                  />
-                </td>
                 <td className="pr-4">
                   <MUITextField
                     disabled={detail}
-                    placeholder="Name"
+                    placeholder="Fuel"
                     inputProps={{
-                      defaultValue: e?.U_Name,
-                    }}
-                  />
-                </td>
-                <td className="pr-4">
-                  <Controller
-                    name="U_IssueDate"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <MUIDatePicker
-                          disabled={detail}
-                          {...field}
-                          value={e?.U_IssueDate || staticSelect?.u_IssueDate}
-                          key={`U_IssueDate_${staticSelect?.u_IssueDate}`}
-                        />
-                      );
-                    }}
-                  />
-                </td>
-                <td className="pr-4">
-                  <Controller
-                    name="U_ExpiredDate"
-                    control={control}
-                    render={({ field }) => {
-                      return (
-                        <MUIDatePicker
-                          disabled={detail}
-                          {...field}
-                          value={e?.U_ExpiredDate || staticSelect.u_ExpiredDate}
-                          key={`U_ExpiredDate_${staticSelect.u_ExpiredDate}`}
-                        />
-                      );
+                      onChange: (e) => handleChangeFuel(index, e, "U_Fuel"),
+                      defaultValue: e?.U_Fuel,
                     }}
                   />
                 </td>
@@ -238,18 +204,22 @@ export default function Expense({
                 <td className="pr-4">
                   <MUITextField
                     disabled={detail}
-                    placeholder="Fee"
+                    placeholder="Amount"
                     inputProps={{
-                      defaultValue: e?.U_Fee,
+                      onChange: (e) =>
+                        handleChangeFuel(index, e, "U_FuelAmount"),
+                      defaultValue: e?.U_FuelAmount,
                     }}
                   />
                 </td>
                 <td className="pr-4">
                   <MUITextField
                     disabled={detail}
-                    placeholder="Referance"
+                    placeholder="Description"
                     inputProps={{
-                      defaultValue: e?.U_Ref,
+                      onChange: (e) =>
+                        handleChangeFuel(index, e, "U_FuelRemark"),
+                      defaultValue: e?.U_FuelRemark,
                     }}
                   />
                 </td>

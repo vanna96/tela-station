@@ -31,6 +31,7 @@ const General = ({
   getValues,
   setTransDetail,
   transDetail,
+  setFuel,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     startDate: null,
@@ -40,7 +41,7 @@ const General = ({
   });
 
   useEffect(() => {
-    setValue("Series", 7916);
+    setValue("Series", 7918);
     if (defaultValues) {
       defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
         setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
@@ -50,6 +51,7 @@ const General = ({
   const nextNumber = serie?.find(
     (e: any) => e?.Series === getValues("Series")
   )?.NextNumber;
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -76,6 +78,13 @@ const General = ({
                         value={watch("U_Route") || defaultValues?.U_Route}
                         onChange={(e: any) => {
                           setValue("U_Route", e?.Code);
+                          setValue("TL_TO_EXPENSECollection", [
+                            ...e?.TL_RM_EXPENSCollection?.map((e: any) => ({
+                              ...e,
+                              Code:undefined
+                            }))
+                            
+                          ]);
                           setTransDetail([
                             ...transDetail,
                             ...e?.TL_RM_SEQUENCECollection?.map((row: any) => ({
@@ -86,6 +95,7 @@ const General = ({
                               U_Description: row.U_Description,
                             })),
                           ]);
+
                           setHeader({
                             ...header,
                             Route: e?.Code,
@@ -134,7 +144,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_VehicleCode"
+                  name="U_Vehicle"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -142,10 +152,11 @@ const General = ({
                         disabled={detail}
                         {...field}
                         value={
-                          defaultValues?.U_BaseStation || watch("U_VehicleCode")
+                          defaultValues?.U_BaseStation || watch("U_Vehicle")
                         }
                         onChange={(e: any) => {
-                          setValue("U_VehicleCode", e?.Code);
+                          setValue("U_Vehicle", e?.Code);
+                          setFuel([{ U_Fuel: e?.U_FuelType }]);
                           setValue("U_VehicleName", e?.Name);
                           setValue("TL_TO_COMPARTMENTCollection", [
                             ...(e?.TL_VH_COMPARTMENTCollection?.map(
@@ -155,11 +166,17 @@ const General = ({
                                   (e?.U_BOTTOM_HATCH || 0);
                                 const childrenArray = Array.from(
                                   { length },
-                                  () => ({})
+                                  () => ({
+                                    U_Volume: e?.U_VOLUME,
+                                    U_BottomHatch: e?.U_BOTTOM_HATCH,
+                                    U_TopHatch: e?.U_TOP_HATCH,
+                                  })
                                 );
                                 return {
-                                  ...e,
-                                  Children: childrenArray,
+                                  U_Volume: e?.U_VOLUME,
+                                  U_BottomHatch: e?.U_BOTTOM_HATCH,
+                                  U_TopHatch: e?.U_TOP_HATCH,
+                                  U_Children: childrenArray,
                                 };
                               }
                             ) || []),
@@ -274,7 +291,7 @@ const General = ({
                       inputProps={{
                         ...register("DocNum"),
                       }}
-                      defaultValue={nextNumber || defaultValues?.DocNum}
+                      value={nextNumber || defaultValues?.DocNum}
                     />
                   </div>
                 </div>
@@ -339,7 +356,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DispatchDate"
+                  name="U_DispatchDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -347,7 +364,8 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.DispatchDate || staticSelect.startDate
+                          defaultValues?.U_DispatchDate ||
+                          staticSelect.startDate
                         }
                         key={`DispatchDate_${staticSelect.startDate}`}
                         onChange={(e: any) => {
@@ -356,7 +374,7 @@ const General = ({
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DispatchDate", `${val == "" ? "" : val}`);
+                          setValue("U_DispatchDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
