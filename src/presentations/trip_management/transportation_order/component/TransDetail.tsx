@@ -26,11 +26,11 @@ export default function TransDetail({
   setValues,
   transDetail,
   setTransDetail,
-  setTrans
+  setTrans,
 }: any) {
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
-const {id}= useParams()
+  const { id } = useParams();
   const stop: any = useQuery({
     queryKey: ["stops"],
     queryFn: () => new StopsRepository().get(),
@@ -68,7 +68,6 @@ const {id}= useParams()
       for (const item of transDetail as any[]) {
         temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
       }
-      return temp.filter((e) => e.U_Order === 0);
     } else {
       for (const item of transDetail as any[]) {
         if (item?.U_Type === "S") {
@@ -77,37 +76,33 @@ const {id}= useParams()
           temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
         }
       }
-      return temp.filter((e) => e.U_Order === 0);
     }
+    return temp.filter((e) => e.U_Order === 0);
   }, [transDetail]);
 
   const dataListing2 = React.useMemo(() => {
     const temp: any[] = [];
     if (id) {
-       for (const item of transDetail as any[]) {
-           temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
-       }
-       return temp.filter((e) => e.U_Order !== 0);
+      for (const item of transDetail as any[]) {
+        temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
+      }
     } else {
-          for (const item of transDetail as any[]) {
-            if (item?.U_Type === "S") {
-              temp.push(item);
-            } else {
-              temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
-            }
-          }
-        return temp.filter((e) => e.U_Order !== 0);
+      for (const item of transDetail as any[]) {
+        if (item?.U_Type === "S") {
+          temp.push(item);
+        } else {
+          temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
+        }
+      }
     }
-  
+    return temp.filter((e) => e.U_Order !== 0);
   }, [dataListing]);
+
   useEffect(() => {
     if (dataListing2) {
-    setTrans(dataListing2)
-  }
-  }, [transDetail])
-  
-  console.log(dataListing2);
-    console.log(dataListing);
+      setTrans(dataListing2);
+    }
+  }, [transDetail]);
 
   return (
     <>
@@ -145,7 +140,7 @@ const {id}= useParams()
                 return (
                   <Fragment key={shortid.generate()}>
                     <tr
-                      className={`border-t ${e?.U_Type === "S" && "bg-zinc-200"} border-[#dadde0]`}
+                      className={`border-t ${e?.U_Type === "S" || (e?.U_DocType === "S" && "bg-zinc-200")} border-[#dadde0]`}
                     >
                       <td className="py-4 flex justify-center gap-8 items-center">
                         <span
@@ -157,7 +152,7 @@ const {id}= useParams()
 
                       <td className="pr-4">
                         <span className="text-black text-[13.5px] ml-11 font-bold">
-                          {e?.U_DocType === "S"
+                          {e?.U_Type === "S" || e?.U_DocType === "S"
                             ? e?.U_StopCode || e?.U_ItemCode
                             : "Drop-Off"}
                         </span>
@@ -177,7 +172,7 @@ const {id}= useParams()
 
                       <td colSpan={2} className="pr-4 w-[100px] ">
                         <div
-                          className={`${e?.U_Type === "S" && "hidden"} text-left font-normal  py-2 text-[14px] text-gray-500`}
+                          className={`${e?.U_Type === "S" || (e?.U_DocType === "S" && "hidden")} text-left font-normal  py-2 text-[14px] text-gray-500`}
                         >
                           {" "}
                           <MUITextField
@@ -187,73 +182,74 @@ const {id}= useParams()
                         </div>
                       </td>
                     </tr>
-                    {e?.U_DocType === "SO" && (
-                      <>
-                        <tr className="border-t-[1px] border-[#dadde0] ">
-                          <th className="w-[120px] "></th>
-                          <th className="w-[200px] border-l-[1px]  border-b border-[#dadde0] pl-5 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
-                            Source Document{" "}
-                          </th>
+                    {e?.U_DocType === "SO" ||
+                      (e?.U_DocType === "ITR" && (
+                        <>
+                          <tr className="border-t-[1px] border-[#dadde0] ">
+                            <th className="w-[120px] "></th>
+                            <th className="w-[200px] border-l-[1px]  border-b border-[#dadde0] pl-5 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
+                              Source Document{" "}
+                            </th>
 
-                          <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
-                            Document Number{" "}
-                          </th>
+                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
+                              Document Number{" "}
+                            </th>
 
-                          <th className="text-left bg-gray-50  border-b border-[#dadde0]  font-normal  py-2 text-[14px] text-gray-500">
-                            Item
-                          </th>
-                          <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
-                            Total Quantity{" "}
-                          </th>
-                          <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
-                            Unload Start Time
-                          </th>
-                          <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
-                            Unload End Time{" "}
-                          </th>
-                          <th className="bg-gray-50  border-b border-[#dadde0] "></th>
-                        </tr>
-                        <tr key={index} className="">
-                          <td className="py-6 flex justify-center gap-8 items-center"></td>
+                            <th className="text-left bg-gray-50  border-b border-[#dadde0]  font-normal  py-2 text-[14px] text-gray-500">
+                              Item
+                            </th>
+                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal  py-2 text-[14px] text-gray-500">
+                              Total Quantity{" "}
+                            </th>
+                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
+                              Unload Start Time
+                            </th>
+                            <th className="w-[200px] bg-gray-50  border-b border-[#dadde0]  text-left font-normal py-2 text-[14px] text-gray-500">
+                              Unload End Time{" "}
+                            </th>
+                            <th className="bg-gray-50  border-b border-[#dadde0] "></th>
+                          </tr>
+                          <tr key={index} className="">
+                            <td className="py-6 flex justify-center gap-8 items-center"></td>
 
-                          <td className="pr-4 bg-gray-50 border-l-[1px] border-[#dadde0]">
-                            <span className="text-black pr-[60px] flex items-center gap-3 text-[13.5px] w-full justify-center">
-                              {e?.U_DocType ?? "N/A"}
-                            </span>
-                          </td>
-                          <td className="pr-4 bg-gray-50">
-                            <span className=" text-left font-normal  py-2 text-[14px] text-gray-500">
-                              {e?.U_DocNum ?? "N/A"}
-                            </span>
-                          </td>
+                            <td className="pr-4 bg-gray-50 border-l-[1px] border-[#dadde0]">
+                              <span className="text-black pr-[60px] flex items-center gap-3 text-[13.5px] w-full justify-center">
+                                {e?.U_DocType ?? "N/A"}
+                              </span>
+                            </td>
+                            <td className="pr-4 bg-gray-50">
+                              <span className=" text-left font-normal  py-2 text-[14px] text-gray-500">
+                                {e?.U_DocNum ?? "N/A"}
+                              </span>
+                            </td>
 
-                          <td className="pr-4 bg-gray-50 text-left font-normal  py-2 text-[14px] text-gray-500">
-                            <input
-                              type="text"
-                              value={e?.U_ItemCode ?? "N/A"}
-                              readOnly
-                              style={{
-                                background: "transparent",
-                                border: "none",
-                                outline: "none",
-                              }}
-                            />
-                          </td>
-                          <td className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
-                            {e?.U_Quantity ?? "N/A"}
-                          </td>
-                          <td className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
-                            11:11 AM
-                          </td>
-                          <td
-                            colSpan={2}
-                            className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500"
-                          >
-                            12:11 AM
-                          </td>
-                        </tr>
-                      </>
-                    )}
+                            <td className="pr-4 bg-gray-50 text-left font-normal  py-2 text-[14px] text-gray-500">
+                              <input
+                                type="text"
+                                value={e?.U_ItemCode ?? "N/A"}
+                                readOnly
+                                style={{
+                                  background: "transparent",
+                                  border: "none",
+                                  outline: "none",
+                                }}
+                              />
+                            </td>
+                            <td className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
+                              {e?.U_Quantity ?? "N/A"}
+                            </td>
+                            <td className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
+                              11:11 AM
+                            </td>
+                            <td
+                              colSpan={2}
+                              className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500"
+                            >
+                              12:11 AM
+                            </td>
+                          </tr>
+                        </>
+                      ))}
                   </Fragment>
                 );
               })}
@@ -441,7 +437,9 @@ const {id}= useParams()
           </div>
         )}
         {confirm ||
-        (id && defaultValue?.U_Status !== "I" && dataListing?.length === 0) ? null : (
+        (id &&
+          defaultValue?.U_Status !== "I" &&
+          dataListing?.length === 0) ? null : (
           <div className="w-full mt-5 text-right">
             <Button
               sx={{ height: "25px" }}
@@ -449,7 +447,7 @@ const {id}= useParams()
               size="small"
               variant="contained"
               disableElevation
-              onClick={()=>setConfirm(true)}
+              onClick={() => setConfirm(true)}
             >
               <span className="px-4 text-[11px] py-4 text-white">Confirm</span>
             </Button>

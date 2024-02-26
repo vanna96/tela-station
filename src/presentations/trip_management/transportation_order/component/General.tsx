@@ -81,11 +81,11 @@ const General = ({
                           setValue("TL_TO_EXPENSECollection", [
                             ...e?.TL_RM_EXPENSCollection?.map((e: any) => ({
                               ...e,
-                              Code:undefined
-                            }))
-                            
+                              Code: undefined,
+                            })),
                           ]);
                           setTransDetail([
+                            ...transDetail,
                             ...e?.TL_RM_SEQUENCECollection?.map((row: any) => ({
                               U_DocNum: null,
                               U_Type: "S",

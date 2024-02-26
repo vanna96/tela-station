@@ -165,6 +165,7 @@ const TransportationOrderForm = (props: any) => {
         );
     }
   };
+console.log(trans);
 
   const onSubmit = async (e: any) => {
     const order = Object.values(
@@ -174,7 +175,7 @@ const TransportationOrderForm = (props: any) => {
           const { U_DocNum } = obj;
           if (!acc[U_DocNum]) {
             acc[U_DocNum] = {
-              DocEntry: obj?.DocEntry || null,
+              DocEntry: obj?.DocEntry,
               U_DocNum,
               U_Terminal: headTrans?.find(
                 (e: any) => e?.U_DocNum === obj?.U_DocNum
@@ -200,7 +201,7 @@ const TransportationOrderForm = (props: any) => {
             };
           }
           acc[U_DocNum].TL_TO_DETAIL_ROWCollection.push({
-            U_LineId: obj?.U_LineId || null,
+            U_LineId: obj?.U_LineId || 0,
             VisOrder: 0,
             U_DocType: obj.U_DocType || null,
             U_DocNum,
@@ -219,7 +220,7 @@ const TransportationOrderForm = (props: any) => {
         } else {
           // Handle null U_DocNum objects
           acc[index] = {
-            DocEntry: obj?.DocEntry || null,
+            DocEntry: obj?.DocEntry,
             U_DocNum: null,
             U_Terminal: null,
             U_TotalQuantity: null,
@@ -234,6 +235,7 @@ const TransportationOrderForm = (props: any) => {
             U_Order: obj.U_Order,
             TL_TO_DETAIL_ROWCollection: [
               {
+                U_LineId: obj?.U_LineId || 0,
                 VisOrder: 0,
                 U_DocType: "S",
                 U_DocNum: null,
