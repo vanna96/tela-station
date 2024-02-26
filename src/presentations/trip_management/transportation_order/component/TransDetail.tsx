@@ -89,24 +89,25 @@ const {id}= useParams()
        }
        return temp.filter((e) => e.U_Order !== 0);
     } else {
-        for (const item of transDetail as any[]) {
-          if (item?.U_Type === "S") {
-            temp.push(item);
-          } else {
-            temp.push(
-              ...(item.TL_TO_DETAIL_ROWCollection?.map((e: any) => ({
-                ...e,
-                FromLocation: getValues("U_BaseStation"),
-              })) ?? [])
-            );
+          for (const item of transDetail as any[]) {
+            if (item?.U_Type === "S") {
+              temp.push(item);
+            } else {
+              temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
+            }
           }
-        }
         return temp.filter((e) => e.U_Order !== 0);
     }
   
   }, [dataListing]);
-
-console.log(dataListing2);
+  useEffect(() => {
+    if (dataListing2) {
+    setTrans(dataListing2)
+  }
+  }, [transDetail])
+  
+  console.log(dataListing2);
+    console.log(dataListing);
 
   return (
     <>

@@ -86,7 +86,6 @@ const General = ({
                             
                           ]);
                           setTransDetail([
-                            ...transDetail,
                             ...e?.TL_RM_SEQUENCECollection?.map((row: any) => ({
                               U_DocNum: null,
                               U_Type: "S",
