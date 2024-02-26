@@ -51,13 +51,13 @@ export default function StockAllocationTable({
     setRowSelection(rowSelects);
   };
   const synchronizeStockAllocationData = () => {
-    const updatedStockAllocationData = data.stockAllocationData.map(
+    const updatedStockAllocationData = data.stockAllocationData?.map(
       (stockItem: any) => {
         const allocationItem = data.allocationData?.find(
           (allocationItem: any) =>
             allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
         );
-        if (allocationItem) {
+        if (allocationItem) { 
           return { ...stockItem, U_tl_qtycon: allocationItem.U_tl_totalallow };
         }
         return stockItem;
@@ -79,7 +79,7 @@ export default function StockAllocationTable({
         return item;
       }
     );
-    if (newData?.length <= 0) return;
+    // if (newData?.length <= 0) return;
     onChange("stockAllocationData", newData);
   };
 

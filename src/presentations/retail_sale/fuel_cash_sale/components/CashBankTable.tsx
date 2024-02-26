@@ -39,7 +39,7 @@ export default function CashBankTable(props: any) {
     let firstData = [
       ...data.cashBankData,
       {
-        U_tl_paytype: "cash",
+        U_tl_paytype: "Cash",
         U_tl_paycur: "USD",
         U_tl_amtcash: "",
         U_tl_amtbank: "",
@@ -111,8 +111,8 @@ export default function CashBankTable(props: any) {
               });
             }}
             items={[
-              { value: "cash", label: "Cash" },
-              { value: "bank", label: "Bank" },
+              { value: "Cash", label: "Cash" },
+              { value: "Bank", label: "Bank" },
             ]}
           />
         );
@@ -137,7 +137,7 @@ export default function CashBankTable(props: any) {
         );
       },
     },
-    data?.cashBankData?.some((item: any) => item?.U_tl_paytype === "cash")
+    data?.cashBankData?.some((item: any) => item?.U_tl_paytype === "Cash")
       ? {
           accessorKey: "U_tl_amtcash",
           header: "Amount",

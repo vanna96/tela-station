@@ -18,6 +18,7 @@ import CardCount from "../components/CardCountTable";
 import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
 import ErrorLogForm from "../../components/ErrorLogForm";
+import requestHeader from "@/utilies/requestheader";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -32,7 +33,7 @@ class Form extends NonCoreDcument {
       allocationData: [],
       cashBankData: [
         {
-          U_tl_paytype: "cash",
+          U_tl_paytype: "Cash",
           U_tl_paycur: "USD",
           U_tl_amtcash: "",
           U_tl_amtbank: "",
@@ -43,7 +44,7 @@ class Form extends NonCoreDcument {
           U_tl_acccheck: "111122",
           U_tl_checkdate: new Date(),
           U_tl_checkbank: "",
-          U_tl_paytype: "check",
+          U_tl_paytype: "Check",
           U_tl_amtcheck: "",
           U_tl_paycur: "USD",
         },
@@ -53,7 +54,7 @@ class Form extends NonCoreDcument {
           U_tl_acccoupon: "101111",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
-          U_tl_paytype: "coupon",
+          U_tl_paytype: "Coupon",
         },
       ],
     } as any;
@@ -71,14 +72,20 @@ class Form extends NonCoreDcument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("retail-series");
     let incomingSeries: any = this.props?.query?.find("incomingSeries-series");
-
     if (!incomingSeries) {
       incomingSeries = await DocumentSerieRepository.getDocumentSeries({
         Document: "24",
       });
       this.props?.query?.set("dn-series", incomingSeries);
+    }
+    let GISeries: any = this.props?.query?.find("good-issue-series");
+
+    if (!GISeries) {
+      GISeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "60",
+      });
+      this.props?.query?.set("good-issue-series", GISeries);
     }
     let invoiceSeries: any = this.props?.query?.find("invoice-series");
 
@@ -88,6 +95,7 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
+    let seriesList: any = this.props?.query?.find("retail-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
@@ -101,7 +109,6 @@ class Form extends NonCoreDcument {
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
-          console.log(data);
           const vendor: any = await request(
             "GET",
             `/BusinessPartners('${data?.U_tl_cardcode}')`
@@ -131,7 +138,7 @@ class Form extends NonCoreDcument {
               })
             ),
             cashBankData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "cash" || e.U_tl_paytype === "bank"
+              (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
             )?.map((item: any) => ({
               U_tl_acccash: item.U_tl_acccash,
               U_tl_acccoupon: item.U_tl_acccoupon,
@@ -143,7 +150,7 @@ class Form extends NonCoreDcument {
             })),
 
             checkNumberData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "check"
+              (e: any) => e.U_tl_paytype === "Check"
             )?.map((item: any) => ({
               U_tl_acccheck: item.U_tl_acccheck,
               U_tl_amtcheck: item?.U_tl_amtcheck,
@@ -154,7 +161,7 @@ class Form extends NonCoreDcument {
             })),
 
             couponData: data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "coupon"
+              (e: any) => e.U_tl_paytype === "Coupon"
             )?.map((item: any) => ({
               U_tl_acccoupon: item.U_tl_acccoupon,
               U_tl_accbank: item?.U_tl_accbank,
@@ -182,6 +189,7 @@ class Form extends NonCoreDcument {
           state["SerieLists"] = seriesList;
           state["isLoadingSerie"] = false;
           state["incomingSeries"] = incomingSeries;
+          state["GISeries"] = GISeries;
           state["invoiceSeries"] = invoiceSeries;
           this.setState(state);
           console.log(state);
@@ -191,6 +199,7 @@ class Form extends NonCoreDcument {
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       state["incomingSeries"] = incomingSeries;
+      state["GISeries"] = GISeries;
       state["invoiceSeries"] = invoiceSeries;
       this.setState(state);
       console.log(state);
@@ -326,12 +335,11 @@ class Form extends NonCoreDcument {
       const docEntry = firstResponse.data.DocEntry;
       const PostPayload = {
         SaleDocEntry: docEntry,
-        ToWarehouse: data?.U_tl_whs, // to warehouse take from pump warehouse
-        InvoiceSeries: 7638,
-        IncomingSeries: 183,
-        // DNSeries: data?.DNSeries,
-        // INSeries: data?.INSeries,
-        DocDate: Date.now(),
+        ToWarehouse: data?.U_tl_whs,
+        InvoiceSeries: data?.INSeries,
+        IncomingSeries: data?.DNSeries,
+        GISeries: data?.GoodIssueSeries,
+        DocDate: new Date(),
         DocCurrency: "USD",
         DocRate: "4000.0",
         CardCode: data?.CardCode,
@@ -349,13 +357,13 @@ class Form extends NonCoreDcument {
           ...data?.cashBankData?.map((item: any) => ({
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
-            Amount: item.U_tl_amtcash,
+            Amount: item.U_tl_amtcash || item.U_tl_amtbank,
           })),
           ...data?.checkNumberData?.map((item: any) => ({
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
-            DueDate: item.U_tl_checkdate,
-            Amount: item.U_tl_amtcash,
+            DueDate: item.U_tl_checkdate || new Date(),
+            Amount: item.U_tl_amtcheck,
             Bank: item.U_tl_checkbank,
             CheckNum: item.U_tl_acccheck,
           })),
@@ -364,7 +372,7 @@ class Form extends NonCoreDcument {
           ...data?.couponData?.map((item: any) => ({
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
-            DueDate: "",
+            DueDate: new Date(),
             Amount: item.U_tl_amtcoupon,
             CounNum: item.U_tl_acccoupon,
           })),
@@ -439,31 +447,6 @@ class Form extends NonCoreDcument {
           })
         ),
 
-        // CardCount: [
-        //   data?.allocationData?.map((item: any) => ({
-        //     ItemCode: item.U_tl_itemcode,
-        //     Quantity: item.U_tl_cardallow,
-        //     GrossPrice: item.ItemPrice,
-        //     DiscountPercent: 0,
-        //     TaxCode: "VO10",
-        //     // UoMCode: "L"
-        //     UoMEntry: item.U_tl_uom,
-        //     LineOfBussiness: "201001", // item.LineOfBussiness
-        //     RevenueLine: "202004", // item.RevenueLine
-        //     ProductLine: "203004", // item.ProductLine
-        //     BinAbsEntry: item.U_tl_bincode,
-        //     BranchCode: item.U_tl_bplid || 1,
-        //     WarehouseCode: item.U_tl_whs,
-        //     DocumentLinesBinAllocations: [
-        //       {
-        //         BinAbsEntry: item.U_tl_bincode,
-        //         Quantity: item.U_tl_qtycon,
-        //         AllowNegativeQuantity: "tNO",
-        //         BaseLineNumber: 0,
-        //       },
-        //     ],
-        //   })),
-        // ],
         CashSale: data?.allocationData?.map((item: any) => ({
           ItemCode: item.U_tl_itemcode,
           Quantity: item.U_tl_cashallow,
@@ -611,10 +594,7 @@ class Form extends NonCoreDcument {
 
       await request("POST", "/script/test/FuelCashSales", PostPayload)
         .then((res: any) =>
-          this.dialog.current?.success(
-            "Create Successfully.",
-            res?.data?.DocEntry
-          )
+          this.dialog.current?.success("Create Successfully.", docEntry)
         )
         .catch((err: any) => this.dialog.current?.error(err.message))
         .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -629,6 +609,13 @@ class Form extends NonCoreDcument {
       this.dialog.current?.error(error.message, "Invalid");
     }
   }
+  handleError = (errorMessage: any) => {
+    this.setState({
+      U_tl_errormsg: errorMessage,
+      tapIndex: 5,
+      isDialogOpen: true,
+    });
+  };
 
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
@@ -647,81 +634,6 @@ class Form extends NonCoreDcument {
     };
     return requiredFieldsMap[tabIndex] || [];
   }
-
-  // handleMenuButtonClick = (index: any) => {
-  //   const requiredFields = this.getRequiredFieldsByTab(index - 1);
-  //   const hasErrors = requiredFields.some((field) => {
-  //     if (field === "Items") {
-  //       return !this.state[field] || this.state[field].length === 0;
-  //     }
-  //     return !this.state[field];
-  //   });
-
-  //   if (hasErrors) {
-  //     this.setState({ isDialogOpen: true });
-  //   } else {
-  //     this.setState({ tapIndex: index });
-  //   }
-  // };
-
-  // handleMenuButtonClick = (index: any) => {
-  //   const currentTab = this.state.tapIndex;
-  //   const requiredFields = this.getRequiredFieldsByTab(currentTab);
-  //   const hasErrors = requiredFields.some((field) => {
-  //     if (field === "nozzleData") {
-  //       // Check if nozzleData is not present, empty, or any U_tl_nmeter value is missing or empty
-  //       return (
-  //         !this.state[field] ||
-  //         this.state[field].length === 0 ||
-  //         this.state[field].some(
-  //           (item) => !item.U_tl_nmeter || item.U_tl_nmeter.trim() === ""
-  //         )
-  //       );
-  //     }
-  //     // Check for other fields if they are not present or empty
-  //     return !this.state[field] || this.state[field].trim() === "";
-  //   });
-
-  //   if (hasErrors) {
-  //     // Prevent tab change and show an error message/dialog
-  //     this.setState({ isDialogOpen: true });
-  //     // You can use a Snackbar, Alert, or any other component to show the error message
-  //   } else {
-  //     // No errors, proceed to change tab
-  //     this.setState({ tapIndex: index, isDialogOpen: false });
-  //   }
-  // };
-
-  // handleMenuButtonClick = (index: any) => {
-  //   const currentTab = this.state.tapIndex;
-
-  //   // Allow navigating to previous tabs without validation
-  //   if (index < currentTab) {
-  //     this.setState({ tapIndex: index });
-  //     return;
-  //   }
-
-  //   // When moving forward, perform validation based on the current tab
-  //   let allowChange = true;
-  //   if (currentTab === 1) {
-  //     // Assuming tab index 1 is where nozzleData needs to be validated
-  //     allowChange = this.state.nozzleData.some(
-  //       (item: any) => item.U_tl_nmeter && item.U_tl_nmeter.trim() !== ""
-  //     );
-  //     if (!allowChange) {
-  //       this.setState({
-  //         isDialogOpen: true,
-  //         // dialogMessage:
-  //         //   "Please complete all required fields in the Nozzle Data section before proceeding.",
-  //       });
-  //     }
-  //   }
-
-  //   // If validation passes or navigating back, change tab
-  //   if (allowChange) {
-  //     this.setState({ tapIndex: index, isDialogOpen: false });
-  //   }
-  // };
 
   handleMenuButtonClick = (index: any) => {
     const currentTab = this.state.tapIndex;

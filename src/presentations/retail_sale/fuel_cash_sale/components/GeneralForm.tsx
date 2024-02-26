@@ -89,10 +89,16 @@ export default function GeneralForm({
     ) || {}
   ).Series;
 
+  const seriesGI = data?.GISeries?.filter(
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+  )?.find((series: any) => series.BPLID === BPL)?.Series;
+
   if (data) {
     data.DNSeries = seriesIncoming;
     data.INSeries = seriesINV;
     data.Series = seriesSO;
+    data.GoodIssueSeries = seriesGI;
   }
 
   const [isDispenserLoading, setIsDispenserLoading] = useState(false);

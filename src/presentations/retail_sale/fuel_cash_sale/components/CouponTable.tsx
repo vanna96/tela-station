@@ -1,17 +1,10 @@
 import React from "react";
-import MaterialReactTable, { MRT_ColumnDef } from "material-react-table";
-import { AiOutlineSetting } from "react-icons/ai";
-import FormattedInputs from "@/components/input/NumberFormatField";
-import { Button, Grid, IconButton } from "@mui/material";
-import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import MUITextField from "@/components/input/MUITextField";
 import { NumericFormat } from "react-number-format";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
-  const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerRemoveCheck = (key: number) => {
     const newData = (data?.couponData || []).filter(
@@ -40,7 +33,9 @@ export default function CouponTable(props: any) {
           <div className="col-span-5 mb-4">
             <div className="grid grid-cols-2 gap-4 ">
               <div className="grid grid-cols-12">
-                <div className="col-span-4 mt-1 text-gray-700   ">Coupon Account </div>
+                <div className="col-span-4 mt-1 text-gray-700   ">
+                  Coupon Account{" "}
+                </div>
                 <div className="col-span-4 ">
                   <CashACAutoComplete
                     value={item.U_tl_acccoupon}
@@ -59,7 +54,9 @@ export default function CouponTable(props: any) {
                 </div>
               </div>
               <div className="grid grid-cols-12 ">
-                <div className="col-span-4  col-start-5 text-gray-700 ">Coupon Amount</div>
+                <div className="col-span-4  col-start-5 text-gray-700 ">
+                  Coupon Amount
+                </div>
                 {/* <div className=" col-span-4  col-start-9"> */}
                 <div className=" col-span-4 ">
                   <NumericFormat
