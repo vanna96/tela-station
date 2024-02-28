@@ -1,11 +1,12 @@
-import React from "react";
-import MUITextField from "../../../../components/input/MUITextField";
+import React, { useEffect } from "react";
+import MUIRightTextField from "../../../../components/input/MUIRightTextField";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import { commaFormatNum } from "@/utilies/formatNumber";
+import MUITextField from "@/components/input/MUITextField";
 
 interface AllocationTableProps {
   data: any;
@@ -27,21 +28,53 @@ export default function AllocationTable({
   }
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.allocationData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+    const newData = data.allocationData.map((item: any, index: number) => {
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
+
+        if (
+          [
+            "U_tl_cardallow",
+            "U_tl_cashallow",
+            "U_tl_ownallow",
+            "U_tl_partallow",
+            "U_tl_pumpallow",
+            "U_tl_stockallow",
+          ].includes(objKey)
+        ) {
+          const total =
+            parseFloat(item.U_tl_cardallow || 0) +
+            parseFloat(item.U_tl_cashallow || 0) +
+            parseFloat(item.U_tl_ownallow || 0) +
+            parseFloat(item.U_tl_partallow || 0) +
+            parseFloat(item.U_tl_pumpallow || 0) +
+            parseFloat(item.U_tl_stockallow || 0);
+
+          item.U_tl_totalallow = total;
+        }
+      }
       return item;
     });
-    if (newData.length <= 0) return;
     onChange("allocationData", newData);
   };
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request(
-      "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
-    );
-    return res;
+  const synchronizeAllocationData = () => {
+    const updatedAllocationData = data.allocationData.map((stockItem: any) => {
+      const allocationItem = data.stockAllocationData.find(
+        (allocationItem: any) =>
+          allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
+      );
+      if (allocationItem) {
+        return { ...stockItem, U_tl_bincode: allocationItem.U_tl_bincode };
+      }
+      return stockItem;
+    });
+
+    onChange("allocationData", updatedAllocationData);
   };
+  useEffect(() => {
+    synchronizeAllocationData();
+  }, [data.stockAllocationData]);
 
   const itemColumns = React.useMemo(
     () => [
@@ -66,7 +99,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -90,7 +123,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -113,7 +146,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -136,7 +169,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -159,7 +192,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -182,7 +215,7 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -198,30 +231,27 @@ export default function AllocationTable({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
-            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
+            parseFloat(cell.row.original?.U_tl_cardallow || 0) +
+            parseFloat(cell.row.original?.U_tl_cashallow || 0) +
+            parseFloat(cell.row.original?.U_tl_ownallow || 0) +
+            parseFloat(cell.row.original?.U_tl_partallow || 0) +
+            parseFloat(cell.row.original?.U_tl_pumpallow || 0) +
+            parseFloat(cell.row.original?.U_tl_stockallow || 0);
 
-          const isValid =
-            total === commaFormatNum(cell.row.original?.U_tl_nmeter);
-          console.log(total);
-          console.log(commaFormatNum(cell.row.original?.U_tl_nmeter));
+          const isValid = cell.row.original.U_tl_cmeter === total;
           return (
             <NumericFormat
               thousandSeparator
+              // disabled
+              className="bg-gray-100 cursor-pointer"
+              readOnly
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
-              value={total}
-              inputProps={{
-                style: {
-                  color: isValid ? "inherit" : "red",
-                },
-              }}
+              redColor={!isValid}
+              customInput={MUIRightTextField}
+              // value={cell.getValue()}
+              value={cell.row.original.U_tl_cmeter}
             />
           );
         },
@@ -229,7 +259,7 @@ export default function AllocationTable({
     ],
     [data.allocationData]
   );
-
+  console.log(data.allocationData);
   return (
     <>
       <div
@@ -246,7 +276,7 @@ export default function AllocationTable({
             enablePagination={false}
             enableSorting={false}
             enableTopToolbar={false}
-            enableColumnResizing={true}
+            enableColumnResizing={false}
             enableColumnFilterModes={false}
             enableDensityToggle={false}
             enableFilters={false}
@@ -262,6 +292,17 @@ export default function AllocationTable({
             initialState={{
               density: "compact",
             }}
+            muiTableProps={() => ({
+              sx: {
+                "& .MuiTableHead-root .MuiTableCell-root": {
+                  backgroundColor: "#e4e4e7",
+                  fontWeight: "500",
+                  paddingTop: "8px",
+                  paddingBottom: "8px",
+                },
+                border: "1px solid #d1d5db",
+              },
+            })}
             enableTableFooter={false}
           />
         </div>

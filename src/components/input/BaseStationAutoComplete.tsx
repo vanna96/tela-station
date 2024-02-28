@@ -1,10 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
-import PositionRepository from "@/services/actions/positionRepository";
-import DepartmentRepository from "@/services/actions/departmentRepository";
 import WarehouseRepository from "@/services/warehouseRepository";
 import request, { url } from "@/utilies/request";
 
@@ -13,14 +9,17 @@ interface Type {
   WarehouseName: string;
 }
 
-export default function BaseStationAutoComplete(props: {
-  label?: any;
-  value?: any;
-  onChange?: (value: any) => void;
-  name?: any;
-  disabled?: any;
-}) {
-  const { data, isLoading }: any = useQuery({
+const BaseStationAutoComplete = forwardRef<
+  HTMLInputElement,
+  {
+    label?: any;
+    value?: any;
+    onChange?: (value: any) => void;
+    name?: any;
+    disabled?: any;
+  }
+>((props, ref) => {
+  const { data, isLoading } = useQuery({
     queryKey: ["TL_WH"],
     queryFn: async () => {
       const response: any = await request(
@@ -33,14 +32,14 @@ export default function BaseStationAutoComplete(props: {
         });
       return response;
     },
-    cacheTime: 0,
     staleTime: 0,
+    cacheTime: 0,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
-      const selected = data?.find((e: Type) => e.WarehouseCode === props.value);
+    if (props.value && data) {
+      const selected = data.find((e: Type) => e.WarehouseCode === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -48,7 +47,7 @@ export default function BaseStationAutoComplete(props: {
   }, [props.value, data]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [selectedValue, setSelectedValue] = useState<Type | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -56,38 +55,39 @@ export default function BaseStationAutoComplete(props: {
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue?.WarehouseCode : null;
+      const selected = newValue ? newValue.WarehouseCode : null;
       props.onChange(selected);
     }
   };
   const disabled = props.disabled;
+
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
-        htmlFor=""
+        htmlFor={props.name}
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
-
       <Autocomplete
-        disabled={props?.disabled}
+        disabled={disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
         getOptionLabel={(option: Type) =>
-          option.WarehouseCode+" - "+option.WarehouseName
+          option.WarehouseCode + " - " + option.WarehouseName
         }
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.WarehouseCode+" - "+option.WarehouseName}
+            {option.WarehouseCode + " - " + option.WarehouseName}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
+            id={props.name}
             className={`w-full text-field text-xs ${
               disabled ? "bg-gray-100" : ""
             }`}
@@ -102,9 +102,12 @@ export default function BaseStationAutoComplete(props: {
                 </React.Fragment>
               ),
             }}
+            inputRef={ref}
           />
         )}
       />
     </div>
   );
-}
+});
+
+export default BaseStationAutoComplete;

@@ -12,6 +12,8 @@ import MUITextField from "@/components/input/MUITextField";
 import WarehouseRepository from "@/services/warehouseRepository";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import { useQuery } from "react-query";
+import BinlocationRepository from "@/services/actions/BinlocationRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -259,6 +261,13 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
+  const { data: bin, isLoading: isLoadingBin }: any = useQuery({
+    queryKey: ["bin"],
+    queryFn: async () =>
+      await request("GET", "BinLocations?$select=BinCode,AbsEntry").then(
+        (res: any) => res.data?.value
+      ),
+  });
 
   const itemColumn: any = useMemo(
     () => [
@@ -269,15 +278,22 @@ function Content(props: any) {
       {
         accessorKey: "binCode",
         header: "Bin Location",
-        Cell: ({ cell }: any) => (
-          <div>
-            {new WareBinLocationRepository()?.find(cell.getValue())?.BinCode}
-          </div>
-        ),
+        Cell: ({ cell }: any) => {
+          try {
+            const binlocation = bin?.find(
+              (e: any) => e?.AbsEntry == cell.row.original.binCode
+            )?.BinCode;
+            return binlocation ?? "N/A";
+          } catch (error) {
+            console.error("Error occurred while fetching bin location:", error);
+            return "N/A";
+          }
+        },
       },
+
       {
         accessorKey: "itemCode",
-        header: "Item Code", //uses the default width from defaultColumn prop
+        header: "Item Code",
         visible: true,
         size: 120,
       },

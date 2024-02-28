@@ -27,7 +27,7 @@ export default function SaleOrderLists() {
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
@@ -217,6 +217,7 @@ export default function SaleOrderLists() {
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
+    refetchOnWindowFocus: false,
     queryKey: [
       "sales-order-lob",
       salesType,
@@ -501,8 +502,20 @@ export default function SaleOrderLists() {
           </div>
         </div>
         <DataTable
-          columns={columns}
-          data={data}
+          columns={[
+            {
+              accessorKey: "index",
+              header: "No.",
+              size: 20,
+              visible: true,
+              type: "number",
+            },
+            ...columns,
+          ]}
+          data={data?.map((item: any, index: any) => ({
+            ...item,
+            index: index + 1,
+          }))}
           dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}

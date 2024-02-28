@@ -12,6 +12,7 @@ import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
 import FormCard from "@/components/card/FormCard";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import BinLocationItemCode from "@/components/input/BinLocationItemCode";
 
 export default function PaymentTable(props: any) {
   const { data, onChange, handlerAddItem, edit }: any = props;
@@ -34,7 +35,7 @@ export default function PaymentTable(props: any) {
       },
     ]);
   };
-
+  console.log(data);
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
@@ -212,7 +213,7 @@ export default function PaymentTable(props: any) {
       ),
     },
   ];
-
+  console.log(data);
   return (
     <>
       <FormCard title="Nozzle Data">

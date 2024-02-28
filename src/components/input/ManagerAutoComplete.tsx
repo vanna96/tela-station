@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
-import PositionRepository from "@/services/actions/positionRepository";
-import DepartmentRepository from "@/services/actions/departmentRepository";
 import ManagerRepository from "@/services/actions/ManagerRepository";
 
 interface Type {
   EmployeeID: number;
   FirstName: string;
-  LastName: string
+  LastName: string;
 }
 
-export default function ManagerAutoComplete(props: {
-  label?: any;
-  value?: any;
-  onChange?: (value: any) => void;
-  name?: any;
-  disabled?: any;
-}) {
-  const { data, isLoading }: any = useQuery({
+const ManagerAutoComplete = forwardRef<
+  HTMLInputElement,
+  {
+    label?: string;
+    value?: any;
+    onChange?: (value: any) => void;
+    name?: string;
+    disabled?: boolean;
+  }
+>((props, ref) => {
+  const { data, isLoading } = useQuery<Type[], Error>({
     queryKey: ["manager"],
     queryFn: () => new ManagerRepository().get(),
     staleTime: Infinity,
@@ -37,7 +36,7 @@ export default function ManagerAutoComplete(props: {
   }, [props.value, data]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [selectedValue, setSelectedValue] = useState<Type | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -49,32 +48,37 @@ export default function ManagerAutoComplete(props: {
       props.onChange(selectedCode);
     }
   };
-  const disabled = props.disabled;
+
+  const disabled = props.disabled ?? false;
+
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
-        htmlFor=""
+        htmlFor={props.name}
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
 
       <Autocomplete
-        disabled={props?.disabled}
+        disabled={disabled}
         options={data ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.FirstName + ' '+option.LastName}
+        getOptionLabel={(option: Type) =>
+          `${option.FirstName} ${option.LastName}`
+        }
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.FirstName + ' '+ option.LastName}
+            {`${option.FirstName} ${option.LastName}`}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
+            id={props.name}
             className={`w-full text-field text-xs ${
               disabled ? "bg-gray-100" : ""
             }`}
@@ -89,9 +93,12 @@ export default function ManagerAutoComplete(props: {
                 </React.Fragment>
               ),
             }}
+            inputRef={ref}
           />
         )}
       />
     </div>
   );
-}
+});
+
+export default ManagerAutoComplete;

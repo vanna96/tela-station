@@ -9,7 +9,7 @@ import { Button } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import DataTable from "./component/DataTabaleO";
+import DataTable from "@/presentations/master_data/components/DataTable";
 
 
 export default function Lists() {
@@ -215,6 +215,7 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus: false,
   });
 
   const handlerRefresh = React.useCallback(() => {
@@ -236,9 +237,6 @@ export default function Lists() {
       pageIndex: 0,
       pageSize: 10,
     });
-
-    console.log(value);
-
     setTimeout(() => {
       refetch();
     }, 500);
@@ -381,7 +379,7 @@ export default function Lists() {
           paginationChange={setPagination}
           title="Driver"
           createRoute="/trip-management/transportation-order/create"
-          filter={filter}
+          // filter={filter}
         />
       </div>
     </>

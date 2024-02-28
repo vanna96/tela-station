@@ -24,40 +24,20 @@ export default function Sequence({ data, onChange }: SequenceProps) {
     <>
       <Collapse in={collapseError}>
         <Alert
-          className="mb-3"
+          className=""
           severity="error"
           action={
             <IconButton
               aria-label="close"
               color="inherit"
               size="small"
-            //   onClick={onClose}
-            >
-              {/* <MdOutlineClose fontSize="inherit" /> */}
-            </IconButton>
+            ></IconButton>
           }
-        >
-          {/* {data?.error["Items"]} */}
-        </Alert>
+        ></Alert>
       </Collapse>
-      <div className=" rounded-lg shadow-sm bg-white border p-6 px-8">
-        <div className="mt-6">
-          <fieldset className="border border-solid border-gray-300 p-3 mb-6 shadow-md">
-            <legend className="text-md px-2 font-bold">
-
-            </legend>
-
-            <div className="grid grid-cols-12 py-2 ">
-              <div className="col-span-2 col-start-2">
-              </div>
-            </div>
-            <SequenceTable data={data} onChange={onChange} />
-          </fieldset>
-        </div>
+      <div className="">
+        <SequenceTable data={data} onChange={onChange} />
       </div>
     </>
   );
-}
-function useParams(): any {
-  throw new Error("Function not implemented.");
 }

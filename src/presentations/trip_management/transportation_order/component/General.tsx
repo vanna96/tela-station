@@ -26,6 +26,11 @@ const General = ({
   header,
   setHeader,
   detail,
+  watch,
+  serie,
+  getValues,
+  setTransDetail,
+  transDetail,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     startDate: null,
@@ -35,13 +40,16 @@ const General = ({
   });
 
   useEffect(() => {
+    setValue("Series", 7916);
     if (defaultValues) {
       defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
         setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
       );
     }
   }, [defaultValues]);
-
+  const nextNumber = serie?.find(
+    (e: any) => e?.Series === getValues("Series")
+  )?.NextNumber;
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -65,9 +73,19 @@ const General = ({
                       <RoutAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_Route}
+                        value={watch("U_Route") || defaultValues?.U_Route}
                         onChange={(e: any) => {
-                          setValue("U_Route", e);
+                          setValue("U_Route", e?.Code);
+                          setTransDetail([
+                            ...transDetail,
+                            ...e?.TL_RM_SEQUENCECollection?.map((row: any) => ({
+                              U_DocNum: null,
+                              U_Type: "S",
+                              U_Order: 0,
+                              U_StopCode: row.U_Code,
+                              U_Description: row.U_Description,
+                            })),
+                          ]);
                           setHeader({
                             ...header,
                             Route: e?.Code,
@@ -94,9 +112,12 @@ const General = ({
                       <BaseStationAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_BaseStation}
+                        value={
+                          watch("U_BaseStation") || defaultValues?.U_BaseStation
+                        }
                         onChange={(e: any) => {
                           setValue("U_BaseStation", e);
+
                           setHeader({ ...header, BaseStation: e });
                         }}
                       />
@@ -120,10 +141,30 @@ const General = ({
                       <VehicleAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_BaseStation}
+                        value={
+                          defaultValues?.U_BaseStation || watch("U_VehicleCode")
+                        }
                         onChange={(e: any) => {
                           setValue("U_VehicleCode", e?.Code);
                           setValue("U_VehicleName", e?.Name);
+                          setValue("TL_TO_COMPARTMENTCollection", [
+                            ...(e?.TL_VH_COMPARTMENTCollection?.map(
+                              (e: any) => {
+                                const length =
+                                  (e?.U_TOP_HATCH || 0) +
+                                  (e?.U_BOTTOM_HATCH || 0);
+                                const childrenArray = Array.from(
+                                  { length },
+                                  () => ({})
+                                );
+                                return {
+                                  ...e,
+                                  Children: childrenArray,
+                                };
+                              }
+                            ) || []),
+                          ]);
+
                           setHeader({ ...header, Vehicle: e?.Code });
                         }}
                       />
@@ -163,7 +204,7 @@ const General = ({
                       <ManagerAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_Driver}
+                        value={watch("U_Driver") || defaultValues?.U_Driver}
                         onChange={(e: any) => {
                           setValue("U_CheckList", e?.U_CheckList);
                           setValue("U_Driver", e?.EmployeeID);
@@ -199,42 +240,44 @@ const General = ({
           <div className="col-span-5 w-[50%]">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Series{" "}
+                <label htmlFor="Code" className="text-gray-600 ">
+                  Series <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  name="U_tl_terminal"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BaseStationAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={defaultValues?.U_tl_terminal}
-                        onChange={(e: any) => {
-                          setValue("U_tl_terminal", e);
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Document Number
-                </label>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("MobilePhone"),
-                  }}
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  <Controller
+                    // rules={{ required: "Terminal is required" }}
+                    name="Series"
+                    control={control}
+                    render={({ field }) => {
+                      return (
+                        <MUISelect
+                          {...field}
+                          items={serie}
+                          disabled={detail || defaultValues?.U_Status === "C"}
+                          value={watch("Series") || defaultValues?.serie}
+                          aliasvalue="Series"
+                          aliaslabel="Name"
+                          name="Series"
+                          onChange={(e: any) => {
+                            setValue("Series", e?.target?.value);
+                          }}
+                        />
+                      );
+                    }}
+                  />
+
+                  <div className="-mt-1">
+                    <MUITextField
+                      disabled={true}
+                      inputProps={{
+                        ...register("DocNum"),
+                      }}
+                      defaultValue={nextNumber || defaultValues?.DocNum}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
@@ -245,7 +288,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DocumentDate"
+                  name="U_DocDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -253,20 +296,15 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.DocumentDate || staticSelect.startDate
+                          watch("U_DocDate") || defaultValues?.U_DocDate
                         }
-                        key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DocumentDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            startDate: e,
-                          });
+                          setValue("U_DocDate", `${val == "" ? "" : val}`);
                         }}
                       />
                     );
@@ -281,12 +319,16 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("eMail"),
-                  }}
-                />
+                <div className="hidden">
+                  {" "}
+                  <MUITextField
+                    inputProps={{
+                      ...register("Status"),
+                    }}
+                    value={"O"}
+                  />
+                </div>
+                <MUITextField disabled={true} value={"Open"} />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -297,7 +339,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="StartDate"
+                  name="DispatchDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -305,21 +347,21 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.StartDate || staticSelect.startDate
+                          defaultValues?.DispatchDate || staticSelect.startDate
                         }
-                        key={`start_date_${staticSelect.startDate}`}
+                        key={`DispatchDate_${staticSelect.startDate}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("StartDate", `${val == "" ? "" : val}`);
+                          setValue("DispatchDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
                           });
-                           setHeader({ ...header, DispatchDate: e });
+                          setHeader({ ...header, DispatchDate: e });
                         }}
                       />
                     );
@@ -335,7 +377,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="CompleteDate"
+                  name="U_CompletedDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -343,7 +385,8 @@ const General = ({
                         disabled={detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.CompleteDate || staticSelect.startDate
+                          defaultValues?.U_CompletedDate ||
+                          staticSelect.startDate
                         }
                         key={`start_date_${staticSelect.startDate}`}
                         onChange={(e: any) => {
@@ -352,12 +395,15 @@ const General = ({
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("CompleteDate", `${val == "" ? "" : val}`);
+                          setValue(
+                            "U_CompletedDate",
+                            `${val == "" ? "" : val}`
+                          );
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
                           });
-                           setHeader({ ...header, CompletedDate: e });
+                          setHeader({ ...header, CompletedDate: e });
                         }}
                       />
                     );

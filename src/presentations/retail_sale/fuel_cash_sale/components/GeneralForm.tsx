@@ -11,6 +11,7 @@ import request from "@/utilies/request";
 import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
 import itemRepository from "@/services/actions/itemRepostory";
 import { TextField } from "@mui/material";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -20,7 +21,10 @@ export interface IGeneralFormProps {
 }
 
 const fetchDispenserData = async (pump: string) => {
-  const res = await request("GET", `TL_Dispenser('${pump}')`);
+  const res = await request(
+    "GET",
+    `TL_Dispenser('${pump}')?$select=Code,Name,U_tl_type,U_tl_status,U_tl_bplid,U_tl_whs,TL_DISPENSER_LINESCollection`
+  );
   return res.data;
 };
 
@@ -50,25 +54,54 @@ export default function GeneralForm({
   const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
-  const filteredSeries = data?.seriesList?.filter(
+  const yearLastTwoDigits = year.toString().slice(-2); // Get last two digits of the year
+
+  const filteredSeries = data?.SerieLists?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-  async function getPriceListNum(CardCode: any) {
-    try {
-      const result = await new BusinessPartnerRepository().find(CardCode);
-      return result?.PriceListNum;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+
+  const seriesSO =
+    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+
+  if (filteredSeries[0]?.NextNumber && data) {
+    data.DocNum = filteredSeries[0].NextNumber;
   }
 
-  const globalPriceListNum = getPriceListNum(data.U_tl_cardcode); // Removed an extra closing parenthesis here
-  if (data.vendor) {
-    data.PriceList = data.vendor.priceLists;
+  const month = currentDate.getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
+  const formattedDateB = `${yearLastTwoDigits}B${formattedMonth}`;
+
+  const seriesIncoming = data?.incomingSeries
+    ?.filter(
+      (series: any) =>
+        series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    )
+    ?.find((series: any) => series.BPLID === BPL)?.Series;
+
+  const seriesINV = (
+    data?.invoiceSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
+  const seriesGI = data?.GISeries?.filter(
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+  )?.find((series: any) => series.BPLID === BPL)?.Series;
+
+  if (data) {
+    data.DNSeries = seriesIncoming;
+    data.INSeries = seriesINV;
+    data.Series = seriesSO;
+    data.GoodIssueSeries = seriesGI;
   }
 
+  const [isDispenserLoading, setIsDispenserLoading] = useState(false);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -80,14 +113,14 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch
+                Branch <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("U_tl_bplid", e)}
-                value={BPL}
+                value={BPL || 1}
               />
             </div>
           </div>
@@ -102,44 +135,6 @@ export default function GeneralForm({
               }}
             />
           </div>
-          <div className="grid grid-cols-5 py-1">
-            <div className="col-span-2 text-gray-600 ">
-              Customer <span className="text-red-500">*</span>
-            </div>
-            <div className="col-span-3 text-gray-900">
-              <VendorByBranch
-                branch={data?.U_tl_bplid}
-                vtype="customer"
-                onChange={(vendor) => handlerChange("vendor", vendor)}
-                // onChange={(vendor) => handlerChangeObject({
-                //   "vendor" : vendor,
-                //   // "PriceList" : vendor.priceLists
-                // })}
-                key={data?.CardCode}
-                // error={"CardCode" in data?.error}
-                helpertext={data?.error?.CardCode}
-                autoComplete="off"
-                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
-                name="BPCode"
-                disabled={edit}
-                endAdornment={!edit}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Name
-              </label>
-            </div>
-            <div className="col-span-3">
-              <MUITextField
-                value={edit ? data.U_tl_cardname : data?.CardName}
-                disabled
-                name="BPName"
-              />
-            </div>
-          </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -152,58 +147,9 @@ export default function GeneralForm({
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
-                // onChange={async (e: any) => {
-                //   const dispenserData = await fetchDispenserData(e);
-
-                //   handlerChangeObject({
-                //     U_tl_pump: e,
-
-                //     stockAllocationData:
-                //       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
-                //         (e: any) =>
-                //           e.U_tl_status === "Initialized" ||
-                //           e.U_tl_status === "Active"
-                //       )?.map((item: any) => ({
-                //         U_tl_bplid: data.U_tl_bplid,
-                //         U_tl_itemcode: item.U_tl_itemnum,
-                //         U_tl_itemname: item.U_tl_desc,
-                //         U_tl_qtyaloc: item.U_tl_qtyaloc,
-                //         U_tl_qtycon: item.U_tl_qtycon,
-                //         U_tl_qtyopen: item.U_tl_qtyopen,
-                //         U_tl_remark: item.U_tl_remark,
-                //         U_tl_uom: item.U_tl_uom,
-                //         // ItemPrices: item.ItemPrices,
-                //         // ItemPrices: new itemRepository().find(
-                //         //   `'${item.U_tl_itemnum}'`
-                //         // ),
-                //       })),
-                //     nozzleData:
-                //       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
-                //         (e: any) =>
-                //           e.U_tl_status === "Initialized" ||
-                //           e.U_tl_status === "Active"
-                //       )?.map((item: any) => ({
-                //         U_tl_nozzlecode: item.U_tl_pumpcode,
-                //         U_tl_itemcode: item.U_tl_itemnum,
-                //         U_tl_itemname: item.U_tl_desc,
-                //         U_tl_uom: item.U_tl_uom,
-                //         U_tl_nmeter: item.U_tl_nmeter,
-                //         // U_tl_upd_meter: item.U_tl_ometer,
-                //         U_tl_ometer: item.U_tl_upd_meter,
-                //         U_tl_cmeter: item.U_tl_cmeter,
-                //         U_tl_reg_meter: item.U_tl_reg_meter,
-                //         U_tl_cardallow: item.U_tl_cardallow,
-                //         U_tl_cashallow: item.U_tl_cashallow,
-                //         U_tl_ownallow: item.U_tl_ownallow,
-                //         U_tl_partallow: item.U_tl_partallow,
-                //         U_tl_pumpallow: item.U_tl_pumpallow,
-                //         U_tl_stockallow: item.U_tl_stockallow,
-                //         U_tl_totalallow: item.U_tl_totalallow,
-                //         ItemPrice: "",
-                //       })),
-                //   });
-                // }}
+                loading={isDispenserLoading}
                 onChange={async (e: any) => {
+                  setIsDispenserLoading(true);
                   const dispenserData = await fetchDispenserData(e);
 
                   // Fetch item details and prices for each item in the dispenser data
@@ -238,7 +184,7 @@ export default function GeneralForm({
                     (item: any) => ({
                       U_tl_nozzlecode: item.U_tl_pumpcode,
                       U_tl_itemcode: item.U_tl_itemnum,
-                      U_tl_itemname: item.ItemName, // Use the fetched item name
+                      U_tl_itemname: item.ItemName,
                       U_tl_uom: item.U_tl_uom,
                       U_tl_nmeter: item.U_tl_nmeter,
                       U_tl_ometer: item.U_tl_upd_meter,
@@ -251,28 +197,45 @@ export default function GeneralForm({
                       U_tl_pumpallow: item.U_tl_pumpallow,
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
-                      ItemPrice: item.ItemPrice, // Use the fetched price
+                      ItemPrice: item.ItemPrice,
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
                       U_tl_bincode: item.U_tl_bincode,
                     })
                   );
-                  const updatedStockAllocationData = itemsWithPrices.map(
-                    (item: any) => ({
-                      U_tl_bplid: data.U_tl_bplid,
-                      U_tl_whs: warehouseCode,
+                  // const updatedStockAllocationData = itemsWithPrices.map(
+                  //   (item: any) => ({
+                  //     U_tl_bplid: data.U_tl_bplid,
+                  //     U_tl_whs: warehouseCode,
+                  //     U_tl_bincode: parseInt(item.U_tl_bincode),
+                  //     U_tl_itemcode: item.U_tl_itemnum,
+                  //     U_tl_itemname: item.ItemName,
+                  //     U_tl_qtyaloc: item.U_tl_qtyaloc,
+                  //     U_tl_qtycon: item.U_tl_qtycon,
+                  //     U_tl_qtyopen: item.U_tl_qtyopen,
+                  //     U_tl_remark: item.U_tl_remark,
+                  //     U_tl_uom: item.U_tl_uom,
+                  //     ItemPrice: item.ItemPrice,
+                  //   })
+                  // );
+                  const updatedStockAllocationData = updatedNozzleData
+                    // ?.filter((e: any) => e?.U_tl_nmeter > 0)
+                    .map((item: any) => ({
+                      U_tl_bplid: item.U_tl_bplid,
+                      U_tl_whs: item.U_tl_whs,
                       U_tl_bincode: parseInt(item.U_tl_bincode),
-                      U_tl_itemcode: item.U_tl_itemnum,
-                      U_tl_itemname: item.ItemName, // Use the fetched item name
+                      U_tl_itemcode: item.U_tl_itemcode,
+                      U_tl_itemname: item.U_tl_itemname,
                       U_tl_qtyaloc: item.U_tl_qtyaloc,
                       U_tl_qtycon: item.U_tl_qtycon,
                       U_tl_qtyopen: item.U_tl_qtyopen,
                       U_tl_remark: item.U_tl_remark,
                       U_tl_uom: item.U_tl_uom,
-                      ItemPrice: item.ItemPrice, // Use the fetched price
-                    })
-                  );
-
+                      ItemPrice: item.ItemPrice,
+                      U_tl_nmeter: item.U_tl_nmeter,
+                      U_tl_ometer: item.U_tl_upd_meter,
+                      U_tl_reg_meter: item.U_tl_reg_meter,
+                    }));
                   const updatedCardCountData = updatedNozzleData
                     ?.filter((e: any) => e?.U_tl_nmeter > 0)
                     .map((item: any) => ({
@@ -293,10 +256,45 @@ export default function GeneralForm({
                     nozzleData: updatedNozzleData,
                     cardCountData: updatedCardCountData,
                   });
+                  setIsDispenserLoading(false);
                 }}
               />
             </div>
           </div>
+          <div className="grid grid-cols-5 py-1">
+            <div className="col-span-2 text-gray-600 ">
+              Customer <span className="text-red-500">*</span>
+            </div>
+            <div className="col-span-3 text-gray-900">
+              <VendorByBranch
+                branch={data?.U_tl_bplid}
+                vtype="customer"
+                onChange={(vendor) => handlerChange("vendor", vendor)}
+                key={data?.CardCode}
+                helpertext={data?.error?.CardCode}
+                autoComplete="off"
+                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
+                name="BPCode"
+                disabled={edit}
+                endAdornment={!edit}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Name
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUITextField
+                value={edit ? data.U_tl_cardname : data?.CardName}
+                disabled
+                name="BPName"
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -336,33 +334,26 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Series
+                Series <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={data.seriesList ? filteredSeries : data?.seriesList}
+                  items={filteredSeries ?? data.SerieLists}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  // value={7914}
-                  value={
-                    data?.Series
-                      ? parseInt(filteredSeries[0]?.Series)
-                      : data?.Series
-                  }
+                  value={filteredSeries[0]?.Series}
                   disabled={edit}
                 />
                 <div className="-mt-1">
-                  <MUITextField
+                  <MUIRightTextField
                     size="small"
                     name="DocNum"
                     value={
-                      data?.seriesList
-                        ? filteredSeries[0]?.NextNumber
-                        : data.DocNum
+                      edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
                     }
                     disabled
                     placeholder="Document No"
@@ -375,7 +366,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Document Date
+                Document Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -383,6 +374,28 @@ export default function GeneralForm({
                 disabled={edit}
                 value={data.U_tl_docdate}
                 onChange={(e: any) => handlerChange("U_tl_docdate", e)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Status
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={[
+                  { label: "Open", value: "O" },
+                  { label: "Closed", value: "Close" },
+                ]}
+                name="U_tl_status"
+                disabled
+                loading={data?.isLoadingSerie}
+                value={data?.U_tl_status !== "Close" ? "O" : "Close"}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_status", e.target.value)
+                }
               />
             </div>
           </div>

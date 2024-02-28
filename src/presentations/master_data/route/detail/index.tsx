@@ -134,7 +134,7 @@ function renderKeyValue(label: string, value: any) {
     <div className="grid grid-cols-2 py-2">
       <div className="col-span-1 text-gray-700">{label}</div>
       <div className="col-span-1 text-gray-900">
-        <MUITextField disabled value={value ?? "N/A"} />
+        <MUITextField disabled value={value} />
       </div>
     </div>
   );

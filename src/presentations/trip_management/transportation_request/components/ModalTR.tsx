@@ -10,8 +10,9 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { MRT_RowSelectionState } from "material-react-table";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
+import DataTableS from "./DataTableS";
+import { TRSourceDocument } from "./Document";
 import shortid from "shortid";
-import DataTable from "./DataTabaleO";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -21,10 +22,7 @@ const style = {
   bgcolor: "background.paper",
   p: 4,
 };
-type selectData = {
-  U_Type: string;
-  U_SourceDocEntry: number;
-};
+
 export default function TRModal(props: any) {
   const [searchValues, setSearchValues] = React.useState({
     DocumentNumber: "",
@@ -38,7 +36,6 @@ export default function TRModal(props: any) {
   const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
-  const [docSelect, setDocselect] = useState<any[]>([]);
 
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -46,11 +43,11 @@ export default function TRModal(props: any) {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_TO_DOCS`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_TR_DOCS`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/sml.svc/TLTO_MDOCS/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/sml.svc/TLTR_MDOCS/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -71,7 +68,7 @@ export default function TRModal(props: any) {
       pagination.pageSize,
     ],
     queryFn: async () => {
-      const Url = `${url}/sml.svc/TLTO_MDOCS?$top=${
+      const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
         filter ? `&$filter=${filter}` : filter
@@ -86,7 +83,6 @@ export default function TRModal(props: any) {
     },
     cacheTime: 0,
     staleTime: 0,
-    refetchOnWindowFocus: false
   });
 
   const columns = React.useMemo(
@@ -276,50 +272,48 @@ export default function TRModal(props: any) {
   const onSelectData = React.useCallback(async () => {
     setOpenLoading(true);
     let ids = [];
-    if (rowSelection) {
-      for (const [key, value] of Object.entries(rowSelection)) {
-        if (!value) continue;
+    for (const [key, value] of Object.entries(rowSelection)) {
+      if (!value) continue;
 
-        const docNum = key.split("_")?.at(-1);
-        ids.push(`DocNum eq ${docNum}`);
-      }
+      const docNum = key.split("_")?.at(-1);
+      ids.push(`U_DocNum eq ${docNum}`);
     }
-    const selectRow = await request(
-      "GET",
-      "/sml.svc/TLTO_MDOCS?" + `$filter=${ids.join(" or ")}`
+    await request(
+      "get",
+      "/sml.svc/TLTR_LINEDOCS?" + `$filter=${ids.join(" or ")}`
     ).then((res: any) => {
-      return res?.data?.value;
-    });
-    if (selectRow) {
-      const data = {
-        Documents: selectRow?.map((e: any) => {
+      const selected: TRSourceDocument[] = res?.data?.value?.map(
+        (e: TRSourceDocument) => {
           return {
-            U_Type: e?.U_Type,
-            U_SourceDocEntry: e?.U_SourceDocEntry,
+            U_SourceDocEntry: e.U_SourceDocEntry,
+            // SourceId: e,
+            U_DocNum: e.U_DocNum,
+            U_Type: e.U_Type,
+            U_CardCode: e.U_CardCode,
+            U_CardName: e.U_CardName,
+            U_DeliveryDate: e.U_DeliveryDate,
+            U_ShipToCode: e.U_ShipToCode,
+            U_ItemCode: e.U_ItemCode,
+            U_ShipToAddress: e.U_ShipToAddress,
+            U_Quantity: e.U_Quantity,
+            U_UomCode: e.U_UomCode,
+            U_UomAbsEntry: e.U_UomAbsEntry,
           };
-        }),
-      };
-      const document = props?.document?.map((e: any) => ({
-        ...e,
-        id: undefined,
-      }));
-      await request("POST", "/script/test/get_trans_order_source", data).then(
-        (res: any) => {
-          props?.setDocument([...document, ...res?.data?.value]);
-          props?.setTransDetail([
-            ...props?.transDetail,
-            ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0 })),
-          ]);
-          props?.setHeadTrans(res?.data?.value);
-          setRowSelection({});
-          setOpenLoading(false);
-          props?.setOpen(false);
         }
       );
-    }
+      const document = props?.document?.map((e: any) => ({
+        ...e,
+        id:undefined
+      }))
+      props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
+      setRowSelection({});
+      setOpenLoading(false);
+      props?.setOpen(false);
+    });
   }, [rowSelection]);
 
   const lists = React.useMemo(() => data, [data]);
+
   return (
     <>
       <Modal
@@ -368,7 +362,7 @@ export default function TRModal(props: any) {
                   <MUISelect
                     items={[
                       { value: "All", label: "All" },
-                      { value: "TR", label: "Transportation Request" },
+                      { value: "SO", label: "Sale Order" },
                       { value: "ITR", label: "Inventory Transfer Request" },
                     ]}
                     onChange={(e: any) => {
@@ -495,7 +489,7 @@ export default function TRModal(props: any) {
               </div>
             </div>
           </div>
-          <DataTable
+          <DataTableS
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
             columns={columns}

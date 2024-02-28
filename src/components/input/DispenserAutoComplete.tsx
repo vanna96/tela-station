@@ -18,9 +18,11 @@ export default function DispenserAutoComplete(props: {
   isStatusActive?: boolean;
   branch?: number;
   pumpType?: string;
+  loading?: boolean
 }) {
+  const { loading = false } = props;
   let { data, isLoading }: any = useQuery({
-    queryKey: ["efeffeefe"],
+    queryKey: ["dispenser"],
     queryFn: () => new DispenserRepository().get(),
   });
   const filteredData = data
@@ -67,7 +69,7 @@ export default function DispenserAutoComplete(props: {
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
-        loading={isLoading}
+        loading={isLoading || props.loading}
         getOptionLabel={(e: Type) => e.Code + " - " + e.Name}
         renderOption={(props, e: Type) => (
           <Box component="li" {...props}>
@@ -84,7 +86,7 @@ export default function DispenserAutoComplete(props: {
               ...params.InputProps,
               endAdornment: (
                 <React.Fragment>
-                  {isLoading ? (
+                  {isLoading || props.loading ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
                   {params.InputProps.endAdornment}
