@@ -261,6 +261,13 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
+  const { data: bin, isLoading: isLoadingBin }: any = useQuery({
+    queryKey: ["bin"],
+    queryFn: async () =>
+      await request("GET", "BinLocations?$select=BinCode,AbsEntry").then(
+        (res: any) => res.data?.value
+      ),
+  });
 
   const itemColumn: any = useMemo(
     () => [
@@ -272,16 +279,18 @@ function Content(props: any) {
         accessorKey: "binCode",
         header: "Bin Location",
         Cell: ({ cell }: any) => {
-          console.log(cell.getValue());
-          console.log(cell.row.original.itemCode);
-          {
-            new WareBinLocationRepository().findItem(
-              cell.getValue(),
-              cell.row.original.itemCode?.toString()
-            )?.BinCode ?? "N/A";
+          try {
+            const binlocation = bin?.find(
+              (e: any) => e?.AbsEntry == cell.row.original.binCode
+            )?.BinCode;
+            return binlocation ?? "N/A";
+          } catch (error) {
+            console.error("Error occurred while fetching bin location:", error);
+            return "N/A";
           }
         },
       },
+
       {
         accessorKey: "itemCode",
         header: "Item Code",
