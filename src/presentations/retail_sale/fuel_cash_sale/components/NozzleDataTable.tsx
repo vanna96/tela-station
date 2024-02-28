@@ -41,6 +41,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           }
 
           item.U_tl_cmeter = value;
+          item.U_tl_totalallow = value;
         }
       }
       return item;

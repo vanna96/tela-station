@@ -32,27 +32,6 @@ export default function AllocationTable({
       if (index.toString() === key.toString()) {
         const objKey = Object.keys(obj)[0];
         item[objKey] = Object.values(obj)[0];
-
-        if (
-          [
-            "U_tl_cardallow",
-            "U_tl_cashallow",
-            "U_tl_ownallow",
-            "U_tl_partallow",
-            "U_tl_pumpallow",
-            "U_tl_stockallow",
-          ].includes(objKey)
-        ) {
-          const total =
-            parseFloat(item.U_tl_cardallow || 0) +
-            parseFloat(item.U_tl_cashallow || 0) +
-            parseFloat(item.U_tl_ownallow || 0) +
-            parseFloat(item.U_tl_partallow || 0) +
-            parseFloat(item.U_tl_pumpallow || 0) +
-            parseFloat(item.U_tl_stockallow || 0);
-
-          item.U_tl_totalallow = total;
-        }
       }
       return item;
     });
@@ -238,7 +217,7 @@ export default function AllocationTable({
             parseFloat(cell.row.original?.U_tl_pumpallow || 0) +
             parseFloat(cell.row.original?.U_tl_stockallow || 0);
 
-          const isValid = cell.row.original.U_tl_cmeter === total;
+          const isValid = cell.row.original.U_tl_totalallow === total;
           return (
             <NumericFormat
               thousandSeparator
@@ -251,7 +230,7 @@ export default function AllocationTable({
               redColor={!isValid}
               customInput={MUIRightTextField}
               // value={cell.getValue()}
-              value={cell.row.original.U_tl_cmeter}
+              value={cell.row.original.U_tl_totalallow}
             />
           );
         },

@@ -4,13 +4,11 @@ export interface ErrorLogForm {
   handlerChange: (key: string, value: any) => void;
   data: any;
   edit?: boolean;
-  handlerChangeObject: (obj: any) => void;
 }
 
 export default function ErrorLogForm({
   data,
   handlerChange,
-  handlerChangeObject,
   edit,
 }: ErrorLogForm) {
   return (
