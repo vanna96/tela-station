@@ -16,18 +16,6 @@ export default function Consumption({
   edit,
   handlerChangeObject,
 }: ConsumptionProps) {
-  const [showAllocationTable, setShowAllocationTable] = useState(
-    localStorage.getItem("showAllocationTable") === "true"
-  );
-
-  useEffect(() => {
-    // Update localStorage whenever showAllocationTable changes
-    localStorage.setItem("showAllocationTable", showAllocationTable.toString());
-  }, [showAllocationTable]);
-
-  const handleGenerateAllocation = () => {
-    setShowAllocationTable(!showAllocationTable);
-  };
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -38,42 +26,20 @@ export default function Consumption({
         <div className="flex items-center my-6 gap-16 ">
           <div
             className="border border-gray-400 rounded cursor-pointer "
-            onClick={handleGenerateAllocation}
+            // onClick={generateAllocation}
           >
             <h4 className="border-b-1 border-gray-400 py-1 px-4 select-none">
               Generate Allocation
             </h4>
           </div>
-          {/* <Button
-            type="button"
-            size="small"
-            variant="outlined"
-
-            style={{ textDecoration: "none", textTransform: "none" , color: "black" , border: "black" }}
-            onClick={handleGenerateAllocation}
-          >
-            Generate Allocation
-          </Button> */}
         </div>
-        {edit ? (
-          <AllocationTable
-            data={data}
-            onChange={handlerChange}
-            edit={edit}
-            handlerChangeObject={handlerChangeObject}
-          />
-        ) : (
-          <div>
-            {showAllocationTable && (
-              <AllocationTable
-                data={data}
-                onChange={handlerChange}
-                edit={edit}
-                handlerChangeObject={handlerChangeObject}
-              />
-            )}
-          </div>
-        )}
+
+        <AllocationTable
+          data={data}
+          onChange={handlerChange}
+          edit={edit}
+          handlerChangeObject={handlerChangeObject}
+        />
       </div>
     </>
   );

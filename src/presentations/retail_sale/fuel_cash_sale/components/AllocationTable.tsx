@@ -230,22 +230,15 @@ export default function AllocationTable({
         accessorKey: "U_tl_totalallow",
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
-          const originalValue = parseFloat(
-            cell.row.original?.U_tl_nmeter?.replace(/,/g, "")
-          );
-          const meterValue = cell.row.original.U_tl_ometer;
-          const regMeterValue = cell.row.original.U_tl_reg_meter;
+          const total =
+            parseFloat(cell.row.original?.U_tl_cardallow || 0) +
+            parseFloat(cell.row.original?.U_tl_cashallow || 0) +
+            parseFloat(cell.row.original?.U_tl_ownallow || 0) +
+            parseFloat(cell.row.original?.U_tl_partallow || 0) +
+            parseFloat(cell.row.original?.U_tl_pumpallow || 0) +
+            parseFloat(cell.row.original?.U_tl_stockallow || 0);
 
-          let value = 0;
-
-          if (meterValue !== undefined) {
-            value = originalValue - meterValue;
-          } else if (regMeterValue > 0) {
-            value =
-              commaFormatNum(cell.row.original?.U_tl_nmeter || 0) -
-              regMeterValue;
-          }
-          const isValid = cell.row.original.U_tl_totalallow === value;
+          const isValid = cell.row.original.U_tl_cmeter === total;
           return (
             <NumericFormat
               thousandSeparator
@@ -257,7 +250,8 @@ export default function AllocationTable({
               fixedDecimalScale
               redColor={!isValid}
               customInput={MUIRightTextField}
-              value={cell.getValue()}
+              // value={cell.getValue()}
+              value={cell.row.original.U_tl_cmeter}
             />
           );
         },
@@ -265,7 +259,7 @@ export default function AllocationTable({
     ],
     [data.allocationData]
   );
-
+  console.log(data.allocationData);
   return (
     <>
       <div

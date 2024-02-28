@@ -15,15 +15,39 @@ interface NozzleDataProps {
 
 export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.nozzleData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+    const newData = data.nozzleData.map((item: any, index: number) => {
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
+        console.log(objKey);
+        console.log(item[objKey]);
+        if (
+          [
+            "U_tl_reg_meter",
+            "U_tl_ometer",
+            "U_tl_nmeter",
+            "U_tl_cmeter",
+          ].includes(objKey)
+        ) {
+          const originalValue = item.U_tl_nmeter;
+          const meterValue = item.U_tl_ometer;
+          const regMeterValue = item.U_tl_reg_meter;
+          let value = 0;
+
+          if (meterValue !== undefined) {
+            value = originalValue - meterValue;
+          } else if (regMeterValue > 0) {
+            value = commaFormatNum(item.U_tl_nmeter || 0) - regMeterValue;
+          }
+
+          item.U_tl_cmeter = value;
+        }
+      }
       return item;
     });
-    if (newData.length <= 0) return;
-    onChange("nozzleData", newData);
-  };
 
+    onChange("allocationData", newData);
+  };
 
   const itemColumns = React.useMemo(
     () => [
@@ -83,7 +107,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return (
             <NumericFormat
               //   disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_nmeter" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
@@ -107,7 +131,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return (
             <NumericFormat
               disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_ometer" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
@@ -127,31 +151,16 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
         header: "Consumption",
         visible: true,
         Cell: ({ cell }: any) => {
-          const originalValue = parseFloat(
-            cell.row.original?.U_tl_nmeter?.replace(/,/g, "")
-          );
-          const meterValue = cell.row.original.U_tl_ometer;
-          const regMeterValue = cell.row.original.U_tl_reg_meter;
-
-          let value = 0;
-
-          if (meterValue !== undefined) {
-            value = originalValue - meterValue;
-          } else if (regMeterValue > 0) {
-            value =
-              commaFormatNum(cell.row.original?.U_tl_nmeter || 0) -
-              regMeterValue;
-          }
-
           return (
             <NumericFormat
               disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_cmeter" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
               customInput={MUIRightTextField}
-              value={value}
+              // value={value}
+              value={cell.row.original.U_tl_cmeter}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_cmeter: e.target.value,
@@ -164,7 +173,6 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     ],
     []
   );
-
 
   return (
     <div
