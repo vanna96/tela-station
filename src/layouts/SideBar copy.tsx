@@ -209,6 +209,13 @@ export default function SideBari(props: any) {
             collapse={props?.collapse}
             title="Direct Account"
           />
+          <ChildButton
+            icon={<HiOutlineShoppingBag />}
+            onClick={() => goTo("/banking/deposit")}
+            route="deposit"
+            collapse={props?.collapse}
+            title="Deposit"
+          />
         </NavButton>
         <NavButton
           onClick={() => {

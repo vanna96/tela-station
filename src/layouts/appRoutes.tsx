@@ -281,6 +281,13 @@ const appRoutes: RouteType[] = [
           displayText: "Direct Account",
         },
       },
+      {
+        path: "/banking/deposits",
+        state: "deposits",
+        sidebarProps: {
+          displayText: "Deposit",
+        },
+      },
     ],
   },
   {

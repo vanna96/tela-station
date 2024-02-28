@@ -59,6 +59,13 @@ const CollectionPage = () => {
       filter: "DocType eq 'rAccount'",
       route: 'direct-account'
     },
+    {
+      title: "Deposit",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "deposit",
+      filter: "DocType eq 'rAccount'",
+      route: 'deposit'
+    },
   ];
 
   return (
