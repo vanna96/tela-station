@@ -33,6 +33,16 @@ export default class WareBinLocationRepository extends Repository<WareBinLocatio
         const warehouse: [] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
         return warehouse.find((e: any) => e?.BinAbsEntry == code);
     }
+    findItem<WareBinLocation>(code: number | undefined | null, itemCode: string | undefined | null): any {
+        const data = localStorage.getItem(this.key);
+        if (!data) return {};
+        const warehouse: any[] = JSON.parse(JSON.parse(Encryption.decrypt(this.key, data ?? '[]')));
+        const foundItem = warehouse.find((e: any) => e?.BinAbsEntry === code && e?.ItemCode === itemCode);
+        console.log(foundItem);
+        return foundItem;
+    }
+
+
 
 
     post(payload: any, isUpdate?: boolean | undefined, id?: any): Promise<WareBinLocation> {

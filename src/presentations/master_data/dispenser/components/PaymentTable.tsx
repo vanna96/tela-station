@@ -96,34 +96,22 @@ export default function PaymentTable(props: any) {
       size: 120,
       Cell: ({ cell }: any) => {
         return (
-          <div>
-            <MUITextField
-              value={cell.getValue()}
-              endAdornment={!(data?.isStatusClose || false)}
-              onClick={() => {
-                if ((cell.getValue() ?? "") === "") {
-                  handlerAddItem(cell?.row.id);
-                } else {
-                  handlerAddItem(cell?.row.id);
-                  // updateRef.current?.onOpen(cell.row.original);
-                }
-              }}
-              endIcon={
-                cell.getValue() === "" ? null : <TbEdit className="text-lg" />
+          <MUITextField
+            value={cell.getValue()}
+            endAdornment={!(data?.isStatusClose || false)}
+            onClick={() => {
+              if ((cell.getValue() ?? "") === "") {
+                handlerAddItem(cell?.row.id);
+              } else {
+                handlerAddItem(cell?.row.id);
+                // updateRef.current?.onOpen(cell.row.original);
               }
-              readOnly={true}
-            />
-            <BinLocationItemCode
-              Warehouse={data?.U_tl_whs}
-              BinAbsEntry={cell.row.original.binCode}
-              value={cell.getValue()}
-              onChange={(e: any) => {
-                handlerChangeItem(cell?.row?.id || 0, {
-                  itemCode: e,
-                });
-              }}
-            />
-          </div>
+            }}
+            endIcon={
+              cell.getValue() === "" ? null : <TbEdit className="text-lg" />
+            }
+            readOnly={true}
+          />
         );
       },
     },
@@ -225,7 +213,7 @@ export default function PaymentTable(props: any) {
       ),
     },
   ];
-
+  console.log(data);
   return (
     <>
       <FormCard title="Nozzle Data">

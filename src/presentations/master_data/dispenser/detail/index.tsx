@@ -12,6 +12,8 @@ import MUITextField from "@/components/input/MUITextField";
 import WarehouseRepository from "@/services/warehouseRepository";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import { useQuery } from "react-query";
+import BinlocationRepository from "@/services/actions/BinlocationRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -269,15 +271,20 @@ function Content(props: any) {
       {
         accessorKey: "binCode",
         header: "Bin Location",
-        Cell: ({ cell }: any) => (
-          <div>
-            {new WareBinLocationRepository()?.find(cell.getValue())?.BinCode}
-          </div>
-        ),
+        Cell: ({ cell }: any) => {
+          console.log(cell.getValue());
+          console.log(cell.row.original.itemCode);
+          {
+            new WareBinLocationRepository().findItem(
+              cell.getValue(),
+              cell.row.original.itemCode?.toString()
+            )?.BinCode ?? "N/A";
+          }
+        },
       },
       {
         accessorKey: "itemCode",
-        header: "Item Code", //uses the default width from defaultColumn prop
+        header: "Item Code",
         visible: true,
         size: 120,
       },

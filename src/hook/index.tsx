@@ -38,5 +38,44 @@ export const useDocumentTotalHook = (
     return total;
   }, [items, ExchangeRate]);
 
+  const totalNet: number = React.useMemo(() => {
+    const total = items.reduce((prevTotal, item) => {
+      let lineTotal = formular.findLineTotal(
+        item.UnitPrice,
+        (item.Quantity * (discount ? 100 - discount : 1))?.toString(),
+        item.DiscountPercent
+      );
+      lineTotal = lineTotal / 1.1;
+      return prevTotal + lineTotal;
+    }, 0);
+    return total;
+  }, [items, ExchangeRate]);
+
+  const vatSum: number = React.useMemo(() => {
+    const total = items.reduce((prevTotal, item) => {
+      let lineTotal = formular.findLineTotal(
+        item.UnitPrice,
+        (item.Quantity * (discount ? 100 - discount : 1))?.toString(),
+        item.DiscountPercent
+      );
+      lineTotal = lineTotal / 1.1 / 10;
+      return prevTotal + lineTotal;
+    }, 0);
+    return total;
+  }, [items, ExchangeRate]);
+
+  const discountSum: number = React.useMemo(() => {
+    const total = items.reduce((prevTotal, item) => {
+      let lineTotal = formular.findLineTotal(
+        item.UnitPrice,
+        (item.Quantity * (discount ? 100 - discount : 1))?.toString(),
+        item.DiscountPercent
+      );
+      lineTotal = lineTotal / 1.1 / 10;
+      return prevTotal + lineTotal;
+    }, 0);
+    return total;
+  }, [items, ExchangeRate]);
+
   return [docTotal, docTaxTotal, totalBefore];
 };
