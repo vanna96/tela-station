@@ -141,7 +141,7 @@ export default function ContentForm({
           return (
             <OutlinedInput
               className={`text-field w-full cursor-pointer ${data?.isStatusClose || cellValue === " " ? "bg-gray-100" : ""} ${cellValue === "Add" ? "center-text cursor-pointer" : "cursor-pointer"}`}
-              value={cellValue == " " ? "Item Code" : cellValue}
+              value={cellValue == " " ? "" : cellValue}
               onBlur={(event) =>
                 handlerChangeInput(event, cell?.row?.original, "ItemCode")
               }

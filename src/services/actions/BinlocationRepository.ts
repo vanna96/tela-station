@@ -5,7 +5,8 @@ import Binlocation from '@/models/Binlocation';
 
 export default class BinlocationRepository extends Repository<Binlocation> {
 
-  url: string = '/BinLocations';
+  url: string = '/BinLocations?$select=BinCode,AbsEntry';
+  static get: any;
 
 
   async get<T>(query?: string): Promise<T[]> {

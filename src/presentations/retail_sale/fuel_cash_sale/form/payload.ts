@@ -1,5 +1,5 @@
 const payload = {
-    "SANumber": "123456789",//doc number of fuel cash sale, lube case sale or lPG case sale,
+    "SaleDocEntry": 15,//doc number of fuel cash sale, lube case sale or lPG case sale,
     "ToWarehouse": "WH02",// to warehouse take from pump warehouse
     "InvoiceSeries": 7638,
     "IncomingSeries": 183,
