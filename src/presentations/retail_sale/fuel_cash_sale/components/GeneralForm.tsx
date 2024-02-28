@@ -289,6 +289,7 @@ export default function GeneralForm({
                     stockAllocationData: updatedStockAllocationData,
                     nozzleData: updatedNozzleData,
                     cardCountData: updatedCardCountData,
+                    U_tl_whs: dispenserData?.U_tl_whs,
                   });
                   setIsDispenserLoading(false);
                 }}
