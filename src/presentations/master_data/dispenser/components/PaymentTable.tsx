@@ -63,7 +63,7 @@ export default function PaymentTable(props: any) {
     });
     onChange("PumpData", newData);
   }
-
+  console.log(data?.Status);
   const columns = [
     {
       accessorKey: "reset",
@@ -186,7 +186,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"registerMeeting" + cell.getValue() + cell?.row?.id}
-          disabled={edit}
+          disabled={edit && data?.Status !== "New"}
           defaultValue={cell.row.original?.registerMeeting || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -204,7 +204,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"updateMetering" + cell.getValue() + cell?.row?.id}
-          disabled={edit}
+          disabled={edit && data?.Status !== "New"}
           defaultValue={cell.row.original?.updateMetering || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
