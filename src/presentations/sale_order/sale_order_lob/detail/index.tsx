@@ -503,7 +503,11 @@ function Content(props: any) {
                 </div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    value={totalBefore === 0 ? "" : totalBefore}
+                    value={
+                      props?.data?.DocTotal +
+                      props.data?.TotalDiscount -
+                      props.data.VatSum
+                    }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -546,9 +550,10 @@ function Content(props: any) {
                     <div className="col-span-4">
                       <NumericFormat
                         thousandSeparator
-                        value={
-                          discountAmount === 0 || "" ? "0.000" : discountAmount
-                        }
+                        // value={
+                        //   discountAmount === 0 || "" ? "0.000" : discountAmount
+                        // }
+                        value={props.data?.TotalDiscount}
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         // fixedDecimalScale
@@ -566,9 +571,10 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-700">Tax</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    value={
-                      discountedDocTaxTotal === 0 ? "" : discountedDocTaxTotal
-                    }
+                    // value={
+                    //   discountedDocTaxTotal === 0 ? "" : discountedDocTaxTotal
+                    // }
+                    value={props.data.VatSum}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -585,7 +591,8 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     readOnly
-                    value={discountedDocTotal === 0 ? "" : discountedDocTotal}
+                    // value={discountedDocTotal === 0 ? "" : discountedDocTotal}
+                    value={props.data?.DocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
