@@ -4,7 +4,7 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { Button, Checkbox, CircularProgress } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { Fragment, useEffect, useState } from "react";
-import { Controller, useFieldArray } from "react-hook-form";
+import { Controller, useFieldArray, useWatch } from "react-hook-form";
 import TRModal from "./TRModal";
 import { FaAngleDown } from "react-icons/fa6";
 import { FaAngleRight } from "react-icons/fa6";
@@ -27,6 +27,7 @@ export default function TransDetail({
   transDetail,
   setTransDetail,
   setTrans,
+  watch,
 }: any) {
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -63,7 +64,6 @@ export default function TransDetail({
 
   const dataListing = React.useMemo(() => {
     const temp: any[] = [];
-
     if (id) {
       for (const item of transDetail as any[]) {
         temp.push(...(item.TL_TO_DETAIL_ROWCollection ?? []));
@@ -103,7 +103,6 @@ export default function TransDetail({
       setTrans(dataListing2);
     }
   }, [transDetail]);
-
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -136,54 +135,59 @@ export default function TransDetail({
                   Remark
                 </th>
               </tr>
-              {dataListing2?.map((e: any, index: number) => {
-                return (
-                  <Fragment key={shortid.generate()}>
-                    <tr
-                      className={`border-t ${e?.U_Type === "S" || (e?.U_DocType === "S" && "bg-zinc-200")} border-[#dadde0]`}
-                    >
-                      <td className="py-4 flex justify-center gap-8 items-center">
-                        <span
-                          className={`${e?.U_Type === "S" ? "bg-white border border-gray-300" : ""} w-[33px] flex items-center justify-center border rounded-lg raduire text-sm text-black`}
-                        >
-                          {index + 1}
-                        </span>
-                      </td>
-
-                      <td className="pr-4">
-                        <span className="text-black text-[13.5px] ml-11 font-bold">
-                          {e?.U_Type === "S" || e?.U_DocType === "S"
-                            ? e?.U_StopCode || e?.U_ItemCode
-                            : "Drop-Off"}
-                        </span>
-                      </td>
-                      <td className="pr-4 w-[100px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                        {e?.FromLocation}
-                      </td>
-                      <td className="pr-4 w-[100px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                        {e?.U_ShipToCode}
-                      </td>
-                      <td
-                        colSpan={2}
-                        className="pr-4 w-[100px] text-left font-normal  py-2 text-[14px] text-gray-500"
+              {dataListing2
+                ?.sort?.((a: any, b: any) => a?.U_Order - b?.U_Order)
+                ?.map((e: any, index: number) => {
+                  return (
+                    <Fragment key={shortid.generate()}>
+                      <tr
+                        className={`border-t ${(e?.U_Type === "S" || e?.U_DocType === "S") && "bg-zinc-200"} border-[#dadde0]`}
                       >
-                        {e?.U_ShipToAddress}
-                      </td>
+                        <td className="py-4 flex justify-center gap-8 items-center">
+                          <span
+                            className={`${e?.U_Type === "S" || e?.U_DocType === "S" ? "bg-white border border-gray-300" : ""} w-[33px] flex items-center justify-center border rounded-lg raduire text-sm text-black`}
+                          >
+                            {index + 1}
+                          </span>
+                        </td>
 
-                      <td colSpan={2} className="pr-4 w-[100px] ">
-                        <div
-                          className={`${e?.U_Type === "S" || (e?.U_DocType === "S" && "hidden")} text-left font-normal  py-2 text-[14px] text-gray-500`}
+                        <td className="pr-4">
+                          <span className="text-black text-[13.5px] ml-11 font-bold">
+                            {e?.U_Type === "S" || e?.U_DocType === "S"
+                              ? "Stop"
+                              : "Drop-Off"}
+                          </span>
+                        </td>
+                        <td className="pr-4 w-[100px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                          {index === 0
+                            ? getValues("U_BaseStation")
+                            : dataListing2?.at(index - 1)?.U_ShipToCode}
+                        </td>
+                        <td className="pr-4 w-[100px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                          {e.U_Type === "S" ? e?.U_StopCode : e?.U_ShipToCode}
+                        </td>
+                        <td
+                          colSpan={2}
+                          className="pr-4 w-[100px] text-left font-normal  py-2 text-[14px] text-gray-500"
                         >
-                          {" "}
-                          <MUITextField
-                            placeholder="Remark"
-                            value={e?.Remark}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                    {e?.U_DocType === "SO" ||
-                      (e?.U_DocType === "ITR" && (
+                          {e.U_Type === "S"
+                            ? e?.U_Description
+                            : e?.U_ShipToAddress}
+                        </td>
+
+                        <td colSpan={2} className="pr-4 w-[100px] ">
+                          <div
+                            className={`${(e?.U_Type === "S" || e?.U_DocType === "S") && "hidden"} text-left font-normal  py-2 text-[14px] text-gray-500`}
+                          >
+                            {" "}
+                            <MUITextField
+                              placeholder="Remark"
+                              value={e?.Remark}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                      {e?.U_Quantity && (
                         <>
                           <tr className="border-t-[1px] border-[#dadde0] ">
                             <th className="w-[120px] "></th>
@@ -249,10 +253,10 @@ export default function TransDetail({
                             </td>
                           </tr>
                         </>
-                      ))}
-                  </Fragment>
-                );
-              })}
+                      )}
+                    </Fragment>
+                  );
+                })}
             </table>
           </div>
         ) : (

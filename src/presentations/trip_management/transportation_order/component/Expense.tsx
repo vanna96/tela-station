@@ -2,6 +2,7 @@ import ExpenseCodeAutoComplete from "@/components/input/ExpenseCode";
 import MUITextField from "@/components/input/MUITextField";
 import { useState } from "react";
 import { Controller, useFieldArray } from "react-hook-form";
+import { useParams } from "react-router-dom";
 export default function Expense({
   register,
   defaultValue,
@@ -27,8 +28,7 @@ export default function Expense({
       </div>
     );
   };
-console.log(expense);
-
+const {id} = useParams()
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -55,13 +55,15 @@ console.log(expense);
             {expense?.map((e: any, index: number) => {
               return (
                 <tr key={index}>
-                  <td className="py-4 flex justify-center gap-8 items-center">
+                  <td
+                    className={` py-4 flex justify-center gap-8 items-center`}
+                  >
                     <span className="text-black">{index + 1}</span>
 
                     <div
                       onClick={() => removeExpense(index)}
                       className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
-                        detail
+                        detail || id
                           ? "hidden"
                           : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
                       }  rounded-sm flex justify-center items-center `}
@@ -74,15 +76,15 @@ console.log(expense);
                     <Controller
                       name="U_Code"
                       control={control}
-                      disabled={detail}
                       render={({ field }) => {
                         return (
                           <ExpenseCodeAutoComplete
+                            disabled={detail || id}
                             {...field}
                             onChange={(e) => {
                               setValue(
                                 `TL_TO_EXPENSECollection.${index}.U_Code`,
-                                e?.Code
+                                e
                               );
                             }}
                             value={watch("U_Code") || e?.U_Code}
@@ -94,7 +96,7 @@ console.log(expense);
                   <td className="pr-4">
                     <MUITextField
                       startAdornment={USD()}
-                      disabled={detail}
+                      disabled={detail || id}
                       placeholder="Amount"
                       inputProps={{
                         ...register(
@@ -106,7 +108,7 @@ console.log(expense);
                   </td>
                   <td colSpan={2} className="pr-4">
                     <MUITextField
-                      disabled={detail}
+                      disabled={detail || id}
                       placeholder="Description"
                       inputProps={{
                         ...register(
@@ -128,7 +130,7 @@ console.log(expense);
                   render={({ field }) => {
                     return (
                       <ExpenseCodeAutoComplete
-                      disabled={detail}
+                      disabled={detail || id}
                         {...field}
                         onChange={(e: any) => {
                           addExpense({ U_Code: e });
@@ -141,7 +143,7 @@ console.log(expense);
               </td>
               <td className="pr-4">
                 <MUITextField
-                  disabled={detail}
+                  disabled={detail || id}
                   placeholder="Amount"
                   inputProps={{}}
                   startAdornment={USD()}
@@ -149,7 +151,7 @@ console.log(expense);
               </td>
               <td className="pr-4">
                 <MUITextField
-                  disabled={detail}
+                  disabled={detail || id}
                   placeholder="Description"
                   inputProps={{}}
                 />
@@ -193,7 +195,7 @@ console.log(expense);
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    disabled={detail}
+                    disabled={detail || id}
                     placeholder="Fuel"
                     inputProps={{
                       onChange: (e) => handleChangeFuel(index, e, "U_Fuel"),
@@ -204,7 +206,7 @@ console.log(expense);
 
                 <td className="pr-4">
                   <MUITextField
-                    disabled={detail}
+                    disabled={detail || id}
                     placeholder="Amount"
                     inputProps={{
                       onChange: (e) =>
@@ -215,7 +217,7 @@ console.log(expense);
                 </td>
                 <td className="pr-4">
                   <MUITextField
-                    disabled={detail}
+                    disabled={detail || id}
                     placeholder="Description"
                     inputProps={{
                       onChange: (e) =>

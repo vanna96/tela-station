@@ -8,6 +8,7 @@ import TransportationOrderList from "@/presentations/trip_management/transportat
 import TransportationOrderForm from "@/presentations/trip_management/transportation_order/form/TransportationOrderForm";
 import TransportationRequestDetail from "@/presentations/trip_management/transportation_request/detail";
 import TransportationOrderDashboad from "@/presentations/trip_management/transportation_order/TransportationOrderDashboad";
+import TransportationOrderDetail from "@/presentations/trip_management/transportation_order/detail/TransportationOrderDetail";
 
 export default function TripManagementRoute() {
   return (
@@ -26,7 +27,10 @@ export default function TripManagementRoute() {
       <Route path="/transportation-order/*">
         <Route index element={<TransportationOrderDashboad />} />
         <Route path={`create`} element={<TransportationOrderForm />} />
-        <Route path=":id" element={<TransportationOrderForm detail={true} />} />
+        <Route
+          path=":id"
+          element={<TransportationOrderDetail detail={true} />}
+        />
         <Route
           path=":id/edit"
           element={<TransportationOrderForm edit={true} />}

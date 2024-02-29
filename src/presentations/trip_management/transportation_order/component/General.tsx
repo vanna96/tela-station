@@ -17,6 +17,7 @@ import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete"
 import { UseFormProps } from "../form/TransportationOrderForm";
 import RoutAutoComplete from "@/components/input/RouteAutoComplete";
 import VehicleAutoComplete from "@/components/input/VehicleAutoComplete";
+import { useLocation, useParams } from "react-router-dom";
 
 const General = ({
   register,
@@ -39,19 +40,17 @@ const General = ({
     termination: null,
     branchASS: null,
   });
-
+  const { id } = useParams();
   useEffect(() => {
     setValue("Series", 7918);
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
+   
   }, [defaultValues]);
   const nextNumber = serie?.find(
     (e: any) => e?.Series === getValues("Series")
   )?.NextNumber;
-
+  const location = useLocation();
+  const create = location.pathname?.split("/");
+  
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -73,7 +72,10 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <RoutAutoComplete
-                        disabled={detail}
+                        disabled={
+                          create?.at(-1)==="create"?false:
+                           true
+                        }
                         {...field}
                         value={watch("U_Route") || defaultValues?.U_Route}
                         onChange={(e: any) => {
@@ -119,7 +121,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <BaseStationAutoComplete
-                        disabled={detail}
+                        disabled={id || detail}
                         {...field}
                         value={
                           watch("U_BaseStation") || defaultValues?.U_BaseStation
@@ -148,11 +150,15 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <VehicleAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={
-                          defaultValues?.U_BaseStation || watch("U_Vehicle")
+                        disabled={
+                          create?.at(-1) === "create"
+                            ? false
+                            : id && defaultValues?.U_Status === "P"
+                              ? false
+                              : detail || true
                         }
+                        {...field}
+                        value={defaultValues?.U_Vehicle || watch("U_Vehicle")}
                         onChange={(e: any) => {
                           setValue("U_Vehicle", e?.Code);
                           setFuel([{ U_Fuel: e?.U_FuelType }]);
@@ -220,7 +226,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ManagerAutoComplete
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         value={watch("U_Driver") || defaultValues?.U_Driver}
                         onChange={(e: any) => {
@@ -273,7 +279,7 @@ const General = ({
                         <MUISelect
                           {...field}
                           items={serie}
-                          disabled={detail || defaultValues?.U_Status === "C"}
+                          disabled={true}
                           value={watch("Series") || defaultValues?.serie}
                           aliasvalue="Series"
                           aliaslabel="Name"
@@ -311,7 +317,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         defaultValue={
                           watch("U_DocDate") || defaultValues?.U_DocDate
@@ -338,15 +344,44 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <div className="hidden">
-                  {" "}
-                  <MUITextField
-                    inputProps={{
-                      ...register("Status"),
-                    }}
-                    value={"O"}
-                  />
+                  {getValues("U_Status") === undefined && (
+                    <MUITextField
+                      inputProps={{
+                        ...register("Status"),
+                      }}
+                      value={"I"}
+                    />
+                  )}
                 </div>
-                <MUITextField disabled={true} value={"Open"} />
+                <Controller
+                  name="Status"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        {...field}
+                        disabled={detail}
+                        items={[
+                          { label: "Initiated", value: "I" },
+                          { label: "Planned", value: "P" },
+                          { label: "Seal Number", value: "S" },
+                          { label: "Dispatched", value: "D" },
+                          { label: "Released", value: "R" },
+                          { label: "Completed", value: "CP" },
+                          { label: "Cancelled", value: "C" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("U_Status", e.target.value);
+                        }}
+                        value={
+                          watch("U_Status") || defaultValues?.U_Status || "I"
+                        }
+                        aliasvalue="value"
+                        aliaslabel="label"
+                      />
+                    );
+                  }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -362,7 +397,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         defaultValue={
                           defaultValues?.U_DispatchDate ||
@@ -401,7 +436,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         defaultValue={
                           defaultValues?.U_CompletedDate ||
