@@ -94,53 +94,87 @@ class DispenserForm extends CoreFormDocument {
             Attendant2: data?.U_tl_attend2,
             U_tl_bplid: data?.U_tl_bplid,
             U_tl_whs: data?.U_tl_whs,
-            PumpData: await Promise.all(
-              (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
-                const UoMGroupEntry = await request(
-                  "GET",
-                  `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
-                );
-                const UoMGroup = UoMGroupEntry;
-                const uomGroups: any =
-                  await new UnitOfMeasurementGroupRepository().get();
+            PumpData: await Promise.all((data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+              let item: any = {
+                pumpCode: e?.U_tl_pumpcode,
+                itemCode: e?.U_tl_itemnum,
+                UomAbsEntry: e?.U_tl_uom,
+                UomLists: [],
+                registerMeeting: e?.U_tl_reg_meter,
+                updateMetering: e?.U_tl_upd_meter,
+                status: e?.U_tl_status,
+                LineId: e?.LineId,
+                binCode: e?.U_tl_bincode,
+              };
+            
+              if (e?.U_tl_itemnum) {
+                const [UoMGroupEntry, uomGroups, uoms, itemResponse] = await Promise.all([
+                  request("GET", `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`),
+                  new UnitOfMeasurementGroupRepository().get(),
+                  new UnitOfMeasurementRepository().get(),
+                  request("GET", `Items('${e?.U_tl_itemnum}')?$select=ItemName`).then(res => res?.data),
+                ]);
+            
+                const UoMGroupAbsEntry = UoMGroupEntry?.data?.UoMGroupEntry;
+                const uomGroup = uomGroups.find(row => row.AbsEntry === UoMGroupAbsEntry);
+            
+                const uomLists = uomGroup?.UoMGroupDefinitionCollection
+                  ?.map(row => uoms.find(record => record?.AbsEntry === row?.AlternateUoM))
+                  .filter(Boolean) ?? [];
+            
+                item.ItemDescription = itemResponse?.ItemName;
+                item.UomLists = uomLists;
+              }
+              return item;
+            })),
+            Edit: true
+            // PumpData: await Promise.all(
+            //   (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+            //     const UoMGroupEntry = await request(
+            //       "GET",
+            //       `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
+            //     );
+            //     const UoMGroup = UoMGroupEntry;
+            //     const uomGroups: any =
+            //       await new UnitOfMeasurementGroupRepository().get();
 
-                const uoms = await new UnitOfMeasurementRepository().get();
-                const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === UoMGroup?.data?.UoMGroupEntry
-                );
-                let uomLists: any[] = [];
-                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-                  const itemUOM = uoms.find(
-                    (record: any) => record?.AbsEntry === row?.AlternateUoM
-                  );
-                  if (itemUOM) {
-                    uomLists.push(itemUOM);
-                  }
-                });
-                //
-                let item: any = {
-                  pumpCode: e?.U_tl_pumpcode,
-                  itemCode: e?.U_tl_itemnum,
-                  UomAbsEntry: e?.U_tl_uom,
-                  UomLists: uomLists,
-                  registerMeeting: e?.U_tl_reg_meter,
-                  updateMetering: e?.U_tl_upd_meter,
-                  status: e?.U_tl_status,
-                  LineId: e?.LineId,
-                  binCode: e?.U_tl_bincode,
-                };
+            //     const uoms = await new UnitOfMeasurementRepository().get();
+            //     const uomGroup: any = uomGroups.find(
+            //       (row: any) => row.AbsEntry === UoMGroup?.data?.UoMGroupEntry
+            //     );
+            //     let uomLists: any[] = [];
+            //     uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+            //       const itemUOM = uoms.find(
+            //         (record: any) => record?.AbsEntry === row?.AlternateUoM
+            //       );
+            //       if (itemUOM) {
+            //         uomLists.push(itemUOM);
+            //       }
+            //     });
+            //     //
+            //     let item: any = {
+            //       pumpCode: e?.U_tl_pumpcode,
+            //       itemCode: e?.U_tl_itemnum,
+            //       UomAbsEntry: e?.U_tl_uom,
+            //       UomLists: uomLists,
+            //       registerMeeting: e?.U_tl_reg_meter,
+            //       updateMetering: e?.U_tl_upd_meter,
+            //       status: e?.U_tl_status,
+            //       LineId: e?.LineId,
+            //       binCode: e?.U_tl_bincode,
+            //     };
 
-                if (e?.U_tl_itemnum) {
-                  const itemResponse: any = await request(
-                    "GET",
-                    `Items('${e?.U_tl_itemnum}')?$select=ItemName`
-                  ).then((res: any) => res?.data);
-                  item.ItemDescription = itemResponse?.ItemName;
-                }
-                return item;
-              })
-            ),
-            Edit: true,
+            //     if (e?.U_tl_itemnum) {
+            //       const itemResponse: any = await request(
+            //         "GET",
+            //         `Items('${e?.U_tl_itemnum}')?$select=ItemName`
+            //       ).then((res: any) => res?.data);
+            //       item.ItemDescription = itemResponse?.ItemName;
+            //     }
+            //     return item;
+            //   })
+            // ),
+            
           };
         })
         .catch((err: any) => console.log(err))

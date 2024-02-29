@@ -113,7 +113,7 @@ export default function GeneralForm({
                   value={data?.NumOfPump}
                   placeholder="Number of Pump"
                   onChange={(e) => {
-                    let no_pump:string = ((parseInt(e.target.value) <= 10 ? parseInt(e.target.value) : 10) ?? 0).toString();
+                    let no_pump:string = ((parseInt(e.target.value) <= 10 ? (parseInt(e.target.value) <= 0 ? 0:parseInt(e.target.value)) : 10) ?? 0).toString();
                     const PumpData = [];
                     for (
                       let index = 0;
