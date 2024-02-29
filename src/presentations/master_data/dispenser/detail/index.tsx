@@ -209,7 +209,7 @@ function General(props: any) {
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Pump Name</div>
+              <div className="col-span-1 text-gray-700 ">Pump Description</div>
               <div className="col-span-1 text-gray-900">
                 <MUITextField
                   value={props?.data?.PumpName ?? "N/A"}
