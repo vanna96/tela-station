@@ -1,14 +1,8 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
 import { useEffect, useState } from "react";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller, useWatch } from "react-hook-form";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import { FormControlLabel, Radio } from "@mui/material";
-import TableCheck from "./TableChecks";
+import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
 
 const Cash = ({
   register,
@@ -46,24 +40,31 @@ const Cash = ({
           <div className=" md:col-span-12">
           <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500">
-                  G/L Account Code
+                <label htmlFor="Deposit Code" className="text-gray-500">
+                  Deposit Code
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "G/L Account Code is required" }}
-                  name="AllocationAccount"
+                  name="U_tl_cash_acc"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <CashACAutoComplete
-                        value={data?.AllocationAccount}
+                      <DepositCashAccountAutoComplete
+                        value={field.value}
                         onChange={(e: any) => {
-                          console.log(e);
+                          setValue(
+                            "U_tl_cash_acc",
+                            e?.Code,
+                          );
+                          // setValue(
+                          //   "AllocationAccountName",
+                          //   e?.Name,
+                          // );
                           setValue(
                             "AllocationAccount",
-                            new GLAccountRepository().find(e)?.Name,
+                            e?.U_tl_cashacct,
                           );
                         }}
                       />
@@ -74,13 +75,14 @@ const Cash = ({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500">
-                  G/L Account Name
+                <label htmlFor="Deposit Name" className="text-gray-500">
+                  Deposit Name
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
+                  value={useWatch({control, name: 'AllocationAccount' })}
                   inputProps={{
                     ...register("AllocationAccount"),
                   }}

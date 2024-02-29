@@ -20,20 +20,21 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import Checks from "../components/Checks";
 import Cash from "../components/Cash";
+import CheckDetail from "./CheckDetail";
 let dialog = React.createRef<FormMessageModal>();
 
 // const { id } = useParams();
 const DepositDetail = (props: any) => {
   const {
-    handleSubmit,
     register,
     setValue,
     control,
     reset,
     watch,
+    getValues,
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = props?.match?.params || 0;
+  // const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
     loading: false,
@@ -45,7 +46,27 @@ const DepositDetail = (props: any) => {
     DocNum: "",
   });
 
-  const [driver, setDriver] = React.useState<any>();
+  const { id } = useParams();
+
+  const { data, isLoading }: any = useQuery({
+    queryKey: [`deposits`],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `/sml.svc/TL_POSTED_DEPOSIT?$filter=DeposId eq ${id} `
+      )
+        .then(async (res: any) => res?.data)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+
+      return response?.value;
+    },
+    cacheTime: 0,
+    staleTime: 0,
+  });
+
+  const [deposit, setDeposit] = React.useState<any>();
 
   useEffect(() => {
     // Fetch initial data if needed
@@ -60,7 +81,7 @@ const DepositDetail = (props: any) => {
       });
       await request("GET", `Deposits(${id})`)
         .then((res: any) => {
-          setDriver(res?.data);
+          setDeposit(res?.data);
           setState({
             ...state,
             loading: false,
@@ -108,10 +129,10 @@ const DepositDetail = (props: any) => {
   };
 
   React.useEffect(() => {
-    if (driver) {
-      reset({ ...driver });
+    if (deposit) {
+      reset({ ...deposit });
     }
-  }, [driver]);
+  }, [deposit]);
 
   const Left = ({ header, data }: any) => {
     return (
@@ -223,18 +244,21 @@ const DepositDetail = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  getValues={getValues}
                 />
               </h1>
             )}
             {state.tapIndex === 1 && (
               <h1>
-                <Checks
+                <CheckDetail
                   watch={watch}
                   detail={props?.detail}
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  data={data}
+                  getValues={getValues}
                 />
               </h1>
             )}
@@ -247,6 +271,7 @@ const DepositDetail = (props: any) => {
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  getValues={getValues}
                 />
               </h1>
             )}

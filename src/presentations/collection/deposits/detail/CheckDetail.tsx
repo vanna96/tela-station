@@ -8,9 +8,9 @@ import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete"
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import { FormControlLabel, Radio } from "@mui/material";
-import TableCheck from "./TableChecks";
+import TableCheckDetail from "./TableCheckDetail";
 
-const Checks = ({
+const CheckDetail = ({
   register,
   control,
   defaultValues,
@@ -52,10 +52,10 @@ const Checks = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  // disabled={detail}
-                  // inputProps={{
-                  //   ...register(""),
-                  // }}
+                  disabled={detail}
+                  inputProps={{
+                    ...register("Deposit Check"),
+                  }}
                 />
               </div>
             </div>
@@ -69,7 +69,7 @@ const Checks = ({
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    // ...register("Find"),
+                    ...register("Find"),
                   }}
                 />
               </div>
@@ -126,11 +126,11 @@ const Checks = ({
           </div>
         </div>
         <div>
-        <TableCheck data={data} control={control} setValue={setValue} watch={watch}/>
+        <TableCheckDetail data={data} control={control} setValue={setValue} watch={watch}/>
       </div>
       </div>
     </>
   );
 };
 
-export default Checks;
+export default CheckDetail;

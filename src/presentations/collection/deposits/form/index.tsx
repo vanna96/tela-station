@@ -19,6 +19,7 @@ import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import Checks from "../components/Checks";
 import Cash from "../components/Cash";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
 
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
@@ -33,6 +34,7 @@ export type UseFormProps = {
   setBranchAss?: any;
   branchAss?: any;
   detail?: boolean;
+  edit?: boolean;
   data?: any;
   watch: UseFormWatch<FieldValues>;
   serie?: any;
@@ -50,7 +52,7 @@ const DepositForm = (props: any) => {
     getValues,
     formState: { errors, defaultValues },
   } = useForm();
-  const { id }: any = props?.match?.params || 0;
+  const { id }: any = useParams();
 
   const [state, setState] = useState({
     loading: false,
@@ -75,7 +77,18 @@ const DepositForm = (props: any) => {
 
   useEffect(() => {
     fetchData();
+    fethSeries();
   }, []);
+  const fethSeries = async () => {
+    let seriesList: any = props?.query?.find("deposit-series");
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "25",
+      });
+      props?.query?.set("deposit-series", seriesList);
+    }
+    setSerie(seriesList);
+  };
 
   const fetchData = async () => {
     if (id) {
@@ -98,23 +111,23 @@ const DepositForm = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-    const data: any = Object.fromEntries(
-      Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
-      )
-    );
-    const { id } = props?.match?.params || 0;
+    const payload: any = {
+      ...e,
+    };
     try {
+      console.log(e);
+
+      // return;
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/Deposits(${id})`)
+        await request("PATCH", `/Deposits(${id})`, payload)
           .then((res: any) =>
             dialog.current?.success("Update Successfully.", res?.data?.AbsEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
-        await request("POST", "/Deposits")
+        await request("POST", "/Deposits", payload)
           .then((res: any) =>
             dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
           )
@@ -138,24 +151,40 @@ const DepositForm = (props: any) => {
     [state]
   );
 
+  const isNextTap = (tapIndex: number) => {
+    if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "")
+      return;
+    if (!getValues("BPLID") || getValues("BPLID") === "") return;
+    if (!getValues("DepositAccount") || getValues("DepositAccount") === "")
+      return;
+    if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") return;
+
+    handlerChangeMenu(tapIndex);
+  };
+
   const HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={state.tapIndex === 0}
-          onClick={() => handlerChangeMenu(0)}
-        >
+        <MenuButton active={state.tapIndex === 0} onClick={() => isNextTap(0)}>
           Basic Information
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 1}
-          onClick={() => handlerChangeMenu(1)}
+          onClick={() => {
+            isNextTap(1);
+            setValue("DepositType", "dtChecks");
+            setValue("TotalLC", undefined);
+          }}
         >
           Checks
         </MenuButton>
         <MenuButton
           active={state.tapIndex === 2}
-          onClick={() => handlerChangeMenu(2)}
+          onClick={() => {
+            setValue("DepositType", "dtCash");
+            setValue("CheckLines", []);
+            isNextTap(2);
+          }}
         >
           Cash
         </MenuButton>
@@ -221,13 +250,12 @@ const DepositForm = (props: any) => {
                   control={control}
                   defaultValues={defaultValues}
                   serie={serie}
-                    watch={watch}
-                    getValues={getValues}
-                
+                  watch={watch}
+                  getValues={getValues}
                 />
               </h1>
             )}
-             {state.tapIndex === 1 && (
+            {state.tapIndex === 1 && (
               <h1>
                 <Checks
                   watch={watch}
@@ -239,7 +267,7 @@ const DepositForm = (props: any) => {
                 />
               </h1>
             )}
-             {state.tapIndex === 2 && (
+            {state.tapIndex === 2 && (
               <h1>
                 <Cash
                   getValues={getValues}
@@ -294,4 +322,4 @@ const DepositForm = (props: any) => {
   );
 };
 
-export default withRouter(DepositForm);
+export default DepositForm;

@@ -9,6 +9,7 @@ import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
 import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
+import React from "react";
 
 const BasicInformation = ({
   register,
@@ -21,13 +22,12 @@ const BasicInformation = ({
   data,
   watch,
   serie,
+  edit,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     depositDate: null,
-    status: "",
-    termination: null,
     branchASS: null,
-    serie: 16,
+    serie: 7855,
   });
 
   useEffect(() => {
@@ -41,6 +41,12 @@ const BasicInformation = ({
     (e: any) => e?.Series === staticSelect?.serie
   )?.NextNumber;
 
+  const dataSeries = React.useMemo(() => {
+    return serie?.filter(
+      (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
+    );
+  }, [serie]);
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -51,59 +57,56 @@ const BasicInformation = ({
           <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Deposit No." className="text-gray-500 ">
                   Deposit No.
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("DepositNumber"),
-                  }}
+                  disabled={detail || true}
+                  value={nextNumber || defaultValues?.nextNumber}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Series" className="text-gray-500 ">
                   Series
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
-              <Controller
-                      name="Series"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <MUISelect
-                            {...field}
-                            items={serie}
-                            disabled={detail || defaultValues?.U_Status === "C"}
-                            value={staticSelect.serie || defaultValues?.serie}
-                            aliasvalue="Series"
-                            aliaslabel="Name"
-                            name="Series"
-                            onChange={(e: any) => {
-                              console.log(e);
-                              setValue("Series", e?.target?.value);
-                              setStaticSelect({
-                                ...staticSelect,
-                                serie: e?.target?.value,
-                              });
-                            }}
-                          />
-                        );
-                      }}
-                    />
+                <Controller
+                  name="Series"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        {...field}
+                        items={dataSeries}
+                        disabled={detail}
+                        value={staticSelect?.serie || defaultValues?.serie}
+                        aliasvalue="Series"
+                        aliaslabel="Name"
+                        name="Series"
+                        onChange={(e: any) => {
+                          setValue("Series", e?.target?.value);
+                          setStaticSelect({
+                            ...staticSelect,
+                            serie: e?.target?.value,
+                          });
+                        }}
+                      />
+                    );
+                  }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                Deposit Currency
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                <label htmlFor="Deposit Currency" className="text-gray-500 ">
+                  Deposit Currency
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -113,9 +116,9 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <CurrencyAutoComplete
-                        disabled={detail}
+                        disabled={true}
                         {...field}
-                        value={defaultValues?.DepositCurrency}
+                        value={field?.value}
                         onChange={(e: any) => {
                           setValue("DepositCurrency", e?.Code);
                         }}
@@ -127,7 +130,7 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Branch" className="text-gray-500 ">
                   Branch
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
@@ -144,9 +147,8 @@ const BasicInformation = ({
                         disabled={detail || defaultValues?.U_Status === "C"}
                         onChange={(e: any) => {
                           setValue("BPLID", e?.BPLID);
-                          setBranchAss([e]);
                         }}
-                        value={staticSelect?.branchASS || defaultValues?.BPLID}
+                        value={field?.value}
                       />
                     );
                   }}
@@ -155,7 +157,7 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="G/L Account Code" className="text-gray-500 ">
                   G/L Account Code
                 </label>
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
@@ -169,14 +171,10 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <CashACAutoComplete
-                      {...field}
-                        value={data?.DepositAccount}
+                        {...field}
+                        value={field?.value}
                         onChange={(e: any) => {
-                          console.log(e);
-                          setValue(
-                            "DepositAccount",
-                            new GLAccountRepository().find(e)?.Name
-                          );
+                          setValue("DepositAccount", e);
                         }}
                       />
                     );
@@ -186,17 +184,17 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="G/L Account Name" className="text-gray-500 ">
                   G/L Account Name
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
-                  inputProps={{
-                    ...register("AllocationAccount"),
-                  }}
-                  name="AllocationAccount"
+                  value={
+                    new GLAccountRepository().find(watch("DepositAccount"))
+                      ?.Name
+                  }
                 />
               </div>
             </div>
@@ -205,7 +203,7 @@ const BasicInformation = ({
           <div className="">
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Deposit Date" className="text-gray-500 ">
                   Deposit Date
                 </label>
               </div>
@@ -243,13 +241,13 @@ const BasicInformation = ({
 
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Bank" className="text-gray-500 ">
                   Bank
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                  disabled={detail || edit}
                   inputProps={{
                     ...register("Bank"),
                   }}
@@ -258,22 +256,22 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Account" className="text-gray-500 ">
                   Account
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("U_PlateNumber"),
-                  }}
+                disabled={detail}
+                inputProps={{
+                  ...register("BankAccountNum"),
+                }}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Bank Reference" className="text-gray-500 ">
                   Bank Reference
                 </label>
               </div>
@@ -288,7 +286,7 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
+                <label htmlFor="Payer" className="text-gray-500 ">
                   Payer
                 </label>
               </div>
@@ -303,9 +301,9 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                Line of Busiiness
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                <label htmlFor="Line of Busiiness" className="text-gray-500 ">
+                  Line of Busiiness
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -317,7 +315,7 @@ const BasicInformation = ({
                       <LineofBusinessAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_tl_busi}
+                        value={field?.value}
                         onChange={(e: any) => {
                           setValue("U_tl_busi", e?.FactorCode);
                         }}
@@ -330,7 +328,6 @@ const BasicInformation = ({
           </div>
         </div>
       </div>
-      {/* <VendorModal open={true} /> */}
     </>
   );
 };

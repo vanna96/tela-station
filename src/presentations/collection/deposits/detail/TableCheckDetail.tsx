@@ -1,55 +1,14 @@
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import MUITextField from "@/components/input/MUITextField";
-import MUISelect from "@/components/selectbox/MUISelect";
-import { dateFormat } from "@/utilies";
-import request from "@/utilies/request";
-import { Button, Checkbox } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import React, { useCallback, useMemo } from "react";
-import { useState } from "react";
-import { Controller, useWatch } from "react-hook-form";
-import { useQuery } from "react-query";
+import { Checkbox } from "@mui/material";
+import React, { useMemo } from "react";
 
 
-export default function TableCheck({
-  register,
-  defaultValue,
+
+export default function TableCheckDetail({
   setValue,
-  getValue,
   commer,
-  setCommer,
-  control,
-  detail,
   watch,
   data
 }: any) {
-  const [staticSelect, setStaticSelect] = useState({
-    u_IssueDate: undefined,
-    u_ExpiredDate: undefined,
-    u_Type: "",
-  });
-
-  const handlerChangeCommer = (key: string, value: any, index: number) => {
-    const updated = commer.map((item: any, idx: number) => {
-      if (idx === index) {
-        return {
-          ...item,
-          [key]: value,
-        };
-      }
-      return item;
-    });
-    setCommer(updated);
-  };
-
-  const respose : any  = useQuery({
-    queryKey: [`getlistdeposit`],
-    queryFn: async () => request("GET", `/sml.svc/TL_DEPOSITLIST?$filter=Branch eq ${watch('BPLID')} and CheckCurrency eq '${watch('DepositCurrency')}'`),
-    cacheTime: 0,
-    staleTime: 0,
-  });
-
-  const documents: any[] = React.useMemo(() => respose?.data?.data?.value ?? [], [respose.data])
 
   const selectedValues: any[] = useMemo(() => {
     if (!watch("CheckLines")) return [];
@@ -67,16 +26,7 @@ export default function TableCheck({
     );
 
     if (index < 0) {
-      setValue("CheckLines", [...selectedValues, {
-        "CheckKey": value?.CheckKey,
-        "CheckNumber": value?.CheckNumber,
-        "Bank": value?.Bank,
-        "Branch": value?.Branch,
-        "CashCheck": value?.CashCheck,
-        "CheckDate": value?.CheckDate,
-        "Customer": value?.CardCode,
-        "CheckAmount": value?.CheckAmount,
-    }]);
+      setValue("CheckLines", [...selectedValues, value]);
       return;
     }
 
@@ -125,38 +75,8 @@ export default function TableCheck({
                 </td>
               </tr>
             )}
-            {commer?.map((e: any, index: number) => {
-              return (
-                <tr key={`row_${index}`}>
-                  <td className="py-5 flex justify-center gap-5 items-center">
-                    {!detail && (
-                      <Checkbox
-                        key={`row_${index}_row_${e?.U_Type}`}
-                        defaultChecked={selectedValues.find((row) =>e?.CheckKey === row?.CheckKey)}
-                        onChange={(event) => onSelectChange(event, index)}
-                      />
-                    )}
-                  </td>
-                  <td className="pr-4">
-                    <MUITextField
-                      disabled={detail}
-                      placeholder="Reference"
-                      key={`row_${index}Reference${e?.U_Ref}`}
-                      inputProps={{
-                        defaultValue: e?.U_Ref,
-                        onChange: (e: any) =>
-                          handlerChangeCommer("U_Ref", e?.target?.value, index),
-                      }}
-                    />
-                  </td>
-                  <td className="pr-4 text-center">
-                    <span className="text-green-500 text-sm">Active</span>
-                  </td>
-                </tr>
-              );
-            })}
             <tbody>
-              {documents?.map((e: any, index: number) => (
+              {data?.map((e: any, index: number) => (
                 <tr>
                   <td>
                     <Checkbox
