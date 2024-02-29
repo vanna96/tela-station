@@ -43,7 +43,7 @@ export default function DispenserList() {
       },
       {
         accessorKey: "Name",
-        header: "Pump Name", //uses the default width from defaultColumn prop
+        header: "Pump Description", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
