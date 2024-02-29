@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import MUIRightTextField from "../../../../components/input/MUIRightTextField";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
@@ -7,6 +7,7 @@ import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
 import { commaFormatNum } from "@/utilies/formatNumber";
 import MUITextField from "@/components/input/MUITextField";
+import { Button } from "@mui/material";
 
 interface AllocationTableProps {
   data: any;
@@ -21,43 +22,29 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  if (!edit) {
-    data.allocationData = data.nozzleData?.filter(
-      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+  const [allocationData, setAllocationData] = useState<any[]>([]);
+  const [allocationGenerated, setAllocationGenerated] = useState(false);
+
+  const generateAllocation = () => {
+    const generatedAllocation = data.nozzleData.filter(
+      (item: any) => parseFloat(item.U_tl_nmeter) > 0
     );
-  }
+    setAllocationData(generatedAllocation);
+    setAllocationGenerated(true);
+  };
 
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.allocationData.map((item: any, index: number) => {
       if (index.toString() === key.toString()) {
         const objKey = Object.keys(obj)[0];
         item[objKey] = Object.values(obj)[0];
-
-        if (
-          [
-            "U_tl_cardallow",
-            "U_tl_cashallow",
-            "U_tl_ownallow",
-            "U_tl_partallow",
-            "U_tl_pumpallow",
-            "U_tl_stockallow",
-          ].includes(objKey)
-        ) {
-          const total =
-            parseFloat(item.U_tl_cardallow || 0) +
-            parseFloat(item.U_tl_cashallow || 0) +
-            parseFloat(item.U_tl_ownallow || 0) +
-            parseFloat(item.U_tl_partallow || 0) +
-            parseFloat(item.U_tl_pumpallow || 0) +
-            parseFloat(item.U_tl_stockallow || 0);
-
-          item.U_tl_totalallow = total;
-        }
       }
       return item;
     });
+    setAllocationData(newData);
     onChange("allocationData", newData);
   };
+
   const synchronizeAllocationData = () => {
     const updatedAllocationData = data.allocationData.map((stockItem: any) => {
       const allocationItem = data.stockAllocationData.find(
@@ -238,7 +225,7 @@ export default function AllocationTable({
             parseFloat(cell.row.original?.U_tl_pumpallow || 0) +
             parseFloat(cell.row.original?.U_tl_stockallow || 0);
 
-          const isValid = cell.row.original.U_tl_cmeter === total;
+          const isValid = cell.row.original.U_tl_totalallow === total;
           return (
             <NumericFormat
               thousandSeparator
@@ -251,7 +238,7 @@ export default function AllocationTable({
               redColor={!isValid}
               customInput={MUIRightTextField}
               // value={cell.getValue()}
-              value={cell.row.original.U_tl_cmeter}
+              value={cell.row.original.U_tl_totalallow}
             />
           );
         },
@@ -262,14 +249,34 @@ export default function AllocationTable({
   console.log(data.allocationData);
   return (
     <>
+     
+      <div className="flex items-center mb-4 gap-16 ">
+        <Button
+          onClick={generateAllocation}
+          variant="outlined"
+          size="medium"
+          sx={{
+            textTransform: "none",
+            width: "20%",
+            borderColor: "black",
+            color: "black",
+          }}
+          disableElevation
+        >
+          <span className="px-3 text-base font-medium ">
+            Generate Allocation{" "}
+          </span>
+        </Button>
+      </div>
+
       <div
         className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
        overflow-hidden transition-height duration-300 `}
       >
-        <div className=" data-table">
+        <div className="data-table">
           <MaterialReactTable
-            columns={[...itemColumns]}
-            data={data.allocationData}
+            columns={itemColumns}
+            data={allocationData}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

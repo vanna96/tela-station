@@ -31,6 +31,9 @@ export interface NonCoreDcumentState {
   isOpenVendor: boolean;
   vendorType: VendorModalType;
   VendorRef?: string | undefined | null;
+  U_tl_errormsg?: string | undefined | null;
+  docEntry?: Number | undefined | null;
+  isFirstAttempt?: any;
 }
 
 export default abstract class NonCoreDcument extends React.Component<
@@ -166,4 +169,3 @@ export default abstract class NonCoreDcument extends React.Component<
     this.setState({ ...this.state, ...value });
   }
 }
-  

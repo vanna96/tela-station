@@ -53,12 +53,12 @@ export default function StockAllocationTable({
   const synchronizeStockAllocationData = () => {
     const updatedStockAllocationData = data.stockAllocationData?.map(
       (stockItem: any) => {
-        const allocationItem = data.allocationData?.find(
+        const allocationItem = data?.allocationData?.find(
           (allocationItem: any) =>
-            allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
+            allocationItem?.U_tl_itemcode === stockItem?.U_tl_itemcode
         );
-        if (allocationItem) { 
-          return { ...stockItem, U_tl_qtycon: allocationItem.U_tl_totalallow };
+        if (allocationItem) {
+          return { ...stockItem, U_tl_qtycon: allocationItem?.U_tl_totalallow };
         }
         return stockItem;
       }
@@ -72,14 +72,13 @@ export default function StockAllocationTable({
   }, [data?.allocationData]);
 
   const onChangeItem = (key: number, obj: any) => {
-    const newData = data.stockAllocationData?.map(
-      (item: any, index: number) => {
-        if (index.toString() !== key.toString()) return item;
-        item[Object.keys(obj).toString()] = Object.values(obj).toString();
-        return item;
+    const newData = data.stockAllocationData?.map((item: any, index: number) => {
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
       }
-    );
-    // if (newData?.length <= 0) return;
+      return item;
+    });
     onChange("stockAllocationData", newData);
   };
 
@@ -96,7 +95,7 @@ export default function StockAllocationTable({
 
     handlerChangeObject({ stockAllocationData: newData });
   };
-
+  console.log(data.stockAllocationData);
   const handlerAdd = () => {
     let firstData = [
       ...data.stockAllocationData,
@@ -297,7 +296,7 @@ export default function StockAllocationTable({
               value={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtycon: parseFloat(e.target.value.replace(/,/g, "")),
+                  U_tl_qtycon: e.target.value,
                 })
               }
             />
@@ -349,7 +348,7 @@ export default function StockAllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtyaloc: parseFloat(e.target.value.replace(/,/g, "")),
+                  U_tl_qtyaloc: e.target.value,
                 })
               }
             />

@@ -24,6 +24,8 @@ class Form extends NonCoreDcument {
     super(props);
     this.state = {
       ...this.state,
+      message: "",
+      U_tl_errormsg: "",
       showCollapse: false,
       nozzleData: [],
       PriceList: 2,
@@ -143,8 +145,8 @@ class Form extends NonCoreDcument {
               U_tl_acccash: item.U_tl_acccash,
               U_tl_acccoupon: item.U_tl_acccoupon,
               U_tl_accbank: item?.U_tl_accbank,
-              U_tl_amtcash: item?.U_tl_amtcash,
-              U_tl_amtbank: item?.U_tl_amtbank,
+              U_tl_amtcash: item?.U_tl_amtcash || 0,
+              U_tl_amtbank: item?.U_tl_amtbank || 0,
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
@@ -153,7 +155,7 @@ class Form extends NonCoreDcument {
               (e: any) => e.U_tl_paytype === "Check"
             )?.map((item: any) => ({
               U_tl_acccheck: item.U_tl_acccheck,
-              U_tl_amtcheck: item?.U_tl_amtcheck,
+              U_tl_amtcheck: item?.U_tl_amtcheck || 0,
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
               U_tl_checkdate: item?.U_tl_checkdate,
@@ -165,7 +167,7 @@ class Form extends NonCoreDcument {
             )?.map((item: any) => ({
               U_tl_acccoupon: item.U_tl_acccoupon,
               U_tl_accbank: item?.U_tl_accbank,
-              U_tl_amtcoupon: item?.U_tl_amtcoupon,
+              U_tl_amtcoupon: item?.U_tl_amtcoupon || 0,
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
@@ -324,18 +326,72 @@ class Form extends NonCoreDcument {
 
   async handlerSubmitPost(event: any) {
     event.preventDefault();
+    this.setState({ ...this.state, isSubmitting: true });
     const data: any = { ...this.state };
-    console.log(data);
+    // console.log(data);
     const payload = this.createPayload();
+
     try {
-      this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
 
-      const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
-      const docEntry = firstResponse.data.DocEntry;
+      // const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
+      // const docEntry = firstResponse.data.DocEntry;
+      // this.setState({ docEntry });
+      // let { docEntry, isFirstAttempt } = this.state;
+      let { docEntry, isFirstAttempt } = this.state;
+
+      if (!docEntry || isFirstAttempt) {
+        const response = await request("POST", "/TL_RETAILSALE", payload);
+        docEntry = response.data.DocEntry;
+        this.setState({ docEntry, isFirstAttempt: false });
+      } else {
+        await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
+      }
+
+      const generateAllocationPayload = (data: any, allocationType: any) => {
+        return data?.allocationData?.map((item: any) => {
+          let quantity = item[allocationType];
+
+          if (item.InventoryUoMEntry !== item.U_tl_uom) {
+            const uomList = item.uomLists.find(
+              (list: any) => list.AlternateUoM === item.U_tl_uom
+            );
+            if (uomList) {
+              quantity *= uomList.BaseQuantity;
+            } else {
+              console.error("UoM conversion factor not found!");
+            }
+          }
+
+          return {
+            ItemCode: item.U_tl_itemcode,
+            Quantity: quantity,
+            GrossPrice: item.ItemPrice,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMEntry: item.InventoryUoMEntry,
+            LineOfBussiness: "201001",
+            RevenueLine: "202004",
+            ProductLine: "203004",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: quantity,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          };
+        });
+      };
+
       const PostPayload = {
         SaleDocEntry: docEntry,
         ToWarehouse: data?.U_tl_whs,
+        U_tl_whsdesc: "WHC",
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
         GISeries: data?.GoodIssueSeries,
@@ -346,7 +402,6 @@ class Form extends NonCoreDcument {
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        U_tl_whsdesc: "WH0C",
         CashAccount: "110101",
         TransferAccount: "110101",
         CheckAccount: "110101",
@@ -363,7 +418,7 @@ class Form extends NonCoreDcument {
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
             DueDate: item.U_tl_checkdate || new Date(),
-            Amount: item.U_tl_amtcheck,
+            Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
             Bank: item.U_tl_checkbank,
             CheckNum: item.U_tl_acccheck,
           })),
@@ -373,33 +428,49 @@ class Form extends NonCoreDcument {
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
             DueDate: new Date(),
-            Amount: item.U_tl_amtcoupon,
-            CounNum: item.U_tl_acccoupon,
+            Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
+            // CounNum: item.U_tl_acccoupon,
           })),
         ],
-        StockAllocation: data?.stockAllocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_qtycon,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_qtycon,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
+
+        StockAllocation: data?.stockAllocationData?.map((item: any) => {
+          let quantity = item.U_tl_qtyaloc;
+
+          if (item.InventoryUoMEntry !== item.U_tl_uom) {
+            const uomList = item.uomLists.find(
+              (list: any) => list.AlternateUoM === item.U_tl_uom
+            );
+            if (uomList) {
+              quantity *= uomList.BaseQuantity;
+            } else {
+              console.error("UoM conversion factor not found!");
+            }
+          }
+
+          return {
+            ItemCode: item.U_tl_itemcode,
+            Quantity: quantity,
+            GrossPrice: item.ItemPrice,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMEntry: item.InventoryUoMEntry,
+            LineOfBussiness: "201001",
+            RevenueLine: "202004",
+            ProductLine: "203004",
+            BinAbsEntry: item.U_tl_bincode,
+            BranchCode: item.U_tl_bplid || 1,
+            WarehouseCode: item.U_tl_whs,
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: quantity,
+                AllowNegativeQuantity: "tNO",
+                BaseLineNumber: 0,
+              },
+            ],
+          };
+        }),
+
         CardCount: [].concat(
           ...data?.allocationData?.map((item: any) => {
             const mappedData = [];
@@ -446,7 +517,6 @@ class Form extends NonCoreDcument {
             return mappedData;
           })
         ),
-
         CashSale: data?.allocationData?.map((item: any) => ({
           ItemCode: item.U_tl_itemcode,
           Quantity: item.U_tl_cashallow,
@@ -470,148 +540,27 @@ class Form extends NonCoreDcument {
             },
           ],
         })),
-
-        Partnership: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_partallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_partallow,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
-
-        StockTransfer: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_stockallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_stockallow,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
-
-        OwnUsage: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_ownallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_ownallow,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
-
-        TelaCard: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_cardallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_cardallow,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
-
-        PumpTest: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_pumpallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_pumpallow,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
+        Partnership: generateAllocationPayload(data, "U_tl_partallow"),
+        StockTransfer: generateAllocationPayload(data, "U_tl_stockallow"),
+        OwnUsage: generateAllocationPayload(data, "U_tl_ownallow"),
+        TelaCard: generateAllocationPayload(data, "U_tl_cardallow"),
+        PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
 
-      await request("POST", "/script/test/FuelCashSales", PostPayload)
-        .then((res: any) =>
-          this.dialog.current?.success("Create Successfully.", docEntry)
-        )
-        .catch((err: any) => this.dialog.current?.error(err.message))
-        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+      await requestHeader("POST", "/script/test/FuelCashSales", PostPayload);
+      this.dialog.current?.success("Create Successfully.", docEntry);
     } catch (error: any) {
-      if (error instanceof FormValidateException) {
-        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
-        this.dialog.current?.error(error.message, "Invalid");
-        return;
-      }
-
-      this.setState({ ...data, isSubmitting: false });
-      this.dialog.current?.error(error.message, "Invalid");
+      console.log(error);
+      this.dialog.current?.error(error?.toString() ?? "Invalid Request");
+      this.handleError(error);
+    } finally {
+      this.setState({ isSubmitting: false });
     }
   }
-  handleError = (errorMessage: any) => {
+
+  handleError = (message: any) => {
     this.setState({
-      U_tl_errormsg: errorMessage,
+      U_tl_errormsg: message,
       tapIndex: 5,
       isDialogOpen: true,
     });
@@ -637,7 +586,7 @@ class Form extends NonCoreDcument {
 
   handleMenuButtonClick = (index: any) => {
     const currentTab = this.state.tapIndex;
-
+    const isLoadingPump = this.props.isDispenserLoading;
     // Allow navigating to previous tabs without validation
     if (index < currentTab) {
       this.setState({ tapIndex: index });
@@ -647,41 +596,45 @@ class Form extends NonCoreDcument {
     // Get required fields for the current tab
     const requiredFields = this.getRequiredFieldsByTab(currentTab);
     let allowChange = true; // Assume we can proceed unless a check fails
-    let errorMessage = ""; // To store the error message if validation fails
+    let message = ""; // To store the error message if validation fails
+    if (isLoadingPump) {
+      this.setState({
+        isDialogOpen: true,
 
+        message: "Please wait for fetching pump data.",
+      });
+      return;
+    }
     // Iterate over required fields to ensure they meet the criteria
     for (const field of requiredFields) {
       if (field === "nozzleData") {
         // Special handling for nozzleData
-        allowChange = this.state[field].some(
-          (item: any) => item.U_tl_nmeter && item.U_tl_nmeter.trim() !== ""
-        );
-        errorMessage = `Please complete all required fields in the ${field} section before proceeding.`;
+        allowChange = this.state[field].some((item: any) => item.U_tl_nmeter);
+        message = `Please complete all required fields in the ${field} section before proceeding.`;
       } else if (field === "stockAllocationData") {
         // Special handling for stockAllocationData, focusing on U_tl_alocqty
         allowChange = this.state[field].some(
           (item: any) => item.U_tl_qtyaloc && parseFloat(item.U_tl_qtyaloc) > 0
         );
-        errorMessage = `Please ensure at least one allocation quantity Allocation Qty is greater than 0 in the ${field} section before proceeding.`;
+        message = `Please ensure at least one allocation quantity Allocation Qty is greater than 0 in the ${field} section before proceeding.`;
       } else {
         // Generic handling for other fields (strings, numbers, etc.)
         allowChange =
           this.state[field] !== undefined &&
           this.state[field].toString().trim() !== "";
-        errorMessage = `Please complete the field "${field}" before proceeding.`;
+        message = `Please complete the field "${field}" before proceeding.`;
       }
 
       if (!allowChange) {
         // If validation fails, set the error state and exit the loop
         this.setState({
           isDialogOpen: true,
-          dialogMessage: errorMessage, // Make sure to display the errorMessage
+          message: message,
         });
         break; // Exit loop if validation fails
       }
     }
 
-    // If validation passes or navigating back, change tab
     if (allowChange) {
       this.setState({ tapIndex: index, isDialogOpen: false });
     }
@@ -739,8 +692,7 @@ class Form extends NonCoreDcument {
             severity="error"
             sx={{ width: "100%" }}
           >
-            Please complete all required fields before proceeding to the next
-            tab.
+            {this.state.message}
           </Alert>
         </Snackbar>
       </>
@@ -831,7 +783,7 @@ class Form extends NonCoreDcument {
                       <ErrorLogForm
                         data={this.state}
                         edit={this.props?.edit}
-                        onChange={(key, value) =>
+                        handlerChange={(key, value) =>
                           this.handlerChange(key, value)
                         }
                       />

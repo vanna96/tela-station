@@ -12,6 +12,8 @@ import BusinessPartnerRepository from "@/services/actions/bussinessPartnerReposi
 import itemRepository from "@/services/actions/itemRepostory";
 import { TextField } from "@mui/material";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -32,7 +34,7 @@ const fetchItemPrice = async (itemCode: string) => {
   try {
     const res = await request(
       "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
     );
     return res.data;
   } catch (error) {
@@ -147,11 +149,14 @@ export default function GeneralForm({
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
                 pumpType="Oil"
+                name={"Pump"}
                 loading={isDispenserLoading}
                 onChange={async (e: any) => {
                   setIsDispenserLoading(true);
                   const dispenserData = await fetchDispenserData(e);
-
+                  const uomGroups: any =
+                    await new UnitOfMeasurementGroupRepository().get();
+                  const uoms = await new UnitOfMeasurementRepository().get();
                   // Fetch item details and prices for each item in the dispenser data
                   const itemsWithPricesPromises =
                     dispenserData.TL_DISPENSER_LINESCollection.filter(
@@ -166,11 +171,31 @@ export default function GeneralForm({
                         (priceDetail: any) =>
                           priceDetail.PriceList === data.PriceList
                       )?.Price;
+                      const uomGroup: any = uomGroups.find(
+                        (row: any) =>
+                          row.AbsEntry === itemDetails?.UoMGroupEntry
+                      );
 
+                      let uomLists: {
+                        AlternateUoM: number;
+                        BaseQuantity: number;
+                      }[] = [];
+
+                      uomGroup?.UoMGroupDefinitionCollection?.forEach(
+                        (row: any) => {
+                          uomLists.push({
+                            AlternateUoM: row.AlternateUoM,
+                            BaseQuantity: row.BaseQuantity,
+                          });
+                        }
+                      );
                       return {
                         ...line,
                         ItemName: itemDetails?.ItemName, // Add the fetched item name
                         ItemPrice: price, // Add the fetched price
+                        UoMGroupEntry: itemDetails?.UoMGroupEntry,
+                        InventoryUoMEntry: itemDetails?.InventoryUoMEntry,
+                        uomLists: uomLists,
                       };
                     });
 
@@ -201,6 +226,9 @@ export default function GeneralForm({
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
                       U_tl_bincode: item.U_tl_bincode,
+                      UoMGroupEntry: item.UoMGroupEntry,
+                      InventoryUoMEntry: item.InventoryUoMEntry,
+                      uomLists: item.uomLists,
                     })
                   );
                   // const updatedStockAllocationData = itemsWithPrices.map(
@@ -235,6 +263,9 @@ export default function GeneralForm({
                       U_tl_nmeter: item.U_tl_nmeter,
                       U_tl_ometer: item.U_tl_upd_meter,
                       U_tl_reg_meter: item.U_tl_reg_meter,
+                      UoMGroupEntry: item.UoMGroupEntry,
+                      InventoryUoMEntry: item.InventoryUoMEntry,
+                      uomLists: item.uomLists,
                     }));
                   const updatedCardCountData = updatedNozzleData
                     ?.filter((e: any) => e?.U_tl_nmeter > 0)
@@ -247,6 +278,9 @@ export default function GeneralForm({
                       U_tl_20l: item?.U_tl_20l,
                       U_tl_50l: item?.U_tl_50l,
                       U_tl_total: item?.U_tl_total,
+                      UoMGroupEntry: item?.UoMGroupEntry,
+                      InventoryUoMEntry: item?.InventoryUoMEntry,
+                      uomLists: item.uomLists,
                     }));
 
                   // Update your component state or pass this data as needed
@@ -255,6 +289,7 @@ export default function GeneralForm({
                     stockAllocationData: updatedStockAllocationData,
                     nozzleData: updatedNozzleData,
                     cardCountData: updatedCardCountData,
+                    U_tl_whs: dispenserData?.U_tl_whs,
                   });
                   setIsDispenserLoading(false);
                 }}

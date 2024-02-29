@@ -61,7 +61,7 @@ export default function CashBankTable(props: any) {
   };
   const columns = [
     {
-      accessorKey: "index",
+      accessorKey: "index_",
       size: 2,
       minSize: 2,
       maxSize: 2,

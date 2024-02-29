@@ -19,8 +19,6 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
       if (index.toString() === key.toString()) {
         const objKey = Object.keys(obj)[0];
         item[objKey] = Object.values(obj)[0];
-        console.log(objKey);
-        console.log(item[objKey]);
         if (
           [
             "U_tl_reg_meter",
@@ -34,13 +32,14 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           const regMeterValue = item.U_tl_reg_meter;
           let value = 0;
 
-          if (meterValue !== undefined) {
+          if (meterValue !== 0) {
             value = originalValue - meterValue;
           } else if (regMeterValue > 0) {
-            value = commaFormatNum(item.U_tl_nmeter || 0) - regMeterValue;
+            value = originalValue - regMeterValue;
           }
 
           item.U_tl_cmeter = value;
+          item.U_tl_totalallow = value;
         }
       }
       return item;
