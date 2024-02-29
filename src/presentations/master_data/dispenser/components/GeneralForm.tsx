@@ -129,6 +129,7 @@ export default function GeneralForm({
                         registerMeeting: "",
                         updateMetering: "",
                         status: "New",
+                        binCode: "",
                       });
                     }
                     handlerChangeObject({
@@ -193,7 +194,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "Oil", name: "Oil" },
+                    { id: "Oil", name: "Fuel" },
                     // { id: "Lube", name: "Lube" },
                     { id: "LPG", name: "LPG" },
                   ]}

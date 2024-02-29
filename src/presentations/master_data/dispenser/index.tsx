@@ -186,6 +186,13 @@ export default function DispenserList() {
     keepPreviousData: true
   });
 
+  const [cookies] = useCookies(["user"]);
+  const [searchValues, setSearchValues] = React.useState({
+    Code: "",
+    Name: "",
+    status: ""
+  });
+
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -223,32 +230,18 @@ export default function DispenserList() {
       Count.refetch();
       refetch();
     }, 500);
-  };
-
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
-  };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    Code: "",
-    Name: ""
-  });
+  }; 
 
   const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.Code) {
-      queryFilters += `contains(Code , '${searchValues.Code}')`;
-    }
-    if (searchValues.Name) {
-      queryFilters += ` or contains(Name , '${searchValues.Name}')`;
-    }
-    handlerSearchFilter(queryFilters);
+    let queryFilters: any = [];
+
+    if (searchValues.Code) queryFilters.push(`contains(Code , '${searchValues.Code}')`);
+    if (searchValues.Name) queryFilters.push(`contains(Name , '${searchValues.Name}')` );
+    if (searchValues.status) queryFilters.push(`U_tl_status eq '${searchValues.status}'`);
+
+    if (queryFilters.length > 0)
+      return handlerSearch(`&$filter=${queryFilters.join(" and ")}`);
+    return handlerSearch("");
   };
   const { id }: any = useParams();
 
@@ -283,8 +276,8 @@ export default function DispenserList() {
               </div>
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
-                  label="Pump Name"
-                  placeholder="Pump Name"
+                  label="Pump Description"
+                  placeholder="Pump Description"
                   className="bg-white"
                   autoComplete="off"
                   type="text"
@@ -294,6 +287,29 @@ export default function DispenserList() {
                   }
                 />
               </div>
+              <div className="col-span-2 2xl:col-span-3">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { label: "None", value: "" },
+                        { label: "Active", value: "Active" },
+                        { label: "Inactive", value: "Inactive"}
+                      ]}
+                      onChange={(e) => {
+                        if (e) {
+                          setSearchValues({
+                            ...searchValues,
+                            status: e.target.value as string, // Ensure e.target.value is treated as a string
+                          });
+                        }
+                      }}
+                      value={searchValues.status}
+                    />
+                  </div>
+                </div>
               {/* <div className="col-span-2 2xl:col-span-3">
                 <BPAutoComplete
                   type="Customer"

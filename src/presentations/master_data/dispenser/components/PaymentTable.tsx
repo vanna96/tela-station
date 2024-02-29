@@ -87,6 +87,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "pumpCode",
       header: "Nozzle Code",
+      Header: (header: any) => (
+        <label>
+          Nozzle Code <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"pumpCode" + cell.getValue() + cell?.row?.id}
@@ -104,6 +109,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "binCode",
       header: "Bin Locaition",
+      Header: (header: any) => (
+        <label>
+          Bin Locaition <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <BinLocationToAsEntry
           Warehouse={data?.U_tl_whs}
@@ -122,6 +132,11 @@ export default function PaymentTable(props: any) {
       header: "Item Code", //uses the default width from defaultColumn prop
       visible: true,
       size: 120,
+      Header: (header: any) => (
+        <label>
+          Item Code <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => {
         return (
           <MUITextField
@@ -146,6 +161,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "ItemDescription",
       header: "Item Name",
+      Header: (header: any) => (
+        <label>
+          Item Name <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"itemName" + cell.getValue() + cell?.row?.id}
@@ -163,6 +183,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "UomAbsEntry",
       header: "UOM",
+      Header: (header: any) => (
+        <label>
+          UOM <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <MUISelect
           value={cell.getValue()}
