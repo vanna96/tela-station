@@ -95,7 +95,7 @@ export default function GeneralForm({
                 <MUITextField
                   size="small"
                   value={data?.PumpName}
-                  placeholder="Pump Name"
+                  placeholder="Pump Description"
                   onChange={(e) => handlerChange("PumpName", e.target.value)}
                 />
               </div>
@@ -111,9 +111,11 @@ export default function GeneralForm({
                   size="small"
                   type="number"
                   value={data?.NumOfPump}
-                  placeholder="Number of Pump"
+                  placeholder="No. of Nozzle"
                   onChange={(e) => {
-                    let no_pump:string = ((parseInt(e.target.value) <= 10 ? (parseInt(e.target.value) <= 0 ? 0:parseInt(e.target.value)) : 10) ?? 0).toString();
+                    let no_pump:string = parseInt(e.target.value || '0'); 
+                    if(no_pump >= 10 ) no_pump = "10";
+                    if(no_pump <= 0 ) no_pump = "";
                     const PumpData = [];
                     for (
                       let index = 0;
