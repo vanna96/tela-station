@@ -44,6 +44,7 @@ class DeliveryDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
+      const bins = await request("GET", `BinLocations?$select=BinCode,AbsEntry`).then((e:any) => e.data?.value);
       await request("GET", `TL_Dispenser('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
@@ -70,7 +71,7 @@ class DeliveryDetail extends Component<any, any> {
                   updateMetering: e?.U_tl_upd_meter,
                   status: e?.U_tl_status,
                   LineId: e?.LineId,
-                  binCode: e?.U_tl_bincode,
+                  binCode: bins?.find((bin:any) => bin.AbsEntry.toString() === e?.U_tl_bincode.toString())?.BinCode ?? "N/A",
                 };
 
                 if (e?.U_tl_itemnum) {
@@ -261,14 +262,6 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  const { data: bin, isLoading: isLoadingBin }: any = useQuery({
-    queryKey: ["bin"],
-    queryFn: async () =>
-      await request("GET", "BinLocations?$select=BinCode,AbsEntry").then(
-        (res: any) => res.data?.value
-      ),
-  });
-
   const itemColumn: any = useMemo(
     () => [
       {
@@ -278,17 +271,6 @@ function Content(props: any) {
       {
         accessorKey: "binCode",
         header: "Bin Location",
-        Cell: ({ cell }: any) => {
-          try {
-            const binlocation = bin?.find(
-              (e: any) => e?.AbsEntry == cell.row.original.binCode
-            )?.BinCode;
-            return binlocation ?? "N/A";
-          } catch (error) {
-            console.error("Error occurred while fetching bin location:", error);
-            return "N/A";
-          }
-        },
       },
 
       {

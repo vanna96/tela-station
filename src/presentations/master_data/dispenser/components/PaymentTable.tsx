@@ -13,6 +13,7 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import FormCard from "@/components/card/FormCard";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import BinLocationItemCode from "@/components/input/BinLocationItemCode";
+import { LoadingButton } from "@mui/lab";
 
 export default function PaymentTable(props: any) {
   const { data, onChange, handlerAddItem, edit }: any = props;
@@ -35,7 +36,7 @@ export default function PaymentTable(props: any) {
       },
     ]);
   };
-  console.log(data);
+  
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
@@ -55,7 +56,34 @@ export default function PaymentTable(props: any) {
     onChange("PumpData", newData);
   };
 
+  const handlerReset = (index:number) => {
+    let newData = data?.PumpData?.map((e:any, idx:number) => {
+      if(idx.toString() !== index.toString()) return e;
+      return {...e, registerMeeting:0, updateMetering:0}
+    });
+    onChange("PumpData", newData);
+  }
+
   const columns = [
+    {
+      accessorKey: "reset",
+      header: "",
+      visable: true,
+      Cell: ({ cell }: any) => (
+        <LoadingButton
+          sx={{ height: "25px", background: "#2D53AB" }}
+          loading={false}
+          size="small"
+          variant="contained"
+          disableElevation
+          onClick={() => handlerReset(cell?.row?.id)}
+        >
+          <span className="px-6 text-[11px] py-4 text-white">
+            Reset
+          </span>
+        </LoadingButton>
+      ),
+    },
     {
       accessorKey: "pumpCode",
       header: "Nozzle Code",
@@ -213,7 +241,7 @@ export default function PaymentTable(props: any) {
       ),
     },
   ];
-  console.log(data);
+ 
   return (
     <>
       <FormCard title="Nozzle Data">
@@ -236,9 +264,10 @@ export default function PaymentTable(props: any) {
             enableTableFooter={false}
             enableRowSelection={false}
             onRowSelectionChange={setRowSelection}
-            enableRowNumbers={true}
+            enableRowNumbers={false}
             initialState={{
               density: "compact",
+              columnVisibility: { reset: data?.Status === 'Inactive' }
               // rowSelection,
             }}
             // state={{
