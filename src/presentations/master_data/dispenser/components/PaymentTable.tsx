@@ -182,7 +182,7 @@ export default function PaymentTable(props: any) {
     },
     {
       accessorKey: "registerMeeting",
-      header: "Register Meeting",
+      header: "Register Metering",
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"registerMeeting" + cell.getValue() + cell?.row?.id}

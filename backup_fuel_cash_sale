@@ -4,564 +4,6 @@
  */
 var ServiceLayerContext = require('ServiceLayerContext.js');
 var http = require('HttpModule.js');
-http.response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080");
-http.response.setHeader("Access-Control-Allow-Credentials", true);
-/**
- * Entry function for the http POST request.
- * 
- * POST /b1s/v1/script/{{partner name}}/{{script name}}}
- */
-function POST() {
-
-    var jsonObj = http.request.getJsonObj();
-
-    // validation
-    if (!jsonObj) {
-        throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, "Fail to get the content of JSON format from the request payload");
-    }
-
-    // init instance ServiceLayerContext
-    var slContext = new ServiceLayerContext();
-    // start transaction
-    slContext.startTransaction();
-
-    // CASH SALE
-        // Create A/R Invoice
-        var invoice = {
-            Series: jsonObj['InvoiceSeries'],
-            DocDate: jsonObj['DocDate'],
-            DocDueDate: jsonObj['DocDate'],
-            TaxDate: jsonObj['DocDate'],
-            CardCode: jsonObj['CardCode'],
-            CardName: jsonObj['CardName'],
-            DiscountPercent: jsonObj['DiscountPercent'],
-            BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
-            U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
-            DocumentLines: jsonObj.CashSale.map((item, index) => {
-                return  {
-                    ItemCode: item['ItemCode'],
-                    Quantity: item['Quantity'],
-                    GrossPrice: item['GrossPrice'],
-                    DiscountPercent: item['DiscountPercent'],
-                    TaxCode: item['TaxCode'],
-                    UoMCode: item['UoMCode'],
-                    UoMEntry: item['UoMEntry'],
-                    COGSCostingCode: item['LineOfBussiness'],
-                    COGSCostingCode2: item['RevenueLine'],
-                    COGSCostingCode3: item['ProductLine'],
-                    BinAbsEntry: item["BinAbsEntry"],
-                    WarehouseCode: item["WarehouseCode"],
-                    DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-                }
-            })
-        };
-
-        var invoiceContext = slContext.add("Invoices", invoice);
-        
-        if (invoiceContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, invoiceContext.body);
-        }
-        
-        // Create Incoming Payment
-            var inv = invoiceContext.body;
-            
-            // KHR Payment
-            var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment']);
-            if( paymentKh != null) {
-                var incomingContext = slContext.add("IncomingPayments", paymentKh)
-                if (incomingContext.status !== 201) {
-                    slContext.rollbackTransaction();
-                    return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, incomingContext.body);
-                }
-            }
-
-            // Coupon KHR Payment
-            var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPaymentCoupon']);
-            if( paymentKh != null) {
-                var incomingContext = slContext.add("IncomingPayments", paymentKh)
-                if (incomingContext.status !== 201) {
-                    slContext.rollbackTransaction();
-                    return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, incomingContext.body);
-                }
-            }
-            
-            // USD Payment
-            var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment']);
-            if( paymentUS != null) {
-                var incomingContext = slContext.add("IncomingPayments", paymentUS)
-                if (incomingContext.status !== 201) {
-                    slContext.rollbackTransaction();
-                    return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, incomingContext.body);
-                }
-            }
-
-            // Coupon USD Payment
-            var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon']);
-            if( paymentUS != null) {
-                var incomingContext = slContext.add("IncomingPayments", paymentUS)
-                if (incomingContext.status !== 201) {
-                    slContext.rollbackTransaction();
-                    return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, incomingContext.body);
-                }
-            }
-    
-        slContext.commitTransaction();
-
-    // PartnerShip
-        // Good Issue
-        var goodIssue = {
-            DocType: "dDocument_Items",
-            DocDate: jsonObj['DocDate'],
-            DocDueDate: jsonObj['DocDate'],
-            BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
-            U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
-            U_tl_gitype: "003",
-            U_tl_stype: "T01",
-            U_tl_branc: jsonObj['ToWarehouse'],// to warehouse take from pump warehouse
-            U_tl_sarn: jsonObj['SANumber'], //SA Number,
-            Reference2: null,
-            DocumentLines: jsonObj.Partnership.map((item, index) => {
-                return  {
-                    ItemCode: item['ItemCode'],
-                    Quantity: item['Quantity'],
-                    Price: item['GrossPrice'],
-                    DiscountPercent: item['DiscountPercent'],
-                    TaxCode: item['TaxCode'],
-                    UoMCode: item['UoMCode'],
-                    UoMEntry: item['UoMEntry'],
-                    COGSCostingCode: item['LineOfBussiness'],
-                    COGSCostingCode2: item['RevenueLine'],
-                    COGSCostingCode3: item['ProductLine'],
-                    BinAbsEntry: item["BinAbsEntry"],
-                    WarehouseCode: item["WarehouseCode"],
-                    DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-                }
-            })
-        }
-
-        var goodIssueContext = slContext.add("InventoryGenExits", goodIssue)
-        if (goodIssueContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodIssueContext.body);
-        }
-        slContext.commitTransaction();
-        
-        // Good Receipt
-        var goodReceipt = {
-            DocType: "dDocument_Items",
-            DocDate: jsonObj['DocDate'],
-            DocDueDate: jsonObj['DocDate'],
-            BPL_IDAssignedToInvoice: 1,
-            U_tl_whsdesc: "WHC",
-            U_tl_grtype: "003",
-            U_tl_stype: "T01",
-            U_tl_sarn: jsonObj['SANumber'], //SA Number
-            Reference2: goodIssueContext.body.DocNum, // Doc number
-            DocumentLines: goodIssueContext.body.DocumentLines.map((item, index) => {
-                return  {
-                    ItemCode: item['ItemCode'],
-                    Price: undefined,
-                    U_tl_itmcost: item["U_tl_itmcost"],
-                    U_tl_ltotal: item["U_tl_ltotal"],
-                    LineTotal: item["U_tl_ltotal"],
-                    // Quantity: item['Quantity'],
-                    // GrossPrice: item['GrossPrice'],
-                    // DiscountPercent: item['DiscountPercent'],
-                    // TaxCode: item['TaxCode'],
-                    // UoMCode: item['UoMCode'],
-                    // UoMEntry: item['UoMEntry'],
-                    // COGSCostingCode: item['LineOfBussiness'],
-                    // COGSCostingCode2: item['RevenueLine'],
-                    // COGSCostingCode3: item['ProductLine'],
-                    // BinAbsEntry: item["BinAbsEntry"],
-                    // WarehouseCode: item["WarehouseCode"],
-                    // DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-                }
-            }),
-            DocumentReferences: [
-                {
-                    "RefDocEntr": goodIssueContext.body.DocEntry,
-                    "RefDocNum": goodIssueContext.body.DocNum,
-                    "RefObjType": "rot_GoodsIssue",
-                    "AccessKey": null,
-                    "IssueDate": jsonObj['DocDate']
-                }
-            ]
-        }
-        var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
-        if (goodReceiptContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-        }
-        slContext.commitTransaction();
-
-        // update documentReferance to goods Issues and Ref.2
-        var goodIssueContext = slContext.update("InventoryGenExits", {
-            Reference2: goodReceiptContext.body.DocNum,
-            DocumentReferences: [
-                {
-                    "RefDocEntr": goodReceiptContext.body.DocEntry,
-                    "RefDocNum": goodReceiptContext.body.DocNum,
-                    "RefObjType": "rot_GoodsReceipt",
-                    "AccessKey": null,
-                    "IssueDate": jsonObj['DocDate']
-                }
-            ]
-        }, goodIssueContext.body.DocEntry)
-        if (goodIssueContext.status !== 204) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodIssueContext.body);
-        }
-        slContext.commitTransaction();
-
-
-    // Stock Transfer
-        // Goods Issue
-        delete goodIssue['U_tl_stype'];
-        goodIssue['DocumentLines'] = jsonObj.StockTransfer.map((item, index) => {
-            return  {
-                ItemCode: item['ItemCode'],
-                Quantity: item['Quantity'],
-                Price: item['GrossPrice'],
-                DiscountPercent: item['DiscountPercent'],
-                TaxCode: item['TaxCode'],
-                UoMCode: item['UoMCode'],
-                UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
-                WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-            }
-        })
-
-        goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
-        if (goodReceiptContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-        }
-        slContext.commitTransaction();
-
-        //  Goods Receipt
-        let goodsReceiptRef = [];
-        const groupedItems = jsonObj.StockAllocation.reduce((acc, item) => {
-            const { BranchCode, ...rest } = item;
-            if (!acc[BranchCode]) {
-                acc[BranchCode] = [];
-            }
-            acc[BranchCode].push(rest);
-            return acc;
-        }, {});
-         
-        for (const key in groupedItems) {
-            if (groupedItems.hasOwnProperty(key)) {
-                const items = groupedItems[key].map((item) => {
-                    const price = goodIssueContext.body.DocumentLines.find((line) => line['ItemCode'] == item['ItemCode'])
-                    return {
-                        ItemCode: item['ItemCode'],
-                        Price: undefined,
-                        U_tl_itmcost: price["U_tl_itmcost"],
-                        U_tl_ltotal: price["U_tl_itmcost"] * item["Quantity"],
-                        LineTotal: price["U_tl_itmcost"] * item["Quantity"],
-                    }
-                });
-                goodReceipt = {
-                    DocType: "dDocument_Items",
-                    DocDate: jsonObj['DocDate'],
-                    DocDueDate: jsonObj['DocDate'],
-                    BPL_IDAssignedToInvoice: 1,
-                    U_tl_whsdesc: "WHC",
-                    U_tl_grtype: "003",
-                    U_tl_sarn: jsonObj['SANumber'], //SA Number
-                    Reference2: goodIssueContext.body.DocNum, // Doc number
-                    DocumentLines: items,
-                    DocumentReferences: [
-                        {
-                            "RefDocEntr": goodIssueContext.body.DocEntry,
-                            "RefDocNum": goodIssueContext.body.DocNum,
-                            "RefObjType": "rot_GoodsIssue",
-                            "AccessKey": null,
-                            "IssueDate": jsonObj['DocDate']
-                        }
-                    ]
-                }
-
-                var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
-                if (goodReceiptContext.status !== 201) {
-                    slContext.rollbackTransaction();
-                    return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-                }
-                slContext.commitTransaction();
-
-                goodsReceiptRef.push({
-                    "RefDocEntr": goodReceiptContext.body.DocEntry,
-                    "RefDocNum": goodReceiptContext.body.DocNum,
-                    "RefObjType": "rot_GoodsReceipt",
-                    "AccessKey": null,
-                    "IssueDate": jsonObj['DocDate']
-                })
-            }
-        }
-
-        // update documentReferance to goods Issues and Ref.2
-        goodIssueContext = slContext.update("InventoryGenExits", {
-            Reference2: goodReceiptContext.body.DocNum,
-            DocumentReferences: goodsReceiptRef
-        }, goodIssueContext.body.DocEntry)
-        if (goodIssueContext.status !== 204) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodIssueContext.body);
-        }
-        slContext.commitTransaction();
-        
-    // Own Usage
-        // Goods Issue
-        delete goodIssue['U_tl_stype'];
-        goodIssue['U_tl_gitype'] = '002';
-        goodIssue['DocumentLines'] = jsonObj.OwnUsage.map((item, index) => {
-            return  {
-                ItemCode: item['ItemCode'],
-                Quantity: item['Quantity'],
-                Price: item['GrossPrice'],
-                DiscountPercent: item['DiscountPercent'],
-                TaxCode: item['TaxCode'],
-                UoMCode: item['UoMCode'],
-                UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
-                WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-            }
-        })
-        goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
-        if (goodReceiptContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-        }
-        slContext.commitTransaction();
-
-    // Tela Card
-        // Goods Issue
-        goodIssue['U_tl_stype'] = 'T02';
-        goodIssue['U_tl_gitype'] = '003';
-        goodIssue['DocumentLines'] = jsonObj.TelaCard.map((item, index) => {
-            return  {
-                ItemCode: item['ItemCode'],
-                Quantity: item['Quantity'],
-                Price: item['GrossPrice'],
-                DiscountPercent: item['DiscountPercent'],
-                TaxCode: item['TaxCode'],
-                UoMCode: item['UoMCode'],
-                UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
-                WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-            }
-        })
-        goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
-        if (goodReceiptContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-        }
-        slContext.commitTransaction();
-        
-        //  Goods Receipt
-        goodReceipt = {
-            DocType: "dDocument_Items",
-            DocDate: jsonObj['DocDate'],
-            DocDueDate: jsonObj['DocDate'],
-            BPL_IDAssignedToInvoice: 1,
-            U_tl_whsdesc: "WHC",
-            U_tl_grtype: "003",
-            U_tl_stype: "T02",
-            U_tl_sarn: jsonObj['SANumber'], //SA Number
-            Reference2: goodIssueContext.body.DocNum, // Doc number
-            DocumentLines: jsonObj['CardCount'].map((item, index) => {
-                return  {
-                    ItemCode: item['ItemCode'],
-                    Quantity: item['Quantity']
-                    // Price: undefined,
-                    // U_tl_itmcost: item["U_tl_itmcost"],
-                    // U_tl_ltotal: item["U_tl_ltotal"],
-                    // LineTotal: item["U_tl_ltotal"]
-                }
-            }),
-            DocumentReferences: [
-                {
-                    "RefDocEntr": goodIssueContext.body.DocEntry,
-                    "RefDocNum": goodIssueContext.body.DocNum,
-                    "RefObjType": "rot_GoodsIssue",
-                    "AccessKey": null,
-                    "IssueDate": jsonObj['DocDate']
-                }
-            ]
-        }
-        
-        var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
-        if (goodReceiptContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-        }
-        slContext.commitTransaction();
-
-        // update documentReferance to goods Issues and Ref.2
-        var goodIssueContext = slContext.update("InventoryGenExits", {
-            Reference2: goodReceiptContext.body.DocNum,
-            DocumentReferences: [
-                {
-                    "RefDocEntr": goodReceiptContext.body.DocEntry,
-                    "RefDocNum": goodReceiptContext.body.DocNum,
-                    "RefObjType": "rot_GoodsReceipt",
-                    "AccessKey": null,
-                    "IssueDate": jsonObj['DocDate']
-                }
-            ]
-        }, goodIssueContext.body.DocEntry)
-        if (goodIssueContext.status !== 204) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodIssueContext.body);
-        }
-        slContext.commitTransaction();
-
-    // Pump Test
-        // Goods Issue
-        delete goodIssue['U_tl_stype'];
-        goodIssue['U_tl_gitype'] = '002';
-        goodIssue['DocumentLines'] = jsonObj.PumpTest.map((item, index) => {
-            return  {
-                ItemCode: item['ItemCode'],
-                Quantity: item['Quantity'],
-                Price: item['GrossPrice'],
-                DiscountPercent: item['DiscountPercent'],
-                TaxCode: item['TaxCode'],
-                UoMCode: item['UoMCode'],
-                UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
-                WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] || []
-            }
-        })
-        goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
-        if (goodReceiptContext.status !== 201) {
-            slContext.rollbackTransaction();
-            return http.response.send(http.HttpStatus.HTTP_BAD_REQUEST, goodReceiptContext.body);
-        }
-        slContext.commitTransaction();
-
-
-        
-    return http.response.send(http.HttpStatus.HTTP_CREATED, inv);
-}
-
-/** 
- * Entry function for the http GET request.
- * 
- * GET /b1s/v1/script/{{partner name}}/{{script name}}(139)
- * 
- */
-function GET() {
-    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
-}
-
-/** 
- * Entry function for the http PATCH request.
- * PATCH /b1s/v1/script/{{partner name}}/{{script name}}(139)
- * 
- * {"Comments: "updated from script"}
- */
-function PATCH() {
-    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
-}
-
-/** 
- * Entry function for the http DELETE request.
- * DELETE /b1s/v1/script/{{partner name}}/{{script name}}(139)
- * 
- */
-function DELETE() {
-    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
-}
-
-function IncomingPayment(inv, obj, data) {
-    const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
-    if (FilterPayment.length <= 0) return null;
-
-    let CashSum = 0;
-    let TransferSum = 0;
-    let CheckSum = 0;
-    
-
-    FilterPayment.forEach(item => {
-        const isCash = item.Type === 'Cash';
-        const isTransfer = item.Type === 'Transfer';
-        const isCheck = item.Type === 'Check';
-
-        CashSum += isCash ? item.Amount : 0;
-        TransferSum += isTransfer ? item.Amount : 0;
-        CheckSum += isCheck ? item.Amount : 0;
-    });
-
-    const isUSD = inv.DocCurrency == 'USD';
-    const total = parseFloat(CashSum + TransferSum + CheckSum);
-    
-    var PaymentInvoices = {
-        DocEntry: inv.DocEntry,
-        DocNum: inv.DocNum,
-        InvoiceType: "it_Invoice",
-        SumApplied: isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
-        AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
-        DiscountPercent: 0
-    }; 
-
-    return {
-        // Series: obj['IncomingSeries'],
-        DocType: "rCustomer",
-        BPLID: obj['BPL_IDAssignedToInvoice'],
-        DocDate: obj['DocDate'],
-        CardCode: obj['CardCode'],
-        DocCurrency: obj['DocCurrency'],
-        Remarks: obj['Remarks'],
-        BankChargeAmount: 0,
-        BankChargeAmountInFC: 0,
-        BankChargeAmountInSC: 0,
-        CashAccount: obj['CashAccount'] || "",
-        CashSum: CashSum,
-        TransferAccount: obj['TransferAccount'] || "",
-        TransferSum: TransferSum,
-        CheckAccount: obj['CheckAccount'] || "",
-        PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
-                                    .map((check) => {
-                                        return {
-                                            DueDate: check.DueDate || new Date(),
-                                            CheckSum: check.Amount || 0,
-                                            BankCode: check.Bank || "",
-                                            CheckNumber: check.CheckNum,
-                                        };
-                                    }) || [],
-        PaymentInvoices: [PaymentInvoices]
-    }
-}
-
-
-
-
-//  new backup 
-/**
- * Perform the CRUD operations on an Order from the request payload
- *  
- */
-var ServiceLayerContext = require('ServiceLayerContext.js');
-var http = require('HttpModule.js');
 http.response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
 http.response.setHeader("Access-Control-Allow-Credentials", true);
 /**
@@ -582,7 +24,13 @@ function POST() {
         "CardCode",
         "CardName",
         "BPL_IDAssignedToInvoice",
-        "U_tl_whsdesc"
+        "U_tl_whsdesc",
+        "CashSale",
+        "Partnership",
+        "StockTransfer",
+        "OwnUsage",
+        "TelaCard",
+        "PumpTest"
     ].forEach((value) => {
         if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
     })
@@ -592,7 +40,8 @@ function POST() {
     
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
     
-    if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    // if (fuelSale.status !== 200) 
+    return http.response.send(fuelSale.status, fuelSale.body);
     try {
         // CASH SALE
         if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj);
@@ -600,20 +49,24 @@ function POST() {
         // PARTNERSHIP
         if(fuelSale.body['U_tl_s_partallow'] !== 'Y' && jsonObj["Partnership"].length > 0) PartnerShipTransaction(slContext, jsonObj);
     
-        // STOCK TRANSFER
+        // // STOCK TRANSFER
         if(fuelSale.body['U_tl_s_stockallow'] !== 'Y' && jsonObj["StockTransfer"].length > 0) StockTransferTransaction(slContext, jsonObj);
     
-        // OWN USAGE
+        // // OWN USAGE
         if(fuelSale.body['U_tl_s_ownallow'] !== 'Y' && jsonObj["OwnUsage"].length > 0) OwnUsageTransaction(slContext, jsonObj);
     
-        // TELA CARD
+        // // TELA CARD
         if(fuelSale.body['U_tl_s_cardallow'] !== 'Y' && jsonObj["TelaCard"].length > 0) TelaCardTransaction(slContext, jsonObj);
     
-        // PUMP TEST
+        // // PUMP TEST
         if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) PumpTestTransaction(slContext, jsonObj);
 
-        // update status Fuel Cash Sale
+        // // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
+
+        // update metter in pump
+
+
         return http.response.send(200, fuelSale.body);
     } catch (error) {
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
@@ -682,7 +135,7 @@ function IncomingPayment(inv, obj, data) {
     }; 
 
     return {
-        // Series: obj['IncomingSeries'],
+        Series: obj['IncomingSeries'],
         DocType: "rCustomer",
         BPLID: obj['BPL_IDAssignedToInvoice'],
         DocDate: obj['DocDate'],
@@ -736,9 +189,8 @@ function CashSaleTransaction(slContext, jsonObj){
                 COGSCostingCode: item['LineOfBussiness'],
                 COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
-                // BinAbsEntry: item["BinAbsEntry"],
                 WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: []// item['DocumentLinesBinAllocations'] || 
+                DocumentLinesBinAllocations: [] 
                 
             }
         })
@@ -831,7 +283,7 @@ function PartnerShipTransaction(slContext, jsonObj){
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         U_tl_gitype: "003",
         U_tl_stype: "T01",
-        U_tl_branc: jsonObj['ToWarehouse'],// to warehouse take from pump warehouse
+        U_tl_branc: "WHC", // issue to warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
         DocumentLines: jsonObj.Partnership.map((item, index) => {
@@ -867,10 +319,11 @@ function PartnerShipTransaction(slContext, jsonObj){
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
-        BPL_IDAssignedToInvoice: 1,
+        BPL_IDAssignedToInvoice: 1, // head office
         U_tl_whsdesc: "WHC",
-        U_tl_grtype: "003",
+        U_tl_grtype: "002",
         U_tl_stype: "T01",
+        U_tl_grsuppo: jsonObj['U_tl_whsdesc'],// receipt from warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number
         Reference2: goodIssueContext.body.DocNum, // Doc number
         DocumentLines: goodIssueContext.body.DocumentLines.map((item, index) => {
@@ -942,7 +395,7 @@ function StockTransferTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'], 
         U_tl_gitype: "003",
-        U_tl_branc: jsonObj['ToWarehouse'],// to warehouse take from pump warehouse
+        U_tl_branc: jsonObj['StockAllocation'][0].WarehouseCode || 0,// to warehouse take from pump warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
         DocumentLines: jsonObj.StockTransfer.map((item, index) => {
@@ -976,16 +429,17 @@ function StockTransferTransaction(slContext, jsonObj){
     // Goods Receipt
     let goodsReceiptRef = [];
     const groupedItems = jsonObj.StockAllocation.reduce((acc, item) => {
-        const { BranchCode, ...rest } = item;
-        if (!acc[BranchCode]) {
-            acc[BranchCode] = [];
+        const { WarehouseCode, ...rest } = item;
+        if (!acc[WarehouseCode]) {
+            acc[WarehouseCode] = [];
         }
-        acc[BranchCode].push(rest);
+        acc[WarehouseCode].push(rest);
         return acc;
     }, {});
-     
+    
     for (const key in groupedItems) {
         if (groupedItems.hasOwnProperty(key)) {
+
             const items = groupedItems[key].map((item) => {
                 const price = goodIssueContext.body.DocumentLines.find((line) => line['ItemCode'] == item['ItemCode'])
                 return {
@@ -996,14 +450,16 @@ function StockTransferTransaction(slContext, jsonObj){
                     LineTotal: price["U_tl_itmcost"] * item["Quantity"],
                 }
             });
+            
             goodReceipt = {
                 DocType: "dDocument_Items",
                 DocDate: jsonObj['DocDate'],
                 DocDueDate: jsonObj['DocDate'],
-                BPL_IDAssignedToInvoice: 1,
-                U_tl_whsdesc: "WHC",
+                BPL_IDAssignedToInvoice: groupedItems[key][0]['BranchCode'],
+                U_tl_whsdesc: key,
                 U_tl_grtype: "003",
                 U_tl_sarn: jsonObj['SANumber'], //SA Number
+                U_tl_grsuppo: jsonObj['U_tl_whsdesc'],
                 Reference2: goodIssueContext.body.DocNum, // Doc number
                 DocumentLines: items,
                 DocumentReferences: [
@@ -1038,7 +494,7 @@ function StockTransferTransaction(slContext, jsonObj){
 
     // update documentReferance to goods Issues and Ref.2
     goodIssueContext = slContext.update("InventoryGenExits", {
-        Reference2: "",
+        Reference2: goodsReceiptRef.map(item => item.RefDocNum).join(','),
         DocumentReferences: goodsReceiptRef
     }, goodIssueContext.body.DocEntry)
     if (goodIssueContext.status !== 204) {
@@ -1070,7 +526,6 @@ function OwnUsageTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         U_tl_gitype: "002",
-        U_tl_branc: jsonObj['ToWarehouse'],// to warehouse take from pump warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
         DocumentLines: jsonObj.OwnUsage.map((item, index) => {
@@ -1123,7 +578,6 @@ function TelaCardTransaction(slContext, jsonObj){
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         U_tl_stype: "T02",
         U_tl_gitype: "003",
-        U_tl_branc: jsonObj['ToWarehouse'],// to warehouse take from pump warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
         DocumentLines: jsonObj.TelaCard.map((item, index) => {
@@ -1159,8 +613,8 @@ function TelaCardTransaction(slContext, jsonObj){
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
-        BPL_IDAssignedToInvoice: 1,
-        U_tl_whsdesc: "WHC",
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         U_tl_grtype: "003",
         U_tl_stype: "T02",
         U_tl_sarn: jsonObj['SANumber'], //SA Number
@@ -1233,7 +687,6 @@ function PumpTestTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         U_tl_gitype: "002",
-        U_tl_branc: jsonObj['ToWarehouse'],// to warehouse take from pump warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
         DocumentLines: jsonObj.PumpTest.map((item, index) => {
