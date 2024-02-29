@@ -103,6 +103,14 @@ export default function TransDetail({
       setTrans(dataListing2);
     }
   }, [transDetail]);
+
+  let currentDate = new Date();
+  let hours = currentDate.getHours();
+  let minutes = currentDate.getMinutes();
+  let seconds = "00";
+  let currentTime = hours + ":" + minutes + ":" + seconds;
+
+  console.log("Current time is: " + currentTime);
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -243,13 +251,13 @@ export default function TransDetail({
                               {e?.U_Quantity ?? "N/A"}
                             </td>
                             <td className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500">
-                              11:11 AM
+                              {defaultValue?.CreateTime || currentTime}
                             </td>
                             <td
                               colSpan={2}
                               className="pr-4 bg-gray-50  text-left font-normal  py-2 text-[14px] text-gray-500"
                             >
-                              12:11 AM
+                              {defaultValue?.UpdateTime}
                             </td>
                           </tr>
                         </>

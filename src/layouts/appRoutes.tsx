@@ -99,7 +99,7 @@ const appRoutes: RouteType[] = [
         state: "vehicle",
         sidebarProps: {
           displayText: "Vehicle",
-        }
+        },
       },
       {
         path: "/master-data/stops",
@@ -113,7 +113,7 @@ const appRoutes: RouteType[] = [
         state: "route",
         sidebarProps: {
           displayText: "Route",
-        }
+        },
       },
     ],
   },
@@ -370,15 +370,15 @@ const appRoutes: RouteType[] = [
     },
     child: [
       {
-        path: "/transportation/request",
-        state: "transportation/request",
+        path: "/trip-management/transportation-request",
+        state: "transportation-request",
         sidebarProps: {
           displayText: "Transportation Request",
         },
       },
       {
-        path: "/transportation/order",
-        state: "transportation/order",
+        path: "/trip-management/transportation-order",
+        state: "transportation-order",
         sidebarProps: {
           displayText: "Transportation Order",
         },
