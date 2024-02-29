@@ -48,6 +48,34 @@ class DeliveryDetail extends Component<any, any> {
       await request("GET", `TL_Dispenser('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
+          const pumpData: any = await Promise.all(
+            (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+              let uom;
+              if(e?.U_tl_uom) uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);
+
+              let item: any = {
+                pumpCode: e?.U_tl_pumpcode,
+                itemCode: e?.U_tl_itemnum || "N/A",
+                UomAbsEntry: e?.U_tl_uom || "N/A",
+                uom: uom?.Name || "N/A",
+                registerMeeting: e?.U_tl_reg_meter,
+                updateMetering: e?.U_tl_upd_meter,
+                status: e?.U_tl_status,
+                LineId: e?.LineId,
+                binCode: bins?.find((bin:any) => bin.AbsEntry?.toString() === e?.U_tl_bincode?.toString())?.BinCode ?? "N/A",
+              };
+
+              if (e?.U_tl_itemnum) {
+                const itemResponse: any = await request(
+                  "GET",
+                  `Items('${e?.U_tl_itemnum}')?$select=ItemName`
+                ).then((res: any) => res?.data);
+                item.ItemDescription = itemResponse?.ItemName || "N/A";
+              }
+              return item;
+            })
+          )
+
           state = {
             PumpCode: data?.Code,
             PumpName: data?.Name,
@@ -59,31 +87,7 @@ class DeliveryDetail extends Component<any, any> {
             U_tl_attend2: data?.U_tl_attend2,
             U_tl_bplid: data?.U_tl_bplid,
             U_tl_whs: data?.U_tl_whs,
-            PumpData: await Promise.all(
-              (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
-                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);
-                let item: any = {
-                  pumpCode: e?.U_tl_pumpcode,
-                  itemCode: e?.U_tl_itemnum,
-                  UomAbsEntry: e?.U_tl_uom,
-                  uom: uom?.Name,
-                  registerMeeting: e?.U_tl_reg_meter,
-                  updateMetering: e?.U_tl_upd_meter,
-                  status: e?.U_tl_status,
-                  LineId: e?.LineId,
-                  binCode: bins?.find((bin:any) => bin.AbsEntry.toString() === e?.U_tl_bincode.toString())?.BinCode ?? "N/A",
-                };
-
-                if (e?.U_tl_itemnum) {
-                  const itemResponse: any = await request(
-                    "GET",
-                    `Items('${e?.U_tl_itemnum}')?$select=ItemName`
-                  ).then((res: any) => res?.data);
-                  item.ItemDescription = itemResponse?.ItemName;
-                }
-                return item;
-              })
-            ),
+            PumpData: pumpData,
             Edit: true,
           };
         })
@@ -237,7 +241,7 @@ function General(props: any) {
               <div className="col-span-1 text-gray-700">Type</div>
               <div className="col-span-1  text-gray-900">
                 <MUITextField
-                  value={props.data?.lineofBusiness}
+                  value={props.data?.lineofBusiness === "Oil" ? "Fuel":props.data?.lineofBusiness}
                   placeholder="Pump Name"
                   disabled={true}
                 />

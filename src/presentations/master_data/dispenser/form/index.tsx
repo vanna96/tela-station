@@ -233,6 +233,14 @@ class DispenserForm extends CoreFormDocument {
         throw new FormValidateException("PumpData is missing", 1);
       }
 
+      const lengthData = data?.PumpData?.filter((e:any) => !e.itemCode || !e.ItemDescription || !e.binCode || !e.pumpCode);
+      if(lengthData?.length > 0) {
+        data["error"] = {
+          PumpData: "Pump Data is missing record!",
+        };
+        throw new FormValidateException("PumpData is missing", 1);
+      }
+
       let DISPENSER_LINESCollection = this.state?.PumpData?.map((e: any) => {
         let status = "";
         const registerM =
