@@ -356,9 +356,11 @@ class DispenserForm extends CoreFormDocument {
 
   hanndAddNewItem() {
     if (this.state.DocType === "dDocument_Items")
-      return this.itemBinModalRef.current?.onOpen(
-        this.state.U_tl_whs,
-        this.state.BinCode
+      return this.itemModalRef.current?.onOpen(
+        this.state?.CardCode,
+        "sale",
+        this.state.warehouseCode,
+        this.state.Currency
       );
   }
 
@@ -380,7 +382,8 @@ class DispenserForm extends CoreFormDocument {
 
     return (
       <>
-        <ItemBinModal
+        <ItemModalComponent
+          type="inventory"
           group={itemGroupCode}
           onOk={(items) => {
             if (items.length) {
@@ -391,8 +394,8 @@ class DispenserForm extends CoreFormDocument {
                       ...item,
                       ...items[0],
                       itemCode: items[0]?.ItemCode,
-                      ItemDescription: items[0]?.ItemName,
-                      UomAbsEntry: items[0]?.UomEntry,
+                      ItemDescription: items[0]?.ItemDescription,
+                      uom: items[0]?.UomName,
                     };
                   }
                   return item;
@@ -402,9 +405,7 @@ class DispenserForm extends CoreFormDocument {
               this.handlerChange("PumpData", pumpData);
             }
           }}
-          WarehouseCode={this.state?.U_tl_whs}
-          BinCode={this.state?.PumpData?.map((item: any) => item.binCode)}
-          ref={this.itemBinModalRef}
+          ref={this.itemModalRef}
           multipleSelect={false}
         />
         <form
