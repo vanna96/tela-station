@@ -359,7 +359,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_cmeter" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -406,7 +406,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_cashallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -420,7 +420,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_partallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -434,7 +434,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_stockallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -449,7 +449,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_ownallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -463,7 +463,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_cardallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -477,7 +477,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_pumpallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -491,7 +491,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_totalallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />

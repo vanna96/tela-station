@@ -25,6 +25,7 @@ class Form extends NonCoreDcument {
     this.state = {
       ...this.state,
       message: "",
+      U_tl_errormsg: "",
       showCollapse: false,
       nozzleData: [],
       PriceList: 2,
@@ -144,8 +145,8 @@ class Form extends NonCoreDcument {
               U_tl_acccash: item.U_tl_acccash,
               U_tl_acccoupon: item.U_tl_acccoupon,
               U_tl_accbank: item?.U_tl_accbank,
-              U_tl_amtcash: item?.U_tl_amtcash,
-              U_tl_amtbank: item?.U_tl_amtbank,
+              U_tl_amtcash: item?.U_tl_amtcash || 0,
+              U_tl_amtbank: item?.U_tl_amtbank || 0,
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
@@ -154,7 +155,7 @@ class Form extends NonCoreDcument {
               (e: any) => e.U_tl_paytype === "Check"
             )?.map((item: any) => ({
               U_tl_acccheck: item.U_tl_acccheck,
-              U_tl_amtcheck: item?.U_tl_amtcheck,
+              U_tl_amtcheck: item?.U_tl_amtcheck || 0,
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
               U_tl_checkdate: item?.U_tl_checkdate,
@@ -166,7 +167,7 @@ class Form extends NonCoreDcument {
             )?.map((item: any) => ({
               U_tl_acccoupon: item.U_tl_acccoupon,
               U_tl_accbank: item?.U_tl_accbank,
-              U_tl_amtcoupon: item?.U_tl_amtcoupon,
+              U_tl_amtcoupon: item?.U_tl_amtcoupon || 0,
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
@@ -325,15 +326,28 @@ class Form extends NonCoreDcument {
 
   async handlerSubmitPost(event: any) {
     event.preventDefault();
+    this.setState({ ...this.state, isSubmitting: true });
     const data: any = { ...this.state };
-    console.log(data);
+    // console.log(data);
     const payload = this.createPayload();
+
     try {
-      this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
 
-      const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
-      const docEntry = firstResponse.data.DocEntry;
+      // const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
+      // const docEntry = firstResponse.data.DocEntry;
+      // this.setState({ docEntry });
+      // let { docEntry, isFirstAttempt } = this.state;
+      let { docEntry, isFirstAttempt } = this.state;
+
+      if (!docEntry || isFirstAttempt) {
+        const response = await request("POST", "/TL_RETAILSALE", payload);
+        docEntry = response.data.DocEntry;
+        this.setState({ docEntry, isFirstAttempt: false });
+      } else {
+        await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
+      }
+
       const generateAllocationPayload = (data: any, allocationType: any) => {
         return data?.allocationData?.map((item: any) => {
           let quantity = item[allocationType];
@@ -377,6 +391,7 @@ class Form extends NonCoreDcument {
       const PostPayload = {
         SaleDocEntry: docEntry,
         ToWarehouse: data?.U_tl_whs,
+        U_tl_whsdesc: "WHC",
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
         GISeries: data?.GoodIssueSeries,
@@ -387,7 +402,6 @@ class Form extends NonCoreDcument {
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        U_tl_whsdesc: "WHC",
         CashAccount: "110101",
         TransferAccount: "110101",
         CheckAccount: "110101",
@@ -414,33 +428,11 @@ class Form extends NonCoreDcument {
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
             DueDate: new Date(),
-            Amount: item.U_tl_amtcoupon,
+            Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
             // CounNum: item.U_tl_acccoupon,
           })),
         ],
-        // StockAllocation: data?.stockAllocationData?.map((item: any) => ({
-        //   ItemCode: item.U_tl_itemcode,
-        //   Quantity: item.U_tl_qtycon,
-        //   GrossPrice: item.ItemPrice,
-        //   DiscountPercent: 0,
-        //   TaxCode: "VO10",
-        //   // UoMCode: "L"
-        //   UoMEntry: item.U_tl_uom,
-        //   LineOfBussiness: "201001", // item.LineOfBussiness
-        //   RevenueLine: "202004", // item.RevenueLine
-        //   ProductLine: "203004", // item.ProductLine
-        //   BinAbsEntry: item.U_tl_bincode,
-        //   BranchCode: item.U_tl_bplid || 1,
-        //   WarehouseCode: item.U_tl_whs,
-        //   DocumentLinesBinAllocations: [
-        //     {
-        //       BinAbsEntry: item.U_tl_bincode,
-        //       Quantity: item.U_tl_qtycon,
-        //       AllowNegativeQuantity: "tNO",
-        //       BaseLineNumber: 0,
-        //     },
-        //   ],
-        // })),
+
         StockAllocation: data?.stockAllocationData?.map((item: any) => {
           let quantity = item.U_tl_qtyaloc;
 
@@ -555,23 +547,17 @@ class Form extends NonCoreDcument {
         PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
 
-      await request("POST", "/script/test/FuelCashSales", PostPayload)
-        .then((res: any) =>
-          this.dialog.current?.success("Create Successfully.", docEntry)
-        )
-        .catch((err: any) => this.dialog.current?.error(err.message))
-        .finally(() => this.setState({ ...this.state, isSubmitting: false }));
+      await requestHeader("POST", "/script/test/FuelCashSales", PostPayload);
+      this.dialog.current?.success("Create Successfully.", docEntry);
     } catch (error: any) {
-      if (error instanceof FormValidateException) {
-        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
-        this.dialog.current?.error(error.message, "Invalid");
-        return;
-      }
-
-      this.setState({ ...data, isSubmitting: false });
-      this.dialog.current?.error(error.message, "Invalid");
+      console.log(error);
+      this.dialog.current?.error(error?.toString() ?? "Invalid Request");
+      this.handleError(error);
+    } finally {
+      this.setState({ isSubmitting: false });
     }
   }
+
   handleError = (message: any) => {
     this.setState({
       U_tl_errormsg: message,
