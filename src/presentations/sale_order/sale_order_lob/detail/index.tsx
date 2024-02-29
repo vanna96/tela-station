@@ -419,7 +419,8 @@ function Content(props: any) {
               placeholder="0.000"
               type="number"
               startAdornment={"%"}
-              value={props?.data?.DiscountPercent ?? 0}
+              // value={props?.data?.DiscountPercent ?? 0}
+              value={cell.getValue() || 0}
               disabled
             />
           );
