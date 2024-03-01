@@ -8,6 +8,7 @@ import { Controller, useFieldArray } from "react-hook-form";
 import TRModal from "./TRModal";
 import { FaAngleDown } from "react-icons/fa6";
 import { dateFormat } from "@/utilies";
+import { useLocation, useParams } from "react-router-dom";
 
 export default function Document({
   register,
@@ -19,28 +20,39 @@ export default function Document({
   setTransDetail,
   setDocument,
   document,
-  setHeadTrans
+  setHeadTrans,
+  compartment,
+  getValues,
+  defaultValues
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: undefined,
     u_ExpiredDate: undefined,
     u_Type: "",
   });
+  const {id}=useParams()
   const [open, setOpen] = useState(false);
+  const location = useLocation()
+    const create = location.pathname?.split("/");
   const handleOpen = () => {
-    setOpen(true);
+    if (create.at(-1)==="create") {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    };
   };
 const removeDocument = (index:number) => {
   const updatedDocuments = [...document];
   updatedDocuments.splice(index, 1);
   setDocument(updatedDocuments);
 };
-
+  
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
           <h2 className="mr-3">Source Document</h2>
+          
           <Button
             sx={{ height: "25px" }}
             className="bg-white"
@@ -87,7 +99,7 @@ const removeDocument = (index:number) => {
                 Quantity{" "}
               </th>
               <th className="w-[100px] text-center font-normal py-2 text-[14px] text-gray-500">
-                Action{" "}
+                <span className={`${detail?"hidden":""}`}>Action</span>{" "}
               </th>
             </tr>
             {document?.length === 0 && (
@@ -145,7 +157,7 @@ const removeDocument = (index:number) => {
                         value={e?.U_TotalItem}
                       />
                     </td>
-                    <td className="">
+                    <td colSpan={detail || id?2:undefined} className="">
                       <MUITextField
                         disabled={true}
                         placeholder="Quantity"
@@ -155,7 +167,7 @@ const removeDocument = (index:number) => {
                     <td className="text-center">
                       <div
                         onClick={() => removeDocument(index)}
-                        className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
+                        className={`w-[17px] ${detail || id &&"hidden"} cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
                       >
                         -
                       </div>
@@ -262,6 +274,7 @@ const removeDocument = (index:number) => {
         transDetail={transDetail}
         setTransDetail={setTransDetail}
         setHeadTrans={setHeadTrans}
+        compartment={compartment}
       />
     </>
   );

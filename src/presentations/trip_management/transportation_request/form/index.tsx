@@ -380,7 +380,7 @@ const onInvalidForm = (invalids: any) => {
               </div>
             )}
             {state.tapIndex === 1 && (
-              <div className="grow">
+              <div className="grow pt-3">
                 <Document
                   register={register}
                   collection={collection}
