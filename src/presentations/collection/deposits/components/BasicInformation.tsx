@@ -119,6 +119,7 @@ const BasicInformation = ({
                         value={field?.value}
                         onChange={(e: any) => {
                           setValue("DepositCurrency", e?.Code);
+                          setValue('CheckLines', [])
                         }}
                       />
                     );
@@ -145,6 +146,7 @@ const BasicInformation = ({
                         // disabled={detail || defaultValues?.U_Status === "C"}
                         onChange={(e: any) => {
                           setValue("BPLID", e?.BPLID);
+                          setValue('CheckLines', [])
                         }}
                         value={field?.value}
                       />

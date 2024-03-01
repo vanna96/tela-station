@@ -33,11 +33,17 @@ export default function TableCheckDetail({
     const values = [...selectedValues];
     values.splice(index, 1);
     setValue("CheckLines", values);
+    
   };
+
+
+  const getTotolCheck = useMemo(() =>  selectedValues?.length ??0 ,[selectedValues]);
+
+  const getTotalAmount = useMemo(() =>  selectedValues?.reduce((p, c) => p + Number(c.CheckAmount), 0),[selectedValues]);
 
   return (
     <>
-      <div className="rounded-lg shadow-sm border p-6 mr-6 h-full mt-[2rem] w-[1750px]">
+      <div className="rounded-lg shadow-sm border p-6 mt-[2rem] overflow-x-auto">
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0] text-black">
@@ -51,9 +57,6 @@ export default function TableCheckDetail({
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px]">
                 Check
-              </th>
-              <th className="w-[300px] text-left font-normal  py-2 text-[14px]">
-                Bank
               </th>
               <th className="w-[250px] text-left font-normal  py-2 text-[14px]">
                 BP/Account
@@ -88,8 +91,7 @@ export default function TableCheckDetail({
                   </td>
                   <td>{e.CheckDate}</td>
                   <td>{e.CashCheck}</td>
-                  <td>{e.Bank}</td>
-                  <td>{e.CardCode}</td>
+                  <td>{e.CardCode + ' - ' + e.CardName}</td>
                   <td>{e.CheckAmount}</td>
                   <td>{e.DocNum}</td>
                 </tr>
@@ -97,18 +99,17 @@ export default function TableCheckDetail({
             </tbody>
             <tfoot>
               <tr className="text-[0.90rem] border bg-zinc-100 text-gray-600">
-                <td></td>
                 <td className="py-2 border-r text-right pr-10" colSpan={2}>
                   No. of Checks
                 </td>
                 <td className=" border-r py-2" colSpan={2}>
                   <div className="flex justify-between px-3">
-                    <span>2</span>
+                    <span>{getTotolCheck}</span>
                     <span>Total</span>
                   </div>
                 </td>
-                <td className="pl-10" colSpan={2}>
-                  USD 5.00
+                <td className="pl-2" colSpan={2}>
+                  {watch('TotalLC')?.toFixed(2)}
                 </td>
               </tr>
             </tfoot>

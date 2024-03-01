@@ -54,7 +54,7 @@ export default function DepositList() {
         type: "string",
       },
       {
-        accessorKey: "DepositAccount",
+        accessorKey: "U_tl_cash_acc",
         header: "Deposit Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -62,7 +62,7 @@ export default function DepositList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.DepositAccount;
+          return cell.row.original.U_tl_cash_acc;
         },
       },
 

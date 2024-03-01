@@ -20,6 +20,7 @@ import LoadingProgress from "@/components/LoadingProgress";
 import Checks from "../components/Checks";
 import Cash from "../components/Cash";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
+import { useDepositHook } from "../hook/useDepositHook";
 
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
@@ -42,16 +43,16 @@ export type UseFormProps = {
 };
 // const { id } = useParams();
 const DepositForm = (props: any) => {
-  const {
-    watch,
-    handleSubmit,
-    register,
-    setValue,
-    control,
-    reset,
-    getValues,
-    formState: { errors, defaultValues },
-  } = useForm();
+  // const {
+  //   watch,
+  //   handleSubmit,
+  //   register,
+  //   setValue,
+  //   control,
+  //   reset,
+  //   getValues,
+  //   formState: { errors, defaultValues },
+  // } = useForm();
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -110,36 +111,36 @@ const DepositForm = (props: any) => {
     }
   };
 
-  const onSubmit = async (e: any) => {
-    const payload: any = {
-      ...e,
-    };
-    try {
-      console.log(e);
+  // const onSubmit = async (e: any) => {
+  //   const payload: any = {
+  //     ...e,
+  //   };
+  //   try {
+  //     console.log(e);
 
-      // return;
-      setState({ ...state, isSubmitting: true });
-      if (props.edit) {
-        await request("PATCH", `/Deposits(${id})`, payload)
-          .then((res: any) =>
-            dialog.current?.success("Update Successfully.", res?.data?.AbsEntry)
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      } else {
-        await request("POST", "/Deposits", payload)
-          .then((res: any) =>
-            dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setState({ ...state, isSubmitting: false });
-    }
-  };
+  //     // return;
+  //     setState({ ...state, isSubmitting: true });
+  //     if (props.edit) {
+  //       await request("PATCH", `/Deposits(${id})`, payload)
+  //         .then((res: any) =>
+  //           dialog.current?.success("Update Successfully.", res?.data?.AbsEntry)
+  //         )
+  //         .catch((err: any) => dialog.current?.error(err.message))
+  //         .finally(() => setState({ ...state, isSubmitting: false }));
+  //     } else {
+  //       await request("POST", "/Deposits", payload)
+  //         .then((res: any) =>
+  //           dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
+  //         )
+  //         .catch((err: any) => dialog.current?.error(err.message))
+  //         .finally(() => setState({ ...state, isSubmitting: false }));
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setState({ ...state, isSubmitting: false });
+  //   }
+  // };
 
   const handlerChangeMenu = useCallback(
     (index: number) => {
@@ -161,6 +162,20 @@ const DepositForm = (props: any) => {
 
     handlerChangeMenu(tapIndex);
   };
+
+  const {
+    onSubmit,
+    onInvalidForm,
+    watch,
+    handleSubmit,
+    register,
+    setValue,
+    control,
+    reset,
+    getValues,
+  } = useDepositHook({ props, state, setState, id, dialog });
+
+  console.log(state)
 
   const HeaderTaps = () => {
     return (
@@ -198,13 +213,13 @@ const DepositForm = (props: any) => {
     }
   }, [deposit]);
 
-  const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
-  };
+  // const onInvalidForm = (invalids: any) => {
+  //   dialog.current?.error(
+  //     invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+  //       "Oop something wrong!",
+  //     "Invalid Value"
+  //   );
+  // };
   return (
     <>
       {state.loading ? (
@@ -248,7 +263,7 @@ const DepositForm = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
+               
                   serie={serie}
                   watch={watch}
                   getValues={getValues}
@@ -262,7 +277,6 @@ const DepositForm = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
                   getValues={getValues}
                 />
               </div>
@@ -275,7 +289,6 @@ const DepositForm = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
                 />
               </div>
             )}

@@ -9,6 +9,7 @@ import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import { FormControlLabel, Radio } from "@mui/material";
 import TableCheck from "./TableChecks";
+import DepositCheckAutoComplete from "./DepositCheckAutoComplete";
 
 const Checks = ({
   register,
@@ -27,6 +28,8 @@ const Checks = ({
     termination: null,
     branchASS: null,
   });
+
+  const [depositcheck, setDepositcheck] = useState()
 
   useEffect(() => {
     if (defaultValues) {
@@ -51,11 +54,9 @@ const Checks = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  // disabled={detail}
-                  // inputProps={{
-                  //   ...register(""),
-                  // }}
+                <DepositCheckAutoComplete
+                  onChange={(e)=> setDepositcheck(e.AccountCode)}
+                  value={depositcheck}
                 />
               </div>
             </div>
@@ -126,7 +127,7 @@ const Checks = ({
           </div>
         </div>
         <div>
-        <TableCheck data={data} control={control} setValue={setValue} watch={watch}/>
+        <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck}/>
       </div>
       </div>
     </>

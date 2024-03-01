@@ -52,10 +52,10 @@ const CheckDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
-                  inputProps={{
-                    ...register("Deposit Check"),
-                  }}
+                  disabled={true}
+                  // inputProps={{
+                  //   ...register("Deposit Check"),
+                  // }}
                 />
               </div>
             </div>
@@ -67,9 +67,9 @@ const CheckDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                   disabled={true}
                   inputProps={{
-                    ...register("Find"),
+                    // ...register("Find"),
                   }}
                 />
               </div>
@@ -82,7 +82,7 @@ const CheckDetail = ({
               <FormControlLabel
                   control={
                     <Radio
-                      disabled={detail}
+                    disabled={true}
                       checked={
                         useWatch({
                           control: control,
@@ -104,7 +104,7 @@ const CheckDetail = ({
               <FormControlLabel
                   control={
                     <Radio
-                      disabled={detail}
+                    disabled={true}
                       checked={
                         useWatch({
                           control: control,

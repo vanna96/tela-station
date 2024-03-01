@@ -52,16 +52,17 @@ const Cash = ({
                   render={({ field }) => {
                     return (
                       <DepositCashAccountAutoComplete
+                       disabled={detail}
                         value={field.value}
                         onChange={(e: any) => {
                           setValue(
                             "U_tl_cash_acc",
                             e?.Code,
                           );
-                          // setValue(
-                          //   "AllocationAccountName",
-                          //   e?.Name,
-                          // );
+                          setValue(
+                            "U_tl_cash_des",
+                            e?.Name,
+                          );
                           setValue(
                             "AllocationAccount",
                             e?.U_tl_cashacct,
@@ -82,11 +83,8 @@ const Cash = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
-                  value={useWatch({control, name: 'AllocationAccount' })}
-                  inputProps={{
-                    ...register("AllocationAccount"),
-                  }}
-                  name="AllocationAccount"
+                  value={useWatch({control, name: 'U_tl_cash_des' })}
+                  name="U_tl_cash_des"
                 />
               </div>
             </div>
@@ -99,7 +97,7 @@ const Cash = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                startAdornment={'USD'}
+                startAdornment={watch('DepositCurrency') ?? 'USD'}
                   disabled={detail}
                   inputProps={{
                     ...register("TotalLC"),

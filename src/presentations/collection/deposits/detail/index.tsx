@@ -23,20 +23,10 @@ import Cash from "../components/Cash";
 import CheckDetail from "./CheckDetail";
 import BasicInformationDetail from "./BasicInformationDetail";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
+import { useDepositHook } from "../hook/useDepositHook";
 let dialog = React.createRef<FormMessageModal>();
 
-// const { id } = useParams();
 const DepositDetail = (props: any) => {
-  const {
-    register,
-    setValue,
-    control,
-    reset,
-    watch,
-    getValues,
-    formState: { errors, defaultValues },
-  } = useForm();
-  // const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
     loading: false,
@@ -49,6 +39,19 @@ const DepositDetail = (props: any) => {
   });
 
   const { id } = useParams();
+
+  const {
+    onSubmit,
+    handleSubmit,
+    onInvalidForm,
+    register,
+    setValue,
+    control,
+    reset,
+    watch,
+    getValues,
+  } = useDepositHook({ props, state, setState, id, dialog });
+
 
   const { data, isLoading }: any = useQuery({
     queryKey: [`deposits`],
@@ -95,6 +98,8 @@ const DepositDetail = (props: any) => {
       });
       await request("GET", `Deposits(${id})`)
         .then((res: any) => {
+          console.log(res.data);
+          reset({ ...res?.data });
           setDeposit(res?.data);
           setState({
             ...state,
@@ -107,14 +112,20 @@ const DepositDetail = (props: any) => {
     }
   };
 
+ 
+
   const handlerChangeMenu = useCallback(
     (index: number) => {
+
+      if (watch('DepositType') === 'dtCash' && index === 1) return;
+      if (watch('DepositType') === 'dtChecks' && index === 2) return;
+
       setState((prevState) => ({
         ...prevState,
         tapIndex: index,
       }));
     },
-    [state]
+    [state, props?.edit, props?.detail, watch('DepositType')]
   );
 
   const HeaderTaps = () => {
@@ -247,7 +258,9 @@ const DepositDetail = (props: any) => {
           <FormMessageModal ref={dialog} />
           <form
             id="formData"
-            className="h-full w-full flex flex-col gap-4 relative">
+            className="h-full w-full flex flex-col gap-4 relative"
+            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
+          >
             {state.tapIndex === 0 && (
               <h1>
                 <BasicInformationDetail
@@ -257,7 +270,6 @@ const DepositDetail = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
                   getValues={getValues}
                 />
               </h1>
@@ -270,7 +282,6 @@ const DepositDetail = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
                   data={data}
                   getValues={getValues}
                 />
@@ -284,10 +295,49 @@ const DepositDetail = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
                   getValues={getValues}
                 />
               </h1>
+            )}
+            {!props?.detail && (
+              <div className="sticky w-full  bottom-4 md:bottom-0 md:p-3  mt-2 p-3">
+                <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                  <div className="flex ">
+                    <LoadingButton
+                      size="small"
+                      sx={{ height: "25px" }}
+                      variant="outlined"
+                      style={{
+                        background: "white",
+                        border: "1px solid red",
+                      }}
+                      disableElevation
+                      onClick={() =>
+                        (window.location.href = "/master-data/vehicle")
+                      }
+                    >
+                      <span className="px-3 text-[11px] py-1 text-red-500">
+                        Cancel
+                      </span>
+                    </LoadingButton>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <LoadingButton
+                      type="submit"
+                      sx={{ height: "25px" }}
+                      className="bg-white"
+                      loading={state.isSubmitting}
+                      size="small"
+                      variant="contained"
+                      disableElevation
+                    >
+                      <span className="px-6 text-[11px] py-4 text-white">
+                        {props.edit ? "Update" : "Add"}
+                      </span>
+                    </LoadingButton>
+                  </div>
+                </div>
+              </div>
             )}
           </form>
         </>

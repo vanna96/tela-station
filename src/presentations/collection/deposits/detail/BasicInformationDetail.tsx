@@ -46,7 +46,6 @@ const BasicInformationDetail = ({
       (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
     );
   }, [serie]);
-  console.log(serie);
 
   return (
     <>
@@ -279,7 +278,7 @@ const BasicInformationDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={true}
+                  disabled={detail}
                   inputProps={{
                     ...register("BankReference"),
                   }}
@@ -294,7 +293,7 @@ const BasicInformationDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                  disabled={true}
                   inputProps={{
                     ...register("DepositorName"),
                   }}
