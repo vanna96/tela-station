@@ -240,7 +240,13 @@ class Form extends NonCoreDcument {
           U_tl_partallow: item.U_tl_partallow,
           U_tl_pumpallow: item.U_tl_pumpallow,
           U_tl_stockallow: item.U_tl_stockallow,
-          U_tl_totalallow: item.U_tl_totalallow,
+          U_tl_totalallow:
+            item.U_tl_stockallow +
+            item.U_tl_cardallow +
+            item.U_tl_cashallow +
+            item.U_tl_ownallow +
+            item.U_tl_partallow +
+            item.U_tl_pumpallow,
         })),
 
       //  incoming payment
@@ -810,8 +816,9 @@ class Form extends NonCoreDcument {
                             type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
-                            disabled={this.props.edit ? false : this.state.tapIndex <4 }
-
+                            disabled={
+                              this.props.edit ? false : this.state.tapIndex < 4
+                            }
                           >
                             <span className="px-3 text-[13px] py-1 text-green-500">
                               {this.props.edit ? "Update" : "Add"}
@@ -825,7 +832,7 @@ class Form extends NonCoreDcument {
                               sx={{ height: "30px", textTransform: "none" }}
                               className="bg-white"
                               loading={false}
-                              disabled={this.state.tapIndex <4}
+                              disabled={this.state.tapIndex < 4}
                               size="small"
                               variant="contained"
                               disableElevation

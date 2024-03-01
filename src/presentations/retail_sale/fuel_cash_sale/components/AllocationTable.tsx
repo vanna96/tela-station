@@ -63,6 +63,16 @@ export default function AllocationTable({
     synchronizeAllocationData();
   }, [data.stockAllocationData]);
 
+  useEffect(() => {
+    if (data && data.nozzleData) {
+      const generatedAllocation = data.nozzleData.filter(
+        (item: any) => parseFloat(item.U_tl_nmeter) > 0
+      );
+      setAllocationData(generatedAllocation);
+      setAllocationGenerated(true);
+    }
+  }, [data]);
+
   const itemColumns = React.useMemo(
     () => [
       {
@@ -238,7 +248,7 @@ export default function AllocationTable({
               redColor={!isValid}
               customInput={MUIRightTextField}
               // value={cell.getValue()}
-              value={cell.row.original.U_tl_totalallow}
+              value={total}
             />
           );
         },
@@ -249,7 +259,6 @@ export default function AllocationTable({
   console.log(data.allocationData);
   return (
     <>
-     
       <div className="flex items-center mb-4 gap-16 ">
         <Button
           onClick={generateAllocation}

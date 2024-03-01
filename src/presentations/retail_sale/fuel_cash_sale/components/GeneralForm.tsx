@@ -250,8 +250,8 @@ export default function GeneralForm({
                     // ?.filter((e: any) => e?.U_tl_nmeter > 0)
                     .map((item: any) => ({
                       U_tl_bplid: item.U_tl_bplid,
-                      U_tl_whs: item.U_tl_whs,
-                      U_tl_bincode: parseInt(item.U_tl_bincode),
+                      // U_tl_whs: item.U_tl_whs,
+                      // U_tl_bincode: parseInt(item.U_tl_bincode),
                       U_tl_itemcode: item.U_tl_itemcode,
                       U_tl_itemname: item.U_tl_itemname,
                       U_tl_qtyaloc: item.U_tl_qtyaloc,

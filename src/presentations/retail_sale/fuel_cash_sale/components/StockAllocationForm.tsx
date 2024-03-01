@@ -58,7 +58,11 @@ export default function StockAllocationTable({
             allocationItem?.U_tl_itemcode === stockItem?.U_tl_itemcode
         );
         if (allocationItem) {
-          return { ...stockItem, U_tl_qtycon: allocationItem?.U_tl_totalallow };
+          console.log(allocationItem)
+          return {
+            ...stockItem,
+            U_tl_qtycon: allocationItem?.U_tl_stockallow || 0,
+          };
         }
         return stockItem;
       }
@@ -72,13 +76,15 @@ export default function StockAllocationTable({
   }, [data?.allocationData]);
 
   const onChangeItem = (key: number, obj: any) => {
-    const newData = data.stockAllocationData?.map((item: any, index: number) => {
-      if (index.toString() === key.toString()) {
-        const objKey = Object.keys(obj)[0];
-        item[objKey] = Object.values(obj)[0];
+    const newData = data.stockAllocationData?.map(
+      (item: any, index: number) => {
+        if (index.toString() === key.toString()) {
+          const objKey = Object.keys(obj)[0];
+          item[objKey] = Object.values(obj)[0];
+        }
+        return item;
       }
-      return item;
-    });
+    );
     onChange("stockAllocationData", newData);
   };
 
