@@ -34,10 +34,12 @@ export default function StockAllocationTable({
   const userData = cookies.user;
   const [rowSelection, setRowSelection] = React.useState<any>({});
   const handlerRemove = () => {
-    let filteredData = data.cashBankData.filter((item: any, index: number) => {
-      return !(index.toString() in rowSelection);
-    });
-    onChange("cashBankData", filteredData);
+    let filteredData = data.stockAllocationData.filter(
+      (item: any, index: number) => {
+        return !(index.toString() in rowSelection);
+      }
+    );
+    onChange("stockAllocationData", filteredData);
     setRowSelection({});
   };
   const onChangeItem = (key: number, obj: any) => {
@@ -85,16 +87,21 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
+
   const onCheckRow = (event: any, index: number) => {
-    const rowSelects: any = { ...rowSelection };
-    rowSelects[index] = true;
+    setRowSelection((prevSelection: any) => {
+      const updatedSelection = { ...prevSelection };
 
-    if (!event.target.checked) {
-      delete rowSelects[index];
-    }
+      if (event.target.checked) {
+        updatedSelection[index] = true;
+      } else {
+        delete updatedSelection[index];
+      }
 
-    setRowSelection(rowSelects);
+      return updatedSelection;
+    });
   };
+
   const itemColumns = React.useMemo(
     () => [
       {
@@ -107,7 +114,7 @@ export default function StockAllocationTable({
           if (cell.row.original?.U_tl_bplid)
             return (
               <Checkbox
-                checked={cell.row.index in rowSelection}
+                checked={rowSelection[cell.row.index]}
                 size="small"
                 onChange={(event) => onCheckRow(event, cell.row.index)}
               />
