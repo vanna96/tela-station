@@ -111,8 +111,7 @@ const General = ({
                             U_Type: e.target.value,
                           });
                         }}
-                        value={field.value}
-                        // value={staticSelect.U_Type || defaultValues?.U_Type}
+                        value={staticSelect.U_Type || defaultValues?.U_Type}
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -174,9 +173,7 @@ const General = ({
                       <ManagerAutoComplete
                         disabled={detail}
                         {...field}
-                        // value={defaultValues?.U_Driver}
-
-                        value={field.value}
+                        value={defaultValues?.U_Driver}
                         onChange={(e: any) => {
                           setValue("U_Driver", e?.EmployeeID);
                         }}
@@ -216,10 +213,9 @@ const General = ({
                             U_FuelType: e.target.value,
                           });
                         }}
-                        value={field.value}
-                        // value={
-                        //   staticSelect.U_FuelType || defaultValues?.U_FuelType
-                        // }
+                        value={
+                          staticSelect.U_FuelType || defaultValues?.U_FuelType
+                        }
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -246,8 +242,7 @@ const General = ({
                       <BaseStationAutoComplete
                         disabled={detail}
                         {...field}
-                        // value={defaultValues?.U_BaseStation}
-                        value={field.value}
+                        value={defaultValues?.U_BaseStation}
                         onChange={(e: any) => {
                           setValue("U_BaseStation", e);
                           setHeader({ ...header, base: e });
@@ -309,7 +304,7 @@ const General = ({
                             U_Owner: e.target.value,
                           });
                         }}
-                        value={field.value}
+                        value={staticSelect.U_Owner || defaultValues?.U_Owner}
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -372,12 +367,11 @@ const General = ({
                           });
                           setHeader({ ...header, status: e?.target?.value });
                         }}
-                        value={field.value}
-                        // value={
-                        //   staticSelect.U_Status ||
-                        //   defaultValues?.U_Status ||
-                        //   "Active"
-                        // }
+                        value={
+                          staticSelect.U_Status ||
+                          defaultValues?.U_Status ||
+                          "Active"
+                        }
                         aliasvalue="value"
                         aliaslabel="label"
                       />

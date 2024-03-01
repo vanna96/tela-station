@@ -68,6 +68,7 @@ export default function Commercial({
     setSelected([])
   };
 
+  console.log(selected)
 
   return (
     <>
@@ -164,7 +165,7 @@ export default function Commercial({
                       key={`row_${index}U_Name${e?.U_Name}`}
                       inputProps={{
                         defaultValue: e?.U_Name,
-                        onBlur: (e: any) =>
+                        onChange: (e: any) =>
                           handlerChangeCommer(
                             "U_Name",
                             e?.target?.value,
@@ -268,7 +269,7 @@ export default function Commercial({
                       key={`row_${index}Fee${e?.U_Fee}`}
                       inputProps={{
                         defaultValue: e?.U_Fee,
-                        onBlur: (e: any) =>
+                        onChange: (e: any) =>
                           handlerChangeCommer("U_Fee", e?.target?.value, index),
                       }}
                     />
@@ -280,7 +281,7 @@ export default function Commercial({
                       key={`row_${index}Reference${e?.U_Ref}`}
                       inputProps={{
                         defaultValue: e?.U_Ref,
-                        onBlur: (e: any) =>
+                        onChange: (e: any) =>
                           handlerChangeCommer("U_Ref", e?.target?.value, index),
                       }}
                     />
