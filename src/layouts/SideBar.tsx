@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactNode, useContext } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import {
   Avatar,
   Collapse,
@@ -20,20 +20,17 @@ import appRoutes from "./appRoutes";
 import telaLogoBig from "@/assets/img/tela-logo-big.png";
 import telaLogo from "@/assets/img/tela-logo.png";
 import { motion } from "framer-motion";
-import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 
 type RouteType = {
   state: string;
   index?: boolean;
   path?: string;
-  roles?: Role[],
   child?: RouteType[];
   sidebarProps?: {
     displayText: string;
     icon?: ReactNode;
   };
 };
-
 const Sidebar = (props: any) => {
   const [open, setOpen] = useState<string | null>(null);
 
@@ -46,8 +43,6 @@ const Sidebar = (props: any) => {
     ),
     [props.collapse]
   );
-
-  const { getRoleCode } = useContext(AuthorizationContext);
 
   return (
     <motion.aside className=" ">
@@ -65,33 +60,27 @@ const Sidebar = (props: any) => {
       <div>
         {props.collapse ? (
           <List disablePadding>
-            {appRoutes.map((route, index) => {
-              if (!route.roles?.includes(getRoleCode as Role)) return null;
-
-              return route.sidebarProps ? (
+            {appRoutes.map((route, index) =>
+              route.sidebarProps ? (
                 route.child ? (
                   <SidebarItemCollapse
                     item={route}
                     key={index}
                     open={open}
-                    handleCollapse={handleCollapse} />
+                    handleCollapse={handleCollapse}
+                  />
                 ) : (
                   <SidebarItem item={route} key={index} />
                 )
-              ) : null;
-            }
+              ) : null
             )}
           </List>
         ) : (
           <>
             <List disablePadding>
-              {appRoutes.map((route, index) => {
-                if (!route.roles?.includes(getRoleCode as Role)) return null;
-
-                return (
-                  <MiniSizeBar item={route} key={index} />
-                );
-              })}
+              {appRoutes.map((route, index) => (
+                <MiniSizeBar item={route} key={index} />
+              ))}
             </List>
           </>
         )}
@@ -100,7 +89,6 @@ const Sidebar = (props: any) => {
     </motion.aside>
   );
 };
-
 const SidebarItem = ({ item }: { item: RouteType }) => {
   const location = useLocation();
 
@@ -154,9 +142,6 @@ const SidebarItemCollapse = ({
     }
   }, [item.child, item.state, open, handleCollapse]);
 
-
-  const { getRoleCode } = useContext(AuthorizationContext);
-
   return item.sidebarProps ? (
     <>
       <ListItemButton
@@ -195,21 +180,19 @@ const SidebarItemCollapse = ({
       </ListItemButton>
       <Collapse in={isOpen} timeout="auto">
         <List>
-          {item.child?.map((route, index) => {
-            if (!route.roles?.includes(getRoleCode as Role)) return null
-
-            return route.sidebarProps ? (
+          {item.child?.map((route, index) =>
+            route.sidebarProps ? (
               route.child ? (
                 <SidebarItemCollapse
                   item={route}
                   key={index}
                   open={open}
-                  handleCollapse={handleCollapse} />
+                  handleCollapse={handleCollapse}
+                />
               ) : (
                 <SidebarItem item={route} key={index} />
               )
-            ) : null;
-          }
+            ) : null
           )}
         </List>
       </Collapse>
@@ -219,7 +202,6 @@ const SidebarItemCollapse = ({
 
 const MiniSizeBar = ({ item }: { item: RouteType }) => {
   const active = location.pathname?.split("/")[1] == item.path?.split("/")[1];
-
   return item.sidebarProps && item.path ? (
     <ListItemButton
       component={Link}
