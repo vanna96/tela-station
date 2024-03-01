@@ -10,7 +10,6 @@ import {
   useThemeContext,
 } from "./contexts/index";
 import { ThemeProvider, createTheme } from "@mui/material";
-import { AuthorizationProvider } from "./contexts/useAuthorizationContext";
 
 const queryClient = new QueryClient();
 const sessionStoragePersistor = createWebStoragePersistor({
@@ -57,15 +56,13 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <AuthorizationProvider>
-        <QueryClientProvider client={queryClient}>
-          <CookiesProvider>
-            <ThemeContext.Provider value={myContextValue}>
-              <Router />
-            </ThemeContext.Provider>
-          </CookiesProvider>
-        </QueryClientProvider>
-      </AuthorizationProvider>
+      <QueryClientProvider client={queryClient}>
+        <CookiesProvider>
+          <ThemeContext.Provider value={myContextValue}>
+            <Router />
+          </ThemeContext.Provider>
+        </CookiesProvider>
+      </QueryClientProvider>
     </ThemeProvider>
   );
 };

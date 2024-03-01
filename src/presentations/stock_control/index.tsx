@@ -1,6 +1,6 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AiOutlineAccountBook,
@@ -14,7 +14,6 @@ import {
 } from "react-icons/ai";
 import request from "@/utilies/request";
 import { useQuery } from "react-query";
-import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 
 const StockControlPage = () => {
   const navigate = useNavigate();
@@ -55,38 +54,29 @@ const StockControlPage = () => {
   const fuelLevel = createUseQuery("fuel-level", "TL_FUEL_LEVEL/$count");
   const items = [
     {
-      roles: ['UG001', 'UG004', 'UG003'],
       title: "Inventory Transfer Request",
       route: "inventory-transfer-request",
       icon: <AiOutlineFileAdd />,
     },
     {
-      roles: ['UG001', 'UG004', 'UG003'],
       title: "Stock Transfer",
       route: "stock-transfer",
       icon: <AiOutlineFileAdd />,
     },
-    { title: "Good Issue", route: "good-issue", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004', 'UG003'] },
+    { title: "Good Issue", route: "good-issue", icon: <AiOutlineFileAdd /> },
     {
       title: "Good Receipt",
       route: "good-receipt",
       icon: <AiOutlineFileAdd />,
-      roles: ['UG001', 'UG004', 'UG003']
     },
-    { title: "Pump Test", route: "pump-test", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004', 'UG003'] },
-    { title: "Fuel Level", route: "fuel-level", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004', 'UG003'], },
+    { title: "Pump Test", route: "pump-test", icon: <AiOutlineFileAdd /> },
+    { title: "Fuel Level", route: "fuel-level", icon: <AiOutlineFileAdd /> },
   ];
-
-
-  const { getRoleCode } = useContext(AuthorizationContext);
 
   return (
     <>
       <MainContainer title="Stock Control">
-        {items.map(({ title, route, icon, roles }, index) => {
-
-          if (!roles.includes(getRoleCode as Role)) return null;
-
+        {items.map(({ title, route, icon }, index) => {
           const { data, isLoading } = createUseQuery(
             route,
             `TL_${title.replace(/\s/g, "")}/$count`

@@ -50,7 +50,7 @@ export default function App() {
       <Backdrop
         sx={{ color: "white", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={loading}
-        onClick={() => { }}
+        onClick={() => {}}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
@@ -95,7 +95,7 @@ export default function App() {
             </div>
             <div className="flex space-x-4">
               <Chip
-                label={cookies.user?.UserName}
+                label={cookies.user.UserName}
                 color="primary"
                 variant="outlined"
               />

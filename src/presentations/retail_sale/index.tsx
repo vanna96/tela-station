@@ -4,8 +4,6 @@ import { AiOutlineFileProtect } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
-import { useContext } from "react";
-import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 
 interface CollectionItem {
   title: string;
@@ -13,7 +11,6 @@ interface CollectionItem {
   queryKey: string;
   filter: string;
   route: string;
-  roles: Role[]
 }
 
 const RetailSalePage = () => {
@@ -43,7 +40,6 @@ const RetailSalePage = () => {
 
   const collectionItems: CollectionItem[] = [
     {
-      roles: ['UG001', 'UG004'],
       title: "Fuel Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "fuelOrders",
@@ -51,7 +47,6 @@ const RetailSalePage = () => {
       route: "fuel-cash-sale",
     },
     {
-      roles: ['UG001', 'UG004'],
       title: "Lube Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lubeOrders",
@@ -59,7 +54,6 @@ const RetailSalePage = () => {
       route: "lube-cash-sale",
     },
     {
-      roles: ['UG001', 'UG004'],
       title: "LPG Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lpgOrders",
@@ -68,17 +62,11 @@ const RetailSalePage = () => {
     },
   ];
 
-  const { getRoleCode } = useContext(AuthorizationContext);
-
   return (
     <MainContainer title="Retail Sale">
       {collectionItems.map(
-        ({ title, icon, queryKey, filter, route, roles }, index) => {
-
-          if (!roles.includes(getRoleCode as Role)) return null;
-
+        ({ title, icon, queryKey, filter, route }, index) => {
           const { data, isLoading } = createUseQuery(queryKey, filter);
-
           return (
             <ItemCard
               key={index}

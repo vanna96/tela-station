@@ -113,7 +113,6 @@ class FormMessageModal extends React.Component<FormMessageModalProps> {
                             isError={this.state.isError}
                             flag={1}
                             id={this.state.id}
-                            onClick={() => this.setState({...this.state, open: false})}
                           >
                             View Detail
                           </ReplaceRouteButton>
@@ -157,8 +156,6 @@ const ReplaceRouteButton = (props: any) => {
       route(url);
     }
     if (!isEdit) route(history.pathname.replace("create", "") + id);
-
-    if (props?.onClick) props?.onClick()
   };
 
   return (
