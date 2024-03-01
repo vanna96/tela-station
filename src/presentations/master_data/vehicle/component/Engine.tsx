@@ -54,6 +54,7 @@ const Engine = ({
             <div className="col-span-3">
               <MUITextField
                 disabled={detail}
+                type="number"
                 inputProps={{ ...register("U_CylinderNo") }}
               />
             </div>
@@ -147,7 +148,7 @@ const Engine = ({
             </div>
             <div className="col-span-3">
               <Controller
-                name="U_Type"
+                name="U_SparkPlugType"
                 control={control}
                 render={({ field }) => {
                   return (
