@@ -76,8 +76,8 @@ const DepositForm = (props: any) => {
   const [serie, setSerie] = useState([]);
 
   useEffect(() => {
-    fetchData();
     fethSeries();
+    fetchData();
   }, []);
   const fethSeries = async () => {
     let seriesList: any = props?.query?.find("deposit-series");
@@ -243,7 +243,7 @@ const DepositForm = (props: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <h1>
+              <div className="grow">
                 <BasicInformation
                   register={register}
                   setValue={setValue}
@@ -253,10 +253,10 @@ const DepositForm = (props: any) => {
                   watch={watch}
                   getValues={getValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 1 && (
-              <h1>
+              <div className="grow">
                 <Checks
                   watch={watch}
                   register={register}
@@ -265,10 +265,10 @@ const DepositForm = (props: any) => {
                   defaultValues={defaultValues}
                   getValues={getValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 2 && (
-              <h1>
+              <div className="grow">
                 <Cash
                   getValues={getValues}
                   watch={watch}
@@ -277,11 +277,11 @@ const DepositForm = (props: any) => {
                   control={control}
                   defaultValues={defaultValues}
                 />
-              </h1>
+              </div>
             )}
-            <div className="absolute w-full bottom-4  mt-2 ">
+            <div className="sticky w-full  bottom-4 md:bottom-0 md:p-3  mt-2 p-3">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                <div className="flex">
+                <div className="flex ">
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
@@ -291,7 +291,9 @@ const DepositForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() => (window.location.href = "/banking/deposit")}
+                    onClick={() =>
+                      (window.location.href = "/master-data/vehicle")
+                    }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel

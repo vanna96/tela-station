@@ -11,7 +11,7 @@ import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoCom
 import MUISelect from "@/components/selectbox/MUISelect";
 import React from "react";
 
-const BasicInformation = ({
+const BasicInformationDetail = ({
   register,
   control,
   defaultValues,
@@ -46,6 +46,7 @@ const BasicInformation = ({
       (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
     );
   }, [serie]);
+  console.log(serie);
 
   return (
     <>
@@ -84,7 +85,8 @@ const BasicInformation = ({
                       <MUISelect
                         {...field}
                         items={dataSeries}
-                        value={staticSelect?.serie || defaultValues?.serie}
+                        disabled={true}
+                        value={staticSelect?.serie || defaultValues?.Series}
                         aliasvalue="Series"
                         aliaslabel="Name"
                         name="Series"
@@ -115,6 +117,7 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <CurrencyAutoComplete
+                        disabled={true}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -142,7 +145,7 @@ const BasicInformation = ({
                     return (
                       <BranchAssignmentAuto
                         {...field}
-                        // disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={true}
                         onChange={(e: any) => {
                           setValue("BPLID", e?.BPLID);
                         }}
@@ -169,6 +172,7 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <CashACAutoComplete
+                        disabled={true}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -187,8 +191,8 @@ const BasicInformation = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  // disabled={detail || true}
+                <MUITextField   
+                  disabled={true}
                   value={
                     new GLAccountRepository().find(watch("DepositAccount"))
                       ?.Name
@@ -212,7 +216,7 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        // disabled={detail}
+                        disabled={true}
                         {...field}
                         defaultValue={
                           defaultValues?.DepositDate || staticSelect.depositDate
@@ -245,7 +249,7 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail || edit}
+                  disabled={true}
                   inputProps={{
                     ...register("Bank"),
                   }}
@@ -260,10 +264,10 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                // disabled={detail}
-                inputProps={{
-                  ...register("BankAccountNum"),
-                }}
+                  disabled={true}
+                  inputProps={{
+                    ...register("BankAccountNum"),
+                  }}
                 />
               </div>
             </div>
@@ -275,7 +279,7 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  // disabled={detail}
+                  disabled={true}
                   inputProps={{
                     ...register("BankReference"),
                   }}
@@ -290,7 +294,7 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  // disabled={detail}
+                  disabled={detail}
                   inputProps={{
                     ...register("DepositorName"),
                   }}
@@ -311,7 +315,7 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <LineofBusinessAutoComplete
-                        // disabled={detail}
+                        disabled={true}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -329,4 +333,4 @@ const BasicInformation = ({
     </>
   );
 };
-export default BasicInformation;
+export default BasicInformationDetail;

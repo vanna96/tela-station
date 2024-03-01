@@ -125,36 +125,6 @@ export default function TableCheck({
                 </td>
               </tr>
             )}
-            {commer?.map((e: any, index: number) => {
-              return (
-                <tr key={`row_${index}`}>
-                  <td className="py-5 flex justify-center gap-5 items-center">
-                    {!detail && (
-                      <Checkbox
-                        key={`row_${index}_row_${e?.U_Type}`}
-                        defaultChecked={selectedValues.find((row) =>e?.CheckKey === row?.CheckKey)}
-                        onChange={(event) => onSelectChange(event, index)}
-                      />
-                    )}
-                  </td>
-                  <td className="pr-4">
-                    <MUITextField
-                      disabled={detail}
-                      placeholder="Reference"
-                      key={`row_${index}Reference${e?.U_Ref}`}
-                      inputProps={{
-                        defaultValue: e?.U_Ref,
-                        onChange: (e: any) =>
-                          handlerChangeCommer("U_Ref", e?.target?.value, index),
-                      }}
-                    />
-                  </td>
-                  <td className="pr-4 text-center">
-                    <span className="text-green-500 text-sm">Active</span>
-                  </td>
-                </tr>
-              );
-            })}
             <tbody>
               {documents?.map((e: any, index: number) => (
                 <tr>

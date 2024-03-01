@@ -21,6 +21,8 @@ import { useQuery } from "react-query";
 import Checks from "../components/Checks";
 import Cash from "../components/Cash";
 import CheckDetail from "./CheckDetail";
+import BasicInformationDetail from "./BasicInformationDetail";
+import DocumentSerieRepository from "@/services/actions/documentSerie";
 let dialog = React.createRef<FormMessageModal>();
 
 // const { id } = useParams();
@@ -67,11 +69,23 @@ const DepositDetail = (props: any) => {
   });
 
   const [deposit, setDeposit] = React.useState<any>();
+  const [serie, setSerie] = useState([]);
 
   useEffect(() => {
-    // Fetch initial data if needed
+    fethSeries();
     fetchData();
   }, []);
+
+  const fethSeries = async () => {
+    let seriesList: any = props?.query?.find("deposit-series");
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "25",
+      });
+      props?.query?.set("deposit-series", seriesList);
+    }
+    setSerie(seriesList);
+  };
 
   const fetchData = async () => {
     if (id) {
@@ -233,11 +247,11 @@ const DepositDetail = (props: any) => {
           <FormMessageModal ref={dialog} />
           <form
             id="formData"
-            className="h-full w-full flex flex-col gap-4 relative"
-          >
+            className="h-full w-full flex flex-col gap-4 relative">
             {state.tapIndex === 0 && (
               <h1>
-                <BasicInformation
+                <BasicInformationDetail
+                  serie={serie}
                   watch={watch}
                   detail={props?.detail}
                   register={register}

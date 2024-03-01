@@ -135,7 +135,7 @@ export default function CollectionRoute() {
         <Route index element={<DepositList />} />
         <Route path=":id" element={<DepositDeatil detail={true}/>} />
         <Route path="create" element={<DepositForm />} />
-        <Route path=":id/edit" element={<DepositForm edit={true} />} />
+        <Route path=":id/edit" element={<DepositDeatil edit={true} />} />
       </Route>
     </Routes>
   );
