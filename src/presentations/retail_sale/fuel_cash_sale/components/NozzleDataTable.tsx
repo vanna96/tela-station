@@ -46,6 +46,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
     });
 
     onChange("allocationData", newData);
+    onChange("stockAllocationData", newData);
   };
 
   const itemColumns = React.useMemo(

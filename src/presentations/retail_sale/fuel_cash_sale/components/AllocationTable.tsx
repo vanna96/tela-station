@@ -22,10 +22,10 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  let allocationData = data.allocationData;
+  // let allocationData = data.allocationData;
 
   if (!edit) {
-    allocationData = data?.nozzleData?.filter(
+    data.allocationData = data?.nozzleData?.filter(
       (item: any) => parseFloat(item.U_tl_nmeter) > 0
     );
   }
@@ -196,12 +196,12 @@ export default function AllocationTable({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original.U_tl_stockallow?.replace(/,/g, "")) +
-            parseFloat(cell.row.original.U_tl_cardallow?.replace(/,/g, "")) +
-            parseFloat(cell.row.original.U_tl_cashallow?.replace(/,/g, "")) +
-            parseFloat(cell.row.original.U_tl_ownallow?.replace(/,/g, "")) +
-            parseFloat(cell.row.original.U_tl_partallow?.replace(/,/g, "")) +
-            parseFloat(cell.row.original.U_tl_pumpallow?.replace(/,/g, ""));
+            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
 
           const isValid = cell.row.original.U_tl_totalallow === total;
           return (
@@ -253,7 +253,7 @@ export default function AllocationTable({
         <div className="data-table">
           <MaterialReactTable
             columns={itemColumns}
-            data={allocationData}
+            data={data.allocationData}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

@@ -32,13 +32,6 @@ export default function StockAllocationTable({
 }: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
-  // let stockAllocationData = data.stockAllocationData; // Temporary variable
-
-  // if (!edit) {
-  //   data.stockAllocationData = data.nozzleData?.filter(
-  //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
-  //   );
-  // }
   const [rowSelection, setRowSelection] = React.useState<any>({});
   const onCheckRow = (event: any, index: number) => {
     const rowSelects: any = { ...rowSelection };
@@ -51,30 +44,28 @@ export default function StockAllocationTable({
     setRowSelection(rowSelects);
   };
   const synchronizeStockAllocationData = () => {
-    const updatedStockAllocationData = data.stockAllocationData?.map(
-      (stockItem: any) => {
+    const updatedStockAllocationData = data.stockAllocationData
+      ?.filter((e: any) => e.U_tl_nmeter > 0)
+      ?.map((stockItem: any) => {
         const allocationItem = data?.allocationData?.find(
           (allocationItem: any) =>
             allocationItem?.U_tl_itemcode === stockItem?.U_tl_itemcode
         );
         if (allocationItem) {
-          console.log(allocationItem);
           return {
             ...stockItem,
             U_tl_qtycon: allocationItem?.U_tl_stockallow || 0,
           };
         }
         return stockItem;
-      }
-    );
+      });
 
     onChange("stockAllocationData", updatedStockAllocationData);
   };
 
   useEffect(() => {
     synchronizeStockAllocationData();
-  }, [data?.allocationData]);
-
+  }, [data?.allocationData, data.nozzleData]);
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
       (item: any, index: number) => {
