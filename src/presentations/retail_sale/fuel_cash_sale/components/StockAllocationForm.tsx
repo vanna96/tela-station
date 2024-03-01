@@ -33,39 +33,13 @@ export default function StockAllocationTable({
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
   const [rowSelection, setRowSelection] = React.useState<any>({});
-  const onCheckRow = (event: any, index: number) => {
-    const rowSelects: any = { ...rowSelection };
-    rowSelects[index] = true;
-
-    if (!event.target.checked) {
-      delete rowSelects[index];
-    }
-
-    setRowSelection(rowSelects);
+  const handlerRemove = () => {
+    let filteredData = data.cashBankData.filter((item: any, index: number) => {
+      return !(index.toString() in rowSelection);
+    });
+    onChange("cashBankData", filteredData);
+    setRowSelection({});
   };
-  const synchronizeStockAllocationData = () => {
-    const updatedStockAllocationData = data.stockAllocationData
-      ?.filter((e: any) => e.U_tl_nmeter > 0)
-      ?.map((stockItem: any) => {
-        const allocationItem = data?.allocationData?.find(
-          (allocationItem: any) =>
-            allocationItem?.U_tl_itemcode === stockItem?.U_tl_itemcode
-        );
-        if (allocationItem) {
-          return {
-            ...stockItem,
-            U_tl_qtycon: allocationItem?.U_tl_stockallow || 0,
-          };
-        }
-        return stockItem;
-      });
-
-    onChange("stockAllocationData", updatedStockAllocationData);
-  };
-
-  useEffect(() => {
-    synchronizeStockAllocationData();
-  }, [data?.allocationData, data.nozzleData]);
   const onChangeItem = (key: number, obj: any) => {
     const newData = data.stockAllocationData?.map(
       (item: any, index: number) => {
@@ -111,17 +85,26 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
+  const onCheckRow = (event: any, index: number) => {
+    const rowSelects: any = { ...rowSelection };
+    rowSelects[index] = true;
 
+    if (!event.target.checked) {
+      delete rowSelects[index];
+    }
+
+    setRowSelection(rowSelects);
+  };
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "index",
-        size: 2,
-        minSize: 2,
-        maxSize: 2,
+        accessorKey: "index_",
+        size: 45,
+        minSize: 45,
+        maxSize: 45,
         header: "",
         Cell: ({ cell }: any) => {
-          if (cell.row.original?.U_tl_paytype)
+          if (cell.row.original?.U_tl_bplid)
             return (
               <Checkbox
                 checked={cell.row.index in rowSelection}
@@ -171,7 +154,8 @@ export default function StockAllocationTable({
                   U_tl_bplid: e,
                 });
               }}
-              value={parseInt(cell.getValue())}
+              // value={parseInt(cell.getValue())}
+              value={1}
             />
           );
         },
@@ -242,19 +226,22 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.nozzleData?.map((e: any) => ({
-                value: e.U_tl_itemcode,
-                label: e.U_tl_itemcode,
-              }))}
+              items={data.allocationData
+                ?.filter((e: any) => e.U_tl_stockallow > 0)
+                ?.map((e: any) => ({
+                  value: e.U_tl_itemcode,
+                  label: e.U_tl_itemcode,
+                }))}
               value={cell.getValue()}
               onChange={(e: any) => {
-                const selectedNozzle = data.nozzleData.find(
+                const selectedNozzle = data.allocationData.find(
                   (item: any) => item.U_tl_itemcode === e.target.value
                 );
                 onChangeItemObj(cell.row.id, {
                   U_tl_itemcode: e.target.value,
                   U_tl_itemname: selectedNozzle.U_tl_itemname,
                   U_tl_uom: selectedNozzle.U_tl_uom,
+                  U_tl_qtycon: selectedNozzle.U_tl_stockallow,
                 });
               }}
             />
@@ -421,15 +408,7 @@ export default function StockAllocationTable({
     ],
     [data.stockAllocationData]
   );
-  const handlerRemove = () => {
-    let filteredData = data.stockAllocationData.filter(
-      (item: any, index: number) => {
-        return !(index.toString() in rowSelection);
-      }
-    );
-    onChange("stockAllocationData", filteredData);
-    setRowSelection({});
-  };
+
   return (
     <>
       <FormCard title="Stock Allocation ">
@@ -448,7 +427,7 @@ export default function StockAllocationTable({
               </Button>
             </div>
             <MaterialReactTable
-              columns={[...itemColumns]}
+              columns={itemColumns}
               data={[...data.stockAllocationData, { U_tl_bplid: "" }]}
               enableStickyHeader={true}
               enableColumnActions={false}

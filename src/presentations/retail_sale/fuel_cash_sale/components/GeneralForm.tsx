@@ -224,49 +224,14 @@ export default function GeneralForm({
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice,
                       U_tl_bplid: data.U_tl_bplid,
-                      U_tl_whs: warehouseCode,
-                      U_tl_bincode: item.U_tl_bincode,
+                      // U_tl_whs: warehouseCode,
+                      // U_tl_bincode: item.U_tl_bincode,
                       UoMGroupEntry: item.UoMGroupEntry,
                       InventoryUoMEntry: item.InventoryUoMEntry,
                       uomLists: item.uomLists,
                     })
                   );
-                  // const updatedStockAllocationData = itemsWithPrices.map(
-                  //   (item: any) => ({
-                  //     U_tl_bplid: data.U_tl_bplid,
-                  //     U_tl_whs: warehouseCode,
-                  //     U_tl_bincode: parseInt(item.U_tl_bincode),
-                  //     U_tl_itemcode: item.U_tl_itemnum,
-                  //     U_tl_itemname: item.ItemName,
-                  //     U_tl_qtyaloc: item.U_tl_qtyaloc,
-                  //     U_tl_qtycon: item.U_tl_qtycon,
-                  //     U_tl_qtyopen: item.U_tl_qtyopen,
-                  //     U_tl_remark: item.U_tl_remark,
-                  //     U_tl_uom: item.U_tl_uom,
-                  //     ItemPrice: item.ItemPrice,
-                  //   })
-                  // );
-                  const updatedStockAllocationData = updatedNozzleData
-                    // ?.filter((e: any) => e?.U_tl_nmeter > 0)
-                    .map((item: any) => ({
-                      U_tl_bplid: item.U_tl_bplid,
-                      // U_tl_whs: item.U_tl_whs,
-                      // U_tl_bincode: parseInt(item.U_tl_bincode),
-                      U_tl_itemcode: item.U_tl_itemcode,
-                      U_tl_itemname: item.U_tl_itemname,
-                      U_tl_qtyaloc: item.U_tl_qtyaloc,
-                      U_tl_qtycon: item.U_tl_qtycon,
-                      U_tl_qtyopen: item.U_tl_qtyopen,
-                      U_tl_remark: item.U_tl_remark,
-                      U_tl_uom: item.U_tl_uom,
-                      ItemPrice: item.ItemPrice,
-                      U_tl_nmeter: item.U_tl_nmeter,
-                      U_tl_ometer: item.U_tl_upd_meter,
-                      U_tl_reg_meter: item.U_tl_reg_meter,
-                      UoMGroupEntry: item.UoMGroupEntry,
-                      InventoryUoMEntry: item.InventoryUoMEntry,
-                      uomLists: item.uomLists,
-                    }));
+
                   const updatedCardCountData = updatedNozzleData
                     ?.filter((e: any) => e?.U_tl_nmeter > 0)
                     .map((item: any) => ({
@@ -286,7 +251,7 @@ export default function GeneralForm({
                   // Update your component state or pass this data as needed
                   handlerChangeObject({
                     U_tl_pump: e,
-                    stockAllocationData: updatedStockAllocationData,
+                    // stockAllocationData: updatedStockAllocationData,
                     nozzleData: updatedNozzleData,
                     cardCountData: updatedCardCountData,
                     U_tl_whs: dispenserData?.U_tl_whs,

@@ -33,7 +33,7 @@ class Form extends NonCoreDcument {
       dispenserData: [],
       U_tl_docdate: new Date(),
       allocationData: [],
-      allocationGenerated: false,
+      stockAllocationData: [],
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -275,7 +275,7 @@ class Form extends NonCoreDcument {
       //Stock Allocation Collection
       TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
         (item: any) => ({
-          U_tl_nozzlecode: item.U_tl_nozzlecode,
+          // U_tl_nozzlecode: item.U_tl_nozzlecode,
           U_tl_itemcode: item.U_tl_itemcode,
           U_tl_itemname: item.U_tl_itemname,
           U_tl_qtycon: item.U_tl_qtycon,
