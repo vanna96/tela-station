@@ -440,43 +440,60 @@ class Form extends NonCoreDcument {
           })),
         ],
 
-        StockAllocation: data?.stockAllocationData?.map((item: any) => {
-          let quantity = item.U_tl_qtyaloc;
+        StockAllocation: (() => {
+          const uniqueItemsMap = new Map();
 
-          if (item.InventoryUoMEntry !== item.U_tl_uom) {
-            const uomList = item.uomLists?.find(
-              (list: any) => list.AlternateUoM === item.U_tl_uom
-            );
-            if (uomList) {
-              quantity *= uomList.BaseQuantity;
-            } else {
-              console.error("UoM conversion factor not found!");
+          // Calculate the total quantity for each unique item code
+          data?.stockAllocationData?.forEach((item: any) => {
+            let quantity = parseFloat(item.U_tl_qtyaloc);
+
+            if (item.InventoryUoMEntry !== item.U_tl_uom) {
+              const uomList = item.uomLists?.find(
+                (list: any) => list.AlternateUoM === item.U_tl_uom
+              );
+              if (uomList) {
+                quantity *= uomList.BaseQuantity;
+              } else {
+                console.error("UoM conversion factor not found!");
+              }
             }
-          }
 
-          return {
-            ItemCode: item.U_tl_itemcode,
-            Quantity: quantity,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
-            RevenueLine: "202004",
-            ProductLine: "203004",
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: quantity,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          };
-        }),
+            if (uniqueItemsMap.has(item.U_tl_itemcode)) {
+              const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
+              uniqueItemsMap.set(
+                item.U_tl_itemcode,
+                existingQuantity + quantity
+              );
+            } else {
+              uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+            }
+          });
+
+          const stockAllocation = Array.from(uniqueItemsMap).map(
+            ([itemCode, quantity]) => ({
+              ItemCode: itemCode,
+              Quantity: quantity.toString(),
+              DiscountPercent: 0,
+              TaxCode: "VO10",
+              LineOfBussiness: "201001",
+              RevenueLine: "202004",
+              ProductLine: "203004",
+              BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+              BranchCode: data.stockAllocationData[0].U_tl_bplid || 1,
+              WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+              DocumentLinesBinAllocations: [
+                {
+                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                  Quantity: quantity.toString(),
+                  AllowNegativeQuantity: "tNO",
+                  BaseLineNumber: 0,
+                },
+              ],
+            })
+          );
+
+          return stockAllocation;
+        })(),
 
         CardCount: [].concat(
           ...data?.allocationData?.map((item: any) => {

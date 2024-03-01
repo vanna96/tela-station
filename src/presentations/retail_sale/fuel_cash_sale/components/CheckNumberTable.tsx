@@ -15,10 +15,10 @@ export default function CashBankTable(props: any) {
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerRemove = () => {
-    let filteredData = data.cashBankData.filter((item: any, index: number) => {
+    let filteredData = data.checkNumberData.filter((item: any, index: number) => {
       return !(index.toString() in rowSelection);
     });
-    onChange("cashBankData", filteredData);
+    onChange("checkNumberData", filteredData);
     setRowSelection({});
   };
 
