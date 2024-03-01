@@ -810,6 +810,8 @@ class Form extends NonCoreDcument {
                             type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
+                            disabled={this.props.edit ? false : this.state.tapIndex <4 }
+
                           >
                             <span className="px-3 text-[13px] py-1 text-green-500">
                               {this.props.edit ? "Update" : "Add"}
@@ -823,6 +825,7 @@ class Form extends NonCoreDcument {
                               sx={{ height: "30px", textTransform: "none" }}
                               className="bg-white"
                               loading={false}
+                              disabled={this.state.tapIndex <4}
                               size="small"
                               variant="contained"
                               disableElevation
