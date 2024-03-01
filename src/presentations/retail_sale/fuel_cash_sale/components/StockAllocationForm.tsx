@@ -233,23 +233,41 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.allocationData
-                ?.filter((e: any) => e.U_tl_stockallow > 0)
-                ?.map((e: any) => ({
-                  value: e.U_tl_itemcode,
-                  label: e.U_tl_itemcode,
-                }))}
+              items={data.allocationData?.map((e: any) => ({
+                value: e.U_tl_itemcode,
+                label: e.U_tl_itemcode,
+              }))}
               value={cell.getValue()}
               onChange={(e: any) => {
-                const selectedNozzle = data.allocationData.find(
+                const selectedNozzle = data.allocationData?.find(
                   (item: any) => item.U_tl_itemcode === e.target.value
                 );
-                onChangeItemObj(cell.row.id, {
-                  U_tl_itemcode: e.target.value,
-                  U_tl_itemname: selectedNozzle.U_tl_itemname,
-                  U_tl_uom: selectedNozzle.U_tl_uom,
-                  U_tl_qtycon: selectedNozzle.U_tl_stockallow,
-                });
+
+                const previousRows = data.stockAllocationData
+                  ?.slice(0, cell.row.index)
+                  .filter((row: any) => row.U_tl_itemcode === e.target.value);
+
+                if (previousRows.length > 0) {
+                  const lastRecentRow = previousRows[previousRows.length - 1];
+
+                  const newQtyCon =
+                    parseFloat(lastRecentRow.U_tl_qtycon) -
+                    parseFloat(lastRecentRow.U_tl_qtyaloc);
+
+                  onChangeItemObj(cell.row.id, {
+                    U_tl_itemcode: e.target.value,
+                    U_tl_itemname: selectedNozzle.U_tl_itemname,
+                    U_tl_uom: selectedNozzle.U_tl_uom,
+                    U_tl_qtycon: newQtyCon,
+                  });
+                } else {
+                  onChangeItemObj(cell.row.id, {
+                    U_tl_itemcode: e.target.value,
+                    U_tl_itemname: selectedNozzle.U_tl_itemname,
+                    U_tl_uom: selectedNozzle.U_tl_uom,
+                    U_tl_qtycon: selectedNozzle.U_tl_stockallow,
+                  });
+                }
               }}
             />
           );
@@ -294,7 +312,6 @@ export default function StockAllocationTable({
           );
         },
       },
-
       {
         Header: (header: any) => (
           <label>
@@ -306,28 +323,23 @@ export default function StockAllocationTable({
         visible: true,
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
+
           const rowsWithSameItemCode = data?.stockAllocationData?.filter(
             (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              return sum + parseFloat(r.U_tl_qtycon);
+              return sum + parseFloat(r.U_tl_qtyaloc);
             },
             0
           );
 
-          const nozzle = data.nozzleData?.find(
-            (nozzle: any) =>
-              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          const firstQuantity = parseFloat(
+            rowsWithSameItemCode[0]?.U_tl_qtycon
           );
-
-          // const isValid = nozzle
-          //   ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
-          //   : false;
-          const isValid =
-            cell.row.original.U_tl_qtycon ===
-            // parseFloat(cell.row.original.U_tl_qtyaloc?.replace(/,/g, ""));
-            totalQuantity;
+          const isValid = totalQuantity === firstQuantity;
+          console.log(totalQuantity);
+          console.log(firstQuantity);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
@@ -337,15 +349,16 @@ export default function StockAllocationTable({
               fixedDecimalScale
               customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
+              onBlur={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_qtyaloc: e.target.value,
-                })
-              }
+                });
+              }}
             />
           );
         },
       },
+
       {
         accessorKey: "U_tl_uom",
         header: "UoM",

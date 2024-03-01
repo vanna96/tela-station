@@ -360,7 +360,7 @@ class Form extends NonCoreDcument {
           let quantity = item[allocationType];
 
           if (item.InventoryUoMEntry !== item.U_tl_uom) {
-            const uomList = item.uomLists.find(
+            const uomList = item.uomLists?.find(
               (list: any) => list.AlternateUoM === item.U_tl_uom
             );
             if (uomList) {
@@ -444,7 +444,7 @@ class Form extends NonCoreDcument {
           let quantity = item.U_tl_qtyaloc;
 
           if (item.InventoryUoMEntry !== item.U_tl_uom) {
-            const uomList = item.uomLists.find(
+            const uomList = item.uomLists?.find(
               (list: any) => list.AlternateUoM === item.U_tl_uom
             );
             if (uomList) {
