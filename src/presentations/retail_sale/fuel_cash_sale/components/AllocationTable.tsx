@@ -22,43 +22,24 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  let [allocationData, setAllocationData] = useState<any[]>([]);
-  const [allocationGenerated, setAllocationGenerated] = useState(
-    data.allocationGenerated
-  );
+  let allocationData = data.allocationData;
 
-  console.log(data.nozzleData);
-  const generateAllocation = () => {
-    let generatedAllocation = data.nozzleData.filter(
-      (item: any) => item.U_tl_nmeter > 0
+  if (!edit) {
+    allocationData = data?.nozzleData?.filter(
+      (item: any) => parseFloat(item.U_tl_nmeter) > 0
     );
-    console.log(generatedAllocation)
-    setAllocationData(generatedAllocation);
-    // setAllocationGenerated(true);
-    // data.allocationGenerated = true;
-  };
+  }
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.allocationData.map((item: any, index: number) => {
+    const newData = data.allocationData?.map((item: any, index: number) => {
       if (index.toString() === key.toString()) {
         const objKey = Object.keys(obj)[0];
         item[objKey] = Object.values(obj)[0];
       }
       return item;
     });
-    setAllocationData(newData);
     onChange("allocationData", newData);
   };
-
-  useEffect(() => {
-    if (data && data.nozzleData) {
-      let generatedAllocation = data.nozzleData.filter(
-        (item: any) => item.U_tl_nmeter > 0
-      );
-      setAllocationData(generatedAllocation);
-      // setAllocationGenerated(true);
-    }
-  }, [data.nozzleData]);
 
   const itemColumns = React.useMemo(
     () => [
@@ -215,12 +196,12 @@ export default function AllocationTable({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original?.U_tl_cardallow || 0) +
-            parseFloat(cell.row.original?.U_tl_cashallow || 0) +
-            parseFloat(cell.row.original?.U_tl_ownallow || 0) +
-            parseFloat(cell.row.original?.U_tl_partallow || 0) +
-            parseFloat(cell.row.original?.U_tl_pumpallow || 0) +
-            parseFloat(cell.row.original?.U_tl_stockallow || 0);
+            parseFloat(cell.row.original.U_tl_stockallow?.replace(/,/g, "")) +
+            parseFloat(cell.row.original.U_tl_cardallow?.replace(/,/g, "")) +
+            parseFloat(cell.row.original.U_tl_cashallow?.replace(/,/g, "")) +
+            parseFloat(cell.row.original.U_tl_ownallow?.replace(/,/g, "")) +
+            parseFloat(cell.row.original.U_tl_partallow?.replace(/,/g, "")) +
+            parseFloat(cell.row.original.U_tl_pumpallow?.replace(/,/g, ""));
 
           const isValid = cell.row.original.U_tl_totalallow === total;
           return (
@@ -248,7 +229,7 @@ export default function AllocationTable({
     <>
       <div className="flex items-center mb-4 gap-16 ">
         <Button
-          onClick={generateAllocation}
+          // onClick={generateAllocation}
           variant="outlined"
           size="medium"
           sx={{
