@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import { CheckIcon } from "lucide-react";
 
 export default function DepositCheckAutoComplete(props: {
   label?: any;
@@ -15,9 +16,9 @@ export default function DepositCheckAutoComplete(props: {
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["deposit_check"],
-    queryFn: () => request('GET', `/sml.svc/GETDISPLAYDEPOSIT`).then((res:any) => res.data.value),
+    queryFn: () => request('GET', `/sml.svc/GETDISPLAYDEPOSIT`).then((res: any) => res.data.value),
     staleTime: Infinity,
-    refetchOnWindowFocus : false,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -57,24 +58,25 @@ export default function DepositCheckAutoComplete(props: {
 
       <Autocomplete
         disabled={disabled}
-        options={data}
+        options={[{ AccountCode: 'All', AccountName: 'All' }, ...data]}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
         getOptionLabel={(option: any) => option.AccountCode}
         renderOption={(props, option) => (
-          <Box component="li" {...props}>
-            <BsDot />
-            {option.AccountCode} - {option.AccountName}
+          <Box component="li" {...props} >
+            {/* <BsDot /> */}
+            {/* {selectedValue === option.AccountCode ? <CheckIcon /> : null} */}
+            {option?.AccountCode?.toLowerCase() === 'all' ? 'All' : `${option.AccountCode} - ${option.AccountName}`}
+
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

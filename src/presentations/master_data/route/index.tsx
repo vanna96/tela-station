@@ -21,11 +21,22 @@ export default function Routelistpage() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        size: 20,
+        maxSize: 20,
+        minSize: 20,
+        type: 'number',
+        Cell: (cell: any) => {
+          return cell.row.index + 1
+        },
+      },
+      {
         accessorKey: "Code",
         header: "Route Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 88,
+        size: 100,
         visible: true,
         type: "string",
       },
@@ -166,9 +177,8 @@ export default function Routelistpage() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}`:filter}`
+        `${url}/TL_ROUTE?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
+        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}` : filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -211,36 +221,35 @@ export default function Routelistpage() {
         ? ` and (contains(Code, '${searchValues.code}'))`
         : `contains(Code, '${searchValues.code}')`;
     }
-  
+
     if (searchValues.status) {
       searchValues.status === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and U_Status eq '${searchValues.status}'`
-            : `U_Status eq '${searchValues.status}'`);
+          ? ` and U_Status eq '${searchValues.status}'`
+          : `U_Status eq '${searchValues.status}'`);
     }
-  console.log(queryFilters);
-  
+    console.log(queryFilters);
+
     let query = queryFilters;
-  
+
     if (value) {
       query = queryFilters + ` and ${value}`;
 
-      
+
     }
-    console.log(queryFilters);
     setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
     });
-  
+
     setTimeout(() => {
       Count.refetch();
       refetch();
     }, 500);
   };
-  
+
   return (
     <>
       <ModalAdaptFilter
@@ -302,7 +311,7 @@ export default function Routelistpage() {
           <div className="col-span-2">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
-              <Button
+                <Button
                   variant="contained"
                   size="small"
                   onClick={() => handlerSearch("")}
@@ -324,7 +333,8 @@ export default function Routelistpage() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Route"
-          // createRoute="/master-data/route/create"
+          enableRowNumbers={false}
+        // createRoute="/master-data/route/create"
         />
       </div>
     </>

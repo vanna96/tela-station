@@ -25,6 +25,17 @@ export default function Stopslistpage() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        size: 20,
+        maxSize: 20,
+        minSize: 20,
+        type: 'number',
+        Cell: (cell: any) => {
+          return cell.row.index + 1
+        },
+      },
+      {
         accessorKey: "Code",
         header: "Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
@@ -154,16 +165,14 @@ export default function Stopslistpage() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "TL_STOPS",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
+      `${pagination.pageIndex * pagination.pageSize}_${filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
+        `${url}/TL_STOPS?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
         }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}` : filter}`
       )
         .then((res: any) => res?.data?.value)
@@ -213,8 +222,8 @@ export default function Stopslistpage() {
       searchValues.active === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and U_active eq '${searchValues.active}'`
-            : `U_active eq '${searchValues.active}'`);
+          ? ` and U_active eq '${searchValues.active}'`
+          : `U_active eq '${searchValues.active}'`);
     }
     console.log(queryFilters);
 
@@ -319,7 +328,8 @@ export default function Stopslistpage() {
           pagination={pagination}
           paginationChange={setPagination}
           title="Stops"
-          // createRoute="/master-data/stops/create"
+          
+        // createRoute="/master-data/stops/create"
         />
       </div>
     </>

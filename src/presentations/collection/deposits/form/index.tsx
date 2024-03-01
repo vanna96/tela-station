@@ -21,17 +21,20 @@ import Checks from "../components/Checks";
 import Cash from "../components/Cash";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDepositHook } from "../hook/useDepositHook";
+import CustomToast from "@/components/modal/CustomToast";
 
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?:
-    | Readonly<{
-        [x: string]: any;
-      }>
-    | undefined;
+  | Readonly<{
+    [x: string]: any;
+  }>
+  | undefined;
   setBranchAss?: any;
   branchAss?: any;
   detail?: boolean;
@@ -153,12 +156,22 @@ const DepositForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "")
-      return;
-    if (!getValues("BPLID") || getValues("BPLID") === "") return;
-    if (!getValues("DepositAccount") || getValues("DepositAccount") === "")
-      return;
-    if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") return;
+    // if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "") {
+    //   toastRef.current?.open()
+    //   return;
+    // }
+    // if (!getValues("BPLID") || getValues("BPLID") === "") {
+    //   toastRef.current?.open()
+    //   return;
+    // }
+    // if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
+    //   toastRef.current?.open()
+    //   return;
+    // }
+    // if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
+    //   toastRef.current?.open()
+    //   return;
+    // }
 
     handlerChangeMenu(tapIndex);
   };
@@ -174,8 +187,6 @@ const DepositForm = (props: any) => {
     reset,
     getValues,
   } = useDepositHook({ props, state, setState, id, dialog });
-
-  console.log(state)
 
   const HeaderTaps = () => {
     return (
@@ -222,6 +233,8 @@ const DepositForm = (props: any) => {
   // };
   return (
     <>
+      <CustomToast ref={toastRef} />
+
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
@@ -263,7 +276,7 @@ const DepositForm = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-               
+
                   serie={serie}
                   watch={watch}
                   getValues={getValues}

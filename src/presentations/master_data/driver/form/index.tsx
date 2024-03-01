@@ -24,16 +24,20 @@ import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import CustomToast from "@/components/modal/CustomToast";
+
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?:
-    | Readonly<{
-        [x: string]: any;
-      }>
-    | undefined;
+  | Readonly<{
+    [x: string]: any;
+  }>
+  | undefined;
   setBranchAss?: any;
   branchAss?: any;
   header?: any;
@@ -162,14 +166,35 @@ const Form = (props: any) => {
     [state]
   );
   const isNextTap = (tapIndex: number) => {
-    if (!getValues("FirstName") || getValues("FirstName") === "") return;
-    if (!getValues("LastName") || getValues("LastName") === "") return;
-    if (!getValues("EmployeeCode") || getValues("EmployeeCode") === "") return;
-    if (!getValues("BPLID") || getValues("BPLID") === "") return;
-    if (!getValues("U_tl_terminal") || getValues("U_tl_terminal") === "")
-      return;
-    if (!getValues("StartDate") || getValues("StartDate") === "") return;
-    if (!getValues("Position") || getValues("Position") === "") return;
+
+    if (!getValues("FirstName") || getValues("FirstName") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("LastName") || getValues("LastName") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("EmployeeCode") || getValues("EmployeeCode") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("BPLID") || getValues("BPLID") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("U_tl_terminal") || getValues("U_tl_terminal") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("StartDate") || getValues("StartDate") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("Position") || getValues("Position") === "") {
+      toastRef.current?.open();
+      return
+    };
 
     handlerChangeMenu(tapIndex);
   };
@@ -276,12 +301,13 @@ const Form = (props: any) => {
   const onInvalidForm = (invalids: any) => {
     dialog.current?.error(
       invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
+      "Oop something wrong!",
       "Invalid Value"
     );
   };
   return (
     <>
+      <CustomToast ref={toastRef} />
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
