@@ -33,6 +33,7 @@ class Form extends NonCoreDcument {
       dispenserData: [],
       U_tl_docdate: new Date(),
       allocationData: [],
+      allocationGenerated: false,
       cashBankData: [
         {
           U_tl_paytype: "Cash",

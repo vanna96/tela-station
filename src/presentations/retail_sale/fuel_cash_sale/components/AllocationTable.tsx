@@ -22,15 +22,20 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  const [allocationData, setAllocationData] = useState<any[]>([]);
-  const [allocationGenerated, setAllocationGenerated] = useState(false);
+  let [allocationData, setAllocationData] = useState<any[]>([]);
+  const [allocationGenerated, setAllocationGenerated] = useState(
+    data.allocationGenerated
+  );
 
+  console.log(data.nozzleData);
   const generateAllocation = () => {
-    const generatedAllocation = data.nozzleData.filter(
-      (item: any) => parseFloat(item.U_tl_nmeter) > 0
+    let generatedAllocation = data.nozzleData.filter(
+      (item: any) => item.U_tl_nmeter > 0
     );
+    console.log(generatedAllocation)
     setAllocationData(generatedAllocation);
-    setAllocationGenerated(true);
+    // setAllocationGenerated(true);
+    // data.allocationGenerated = true;
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
@@ -45,33 +50,15 @@ export default function AllocationTable({
     onChange("allocationData", newData);
   };
 
-  const synchronizeAllocationData = () => {
-    const updatedAllocationData = data.allocationData.map((stockItem: any) => {
-      const allocationItem = data.stockAllocationData.find(
-        (allocationItem: any) =>
-          allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
-      );
-      if (allocationItem) {
-        return { ...stockItem, U_tl_bincode: allocationItem.U_tl_bincode };
-      }
-      return stockItem;
-    });
-
-    onChange("allocationData", updatedAllocationData);
-  };
-  useEffect(() => {
-    synchronizeAllocationData();
-  }, [data.stockAllocationData]);
-
   useEffect(() => {
     if (data && data.nozzleData) {
-      const generatedAllocation = data.nozzleData.filter(
-        (item: any) => parseFloat(item.U_tl_nmeter) > 0
+      let generatedAllocation = data.nozzleData.filter(
+        (item: any) => item.U_tl_nmeter > 0
       );
       setAllocationData(generatedAllocation);
-      setAllocationGenerated(true);
+      // setAllocationGenerated(true);
     }
-  }, [data]);
+  }, [data.nozzleData]);
 
   const itemColumns = React.useMemo(
     () => [
