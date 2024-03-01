@@ -112,7 +112,7 @@ const DepositDetail = (props: any) => {
     }
   };
 
- 
+
 
   const handlerChangeMenu = useCallback(
     (index: number) => {
@@ -261,44 +261,48 @@ const DepositDetail = (props: any) => {
             className="h-full w-full flex flex-col gap-4 relative"
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
-            {state.tapIndex === 0 && (
-              <h1>
-                <BasicInformationDetail
-                  serie={serie}
-                  watch={watch}
-                  detail={props?.detail}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  getValues={getValues}
-                />
-              </h1>
-            )}
-            {state.tapIndex === 1 && (
-              <h1>
-                <CheckDetail
-                  watch={watch}
-                  detail={props?.detail}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  data={data}
-                  getValues={getValues}
-                />
-              </h1>
-            )}
-            {state.tapIndex === 2 && (
-              <h1>
-                <Cash
-                  watch={watch}
-                  detail={props?.detail}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                  getValues={getValues}
-                />
-              </h1>
-            )}
+            <div className="grow">
+              {state.tapIndex === 0 && (
+                <h1>
+                  <BasicInformationDetail
+                    serie={serie}
+                    watch={watch}
+                    detail={props?.detail}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    getValues={getValues}
+                  />
+                </h1>
+              )}
+              {state.tapIndex === 1 && (
+                <h1>
+                  <CheckDetail
+                    watch={watch}
+                    detail={props?.detail}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    data={data}
+                    getValues={getValues}
+                    edit={props?.edit}
+                  />
+                </h1>
+              )}
+              {state.tapIndex === 2 && (
+                <h1>
+                  <Cash
+                    watch={watch}
+                    detail={props?.detail}
+                    register={register}
+                    setValue={setValue}
+                    control={control}
+                    getValues={getValues}
+                    edit={props?.edit}
+                  />
+                </h1>
+              )}
+            </div>
             {!props?.detail && (
               <div className="sticky w-full  bottom-4 md:bottom-0 md:p-3  mt-2 p-3">
                 <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">

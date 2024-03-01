@@ -298,6 +298,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
+        roles: ['UG001', 'UG004'],
         path: "/banking/deposit",
         state: "deposits",
         sidebarProps: {
