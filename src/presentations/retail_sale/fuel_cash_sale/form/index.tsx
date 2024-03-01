@@ -335,16 +335,10 @@ class Form extends NonCoreDcument {
     event.preventDefault();
     this.setState({ ...this.state, isSubmitting: true });
     const data: any = { ...this.state };
-    // console.log(data);
     const payload = this.createPayload();
 
     try {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
-
-      // const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
-      // const docEntry = firstResponse.data.DocEntry;
-      // this.setState({ docEntry });
-      // let { docEntry, isFirstAttempt } = this.state;
       let { docEntry, isFirstAttempt } = this.state;
 
       if (!docEntry || isFirstAttempt) {

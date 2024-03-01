@@ -68,12 +68,11 @@ export default function StockAllocationTable({
 
     handlerChangeObject({ stockAllocationData: newData });
   };
-  console.log(data.stockAllocationData);
   const handlerAdd = () => {
     let firstData = [
       ...data.stockAllocationData,
       {
-        U_tl_bplid: 1,
+        U_tl_bplid: data.U_tl_bplid,
         U_tl_itemnum: "",
         U_tl_itemdesc: "",
         U_tl_qtyaloc: "",
@@ -101,7 +100,6 @@ export default function StockAllocationTable({
       return updatedSelection;
     });
   };
-
   const itemColumns = React.useMemo(
     () => [
       {
@@ -161,8 +159,7 @@ export default function StockAllocationTable({
                   U_tl_bplid: e,
                 });
               }}
-              // value={parseInt(cell.getValue())}
-              value={1}
+              value={parseInt(cell.getValue()) || 1}
             />
           );
         },
@@ -338,8 +335,6 @@ export default function StockAllocationTable({
             rowsWithSameItemCode[0]?.U_tl_qtycon
           );
           const isValid = totalQuantity === firstQuantity;
-          console.log(totalQuantity);
-          console.log(firstQuantity);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
