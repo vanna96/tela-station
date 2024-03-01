@@ -327,6 +327,7 @@ const General = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  type="number"
                   inputProps={{
                     ...register("U_InitializeOdometer"),
                     onChange: (val) => {

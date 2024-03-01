@@ -105,6 +105,7 @@ const SpecDetail = ({ register, setHeader, header, detail, setValue, defaultValu
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  type="number"
                   inputProps={{ ...register("U_EngineNumber") }}
                 />
               </div>
@@ -118,6 +119,7 @@ const SpecDetail = ({ register, setHeader, header, detail, setValue, defaultValu
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  type="number"
                   inputProps={{ ...register("U_VIN") }}
                 />
               </div>
