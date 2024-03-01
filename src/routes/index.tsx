@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect } from "react";
 import {
   BrowserRouter,
   Route,
@@ -25,8 +25,26 @@ import RetailSaleRoute from "./RetailSaleRoute";
 import SaleOrderRoute from "./SaleOrderRoute";
 import SaleInvoiceRoute from "./SaleInvoiceRoute";
 import TripmanagementRoute from "./TripManagementRoute";
+import { AuthorizationContext } from "@/contexts/useAuthorizationContext";
+import request from "@/utilies/request";
 
 const Router = () => {
+  const [cookies, setCookie, removeCookie] = useCookies(["sessionId"]);
+  const { onSetAutorization } = useContext(AuthorizationContext);
+
+  useEffect(() => {
+    if (!cookies.sessionId) return;
+
+    request('GET', '/UsersService_GetCurrentUser').then((res: any) => {
+      if (onSetAutorization) onSetAutorization({ ...res?.data })
+    }).catch((e) => {
+      console.log(e)
+    })
+
+
+
+  }, [cookies.sessionId])
+
   return (
     <AnimatePresence>
       <BrowserRouter>
