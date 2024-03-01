@@ -128,7 +128,7 @@ export default function GeneralForm({
                 />
               </div>
             </div>
-          </div>
+          </div> 
         </div>
       </div>
     </>

@@ -65,6 +65,13 @@ const CollectionPage = () => {
       route: 'direct-account',
       roles: ['UG001', 'UG004'],
     },
+    {
+      title: "Deposit",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "deposit",
+      filter: "DocType eq 'rAccount'",
+      route: 'deposit'
+    },
   ];
 
 
