@@ -88,14 +88,14 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Pump Name <span className="text-red-500">*</span>
+                  Pump Description <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   size="small"
                   value={data?.PumpName}
-                  placeholder="Pump Name"
+                  placeholder="Pump Description"
                   onChange={(e) => handlerChange("PumpName", e.target.value)}
                 />
               </div>
@@ -111,9 +111,11 @@ export default function GeneralForm({
                   size="small"
                   type="number"
                   value={data?.NumOfPump}
-                  placeholder="Number of Pump"
+                  placeholder="No. of Nozzle"
                   onChange={(e) => {
-                    let no_pump:string = ((parseInt(e.target.value) <= 10 ? parseInt(e.target.value) : 10) ?? 0).toString();
+                    let no_pump:string = parseInt(e.target.value || '0'); 
+                    if(no_pump >= 10 ) no_pump = "10";
+                    if(no_pump <= 0 ) no_pump = "";
                     const PumpData = [];
                     for (
                       let index = 0;
@@ -129,6 +131,7 @@ export default function GeneralForm({
                         registerMeeting: "",
                         updateMetering: "",
                         status: "New",
+                        binCode: "",
                       });
                     }
                     handlerChangeObject({
@@ -193,7 +196,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "Oil", name: "Oil" },
+                    { id: "Oil", name: "Fuel" },
                     // { id: "Lube", name: "Lube" },
                     { id: "LPG", name: "LPG" },
                   ]}

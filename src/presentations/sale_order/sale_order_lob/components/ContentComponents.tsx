@@ -168,7 +168,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 minSize: 0,
                 maxSize: 0,
                 Cell: ({ cell }: any) => {
-                  if (cell.row.original?.ItemCode)
+                  if (!cell.row.original?.ItemCode || cell.row.original?.ItemCode === " ") return null
                     return (
                       <Checkbox
                         checked={cell.row.index in rowSelection}
@@ -244,7 +244,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 </div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
+                    className=" w-full"
                     value={totalBefore === 0 ? "" : totalBefore}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
@@ -262,7 +262,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-6 text-gray-700">Discount</div>
                     <div className="col-span-6  text-gray-900 mr-2">
                       <NumericFormat
-                        className="bg-white w-full"
+                        className=" w-full"
                         value={props?.data?.DiscountPercent}
                         thousandSeparator
                         startAdornment={"%"}
@@ -291,7 +291,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                   <div className="grid grid-cols-4">
                     <div className="col-span-4">
                       <NumericFormat
-                        className="bg-white w-full"
+                        className=" w-full"
                         value={discountAmount === 0 || "" ? "" : discountAmount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
@@ -312,7 +312,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-700">Tax</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
+                    className=" w-full"
                     value={
                       discountedDocTaxTotal === 0 ? "" : discountedDocTaxTotal
                     }
@@ -330,7 +330,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                 <div className="col-span-6 text-gray-700">Total</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
+                    className=" w-full"
                     value={discountedDocTotal === 0 ? "" : discountedDocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}

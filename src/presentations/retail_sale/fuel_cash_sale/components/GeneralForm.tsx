@@ -11,6 +11,9 @@ import request from "@/utilies/request";
 import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
 import itemRepository from "@/services/actions/itemRepostory";
 import { TextField } from "@mui/material";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
+import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -20,7 +23,10 @@ export interface IGeneralFormProps {
 }
 
 const fetchDispenserData = async (pump: string) => {
-  const res = await request("GET", `TL_Dispenser('${pump}')`);
+  const res = await request(
+    "GET",
+    `TL_Dispenser('${pump}')?$select=Code,Name,U_tl_type,U_tl_status,U_tl_bplid,U_tl_whs,TL_DISPENSER_LINESCollection`
+  );
   return res.data;
 };
 
@@ -28,7 +34,7 @@ const fetchItemPrice = async (itemCode: string) => {
   try {
     const res = await request(
       "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices`
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
     );
     return res.data;
   } catch (error) {
@@ -50,25 +56,54 @@ export default function GeneralForm({
   const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
-  const filteredSeries = data?.seriesList?.filter(
+  const yearLastTwoDigits = year.toString().slice(-2); // Get last two digits of the year
+
+  const filteredSeries = data?.SerieLists?.filter(
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-  async function getPriceListNum(CardCode: any) {
-    try {
-      const result = await new BusinessPartnerRepository().find(CardCode);
-      return result?.PriceListNum;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+
+  const seriesSO =
+    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+
+  if (filteredSeries[0]?.NextNumber && data) {
+    data.DocNum = filteredSeries[0].NextNumber;
   }
 
-  const globalPriceListNum = getPriceListNum(data.U_tl_cardcode); // Removed an extra closing parenthesis here
-  if (data.vendor) {
-    data.PriceList = data.vendor.priceLists;
+  const month = currentDate.getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
+  const formattedDateB = `${yearLastTwoDigits}B${formattedMonth}`;
+
+  const seriesIncoming = data?.incomingSeries
+    ?.filter(
+      (series: any) =>
+        series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    )
+    ?.find((series: any) => series.BPLID === BPL)?.Series;
+
+  const seriesINV = (
+    data?.invoiceSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
+
+  const seriesGI = data?.GISeries?.filter(
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+  )?.find((series: any) => series.BPLID === BPL)?.Series;
+
+  if (data) {
+    data.DNSeries = seriesIncoming;
+    data.INSeries = seriesINV;
+    data.Series = seriesSO;
+    data.GoodIssueSeries = seriesGI;
   }
 
+  const [isDispenserLoading, setIsDispenserLoading] = useState(false);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -80,14 +115,14 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Branch
+                Branch <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("U_tl_bplid", e)}
-                value={BPL}
+                value={BPL || 1}
               />
             </div>
           </div>
@@ -102,6 +137,165 @@ export default function GeneralForm({
               }}
             />
           </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Pump <span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <DispenserAutoComplete
+                value={data?.U_tl_pump}
+                isStatusActive
+                branch={parseInt(data?.U_tl_bplid) ?? BPL}
+                pumpType="Oil"
+                name={"Pump"}
+                loading={isDispenserLoading}
+                onChange={async (e: any) => {
+                  setIsDispenserLoading(true);
+                  const dispenserData = await fetchDispenserData(e);
+                  const uomGroups: any =
+                    await new UnitOfMeasurementGroupRepository().get();
+                  const uoms = await new UnitOfMeasurementRepository().get();
+                  // Fetch item details and prices for each item in the dispenser data
+                  const itemsWithPricesPromises =
+                    dispenserData.TL_DISPENSER_LINESCollection.filter(
+                      (line: any) =>
+                        line.U_tl_status === "Initialized" ||
+                        line.U_tl_status === "Active"
+                    ).map(async (line: any) => {
+                      const itemDetails = await fetchItemPrice(
+                        line.U_tl_itemnum
+                      );
+                      const price = itemDetails?.ItemPrices?.find(
+                        (priceDetail: any) =>
+                          priceDetail.PriceList === data.PriceList
+                      )?.Price;
+                      const uomGroup: any = uomGroups.find(
+                        (row: any) =>
+                          row.AbsEntry === itemDetails?.UoMGroupEntry
+                      );
+
+                      let uomLists: {
+                        AlternateUoM: number;
+                        BaseQuantity: number;
+                      }[] = [];
+
+                      uomGroup?.UoMGroupDefinitionCollection?.forEach(
+                        (row: any) => {
+                          uomLists.push({
+                            AlternateUoM: row.AlternateUoM,
+                            BaseQuantity: row.BaseQuantity,
+                          });
+                        }
+                      );
+                      return {
+                        ...line,
+                        ItemName: itemDetails?.ItemName, // Add the fetched item name
+                        ItemPrice: price, // Add the fetched price
+                        UoMGroupEntry: itemDetails?.UoMGroupEntry,
+                        InventoryUoMEntry: itemDetails?.InventoryUoMEntry,
+                        uomLists: uomLists,
+                      };
+                    });
+
+                  const itemsWithPrices = await Promise.all(
+                    itemsWithPricesPromises
+                  );
+
+                  const warehouseCode = dispenserData?.U_tl_whs;
+
+                  const updatedNozzleData = itemsWithPrices.map(
+                    (item: any) => ({
+                      U_tl_nozzlecode: item.U_tl_pumpcode,
+                      U_tl_itemcode: item.U_tl_itemnum,
+                      U_tl_itemname: item.ItemName,
+                      U_tl_uom: item.U_tl_uom,
+                      U_tl_nmeter: item.U_tl_nmeter,
+                      U_tl_ometer: item.U_tl_upd_meter,
+                      U_tl_cmeter: item.U_tl_cmeter,
+                      U_tl_reg_meter: item.U_tl_reg_meter,
+                      U_tl_cardallow: item.U_tl_cardallow,
+                      U_tl_cashallow: item.U_tl_cashallow,
+                      U_tl_ownallow: item.U_tl_ownallow,
+                      U_tl_partallow: item.U_tl_partallow,
+                      U_tl_pumpallow: item.U_tl_pumpallow,
+                      U_tl_stockallow: item.U_tl_stockallow,
+                      U_tl_totalallow: item.U_tl_totalallow,
+                      ItemPrice: item.ItemPrice,
+                      U_tl_bplid: data.U_tl_bplid,
+                      U_tl_whs: warehouseCode,
+                      U_tl_bincode: item.U_tl_bincode,
+                      UoMGroupEntry: item.UoMGroupEntry,
+                      InventoryUoMEntry: item.InventoryUoMEntry,
+                      uomLists: item.uomLists,
+                    })
+                  );
+                  // const updatedStockAllocationData = itemsWithPrices.map(
+                  //   (item: any) => ({
+                  //     U_tl_bplid: data.U_tl_bplid,
+                  //     U_tl_whs: warehouseCode,
+                  //     U_tl_bincode: parseInt(item.U_tl_bincode),
+                  //     U_tl_itemcode: item.U_tl_itemnum,
+                  //     U_tl_itemname: item.ItemName,
+                  //     U_tl_qtyaloc: item.U_tl_qtyaloc,
+                  //     U_tl_qtycon: item.U_tl_qtycon,
+                  //     U_tl_qtyopen: item.U_tl_qtyopen,
+                  //     U_tl_remark: item.U_tl_remark,
+                  //     U_tl_uom: item.U_tl_uom,
+                  //     ItemPrice: item.ItemPrice,
+                  //   })
+                  // );
+                  const updatedStockAllocationData = updatedNozzleData
+                    // ?.filter((e: any) => e?.U_tl_nmeter > 0)
+                    .map((item: any) => ({
+                      U_tl_bplid: item.U_tl_bplid,
+                      U_tl_whs: item.U_tl_whs,
+                      U_tl_bincode: parseInt(item.U_tl_bincode),
+                      U_tl_itemcode: item.U_tl_itemcode,
+                      U_tl_itemname: item.U_tl_itemname,
+                      U_tl_qtyaloc: item.U_tl_qtyaloc,
+                      U_tl_qtycon: item.U_tl_qtycon,
+                      U_tl_qtyopen: item.U_tl_qtyopen,
+                      U_tl_remark: item.U_tl_remark,
+                      U_tl_uom: item.U_tl_uom,
+                      ItemPrice: item.ItemPrice,
+                      U_tl_nmeter: item.U_tl_nmeter,
+                      U_tl_ometer: item.U_tl_upd_meter,
+                      U_tl_reg_meter: item.U_tl_reg_meter,
+                      UoMGroupEntry: item.UoMGroupEntry,
+                      InventoryUoMEntry: item.InventoryUoMEntry,
+                      uomLists: item.uomLists,
+                    }));
+                  const updatedCardCountData = updatedNozzleData
+                    ?.filter((e: any) => e?.U_tl_nmeter > 0)
+                    .map((item: any) => ({
+                      U_tl_itemcode: item.U_tl_itemcode,
+                      U_tl_1l: item?.U_tl_1l,
+                      U_tl_2l: item?.U_tl_2l,
+                      U_tl_5l: item?.U_tl_5l,
+                      U_tl_10l: item?.U_tl_10l,
+                      U_tl_20l: item?.U_tl_20l,
+                      U_tl_50l: item?.U_tl_50l,
+                      U_tl_total: item?.U_tl_total,
+                      UoMGroupEntry: item?.UoMGroupEntry,
+                      InventoryUoMEntry: item?.InventoryUoMEntry,
+                      uomLists: item.uomLists,
+                    }));
+
+                  // Update your component state or pass this data as needed
+                  handlerChangeObject({
+                    U_tl_pump: e,
+                    stockAllocationData: updatedStockAllocationData,
+                    nozzleData: updatedNozzleData,
+                    cardCountData: updatedCardCountData,
+                    U_tl_whs: dispenserData?.U_tl_whs,
+                  });
+                  setIsDispenserLoading(false);
+                }}
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
               Customer <span className="text-red-500">*</span>
@@ -111,12 +305,7 @@ export default function GeneralForm({
                 branch={data?.U_tl_bplid}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
-                // onChange={(vendor) => handlerChangeObject({
-                //   "vendor" : vendor,
-                //   // "PriceList" : vendor.priceLists
-                // })}
                 key={data?.CardCode}
-                // error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
@@ -140,163 +329,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Pump <span className="text-red-500">*</span>
-              </label>
-            </div>
-            <div className="col-span-3">
-              <DispenserAutoComplete
-                value={data?.U_tl_pump}
-                isStatusActive
-                branch={parseInt(data?.U_tl_bplid) ?? BPL}
-                pumpType="Oil"
-                // onChange={async (e: any) => {
-                //   const dispenserData = await fetchDispenserData(e);
 
-                //   handlerChangeObject({
-                //     U_tl_pump: e,
-
-                //     stockAllocationData:
-                //       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
-                //         (e: any) =>
-                //           e.U_tl_status === "Initialized" ||
-                //           e.U_tl_status === "Active"
-                //       )?.map((item: any) => ({
-                //         U_tl_bplid: data.U_tl_bplid,
-                //         U_tl_itemcode: item.U_tl_itemnum,
-                //         U_tl_itemname: item.U_tl_desc,
-                //         U_tl_qtyaloc: item.U_tl_qtyaloc,
-                //         U_tl_qtycon: item.U_tl_qtycon,
-                //         U_tl_qtyopen: item.U_tl_qtyopen,
-                //         U_tl_remark: item.U_tl_remark,
-                //         U_tl_uom: item.U_tl_uom,
-                //         // ItemPrices: item.ItemPrices,
-                //         // ItemPrices: new itemRepository().find(
-                //         //   `'${item.U_tl_itemnum}'`
-                //         // ),
-                //       })),
-                //     nozzleData:
-                //       dispenserData?.TL_DISPENSER_LINESCollection?.filter(
-                //         (e: any) =>
-                //           e.U_tl_status === "Initialized" ||
-                //           e.U_tl_status === "Active"
-                //       )?.map((item: any) => ({
-                //         U_tl_nozzlecode: item.U_tl_pumpcode,
-                //         U_tl_itemcode: item.U_tl_itemnum,
-                //         U_tl_itemname: item.U_tl_desc,
-                //         U_tl_uom: item.U_tl_uom,
-                //         U_tl_nmeter: item.U_tl_nmeter,
-                //         // U_tl_upd_meter: item.U_tl_ometer,
-                //         U_tl_ometer: item.U_tl_upd_meter,
-                //         U_tl_cmeter: item.U_tl_cmeter,
-                //         U_tl_reg_meter: item.U_tl_reg_meter,
-                //         U_tl_cardallow: item.U_tl_cardallow,
-                //         U_tl_cashallow: item.U_tl_cashallow,
-                //         U_tl_ownallow: item.U_tl_ownallow,
-                //         U_tl_partallow: item.U_tl_partallow,
-                //         U_tl_pumpallow: item.U_tl_pumpallow,
-                //         U_tl_stockallow: item.U_tl_stockallow,
-                //         U_tl_totalallow: item.U_tl_totalallow,
-                //         ItemPrice: "",
-                //       })),
-                //   });
-                // }}
-                onChange={async (e: any) => {
-                  const dispenserData = await fetchDispenserData(e);
-
-                  // Fetch item details and prices for each item in the dispenser data
-                  const itemsWithPricesPromises =
-                    dispenserData.TL_DISPENSER_LINESCollection.filter(
-                      (line: any) =>
-                        line.U_tl_status === "Initialized" ||
-                        line.U_tl_status === "Active"
-                    ).map(async (line: any) => {
-                      const itemDetails = await fetchItemPrice(
-                        line.U_tl_itemnum
-                      );
-                      const price = itemDetails?.ItemPrices?.find(
-                        (priceDetail: any) =>
-                          priceDetail.PriceList === data.PriceList
-                      )?.Price;
-
-                      return {
-                        ...line,
-                        ItemName: itemDetails?.ItemName, // Add the fetched item name
-                        ItemPrice: price, // Add the fetched price
-                      };
-                    });
-
-                  const itemsWithPrices = await Promise.all(
-                    itemsWithPricesPromises
-                  );
-
-                  const warehouseCode = dispenserData?.U_tl_whs;
-
-                  const updatedNozzleData = itemsWithPrices.map(
-                    (item: any) => ({
-                      U_tl_nozzlecode: item.U_tl_pumpcode,
-                      U_tl_itemcode: item.U_tl_itemnum,
-                      U_tl_itemname: item.ItemName, // Use the fetched item name
-                      U_tl_uom: item.U_tl_uom,
-                      U_tl_nmeter: item.U_tl_nmeter,
-                      U_tl_ometer: item.U_tl_upd_meter,
-                      U_tl_cmeter: item.U_tl_cmeter,
-                      U_tl_reg_meter: item.U_tl_reg_meter,
-                      U_tl_cardallow: item.U_tl_cardallow,
-                      U_tl_cashallow: item.U_tl_cashallow,
-                      U_tl_ownallow: item.U_tl_ownallow,
-                      U_tl_partallow: item.U_tl_partallow,
-                      U_tl_pumpallow: item.U_tl_pumpallow,
-                      U_tl_stockallow: item.U_tl_stockallow,
-                      U_tl_totalallow: item.U_tl_totalallow,
-                      ItemPrice: item.ItemPrice, // Use the fetched price
-                      U_tl_bplid: data.U_tl_bplid,
-                      U_tl_whs: warehouseCode,
-                      U_tl_bincode: item.U_tl_bincode,
-                    })
-                  );
-                  const updatedStockAllocationData = itemsWithPrices.map(
-                    (item: any) => ({
-                      U_tl_bplid: data.U_tl_bplid,
-                      U_tl_whs: warehouseCode,
-                      U_tl_bincode: parseInt(item.U_tl_bincode),
-                      U_tl_itemcode: item.U_tl_itemnum,
-                      U_tl_itemname: item.ItemName, // Use the fetched item name
-                      U_tl_qtyaloc: item.U_tl_qtyaloc,
-                      U_tl_qtycon: item.U_tl_qtycon,
-                      U_tl_qtyopen: item.U_tl_qtyopen,
-                      U_tl_remark: item.U_tl_remark,
-                      U_tl_uom: item.U_tl_uom,
-                      ItemPrice: item.ItemPrice, // Use the fetched price
-                    })
-                  );
-
-                  const updatedCardCountData = updatedNozzleData
-                    ?.filter((e: any) => e?.U_tl_nmeter > 0)
-                    .map((item: any) => ({
-                      U_tl_itemcode: item.U_tl_itemcode,
-                      U_tl_1l: item?.U_tl_1l,
-                      U_tl_2l: item?.U_tl_2l,
-                      U_tl_5l: item?.U_tl_5l,
-                      U_tl_10l: item?.U_tl_10l,
-                      U_tl_20l: item?.U_tl_20l,
-                      U_tl_50l: item?.U_tl_50l,
-                      U_tl_total: item?.U_tl_total,
-                    }));
-
-                  // Update your component state or pass this data as needed
-                  handlerChangeObject({
-                    U_tl_pump: e,
-                    stockAllocationData: updatedStockAllocationData,
-                    nozzleData: updatedNozzleData,
-                    cardCountData: updatedCardCountData,
-                  });
-                }}
-              />
-            </div>
-          </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
@@ -336,33 +369,26 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Series
+                Series <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <div className="grid grid-cols-2 gap-3">
                 <MUISelect
-                  items={data.seriesList ? filteredSeries : data?.seriesList}
+                  items={filteredSeries ?? data.SerieLists}
                   aliasvalue="Series"
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  // value={7914}
-                  value={
-                    data?.Series
-                      ? parseInt(filteredSeries[0]?.Series)
-                      : data?.Series
-                  }
+                  value={filteredSeries[0]?.Series}
                   disabled={edit}
                 />
                 <div className="-mt-1">
-                  <MUITextField
+                  <MUIRightTextField
                     size="small"
                     name="DocNum"
                     value={
-                      data?.seriesList
-                        ? filteredSeries[0]?.NextNumber
-                        : data.DocNum
+                      edit ? data?.DocNum : filteredSeries[0]?.NextNumber ?? ""
                     }
                     disabled
                     placeholder="Document No"
@@ -375,7 +401,7 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Document Date
+                Document Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
@@ -383,6 +409,28 @@ export default function GeneralForm({
                 disabled={edit}
                 value={data.U_tl_docdate}
                 onChange={(e: any) => handlerChange("U_tl_docdate", e)}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Status
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={[
+                  { label: "Open", value: "O" },
+                  { label: "Closed", value: "Close" },
+                ]}
+                name="U_tl_status"
+                disabled
+                loading={data?.isLoadingSerie}
+                value={data?.U_tl_status !== "Close" ? "O" : "Close"}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_status", e.target.value)
+                }
               />
             </div>
           </div>

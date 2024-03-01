@@ -12,6 +12,8 @@ import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
 import FormCard from "@/components/card/FormCard";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import BinLocationItemCode from "@/components/input/BinLocationItemCode";
+import { LoadingButton } from "@mui/lab";
 
 export default function PaymentTable(props: any) {
   const { data, onChange, handlerAddItem, edit }: any = props;
@@ -34,7 +36,7 @@ export default function PaymentTable(props: any) {
       },
     ]);
   };
-
+  
   const handlerRemoveCheck = () => {
     const rows = Object.keys(rowSelection);
     if (rows.length <= 0) return;
@@ -54,10 +56,42 @@ export default function PaymentTable(props: any) {
     onChange("PumpData", newData);
   };
 
+  const handlerReset = (index:number) => {
+    let newData = data?.PumpData?.map((e:any, idx:number) => {
+      if(idx.toString() !== index.toString()) return e;
+      return {...e, registerMeeting:0, updateMetering:0}
+    });
+    onChange("PumpData", newData);
+  }
+  console.log(data?.Status);
   const columns = [
+    {
+      accessorKey: "reset",
+      header: "",
+      visable: true,
+      Cell: ({ cell }: any) => (
+        <LoadingButton
+          sx={{ height: "25px", background: "#2D53AB" }}
+          loading={false}
+          size="small"
+          variant="contained"
+          disableElevation
+          onClick={() => handlerReset(cell?.row?.id)}
+        >
+          <span className="px-6 text-[11px] py-4 text-white">
+            Reset
+          </span>
+        </LoadingButton>
+      ),
+    },
     {
       accessorKey: "pumpCode",
       header: "Nozzle Code",
+      Header: (header: any) => (
+        <label>
+          Nozzle Code <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"pumpCode" + cell.getValue() + cell?.row?.id}
@@ -75,6 +109,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "binCode",
       header: "Bin Locaition",
+      Header: (header: any) => (
+        <label>
+          Bin Locaition <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <BinLocationToAsEntry
           Warehouse={data?.U_tl_whs}
@@ -93,6 +132,11 @@ export default function PaymentTable(props: any) {
       header: "Item Code", //uses the default width from defaultColumn prop
       visible: true,
       size: 120,
+      Header: (header: any) => (
+        <label>
+          Item Code <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => {
         return (
           <MUITextField
@@ -117,6 +161,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "ItemDescription",
       header: "Item Name",
+      Header: (header: any) => (
+        <label>
+          Item Name <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <MUITextField
           key={"itemName" + cell.getValue() + cell?.row?.id}
@@ -134,6 +183,11 @@ export default function PaymentTable(props: any) {
     {
       accessorKey: "UomAbsEntry",
       header: "UOM",
+      Header: (header: any) => (
+        <label>
+          UOM <span className="text-red-500">*</span>
+        </label>
+      ),
       Cell: ({ cell }: any) => (
         <MUISelect
           value={cell.getValue()}
@@ -153,11 +207,11 @@ export default function PaymentTable(props: any) {
     },
     {
       accessorKey: "registerMeeting",
-      header: "Register Meeting",
+      header: "Register Metering",
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"registerMeeting" + cell.getValue() + cell?.row?.id}
-          disabled={edit}
+          disabled={edit && data?.Status !== "New"}
           defaultValue={cell.row.original?.registerMeeting || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -175,7 +229,7 @@ export default function PaymentTable(props: any) {
       Cell: ({ cell }: any) => (
         <FormattedInputs
           key={"updateMetering" + cell.getValue() + cell?.row?.id}
-          disabled={edit}
+          disabled={edit && data?.Status !== "New"}
           defaultValue={cell.row.original?.updateMetering || 0}
           onBlur={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
@@ -212,7 +266,7 @@ export default function PaymentTable(props: any) {
       ),
     },
   ];
-
+ 
   return (
     <>
       <FormCard title="Nozzle Data">
@@ -235,9 +289,10 @@ export default function PaymentTable(props: any) {
             enableTableFooter={false}
             enableRowSelection={false}
             onRowSelectionChange={setRowSelection}
-            enableRowNumbers={true}
+            enableRowNumbers={false}
             initialState={{
               density: "compact",
+              columnVisibility: { reset: data?.Status === 'Inactive' }
               // rowSelection,
             }}
             // state={{

@@ -21,6 +21,9 @@ import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import { motion } from "framer-motion";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankRepository from "@/services/actions/bankRepository";
+import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import CurrencySelect from "@/components/selectbox/Currency";
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -174,7 +177,7 @@ function renderKeyValue(label: string, value: any) {
     <div className="grid grid-cols-2 py-2">
       <div className="col-span-1 text-gray-700">{label}</div>
       <div className="col-span-1 text-gray-900">
-        <MUITextField disabled value={value ?? "N/A"} />
+        <MUITextField disabled className="" value={value ?? "N/A"} />
       </div>
     </div>
   );
@@ -189,6 +192,17 @@ function CustomMaterialReactTable({
 }) {
   return (
     <MaterialReactTable
+      muiTableProps={() => ({
+        sx: {
+          "& .MuiTableHead-root .MuiTableCell-root": {
+            backgroundColor: "#e4e4e7",
+            fontWeight: "500",
+            paddingTop: "8px",
+            paddingBottom: "8px",
+          },
+          border: "1px solid #d1d5db",
+        },
+      })}
       enableColumnActions={false}
       enableColumnFilters={false}
       enablePagination={false}
@@ -198,11 +212,6 @@ function CustomMaterialReactTable({
       muiTableBodyRowProps={{ hover: false }}
       columns={columns}
       data={data}
-      muiTableProps={() => ({
-        sx: {
-          border: "1px solid rgba(81, 81, 81, .5)",
-        },
-      })}
     />
   );
 }
@@ -216,7 +225,7 @@ function General({ data }: any) {
   const seriesName = seriesNames?.join(", ");
 
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+    <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
         <h2>Basic Information</h2>
       </div>
@@ -353,7 +362,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_cmeter" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -400,7 +409,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_cashallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -414,7 +423,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_partallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -428,7 +437,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_stockallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -443,7 +452,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_ownallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -457,7 +466,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_cardallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -471,7 +480,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_pumpallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -485,7 +494,7 @@ function NozzleData({ data }: any) {
             disabled
             key={"U_tl_totalallow" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
           />
@@ -504,7 +513,7 @@ function NozzleData({ data }: any) {
 
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Nozzle Data</h2>
         </div>
@@ -516,7 +525,7 @@ function NozzleData({ data }: any) {
         </div>
       </div>
       <div className="mt-8" />
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Generate Allocation </h2>
         </div>
@@ -632,7 +641,7 @@ function IncomingPayment({ data }: any) {
         },
       },
       data?.TL_RETAILSALE_INCCollection?.some(
-        (item: any) => item?.U_tl_paytype === "cash"
+        (item: any) => item?.U_tl_paytype === "Cash"
       )
         ? {
             accessorKey: "U_tl_amtcash",
@@ -744,53 +753,15 @@ function IncomingPayment({ data }: any) {
     ],
     []
   );
-  const couponColumn: any = useMemo(
-    () => [
-      {
-        accessorKey: "U_tl_acccoupon",
-        header: "Check Number",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_acccoupon" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_acccoupon || ""}
-              disabled
-            />
-          );
-        },
-      },
 
-      {
-        accessorKey: "U_tl_paycur",
-        header: "Currency",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              disabled
-              key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_paycur || 0}
-            />
-          );
-        },
-      },
-      {
-        accessorKey: "U_tl_amtcoupon",
-        header: "Coupon Amount",
-        Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              key={"U_tl_amtcoupon" + cell.getValue() + cell?.row?.id}
-              value={cell.row.original?.U_tl_amtcoupon || ""}
-              disabled
-            />
-          );
-        },
-      },
-    ],
-    []
+  console.log(
+    data?.TL_RETAILSALE_INCCollection?.filter(
+      (e: any) => e.U_tl_paytype === "Coupon"
+    )
   );
+
   return (
-    <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+    <div className="rounded-lg shadow-sm  border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-start items-center border-b mb-6">
         <h2>Cash Sale - </h2>
         <div className="ml-2">
@@ -798,7 +769,7 @@ function IncomingPayment({ data }: any) {
             thousandSeparator
             placeholder="0.000"
             disabled
-            className="bg-white"
+            className=""
             decimalScale={2}
             value={totalCashSale}
           />
@@ -809,7 +780,7 @@ function IncomingPayment({ data }: any) {
           columns={cashBankColumn}
           data={
             data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "cash" || e.U_tl_paytype === "bank"
+              (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
             ) || []
           }
         />
@@ -820,36 +791,105 @@ function IncomingPayment({ data }: any) {
           columns={checkNumberColumn}
           data={
             data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "check"
-            ) || []
-          }
-        />
-      </div>
-      <div className="mt-4" />
-
-      <div className="col-span-2 data-table">
-        <CustomMaterialReactTable
-          columns={couponColumn}
-          data={
-            data?.TL_RETAILSALE_INCCollection?.filter(
-              (e: any) => e.U_tl_paytype === "coupon"
+              (e: any) => e.U_tl_paytype === "Check"
             ) || []
           }
         />
       </div>
 
-      <div className="py-4 px-8">
-        <div className="grid grid-cols-12 ">
-          <div className="col-span-5">
-            {renderKeyValue(
-              "Over /Shortage",
-              totalCashSale - totalUSD - TotalKHRtoUSD
-            )}
+      <div className="mt-4">
+        {data?.TL_RETAILSALE_INCCollection?.filter(
+          (e: any) => e.U_tl_paytype === "Coupon"
+        ).map((item: any, index: number) => (
+          <div key={index}>
+            <div className="col-span-5 mb-4">
+              <div className="grid grid-cols-2 gap-4 ">
+                <div className="grid grid-cols-12">
+                  <div className="col-span-4 mt-1 text-gray-700   ">
+                    Coupon Account{" "}
+                  </div>
+                  <div className="col-span-4 ">
+                    <CashACAutoComplete value={item.U_tl_acccoupon} disabled />
+                  </div>
+                  <div className="col-span-4 ml-2">
+                    <CurrencySelect
+                      value={item.U_tl_paycur}
+                      name="U_tl_paycur"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-12 ">
+                  <div className="col-span-4  col-start-5 text-gray-700 ">
+                    Coupon Amount
+                  </div>
+                  {/* <div className=" col-span-4  col-start-9"> */}
+                  <div className=" col-span-4 ">
+                    <NumericFormat
+                      placeholder="0.000"
+                      disabled
+                      customInput={MUIRightTextField}
+                      defaultValue={item.U_tl_amtcoupon}
+                      name="U_tl_amtcoupon"
+                      value={item.U_tl_amtcoupon}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="col-span-2"></div>
-          <div className="col-span-5">
-            {renderKeyValue("Total /KHR", totalKHR)}
-            {renderKeyValue("Total /USD", totalUSD)}
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 ">
+        <div className="grid grid-cols-12">
+          <div className="col-span-4 mt-1 text-gray-700 ">Over / Shortage</div>
+          <div className="col-span-4 ">
+            <NumericFormat
+              key={"OverShortage"}
+              thousandSeparator
+              disabled
+              placeholder="0.000"
+              decimalScale={3}
+              customInput={MUIRightTextField}
+              value={totalCashSale - totalUSD - TotalKHRtoUSD}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-12 ">
+          <div className="col-span-4  col-start-5 text-gray-700 ">
+            Total /KHR
+          </div>
+          <div className=" col-span-4  ">
+            <NumericFormat
+              key={"total"}
+              thousandSeparator
+              placeholder="0.000"
+              decimalScale={3}
+              disabled
+              customInput={MUIRightTextField}
+              value={totalKHR}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div className="grid grid-cols-12"></div>
+        <div className="grid grid-cols-12">
+          <div className="col-span-4  col-start-5 text-gray-700 ">
+            Total /USD
+          </div>
+          <div className=" col-span-4 ">
+            <NumericFormat
+              key={"totalUSD"}
+              thousandSeparator
+              disabled
+              placeholder="0.000"
+              decimalScale={3}
+              customInput={MUIRightTextField}
+              value={totalUSD}
+            />
           </div>
         </div>
       </div>
@@ -1014,7 +1054,7 @@ function Stock({ data }: any) {
   );
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Stock Allocation</h2>
         </div>
@@ -1045,7 +1085,7 @@ function CardCount({ data }: any) {
   );
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
           <h2>Card Count </h2>
         </div>

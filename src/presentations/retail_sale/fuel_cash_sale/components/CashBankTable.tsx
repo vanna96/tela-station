@@ -6,21 +6,23 @@ import FormattedInputs from "@/components/input/NumberFormatField";
 import MUISelect from "@/components/selectbox/MUISelect";
 import ClearIcon from "@mui/icons-material/Clear";
 
-import { Button, IconButton } from "@mui/material";
+import { Button, Checkbox, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
 import { useExchangeRate } from "../../components/hook/useExchangeRate";
+import { NumericFormat } from "react-number-format";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 export default function CashBankTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
-  const handlerRemoveCheck = (key: number) => {
-    const newData = (data?.cashBankData || []).filter(
-      (item: any, index: number) => index !== key
-    );
-    if (newData.length < 1) return;
-    onChange("cashBankData", newData);
+  const handlerRemove = () => {
+    let filteredData = data.cashBankData.filter((item: any, index: number) => {
+      return !(index.toString() in rowSelection);
+    });
+    onChange("cashBankData", filteredData);
+    setRowSelection({});
   };
 
   const handlerChangeItem = (key: number, obj: any) => {
@@ -37,7 +39,7 @@ export default function CashBankTable(props: any) {
     let firstData = [
       ...data.cashBankData,
       {
-        U_tl_paytype: "cash",
+        U_tl_paytype: "Cash",
         U_tl_paycur: "USD",
         U_tl_amtcash: "",
         U_tl_amtbank: "",
@@ -47,32 +49,38 @@ export default function CashBankTable(props: any) {
   };
 
   useExchangeRate(data?.Currency, onChange);
+  const onCheckRow = (event: any, index: number) => {
+    const rowSelects: any = { ...rowSelection };
+    rowSelects[index] = true;
 
+    if (!event.target.checked) {
+      delete rowSelects[index];
+    }
+
+    setRowSelection(rowSelects);
+  };
   const columns = [
     {
-      size: 5,
-      minSize: 5,
-      maxSize: 5,
-      accessorKey: "deleteButton",
-      align: "center",
+      accessorKey: "index_",
+      size: 2,
+      minSize: 2,
+      maxSize: 2,
       header: "",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_paytype) return null;
-        return (
-          <div className="flex justify-center items-center">
-            <GridDeleteIcon
-              className="text-red-500 cursor-pointer"
-              onClick={() => handlerRemoveCheck(cell?.row?.index)}
+        if (cell.row.original?.U_tl_paytype)
+          return (
+            <Checkbox
+              checked={cell.row.index in rowSelection}
+              size="small"
+              onChange={(event) => onCheckRow(event, cell.row.index)}
             />
-          </div>
-        );
+          );
       },
     },
     {
       accessorKey: "U_tl_paytype",
       header: "Type",
-      size: 40,
-
+      size: 300,
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_paytype)
           return (
@@ -80,13 +88,16 @@ export default function CashBankTable(props: any) {
               onClick={() => handlerAdd()}
               variant="outlined"
               size="small"
-              sx={{ height: "30px", textTransform: "none", width: "100%" }}
+              sx={{
+                height: "30px",
+                textTransform: "none",
+                width: "100%",
+                borderColor: "black",
+                color: "black",
+              }}
               disableElevation
             >
-              <span className="px-3 text-[13px] py-1 text-green-500 font-no">
-                <GridAddIcon />
-                Add Row
-              </span>
+              <span className="px-3 text-[13px] py-1">Add </span>
             </Button>
           );
         return (
@@ -100,8 +111,8 @@ export default function CashBankTable(props: any) {
               });
             }}
             items={[
-              { value: "cash", label: "Cash" },
-              { value: "bank", label: "Bank" },
+              { value: "Cash", label: "Cash" },
+              { value: "Bank", label: "Bank" },
             ]}
           />
         );
@@ -110,8 +121,7 @@ export default function CashBankTable(props: any) {
     {
       accessorKey: "U_tl_paycur",
       header: "Currency",
-      size: 40,
-
+      size: 300,
       Cell: ({ cell }: any) => {
         if (!cell.row.original?.U_tl_paytype) return null;
         return (
@@ -127,16 +137,15 @@ export default function CashBankTable(props: any) {
         );
       },
     },
-    data?.cashBankData?.some((item: any) => item?.U_tl_paytype === "cash")
+    data?.cashBankData?.some((item: any) => item?.U_tl_paytype === "Cash")
       ? {
           accessorKey: "U_tl_amtcash",
           header: "Amount",
-          size: 40,
-
+          size: 300,
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
-              <FormattedInputs
+              <NumericFormat
                 placeholder="0.000"
                 key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
@@ -146,6 +155,7 @@ export default function CashBankTable(props: any) {
                     U_tl_amtcash: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
+                customInput={MUIRightTextField}
                 name={"U_tl_amtcash"}
                 value={cell.row.original?.U_tl_amtcash || ""}
                 startAdornment={cell.row.original?.U_tl_paycur}
@@ -156,7 +166,7 @@ export default function CashBankTable(props: any) {
       : {
           accessorKey: "U_tl_amtbank",
           header: "Amount",
-          size: 40,
+          size: 300,
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
@@ -178,22 +188,31 @@ export default function CashBankTable(props: any) {
           },
         },
     {
-      size: 5,
-      minSize: 5,
-      maxSize: 5,
-      accessorKey: "deleteButton",
-      align: "center",
+      accessorKey: "index",
+      size: 0,
+      minSize: 0,
+      maxSize: 0,
       header: "",
-      Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_paytype) return null;
-      },
     },
   ];
 
   return (
     <div className="data-table">
+      <div className="flex justify-end mb-1">
+        <Button
+          disableElevation
+          size="small"
+          variant="outlined"
+          style={{ borderColor: "#d1d5db", color: "#dc2626" }}
+          disabled={props?.data?.isStatusClose || false}
+        >
+          <span className="capitalize text-xs " onClick={handlerRemove}>
+            Remove
+          </span>
+        </Button>
+      </div>
       <MaterialReactTable
-        columns={[...columns]}
+        columns={columns}
         data={[...data?.cashBankData, { U_tl_paytype: "" }]}
         enableStickyHeader={false}
         enableColumnActions={false}
@@ -211,24 +230,19 @@ export default function CashBankTable(props: any) {
         enablePinning={true}
         enableStickyFooter={false}
         enableMultiRowSelection={false}
-        defaultColumn={{
-          maxSize: 400,
-          minSize: 80,
-          size: 160,
-        }}
         initialState={{
           density: "compact",
           rowSelection,
         }}
         muiTableProps={() => ({
           sx: {
-            "& .MuiTableCell-root": {
-              padding: "8px",
+            "& .MuiTableHead-root .MuiTableCell-root": {
+              backgroundColor: "#e4e4e7",
+              fontWeight: "500",
+              paddingTop: "8px",
+              paddingBottom: "8px",
             },
-            border: "1px solid rgba(81, 81, 81, .5)",
-            borderRadius: "5px",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            backgroundColor: "#ffffff",
+            border: "1px solid #d1d5db",
           },
         })}
         state={{

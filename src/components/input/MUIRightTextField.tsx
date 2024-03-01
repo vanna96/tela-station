@@ -10,6 +10,7 @@ export interface MUIRightTextFieldProps extends OutlinedInputProps {
   endIcon?: React.ReactNode;
   helpertext?: string;
   onClick?: () => void;
+  redColor?: boolean;
 }
 
 const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
@@ -43,13 +44,14 @@ const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
             autoComplete={"off"}
             fullWidth
             inputProps={{
-              // ...props.inputProps,
+              ...props.inputProps,
               style: {
                 textAlign: "right",
+                color: props.redColor ? "red" : "",
                 // ...props.inputProps?.style,
               },
             }}
-            className={`w-full text-xs text-field pr-0 ${
+            className={`w-full text-xs text-field ${
               props.disabled ? "bg-gray-100" : ""
             } ${props.className ?? ""}`}
             startAdornment={
@@ -59,19 +61,6 @@ const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
                 >
                   {props.startAdornment}
                 </span>
-              ) : null
-            }
-            endAdornment={
-              props.endAdornment ? (
-                <InputAdornment position="end" className="">
-                  <IconButton onClick={props.onClick}>
-                    {props.endIcon ? (
-                      props.endIcon
-                    ) : (
-                      <FiCopy className="text-lg text-white" />
-                    )}
-                  </IconButton>
-                </InputAdornment>
               ) : null
             }
           />

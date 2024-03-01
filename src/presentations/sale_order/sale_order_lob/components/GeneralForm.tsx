@@ -19,6 +19,7 @@ import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 import PriceListRepository from "@/services/actions/pricelistRepository";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
 import SaleWarehouse from "@/components/input/SaleWarehouse";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -57,7 +58,6 @@ export default function GeneralForm({
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-z
   // Finding date and to filter DN and INVOICE series Name
 
   const route = useParams();
@@ -320,7 +320,7 @@ z
                   // onChange={handleSeriesChange}
                 />
                 <div className="-mt-1">
-                  <MUITextField
+                  <MUIRightTextField
                     size="small"
                     name="DocNum"
                     value={

@@ -14,6 +14,7 @@ export interface NonCoreDcumentState {
   CardName?: any;
   Currency?: string | undefined | null;
   PriceLists?: string | undefined | null;
+  SerieLists: any[];
   Series: any;
   loading: boolean;
   DocNum: any;
@@ -23,7 +24,6 @@ export interface NonCoreDcumentState {
   showDialogMessage: boolean;
   disable: any;
   error: any;
-  SerieLists: any[];
   tapIndex: number;
   ContentLoading?: any;
   isDialogOpen: boolean;
@@ -31,6 +31,9 @@ export interface NonCoreDcumentState {
   isOpenVendor: boolean;
   vendorType: VendorModalType;
   VendorRef?: string | undefined | null;
+  U_tl_errormsg?: string | undefined | null;
+  docEntry?: Number | undefined | null;
+  isFirstAttempt?: any;
 }
 
 export default abstract class NonCoreDcument extends React.Component<
@@ -166,4 +169,3 @@ export default abstract class NonCoreDcument extends React.Component<
     this.setState({ ...this.state, ...value });
   }
 }
-  

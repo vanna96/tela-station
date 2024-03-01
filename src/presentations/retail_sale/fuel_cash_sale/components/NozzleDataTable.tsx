@@ -5,6 +5,8 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import { useQuery } from "react-query";
 import { NumericFormat } from "react-number-format";
 import MaterialReactTable from "material-react-table";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { commaFormatNum } from "@/utilies/formatNumber";
 interface NozzleDataProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -13,28 +15,39 @@ interface NozzleDataProps {
 
 export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.nozzleData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+    const newData = data.nozzleData.map((item: any, index: number) => {
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
+        if (
+          [
+            "U_tl_reg_meter",
+            "U_tl_ometer",
+            "U_tl_nmeter",
+            "U_tl_cmeter",
+          ].includes(objKey)
+        ) {
+          const originalValue = item.U_tl_nmeter;
+          const meterValue = item.U_tl_ometer;
+          const regMeterValue = item.U_tl_reg_meter;
+          let value = 0;
+
+          if (meterValue !== 0) {
+            value = originalValue - meterValue;
+          } else if (regMeterValue > 0) {
+            value = originalValue - regMeterValue;
+          }
+
+          item.U_tl_cmeter = value;
+          item.U_tl_totalallow = value;
+        }
+      }
       return item;
     });
-    if (newData.length <= 0) return;
-    onChange("nozzleData", newData);
+
+    onChange("allocationData", newData);
   };
 
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    return res;
-  };
-  console.log(data);
-  //   U_tl_nozzlecode: item.U_tl_pumpcode,
-  // U_tl_itemcode: item.U_tl_itemcode,
-  // U_tl_itemname: item.U_tl_desc,
-  // U_tl_uom: item.U_tl_uom,
-  // U_tl_nmeter: item.U_tl_nmeter,
-  // // U_tl_upd_meter: item.U_tl_ometer,
-  // U_tl_ometer: item.U_tl_upd_meter,
-  // U_tl_cmeter: item.U_tl_cmeter,
   const itemColumns = React.useMemo(
     () => [
       {
@@ -93,12 +106,12 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return (
             <NumericFormat
               //   disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_nmeter" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
               placeholder="0.000"
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue() === 0 ? "" : cell.getValue()}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
@@ -117,11 +130,11 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return (
             <NumericFormat
               disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_ometer" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={
                 cell.row.original.U_tl_ometer
                   ? cell.getValue()
@@ -140,12 +153,13 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           return (
             <NumericFormat
               disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_cmeter" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
-              defaultValue={cell.getValue()}
+              customInput={MUIRightTextField}
+              // value={value}
+              value={cell.row.original.U_tl_cmeter}
               onBlur={(e: any) =>
                 handlerChangeItem(cell?.row?.id || 0, {
                   U_tl_cmeter: e.target.value,
@@ -174,7 +188,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           enablePagination={false}
           enableSorting={false}
           enableTopToolbar={false}
-          enableColumnResizing={true}
+          enableColumnResizing={false}
           enableColumnFilterModes={false}
           enableDensityToggle={false}
           enableFilters={false}
@@ -190,6 +204,17 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           initialState={{
             density: "compact",
           }}
+          muiTableProps={() => ({
+            sx: {
+              "& .MuiTableHead-root .MuiTableCell-root": {
+                backgroundColor: "#e4e4e7",
+                fontWeight: "500",
+                paddingTop: "8px",
+                paddingBottom: "8px",
+              },
+              border: "1px solid #d1d5db",
+            },
+          })}
           enableTableFooter={false}
         />
       </div>

@@ -26,8 +26,9 @@ export default class FormCard extends React.Component<FormCardProps> {
         className={`flex flex-col rounded-lg shadow-sm bg-white border p-6 px-8  h-screen`}
       >
         <div
-          className={`font-medium  text-xl flex justify-between items-center ${this.props.title ? "border-b" : "mb-2"}`}
-          mb-4
+          className={`font-medium  text-xl flex justify-between items-center ${this.props.title ? "border-b" : "mb-2"}    
+          mb-6
+          `}
         >
           <h2>{this.props.title ?? "Information"}</h2>
           {this.props.action}

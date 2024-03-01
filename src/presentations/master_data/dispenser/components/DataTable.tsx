@@ -83,7 +83,7 @@ export default function DataTable(props: DataTableProps) {
     // Specify the desired field names
     const fields = [
       "Pump Code",
-      "Pump Name",
+      "Pump Description",
       "Number of Nozzle",
       "Status",
     ];
@@ -91,7 +91,7 @@ export default function DataTable(props: DataTableProps) {
     // Map the data to the desired field names
     const mappedData = data.map((row) => ({
       "Pump Code": row.Code,
-      "Pump Name": row.Name,
+      "Pump Description": row.Name,
       "Number of Nozzle": row.U_tl_pumpnum,
       "Status": row.U_tl_status,
     }));
@@ -236,6 +236,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
+          enableRowNumbers={true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

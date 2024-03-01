@@ -144,24 +144,25 @@ export default function DataTable(props: DataTableProps) {
             variant="text"
             onClick={() => route(props?.createRoute)}
           >
-            <span className="text-lg mr-2">
+            <span className="text-lg mr-1 text-gray-700">
               <BsPencilSquare />
             </span>
-            <span className="capitalize text-sm">Create</span>
+            <span className="capitalize text-xs">Create</span>
           </Button>
           <Button size="small" variant="text" onClick={props.handlerRefresh}>
-            <span className="text-lg mr-2">
+            <span className="text-lg mr-1 text-gray-700">
               <HiRefresh />
             </span>
-            <span className="capitalize text-sm">Refresh</span>
+            <span className="capitalize text-xs ">Refresh</span>
           </Button>
+
           <MenuCompoment
             title={
-              <div className="flex gap-2">
-                <span className="text-lg">
+              <div className="flex gap-1">
+                <span className="text-lg text-gray-700">
                   <BsSortDown />
                 </span>{" "}
-                <span className="text-[13px] capitalize">Sort </span>
+                <span className="text-xs capitalize">Sort </span>
               </div>
             }
             items={props.columns}
@@ -176,19 +177,19 @@ export default function DataTable(props: DataTableProps) {
           >
             {isLoading || exportButtonClicked ? (
               <>
-                <span className="text-sm mr-2">
+                <span className="text-xs mr-2">
                   <CircularProgress size={16} />
                 </span>
                 <span className="capitalize text-[13px]">Exporting...</span>
               </>
             ) : (
               <>
-                <span className="text-sm mr-2">
+                <span className="text-xs mr-1 text-gray-700">
                   <InsertDriveFileOutlinedIcon
                     style={{ fontSize: "18px", marginBottom: "2px" }}
                   />
                 </span>
-                <span className="capitalize text-[13px]">Export to CSV</span>
+                <span className="capitalize text-xs">Export to CSV</span>
               </>
             )}
           </Button>
@@ -230,6 +231,17 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
+          muiTableProps={() => ({
+            sx: {
+              "& .MuiTableHead-root .MuiTableCell-root": {
+                backgroundColor: "#e4e4e7",
+                fontWeight: "500",
+                paddingTop: "8px",
+                paddingBottom: "8px",
+              },
+              border: "1px solid #d1d5db",
+            },
+          })}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

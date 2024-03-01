@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import MUITextField from "../../../../components/input/MUITextField";
-import { Button } from "@mui/material";
+import { Button, Checkbox } from "@mui/material";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import { useQuery } from "react-query";
@@ -16,6 +16,7 @@ import shortid from "shortid";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -33,22 +34,51 @@ export default function StockAllocationTable({
   const userData = cookies.user;
   // let stockAllocationData = data.stockAllocationData; // Temporary variable
 
-    // if (!edit) {
-    //   data.stockAllocationData = data.nozzleData?.filter(
-    //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
-    //   );
-    // }
+  // if (!edit) {
+  //   data.stockAllocationData = data.nozzleData?.filter(
+  //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
+  //   );
+  // }
+  const [rowSelection, setRowSelection] = React.useState<any>({});
+  const onCheckRow = (event: any, index: number) => {
+    const rowSelects: any = { ...rowSelection };
+    rowSelects[index] = true;
 
+    if (!event.target.checked) {
+      delete rowSelects[index];
+    }
 
-  const onChangeItem = (key: number, obj: any) => {
-    const newData = data.stockAllocationData?.map(
-      (item: any, index: number) => {
-        if (index.toString() !== key.toString()) return item;
-        item[Object.keys(obj).toString()] = Object.values(obj).toString();
-        return item;
+    setRowSelection(rowSelects);
+  };
+  const synchronizeStockAllocationData = () => {
+    const updatedStockAllocationData = data.stockAllocationData?.map(
+      (stockItem: any) => {
+        const allocationItem = data?.allocationData?.find(
+          (allocationItem: any) =>
+            allocationItem?.U_tl_itemcode === stockItem?.U_tl_itemcode
+        );
+        if (allocationItem) {
+          return { ...stockItem, U_tl_qtycon: allocationItem?.U_tl_totalallow };
+        }
+        return stockItem;
       }
     );
-    if (newData?.length <= 0) return;
+
+    onChange("stockAllocationData", updatedStockAllocationData);
+  };
+
+  useEffect(() => {
+    synchronizeStockAllocationData();
+  }, [data?.allocationData]);
+
+  const onChangeItem = (key: number, obj: any) => {
+    const newData = data.stockAllocationData?.map((item: any, index: number) => {
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
+      }
+      return item;
+    });
     onChange("stockAllocationData", newData);
   };
 
@@ -65,14 +95,7 @@ export default function StockAllocationTable({
 
     handlerChangeObject({ stockAllocationData: newData });
   };
-  const handlerRemove = (key: number) => {
-    const newData = (data?.stockAllocationData || []).filter(
-      (item: any, index: number) => index !== key
-    );
-    if (newData.length < 1) return;
-    onChange("stockAllocationData", newData);
-  };
-
+  console.log(data.stockAllocationData);
   const handlerAdd = () => {
     let firstData = [
       ...data.stockAllocationData,
@@ -92,36 +115,37 @@ export default function StockAllocationTable({
     onChange("stockAllocationData", firstData);
   };
 
-  const fetchItemName = async (itemCode: any) => {
-    const res = await request("GET", `/Items('${itemCode}')?$select=ItemName`);
-    return res;
-  };
   const itemColumns = React.useMemo(
     () => [
       {
-        size: 5,
-        minSize: 5,
-        maxSize: 5,
-        accessorKey: "deleteButton",
-        align: "center",
+        accessorKey: "index",
+        size: 2,
+        minSize: 2,
+        maxSize: 2,
         header: "",
         Cell: ({ cell }: any) => {
-          if (!cell.row.original?.U_tl_paytype) return null;
-          return (
-            <div className="flex justify-center items-center">
-              <GridDeleteIcon
-                className="text-red-500 cursor-pointer"
-                onClick={() => handlerRemove(cell?.row?.index)}
+          if (cell.row.original?.U_tl_paytype)
+            return (
+              <Checkbox
+                checked={cell.row.index in rowSelection}
+                size="small"
+                onChange={(event) => onCheckRow(event, cell.row.index)}
               />
-            </div>
-          );
+            );
         },
       },
+
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",
         visible: true,
         type: "number",
+        size: 280,
+        Header: (header: any) => (
+          <label>
+            Branch <span className="text-red-500">*</span>
+          </label>
+        ),
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid)
             return (
@@ -129,13 +153,16 @@ export default function StockAllocationTable({
                 onClick={() => handlerAdd()}
                 variant="outlined"
                 size="small"
-                sx={{ height: "30px", textTransform: "none", width: "100%" }}
+                sx={{
+                  height: "30px",
+                  textTransform: "none",
+                  width: "100%",
+                  borderColor: "black",
+                  color: "black",
+                }}
                 disableElevation
               >
-                <span className="px-3 text-[13px] py-1 text-green-500 font-no">
-                  <GridAddIcon />
-                  Add Row
-                </span>
+                <span className="px-3 text-[13px] py-1">Add </span>
               </Button>
             );
 
@@ -157,6 +184,12 @@ export default function StockAllocationTable({
         accessorKey: "U_tl_whs",
         header: "Warehouse",
         visible: true,
+        size: 250,
+        Header: (header: any) => (
+          <label>
+            WHS Code <span className="text-red-500">*</span>
+          </label>
+        ),
         type: "number",
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
@@ -178,6 +211,11 @@ export default function StockAllocationTable({
         header: "Bin Location",
         visible: true,
         type: "number",
+        Header: (header: any) => (
+          <label>
+            Bin Code <span className="text-red-500">*</span>
+          </label>
+        ),
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
@@ -194,6 +232,11 @@ export default function StockAllocationTable({
         },
       },
       {
+        Header: (header: any) => (
+          <label>
+            Item Code <span className="text-red-500">*</span>
+          </label>
+        ),
         accessorKey: "U_tl_itemcode",
         header: "Item Code",
         visible: true,
@@ -241,42 +284,19 @@ export default function StockAllocationTable({
         Cell: ({ cell, row }: any) => {
           if (!row.original?.U_tl_bplid) return null;
 
-          const rowsWithSameItemCode = data?.stockAllocationData?.filter(
-            (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
-          );
-          const totalQuantity = rowsWithSameItemCode.reduce(
-            (sum: number, r: any) => {
-              return sum + parseFloat(r.U_tl_qtycon);
-            },
-            0
-          );
-
-          const nozzle = data.nozzleData?.find(
-            (nozzle: any) =>
-              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
-          );
-
-          const isValid = nozzle
-            ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
-            : false;
-
           return (
             <NumericFormat
               key={"U_tl_qtycon" + cell.getValue()}
               thousandSeparator
+              disabled
               decimalScale={2}
               placeholder="0.000"
               fixedDecimalScale
-              customInput={MUITextField}
-              inputProps={{
-                style: {
-                  color: isValid ? "inherit" : "red",
-                },
-              }}
+              customInput={MUIRightTextField}
               value={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtycon: parseFloat(e.target.value.replace(/,/g, "")),
+                  U_tl_qtycon: e.target.value,
                 })
               }
             />
@@ -295,19 +315,40 @@ export default function StockAllocationTable({
         visible: true,
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
+          const rowsWithSameItemCode = data?.stockAllocationData?.filter(
+            (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          );
+          const totalQuantity = rowsWithSameItemCode.reduce(
+            (sum: number, r: any) => {
+              return sum + parseFloat(r.U_tl_qtycon);
+            },
+            0
+          );
 
+          const nozzle = data.nozzleData?.find(
+            (nozzle: any) =>
+              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          );
+
+          // const isValid = nozzle
+          //   ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
+          //   : false;
+          const isValid =
+            cell.row.original.U_tl_qtycon ===
+            // parseFloat(cell.row.original.U_tl_qtyaloc?.replace(/,/g, ""));
+            totalQuantity;
           return (
             <NumericFormat
-              disabled
               key={"amount_" + cell.getValue()}
               thousandSeparator
+              redColor={!isValid}
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtyaloc: parseFloat(e.target.value.replace(/,/g, "")),
+                  U_tl_qtyaloc: e.target.value,
                 })
               }
             />
@@ -348,7 +389,7 @@ export default function StockAllocationTable({
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
-              customInput={MUITextField}
+              customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
@@ -383,12 +424,32 @@ export default function StockAllocationTable({
     ],
     [data.stockAllocationData]
   );
-
+  const handlerRemove = () => {
+    let filteredData = data.stockAllocationData.filter(
+      (item: any, index: number) => {
+        return !(index.toString() in rowSelection);
+      }
+    );
+    onChange("stockAllocationData", filteredData);
+    setRowSelection({});
+  };
   return (
     <>
       <FormCard title="Stock Allocation ">
         <>
           <div className="col-span-2 data-table">
+            <div className="flex justify-end mb-1">
+              <Button
+                disableElevation
+                size="small"
+                variant="outlined"
+                style={{ borderColor: "#d1d5db", color: "#dc2626" }}
+              >
+                <span className="capitalize text-xs " onClick={handlerRemove}>
+                  Remove
+                </span>
+              </Button>
+            </div>
             <MaterialReactTable
               columns={[...itemColumns]}
               data={[...data.stockAllocationData, { U_tl_bplid: "" }]}
@@ -414,6 +475,17 @@ export default function StockAllocationTable({
               state={{}}
               muiTableBodyRowProps={() => ({
                 sx: { cursor: "pointer" },
+              })}
+              muiTableProps={() => ({
+                sx: {
+                  "& .MuiTableHead-root .MuiTableCell-root": {
+                    backgroundColor: "#e4e4e7",
+                    fontWeight: "500",
+                    paddingTop: "8px",
+                    paddingBottom: "8px",
+                  },
+                  border: "1px solid #d1d5db",
+                },
               })}
               icons={{
                 ViewColumnIcon: (props: any) => <AiOutlineSetting {...props} />,

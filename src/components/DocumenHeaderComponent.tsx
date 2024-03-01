@@ -347,7 +347,6 @@ export const TotalSummaryRightSide = (props: any) => {
               thousandSeparator
               disabled
               placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
-              
               className="bg-white w-1/2 text-end"
               decimalScale={props.data.Currency === "USD" ? 3 : 0}
             />
