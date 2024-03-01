@@ -87,6 +87,7 @@ export default function TableCheckDetail({
                         (val) => val.CheckKey === e.CheckKey
                       )}
                       onChange={(event) => onSelectChange(event, e)}
+                      disabled={true}
                     />
                   </td>
                   <td>{e.CheckDate}</td>
