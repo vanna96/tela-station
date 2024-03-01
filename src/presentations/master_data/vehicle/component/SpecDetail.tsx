@@ -71,7 +71,8 @@ const SpecDetail = ({ register, setHeader, header, detail, setValue, defaultValu
                       <YearsAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_Year}
+                        // value={defaultValues?.U_Year}
+                        value={field.value}
                         onChange={(e: any) => {
 
                           setValue("U_Year", e);
