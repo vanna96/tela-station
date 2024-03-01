@@ -87,7 +87,7 @@ export default function TableCheck({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm border p-6 mr-6 h-full mt-[2rem] w-[1750px]">
+      <div className="rounded-lg shadow-sm border p-6 mt-[2rem] overflow-x-auto">
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0] text-black">
@@ -108,7 +108,7 @@ export default function TableCheck({
               <th className="w-[250px] text-left font-normal  py-2 text-[14px]">
                 BP/Account
               </th>
-              <th className="w-[200px] text-left font-normal py-2 text-[14px] ">
+              <th className="w-[150px] text-left font-normal py-2 text-[14px] ">
                 Check Amount
               </th>
               <th className=" text-left font-normal py-2 text-[14px]">
