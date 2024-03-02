@@ -215,7 +215,6 @@ export default function TRModal(props: any) {
       pageSize: 10,
     });
 
-    console.log(value);
 
     setTimeout(() => {
       refetch();
@@ -310,6 +309,29 @@ export default function TRModal(props: any) {
             ...props?.transDetail,
             ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0 })),
           ]);
+          // props?.setValue("TL_TO_COMPARTMENTCollection", [
+            // ...props?.compartment?.map((e: any) => ({
+            //   ...e,
+            //   ...res?.data?.value?.map((e: any) => {
+            //     return {
+            //       U_DocNum: e?.U_DocNum,
+            //       U_SourceDocEntry: e?.U_SourceDocEntry,
+            //       U_ItemCode: e?.U_ItemCode,
+            //     };
+            //   }
+            //   )
+            // })),
+            // ...res?.data?.value?.map((e: any) => {
+            //   return {
+            //     ...props?.compartment,
+            //     U_DocNum: e?.U_DocNum,
+            //     U_SourceDocEntry: e?.U_SourceDocEntry,
+            //     U_ItemCode: e?.U_ItemCode,
+            //   };
+            // }
+
+            // ),
+          // ]);
           props?.setHeadTrans(res?.data?.value);
           setRowSelection({});
           setOpenLoading(false);

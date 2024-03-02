@@ -7,7 +7,7 @@ import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import { FormControlLabel, Radio } from "@mui/material";
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 import TableCheck from "./TableChecks";
 import DepositCheckAutoComplete from "./DepositCheckAutoComplete";
 
@@ -55,7 +55,7 @@ const Checks = ({
               </div>
               <div className="col-span-3">
                 <DepositCheckAutoComplete
-                  onChange={(e)=> setDepositcheck(e.AccountCode)}
+                  onChange={(e) => setDepositcheck(e.AccountCode)}
                   value={depositcheck}
                 />
               </div>
@@ -80,55 +80,34 @@ const Checks = ({
           <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-3">
-              <FormControlLabel
+                {/* <FormControlLabel
                   control={
                     <Radio
                       disabled={detail}
-                      checked={
-                        useWatch({
-                          control: control,
-                          name: "CheckDepositType",
-                        }) === "YES"
-                      } // Use checked prop for a controlled Checkbox
-                      onChange={(e) =>
-                        setValue(
-                          "CheckDepositType",
-                          e.target.checked === true ? "cdtCashChecks" : "No"
-                        )
-                      }
+
                     />
                   }
                   label={<span className="text-gray-500">Cash Checks</span>}
-                />
-              </div>
-              <div className="col-span-3 mt-2">
-              <FormControlLabel
-                  control={
-                    <Radio
-                      disabled={detail}
-                      checked={
-                        useWatch({
-                          control: control,
-                          name: "U_UnderMaintenance",
-                        }) === "YES"
-                      } // Use checked prop for a controlled Checkbox
-                      onChange={(e) =>
-                        setValue(
-                          "U_UnderMaintenance",
-                          e.target.checked === true ? "YES" : "No"
-                        )
-                      }
+                /> */}
+                <FormControl className="w-full">
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    defaultValue="female"
+                    name="radio-buttons-group"
+                    style={{ alignSelf: 'flex-start' }}
+                  >
+                    <FormControlLabel value="Cash Checks" className="flex justify-start" control={<Radio />} label={<span>Cash Checks</span>}
                     />
-                  }
-                  label={<span className="text-gray-500">Postdated Checks</span>}
-                />
+                    <FormControlLabel value="Postdated Checks" control={<Radio />} label="Postdated Checks" />
+                  </RadioGroup>
+                </FormControl>
               </div>
             </div>
           </div>
         </div>
         <div>
-        <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck}/>
-      </div>
+          <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} />
+        </div>
       </div>
     </>
   );

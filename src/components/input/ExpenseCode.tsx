@@ -8,7 +8,7 @@ interface Type {
   Name: string;
 }
 
-const VehicleAutoComplete = forwardRef<
+const ExpenseCodeAutoComplete = forwardRef<
   HTMLInputElement,
   {
     label?: any;
@@ -19,9 +19,9 @@ const VehicleAutoComplete = forwardRef<
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery<Type[], Error>({
-    queryKey: ["vehicles"],
+    queryKey: ["TL_ExpDic"],
     queryFn: async () => {
-      const response: any = await request("GET", `${url}/TL_VEHICLE`)
+      const response: any = await request("GET", `${url}/TL_ExpDic`)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -29,7 +29,7 @@ const VehicleAutoComplete = forwardRef<
       return response;
     },
     staleTime: 0,
-    cacheTime:0
+    cacheTime: 0,
   });
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const VehicleAutoComplete = forwardRef<
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue : null;
+      const selected = newValue ? newValue?.Code : null;
       props.onChange(selected);
     }
   };
@@ -74,10 +74,10 @@ const VehicleAutoComplete = forwardRef<
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.Code}
+        getOptionLabel={(option: Type) => option.Code + " - " + option.Name}
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.Code}
+            {option.Code + " - " + option.Name}
           </Box>
         )}
         renderInput={(params) => (
@@ -106,4 +106,4 @@ const VehicleAutoComplete = forwardRef<
   );
 });
 
-export default VehicleAutoComplete;
+export default ExpenseCodeAutoComplete;

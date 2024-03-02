@@ -17,6 +17,7 @@ import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete"
 import { UseFormProps } from "../form/TransportationOrderForm";
 import RoutAutoComplete from "@/components/input/RouteAutoComplete";
 import VehicleAutoComplete from "@/components/input/VehicleAutoComplete";
+import { useLocation, useParams } from "react-router-dom";
 
 const General = ({
   register,
@@ -31,6 +32,7 @@ const General = ({
   getValues,
   setTransDetail,
   transDetail,
+  setFuel,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     startDate: null,
@@ -38,18 +40,17 @@ const General = ({
     termination: null,
     branchASS: null,
   });
-
+  const { id } = useParams();
   useEffect(() => {
-    setValue("Series", 7916);
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
+    setValue("Series", 7918);
+   
   }, [defaultValues]);
   const nextNumber = serie?.find(
     (e: any) => e?.Series === getValues("Series")
   )?.NextNumber;
+  const location = useLocation();
+  const create = location.pathname?.split("/");
+  
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -71,11 +72,20 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <RoutAutoComplete
-                        disabled={detail}
+                        disabled={
+                          create?.at(-1)==="create"?false:
+                           true
+                        }
                         {...field}
                         value={watch("U_Route") || defaultValues?.U_Route}
                         onChange={(e: any) => {
                           setValue("U_Route", e?.Code);
+                          setValue("TL_TO_EXPENSECollection", [
+                            ...e?.TL_RM_EXPENSCollection?.map((e: any) => ({
+                              ...e,
+                              Code: undefined,
+                            })),
+                          ]);
                           setTransDetail([
                             ...transDetail,
                             ...e?.TL_RM_SEQUENCECollection?.map((row: any) => ({
@@ -86,6 +96,7 @@ const General = ({
                               U_Description: row.U_Description,
                             })),
                           ]);
+
                           setHeader({
                             ...header,
                             Route: e?.Code,
@@ -110,7 +121,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <BaseStationAutoComplete
-                        disabled={detail}
+                        disabled={id || detail}
                         {...field}
                         value={
                           watch("U_BaseStation") || defaultValues?.U_BaseStation
@@ -134,18 +145,23 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_VehicleCode"
+                  name="U_Vehicle"
                   control={control}
                   render={({ field }) => {
                     return (
                       <VehicleAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={
-                          defaultValues?.U_BaseStation || watch("U_VehicleCode")
+                        disabled={
+                          create?.at(-1) === "create"
+                            ? false
+                            : id && defaultValues?.U_Status === "P"
+                              ? false
+                              : detail || true
                         }
+                        {...field}
+                        value={defaultValues?.U_Vehicle || watch("U_Vehicle")}
                         onChange={(e: any) => {
-                          setValue("U_VehicleCode", e?.Code);
+                          setValue("U_Vehicle", e?.Code);
+                          setFuel([{ U_Fuel: e?.U_FuelType }]);
                           setValue("U_VehicleName", e?.Name);
                           setValue("TL_TO_COMPARTMENTCollection", [
                             ...(e?.TL_VH_COMPARTMENTCollection?.map(
@@ -155,11 +171,19 @@ const General = ({
                                   (e?.U_BOTTOM_HATCH || 0);
                                 const childrenArray = Array.from(
                                   { length },
-                                  () => ({})
+                                  () => ({
+                                    U_Volume: e?.U_VOLUME,
+                                    U_BottomHatch: e?.U_BOTTOM_HATCH,
+                                    U_TopHatch: e?.U_TOP_HATCH,
+                                    U_SealNumber: null,
+                                    U_SealReference: null,
+                                  })
                                 );
                                 return {
-                                  ...e,
-                                  Children: childrenArray,
+                                  U_Volume: e?.U_VOLUME,
+                                  U_BottomHatch: e?.U_BOTTOM_HATCH,
+                                  U_TopHatch: e?.U_TOP_HATCH,
+                                  U_Children: childrenArray,
                                 };
                               }
                             ) || []),
@@ -202,7 +226,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ManagerAutoComplete
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         value={watch("U_Driver") || defaultValues?.U_Driver}
                         onChange={(e: any) => {
@@ -255,7 +279,7 @@ const General = ({
                         <MUISelect
                           {...field}
                           items={serie}
-                          disabled={detail || defaultValues?.U_Status === "C"}
+                          disabled={true}
                           value={watch("Series") || defaultValues?.serie}
                           aliasvalue="Series"
                           aliaslabel="Name"
@@ -274,7 +298,7 @@ const General = ({
                       inputProps={{
                         ...register("DocNum"),
                       }}
-                      defaultValue={nextNumber || defaultValues?.DocNum}
+                      value={nextNumber || defaultValues?.DocNum}
                     />
                   </div>
                 </div>
@@ -293,7 +317,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         defaultValue={
                           watch("U_DocDate") || defaultValues?.U_DocDate
@@ -320,15 +344,44 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <div className="hidden">
-                  {" "}
-                  <MUITextField
-                    inputProps={{
-                      ...register("Status"),
-                    }}
-                    value={"O"}
-                  />
+                  {getValues("U_Status") === undefined && (
+                    <MUITextField
+                      inputProps={{
+                        ...register("Status"),
+                      }}
+                      value={"I"}
+                    />
+                  )}
                 </div>
-                <MUITextField disabled={true} value={"Open"} />
+                <Controller
+                  name="Status"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        {...field}
+                        disabled={detail}
+                        items={[
+                          { label: "Initiated", value: "I" },
+                          { label: "Planned", value: "P" },
+                          { label: "Seal Number", value: "S" },
+                          { label: "Dispatched", value: "D" },
+                          { label: "Released", value: "R" },
+                          { label: "Completed", value: "CP" },
+                          { label: "Cancelled", value: "C" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("U_Status", e.target.value);
+                        }}
+                        value={
+                          watch("U_Status") || defaultValues?.U_Status || "I"
+                        }
+                        aliasvalue="value"
+                        aliaslabel="label"
+                      />
+                    );
+                  }}
+                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -339,15 +392,16 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DispatchDate"
+                  name="U_DispatchDate"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         defaultValue={
-                          defaultValues?.DispatchDate || staticSelect.startDate
+                          defaultValues?.U_DispatchDate ||
+                          staticSelect.startDate
                         }
                         key={`DispatchDate_${staticSelect.startDate}`}
                         onChange={(e: any) => {
@@ -356,7 +410,7 @@ const General = ({
                             "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DispatchDate", `${val == "" ? "" : val}`);
+                          setValue("U_DispatchDate", `${val == "" ? "" : val}`);
                           setStaticSelect({
                             ...staticSelect,
                             startDate: e,
@@ -382,7 +436,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={(id as any) || detail}
                         {...field}
                         defaultValue={
                           defaultValues?.U_CompletedDate ||

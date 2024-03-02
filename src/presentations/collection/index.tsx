@@ -66,6 +66,7 @@ const CollectionPage = () => {
       roles: ['UG001', 'UG004'],
     },
     {
+      roles: ['UG001', 'UG004'],
       title: "Deposit",
       icon: <AiOutlineFileProtect />,
       queryKey: "deposit",

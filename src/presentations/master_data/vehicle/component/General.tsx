@@ -1,16 +1,10 @@
 import MUITextField from "@/components/input/MUITextField";
-import PositionSelect from "@/components/selectbox/Position";
-import DepartmentSelect from "@/components/selectbox/Department";
-import ManagerSelect from "@/components/selectbox/Manager";
-import PositionAutoComplete from "@/components/input/PositionAutoComplete";
-import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { UseFormProps } from "../form/VehicleForm";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
-import YearDropdown from "./YearsDropDown";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useWatch } from "react-hook-form";
 
@@ -25,6 +19,7 @@ const General = ({
   setHeader,
   detail,
 }: UseFormProps) => {
+  
   const [staticSelect, setStaticSelect] = useState({
     U_Type: "",
     U_Owner: "",
@@ -52,7 +47,7 @@ const General = ({
                   disabled={detail}
                   inputProps={{
                     ...register("Code", {
-                      required: " Vehicle Code is required",
+                      required: "Vehicle Code is required",
                     }),
                     onBlur: (e) =>
                       setHeader({ ...header, code: e.target.value }),
@@ -327,6 +322,7 @@ const General = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  type="number"
                   inputProps={{
                     ...register("U_InitializeOdometer"),
                     onChange: (val) => {

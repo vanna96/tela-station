@@ -13,6 +13,9 @@ import Sequence from "../components/Sequence";
 import Left from "../components/LeftHeader";
 import Right from "../components/RightHeader";
 import DataTable from "../components/DataTable";
+import CustomToast from "@/components/modal/CustomToast";
+
+let toastRef = React.createRef<CustomToast>();
 
 class RouteForm extends CoreFormDocument {
   serviceRef = React.createRef<ServiceModalComponent>();
@@ -258,10 +261,22 @@ class RouteForm extends CoreFormDocument {
           active={this.state.tapIndex === 1}
           className="bg-gray-200"
           onClick={() => {
-            if (!this.state.Code) return;
-            if (!this.state.U_BaseStation) return;
-            if (!this.state.U_Destination) return;
-            if (!this.state.Name) return;
+            if (!this.state.Code) {
+              toastRef.current?.open();
+              return
+            };
+            if (!this.state.U_BaseStation) {
+              toastRef.current?.open();
+              return
+            };
+            if (!this.state.U_Destination) {
+              toastRef.current?.open();
+              return
+            };
+            if (!this.state.Name) {
+              toastRef.current?.open();
+              return
+            };
 
             this.handlerChangeMenu(1);
           }}
@@ -271,10 +286,22 @@ class RouteForm extends CoreFormDocument {
         <MenuButton
           active={this.state.tapIndex === 2}
           onClick={() => {
-            if (!this.state.Code) return;
-            if (!this.state.U_BaseStation) return;
-            if (!this.state.U_Destination) return;
-            if (!this.state.Name) return;
+            if (!this.state.Code) {
+              toastRef.current?.open();
+              return
+            };
+            if (!this.state.U_BaseStation) {
+              toastRef.current?.open();
+              return
+            };
+            if (!this.state.U_Destination) {
+              toastRef.current?.open();
+              return
+            };
+            if (!this.state.Name) {
+              toastRef.current?.open();
+              return
+            };
             this.handlerChangeMenu(2);
           }}
         >
@@ -289,6 +316,9 @@ class RouteForm extends CoreFormDocument {
   FormRender = () => {
     return (
       <>
+        <CustomToast ref={toastRef} />
+
+
         <form
           id="formData"
           onSubmit={(e: any) => this.handlerSubmit(e)}
