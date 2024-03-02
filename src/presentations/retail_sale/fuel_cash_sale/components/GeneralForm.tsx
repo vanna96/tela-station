@@ -123,6 +123,7 @@ export default function GeneralForm({
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("U_tl_bplid", e)}
                 value={BPL || 1}
+                disabled={edit || data.disableBranch}
               />
             </div>
           </div>
@@ -224,7 +225,7 @@ export default function GeneralForm({
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice,
                       U_tl_bplid: data.U_tl_bplid,
-                      // U_tl_whs: warehouseCode,
+                      U_tl_whs: warehouseCode,
                       // U_tl_bincode: item.U_tl_bincode,
                       UoMGroupEntry: item.UoMGroupEntry,
                       InventoryUoMEntry: item.InventoryUoMEntry,

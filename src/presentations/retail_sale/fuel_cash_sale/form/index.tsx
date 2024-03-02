@@ -344,7 +344,7 @@ class Form extends NonCoreDcument {
       if (!docEntry || isFirstAttempt) {
         const response = await request("POST", "/TL_RETAILSALE", payload);
         docEntry = response.data.DocEntry;
-        this.setState({ docEntry, isFirstAttempt: false });
+        this.setState({ docEntry, isFirstAttempt: false, disableBranch: true });
       } else {
         await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
       }
