@@ -114,37 +114,6 @@ const DepositForm = (props: any) => {
     }
   };
 
-  // const onSubmit = async (e: any) => {
-  //   const payload: any = {
-  //     ...e,
-  //   };
-  //   try {
-  //     console.log(e);
-
-  //     // return;
-  //     setState({ ...state, isSubmitting: true });
-  //     if (props.edit) {
-  //       await request("PATCH", `/Deposits(${id})`, payload)
-  //         .then((res: any) =>
-  //           dialog.current?.success("Update Successfully.", res?.data?.AbsEntry)
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     } else {
-  //       await request("POST", "/Deposits", payload)
-  //         .then((res: any) =>
-  //           dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     setState({ ...state, isSubmitting: false });
-  //   }
-  // };
-
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -156,22 +125,22 @@ const DepositForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    // if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "") {
-    //   toastRef.current?.open()
-    //   return;
-    // }
-    // if (!getValues("BPLID") || getValues("BPLID") === "") {
-    //   toastRef.current?.open()
-    //   return;
-    // }
-    // if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
-    //   toastRef.current?.open()
-    //   return;
-    // }
-    // if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
-    //   toastRef.current?.open()
-    //   return;
-    // }
+    if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "") {
+      toastRef.current?.open()
+      return;
+    }
+    if (!getValues("BPLID") || getValues("BPLID") === "") {
+      toastRef.current?.open()
+      return;
+    }
+    if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
+      toastRef.current?.open()
+      return;
+    }
+    if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
+      toastRef.current?.open()
+      return;
+    }
 
     handlerChangeMenu(tapIndex);
   };

@@ -29,7 +29,7 @@ const Checks = ({
     branchASS: null,
   });
 
-  const [depositcheck, setDepositcheck] = useState()
+  const [depositcheck, setDepositcheck] = useState<any>()
 
   useEffect(() => {
     if (defaultValues) {
@@ -38,6 +38,17 @@ const Checks = ({
       );
     }
   }, [defaultValues]);
+
+
+  const onSwitchValue = (event: any, value: string) => {
+    if (value === 'posted_check') {
+      setDepositcheck('unkown');
+      return;
+    }
+
+
+    setDepositcheck(undefined);
+  }
 
   return (
     <>
@@ -95,10 +106,11 @@ const Checks = ({
                     defaultValue="female"
                     name="radio-buttons-group"
                     style={{ alignSelf: 'flex-start' }}
+                    onChange={onSwitchValue}
                   >
-                    <FormControlLabel value="Cash Checks" className="flex justify-start" control={<Radio />} label={<span>Cash Checks</span>}
+                    <FormControlLabel value="check" className="flex justify-start" control={<Radio />} label={<span>Cash Checks</span>}
                     />
-                    <FormControlLabel value="Postdated Checks" control={<Radio />} label="Postdated Checks" />
+                    <FormControlLabel value="posted_check" control={<Radio />} label="Postdated Checks" />
                   </RadioGroup>
                 </FormControl>
               </div>
