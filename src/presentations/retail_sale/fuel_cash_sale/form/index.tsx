@@ -19,6 +19,7 @@ import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
 import ErrorLogForm from "../../components/ErrorLogForm";
 import requestHeader from "@/utilies/requestheader";
+import { useExchangeRate } from "@/presentations/master_data/expense_dictionary/hook/useExchangeRate";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -106,6 +107,7 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("retail-series", seriesList);
     }
+
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -398,7 +400,7 @@ class Form extends NonCoreDcument {
         GISeries: data?.GoodIssueSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: "4000.0",
+        DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,

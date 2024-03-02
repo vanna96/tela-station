@@ -339,7 +339,8 @@ export default function StockAllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              redColor={!isValid}
+              // redcolor={!isValid}
+              redcolor={!isValid.toString()}
               decimalScale={2}
               fixedDecimalScale
               customInput={MUIRightTextField}
