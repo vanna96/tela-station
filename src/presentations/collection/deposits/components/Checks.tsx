@@ -11,6 +11,19 @@ import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mu
 import TableCheck from "./TableChecks";
 import DepositCheckAutoComplete from "./DepositCheckAutoComplete";
 
+
+const debounce = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+
+  return function (...args: any) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+};
+
+
 const Checks = ({
   register,
   control,
@@ -50,6 +63,19 @@ const Checks = ({
     setDepositcheck(undefined);
   }
 
+  const [searchText, setSearchText] = useState('');
+  // Define a debounced version of the handleChange function
+  const debouncedHandleChange = debounce(function (this: any, newValue: string) {
+    // Do something with the debounced value, like updating state
+  }, 500); // Adjust the delay time as needed
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setSearchText(newValue);
+    // Call the debounced function with the new value
+    debouncedHandleChange(newValue);
+  };
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -80,7 +106,9 @@ const Checks = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  // onChange={()}
                   inputProps={{
+                    onChange: handleChange
                     // ...register("Find"),
                   }}
                 />
@@ -118,7 +146,7 @@ const Checks = ({
           </div>
         </div>
         <div>
-          <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} />
+          <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} searchText={searchText} />
         </div>
       </div>
     </>

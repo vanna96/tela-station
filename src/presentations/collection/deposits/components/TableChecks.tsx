@@ -7,6 +7,7 @@ import shortid from "shortid";
 import CircularProgress from '@mui/material/CircularProgress';
 
 
+
 export default function TableCheck({
   register,
   defaultValue,
@@ -19,9 +20,8 @@ export default function TableCheck({
   watch,
   data,
   depositcheck,
+  searchText
 }: any) {
-
-  console.log(`getlistdeposit_${watch('DepositCurrency')}_${watch('BPLID')}`)
 
   const respose: any = useQuery({
     queryKey: [`getlistdeposit_${watch('DepositCurrency')}_${watch('BPLID')}`],
@@ -35,12 +35,17 @@ export default function TableCheck({
 
   const documents: any[] = React.useMemo(() => {
 
+    if (searchText !== '')
+      return respose?.data?.data?.value?.filter((e: any) => e?.CheckNumber?.toString()?.includes(searchText)) ?? [];
+
+
     if (depositcheck?.toLowerCase() === 'all') return respose?.data?.data?.value ?? [];
 
     if (depositcheck) return respose?.data?.data?.value?.filter((e: any) => e?.CashCheck === depositcheck) ?? [];
 
     return respose?.data?.data?.value ?? [];
-  }, [respose.data, depositcheck])
+  }, [respose.data, depositcheck, searchText])
+
 
   const selectedValues: any[] = useMemo(() => {
     if (!watch("CheckLines")) return [];
@@ -121,7 +126,8 @@ export default function TableCheck({
   }
 
   const isSelected = (e: any) => {
-    return selectedValues?.find((val) => val.CheckKey === e.CheckKey) ? true : false;
+    const selected = selectedValues?.find((val) => val.CheckKey === e.CheckKey)
+    return selected ? true : false;
   }
 
 
@@ -161,6 +167,17 @@ export default function TableCheck({
               </tr>
             )}
             <tbody>
+
+              {(!respose?.isLoading && documents.length === 0) && <tr>
+                <td colSpan={6} className="p-10 text-center">
+
+                  <div className="w-full flex justify-center items-center gap-2 text-gray-400">
+                    <span>No data.</span>
+                  </div>
+
+                </td>
+              </tr>}
+
               {respose?.isLoading ?
                 <tr>
                   <td colSpan={6} className="p-10 text-center">
@@ -181,7 +198,7 @@ export default function TableCheck({
                       />
                     </td>
                     <td>{e.CheckDate}</td>
-                    <td>{e.CashCheck}</td>
+                    <td>{e.CheckNumber}</td>
                     <td>{e.CardCode + ' - ' + e.CardName}</td>
                     <td>{e.CheckAmount}</td>
                     <td>{e.DocNum}</td>
