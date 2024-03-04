@@ -6,7 +6,9 @@ import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
+import BPAutoComplete from "@/components/input/BPAutoComplete";
 import { Button } from "@mui/material";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
@@ -25,7 +27,7 @@ export default function SaleOrderLists() {
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
@@ -81,7 +83,7 @@ export default function SaleOrderLists() {
         size: 70,
         Cell: ({ cell }: any) => (
           <>
-            {cell.row.original.DocCurrency} {cell.getValue().toFixed(3)}
+            {"$"} {cell.getValue().toFixed(2)}
           </>
         ),
       },
@@ -215,6 +217,7 @@ export default function SaleOrderLists() {
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
+    refetchOnWindowFocus: false,
     queryKey: [
       "sales-order-lob",
       salesType,
@@ -246,13 +249,13 @@ export default function SaleOrderLists() {
         numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice, DocCurrency"}`;
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
 
       const dataUrl = `${url}/Orders?$filter=U_tl_salestype eq null${
         numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice, DocCurrency"}`;
+      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
@@ -499,8 +502,20 @@ export default function SaleOrderLists() {
           </div>
         </div>
         <DataTable
-          columns={columns}
-          data={data}
+          columns={[
+            {
+              accessorKey: "index",
+              header: "No.",
+              size: 20,
+              visible: true,
+              type: "number",
+            },
+            ...columns,
+          ]}
+          data={data?.map((item: any, index: any) => ({
+            ...item,
+            index: index + 1,
+          }))}
           dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}

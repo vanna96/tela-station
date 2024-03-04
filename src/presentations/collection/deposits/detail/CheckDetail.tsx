@@ -19,6 +19,7 @@ const CheckDetail = ({
   branchAss,
   detail,
   data,
+  edit,
   watch,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
@@ -53,9 +54,9 @@ const CheckDetail = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  // inputProps={{
-                  //   ...register("Deposit Check"),
-                  // }}
+                // inputProps={{
+                //   ...register("Deposit Check"),
+                // }}
                 />
               </div>
             </div>
@@ -67,7 +68,7 @@ const CheckDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                   disabled={true}
+                  disabled={true}
                   inputProps={{
                     // ...register("Find"),
                   }}
@@ -79,10 +80,10 @@ const CheckDetail = ({
           <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-3">
-              <FormControlLabel
+                <FormControlLabel
                   control={
                     <Radio
-                    disabled={true}
+                      disabled={true}
                       checked={
                         useWatch({
                           control: control,
@@ -101,10 +102,10 @@ const CheckDetail = ({
                 />
               </div>
               <div className="col-span-3 mt-2">
-              <FormControlLabel
+                <FormControlLabel
                   control={
                     <Radio
-                    disabled={true}
+                      disabled={true}
                       checked={
                         useWatch({
                           control: control,
@@ -126,8 +127,8 @@ const CheckDetail = ({
           </div>
         </div>
         <div>
-        <TableCheckDetail data={data} control={control} setValue={setValue} watch={watch}/>
-      </div>
+          <TableCheckDetail edit={edit} data={data} control={control} setValue={setValue} watch={watch} />
+        </div>
       </div>
     </>
   );

@@ -7,6 +7,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import { useCookies } from "react-cookie";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 
 export interface IGeneralFormProps {
   data: any;
@@ -58,6 +59,20 @@ export default function GeneralForm({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
+                  Warehouse<span className="text-red-500">*</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <WarehouseAutoComplete
+                  Branch={parseInt(BPL)}
+                  value={data?.U_tl_whs}
+                  onChange={(e) => handlerChange("U_tl_whs", e)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
                   Pump Code <span className="text-red-500">*</span>
                 </label>
               </div>
@@ -66,26 +81,22 @@ export default function GeneralForm({
                   size="small"
                   value={data?.PumpCode}
                   placeholder="Pump  Code"
-                  onChange={(e) =>
-                    handlerChange("PumpCode", e.target.value)
-                  }
+                  onChange={(e) => handlerChange("PumpCode", e.target.value)}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Pump Name <span className="text-red-500">*</span>
+                  Pump Description <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   size="small"
                   value={data?.PumpName}
-                  placeholder="Pump Name"
-                  onChange={(e) =>
-                    handlerChange("PumpName", e.target.value)
-                  }
+                  placeholder="Pump Description"
+                  onChange={(e) => handlerChange("PumpName", e.target.value)}
                 />
               </div>
             </div>
@@ -100,28 +111,32 @@ export default function GeneralForm({
                   size="small"
                   type="number"
                   value={data?.NumOfPump}
-                  placeholder="Number of Pump"
+                  placeholder="No. of Nozzle"
                   onChange={(e) => {
+                    let no_pump:string = parseInt(e.target.value || '0'); 
+                    if(no_pump >= 10 ) no_pump = "10";
+                    if(no_pump <= 0 ) no_pump = "";
                     const PumpData = [];
                     for (
                       let index = 0;
-                      index < parseInt(e.target.value ?? 0);
+                      index < parseInt(no_pump);
                       index++
                     ) {
-                      const formattedIndex = `${(index + 1)}`.padStart(3, '0');
+                      const formattedIndex = `${index + 1}`.padStart(3, "0");
                       PumpData.push({
-                        pumpCode: `${data?.PumpCode || ""} - ${formattedIndex}`,
+                        pumpCode: `${data?.PumpCode || ""} - N${formattedIndex}`,
                         itemCode: "",
                         itemName: "",
                         uom: "",
                         registerMeeting: "",
                         updateMetering: "",
                         status: "New",
+                        binCode: "",
                       });
                     }
                     handlerChangeObject({
                       PumpData,
-                      NumOfPump: e.target.value,
+                      NumOfPump: no_pump,
                     });
                   }}
                 />
@@ -181,7 +196,7 @@ export default function GeneralForm({
               <div className="col-span-3">
                 <MUISelect
                   items={[
-                    { id: "Oil", name: "Oil" },
+                    { id: "Oil", name: "Fuel" },
                     // { id: "Lube", name: "Lube" },
                     { id: "LPG", name: "LPG" },
                   ]}
@@ -205,8 +220,7 @@ export default function GeneralForm({
                 <MUISelect
                   items={[
                     { id: "New", name: "New" },
-                    { id: "Initialized", name: "Initialized" },
-                    { id: "OutOfOrder", name: "Out Of Order" },
+                    { id: "Active", name: "Active" },
                     { id: "Inactive", name: "Inactive" },
                   ]}
                   onChange={(e) => handlerChange("Status", e.target.value)}

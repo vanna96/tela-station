@@ -1,71 +1,90 @@
-import React, { FC, Fragment, useState, useMemo, useCallback } from "react"
-import { useQuery } from "react-query"
-import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository"
-import { ThemeContext } from "@/contexts"
-import { IconButton, OutlinedInput } from "@mui/material"
-import { HiSearch, HiX } from "react-icons/hi"
-import { Transition, Dialog } from "@headlessui/react"
-import shortid from "shortid"
-import BusinessPartner from "@/models/BusinessParter"
-import MUITextField, { MUITextFieldProps } from "@/components/input/MUITextField"
-import MaterialReactTable from "material-react-table"
-import request from "@/utilies/request"
+import React, { FC, Fragment, useState, useMemo, useCallback } from "react";
+import { useQuery } from "react-query";
+import BusinessPartnerRepository from "@/services/actions/bussinessPartnerRepository";
+import { ThemeContext } from "@/contexts";
+import { IconButton, OutlinedInput } from "@mui/material";
+import { HiSearch, HiX } from "react-icons/hi";
+import { Transition, Dialog } from "@headlessui/react";
+import shortid from "shortid";
+import BusinessPartner from "@/models/BusinessParter";
+import MUITextField, {
+  MUITextFieldProps,
+} from "@/components/input/MUITextField";
+import MaterialReactTable from "material-react-table";
+import request from "@/utilies/request";
 
-export type VendorModalType = "supplier" | "customer" | null
+export type VendorModalType = "supplier" | "customer" | null;
 
 interface VendorModalProps {
-  open: boolean
-  onClose: () => void
-  onOk: (vendor: BusinessPartner) => void
-  type: VendorModalType
-  branchId: any
+  open: boolean;
+  onClose: () => void;
+  onOk: (vendor: BusinessPartner) => void;
+  type: VendorModalType;
+  branchId: any;
 }
 
-const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type, branchId }) => {
-  const { theme } = React.useContext(ThemeContext)
-  const [globalFilter, setGlobalFilter] = useState("")
-  const [filterKey, setFilterKey] = useState("key-id")
-  const [rowSelection, setRowSelection] = useState({})
+const VendorModal: FC<VendorModalProps> = ({
+  open,
+  onClose,
+  onOk,
+  type,
+  branchId,
+}) => {
+  const { theme } = React.useContext(ThemeContext);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [filterKey, setFilterKey] = useState("key-id");
+  const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
-  })
+  });
 
   const { data: count }: any = useQuery({
     queryKey: ["venders_Total", branchId],
     queryFn: async () => {
-      const response: any = await request("GET", `/sml.svc/TL_BP_BRANCH_QUERY/$count?$filter=BPLId eq ${branchId} and DisabledBP eq 'N' and CardType eq 'C'`)
+      const response: any = await request(
+        "GET",
+        `/sml.svc/TL_BP_BRANCH_QUERY/$count?$filter=BPLId eq ${branchId} and DisabledBP eq 'N' and CardType eq 'C'`
+      )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
-          throw new Error(e.message)
-        })
-      return response
+          throw new Error(e.message);
+        });
+      return response;
     },
-  })
+  });
 
-  const { data:items, isLoading, isFetching }: any = useQuery({
+  const {
+    data: items,
+    isLoading,
+    isFetching,
+  }: any = useQuery({
     queryKey: [
       "venders_" + type,
       pagination.pageIndex,
       pagination.pageSize,
       globalFilter,
-      branchId
+      branchId,
     ],
     queryFn: async () => {
-      let condition = ""
+      let condition = "";
       if (globalFilter) {
-        condition = `and (contains(CardName , '${globalFilter}') or contains(CardCode, '${globalFilter}'))`
+        condition = `and (contains(CardName , '${globalFilter}') or contains(CardCode, '${globalFilter}'))`;
       }
 
-      const response: any = await request("GET", `/sml.svc/TL_BP_BRANCH_QUERY?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize}&$filter=BPLId eq ${branchId} and DisabledBP eq 'N' and CardType eq 'C' ${condition}`)
+      const response: any = await request(
+        "GET",
+        `/sml.svc/TL_BP_BRANCH_QUERY?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize}&$filter=BPLId eq ${branchId} and DisabledBP eq 'N' and CardType eq 'C' ${condition}`
+      )
         .then(async (res: any) => res?.data?.value)
         .catch((e: Error) => {
-          throw new Error(e.message)
-        })
-      return response
+          throw new Error(e.message);
+        });
+      return response;
     },
     keepPreviousData: true,
-  })
+    refetchOnWindowFocus: false,
+  });
 
   const columns = useMemo(
     () => [
@@ -100,15 +119,15 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type, branchId
       },
     ],
     []
-  )
+  );
 
-  const handlerSearch = (event: any) => setGlobalFilter(event.target.value)
+  const handlerSearch = (event: any) => setGlobalFilter(event.target.value);
 
   const clearFilter = useCallback(() => {
-    if (globalFilter === "") return
-    setGlobalFilter("")
-    setFilterKey(shortid.generate())
-  }, [globalFilter])
+    if (globalFilter === "") return;
+    setGlobalFilter("");
+    setFilterKey(shortid.generate());
+  }, [globalFilter]);
 
   return (
     <Transition appear show={open || false} as={Fragment}>
@@ -191,11 +210,17 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type, branchId
                         showLastButton: false,
                       }}
                       muiTableBodyRowProps={({ row }) => ({
-                        onClick: async () => await request("GET", `/BusinessPartners('${row.original.CardCode}')`)
-                        .then(async (res: any) => onOk(new BusinessPartner(res?.data, 0)))
-                        .catch((e: Error) => {
-                          throw new Error(e.message)
-                        }),
+                        onClick: async () =>
+                          await request(
+                            "GET",
+                            `/BusinessPartners('${row.original.CardCode}')`
+                          )
+                            .then(async (res: any) =>
+                              onOk(new BusinessPartner(res?.data, 0))
+                            )
+                            .catch((e: Error) => {
+                              throw new Error(e.message);
+                            }),
                         sx: { cursor: "pointer" },
                       })}
                       state={{
@@ -216,25 +241,25 @@ const VendorModal: FC<VendorModalProps> = ({ open, onClose, onOk, type, branchId
         </div>
       </Dialog>
     </Transition>
-  )
-}
+  );
+};
 
 interface VendorTextFieldProps extends MUITextFieldProps {
-  vtype: VendorModalType
-  branchId: any
+  vtype: VendorModalType;
+  branchId: any;
 }
 
 export const VendorTextField: FC<VendorTextFieldProps> = (
   props: VendorTextFieldProps
 ) => {
-  const [open, setOpen] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false);
 
   const handlerConfirm = (vendor: any) => {
-    if (!props.onChange) return
-    props.onChange(vendor)
-  }
+    if (!props.onChange) return;
+    props.onChange(vendor);
+  };
 
-  const onClose = () => setOpen(false)
+  const onClose = () => setOpen(false);
 
   return (
     <>
@@ -247,5 +272,5 @@ export const VendorTextField: FC<VendorTextFieldProps> = (
       />
       <MUITextField {...props} endAdornment onClick={() => setOpen(true)} />
     </>
-  )
-}
+  );
+};

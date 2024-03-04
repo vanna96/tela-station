@@ -54,13 +54,14 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus: false,
   });
 
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "EmployeeID",
-        header: "No", //uses the default width from defaultColumn prop
+        header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -84,7 +85,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original?.U_tl_name ?? "N/A";
+          return cell.row.original?.U_tl_name;
         },
       },
       {
@@ -96,7 +97,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.Gender?.replace("gt_", "") ?? "N/A";
+          return cell.row.original.Gender?.replace("gt_", "") ;
         },
       },
       {
@@ -110,7 +111,7 @@ export default function Lists() {
         Cell: (cell: any) => {
           return (
             new DepartmentRepository().find(cell.row.original.Department)
-              ?.Name ?? "N/A"
+              ?.Name
           );
         },
       },
@@ -126,7 +127,7 @@ export default function Lists() {
           return (
             branchAss?.data?.find(
               (e: any) => e?.BPLID === cell.row.original.BPLID
-            )?.BPLName ?? "N/A"
+            )?.BPLName 
           );
         },
       },
@@ -214,6 +215,7 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus:false
   });
 
   const handlerRefresh = React.useCallback(() => {

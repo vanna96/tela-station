@@ -1,38 +1,19 @@
 import { withRouter } from "@/routes/withRouter";
 import { Component } from "react";
 import { useMemo } from "react";
-import {
-  arrayBufferToBlob,
-  currencyDetailFormat,
-  currencyFormat,
-  dateFormat,
-} from "@/utilies";
-import PreviewAttachment from "@/components/attachment/PreviewAttachment";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import DocumentHeader from "@/components/DocumenHeader";
-import PaymentTermTypeRepository from "../../../../services/actions/paymentTermTypeRepository";
-import ShippingTypeRepository from "@/services/actions/shippingTypeRepository";
-import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
-import shortid from "shortid";
 import request from "@/utilies/request";
-import BusinessPartner from "@/models/BusinessParter";
-import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
-import { Breadcrumb } from "../../components/Breadcrumn";
-import { useNavigate } from "react-router-dom";
-import { Checkbox, CircularProgress, darken } from "@mui/material";
-import WarehouseRepository from "@/services/warehouseRepository";
-import Attachment from "@/models/Attachment";
-import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-import { NumericFormat } from "react-number-format";
-import DocumentHeaderDetails from "@/components/DocumentHeaderDetails";
-import ContentComponent from "../../morph_price/components/ContentComponents";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import MUITextField from "@/components/input/MUITextField";
+import WarehouseRepository from "@/services/warehouseRepository";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import { useQuery } from "react-query";
+import BinlocationRepository from "@/services/actions/BinlocationRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -63,9 +44,38 @@ class DeliveryDetail extends Component<any, any> {
 
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
+      const bins = await request("GET", `BinLocations?$select=BinCode,AbsEntry`).then((e:any) => e.data?.value);
       await request("GET", `TL_Dispenser('${id}')`)
         .then(async (res: any) => {
           const data: any = res?.data;
+          const pumpData: any = await Promise.all(
+            (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+              let uom;
+              if(e?.U_tl_uom) uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);
+
+              let item: any = {
+                pumpCode: e?.U_tl_pumpcode,
+                itemCode: e?.U_tl_itemnum || "N/A",
+                UomAbsEntry: e?.U_tl_uom || "N/A",
+                uom: uom?.Name || "N/A",
+                registerMeeting: e?.U_tl_reg_meter,
+                updateMetering: e?.U_tl_upd_meter,
+                status: e?.U_tl_status,
+                LineId: e?.LineId,
+                binCode: bins?.find((bin:any) => bin.AbsEntry?.toString() === e?.U_tl_bincode?.toString())?.BinCode ?? "N/A",
+              };
+
+              if (e?.U_tl_itemnum) {
+                const itemResponse: any = await request(
+                  "GET",
+                  `Items('${e?.U_tl_itemnum}')?$select=ItemName`
+                ).then((res: any) => res?.data);
+                item.ItemDescription = itemResponse?.ItemName || "N/A";
+              }
+              return item;
+            })
+          )
+
           state = {
             PumpCode: data?.Code,
             PumpName: data?.Name,
@@ -73,30 +83,11 @@ class DeliveryDetail extends Component<any, any> {
             SalesPersonCode: data?.U_tl_empid,
             lineofBusiness: data?.U_tl_type,
             Status: data?.U_tl_status,
-            U_tl_attend1 : data?.U_tl_attend1,
+            U_tl_attend1: data?.U_tl_attend1,
             U_tl_attend2: data?.U_tl_attend2,
             U_tl_bplid: data?.U_tl_bplid,
-            PumpData: await Promise.all(
-              (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
-                const uom = new UnitOfMeasurementRepository().find(e?.U_tl_uom);                                
-                let item: any = {
-                  pumpCode: e?.U_tl_pumpcode,
-                  itemCode: e?.U_tl_itemnum,
-                  UomAbsEntry: e?.U_tl_uom,
-                  uom: uom?.Name,
-                  registerMeeting: e?.U_tl_reg_meter,
-                  updateMetering: e?.U_tl_upd_meter,
-                  status: e?.U_tl_status,
-                  LineId: e?.LineId,
-                };
-                
-                if (e?.U_tl_itemnum) {
-                  const itemResponse: any = await request('GET', `Items('${e?.U_tl_itemnum}')?$select=ItemName`).then((res:any) => res?.data);
-                  item.ItemDescription = itemResponse?.ItemName;
-                }
-                return item;
-              })
-            ),
+            U_tl_whs: data?.U_tl_whs,
+            PumpData: pumpData,
             Edit: true,
           };
         })
@@ -110,11 +101,6 @@ class DeliveryDetail extends Component<any, any> {
       this.setState({ ...data, loading: false });
     }
   }
-
-  navigateToSalesOrder = () => {
-    const { history } = this.props;
-    history.push("/sale/sales-order");
-  };
 
   onTap(index: number) {
     this.setState({ ...this.state, tapIndex: index });
@@ -180,8 +166,7 @@ class DeliveryDetail extends Component<any, any> {
 
 export default withRouter(DeliveryDetail);
 
-function General(props: any) { 
-  
+function General(props: any) {
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -191,12 +176,28 @@ function General(props: any) {
       <div className="py-4 px-8">
         <div className="grid grid-cols-12 ">
           <div className="col-span-5">
-          <div className="grid grid-cols-2 py-2">
+            <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700 ">Branch</div>
               <div className="col-span-1 text-gray-900">
                 <MUITextField
-                  value={ new BranchBPLRepository().find(props?.data?.U_tl_bplid)?.BPLName }
+                  value={
+                    new BranchBPLRepository().find(props?.data?.U_tl_bplid)
+                      ?.BPLName
+                  }
                   placeholder="Pump Name"
+                  disabled={true}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700 ">Warehouse </div>
+              <div className="col-span-1 text-gray-900">
+                <MUITextField
+                  value={
+                    new WarehouseRepository().find(props?.data?.U_tl_whs)
+                      ?.WarehouseName
+                  }
+                  placeholder="Warehouse"
                   disabled={true}
                 />
               </div>
@@ -205,17 +206,17 @@ function General(props: any) {
               <div className="col-span-1 text-gray-700 ">Pump Code</div>
               <div className="col-span-1 text-gray-900">
                 <MUITextField
-                  value={ props?.data?.PumpCode ?? "N/A" }
+                  value={props?.data?.PumpCode ?? "N/A"}
                   placeholder="Pump Name"
                   disabled={true}
                 />
               </div>
             </div>
             <div className="grid grid-cols-2 py-2">
-              <div className="col-span-1 text-gray-700 ">Pump Name</div>
+              <div className="col-span-1 text-gray-700 ">Pump Description</div>
               <div className="col-span-1 text-gray-900">
                 <MUITextField
-                  value={ props?.data?.PumpName ?? "N/A" }
+                  value={props?.data?.PumpName ?? "N/A"}
                   placeholder="Pump Name"
                   disabled={true}
                 />
@@ -240,7 +241,7 @@ function General(props: any) {
               <div className="col-span-1 text-gray-700">Type</div>
               <div className="col-span-1  text-gray-900">
                 <MUITextField
-                  value={props.data?.lineofBusiness}
+                  value={props.data?.lineofBusiness === "Oil" ? "Fuel":props.data?.lineofBusiness}
                   placeholder="Pump Name"
                   disabled={true}
                 />
@@ -265,8 +266,6 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  console.log(data?.PumpData);
-  
   const itemColumn: any = useMemo(
     () => [
       {
@@ -274,8 +273,13 @@ function Content(props: any) {
         header: "Nozzle Code",
       },
       {
+        accessorKey: "binCode",
+        header: "Bin Location",
+      },
+
+      {
         accessorKey: "itemCode",
-        header: "Item Code", //uses the default width from defaultColumn prop
+        header: "Item Code",
         visible: true,
         size: 120,
       },
@@ -297,7 +301,7 @@ function Content(props: any) {
       },
       {
         accessorKey: "status",
-        header: "Status"
+        header: "Status",
       },
     ],
     [data]

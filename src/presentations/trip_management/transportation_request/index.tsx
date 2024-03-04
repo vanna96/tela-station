@@ -48,13 +48,15 @@ const branchAss: any = useQuery({
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "DocNum",
+        accessorKey: "Index",
         header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        type: "string",
+        Cell: (cell: any) => {
+          return cell?.row?.index + 1;
+        },
       },
       {
         accessorKey: "DocNum",
@@ -65,7 +67,7 @@ const branchAss: any = useQuery({
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.DocNum ?? "N/A";
+          return cell.row.original.DocNum;
         },
       },
 
@@ -78,14 +80,12 @@ const branchAss: any = useQuery({
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return (
-            branchAss?.data?.find(
-              (e: any) => e?.BPLID === cell.row.original.U_Branch
-            )?.BPLName ?? "N/A"
-          );
+          return branchAss?.data?.find(
+            (e: any) => e?.BPLID === cell.row.original.U_Branch
+          )?.BPLName;
         },
       },
-      
+
       {
         accessorKey: "U_Terminal",
         header: "Terminal",
@@ -93,7 +93,7 @@ const branchAss: any = useQuery({
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return cell.row.original.U_Terminal ?? "N/A";
+          return cell.row.original.U_Terminal;
         },
       },
       {
@@ -108,15 +108,13 @@ const branchAss: any = useQuery({
           const requester = emp?.data?.find(
             (e: any) => e?.EmployeeID === cell.row.original.U_Requester
           );
-      
-          const fullName = requester
-            ? `${requester.FirstName} ${requester.LastName}`
-            : "N/A";
-      
+
+          const fullName = requester ? `${requester.U_tl_name}` : "-";
+
           return fullName;
         },
       },
-      
+
       {
         accessorKey: "U_RequestDate",
         header: "Request Date",
@@ -132,13 +130,10 @@ const branchAss: any = useQuery({
       {
         accessorKey: "Status",
         header: "Status",
-        size: 40,
+        size: 60,
         visible: true,
-        Cell: (cell: any) => {
-          return cell.row.original.Status === "O"
-            ? "Active"
-            : "Inactive" ?? "N/A";
-        },
+        type: "string",
+        Cell: ({ cell }: any) => (cell.getValue() === "O" ? "Open" : "Close"),
       },
       {
         accessorKey: "DocEntry",
@@ -157,10 +152,14 @@ const branchAss: any = useQuery({
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route("/trip-management/transportation-request/" + cell.row.original.DocEntry, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  "/trip-management/transportation-request/" +
+                    cell.row.original.DocEntry,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />
@@ -169,10 +168,13 @@ const branchAss: any = useQuery({
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(`/trip-management/transportation-request/${cell.row.original.DocEntry}/edit`, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                route(
+                  `/trip-management/transportation-request/${cell.row.original.DocEntry}/edit`,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <DriveFileRenameOutlineIcon
@@ -186,8 +188,6 @@ const branchAss: any = useQuery({
       },
     ],
     []
-    
-    
   );
   
 
@@ -238,6 +238,7 @@ const branchAss: any = useQuery({
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus: false,
   });
 
   const handlerRefresh = React.useCallback(() => {

@@ -28,8 +28,8 @@ const VehicleAutoComplete = forwardRef<
         });
       return response;
     },
-    cacheTime: 0,
     staleTime: 0,
+    cacheTime:0
   });
 
   useEffect(() => {

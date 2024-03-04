@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
+  UseFormGetValues,
   UseFormRegister,
   UseFormSetValue,
+  UseFormWatch,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
@@ -22,21 +24,27 @@ import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import CustomToast from "@/components/modal/CustomToast";
+
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?:
-    | Readonly<{
-        [x: string]: any;
-      }>
-    | undefined;
+  | Readonly<{
+    [x: string]: any;
+  }>
+  | undefined;
   setBranchAss?: any;
   branchAss?: any;
   header?: any;
   setHeader?: any;
   detail?: boolean;
+  watch: UseFormWatch<FieldValues>;
+  getValues: UseFormGetValues<FieldValues>
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -47,6 +55,7 @@ const Form = (props: any) => {
     control,
     reset,
     getValues,
+    watch,
     formState: { errors, defaultValues },
   } = useForm();
   const { id }: any = props?.match?.params || 0;
@@ -89,8 +98,8 @@ const Form = (props: any) => {
           setState({
             ...state,
             loading: false,
-            DocNum:res?.data?.FirstName + ' ' +res?.data?.LastName
-          });          
+            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
+          });
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -101,11 +110,10 @@ const Form = (props: any) => {
   const onSubmit = async (e: any) => {
     const data: any = Object.fromEntries(
       Object.entries(e).filter(
-        ([key, value]): any =>
-          value !== null && value !== undefined
+        ([key, value]): any => value !== null && value !== undefined
       )
     );
-      const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
+    const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
     const payload = {
       ...data,
       U_tl_driver: "Y",
@@ -122,23 +130,21 @@ const Form = (props: any) => {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
         await request("PATCH", `/EmployeesInfo(${id})`, payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Update Successfully.",
-                res?.data?.EmployeeID
-              )
+          .then((res: any) =>
+            dialog.current?.success(
+              "Update Successfully.",
+              res?.data?.EmployeeID
+            )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
         await request("POST", "/EmployeesInfo", payload)
-          .then(
-            (res: any) =>
-              dialog.current?.success(
-                "Create Successfully.",
-                res?.data?.EmployeeID
-              )
+          .then((res: any) =>
+            dialog.current?.success(
+              "Create Successfully.",
+              res?.data?.EmployeeID
+            )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
@@ -159,38 +165,56 @@ const Form = (props: any) => {
     },
     [state]
   );
+  const isNextTap = (tapIndex: number) => {
+
+    if (!getValues("FirstName") || getValues("FirstName") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("LastName") || getValues("LastName") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("EmployeeCode") || getValues("EmployeeCode") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("BPLID") || getValues("BPLID") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("U_tl_terminal") || getValues("U_tl_terminal") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("StartDate") || getValues("StartDate") === "") {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues("Position") || getValues("Position") === "") {
+      toastRef.current?.open();
+      return
+    };
+
+    handlerChangeMenu(tapIndex);
+  };
 
   const HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={state.tapIndex === 0}
-          onClick={() => handlerChangeMenu(0)}
-        >
+        <MenuButton active={state.tapIndex === 0} onClick={() => isNextTap(0)}>
           General
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 1}
-          onClick={() => handlerChangeMenu(1)}
-        >
+        <MenuButton active={state.tapIndex === 1} onClick={() => isNextTap(1)}>
           Address
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 2}
-          onClick={() => handlerChangeMenu(2)}
-        >
+        <MenuButton active={state.tapIndex === 2} onClick={() => isNextTap(2)}>
           Personal
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 3}
-          onClick={() => handlerChangeMenu(3)}
-        >
+        <MenuButton active={state.tapIndex === 3} onClick={() => isNextTap(3)}>
           Finance
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 4}
-          onClick={() => handlerChangeMenu(4)}
-        >
+        <MenuButton active={state.tapIndex === 4} onClick={() => isNextTap(4)}>
           Remarks
         </MenuButton>
 
@@ -275,14 +299,15 @@ const Form = (props: any) => {
   };
 
   const onInvalidForm = (invalids: any) => {
-      dialog.current?.error(
-        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-          "Oop something wrong!",
-        "Invalid Value"
-      );
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+      "Oop something wrong!",
+      "Invalid Value"
+    );
   };
   return (
     <>
+      <CustomToast ref={toastRef} />
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
@@ -319,7 +344,7 @@ const Form = (props: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <h1>
+              <div className="grow">
                 <General
                   register={register}
                   setValue={setValue}
@@ -329,16 +354,23 @@ const Form = (props: any) => {
                   branchAss={branchAss}
                   header={header}
                   setHeader={setHeader}
+                  watch={watch}
+                  getValues={getValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 1 && (
-              <h1>
-                <Address setValue={setValue} register={register} />
-              </h1>
+              <div className="grow">
+                <Address
+                  setValue={setValue}
+                  register={register}
+                  watch={watch}
+                  getValues={getValues}
+                />
+              </div>
             )}
             {state.tapIndex === 2 && (
-              <h1>
+              <div className="grow">
                 <Personal
                   register={register}
                   setValue={setValue}
@@ -346,26 +378,35 @@ const Form = (props: any) => {
                   defaultValues={defaultValues}
                   header={header}
                   setHeader={setHeader}
+                  watch={watch}
+                  getValues={getValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 3 && (
-              <h1>
+              <div className="grow">
                 <Finance
                   register={register}
                   setValue={setValue}
                   control={control}
                   defaultValues={defaultValues}
+                  watch={watch}
+                  getValues={getValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 4 && (
-              <h1>
-                <Remarks setValue={setValue} register={register} />
-              </h1>
+              <div className="grow">
+                <Remarks
+                  setValue={setValue}
+                  register={register}
+                  watch={watch}
+                  getValues={getValues}
+                />
+              </div>
             )}
             {/* ... Other form fields ... */}
-            <div className="absolute w-full bottom-4  mt-2 ">
+            <div className="sticky bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex">
                   <LoadingButton

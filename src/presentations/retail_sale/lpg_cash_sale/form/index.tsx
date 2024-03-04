@@ -258,9 +258,8 @@ class SalesOrderForm extends CoreFormDocument {
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -345,10 +344,16 @@ class SalesOrderForm extends CoreFormDocument {
           <MenuButton active={this.state.tapIndex === 0}>
             <span className="flex">Basic Information</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>Pump Sale</MenuButton>
-          <MenuButton active={this.state.tapIndex === 2}>Unit Sale</MenuButton>
-          <MenuButton active={this.state.tapIndex === 3}>
+          <MenuButton active={this.state.tapIndex === 1}>
+            <span>Consumption</span>
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 2}>Pump Sale</MenuButton>
+          <MenuButton active={this.state.tapIndex === 3}>Unit Sale</MenuButton>
+          <MenuButton active={this.state.tapIndex === 4}>
             <span> Incoming Payment</span>
+          </MenuButton>
+          <MenuButton active={this.state.tapIndex === 5}>
+            <span> Error Log</span>
           </MenuButton>
         </div>
         <div className="sticky w-full bottom-4   ">
@@ -449,6 +454,9 @@ class SalesOrderForm extends CoreFormDocument {
                       data={this.state}
                       handlerChange={this.handlerChange}
                       edit={this.props?.edit}
+                      handlerChangeObject={(value) =>
+                        this.handlerChangeObject(value)
+                      }
                     />
                   )}
 
@@ -469,6 +477,15 @@ class SalesOrderForm extends CoreFormDocument {
 
                   {this.state.tapIndex === 3 && (
                     <IncomingPaymentForm
+                      data={this.state}
+                      edit={this.props?.edit}
+                      handlerChange={(key, value) => {
+                        this.handlerChange(key, value);
+                      }}
+                    />
+                  )}
+                    {this.state.tapIndex === 4 && (
+                    <ErrorLogForm
                       data={this.state}
                       edit={this.props?.edit}
                       handlerChange={(key, value) => {

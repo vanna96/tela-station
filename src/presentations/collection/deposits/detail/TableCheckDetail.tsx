@@ -7,7 +7,8 @@ export default function TableCheckDetail({
   setValue,
   commer,
   watch,
-  data
+  data,
+  edit
 }: any) {
 
   const selectedValues: any[] = useMemo(() => {
@@ -15,7 +16,7 @@ export default function TableCheckDetail({
 
     return watch("CheckLines");
   }, [watch("CheckLines")]);
-// console.log(selectedValues);
+  // console.log(selectedValues);
 
   const onSelectChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -33,23 +34,23 @@ export default function TableCheckDetail({
     const values = [...selectedValues];
     values.splice(index, 1);
     setValue("CheckLines", values);
-    
+
   };
 
 
-  const getTotolCheck = useMemo(() =>  selectedValues?.length ??0 ,[selectedValues]);
+  const getTotolCheck = useMemo(() => selectedValues?.length ?? 0, [selectedValues]);
 
-  const getTotalAmount = useMemo(() =>  selectedValues?.reduce((p, c) => p + Number(c.CheckAmount), 0),[selectedValues]);
+  const getTotalAmount = useMemo(() => selectedValues?.reduce((p, c) => p + Number(c.CheckAmount), 0), [selectedValues]);
 
   return (
     <>
-      <div className="rounded-lg shadow-sm border p-6 mt-[2rem] overflow-x-auto">
+      <div className="max-h-[40vh]  2xl:max-h-[35vh] rounded-lg shadow-sm  mt-[2rem] overflow-x-auto">
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
-            <tr className="border-[1px] border-[#dadde0] text-black">
+            <tr className="border-[1px] border-gray-200 text-black sticky top-0 bg-gray-100 shadow-sm drop-shadow-sm z-10">
               <th className="w-[5rem]">
                 <span className="">
-                  <Checkbox size="small" />
+                  {/* <Checkbox size="small" /> */}
                 </span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] ">
@@ -81,25 +82,25 @@ export default function TableCheckDetail({
             <tbody>
               {data?.map((e: any, index: number) => (
                 <tr>
-                  <td>
-                    <Checkbox
+                  <td className="p-2 border-b">
+                    {edit && <Checkbox
+                      disabled={true}
                       checked={selectedValues?.find(
                         (val) => val.CheckKey === e.CheckKey
                       )}
                       onChange={(event) => onSelectChange(event, e)}
-                      disabled={true}
-                    />
+                    />}
                   </td>
-                  <td>{e.CheckDate}</td>
-                  <td>{e.CashCheck}</td>
-                  <td>{e.CardCode + ' - ' + e.CardName}</td>
-                  <td>{e.CheckAmount}</td>
-                  <td>{e.DocNum}</td>
+                  <td className="p-2 border-b">{e.CheckDate}</td>
+                  <td className="p-2 border-b">{e.CashCheck}</td>
+                  <td className="p-2 border-b">{e.CardCode + ' - ' + e.CardName}</td>
+                  <td className="p-2 border-b">{e.CheckAmount}</td>
+                  <td className="p-2 border-b">{e.DocNum}</td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="text-[0.90rem] border bg-zinc-100 text-gray-600">
+              <tr className="text-[0.90rem] border-gray-200 bg-gray-100  text-gray-600 sticky bottom-0">
                 <td className="py-2 border-r text-right pr-10" colSpan={2}>
                   No. of Checks
                 </td>

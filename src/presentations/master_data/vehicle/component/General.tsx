@@ -1,16 +1,10 @@
 import MUITextField from "@/components/input/MUITextField";
-import PositionSelect from "@/components/selectbox/Position";
-import DepartmentSelect from "@/components/selectbox/Department";
-import ManagerSelect from "@/components/selectbox/Manager";
-import PositionAutoComplete from "@/components/input/PositionAutoComplete";
-import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { UseFormProps } from "../form/VehicleForm";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
-import YearDropdown from "./YearsDropDown";
 import { Checkbox, FormControlLabel } from "@mui/material";
 import { useWatch } from "react-hook-form";
 
@@ -25,6 +19,7 @@ const General = ({
   setHeader,
   detail,
 }: UseFormProps) => {
+  
   const [staticSelect, setStaticSelect] = useState({
     U_Type: "",
     U_Owner: "",
@@ -52,7 +47,7 @@ const General = ({
                   disabled={detail}
                   inputProps={{
                     ...register("Code", {
-                      required: " Vehicle Code is required",
+                      required: "Vehicle Code is required",
                     }),
                     onBlur: (e) =>
                       setHeader({ ...header, code: e.target.value }),
@@ -111,7 +106,8 @@ const General = ({
                             U_Type: e.target.value,
                           });
                         }}
-                        value={staticSelect.U_Type || defaultValues?.U_Type}
+                        value={field.value}
+                        // value={staticSelect.U_Type || defaultValues?.U_Type}
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -173,7 +169,9 @@ const General = ({
                       <ManagerAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_Driver}
+                        // value={defaultValues?.U_Driver}
+
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_Driver", e?.EmployeeID);
                         }}
@@ -213,9 +211,10 @@ const General = ({
                             U_FuelType: e.target.value,
                           });
                         }}
-                        value={
-                          staticSelect.U_FuelType || defaultValues?.U_FuelType
-                        }
+                        value={field.value}
+                        // value={
+                        //   staticSelect.U_FuelType || defaultValues?.U_FuelType
+                        // }
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -242,7 +241,8 @@ const General = ({
                       <BaseStationAutoComplete
                         disabled={detail}
                         {...field}
-                        value={defaultValues?.U_BaseStation}
+                        // value={defaultValues?.U_BaseStation}
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_BaseStation", e);
                           setHeader({ ...header, base: e });
@@ -304,7 +304,7 @@ const General = ({
                             U_Owner: e.target.value,
                           });
                         }}
-                        value={staticSelect.U_Owner || defaultValues?.U_Owner}
+                        value={field.value}
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -322,6 +322,7 @@ const General = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  type="number"
                   inputProps={{
                     ...register("U_InitializeOdometer"),
                     onChange: (val) => {
@@ -367,11 +368,12 @@ const General = ({
                           });
                           setHeader({ ...header, status: e?.target?.value });
                         }}
-                        value={
-                          staticSelect.U_Status ||
-                          defaultValues?.U_Status ||
-                          "Active"
-                        }
+                        value={field.value}
+                        // value={
+                        //   staticSelect.U_Status ||
+                        //   defaultValues?.U_Status ||
+                        //   "Active"
+                        // }
                         aliasvalue="value"
                         aliaslabel="label"
                       />

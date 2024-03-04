@@ -6,6 +6,7 @@ import CurrencyRepository from "@/services/actions/currencyRepository";
 interface CurrencyProps<T = unknown> {
     name?: string,
     defaultValue?: any,
+    disabled?:any;
     value?: any,
     onChange?: SelectInputProps<T>['onChange'],
 }
@@ -21,6 +22,7 @@ function CurrencySelect(props: CurrencyProps) {
         aliasvalue="Code"
         loading={isLoading}
         items={data}
+        disabled={props.disabled}
     />
 }
 

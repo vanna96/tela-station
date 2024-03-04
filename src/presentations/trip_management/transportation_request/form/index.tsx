@@ -361,7 +361,7 @@ const onInvalidForm = (invalids: any) => {
             onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
-              <h1>
+              <div className="grow">
                 <General
                   data={state}
                   register={register}
@@ -374,13 +374,13 @@ const onInvalidForm = (invalids: any) => {
                   header={header}
                   setHeader={setHeader}
                   serie={serie}
-                    watch={watch}
-                    getValues={getValues}
+                  watch={watch}
+                  getValues={getValues}
                 />
-              </h1>
+              </div>
             )}
             {state.tapIndex === 1 && (
-              <div className="m-5">
+              <div className="grow pt-3">
                 <Document
                   register={register}
                   collection={collection}
@@ -397,7 +397,7 @@ const onInvalidForm = (invalids: any) => {
                 />
               </div>
             )}
-            <div className="absolute w-full bottom-4  mt-2 ">
+            <div className="sticky bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                 <div className="flex ">
                   <LoadingButton

@@ -22,6 +22,7 @@ interface DataTableProps {
   paginationChange: (value: any) => void;
   title?: string;
   filter?: any;
+  enableRowNumbers?: boolean,
 }
 
 export default function DataTable(props: DataTableProps) {
@@ -74,7 +75,7 @@ export default function DataTable(props: DataTableProps) {
 
   const convertToCSV = (data: any[]) => {
     // Specify the desired field names
-    const fields = ["Code", "Name", "U_BaseStation", "U_Destination","U_Distance", "U_Status"];
+    const fields = ["Code", "Name", "U_BaseStation", "U_Destination", "U_Distance", "U_Status"];
 
     // Map the data to the desired field names
     const mappedData = data.map((row) => ({
@@ -191,7 +192,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
-          enableRowNumbers={true}
+          enableRowNumbers={props?.enableRowNumbers ?? true}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

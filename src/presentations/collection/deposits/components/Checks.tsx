@@ -7,9 +7,22 @@ import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import { FormControlLabel, Radio } from "@mui/material";
+import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 import TableCheck from "./TableChecks";
 import DepositCheckAutoComplete from "./DepositCheckAutoComplete";
+
+
+const debounce = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+
+  return function (...args: any) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+};
+
 
 const Checks = ({
   register,
@@ -29,7 +42,7 @@ const Checks = ({
     branchASS: null,
   });
 
-  const [depositcheck, setDepositcheck] = useState()
+  const [depositcheck, setDepositcheck] = useState<any>()
 
   useEffect(() => {
     if (defaultValues) {
@@ -38,6 +51,30 @@ const Checks = ({
       );
     }
   }, [defaultValues]);
+
+
+  const onSwitchValue = (event: any, value: string) => {
+    if (value === 'posted_check') {
+      setDepositcheck('unkown');
+      return;
+    }
+
+
+    setDepositcheck(undefined);
+  }
+
+  const [searchText, setSearchText] = useState('');
+  // Define a debounced version of the handleChange function
+  const debouncedHandleChange = debounce(function (this: any, newValue: string) {
+    // Do something with the debounced value, like updating state
+  }, 500); // Adjust the delay time as needed
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setSearchText(newValue);
+    // Call the debounced function with the new value
+    debouncedHandleChange(newValue);
+  };
 
   return (
     <>
@@ -55,7 +92,7 @@ const Checks = ({
               </div>
               <div className="col-span-3">
                 <DepositCheckAutoComplete
-                  onChange={(e)=> setDepositcheck(e.AccountCode)}
+                  onChange={(e) => setDepositcheck(e.AccountCode)}
                   value={depositcheck}
                 />
               </div>
@@ -69,7 +106,9 @@ const Checks = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  // onChange={()}
                   inputProps={{
+                    onChange: handleChange
                     // ...register("Find"),
                   }}
                 />
@@ -80,55 +119,35 @@ const Checks = ({
           <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-3">
-              <FormControlLabel
+                {/* <FormControlLabel
                   control={
                     <Radio
                       disabled={detail}
-                      checked={
-                        useWatch({
-                          control: control,
-                          name: "CheckDepositType",
-                        }) === "YES"
-                      } // Use checked prop for a controlled Checkbox
-                      onChange={(e) =>
-                        setValue(
-                          "CheckDepositType",
-                          e.target.checked === true ? "cdtCashChecks" : "No"
-                        )
-                      }
+
                     />
                   }
                   label={<span className="text-gray-500">Cash Checks</span>}
-                />
-              </div>
-              <div className="col-span-3 mt-2">
-              <FormControlLabel
-                  control={
-                    <Radio
-                      disabled={detail}
-                      checked={
-                        useWatch({
-                          control: control,
-                          name: "U_UnderMaintenance",
-                        }) === "YES"
-                      } // Use checked prop for a controlled Checkbox
-                      onChange={(e) =>
-                        setValue(
-                          "U_UnderMaintenance",
-                          e.target.checked === true ? "YES" : "No"
-                        )
-                      }
+                /> */}
+                <FormControl className="w-full">
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    defaultValue="female"
+                    name="radio-buttons-group"
+                    style={{ alignSelf: 'flex-start' }}
+                    onChange={onSwitchValue}
+                  >
+                    <FormControlLabel value="check" className="flex justify-start" control={<Radio />} label={<span>Cash Checks</span>}
                     />
-                  }
-                  label={<span className="text-gray-500">Postdated Checks</span>}
-                />
+                    <FormControlLabel value="posted_check" control={<Radio />} label="Postdated Checks" />
+                  </RadioGroup>
+                </FormControl>
               </div>
             </div>
           </div>
         </div>
         <div>
-        <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck}/>
-      </div>
+          <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} searchText={searchText} />
+        </div>
       </div>
     </>
   );

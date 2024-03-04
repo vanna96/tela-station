@@ -64,7 +64,7 @@ const BasicInformationDetail = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
-                  value={nextNumber || defaultValues?.nextNumber}
+                  value={watch('DepositNumber')}
                 />
               </div>
             </div>
@@ -190,7 +190,7 @@ const BasicInformationDetail = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField   
+                <MUITextField
                   disabled={true}
                   value={
                     new GLAccountRepository().find(watch("DepositAccount"))
@@ -224,7 +224,7 @@ const BasicInformationDetail = ({
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
+                              "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
                           setValue("DepositDate", `${val == "" ? "" : val}`);

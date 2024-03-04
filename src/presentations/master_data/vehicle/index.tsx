@@ -30,6 +30,14 @@ export default function Lists() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        size: 20,
+        Cell: (cell: any) => {
+          return cell.row.index + 1
+        },
+      },
+      {
         accessorKey: "Code",
         header: "Vehicle Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
@@ -203,6 +211,7 @@ export default function Lists() {
     },
     cacheTime: 0,
     staleTime: 0,
+    refetchOnWindowFocus: false,
   });
   const handlerSortby = (value: any) => {
     setSortBy(value);

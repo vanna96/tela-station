@@ -21,17 +21,20 @@ import Checks from "../components/Checks";
 import Cash from "../components/Cash";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDepositHook } from "../hook/useDepositHook";
+import CustomToast from "@/components/modal/CustomToast";
 
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?:
-    | Readonly<{
-        [x: string]: any;
-      }>
-    | undefined;
+  | Readonly<{
+    [x: string]: any;
+  }>
+  | undefined;
   setBranchAss?: any;
   branchAss?: any;
   detail?: boolean;
@@ -111,37 +114,6 @@ const DepositForm = (props: any) => {
     }
   };
 
-  // const onSubmit = async (e: any) => {
-  //   const payload: any = {
-  //     ...e,
-  //   };
-  //   try {
-  //     console.log(e);
-
-  //     // return;
-  //     setState({ ...state, isSubmitting: true });
-  //     if (props.edit) {
-  //       await request("PATCH", `/Deposits(${id})`, payload)
-  //         .then((res: any) =>
-  //           dialog.current?.success("Update Successfully.", res?.data?.AbsEntry)
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     } else {
-  //       await request("POST", "/Deposits", payload)
-  //         .then((res: any) =>
-  //           dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
-  //         )
-  //         .catch((err: any) => dialog.current?.error(err.message))
-  //         .finally(() => setState({ ...state, isSubmitting: false }));
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     setState({ ...state, isSubmitting: false });
-  //   }
-  // };
-
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -153,12 +125,22 @@ const DepositForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "")
+    if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "") {
+      toastRef.current?.open()
       return;
-    if (!getValues("BPLID") || getValues("BPLID") === "") return;
-    if (!getValues("DepositAccount") || getValues("DepositAccount") === "")
+    }
+    if (!getValues("BPLID") || getValues("BPLID") === "") {
+      toastRef.current?.open()
       return;
-    if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") return;
+    }
+    if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
+      toastRef.current?.open()
+      return;
+    }
+    if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
+      toastRef.current?.open()
+      return;
+    }
 
     handlerChangeMenu(tapIndex);
   };
@@ -174,8 +156,6 @@ const DepositForm = (props: any) => {
     reset,
     getValues,
   } = useDepositHook({ props, state, setState, id, dialog });
-
-  // console.log(state)
 
   const HeaderTaps = () => {
     return (
@@ -222,6 +202,8 @@ const DepositForm = (props: any) => {
   // };
   return (
     <>
+      <CustomToast ref={toastRef} />
+
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
@@ -263,7 +245,7 @@ const DepositForm = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-               
+
                   serie={serie}
                   watch={watch}
                   getValues={getValues}

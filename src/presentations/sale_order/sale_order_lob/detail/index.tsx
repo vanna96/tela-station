@@ -1,30 +1,28 @@
 import { withRouter } from "@/routes/withRouter";
 import { Component } from "react";
 import { useMemo } from "react";
-import { arrayBufferToBlob, dateFormat } from "@/utilies";
+import { dateFormat } from "@/utilies";
 import DocumentHeader from "@/components/DocumenHeader";
-import ItemGroupRepository from "@/services/actions/itemGroupRepository";
 import MenuButton from "@/components/button/MenuButton";
 import LoadingProgress from "@/components/LoadingProgress";
-import shortid from "shortid";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
-import { fetchSAPFile } from "@/helper/helper";
 import MaterialReactTable from "material-react-table";
 import WarehouseRepository from "@/services/warehouseRepository";
-import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import { NumericFormat } from "react-number-format";
 import MUITextField from "@/components/input/MUITextField";
 import PriceListRepository from "@/services/actions/pricelistRepository";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
-import BinlocationRepository from "@/services/actions/BinlocationRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import { useDocumentTotalHook } from "@/hook";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
-import { useQuery } from "react-query";
 import DistributionRuleRepository from "@/services/actions/distributionRulesRepository";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { motion } from "framer-motion";
+import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
+import React from "react";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -88,15 +86,15 @@ class DeliveryDetail extends Component<any, any> {
                 ItemCode: item.ItemCode || null,
                 ItemName: item.ItemDescription || item.Name || null,
                 Quantity: item.Quantity || null,
-                UnitPrice: item.UnitPrice || item.total,
+                UnitPrice:
+                  item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                 GrossPrice: item.GrossPrice || item.total,
-                GrossTotal: item.GrossTotal,
                 Discount: item.DiscountPercent || 0,
                 VatGroup: item.VatGroup || "",
                 UomGroupCode: item.UoMCode || null,
                 UomEntry: item.UoMEntry || null,
                 Currency: item.Currency,
-                LineTotal: item.LineTotal,
+                LineTotal: item.GrossTotal,
                 VatRate: item.TaxPercentagePerRow,
                 WarehouseCode: item.WarehouseCode,
                 DiscountPercent: item.DiscountPercent,
@@ -190,11 +188,17 @@ class DeliveryDetail extends Component<any, any> {
           ) : (
             <>
               <div className="relative">
-                <div className="grow  px-16 py-4 ">
+                <motion.div
+                  className="grow px-16 py-4"
+                  key={this.state.tapIndex}
+                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
                   {this.state.tapIndex === 0 && <General data={this.state} />}
                   {this.state.tapIndex === 1 && <Content data={this.state} />}
                   {this.state.tapIndex === 2 && <Logistic data={this.state} />}
-                </div>
+                </motion.div>
               </div>
             </>
           )}
@@ -225,8 +229,6 @@ function General(props: any) {
   const seriesNames = filteredSeries?.map((series: any) => series.Name);
 
   const seriesName = seriesNames?.join(", ");
-
-  console.log(props.data);
 
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
@@ -305,101 +307,138 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
-  const [docTotal, docTaxTotal, grossTotal] = useDocumentTotalHook(
+  const [docTotal, docTaxTotal, totalBefore] = useDocumentTotalHook(
     props.data.Items ?? [],
-    props?.data?.DocDiscount,
+    props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
-
+  console.log(props.data.Items);
   const discountAmount = useMemo(() => {
-    const dataDiscount: number = props?.data?.DocDiscount ?? 0;
+    if (totalBefore == null) {
+      return 0;
+    }
+    // Calculate discountAmount
+    const dataDiscount: number = props?.data?.DiscountPercent || 0;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
-    return docTotal * (dataDiscount / 100);
-  }, [props?.data?.DocDiscount, props.data.Items]);
+    const discountedAmount = totalBefore * (dataDiscount / 100);
 
-  let TotalPaymentDue = docTotal - discountAmount + docTaxTotal;
-  if (props.data) {
-    props.data.DocTaxTotal = docTaxTotal;
-    props.data.DocTotalBeforeDiscount = docTotal;
-    props.data.DocDiscountPercent = props.data?.DocDiscount;
-    props.data.DocDiscountPrice = discountAmount;
-    props.data.DocTotal = TotalPaymentDue;
-  }
+    return formatNumberWithoutRounding(discountedAmount, 3);
+  }, [props?.data?.DiscountPercent, props.data.Items, totalBefore]);
+  const discountedDocTaxTotal: number = React.useMemo(() => {
+    if (discountAmount === 0) {
+      return docTaxTotal;
+    } else {
+      return (totalBefore - discountAmount) / 10;
+    }
+  }, [
+    props.data.Items,
+    props.data.DiscountPercent,
+    props.data.ExchangeRate,
+    discountAmount,
+  ]);
+
+  const discountedDocTotal: number = React.useMemo(() => {
+    if (discountAmount === 0) {
+      return docTotal;
+    } else {
+      return (
+        formatNumberWithoutRounding(totalBefore, 3) -
+        formatNumberWithoutRounding(discountAmount, 3) +
+        formatNumberWithoutRounding(discountedDocTaxTotal, 3)
+      );
+    }
+  }, [props.data.Items, props.data.DiscountPercent]);
   const itemColumn: any = useMemo(
     () => [
       {
         accessorKey: "ItemCode",
-        header: "Item NO.", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
-        size: 100,
+        header: "Item Code",
+        size: 220,
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
       },
       {
         accessorKey: "ItemName",
         header: "Item Name",
-        enableClickToCopy: true,
-        size: 100,
+        size: 240,
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
       },
       {
         accessorKey: "Quantity",
-        header: "Quantity",
-        size: 60,
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
-            disabled
-            className="bg-white w-full"
-            decimalScale={props.data.Currency === "USD" ? 4 : 0}
-            fixedDecimalScale
-          />
-        ),
+        header: "Qty",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              disabled
+              value={cell.getValue()}
+              thousandSeparator
+              customInput={MUIRightTextField}
+              decimalScale={data.Currency === "USD" ? 3 : 0}
+              // fixedDecimalScale
+            />
+          );
+        },
       },
+
       {
         accessorKey: "MeasureUnit",
         header: "UoM ",
-        size: 60,
-        Cell: ({ cell }: any) => cell.getValue(),
+
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
       },
       {
         accessorKey: "GrossPrice",
         header: "Unit Price",
-        size: 60,
+
         Cell: ({ cell }: any) => (
           <NumericFormat
-            value={cell.getValue() ?? 0}
-            thousandSeparator
             disabled
-            className="bg-white w-full"
-            decimalScale={props.data.Currency === "USD" ? 4 : 0}
-            fixedDecimalScale
+            key={"GrossPrice" + cell.getValue()}
+            thousandSeparator
+            decimalScale={data.Currency === "USD" ? 4 : 0}
+            // fixedDecimalScale
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
           />
         ),
       },
 
       {
         accessorKey: "DiscountPercent",
-        header: "Unit Discount",
-        size: 60,
+        header: "Discount %",
+
         Cell: ({ cell }: any) => {
-          const discountPercent = cell.getValue(); // Get the discount percentage value
-          return <span>% {discountPercent}</span>; // Concatenate the value with "%"
+          return (
+            <MUIRightTextField
+              placeholder="0.000"
+              type="number"
+              startAdornment={"%"}
+              // value={props?.data?.DiscountPercent ?? 0}
+              value={cell.getValue() || 0}
+              disabled
+            />
+          );
         },
       },
 
       {
-        accessorKey: "GrossTotal",
+        accessorKey: "LineTotal",
         header: "Amount",
-        size: 60,
+
         Cell: ({ cell }: any) => (
           <NumericFormat
             value={cell.getValue() ?? 0}
             thousandSeparator
             disabled
-            className="bg-white w-full"
+            customInput={MUIRightTextField}
             decimalScale={props.data.Currency === "USD" ? 3 : 0}
-            fixedDecimalScale
+            // fixedDecimalScale
           />
         ),
       },
@@ -415,46 +454,68 @@ function Content(props: any) {
         </div>
         <div className="col-span-2 data-table">
           <MaterialReactTable
+            columns={itemColumn}
+            data={data.Items}
+            enableRowNumbers={false}
             enableColumnActions={false}
             enableColumnFilters={false}
             enablePagination={false}
             enableSorting={false}
-            enableBottomToolbar={false}
             enableTopToolbar={false}
-            muiTableBodyRowProps={{ hover: false }}
-            columns={itemColumn}
-            data={data?.Items || []}
-            muiTableProps={{
-              sx: {
-                border: "1px solid rgba(211,211,211)",
-              },
+            enableColumnResizing={false}
+            enableColumnFilterModes={false}
+            enableDensityToggle={false}
+            enableFilters={false}
+            enableFullScreenToggle={false}
+            enableGlobalFilter={false}
+            enableStickyFooter={false}
+            initialState={{
+              density: "compact",
             }}
+            state={{
+              isLoading: props.loading,
+              showProgressBars: props.loading,
+              showSkeletons: props.loading,
+            }}
+            muiTableBodyRowProps={() => ({
+              sx: { cursor: "pointer" },
+            })}
+            muiTableProps={() => ({
+              sx: {
+                "& .MuiTableHead-root .MuiTableCell-root": {
+                  backgroundColor: "#e4e4e7",
+                  fontWeight: "500",
+                  paddingTop: "8px",
+                  paddingBottom: "8px",
+                },
+                border: "1px solid #d1d5db",
+              },
+            })}
+            enableTableFooter={false}
           />
           <div className="grid grid-cols-12 mt-2">
             <div className="col-span-5"></div>
 
             <div className="col-span-2"></div>
             <div className="col-span-5 ">
-              <div className="grid grid-cols-2 py-2">
-                <div className="col-span-1 text-lg font-medium">
-                  Total Summary
-                </div>
-              </div>
               <div className="grid grid-cols-12 py-1">
                 <div className="col-span-6 text-gray-700">
                   Total Before Discount
                 </div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
-                    value={docTotal}
+                    value={
+                      props?.data?.DocTotal +
+                      props.data?.TotalDiscount -
+                      props.data.VatSum
+                    }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
-                    placeholder="0.00"
+                    // fixedDecimalScale
+                    placeholder="0.000"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -464,8 +525,8 @@ function Content(props: any) {
                   <div className="grid grid-cols-12 gap-2">
                     <div className="col-span-7 text-gray-700">Discount</div>
                     <div className="col-span-5 text-gray-900 mr-2">
-                      <MUITextField
-                        placeholder="0.00"
+                      <MUIRightTextField
+                        placeholder="0.000"
                         type="number"
                         startAdornment={"%"}
                         value={props?.data?.DiscountPercent ?? 0}
@@ -489,15 +550,17 @@ function Content(props: any) {
                   <div className="grid grid-cols-4">
                     <div className="col-span-4">
                       <NumericFormat
-                        className="bg-white w-full"
                         thousandSeparator
-                        value={discountAmount}
+                        // value={
+                        //   discountAmount === 0 || "" ? "0.000" : discountAmount
+                        // }
+                        value={props.data?.TotalDiscount}
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                        fixedDecimalScale
-                        placeholder="0.00"
+                        // fixedDecimalScale
+                        placeholder="0.000"
                         readonly
-                        customInput={MUITextField}
+                        customInput={MUIRightTextField}
                         disabled
                       />
                     </div>
@@ -509,15 +572,17 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-700">Tax</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
-                    value={docTaxTotal}
+                    // value={
+                    //   discountedDocTaxTotal === 0 ? "" : discountedDocTaxTotal
+                    // }
+                    value={props.data.VatSum}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
-                    placeholder="0.00"
+                    // fixedDecimalScale
+                    placeholder="0.000"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
@@ -526,16 +591,16 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-700">Total</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    className="bg-white w-full"
                     readOnly
-                    value={props.data.DocTotal}
+                    // value={discountedDocTotal === 0 ? "" : discountedDocTotal}
+                    value={props.data?.DocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
-                    fixedDecimalScale
-                    placeholder="0.00"
+                    // fixedDecimalScale
+                    placeholder="0.000"
                     readonly
-                    customInput={MUITextField}
+                    customInput={MUIRightTextField}
                     disabled
                   />
                 </div>
