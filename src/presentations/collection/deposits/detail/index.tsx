@@ -98,7 +98,6 @@ const DepositDetail = (props: any) => {
       });
       await request("GET", `Deposits(${id})`)
         .then((res: any) => {
-          console.log(res.data);
           reset({ ...res?.data });
           setDeposit(res?.data);
           setState({

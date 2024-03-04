@@ -175,7 +175,7 @@ const DepositForm = (props: any) => {
     getValues,
   } = useDepositHook({ props, state, setState, id, dialog });
 
-  console.log(state)
+  // console.log(state)
 
   const HeaderTaps = () => {
     return (
