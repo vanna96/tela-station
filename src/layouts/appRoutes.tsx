@@ -405,27 +405,15 @@ export const appRoutes: RouteType[] = [
     },
     child: [
       {
-<<<<<<< HEAD
-        path: "/transportation/request",
-        state: "transportation/request",
-        roles: ['UG001', 'UG002', 'UG003'],
-=======
         path: "/trip-management/transportation-request",
         state: "transportation-request",
->>>>>>> b67e820 (fix)
         sidebarProps: {
           displayText: "Transportation Request",
         },
       },
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG002', 'UG003'],
-        path: "/transportation/order",
-        state: "transportation/order",
-=======
         path: "/trip-management/transportation-order",
         state: "transportation-order",
->>>>>>> b67e820 (fix)
         sidebarProps: {
           displayText: "Transportation Order",
         },
