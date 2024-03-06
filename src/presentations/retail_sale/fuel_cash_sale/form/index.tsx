@@ -45,7 +45,7 @@ class Form extends NonCoreDcument {
       ],
       checkNumberData: [
         {
-          U_tl_acccheck: "111122",
+          U_tl_acccheck: " ",
           U_tl_checkdate: new Date(),
           U_tl_checkbank: "",
           U_tl_paytype: "Check",
@@ -55,7 +55,7 @@ class Form extends NonCoreDcument {
       ],
       couponData: [
         {
-          U_tl_acccoupon: "101111",
+          U_tl_acccoupon: "110101",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -405,10 +405,12 @@ class Form extends NonCoreDcument {
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        CashAccount: "110101",
-        TransferAccount: "110101",
-        CheckAccount: "110101",
-        CouponAccount: data?.couponData?.U_tl_amtcoupon,
+        CashAccount: "110102",
+        CashAccountFC: "110103",
+        TransferAccount: "110102",
+        TransferAccountFC: "110103",
+        CheckAccount: "110102",
+        CouponAccount: "110102",
         Remarks: data.Remark,
 
         IncomingPayment: [
