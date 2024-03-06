@@ -80,25 +80,13 @@ export default function GeneralForm({
 
   const route = useParams();
   const salesType = route["*"];
-  const getValueBasedOnFactor = () => {
-    switch (salesType) {
-      case "fuel-sales/create":
-        return "Oil";
-      case "lube-sales/create":
-        return "Lube";
-      case "lpg-sales/create":
-        return "LPG";
-      default:
-        return ""; // Set a default value if needed
-    }
-  };
 
   if (data) {
     data.DNSeries = seriesDN;
     data.INSeries = seriesIN;
     data.Series = seriesSO;
-    data.U_tl_arbusi = getValueBasedOnFactor();
-    data.lineofBusiness = getValueBasedOnFactor();
+    data.U_tl_arbusi = "Lube";
+    data.lineofBusiness = "Lube";
   }
 
   const { data: CurrencyAPI }: any = useQuery({

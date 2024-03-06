@@ -14,6 +14,7 @@ import { TextField } from "@mui/material";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import PumpAttendantAutoComplete from "@/components/input/PumpAttendantAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -318,15 +319,14 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <DispenserAutoComplete
+              <PumpAttendantAutoComplete
                 value={data?.U_tl_attend}
-                isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
-                pumpType="Oil"
                 onChange={(e) => {
                   handlerChange("U_tl_attend", e);
                 }}
               />
+              {/* TL_PUMP_ATTEND */}
             </div>
           </div>
         </div>

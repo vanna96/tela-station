@@ -4,7 +4,7 @@ import request from "@/utilies/request";
 
 export default class PumpAttendantRepository extends Repository<any> {
 
-    url = '/TL_PUMP_ATTEND?$select=Code,U_tl_fname,U_tl_lname';
+    url = '/TL_PUMP_ATTEND?$select=Code,U_tl_fname,U_tl_lname,U_tl_bplid';
 
     // specific key
     key = 'tl_pump_attendant';

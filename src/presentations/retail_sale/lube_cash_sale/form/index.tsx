@@ -30,9 +30,9 @@ class SalesOrderForm extends CoreFormDocument {
     this.state = {
       ...this.state,
       loading: true,
-      DocumentDate: new Date(),
-      PostingDate: new Date(),
-      DueDate: new Date(),
+      DocDate: new Date(),
+      TaxDate: new Date(),
+      DocDueDate: new Date(),
       Branch: 1,
       error: {},
       BPCurrenciesCollection: [],
@@ -51,7 +51,7 @@ class SalesOrderForm extends CoreFormDocument {
       lineofBusiness: "",
       warehouseCode: "",
       cashBankData: [],
-      checkNumberData:[],
+      checkNumberData: [],
       tabErrors: {
         // Initialize error flags for each tab
         general: false,
@@ -334,9 +334,8 @@ class SalesOrderForm extends CoreFormDocument {
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, edit_payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
