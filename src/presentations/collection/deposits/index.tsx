@@ -11,6 +11,8 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import DataTable from "./components/DataTable";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import moment from "moment";
+import { formatDate } from "@/helper/helper";
+import MUIDatePicker from "@/components/input/MUIDatePicker";
 export default function DepositList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const [cookies] = useCookies(["user"]);
@@ -242,6 +244,14 @@ export default function DepositList() {
         ? ` and (contains(DepositAccount, '${searchValues.depositcode}'))`
         : `contains(DepositAccount, '${searchValues.depositcode}')`;
     }
+
+    if (searchValues.depositdate) {
+      const formattedDate = formatDate(searchValues.depositdate);
+      queryFilters += queryFilters
+        ? ` and (DepositDate eq '${formattedDate}')`
+        : `DepositDate eq '${formattedDate}'`;
+    }
+
     console.log(queryFilters);
 
     let query = queryFilters;
@@ -303,8 +313,20 @@ export default function DepositList() {
                   }
                 />
               </div>
-              {/*  */}
 
+              <div className="col-span-2 2xl:col-span-3 -mt-[2px]">
+                <MUIDatePicker
+                  label="Delivery Date"
+                  value={searchValues?.depositdate}
+                  placeholder=""
+                  onChange={(e: any) => {
+                    setSearchValues({
+                      ...searchValues,
+                      depositdate: e,
+                    });
+                  }}
+                />
+              </div>
               <div className="col-span-2 2xl:col-span-3"></div>
             </div>
           </div>

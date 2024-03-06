@@ -3,8 +3,6 @@ import { APIContextProvider } from "@/presentations/expense/context/APIContext";
 import StockControlPage from "@/presentations/stock_control";
 import InventoryTransferRequestList from "@/presentations/stock_control/inventory_transfer_request";
 import InventoryTransferRequestForm from "@/presentations/stock_control/inventory_transfer_request/form/index";
-import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
-import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form/index";
 import GoodIssueList from "@/presentations/stock_control/good_issue";
 import GoodIssueForm from "@/presentations/stock_control/good_issue/form/index";
 import PumpTestList from "@/presentations/stock_control/pump_test";
@@ -17,8 +15,10 @@ import GoodReceiptList from "@/presentations/stock_control/good_receipt";
 import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/index";
 import GoodReceiptDetails from "@/presentations/stock_control/good_receipt/detail/index";
 import GoodIssueDetails from "@/presentations/stock_control/good_issue/detail/index";
-import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index";
-
+import InventoryTransferRequestDetails from "@/presentations/stock_control/inventory_transfer_request/detail/index"
+import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
+import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form";
+import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"
 export default function StockControlRoute() {
   return (
     <APIContextProvider>
@@ -28,20 +28,15 @@ export default function StockControlRoute() {
         <Route path="/inventory-transfer-request">
           <Route index element={<InventoryTransferRequestList />} />
           <Route path="create" element={<InventoryTransferRequestForm />} />
-          <Route
-            path=":id/edit"
-            element={<InventoryTransferRequestForm edit={true} />}
-          />
-          <Route path=":id" element={<InventoryTransferDetails edit={true} />} />
+          <Route path=":id/edit" element={<InventoryTransferRequestDetails edit={true} />}/>
+          <Route path=":id" element={<InventoryTransferRequestDetails detail={true} />} />
         </Route>
         <Route path="/stock-transfer">
           <Route index element={<InventoryTransferList />} />
           <Route path="create" element={<InventoryTransferForm />} />
-          <Route
-            path=":id/edit"
-            element={<InventoryTransferForm edit={true} />}
+          <Route path=":id/edit" element={<InventoryTransferDetails edit={true} />}
           />
-          <Route path=":id" element={<InventoryTransferDetails edit={true} />} />
+          <Route path=":id" element={<InventoryTransferDetails detail={true} />} />
         </Route>
         <Route path="/good-issue">
           <Route index element={<GoodIssueList />} />

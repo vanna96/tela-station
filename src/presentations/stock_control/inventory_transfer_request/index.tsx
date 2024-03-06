@@ -1,120 +1,99 @@
 import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../components/DataTable";
+import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
-import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
-import { Breadcrumb } from "../components/Breadcrumn";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
+import { Button } from "@mui/material";
 import { useCookies } from "react-cookie";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-
+import MUISelect from "@/components/selectbox/MUISelect";
+import DataTableList from "./components/DataTableList";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import moment from "moment";
+import { formatDate } from "@/helper/helper";
 export default function InventoryTransferRequestList() {
   const [open, setOpen] = React.useState<boolean>(false);
-  const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
-
+  const [cookies] = useCookies(["user"]);
+  const [searchValues, setSearchValues] = React.useState({
+    docno: "",
+    towarehouse: "",
+    fromwarehouse: "",
+    status: "",
+  });
+  const branchAss: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
+  const transferRequest = useNavigate();
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        accessorKey: "AbsEntry",
+        header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 40,
-        visible: true,
-        type: "number",
-      },
-      {
-        accessorKey: "CardCode",
-        header: "GIT Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
-      },
-      {
-        accessorKey: "CardName",
-        header: "GIT Name",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      },
-      {
-        accessorKey: "TaxDate",
-        header: "Posting Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
+        size: 88,
+        Cell: (cell: any, index: number) => {
+          console.log(sortBy);
+          return (
+            <span>
+              {sortBy.includes("asc") || sortBy === ""
+                ? cell?.row?.index + 1
+                : Count?.data - cell?.row?.index}
+            </span>
+          );
         },
       },
       {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      // {
-      //   accessorKey: "DocTotal",
-      //   header: " DocumentTotal",
-      //   visible: true,
-      //   type: "string",
-      //   size: 70,
-      //   Cell: ({ cell }: any) => (
-      //     <>
-      //       {"$"} {cell.getValue().toFixed(2)}
-      //     </>
-      //   ),
-      // },
-      {
-        accessorKey: "BPLID",
-        header: "Branch",
+        accessorKey: "DocNum",
+        header: "Document No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
-      },
-      {
-        accessorKey: "DocumentStatus",
-        header: " Status",
+        enableFilterMatchHighlighting: true,
+        size: 88,
         visible: true,
         type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
+      },
+      {
+        accessorKey: "U_tl_cash_acc",
+        header: "Attention Terminal", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return cell.row.original.U_tl_cash_acc;
+        },
       },
 
       {
-        accessorKey: "DocEntry",
+        accessorKey: "DepositCurrency",
+        header: "To Warehouse", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        visible: true,
+        type: "string",
+        Cell: (cell: any) => {
+          return cell.row.original.DepositCurrency;
+        },
+      },
+
+      {
+        accessorKey: "U_active",
+        header: "Status",
+        size: 40,
+        visible: true,
+        Cell: (cell: any) => {
+          return cell.row.original.U_active === "Y"
+            ? "Active"
+            : "Inactive";
+        },
+      },
+      {
+        accessorKey: "AbsEntry",
         enableFilterMatchHighlighting: false,
         enableColumnFilterModes: false,
         enableColumnActions: false,
@@ -127,39 +106,22 @@ export default function InventoryTransferRequestList() {
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <Button
-              variant="outlined"
-              size="small"
+            <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  `/stock-control/${salesType}/` + cell.row.original.DocEntry,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                transferRequest("/stock-control/inventory-transfer-request/" + cell.row.original.AbsEntry, {
+                  state: cell.row.original,
+                  replace: true,
+                });
               }}
             >
-              <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
-              <span style={{ textTransform: "none" }}>View</span>
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+              <VisibilityIcon fontSize="small" className="text-gray-600 " />
+            </button>
+            <button
+              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  `/stock-control/${salesType}/` +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                transferRequest(
+                  `/stock-control/inventory-transfer-request/${cell.row.original.AbsEntry}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -171,8 +133,8 @@ export default function InventoryTransferRequestList() {
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              <span style={{ textTransform: "none" }}> Edit</span>
-            </Button>
+              Edit
+            </button>
           </div>
         ),
       },
@@ -188,11 +150,11 @@ export default function InventoryTransferRequestList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["pa-count" + filter !== "" ? "-f" : ""],
+    queryKey: [`TransferR`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryTransferRequests/$count?$select=DocNum${filter}`
+        `${url}/Deposits/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -200,20 +162,23 @@ export default function InventoryTransferRequestList() {
         });
       return response;
     },
-    // staleTime: Infinity,
+    cacheTime: 0,
+    staleTime: 0,
   });
-
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pa",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      "TransferR",
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryTransferRequests?$top=${pagination.pageSize}&$skip=${
+        `${url}/Deposits?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
+        }&$orderby= AbsEntry desc ${filter ? `&$filter=${filter}` : filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -221,8 +186,8 @@ export default function InventoryTransferRequestList() {
         });
       return response;
     },
-    // staleTime: Infinity,
-    retry: 1,
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   const handlerRefresh = React.useCallback(() => {
@@ -249,10 +214,40 @@ export default function InventoryTransferRequestList() {
       refetch();
     }, 500);
   };
-
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
+    if (searchValues.docno) {
+      queryFilters += queryFilters
+        ? ` and (contains(DepositNumber, '${searchValues.docno}'))`
+        : `contains(DepositNumber, '${searchValues.docno}')`;
+    }
+    if (searchValues.towarehouse) {
+      queryFilters += queryFilters
+        ? ` and (contains(DepositAccount, '${searchValues.towarehouse}'))`
+        : `contains(DepositAccount, '${searchValues.towarehouse}')`;
+    }
+
+    if (searchValues.fromwarehouse) {
+      queryFilters += queryFilters
+        ? ` and (contains(DepositAccount, '${searchValues.fromwarehouse}'))`
+        : `contains(DepositAccount, '${searchValues.fromwarehouse}')`;
+    }
+    if (searchValues.status) {
+      searchValues.status === "All"
+        ? (queryFilters += queryFilters ? "" : "")
+        : (queryFilters += queryFilters
+          ? ` and U_Status eq '${searchValues.status}'`
+          : `U_Status eq '${searchValues.status}'`);
+    }
+    console.log(queryFilters);
+
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + ` and ${value}`;
+    }
+    console.log(queryFilters);
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -264,87 +259,14 @@ export default function InventoryTransferRequestList() {
     }, 500);
   };
 
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
-  };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    deliveryDate: null,
-    status: "",
-    bplid: "",
-  });
-
-  const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.deliveryDate) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPLID eq ${searchValues.bplid}`
-        : `BPLID eq ${searchValues.bplid}`;
-    }
-
-    handlerSearchFilter(queryFilters);
-  };
-  const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
-
-  const childBreadcrum = (
-    <>
-      <span className="" onClick={() => route(`/stock-control/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
-      </span>
-    </>
-  );
-
   return (
     <>
-      <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
-        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
-          <Breadcrumb childBreadcrum={childBreadcrum} />
+      <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
+        <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
+          <h3 className="text-base 2xl:text-base xl:text-base ">
+            Stock Control / Inventory Transfer Request
+          </h3>
         </div>
-
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <div className="col-span-10">
             <div className="grid grid-cols-12  space-x-4">
@@ -354,22 +276,41 @@ export default function InventoryTransferRequestList() {
                   placeholder="Document No."
                   className="bg-white"
                   autoComplete="off"
-                  type="number"
-                  value={searchValues.docnum}
+                  value={searchValues.docno}
                   onChange={(e) =>
-                    setSearchValues({ ...searchValues, docnum: e.target.value })
+                    setSearchValues({
+                      ...searchValues,
+                      docno: e.target.value,
+                    })
                   }
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
+                <MUITextField
+                  label="To Warehouse"
+                  placeholder="To Warehouse"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.towarehouse}
+                  onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
-                      cardcode: selectedValue,
+                      towarehouse: e.target.value,
+                    })
+                  }
+                />
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <MUITextField
+                  label="Attention Warehouse"
+                  placeholder="Attention Warehouse"
+                  className="bg-white"
+                  autoComplete="off"
+                  value={searchValues.towarehouse}
+                  onChange={(e) =>
+                    setSearchValues({
+                      ...searchValues,
+                      towarehouse: e.target.value,
                     })
                   }
                 />
@@ -377,60 +318,30 @@ export default function InventoryTransferRequestList() {
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Branch
-                  </label>
-                  <div className="">
-                    <BranchAutoComplete
-                      BPdata={cookies?.user?.UserBranchAssignment}
-                      onChange={(selectedValue) =>
-                        setSearchValues({
-                          ...searchValues,
-                          bplid: selectedValue,
-                        })
-                      }
-                      value={searchValues.bplid}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Delivery Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
                     Status
                   </label>
                   <div className="">
                     <MUISelect
                       items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
+                        { id: "All", name: "All" },
+                        { id: "Y", name: "Active" },
+                        { id: "N", name: "Inactive" },
                       ]}
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string,
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          status: e?.target?.value as string,
+                        })
+                      }
+                      value={searchValues.status || "All"} // Set default value to "All"
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="U_Status"
                     />
                   </div>
                 </div>
-              </div> */}
+              </div>
+              <div className="col-span-2 2xl:col-span-3"></div>
             </div>
           </div>
           <div className="col-span-2">
@@ -439,42 +350,15 @@ export default function InventoryTransferRequestList() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPLID"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
             </div>
           </div>
         </div>
-        <DataTable
+        <DataTableList
           columns={columns}
           data={data}
           handlerRefresh={handlerRefresh}
@@ -484,8 +368,9 @@ export default function InventoryTransferRequestList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Inventory Transfer Requests Lists"
-          createRoute={`/stock-control/${salesType}/create`}
+          title="Invantory Transfer Request"
+          createRoute="/stock-control/inventory-transfer-request/create"
+          filter={filter}
         />
       </div>
     </>

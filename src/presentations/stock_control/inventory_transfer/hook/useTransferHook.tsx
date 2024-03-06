@@ -1,7 +1,7 @@
 import request from "@/utilies/request";
 import { useForm } from "react-hook-form";
 
-export const useDepositHook = ({
+export const useTransferHook = ({
   props,
   state,
   setState,
@@ -29,9 +29,6 @@ export const useDepositHook = ({
     const payload: any = {
       ...e,
     };
-    console.log(payload);
-    return
-    
     try {
       setState({ ...state, isSubmitting: true });
 
