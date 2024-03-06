@@ -29,8 +29,6 @@ export const useDepositHook = ({
     const payload: any = {
       ...e,
     };
-    console.log(payload);
-    return
     
     try {
       setState({ ...state, isSubmitting: true });

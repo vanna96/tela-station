@@ -58,16 +58,21 @@ const InventoryTransferRequestForm = (props: any) => {
   });
 
   const fethSeries = async () => {
-    let seriesList: any = props?.query?.find("deposit-series");
+    let seriesList: any = props?.query?.find("itr-series");
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "25",
+        Document: "1250000001",
       });
-      props?.query?.set("deposit-series", seriesList);
+      props?.query?.set("itr-series", seriesList);
     }
     setSerie(seriesList);
+
+    console.log(seriesList);
+    
   };
 
+
+  
   const [transferR, setTransferR] = React.useState<any>();
   const [serie, setSerie] = useState([]);
 
@@ -92,7 +97,7 @@ const InventoryTransferRequestForm = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `Deposits(${id})`)
+      await request("GET", `InventoryTransferRequests(${id})`)
         .then((res: any) => {
           setTransferR(res?.data);
           setState({

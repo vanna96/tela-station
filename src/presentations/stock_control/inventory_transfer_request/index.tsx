@@ -30,7 +30,7 @@ export default function InventoryTransferRequestList() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "AbsEntry",
+        accessorKey: "DocEntry",
         header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -87,13 +87,11 @@ export default function InventoryTransferRequestList() {
         size: 40,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_active === "Y"
-            ? "Active"
-            : "Inactive";
+          return cell.row.original.U_active
         },
       },
       {
-        accessorKey: "AbsEntry",
+        accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
         enableColumnFilterModes: false,
         enableColumnActions: false,
@@ -109,7 +107,7 @@ export default function InventoryTransferRequestList() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                transferRequest("/stock-control/inventory-transfer-request/" + cell.row.original.AbsEntry, {
+                transferRequest("/stock-control/inventory-transfer-request/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -121,7 +119,7 @@ export default function InventoryTransferRequestList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 transferRequest(
-                  `/stock-control/inventory-transfer-request/${cell.row.original.AbsEntry}/edit`,
+                  `/stock-control/inventory-transfer-request/${cell.row.original.DocEntry}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -154,7 +152,7 @@ export default function InventoryTransferRequestList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Deposits/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/InventoryTransferRequests/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -176,9 +174,9 @@ export default function InventoryTransferRequestList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Deposits?$top=${pagination.pageSize}&$skip=${
+        `${url}/InventoryTransferRequests?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$orderby= AbsEntry desc ${filter ? `&$filter=${filter}` : filter}`
+        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}` : filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {

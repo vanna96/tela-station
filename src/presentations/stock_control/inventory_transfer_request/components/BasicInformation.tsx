@@ -47,11 +47,10 @@ const BasicInformation = ({
     );
   }, [serie]);
 
-  const depositDate = watch("DepositDate"); // Assuming the field name is DepositDate
+  const depositDate = watch("DepositDate");
 
   useEffect(() => {
-    // Set default date when the component mounts
-    const defaultDate = new Date(); // Replace with your desired default date
+    const defaultDate = new Date();
     setValue("DepositDate", defaultDate);
   }, [setValue]);
 
