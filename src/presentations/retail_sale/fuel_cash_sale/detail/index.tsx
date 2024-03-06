@@ -1090,7 +1090,6 @@ function Stock({ data }: any) {
 function CardCount({ data }: any) {
   const cardCountColumn = React.useMemo(
     () => [
-      { key: "U_tl_itemCode", header: "Item Code" },
       { key: "U_tl_1l", header: "1L" },
       { key: "U_tl_2l", header: "2L" },
       { key: "U_tl_5l", header: "5L" },
@@ -1109,11 +1108,20 @@ function CardCount({ data }: any) {
         </div>
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
-            columns={cardCountColumn.map(({ key, header }) => ({
-              accessorKey: key,
-              header,
-              Cell: renderCell(key),
-            }))}
+            columns={[
+              {
+                accessorKey: "U_tl_itemCode",
+                header: "Item Code",
+                Cell: ({ cell }: any) => {
+                  return <MUITextField disabled value={cell.getValue()} />;
+                },
+              },
+              ...cardCountColumn.map(({ key, header }) => ({
+                accessorKey: key,
+                header,
+                Cell: renderCell(key),
+              })),
+            ]}
             data={data?.TL_RETAILSALE_CACCollection || []}
           />
         </div>
