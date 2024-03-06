@@ -11,7 +11,7 @@ import CurrencySelect from "@/components/selectbox/Currency";
 import { NumericFormat } from "react-number-format";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import MUITextField from "@/components/input/MUITextField";
-export default function CashBankTable(props: any) {
+export default function CheckNumberTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 

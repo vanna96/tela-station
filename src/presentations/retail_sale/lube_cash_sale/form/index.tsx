@@ -57,18 +57,36 @@ class LubeForm extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
-      type: "sale", // Initialize type with a default value
+      type: "sale",
       lineofBusiness: "",
       warehouseCode: "",
-      cashBankData: [],
-      checkNumberData: [],
-      tabErrors: {
-        // Initialize error flags for each tab
-        general: false,
-        content: false,
-        logistic: false,
-        attachment: false,
-      },
+      cashBankData: [
+        {
+          U_tl_paytype: "Cash",
+          U_tl_paycur: "USD",
+          U_tl_amtcash: "",
+          U_tl_amtbank: "",
+        },
+      ],
+      checkNumberData: [
+        {
+          U_tl_acccheck: " ",
+          U_tl_checkdate: new Date(),
+          U_tl_checkbank: "",
+          U_tl_paytype: "Check",
+          U_tl_amtcheck: "",
+          U_tl_paycur: "USD",
+        },
+      ],
+      couponData: [
+        {
+          U_tl_acccoupon: "110101",
+          U_tl_amtcoupon: "",
+          U_tl_paycur: "USD",
+          U_tl_paytype: "Coupon",
+        },
+      ],
+
       isDialogOpen: false,
     } as any;
 
