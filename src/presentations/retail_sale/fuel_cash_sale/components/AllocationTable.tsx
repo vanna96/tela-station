@@ -22,46 +22,24 @@ export default function AllocationTable({
   edit,
   handlerChangeObject,
 }: AllocationTableProps) {
-  const [allocationData, setAllocationData] = useState<any[]>([]);
-  const [allocationGenerated, setAllocationGenerated] = useState(false);
+  // let allocationData = data.allocationData;
 
-  const generateAllocation = () => {
-    const generatedAllocation = data.nozzleData.filter(
+  if (!edit) {
+    data.allocationData = data?.nozzleData?.filter(
       (item: any) => parseFloat(item.U_tl_nmeter) > 0
     );
-    setAllocationData(generatedAllocation);
-    setAllocationGenerated(true);
-  };
+  }
 
   const handlerChangeItem = (key: number, obj: any) => {
-    const newData = data.allocationData.map((item: any, index: number) => {
+    const newData = data.allocationData?.map((item: any, index: number) => {
       if (index.toString() === key.toString()) {
         const objKey = Object.keys(obj)[0];
         item[objKey] = Object.values(obj)[0];
       }
       return item;
     });
-    setAllocationData(newData);
     onChange("allocationData", newData);
   };
-
-  const synchronizeAllocationData = () => {
-    const updatedAllocationData = data.allocationData.map((stockItem: any) => {
-      const allocationItem = data.stockAllocationData.find(
-        (allocationItem: any) =>
-          allocationItem.U_tl_itemcode === stockItem.U_tl_itemcode
-      );
-      if (allocationItem) {
-        return { ...stockItem, U_tl_bincode: allocationItem.U_tl_bincode };
-      }
-      return stockItem;
-    });
-
-    onChange("allocationData", updatedAllocationData);
-  };
-  useEffect(() => {
-    synchronizeAllocationData();
-  }, [data.stockAllocationData]);
 
   const itemColumns = React.useMemo(
     () => [
@@ -218,12 +196,12 @@ export default function AllocationTable({
         header: "Total (Litre)",
         Cell: ({ cell }: any) => {
           const total =
-            parseFloat(cell.row.original?.U_tl_cardallow || 0) +
-            parseFloat(cell.row.original?.U_tl_cashallow || 0) +
-            parseFloat(cell.row.original?.U_tl_ownallow || 0) +
-            parseFloat(cell.row.original?.U_tl_partallow || 0) +
-            parseFloat(cell.row.original?.U_tl_pumpallow || 0) +
-            parseFloat(cell.row.original?.U_tl_stockallow || 0);
+            commaFormatNum(cell.row.original?.U_tl_cardallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_cashallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_ownallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_partallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
+            commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
 
           const isValid = cell.row.original.U_tl_totalallow === total;
           return (
@@ -235,10 +213,11 @@ export default function AllocationTable({
               placeholder="0.000"
               decimalScale={2}
               fixedDecimalScale
-              redColor={!isValid}
+              // redcolor={!isValid}
+              redcolor={!isValid}
               customInput={MUIRightTextField}
               // value={cell.getValue()}
-              value={cell.row.original.U_tl_totalallow}
+              value={total}
             />
           );
         },
@@ -249,10 +228,9 @@ export default function AllocationTable({
   console.log(data.allocationData);
   return (
     <>
-     
       <div className="flex items-center mb-4 gap-16 ">
         <Button
-          onClick={generateAllocation}
+          // onClick={generateAllocation}
           variant="outlined"
           size="medium"
           sx={{
@@ -276,7 +254,7 @@ export default function AllocationTable({
         <div className="data-table">
           <MaterialReactTable
             columns={itemColumns}
-            data={allocationData}
+            data={data.allocationData}
             enableStickyHeader={true}
             enableColumnActions={false}
             enableColumnFilters={false}

@@ -130,13 +130,9 @@ export default function SaleOrderLists() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              disabled={cell.row.original.U_tl_status === "Close" ?? false}
               className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
+                cell.row.original.U_tl_status === "Close" ? "bg-gray-400" : ""
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
@@ -153,7 +149,7 @@ export default function SaleOrderLists() {
               <DriveFileRenameOutlineIcon
                 fontSize="small"
                 className="text-gray-600 "
-              />{" "}
+              />
               <span style={{ textTransform: "none" }}> Edit</span>
             </Button>
           </div>
@@ -199,13 +195,13 @@ export default function SaleOrderLists() {
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
 
       const dataUrl = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)

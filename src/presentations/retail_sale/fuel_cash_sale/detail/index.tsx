@@ -16,8 +16,6 @@ import { TextField } from "@mui/material";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import Formular from "@/utilies/formular";
-import FormattedInputs from "@/components/input/NumberFormatField";
-import WareBinLocationRepository from "@/services/whBinLocationRepository";
 import { motion } from "framer-motion";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankRepository from "@/services/actions/bankRepository";
@@ -59,11 +57,28 @@ class DeliveryDetail extends Component<any, any> {
         });
         this.props?.query?.set("retail-sale-series", seriesList);
       }
+
+      let bin: any;
+      if (!bin) {
+        try {
+          const binData = await request(
+            "GET",
+            "BinLocations?$select=BinCode,AbsEntry"
+          );
+          bin = binData.data;
+          this.props.query.set("bin", bin);
+        } catch (error) {
+          this.setState({ isError: true, message: error.message });
+          return;
+        }
+      }
+
       await request("GET", `TL_RETAILSALE(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           this.setState({
             seriesList,
+            bin,
             ...data,
             loading: false,
           });
@@ -89,6 +104,7 @@ class DeliveryDetail extends Component<any, any> {
       { label: "Incoming Payment" },
       { label: "Stock Allocation" },
       { label: "Card Count" },
+      { label: "Error Log" },
     ];
 
     return (
@@ -144,6 +160,7 @@ class DeliveryDetail extends Component<any, any> {
                   )}
                   {this.state.tapIndex === 3 && <Stock data={this.state} />}
                   {this.state.tapIndex === 4 && <CardCount data={this.state} />}
+                  {this.state.tapIndex === 5 && <ErrorLog data={this.state} />}
                 </motion.div>
               </div>
             </>
@@ -942,8 +959,9 @@ function Stock({ data }: any) {
             <MUITextField
               disabled
               value={
-                new WareBinLocationRepository()?.find(
-                  cell.row.original.U_tl_bincode
+                data.bin.value?.find(
+                  (e: any) =>
+                    e?.AbsEntry === parseInt(cell.row.original.U_tl_bincode)
                 )?.BinCode
               }
             />
@@ -1072,7 +1090,6 @@ function Stock({ data }: any) {
 function CardCount({ data }: any) {
   const cardCountColumn = React.useMemo(
     () => [
-      { key: "U_tl_itemCode", header: "Item Code" },
       { key: "U_tl_1l", header: "1L" },
       { key: "U_tl_2l", header: "2L" },
       { key: "U_tl_5l", header: "5L" },
@@ -1091,14 +1108,41 @@ function CardCount({ data }: any) {
         </div>
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
-            columns={cardCountColumn.map(({ key, header }) => ({
-              accessorKey: key,
-              header,
-              Cell: renderCell(key),
-            }))}
+            columns={[
+              {
+                accessorKey: "U_tl_itemCode",
+                header: "Item Code",
+                Cell: ({ cell }: any) => {
+                  return <MUITextField disabled value={cell.getValue()} />;
+                },
+              },
+              ...cardCountColumn.map(({ key, header }) => ({
+                accessorKey: key,
+                header,
+                Cell: renderCell(key),
+              })),
+            ]}
             data={data?.TL_RETAILSALE_CACCollection || []}
           />
         </div>
+      </div>
+    </>
+  );
+}
+
+function ErrorLog({ data }: any) {
+  return (
+    <>
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <TextField
+          fullWidth
+          multiline
+          className="w-full"
+          aria-readonly
+          rows={15}
+          disabled
+          value={data.U_tl_errormsg}
+        />
       </div>
     </>
   );

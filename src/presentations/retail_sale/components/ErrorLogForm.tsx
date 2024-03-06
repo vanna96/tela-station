@@ -11,6 +11,7 @@ export default function ErrorLogForm({
   handlerChange,
   edit,
 }: ErrorLogForm) {
+  console.log(data);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <TextField

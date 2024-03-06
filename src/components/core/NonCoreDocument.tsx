@@ -34,6 +34,7 @@ export interface NonCoreDcumentState {
   U_tl_errormsg?: string | undefined | null;
   docEntry?: Number | undefined | null;
   isFirstAttempt?: any;
+  disableBranch?: boolean;
 }
 
 export default abstract class NonCoreDcument extends React.Component<
