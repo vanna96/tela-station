@@ -167,7 +167,7 @@ const BasicInformation = ({
                 />
               </div>
             </div>
-            {/* <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="G/L Account Code" className="text-gray-500 ">
                   G/L Account Code
@@ -216,7 +216,7 @@ const BasicInformation = ({
                   value={watch('U_tl_cashacct')}
                 />
               </div>
-            </div> */}
+            </div>
           </div>
 
           <div className="">
