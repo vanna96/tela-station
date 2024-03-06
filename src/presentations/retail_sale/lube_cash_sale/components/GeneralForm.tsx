@@ -358,19 +358,6 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Sale Employee
-              </label>
-            </div>
-            <div className="col-span-3">
-              <SalePersonAutoComplete
-                value={data.SalesPersonCode}
-                onChange={(e) => handlerChange("SalesPersonCode", e)}
-              />
-            </div>
-          </div>
 
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
