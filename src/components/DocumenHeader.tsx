@@ -87,7 +87,19 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = (
       // Maybe log an error or show a message to the user
     }
   };
+  const pathSegments: string = location.pathname
+    .split("/")[2]
+    .replace("-", " ");
 
+  const formattedText: string = pathSegments
+    .split("-")
+    .map((segment: string) => {
+      const lowerCaseSegment: string = segment.toLowerCase();
+      return lowerCaseSegment === "lpg"
+        ? "LPG"
+        : `${segment.charAt(0).toUpperCase()}${segment.slice(1).toLowerCase()}`;
+    })
+    .join(" ");
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
@@ -117,8 +129,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = (
       >
         <div className="flex gap-2 items-center mb-2">
           <h1 className="text-md  capitalize">
-            {location.pathname.split("/")[2].replace("-", " ")} -{" "}
-            {props?.data?.DocNum}
+            {formattedText} - {props?.data?.DocNum}
           </h1>
           {props.data.DocumentStatus === "bost_Close" ||
             (!isStatusClose && !(location.pathname.includes("edit") || !id) && (

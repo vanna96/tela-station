@@ -235,7 +235,7 @@ class Form extends NonCoreDcument {
           U_tl_uom: item.U_tl_uom,
           U_tl_nmeter: item.U_tl_nmeter,
           // U_tl_upd_meter: item.U_tl_ometer,
-          U_tl_ometer: item.U_tl_upd_meter,
+          U_tl_ometer: item.U_tl_ometer,
           U_tl_cmeter: item.U_tl_cmeter,
           U_tl_cardallow: item.U_tl_cardallow,
           U_tl_cashallow: item.U_tl_cashallow,
@@ -830,9 +830,7 @@ class Form extends NonCoreDcument {
                             type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
-                            disabled={
-                              this.props.edit ? false : this.state.tapIndex < 4
-                            }
+                            // disabled={this.props.edit}
                           >
                             <span className="px-3 text-[13px] py-1 text-green-500">
                               {this.props.edit ? "Update" : "Add"}
@@ -846,7 +844,7 @@ class Form extends NonCoreDcument {
                               sx={{ height: "30px", textTransform: "none" }}
                               className="bg-white"
                               loading={false}
-                              disabled={this.state.tapIndex < 4}
+                              // disabled={this.state.tapIndex < 4}
                               size="small"
                               variant="contained"
                               disableElevation

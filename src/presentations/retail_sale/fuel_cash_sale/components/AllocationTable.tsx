@@ -214,7 +214,7 @@ export default function AllocationTable({
               decimalScale={2}
               fixedDecimalScale
               // redcolor={!isValid}
-              redcolor={!isValid.toString()}
+              redcolor={!isValid}
               customInput={MUIRightTextField}
               // value={cell.getValue()}
               value={total}
