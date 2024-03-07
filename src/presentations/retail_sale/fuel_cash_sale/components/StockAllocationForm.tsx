@@ -257,12 +257,14 @@ export default function StockAllocationTable({
                     U_tl_itemname: selectedNozzle.U_tl_itemname,
                     U_tl_uom: selectedNozzle.U_tl_uom,
                     U_tl_qtycon: newQtyCon,
+                    // U_tl_qtyopen: newQtyCon,
                   });
                 } else {
                   onChangeItemObj(cell.row.id, {
                     U_tl_itemcode: e.target.value,
                     U_tl_itemname: selectedNozzle.U_tl_itemname,
                     U_tl_uom: selectedNozzle.U_tl_uom,
+                    // U_tl_qtyopen: selectedNozzle.U_tl_stockallow,
                     U_tl_qtycon: selectedNozzle.U_tl_stockallow,
                   });
                 }
@@ -341,15 +343,15 @@ export default function StockAllocationTable({
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              // redcolor={!isValid}
               redcolor={!isValid}
               decimalScale={2}
               fixedDecimalScale
               customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
               onBlur={(e: any) => {
-                onChangeItem(cell?.row?.id || 0, {
+                onChangeItemObj(cell.row.id, {
                   U_tl_qtyaloc: e.target.value,
+                  U_tl_qtyopen: cell.row.original.U_tl_qtycon - e.target.value,
                 });
               }}
             />
@@ -386,19 +388,14 @@ export default function StockAllocationTable({
 
           return (
             <NumericFormat
-              disabled
               key={"U_tl_qtyopen" + cell.getValue()}
               thousandSeparator
+              disabled
               decimalScale={2}
-              fixedDecimalScale
               placeholder="0.000"
+              fixedDecimalScale
               customInput={MUIRightTextField}
-              defaultValue={cell.getValue() || 0}
-              onBlur={(e: any) =>
-                onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtyopen: e.target.value,
-                })
-              }
+              value={cell.getValue()}
             />
           );
         },
