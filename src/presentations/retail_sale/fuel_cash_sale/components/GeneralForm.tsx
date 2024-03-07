@@ -305,9 +305,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUITextField
-                value={data.Shift}
+                value={data.U_tl_shiftcode}
                 onChange={(e) => {
-                  handlerChange("Shift", e.target.value);
+                  handlerChange("U_tl_shiftcode", e.target.value);
                 }}
               />
             </div>

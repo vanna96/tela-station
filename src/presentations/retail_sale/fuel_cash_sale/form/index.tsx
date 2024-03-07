@@ -44,14 +44,14 @@ class Form extends NonCoreDcument {
         },
       ],
       checkNumberData: [
-        {
-          U_tl_acccheck: " ",
-          U_tl_checkdate: new Date(),
-          U_tl_checkbank: "",
-          U_tl_paytype: "Check",
-          U_tl_amtcheck: "",
-          U_tl_paycur: "USD",
-        },
+        // {
+        //   U_tl_acccheck: null,
+        //   U_tl_checkdate: new Date(),
+        //   U_tl_checkbank: "",
+        //   U_tl_paytype: "Check",
+        //   U_tl_amtcheck: "",
+        //   U_tl_paycur: "USD",
+        // },
       ],
       couponData: [
         {
@@ -386,14 +386,13 @@ class Form extends NonCoreDcument {
             RevenueLine: "202004",
             ProductLine: "203004",
             BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
+            BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
                 BinAbsEntry: item.U_tl_bincode,
                 Quantity: quantity,
                 AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
               },
             ],
           };
@@ -424,6 +423,7 @@ class Form extends NonCoreDcument {
 
         IncomingPayment: [
           ...data?.cashBankData?.map((item: any) => ({
+            // Type: item.U_tl_paytype === "Bank" ? "Transfer" : "Cash",
             Type: item.U_tl_paytype,
             DocCurrency: item.U_tl_paycur,
             Amount: item.U_tl_amtcash || item.U_tl_amtbank,
@@ -486,14 +486,13 @@ class Form extends NonCoreDcument {
               RevenueLine: "202004",
               ProductLine: "203004",
               BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
-              BranchCode: data.stockAllocationData[0].U_tl_bplid || 1,
+              BranchCode: data.stockAllocationData[0].U_tl_bplid,
               WarehouseCode: data.stockAllocationData[0].U_tl_whs,
               DocumentLinesBinAllocations: [
                 {
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
                   Quantity: quantity.toString(),
                   AllowNegativeQuantity: "tNO",
-                  BaseLineNumber: 0,
                 },
               ],
             })
@@ -531,14 +530,13 @@ class Form extends NonCoreDcument {
                     RevenueLine: "202004", // item.RevenueLine
                     ProductLine: "203004", // item.ProductLine
                     BinAbsEntry: item.U_tl_bincode,
-                    BranchCode: item.U_tl_bplid || 1,
+                    BranchCode: data.U_tl_bplid,
                     WarehouseCode: item.U_tl_whs,
                     DocumentLinesBinAllocations: [
                       {
                         BinAbsEntry: item.U_tl_bincode,
                         Quantity: item.U_tl_qtycon,
                         AllowNegativeQuantity: "tNO",
-                        BaseLineNumber: 0,
                       },
                     ],
                   });
@@ -560,14 +558,13 @@ class Form extends NonCoreDcument {
           RevenueLine: "202004", // item.RevenueLine
           ProductLine: "203004", // item.ProductLine
           BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
+          BranchCode: data.U_tl_bplid,
           WarehouseCode: item.U_tl_whs,
           DocumentLinesBinAllocations: [
             {
               BinAbsEntry: item.U_tl_bincode,
               Quantity: item.U_tl_cashallow,
               AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
             },
           ],
         })),
@@ -610,7 +607,7 @@ class Form extends NonCoreDcument {
       0: ["U_tl_pump", "CardCode", "U_tl_attend"],
       1: ["nozzleData"],
       2: [],
-      3: ["stockAllocationData"],
+      3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
