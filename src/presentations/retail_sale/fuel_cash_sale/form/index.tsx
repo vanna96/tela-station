@@ -137,7 +137,7 @@ class Form extends NonCoreDcument {
           const fetchDispenserData = async (pump: string) => {
             const res = await request(
               "GET",
-              `TL_Dispenser('${pump}')?$select=TL_DISPENSER_LINESCollection`
+              `TL_Dispenser('${pump}')?$select=U_tl_whs,TL_DISPENSER_LINESCollection`
             );
             return res.data;
           };
@@ -157,6 +157,7 @@ class Form extends NonCoreDcument {
                 U_tl_bincode: dispenser.TL_DISPENSER_LINESCollection?.find(
                   (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
                 )?.U_tl_bincode,
+                U_tl_whs: dispenser.U_tl_whs,
               };
             })
           );
