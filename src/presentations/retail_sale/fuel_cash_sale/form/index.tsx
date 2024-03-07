@@ -121,13 +121,39 @@ class Form extends NonCoreDcument {
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
 
+          const fetchItemPrice = async (itemCode: string) => {
+            try {
+              const res = await request(
+                "GET",
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+              );
+              return res.data;
+            } catch (error) {
+              console.error("Error fetching item details:", error);
+              return null;
+            }
+          };
+
+          const updatedAllocationData = await Promise.all(
+            data.TL_RETAILSALE_CONHCollection?.map(async (item: any) => {
+              const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
+              const price = itemDetails?.ItemPrices?.find(
+                (priceDetail: any) => priceDetail.PriceList === 2
+              )?.Price;
+              return {
+                ...item,
+                ItemPrice: price,
+              };
+            })
+          );
+
           state = {
             ...data,
             vendor,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
             nozzleData: data.TL_RETAILSALE_CONHCollection,
-            allocationData: data.TL_RETAILSALE_CONHCollection,
+            allocationData: updatedAllocationData,
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid || 1,
@@ -464,7 +490,6 @@ class Form extends NonCoreDcument {
         StockAllocation: (() => {
           const uniqueItemsMap = new Map();
 
-          // Calculate the total quantity for each unique item code
           data?.stockAllocationData?.forEach((item: any) => {
             let quantity = parseFloat(item.U_tl_qtyaloc);
 
