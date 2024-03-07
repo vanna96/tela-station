@@ -19,6 +19,7 @@ import InventoryTransferRequestDetails from "@/presentations/stock_control/inven
 import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
 import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form";
 import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"
+import { FuelLevelFormDetail } from "@/presentations/stock_control/fuel_level/form/FuelLevelFormDetail";
 
 export default function StockControlRoute() {
   return (
@@ -61,8 +62,8 @@ export default function StockControlRoute() {
         <Route path="/fuel-level">
           <Route index element={<FuelLevelList />} />
           <Route path="create" element={<FuelLevelForm />} />
-          {/* <Route path=":id/edit" element={<FuelLevelForm edit={true} />} /> */}
-          {/* <Route path=":id" element={<FuelLevelDetails edit={true} />} /> */}
+          <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
+          <Route path=":id" element={<FuelLevelFormDetail />} />
         </Route>
       </Routes>
     </APIContextProvider>

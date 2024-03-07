@@ -11,6 +11,7 @@ import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import moment from "moment";
 
 export default function List() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -32,8 +33,15 @@ export default function List() {
         type: "number",
       },
       {
-        accessorKey: "DocumentDate",
-        header: "Posting Date",
+        accessorKey: "U_tl_doc_date",
+        header: "Document Date",
+        Cell: (cell: any) => {
+          if (!cell.row.original.U_tl_doc_date) return '';
+
+          return moment(cell.row.original.U_tl_doc_date).format(
+            "DD.MMMM.YYYY"
+          )
+        },
       },
       {
         accessorKey: "Status",
@@ -55,13 +63,7 @@ export default function List() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  `/stock-control/fuel-level/` + cell.row.original.DocEntry,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                route(`/stock-control/fuel-level/` + cell.row.original.DocEntry);
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
@@ -70,29 +72,17 @@ export default function List() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
-              className={`${cell.row.original.DocumentStatus === "bost_Close"
-                ? "bg-gray-400"
-                : ""
+              disabled={cell.row.original.U_tl_status === "Close" ?? false}
+              className={`${cell.row.original.U_tl_status === "Close" ? "bg-gray-400" : ""
                 } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
-                route(
-                  `/stock-control/fuel-level/` +
-                  cell.row.original.DocEntry +
-                  "/edit",
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                route(`/stock-control/fuel-level` + cell.row.original.DocEntry + "/edit");
               }}
             >
               <DriveFileRenameOutlineIcon
                 fontSize="small"
                 className="text-gray-600 "
-              />{" "}
+              />
               <span style={{ textTransform: "none" }}> Edit</span>
             </Button>
           </div>
@@ -287,7 +277,9 @@ export default function List() {
           paginationChange={setPagination}
           title="Fuel Level Lists"
           createRoute={`/stock-control/fuel-level/create`}
-        />
+        >
+          spanasd
+        </DataTable>
       </div>
     </>
   );

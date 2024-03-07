@@ -23,10 +23,8 @@ export default function FuelLevelBranchAutoComplete(props: {
     };
 
     useEffect(() => {
-        if (props.value) {
-            const selectedBranch = data?.find((branch: any) => branch?.BPLID === props.value);
-            if (selectedBranch) setSelectedValue(selectedBranch);
-        }
+        const selectedBranch = data?.find((branch: any) => branch?.BPLID == props.value);
+        setSelectedValue(selectedBranch);
     }, [props.value, data]);
 
 

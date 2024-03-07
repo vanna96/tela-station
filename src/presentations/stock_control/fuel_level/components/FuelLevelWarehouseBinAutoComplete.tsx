@@ -1,16 +1,28 @@
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import React, { useState, useEffect, useMemo } from "react";
-import { useGetBranchesAssignHook } from "@/hook/useGetBranchesAssignHook";
+import shortid from "shortid";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
-export default function FuelLevelBranchAutoComplete(props: {
+const getData = async (whsCode: string | undefined) => {
+    if (!whsCode) return []
+
+    const response: any = await request('GET', `BinLocations?$filter=Warehouse eq '${whsCode}' &$select=AbsEntry,Warehouse,BinCode`)
+    if (!response?.data) return []
+
+    return response?.data?.value ?? []
+}
+
+export default function FuelLevelWarehouseBinAutoComplete(props: {
     label?: any;
     value?: any;
     onChange?: (value: any) => void;
     BPdata?: any;
     disabled?: any;
     name?: any;
+    whsCode: string | undefined
 }) {
-    const { data, isLoading } = useGetBranchesAssignHook();
+    const { data, isLoading } = useQuery({ queryKey: [`whs_bins_${props.whsCode}`], queryFn: () => getData(props.whsCode) })
     const { disabled } = props;
 
     const [selectedValue, setSelectedValue] = useState<any>({});
@@ -23,8 +35,10 @@ export default function FuelLevelBranchAutoComplete(props: {
     };
 
     useEffect(() => {
-        const selectedBranch = data?.find((branch: any) => branch?.BPLID === props.value);
-        setSelectedValue(selectedBranch);
+        if (props.value) {
+            const selectedBranch = data?.find((branch: any) => branch?.AbsEntry == props.value);
+            if (selectedBranch) setSelectedValue(selectedBranch);
+        }
     }, [props.value, data]);
 
 
@@ -36,13 +50,12 @@ export default function FuelLevelBranchAutoComplete(props: {
             value={selectedValue ?? {}}
             onChange={handleAutocompleteChange}
             loading={isLoading}
-
-            getOptionLabel={(option: any) => option?.BPLName ?? ''}
+            getOptionLabel={(option: any) => option?.BinCode ?? ''}
             renderOption={(props, option) => (
-                <Box component="li" {...props} >
+                <Box component="li" {...props} key={shortid.generate()} >
                     {/* <BsDot /> */}
-                    {/* {selectedValue === option.BPLID ? <CheckIcon /> : null} */}
-                    {option?.BPLName ?? ''}
+                    {/* {selectedValue === option.AbsEntry ? <CheckIcon /> : null} */}
+                    {option?.BinCode ?? ''}
                 </Box>
             )}
             renderInput={(params) => (
