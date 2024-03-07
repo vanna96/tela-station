@@ -19,6 +19,7 @@ import Formular from "@/utilies/formular";
 import { motion } from "framer-motion";
 import BankRepository from "@/services/actions/bankRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
+import CurrencySelect from "@/components/selectbox/Currency";
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
