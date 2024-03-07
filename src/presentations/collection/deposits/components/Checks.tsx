@@ -115,35 +115,6 @@ const Checks = ({
               </div>
             </div>
           </div>
-
-          <div className="">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-3">
-                {/* <FormControlLabel
-                  control={
-                    <Radio
-                      disabled={detail}
-
-                    />
-                  }
-                  label={<span className="text-gray-500">Cash Checks</span>}
-                /> */}
-                <FormControl className="w-full">
-                  <RadioGroup
-                    aria-labelledby="demo-radio-buttons-group-label"
-                    defaultValue="female"
-                    name="radio-buttons-group"
-                    style={{ alignSelf: 'flex-start' }}
-                    onChange={onSwitchValue}
-                  >
-                    <FormControlLabel value="check" className="flex justify-start" control={<Radio />} label={<span>Cash Checks</span>}
-                    />
-                    <FormControlLabel value="posted_check" control={<Radio />} label="Postdated Checks" />
-                  </RadioGroup>
-                </FormControl>
-              </div>
-            </div>
-          </div>
         </div>
         <div>
           <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} searchText={searchText} />

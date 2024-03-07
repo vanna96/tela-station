@@ -1,78 +1,93 @@
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import React, { useState, useEffect } from "react";
-import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
-import request from "@/utilies/request";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
+import WarehouseRepository from "@/services/warehouseRepository";
+import request, { url } from "@/utilies/request";
 
-export default function DepositCashAccountAutoComplete(props: {
-  label?: any;
-  value?: any;
-  onChange?: (value: any) => void;
-  BPdata?: any;
-  disabled?: any;
-  name?: any;
-}) {
-  const { data, isLoading }: any = useQuery({
-    queryKey: ["deposit_cash"],
-    queryFn: () => request('GET', `/TL_CashAcct?$filter=U_tl_cashtype eq 'Deposit'&$select=Code, Name,U_tl_cashacct`).then((res:any) => res.data.value),
-    staleTime: Infinity,
-    refetchOnWindowFocus : false,
+interface WarehouseProps {
+  WarehouseCode: string;
+  WarehouseName: string;
+}
+
+const AttentionTerminalAutoComplete = forwardRef<
+  HTMLInputElement,
+  {
+    label?: any;
+    value?: any;
+    onChange?: (value: any) => void;
+    name?: any;
+    disabled?: any;
+  }
+>((props, ref) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["TL_WHS"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `/Warehouses`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    staleTime: 0,
+    cacheTime: 0,
   });
+console.log(data);
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
-      const selectedBranch = data?.find(
-        (branch: any) => branch?.Code === props.value
-      );
-      if (selectedBranch) {
-        setSelectedValue(selectedBranch);
+    if (props.value && data) {
+      const selected = data.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+      if (selected) {
+        setSelectedValue(selected);
       }
     }
   }, [props.value, data]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
     setSelectedValue(newValue);
+
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedId = newValue ? newValue.Code : null;
       props.onChange(newValue);
     }
   };
   const disabled = props.disabled;
 
   return (
-    <div className="block text-[14px] xl:text-[13px] ">
+    <div className="block text-[14px] xl:text-[13px]">
       <label
-        htmlFor=""
+        htmlFor={props.name}
         className={`text-[14px] xl:text-[13px] text-[#656565] mt-1`}
       >
         {props?.label}
       </label>
-
       <Autocomplete
         disabled={disabled}
-        options={data}
+        options={data ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option?.Name}
-        renderOption={(props, option) => (
+        getOptionLabel={(option: WarehouseProps) =>
+          option.WarehouseCode + " - " + option.WarehouseName
+        }
+        renderOption={(props, option: WarehouseProps) => (
           <Box component="li" {...props}>
-            <BsDot />
-            {option.Code} - {option.Name}
+            {option.WarehouseCode + " - " + option.WarehouseName}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
+            id={props.name}
             className={`w-full text-field text-xs ${
               disabled ? "bg-gray-100" : ""
             }`}
@@ -87,9 +102,12 @@ export default function DepositCashAccountAutoComplete(props: {
                 </React.Fragment>
               ),
             }}
+            inputRef={ref}
           />
         )}
       />
     </div>
   );
-}
+});
+
+export default AttentionTerminalAutoComplete;

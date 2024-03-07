@@ -129,14 +129,17 @@ const DepositForm = (props: any) => {
       toastRef.current?.open()
       return;
     }
+
     if (!getValues("BPLID") || getValues("BPLID") === "") {
       toastRef.current?.open()
       return;
     }
+
     if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
       toastRef.current?.open()
       return;
     }
+
     if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
       toastRef.current?.open()
       return;

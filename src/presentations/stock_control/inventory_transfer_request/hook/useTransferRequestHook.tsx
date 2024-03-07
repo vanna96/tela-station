@@ -1,7 +1,7 @@
 import request from "@/utilies/request";
 import { useForm } from "react-hook-form";
 
-export const useDepositHook = ({
+export const useTransferRequestHook = ({
   props,
   state,
   setState,
@@ -29,12 +29,11 @@ export const useDepositHook = ({
     const payload: any = {
       ...e,
     };
-    
     try {
       setState({ ...state, isSubmitting: true });
 
       if (props.edit) {
-        await request("PATCH", `/Deposits(${id})`, payload)
+        await request("PATCH", `/InventoryTransferRequests(${id})`, payload)
           .then((res: any) => {
             console.log(res);
             return dialog.current?.success("Update Successfully.", id);
@@ -42,7 +41,7 @@ export const useDepositHook = ({
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
-        await request("POST", "/Deposits", payload)
+        await request("POST", "/InventoryTransferRequests", payload)
           .then((res: any) =>
             dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
           )
