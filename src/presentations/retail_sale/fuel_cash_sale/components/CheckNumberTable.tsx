@@ -10,15 +10,18 @@ import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import CurrencySelect from "@/components/selectbox/Currency";
 import { NumericFormat } from "react-number-format";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
-export default function CashBankTable(props: any) {
+import MUITextField from "@/components/input/MUITextField";
+export default function CheckNumberTable(props: any) {
   const { data, onChange }: any = props;
   const [rowSelection, setRowSelection] = React.useState<any>({});
 
   const handlerRemove = () => {
-    let filteredData = data.cashBankData.filter((item: any, index: number) => {
-      return !(index.toString() in rowSelection);
-    });
-    onChange("cashBankData", filteredData);
+    let filteredData = data.checkNumberData.filter(
+      (item: any, index: number) => {
+        return !(index.toString() in rowSelection);
+      }
+    );
+    onChange("checkNumberData", filteredData);
     setRowSelection({});
   };
 
@@ -46,11 +49,12 @@ export default function CashBankTable(props: any) {
     let firstData = [
       ...data.checkNumberData,
       {
-        U_tl_acccheck: "1101011",
+        U_tl_acccheck: null,
         U_tl_checkdate: new Date(),
         U_tl_checkbank: "",
-        U_tl_amtcheck: 0,
+        U_tl_amtcheck: null,
         U_tl_paycur: "USD",
+        U_tl_paytype: "Check",
       },
     ];
     onChange("checkNumberData", firstData);
@@ -64,7 +68,7 @@ export default function CashBankTable(props: any) {
       maxSize: 0,
       header: "",
       Cell: ({ cell }: any) => {
-        if (cell.row.original?.U_tl_acccheck)
+        if (cell.row.original?.U_tl_acccheck !== "")
           return (
             <Checkbox
               checked={cell.row.index in rowSelection}
@@ -80,7 +84,9 @@ export default function CashBankTable(props: any) {
       size: 220,
       header: "Check Number",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original?.U_tl_acccheck)
+        // const cellValue = cell.getValue() === "" ? "Add" : cell.getValue();
+
+        if (cell.row.original?.U_tl_acccheck === "")
           return (
             <Button
               onClick={() => handlerAdd()}
@@ -99,16 +105,19 @@ export default function CashBankTable(props: any) {
             </Button>
           );
         return (
-          <CashACAutoComplete
+          <NumericFormat
             key={"U_tl_acccheck" + cell.getValue() + cell?.row?.id}
-            // type="number"
+            placeholder="0.000"
             disabled={data?.edit}
-            value={cell.row.original?.U_tl_acccheck || ""}
-            onChange={(e: any) => {
+            defaultValue={cell.row.original?.U_tl_acccheck || 0}
+            onBlur={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_tl_acccheck: e,
+                U_tl_acccheck: parseFloat(e.target.value.replace(/,/g, "")),
               });
             }}
+            customInput={MUIRightTextField}
+            name={"U_tl_acccheck"}
+            value={cell.row.original?.U_tl_acccheck || ""}
           />
         );
       },
@@ -118,7 +127,7 @@ export default function CashBankTable(props: any) {
       size: 220,
       header: "Check Date",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null;
+        if (cell.row.original?.U_tl_acccheck === "") return null;
         return (
           <MUIDatePicker
             key={"U_tl_checkdate" + cell.getValue() + cell?.row?.id}
@@ -138,7 +147,7 @@ export default function CashBankTable(props: any) {
       size: 220,
       header: "Currency",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null;
+        if (cell.row.original?.U_tl_acccheck === "") return null;
         return (
           <CurrencySelect
             key={"U_tl_paycur" + cell.getValue() + cell?.row?.id}
@@ -157,7 +166,7 @@ export default function CashBankTable(props: any) {
       size: 220,
       header: "Check Amount",
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null;
+        if (cell.row.original?.U_tl_acccheck === "") return null;
         return (
           <NumericFormat
             key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
@@ -182,7 +191,7 @@ export default function CashBankTable(props: any) {
       header: "Bank",
 
       Cell: ({ cell }: any) => {
-        if (!cell.row.original.U_tl_acccheck) return null;
+        if (cell.row.original?.U_tl_acccheck === "") return null;
         return (
           <BankAutoComplete
             key={"U_tl_checkbank" + cell.getValue() + cell?.row?.id}

@@ -202,7 +202,7 @@ export default function CardCount({
               // readOnly
               customInput={MUIRightTextField}
               placeholder="0.000"
-              value={total=== 0 ? "" : total}
+              value={total === 0 ? "" : total}
               inputProps={{
                 style: {
                   color: isValid ? "inherit" : "red",

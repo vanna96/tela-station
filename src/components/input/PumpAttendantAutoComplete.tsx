@@ -9,6 +9,7 @@ interface SalePerson {
   Code: string;
   U_tl_lname: string;
   U_tl_fname: string;
+  branch: number;
 }
 
 export default function PumpAttendantAutoComplete(props: {
@@ -17,12 +18,17 @@ export default function PumpAttendantAutoComplete(props: {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
+  branch?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["pump_attendant"],
     queryFn: () => new PumpAttendantRepository().get(),
- 
   });
+
+  const filteredData = data?.filter(
+    (e: any) => !props.branch || parseInt(e.U_tl_bplid) === props.branch
+  );
+
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
@@ -59,7 +65,7 @@ export default function PumpAttendantAutoComplete(props: {
       </label>
 
       <Autocomplete
-        options={data ?? []}
+        options={props.branch ? filteredData : data}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}

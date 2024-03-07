@@ -6,37 +6,21 @@ import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
 import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import DispenserRepository from "@/services/actions/dispenserRepository";
 
-export default function SaleOrderLists() {
+export default function List() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
-  let numAtCardFilter = "";
   const [dataUrl, setDataUrl] = React.useState("");
 
-  switch (salesType) {
-    case "fuel-cash-sale":
-      numAtCardFilter = "Oil";
-      break;
-    case "lube-cash-sale":
-      numAtCardFilter = "Lube";
-      break;
-    case "lpg-cash-sale":
-      numAtCardFilter = "LPG";
-      break;
-    default:
-  }
   const columns = React.useMemo(
     () => [
       {
@@ -48,14 +32,7 @@ export default function SaleOrderLists() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "U_tl_pump",
-        header: "Pump Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-      },
+
       {
         accessorKey: "U_tl_cardcode",
         header: "Customer Code",
@@ -116,7 +93,7 @@ export default function SaleOrderLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/retail-sale/${salesType}/` + cell.row.original.DocEntry,
+                  `/retail-sale/lube-cash-sale/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -136,7 +113,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/retail-sale/${salesType}/` +
+                  `/retail-sale/lube-cash-sale/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -166,9 +143,9 @@ export default function SaleOrderLists() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", salesType, filter],
+    queryKey: ["lube-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RETAILSALE/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE_LCS/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -182,8 +159,7 @@ export default function SaleOrderLists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "retail-sale-lob",
-      salesType,
+      "lube-cash-sale",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -191,17 +167,17 @@ export default function SaleOrderLists() {
     ],
 
     queryFn: async () => {
-      const Url = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/TL_RETAILSALE_LCS?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
+      const dataUrl = `${url}/TL_RETAILSALE_LCS?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
@@ -259,9 +235,6 @@ export default function SaleOrderLists() {
     handlerSearch("" + queries);
   };
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
   const [cookies] = useCookies(["user"]);
 
   const [searchValues, setSearchValues] = React.useState({
@@ -308,40 +281,14 @@ export default function SaleOrderLists() {
     handlerSearchFilter(queryFilters);
   };
   const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/retail-sale/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
+      <span className="" onClick={() => route(`/retail-sale/lube-cash-sale`)}>
+        <span className=""></span> Lube Cash Sale
       </span>
     </>
   );
-  const getTitleBySalesType = (salesType: any) => {
-    switch (salesType) {
-      case "fuel-cash-sale":
-        return "Fuel Cash Sale Lists";
-      case "lpg-cash-sale":
-        return "LPG Cash Sale Lists";
-
-      case "lube-cash-sale":
-        return "Lube Cash Sale Lists";
-      // Add other cases as needed
-      default:
-        return "Unknown Sale Lists";
-    }
-  };
 
   return (
     <>
@@ -438,8 +385,8 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title={getTitleBySalesType(salesType)}
-          createRoute={`/retail-sale/${salesType}/create`}
+          title={"Lube Cash Sale"}
+          createRoute={`/retail-sale/lube-cash-sale/create`}
         />
       </div>
     </>
