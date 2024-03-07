@@ -224,7 +224,7 @@ class Form extends NonCoreDcument {
       U_tl_docduedate: new Date(),
       U_tl_taxdate: new Date(),
       U_tl_attend: data?.U_tl_attend,
-      U_tl_status: data?.U_tl_status || "1",
+      U_tl_status: data?.U_tl_status || "",
       //Consumption
       TL_RETAILSALE_CONHCollection: data?.allocationData
         ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
@@ -333,21 +333,30 @@ class Form extends NonCoreDcument {
     }
   }
 
-  async handlerSubmitPost(event: any) {
+  async handlerSubmitPost(event: any, edit: boolean) {
     event.preventDefault();
     this.setState({ ...this.state, isSubmitting: true });
     const data: any = { ...this.state };
     const payload = this.createPayload();
-
+    console.log(data);
+    edit = this.props.edit;
+    let docEntry;
     try {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
-      let { docEntry, isFirstAttempt } = this.state;
+      if (!edit) {
+        let { isFirstAttempt } = this.state;
 
-      if (!docEntry || isFirstAttempt) {
-        const response = await request("POST", "/TL_RETAILSALE", payload);
-        docEntry = response.data.DocEntry;
-        this.setState({ docEntry, isFirstAttempt: false, disableBranch: true });
+        if (!data.DocEntry || isFirstAttempt) {
+          const response = await request("POST", "/TL_RETAILSALE", payload);
+          docEntry = response.data.DocEntry;
+          this.setState({
+            docEntry,
+            isFirstAttempt: false,
+            disableBranch: true,
+          });
+        }
       } else {
+        docEntry = data.DocEntry;
         await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
       }
 
@@ -839,10 +848,12 @@ class Form extends NonCoreDcument {
                             </span>
                           </LoadingButton>
                         </div>
-                        {!this.props.edit && (
+                        {
                           <div className="flex items-center space-x-4">
                             <LoadingButton
-                              onClick={this.handlerSubmitPost}
+                              onClick={(event) =>
+                                this.handlerSubmitPost(event, this.props.edit)
+                              }
                               sx={{ height: "30px", textTransform: "none" }}
                               className="bg-white"
                               loading={false}
@@ -856,7 +867,7 @@ class Form extends NonCoreDcument {
                               </span>
                             </LoadingButton>
                           </div>
-                        )}
+                        }
                       </div>
                     </div>
                   </motion.div>
