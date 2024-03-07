@@ -17,11 +17,8 @@ import MUIRightTextField from "@/components/input/MUIRightTextField";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import Formular from "@/utilies/formular";
 import { motion } from "framer-motion";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BankRepository from "@/services/actions/bankRepository";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import CurrencySelect from "@/components/selectbox/Currency";
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -73,12 +70,27 @@ class DeliveryDetail extends Component<any, any> {
         }
       }
 
+      let pumpAttend: any;
+      if (!pumpAttend) {
+        try {
+          const binData = await request(
+            "GET",
+            "TL_PUMP_ATTEND?$select=Code,U_tl_fname,U_tl_lname,U_tl_bplid"
+          );
+          pumpAttend = binData.data.value;
+        } catch (error) {
+          this.setState({ isError: true, message: error.message });
+          return;
+        }
+      }
+
       await request("GET", `TL_RETAILSALE(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           this.setState({
             seriesList,
             bin,
+            pumpAttend,
             ...data,
             loading: false,
           });
@@ -240,7 +252,6 @@ function General({ data }: any) {
   const seriesNames = filteredSeries?.map((series: any) => series.Name);
 
   const seriesName = seriesNames?.join(", ");
-
   return (
     <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -258,8 +269,18 @@ function General({ data }: any) {
             {renderKeyValue("Name", data.U_tl_cardname)}
 
             {renderKeyValue("Shift", data?.U_tl_shiftcode)}
-            {renderKeyValue("Pump Attendant", data?.U_tl_attend)}
+            {renderKeyValue(
+              "Pump Attendant",
+              data?.U_tl_attend +
+                " - " +
+                data.pumpAttend.find((e: any) => e.Code === data?.U_tl_attend)
+                  ?.U_tl_fname +
+                " " +
+                data.pumpAttend.find((e: any) => e.Code === data?.U_tl_attend)
+                  ?.U_tl_lname
+            )}
           </div>
+          {/* data?.U_tl_attend */}
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
