@@ -441,7 +441,7 @@ class Form extends NonCoreDcument {
             RevenueLine: "202004",
             ProductLine: "203004",
             BinAbsEntry: item.U_tl_bincode,
-            BranchCode: data.U_tl_bplid,
+            // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
@@ -468,7 +468,7 @@ class Form extends NonCoreDcument {
         RevenueLine: "202004", // item.RevenueLine
         ProductLine: "203004", // item.ProductLine
         BinAbsEntry: item.U_tl_bincode,
-        BranchCode: data.U_tl_bplid,
+        // BranchCode: data.U_tl_bplid,
         WarehouseCode: item.U_tl_whs,
         DocumentLinesBinAllocations: [
           {
@@ -586,7 +586,7 @@ class Form extends NonCoreDcument {
         })(),
 
         CardCount: [].concat(
-          ...data?.allocationData?.map((item: any) => {
+          ...data?.cardCountData?.map((item: any) => {
             const mappedData = [];
             const itemCode = item.U_tl_itemcode;
             for (let i = 1; i <= 50; i++) {
@@ -605,16 +605,11 @@ class Form extends NonCoreDcument {
                   mappedData.push({
                     ItemCode: `${itemCode}-${i.toString().padStart(2, "0")}`,
                     Quantity: quantity,
-                    GrossPrice: item.ItemPrice,
-                    DiscountPercent: 0,
-                    TaxCode: "VO10",
-                    // UoMCode: "L"
                     UoMEntry: item.U_tl_uom,
                     LineOfBussiness: "201001", // item.LineOfBussiness
                     RevenueLine: "202004", // item.RevenueLine
                     ProductLine: "203004", // item.ProductLine
                     BinAbsEntry: item.U_tl_bincode,
-                    BranchCode: data.U_tl_bplid,
                     WarehouseCode: item.U_tl_whs,
                     DocumentLinesBinAllocations: [
                       {
