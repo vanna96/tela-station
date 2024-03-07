@@ -365,8 +365,17 @@ class Form extends NonCoreDcument {
         docEntry = data.DocEntry; // Assign docEntry from props
         await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
       }
+
       const generateAllocationPayload = (data: any, allocationType: any) => {
-        return data?.allocationData?.map((item: any) => {
+        const filteredData = data?.allocationData?.filter(
+          (item: any) => item[allocationType] > 0
+        );
+
+        if (!filteredData || filteredData.length === 0) {
+          return [];
+        }
+
+        return filteredData.map((item: any) => {
           let quantity = item[allocationType];
 
           if (item.InventoryUoMEntry !== item.U_tl_uom) {
@@ -403,8 +412,6 @@ class Form extends NonCoreDcument {
           };
         });
       };
-
-
       const PostPayload = {
         SaleDocEntry: docEntry,
         // data.docEntry,

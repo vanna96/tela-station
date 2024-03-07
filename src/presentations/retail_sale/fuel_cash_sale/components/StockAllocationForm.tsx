@@ -17,6 +17,7 @@ import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { commaFormatNum } from "@/utilies/formatNumber";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -326,7 +327,8 @@ export default function StockAllocationTable({
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              return sum + parseFloat(r.U_tl_qtyaloc);
+              console.log(r.U_tl_qtyaloc);
+              return sum + commaFormatNum(r.U_tl_qtyaloc);
             },
             0
           );
@@ -385,12 +387,13 @@ export default function StockAllocationTable({
           return (
             <NumericFormat
               disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_qtyopen" + cell.getValue()}
               thousandSeparator
               decimalScale={2}
               fixedDecimalScale
+              placeholder="0.000"
               customInput={MUIRightTextField}
-              defaultValue={cell.getValue()}
+              defaultValue={cell.getValue() || 0}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_qtyopen: e.target.value,
