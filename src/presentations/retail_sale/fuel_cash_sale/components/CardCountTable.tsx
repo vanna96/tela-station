@@ -25,16 +25,17 @@ export default function CardCount({
       (e: any) => parseFloat(e.U_tl_nmeter) > 0
     );
   }
+
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.cardCountData?.map((item: any, index: number) => {
-      if (index.toString() !== key.toString()) return item;
-      item[Object.keys(obj).toString()] = Object.values(obj).toString();
+      if (index.toString() === key.toString()) {
+        const objKey = Object.keys(obj)[0];
+        item[objKey] = Object.values(obj)[0];
+      }
       return item;
     });
-    if (newData.length <= 0) return;
     onChange("cardCountData", newData);
   };
-
   const itemColumns = React.useMemo(
     () => [
       {

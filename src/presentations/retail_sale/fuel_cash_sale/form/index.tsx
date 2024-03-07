@@ -284,22 +284,34 @@ class Form extends NonCoreDcument {
         ...data?.cashBankData,
         ...data?.couponData,
       ],
-      TL_RETAILSALE_CACCollection: data?.cardCountData?.map((item: any) => ({
-        U_tl_itemCode: item.U_tl_itemcode,
-        U_tl_1l: item?.U_tl_1l,
-        U_tl_2l: item?.U_tl_2l,
-        U_tl_5l: item?.U_tl_5l,
-        U_tl_10l: item?.U_tl_10l,
-        U_tl_20l: item?.U_tl_20l,
-        U_tl_50l: item?.U_tl_50l,
-        U_tl_total:
-          parseFloat(item?.U_tl_1l || 0) +
-          parseFloat(item?.U_tl_2l || 0) +
-          parseFloat(item?.U_tl_5l || 0) +
-          parseFloat(item?.U_tl_10l || 0) +
-          parseFloat(item?.U_tl_20l || 0) +
-          parseFloat(item?.U_tl_50l || 0),
-      })),
+      TL_RETAILSALE_CACCollection: (data?.cardCountData || []).length
+        ? data?.cardCountData?.map((item: any) => ({
+            U_tl_itemCode: item.U_tl_itemcode,
+            U_tl_1l: item?.U_tl_1l,
+            U_tl_2l: item?.U_tl_2l,
+            U_tl_5l: item?.U_tl_5l,
+            U_tl_10l: item?.U_tl_10l,
+            U_tl_20l: item?.U_tl_20l,
+            U_tl_50l: item?.U_tl_50l,
+            U_tl_total:
+              (item?.U_tl_1l || 0) +
+              (item?.U_tl_2l || 0) +
+              (item?.U_tl_5l || 0) +
+              (item?.U_tl_10l || 0) +
+              (item?.U_tl_20l || 0) +
+              (item?.U_tl_50l || 0),
+          }))
+        : data?.allocationData?.map((item: any) => ({
+            U_tl_itemCode: item.U_tl_itemcode,
+            U_tl_1l: 0,
+            U_tl_2l: 0,
+            U_tl_5l: 0,
+            U_tl_10l: 0,
+            U_tl_20l: 0,
+            U_tl_50l: 0,
+            U_tl_total: 0,
+          })),
+
       //Stock Allocation Collection
       TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
         (item: any) => ({
