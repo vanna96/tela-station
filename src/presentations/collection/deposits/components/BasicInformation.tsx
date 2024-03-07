@@ -195,7 +195,7 @@ const BasicInformation = ({
                           );
                           setValue(
                             "DepositAccount",
-                            e?.U_tl_cashacct,
+                            e?.U_tl_cash_acc,
                           );
                         }}
                       />
@@ -213,7 +213,7 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <MUITextField
                   // disabled={detail || true}
-                  value={watch('U_tl_cashacct')}
+                  value={watch('U_tl_cash_acc')}
                 />
               </div>
             </div>

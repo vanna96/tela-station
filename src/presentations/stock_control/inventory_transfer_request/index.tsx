@@ -56,7 +56,7 @@ export default function InventoryTransferRequestList() {
         type: "string",
       },
       {
-        accessorKey: "U_tl_cash_acc",
+        accessorKey: "FromWarehouse",
         header: "Attention Terminal", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -64,12 +64,12 @@ export default function InventoryTransferRequestList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_tl_cash_acc;
+          return cell.row.original.FromWarehouse;
         },
       },
 
       {
-        accessorKey: "DepositCurrency",
+        accessorKey: "ToWarehouse",
         header: "To Warehouse", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -77,7 +77,7 @@ export default function InventoryTransferRequestList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.DepositCurrency;
+          return cell.row.original.ToWarehouse;
         },
       },
 

@@ -51,24 +51,6 @@ const InventoryTransferRequestDetails = (props: any) => {
   } = useTransferRequestHook({ props, state, setState, id, dialog });
 
 
-  const { data, isLoading }: any = useQuery({
-    queryKey: [`invenrotorytransferR`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `/sml.svc/TL_POSTED_DEPOSIT?$filter=DeposId eq ${id} `
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-
-      return response?.value;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
-
   const [transferR, setTransferR] = React.useState<any>();
   const [serie, setSerie] = useState([]);
 
@@ -92,7 +74,7 @@ const InventoryTransferRequestDetails = (props: any) => {
     let seriesList: any = props?.query?.find("deposit-series");
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "25",
+        Document: "1250000001",
       });
       props?.query?.set("deposit-series", seriesList);
     }
@@ -105,7 +87,7 @@ const InventoryTransferRequestDetails = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `Deposits(${id})`)
+      await request("GET", `InventoryTransferRequests(${id})`)
         .then((res: any) => {
           reset({ ...res?.data });
           setTransferR(res?.data);

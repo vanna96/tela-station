@@ -47,6 +47,7 @@ const BasicInformationDetail = ({
       (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
     );
   }, [serie]);
+console.log(serie);
 
   const postingDate = watch("DepositDate"); // Assuming the field name is DepositDate
 
@@ -241,7 +242,7 @@ const BasicInformationDetail = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="PostingDate"
+                  name="DocDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -254,7 +255,7 @@ const BasicInformationDetail = ({
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("PostingDate", val);
+                          setValue("DocDate", val);
                         }}
                       />
                     );
@@ -271,7 +272,7 @@ const BasicInformationDetail = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DepositDate"
+                  name="DueDate"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -284,7 +285,7 @@ const BasicInformationDetail = ({
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DepositDate", val);
+                          setValue("DueDate", val);
                         }}
                       />
                     );

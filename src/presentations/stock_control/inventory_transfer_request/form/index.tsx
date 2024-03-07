@@ -240,6 +240,7 @@ const InventoryTransferRequestForm = (props: any) => {
                   control={control}
                   setItem={setItem}
                   data={transferR}
+                  setValue={setValue}
                 />
               </div>
             )}

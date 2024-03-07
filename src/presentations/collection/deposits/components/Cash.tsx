@@ -20,6 +20,7 @@ const Cash = ({
   const [staticSelect, setStaticSelect] = useState({
     depositDate: null,
     status: "",
+    U_tl_cash_des: "",
   });
 
   return (
@@ -30,43 +31,36 @@ const Cash = ({
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div className=" md:col-span-12">
-            <div className="grid grid-cols-5 py-2">
+          <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Cash Balance Station Code" className="text-gray-500">
-                  Cash Balance Station Code
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Fuel Type
                 </label>
               </div>
               <div className="col-span-3">
-                {getValues("U_tl_cash_des") === undefined && (
-                  <div className="hidden">
-                    <MUITextField
-                      inputProps={{
-                        ...register("U_tl_cash_des"),
-                      }}
-                      value={"111102"}
-                    />
-                  </div>
-                )}
                 <Controller
                   name="U_tl_cash_des"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUISelect
+                        disabled={detail}
                         items={[
-                          {
-                            value: "111102",
-                            label: "111102 - Cash balance - station(USD)",
-                          },
-                          {
-                            value: "111103",
-                            label: "111103 - Cash balance - station(KHR)",
-                          },
+                          { label: "111102 - Cash balance - station(USD)", value: "111102" },
+                          { label: "111103 - Cash balance - station(KHR)", value: "111103" },
                         ]}
                         onChange={(e: any) => {
                           setValue("U_tl_cash_des", e.target.value);
+
+                          setStaticSelect({
+                            ...staticSelect,
+                            U_tl_cash_des: e.target.value,
+                          });
                         }}
-                        value={watch("AllocationAccount") ?? "111102"}
+                        value={field.value}
+                        // value={
+                        //   staticSelect.U_FuelType || defaultValues?.U_FuelType
+                        // }
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -74,7 +68,8 @@ const Cash = ({
                   }}
                 />
               </div>
-            </div>
+            </div>  
+            
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Cash Balance Station" className="text-gray-500">
