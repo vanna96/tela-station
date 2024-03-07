@@ -12,7 +12,7 @@ const payload = {
     "BPL_IDAssignedToInvoice": 1,
     "U_tl_whsdesc": "WHC", //remark : warehouse headoffice
     "CashAccount": "110101", //fixed
-    "CashAccountFC" : "110103", //luy khmer,
+    "CashAccountFC": "110103", //luy khmer,
     "TransferAccount": "110101", //fixed bank
     "CheckAccount": "110101", // fixed
     "CouponAccount": "110101", // get cash account USD 
