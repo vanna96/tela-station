@@ -110,18 +110,18 @@ class LubeForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("orders-series");
+    let seriesList: any = this.props?.query?.find("TL_RETAILSALE_LCS-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "17",
       });
-      this.props?.query?.set("orders-series", seriesList);
+      this.props?.query?.set("TL_RETAILSALE_LCS-series", seriesList);
     }
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `TL_RETAILSALE_LCS(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -341,14 +341,10 @@ class LubeForm extends CoreFormDocument {
       );
 
       const payloads = {
-        // general
-        // SOSeries: data?.Series,
-        // DNSeries: data?.DNSeries,
-        // INSeries: data?.INSeries,
-        DocDate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
-        DocDueDate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
+        U_tl_docdate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
+        U_tl_docduedate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
+        U_tl_taxdate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
+        U_tl_cardcode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: data?.DiscountPercent,
         ContactPersonCode: data?.ContactPersonCode || null,
@@ -358,7 +354,7 @@ class LubeForm extends CoreFormDocument {
         Comments: data?.Comments,
         U_tl_arbusi: data?.U_tl_arbusi,
         NumAtCard: data?.U_tl_arbusi,
-        U_tl_sobincode: data?.U_tl_sobincode,
+        U_tl_bincode: data?.U_tl_sobincode,
         U_tl_sopricelist: data?.U_tl_sopricelist,
         U_ti_revenue: data?.U_ti_revenue,
         DocCurrency: data?.Currency || data?.DocCurrency,
@@ -389,31 +385,39 @@ class LubeForm extends CoreFormDocument {
         ContactPersonCode: data?.ContactPersonCode || null,
         DocumentStatus: data?.DocumentStatus,
         BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
-        U_tl_whsdesc: data?.U_tl_whsdesc,
         SalesPersonCode: data?.SalesPersonCode,
         Comments: data?.Comments,
         U_ti_revenue: data?.U_ti_revenue,
         DocCurrency: data?.Currency || data?.DocCurrency,
         DocumentLines,
 
+        U_tl_bplid: data?.U_tl_bplid,
+        U_tl_whs: data?.U_tl_whs,
+        U_tl_bincode: data?.U_tl_bincode,
+        U_tl_cardname: data?.U_tl_cardname,
+        U_tl_cardcode: data?.U_tl_cardcode,
+        U_tl_docdate: data?.U_tl_docdate,
+        U_tl_docduedate: data?.U_tl_docduedate,
+        U_tl_taxdate: data?.U_tl_taxdate,
+        U_tl_curcode: data?.Currency || "USD",
+        U_tl_rate: data?.ExchangeRate || 0.0,
+        U_tl_remark: data?.U_tl_remark,
         // logistic
-        ShipToCode: data?.ShipToCode || null,
-        U_tl_attn_ter: data?.U_tl_attn_ter,
-        U_tl_dnsuppo: data?.U_tl_whsdesc,
-        U_tl_sobincode: data?.U_tl_sobincode,
-        U_tl_sopricelist: data?.U_tl_sopricelist,
-        // AttachmentEntry,
       };
 
       if (id) {
-        return await request("PATCH", `/Orders(${id})`, edit_payloads)
+        return await request(
+          "PATCH",
+          `/TL_RETAILSALE_LCS(${id})`,
+          edit_payloads
+        )
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/Orders", payloads)
+      await request("POST", "/TL_RETAILSALE_LCS", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;

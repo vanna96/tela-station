@@ -227,7 +227,7 @@ export default function GeneralForm({
                       ItemPrice: item.ItemPrice,
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
-                      // U_tl_bincode: item.U_tl_bincode,
+                      U_tl_bincode: item.U_tl_bincode,
                       UoMGroupEntry: item.UoMGroupEntry,
                       InventoryUoMEntry: item.InventoryUoMEntry,
                       uomLists: item.uomLists,
