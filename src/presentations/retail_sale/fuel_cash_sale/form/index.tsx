@@ -438,6 +438,31 @@ class Form extends NonCoreDcument {
           };
         });
       };
+      const cashSaleItems = data?.allocationData?.filter(
+        (item: any) => item.U_tl_cashallow > 0
+      );
+
+      const cashSale = cashSaleItems?.map((item: any) => ({
+        ItemCode: item.U_tl_itemcode,
+        Quantity: item.U_tl_cashallow,
+        GrossPrice: item.ItemPrice,
+        DiscountPercent: 0,
+        TaxCode: "VO10",
+        UoMEntry: item.U_tl_uom,
+        LineOfBussiness: "201001", // item.LineOfBussiness
+        RevenueLine: "202004", // item.RevenueLine
+        ProductLine: "203004", // item.ProductLine
+        BinAbsEntry: item.U_tl_bincode,
+        BranchCode: data.U_tl_bplid,
+        WarehouseCode: item.U_tl_whs,
+        DocumentLinesBinAllocations: [
+          {
+            BinAbsEntry: item.U_tl_bincode,
+            Quantity: item.U_tl_cashallow,
+            AllowNegativeQuantity: "tNO",
+          },
+        ],
+      }));
       const PostPayload = {
         SaleDocEntry: docEntry,
         // data.docEntry,
@@ -462,29 +487,56 @@ class Form extends NonCoreDcument {
         Remarks: data.Remark,
 
         IncomingPayment: [
-          ...data?.cashBankData?.map((item: any) => ({
-            // Type: item.U_tl_paytype === "Bank" ? "Transfer" : "Cash",
-            Type: item.U_tl_paytype,
-            DocCurrency: item.U_tl_paycur,
-            Amount: item.U_tl_amtcash || item.U_tl_amtbank,
-          })),
-          ...data?.checkNumberData?.map((item: any) => ({
-            Type: item.U_tl_paytype,
-            DocCurrency: item.U_tl_paycur,
-            DueDate: item.U_tl_checkdate || new Date(),
-            Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
-            Bank: item.U_tl_checkbank,
-            CheckNum: item.U_tl_acccheck,
-          })),
+          // ...data?.cashBankData?.map((item: any) => ({
+          //   // Type: item.U_tl_paytype === "Bank" ? "Transfer" : "Cash",
+          //   Type: item.U_tl_paytype,
+          //   DocCurrency: item.U_tl_paycur,
+          //   Amount: item.U_tl_amtcash || item.U_tl_amtbank,
+          // })),
+          // ...data?.checkNumberData?.map((item: any) => ({
+          //   Type: item.U_tl_paytype,
+          //   DocCurrency: item.U_tl_paycur,
+          //   DueDate: item.U_tl_checkdate || new Date(),
+          //   Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
+          //   Bank: item.U_tl_checkbank,
+          //   CheckNum: item.U_tl_acccheck,
+          // })),
+          ...(data?.cashBankData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              Amount: item.U_tl_amtcash || item.U_tl_amtbank,
+            }))
+            .filter((item: any) => item.Amount > 0), // Filter out items where amount is not greater than 0
+          // Map checkNumberData items
+          ...(data?.checkNumberData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              DueDate: item.U_tl_checkdate || new Date(),
+              Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
+              Bank: item.U_tl_checkbank,
+              CheckNum: item.U_tl_acccheck,
+            }))
+            .filter((item: any) => item.Amount > 0),
         ],
         IncomingPaymentCoupon: [
-          ...data?.couponData?.map((item: any) => ({
-            Type: item.U_tl_paytype,
-            DocCurrency: item.U_tl_paycur,
-            DueDate: new Date(),
-            Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
-            // CounNum: item.U_tl_acccoupon,
-          })),
+          // ...data?.couponData?.map((item: any) => ({
+          //   Type: item.U_tl_paytype,
+          //   DocCurrency: item.U_tl_paycur,
+          //   DueDate: new Date(),
+          //   Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
+          //   // CounNum: item.U_tl_acccoupon,
+          // })),
+          ...(data?.couponData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              DueDate: new Date(),
+              Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
+              // CounNum: item.U_tl_acccoupon,
+            }))
+            .filter((item: any) => item.Amount > 0),
         ],
 
         StockAllocation: (() => {
@@ -585,28 +637,8 @@ class Form extends NonCoreDcument {
             return mappedData;
           })
         ),
-        CashSale: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_cashallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: data.U_tl_bplid,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_cashallow,
-              AllowNegativeQuantity: "tNO",
-            },
-          ],
-        })),
+
+        CashSale: cashSale?.length > 0 ? cashSale : [],
         Partnership: generateAllocationPayload(data, "U_tl_partallow"),
         StockTransfer: generateAllocationPayload(data, "U_tl_stockallow"),
         OwnUsage: generateAllocationPayload(data, "U_tl_ownallow"),
