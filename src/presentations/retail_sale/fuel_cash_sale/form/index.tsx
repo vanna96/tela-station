@@ -245,7 +245,7 @@ class Form extends NonCoreDcument {
       U_tl_pump: data?.U_tl_pump,
       U_tl_cardcode: data?.CardCode,
       U_tl_cardname: data?.CardName,
-      U_tl_shiftcode: data?.U_tl_shift_code,
+      U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: new Date(),
       U_tl_docduedate: new Date(),
       U_tl_taxdate: new Date(),
@@ -317,6 +317,9 @@ class Form extends NonCoreDcument {
         })
       ),
     };
+    if (this.props.edit) {
+      delete payload.Series;
+    }
     return payload;
   }
   async handlerSubmit(event: any) {
@@ -487,28 +490,13 @@ class Form extends NonCoreDcument {
         Remarks: data.Remark,
 
         IncomingPayment: [
-          // ...data?.cashBankData?.map((item: any) => ({
-          //   // Type: item.U_tl_paytype === "Bank" ? "Transfer" : "Cash",
-          //   Type: item.U_tl_paytype,
-          //   DocCurrency: item.U_tl_paycur,
-          //   Amount: item.U_tl_amtcash || item.U_tl_amtbank,
-          // })),
-          // ...data?.checkNumberData?.map((item: any) => ({
-          //   Type: item.U_tl_paytype,
-          //   DocCurrency: item.U_tl_paycur,
-          //   DueDate: item.U_tl_checkdate || new Date(),
-          //   Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
-          //   Bank: item.U_tl_checkbank,
-          //   CheckNum: item.U_tl_acccheck,
-          // })),
           ...(data?.cashBankData || [])
             .map((item: any) => ({
               Type: item.U_tl_paytype,
               DocCurrency: item.U_tl_paycur,
               Amount: item.U_tl_amtcash || item.U_tl_amtbank,
             }))
-            .filter((item: any) => item.Amount > 0), // Filter out items where amount is not greater than 0
-          // Map checkNumberData items
+            .filter((item: any) => item.Amount > 0),
           ...(data?.checkNumberData || [])
             .map((item: any) => ({
               Type: item.U_tl_paytype,
@@ -521,13 +509,6 @@ class Form extends NonCoreDcument {
             .filter((item: any) => item.Amount > 0),
         ],
         IncomingPaymentCoupon: [
-          // ...data?.couponData?.map((item: any) => ({
-          //   Type: item.U_tl_paytype,
-          //   DocCurrency: item.U_tl_paycur,
-          //   DueDate: new Date(),
-          //   Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
-          //   // CounNum: item.U_tl_acccoupon,
-          // })),
           ...(data?.couponData || [])
             .map((item: any) => ({
               Type: item.U_tl_paytype,
