@@ -340,13 +340,16 @@ class Form extends NonCoreDcument {
     const payload = this.createPayload();
     console.log(data);
     edit = this.props.edit;
-    let docEntry;
+
     try {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
-      if (!edit) {
-        let { isFirstAttempt } = this.state;
 
-        if (!data.DocEntry || isFirstAttempt) {
+      let docEntry;
+
+      if (!edit) {
+        const { isFirstAttempt } = this.state;
+
+        if (!this.state.docEntry || isFirstAttempt) {
           const response = await request("POST", "/TL_RETAILSALE", payload);
           docEntry = response.data.DocEntry;
           this.setState({
@@ -354,12 +357,14 @@ class Form extends NonCoreDcument {
             isFirstAttempt: false,
             disableBranch: true,
           });
+        } else {
+          docEntry = this.state.docEntry; // Assign docEntry from state
+          await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
         }
       } else {
-        docEntry = data.DocEntry;
+        docEntry = data.DocEntry; // Assign docEntry from props
         await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
       }
-
       const generateAllocationPayload = (data: any, allocationType: any) => {
         return data?.allocationData?.map((item: any) => {
           let quantity = item[allocationType];
@@ -399,8 +404,10 @@ class Form extends NonCoreDcument {
         });
       };
 
+
       const PostPayload = {
         SaleDocEntry: docEntry,
+        // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
         U_tl_whsdesc: "WHC",
         InvoiceSeries: data?.INSeries,
