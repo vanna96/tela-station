@@ -134,15 +134,29 @@ class Form extends NonCoreDcument {
             }
           };
 
+          const fetchDispenserData = async (pump: string) => {
+            const res = await request(
+              "GET",
+              `TL_Dispenser('${pump}')?$select=TL_DISPENSER_LINESCollection`
+            );
+            return res.data;
+          };
+
           const updatedAllocationData = await Promise.all(
             data.TL_RETAILSALE_CONHCollection?.map(async (item: any) => {
               const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
               const price = itemDetails?.ItemPrices?.find(
                 (priceDetail: any) => priceDetail.PriceList === 2
               )?.Price;
+
+              const dispenser = await fetchDispenserData(data.U_tl_pump);
+
               return {
                 ...item,
                 ItemPrice: price,
+                U_tl_bincode: dispenser.TL_DISPENSER_LINESCollection?.find(
+                  (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
+                )?.U_tl_bincode,
               };
             })
           );
