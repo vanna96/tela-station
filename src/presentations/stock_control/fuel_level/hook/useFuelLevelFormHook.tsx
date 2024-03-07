@@ -12,9 +12,9 @@ export const useFuelLevelFormHook = () => {
         watch,
     } = useForm({
         defaultValues: {
-            U_DocDate: new Date().toISOString()?.split('T')[0],
-            U_BPLId: undefined,
-            Collections: []
+            U_tl_doc_date: new Date().toISOString()?.split('T')[0],
+            U_tl_bplid: undefined,
+            TL_FUEL_LEVEL_LINESCollection: []
         }
     });
 

@@ -6,22 +6,9 @@ import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
-import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
+import { Button } from "@mui/material";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
@@ -203,7 +190,6 @@ export default function List() {
     if (queries === "") return handlerSearch("");
     handlerSearch("&$filter=" + queries);
   };
-
 
   const [cookies] = useCookies(["user"]);
 

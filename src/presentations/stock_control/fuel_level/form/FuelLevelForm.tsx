@@ -3,12 +3,16 @@ import MUITextField from "@/components/input/MUITextField"
 import MUISelect from "@/components/selectbox/MUISelect"
 import { LoadingButton } from "@mui/lab"
 import { Checkbox } from "@mui/material"
-import React, { useMemo, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useFuelLevelFormHook } from "../hook/useFuelLevelFormHook"
 import { Controller } from "react-hook-form"
 import shortid from "shortid"
 import FormMessageModal from "@/components/modal/FormMessageModal"
 import CustomToast from "@/components/modal/CustomToast"
+import { useGetBranchesAssignHook } from "@/hook/useGetBranchesAssignHook"
+import FuelLevelBranchAutoComplete from "../components/FuelLevelBranchAutoComplete"
+import { useGetFuelLevelSeriesHook } from "../hook/useGetFuelLevelSeriesHook"
+import FuelLevelWhsAutoComplete from "../components/FuelLevelWarehouseAutoComplete"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -19,7 +23,7 @@ export const FuelLevelForm = () => {
 
   const onChangeTap = (index: number) => {
 
-    if (index === 1 && !hook.watch('U_BPLId')) {
+    if (index === 1 && !hook.watch('U_tl_bplid')) {
       toastRef.current?.open();
       return;
     }
@@ -27,7 +31,7 @@ export const FuelLevelForm = () => {
     setTap(index)
   }
 
-  console.log(hook.watch('U_DocDate'))
+  console.log(hook.watch('U_tl_doc_date'))
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex">
@@ -98,6 +102,25 @@ export const FuelLevelForm = () => {
 
 
 const General = (props: any) => {
+
+  // 
+  const { series, defaultSerie } = useGetFuelLevelSeriesHook();
+
+  useEffect(() => {
+    if (!defaultSerie.data) return;
+    props?.setValue('DocNum', defaultSerie.data);
+  }, [defaultSerie.data])
+
+
+  const onChangeSerie = useCallback((event: any) => {
+    const serie = series.data?.find((e: any) => e?.Series === event?.target?.value);
+    if (!serie) return;
+
+    props?.setValue('Series', event?.target?.value);
+    props?.setValue('DocNum', serie?.NextNumber);
+  }, [series?.data])
+
+
   return <div className="grid grid-cols-2 lg:grid-cols-1 gap-[8rem] lg:gap-4 xl:gap-[1rem] mt-4">
     <div>
       <div className="grid grid-cols-4 item-center justify-center  text-sm ">
@@ -106,16 +129,13 @@ const General = (props: any) => {
         </label>
         <div className="col-span-3">
           <Controller
-            name="U_IssueDate"
+            name="U_tl_bplid"
             control={props?.control}
             render={({ field }) => {
               return (
-                <MUISelect
+                <FuelLevelBranchAutoComplete
                   value={field.value}
-                  items={[{ Code: 1, Name: '20000 - Tela Head Office' }]}
-                  aliaslabel="Name"
-                  aliasvalue="Code"
-                  onChange={(val) => console.log(val)}
+                  onChange={(e) => props?.setValue('U_tl_bplid', e.BPLID)}
                 />
               );
             }}
@@ -131,8 +151,22 @@ const General = (props: any) => {
           Series <span className="text-red-500">*</span>
         </label>
         <div className="col-span-3 grid grid-cols-2 items-center gap-2">
-          <MUISelect items={[]} />
-          <MUITextField disabled={true} />
+          <Controller
+            name="Series"
+            control={props?.control}
+            render={({ field }) => {
+              return (
+                <MUISelect
+                  value={field.value}
+                  items={series.data ?? []}
+                  aliaslabel="Name"
+                  aliasvalue="Series"
+                  onChange={onChangeSerie}
+                />
+              );
+            }}
+          />
+          <MUITextField value={props?.watch('DocNum')} disabled={true} />
         </div>
       </div>
 
@@ -142,20 +176,20 @@ const General = (props: any) => {
         </label>
         <div className="col-span-3">
           <Controller
-            name="U_IssueDate"
+            name="U_tl_doc_date"
             control={props?.control}
             render={({ field }) => {
               return (
                 <MUIDatePicker
                   {...field}
-                  value={props?.watch('U_DocDate') ?? ''}
+                  value={props?.watch('U_tl_doc_date') ?? ''}
                   onChange={(e: any) => {
                     const val =
                       e.toLowerCase() ===
                         "Invalid Date".toLocaleLowerCase()
                         ? ""
                         : e;
-                    props?.setValue('U_DocDate', val)
+                    props?.setValue('U_tl_doc_date', val)
                   }}
                 />
               );
@@ -171,25 +205,25 @@ const Content = (props: any) => {
   const [selected, setSelected] = useState<number[]>([])
 
   const lines: any[] = useMemo(() => {
-    if (!props?.watch('Collections')) return []
+    if (!props?.watch('TL_FUEL_LEVEL_LINESCollection')) return []
 
 
-    return props?.watch('Collections');
-  }, [props?.watch('Collections')])
+    return props?.watch('TL_FUEL_LEVEL_LINESCollection');
+  }, [props?.watch('TL_FUEL_LEVEL_LINESCollection')])
 
 
   const onAddCollection = () => {
     const state = [...lines,
     {
-      U_WhsCode: undefined,
-      U_BinCode: undefined,
-      U_Volume: undefined,
-      U_Qty: undefined,
-      U_Remark: undefined,
+      U_tl_whscode: undefined,
+      U_tl_bincode: undefined,
+      U_tl_volumn: undefined,
+      U_tl_qty: undefined,
+      U_tl_remark: undefined,
     }
     ];
 
-    props?.setValue('Collections', state)
+    props?.setValue('TL_FUEL_LEVEL_LINESCollection', state)
   }
 
   const onSelectChange = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
@@ -204,10 +238,11 @@ const Content = (props: any) => {
   }
 
   const handlerDelete = () => {
-    if (selected.length === 0) return;
+    if (selected.length === 0) return; // [1,2,3,5]
+
     let state = [...lines];
     state = state.filter((item, index) => !selected.includes(index));
-    props?.setValue('Collections', state);
+    props?.setValue('TL_FUEL_LEVEL_LINESCollection', state);
     setSelected([])
   };
 
@@ -215,7 +250,7 @@ const Content = (props: any) => {
   const onChangeValue = (index: number, field: string, value: any) => {
     const state: any[] = [...lines ?? []];
     state[index][field] = value;
-    props?.setValue('Collections', state);
+    props?.setValue('TL_FUEL_LEVEL_LINESCollection', state);
   }
 
 
@@ -230,7 +265,7 @@ const Content = (props: any) => {
           <thead className="text-sm font-thin">
             <tr className="border">
               <th className="w-[4rem]"></th>
-              <th className="p-2 font-thin text-left">Warehouse Code <span className="text-red-500">*</span></th>
+              <th className="p-2 font-thin text-left w-[16rem]">Warehouse Code <span className="text-red-500">*</span></th>
               <th className="p-2 font-thin text-left">Bin Code <span className="text-red-500">*</span></th>
               <th className="w-[12rem] p-2 font-thin text-left">Volumn <span className="text-red-500">*</span></th>
               <th className="w-[12rem] p-2 font-thin text-left">Qty <span className="text-red-500">*</span></th>
@@ -245,18 +280,20 @@ const Content = (props: any) => {
             </tr>}
             {lines.map((row, index: number) => <tr key={shortid.generate()}>
               <td className="p-2 flex justify-center"><Checkbox checked={selected.includes(index)} onChange={(e) => onSelectChange(e, index)} /></td>
-              <td className="p-2 w-full"><MUISelect items={[]} /></td>
+              <td className="p-2 w-full">
+                <FuelLevelWhsAutoComplete />
+              </td>
               <td className="p-2"><MUISelect items={[]} /></td>
               <td className="p-2">
                 <MUITextField type="number" inputProps={{
-                  defaultValue: row?.U_Volume,
-                  onBlur: (e) => onChangeValue(index, 'U_Volume', e.target.value)
+                  defaultValue: row?.U_tl_volumn,
+                  onBlur: (e) => onChangeValue(index, 'U_tl_volumn', e.target.value)
                 }} /></td>
               <td className="p-2">
                 <MUITextField type="number"
                   inputProps={{
-                    defaultValue: row?.U_Qty,
-                    onBlur: (e) => onChangeValue(index, 'U_Qty', e.target.value)
+                    defaultValue: row?.U_tl_qty,
+                    onBlur: (e) => onChangeValue(index, 'U_tl_qty', e.target.value)
                   }}
                 /></td>
               <td className="p-2"><MUITextField
