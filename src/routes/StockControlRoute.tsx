@@ -9,7 +9,6 @@ import PumpTestList from "@/presentations/stock_control/pump_test";
 import PumpTestForm from "@/presentations/stock_control/pump_test/form/index";
 import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index";
 import FuelLevelList from "@/presentations/stock_control/fuel_level";
-import FuelLevelForm from "@/presentations/stock_control/fuel_level/form/index";
 import FuelLevelDetails from "@/presentations/stock_control/fuel_level/detail/index";
 import GoodReceiptList from "@/presentations/stock_control/good_receipt";
 import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/index";
@@ -18,7 +17,8 @@ import GoodIssueDetails from "@/presentations/stock_control/good_issue/detail/in
 import InventoryTransferRequestDetails from "@/presentations/stock_control/inventory_transfer_request/detail/index"
 import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
 import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form";
-import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"
+import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"import { FuelLevelForm } from "@/presentations/stock_control/fuel_level/form/FuelLevelForm";
+
 export default function StockControlRoute() {
   return (
     <APIContextProvider>
@@ -60,8 +60,8 @@ export default function StockControlRoute() {
         <Route path="/fuel-level">
           <Route index element={<FuelLevelList />} />
           <Route path="create" element={<FuelLevelForm />} />
-          <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
-          <Route path=":id" element={<FuelLevelDetails edit={true} />} />
+          {/* <Route path=":id/edit" element={<FuelLevelForm edit={true} />} /> */}
+          {/* <Route path=":id" element={<FuelLevelDetails edit={true} />} /> */}
         </Route>
       </Routes>
     </APIContextProvider>

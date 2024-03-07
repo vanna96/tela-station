@@ -55,6 +55,8 @@ const VehicleForm = (props: any) => {
     getValues,
     formState: { errors, defaultValues },
   } = useForm();
+
+
   const { id }: any = useParams();
   const [state, setState] = useState({
     loading: false,
@@ -420,7 +422,6 @@ const VehicleForm = (props: any) => {
   return (
     <>
       <CustomToast ref={toastRef} />
-
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />

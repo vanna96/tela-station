@@ -32,87 +32,31 @@ export default function List() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        size: 20,
+      },
+      {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
-        size: 40,
         visible: true,
         type: "number",
       },
       {
-        accessorKey: "Series",
-        header: "Series",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 65,
+        accessorKey: "DocumentDate",
+        header: "Posting Date",
       },
       {
         accessorKey: "Status",
         header: "Status ",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
         Cell: (cell: any) => {
-          return  cell.row.original.Status ==  "O" ? "Open" : "Closed";
+          return cell.row.original.Status == "O" ? "Open" : "Closed";
         },
       },
-      {
-        accessorKey: "Creator",
-        header: "Test By ",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      
-      },
-      {
-        accessorKey: "CreateDate",
-        header: "Create Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      {
-        accessorKey: "UpdateDate",
-        header: "Update Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-
-      {
-        accessorKey: "U_tl_bplid",
-        header: "Branch",
-        enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
-      },
-     
-
       {
         accessorKey: "DocEntry",
-        enableFilterMatchHighlighting: false,
-        enableColumnFilterModes: false,
-        enableColumnActions: false,
-        enableColumnFilters: false,
-        enableColumnOrdering: false,
-        enableSorting: false,
         minSize: 100,
         maxSize: 100,
         header: "Action",
@@ -142,16 +86,15 @@ export default function List() {
               disabled={
                 cell.row.original.DocumentStatus === "bost_Close" ?? false
               }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+              className={`${cell.row.original.DocumentStatus === "bost_Close"
+                ? "bg-gray-400"
+                : ""
+                } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   `/stock-control/fuel-level/` +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  cell.row.original.DocEntry +
+                  "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -204,8 +147,7 @@ export default function List() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_FUEL_LEVEL?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
+        `${url}/TL_FUEL_LEVEL?$top=${pagination.pageSize}&$skip=${pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
         .then((res: any) => res?.data?.value)
@@ -262,66 +204,13 @@ export default function List() {
     handlerSearch("&$filter=" + queries);
   };
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
+
   const [cookies] = useCookies(["user"]);
 
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    deliveryDate: null,
-    status: "",
-    bplid: "",
-  });
+  const [searchValues, setSearchValues] = React.useState({});
 
   const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.deliveryDate) {
-      queryFilters += queryFilters
-        ? ` and CreateDate ge '${searchValues.deliveryDate}'`
-        : `CreateDate ge '${searchValues.deliveryDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and U_tl_bplid eq '${searchValues.bplid}'`
-        : `U_tl_bplid eq '${searchValues.bplid}'`;
-    }
-
-    handlerSearchFilter(queryFilters);
   };
-  const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
 
   const childBreadcrum = (
     <>
@@ -338,9 +227,9 @@ export default function List() {
           <Breadcrumb childBreadcrum={childBreadcrum} />
         </div>
 
-        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <div className="col-span-10">
-            <div className="grid grid-cols-12  space-x-4">
+        <div className="flex gap-3 mb-5 mt-2 mx-1 rounded-md  ">
+          <div className="grow">
+            <div className="grid grid-cols-10  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Document No."
@@ -354,7 +243,16 @@ export default function List() {
                   }
                 />
               </div>
-             
+
+              <div className="col-span-2 2xl:col-span-3">
+                <MUIDatePicker
+                  label="Posting Date"
+                  value={searchValues.deliveryDate}
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
+                  onChange={(e) => { }}
+                />
+              </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -374,47 +272,10 @@ export default function List() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Create Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
-                      ]}
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string,
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
-                    />
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
-          <div className="col-span-2">
+          {/*  */}
+          <div className="">
             <div className="flex justify-end items-center align-center space-x-2 mt-4">
               <div className="">
                 <Button
@@ -424,33 +285,6 @@ export default function List() {
                 >
                   Go
                 </Button>
-              </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
               </div>
             </div>
           </div>
