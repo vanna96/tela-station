@@ -249,7 +249,6 @@ export default function GeneralForm({
                       InventoryUoMEntry: item?.InventoryUoMEntry,
                       uomLists: item.uomLists,
                     }));
-
                   // Update your component state or pass this data as needed
                   handlerChangeObject({
                     U_tl_pump: e,
@@ -305,9 +304,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUITextField
-                value={data.Shift}
+                value={data.U_tl_shiftcode}
                 onChange={(e) => {
-                  handlerChange("Shift", e.target.value);
+                  handlerChange("U_tl_shiftcode", e.target.value);
                 }}
               />
             </div>
