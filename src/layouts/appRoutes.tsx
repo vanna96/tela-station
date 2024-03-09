@@ -41,7 +41,7 @@ export const appRoutes: RouteType[] = [
   {
     path: "/master-data",
     state: "master-data",
-    roles: ['UG001', 'UG002', 'UG003', 'UG004'],
+    roles: ['UG001'],
     sidebarProps: {
       displayText: "Master Data",
       icon: <DatasetLinkedIcon />,
@@ -50,7 +50,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/pump",
         state: "pump",
-        roles: ['UG001', 'UG004'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Pump",
         },
@@ -58,7 +58,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/pump-attendant",
         state: "pump-attendant",
-        roles: ['UG001', 'UG004'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Pump Attendant",
         },
@@ -66,7 +66,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/expense-dictionary",
         state: "expense-dictionary",
-        roles: ['UG001', 'UG004'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Expense Dictionary",
         },
@@ -74,7 +74,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/cash-account",
         state: "cash-account",
-        roles: ['UG001', 'UG004'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Cash Account",
         },
@@ -83,7 +83,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/driver",
         state: "driver",
-        roles: ['UG001', 'UG002'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Driver",
         },
@@ -91,7 +91,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/vehicle",
         state: "vehicle",
-        roles: ['UG001', 'UG002'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Vehicle",
         },
@@ -99,7 +99,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/stops",
         state: "stops",
-        roles: ['UG001', 'UG002'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Stops",
         },
@@ -107,7 +107,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/route",
         state: "route",
-        roles: ['UG001', 'UG002'],
+        roles: ['UG001'],
         sidebarProps: {
           displayText: "Route",
         },
@@ -338,14 +338,14 @@ export const appRoutes: RouteType[] = [
   {
     path: "/stock-control",
     state: "stock-control",
-    roles: ['UG001', 'UG003', 'UG004'],
+    roles: ['UG001', 'UG004'],
     sidebarProps: {
       displayText: "Stock Control",
       icon: <TrendingUpIcon />,
     },
     child: [
       {
-        roles: ['UG001', 'UG003', 'UG004'],
+        roles: ['UG001', 'UG004'],
         path: "/stock-control/inventory-transfer-request",
         state: "/inventory-transfer-request",
         sidebarProps: {
@@ -353,7 +353,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG003', 'UG004'],
+        roles: ['UG001', 'UG004'],
         path: "/stock-control/stock-transfer",
         state: "/stock-transfer",
         sidebarProps: {
@@ -361,7 +361,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG003', 'UG004'],
+        roles: ['UG001', 'UG004'],
         path: "/stock-control/good-issue",
         state: "/good-issue",
         sidebarProps: {
@@ -369,7 +369,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG003', 'UG004'],
+        roles: ['UG001', 'UG004'],
         path: "/stock-control/good-receipt",
         state: "/good-receipt",
         sidebarProps: {
@@ -378,7 +378,7 @@ export const appRoutes: RouteType[] = [
       },
 
       {
-        roles: ['UG001', 'UG003', 'UG004'],
+        roles: ['UG001', 'UG004'],
         path: "/stock-control/pump-test",
         state: "/pump-test",
         sidebarProps: {
@@ -386,7 +386,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG003', 'UG004'],
+        roles: ['UG001', 'UG004'],
         path: "/stock-control/fuel-level",
         state: "/fuel-level",
         sidebarProps: {
@@ -405,6 +405,7 @@ export const appRoutes: RouteType[] = [
     },
     child: [
       {
+        roles: ['UG001', 'UG002'],
         path: "/trip-management/transportation-request",
         state: "transportation-request",
         sidebarProps: {
@@ -412,6 +413,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
+        roles: ['UG001', 'UG003'],
         path: "/trip-management/transportation-order",
         state: "transportation-order",
         sidebarProps: {

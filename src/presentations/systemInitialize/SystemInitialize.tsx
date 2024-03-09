@@ -197,10 +197,10 @@ const SystemInitializeMasterPage = () => {
       route: "/master-data/cash-account",
       roles: ['UG001', 'UG004']
     },
-    { title: "Driver", amountKey: "driver", route: "/master-data/driver", roles: ['UG001', 'UG002'] },
-    { title: "Vehicle", amountKey: "vehicle", route: "/master-data/vehicle", roles: ['UG001', 'UG002'] },
-    { title: "Stops", amountKey: "stops", route: "/master-data/stops", roles: ['UG001', 'UG002'] },
-    { title: "Route", amountKey: "route", route: "/master-data/route", roles: ['UG001', 'UG002'] },
+    { title: "Driver", amountKey: "driver", route: "/master-data/driver", roles: ['UG001', 'UG004'] },
+    { title: "Vehicle", amountKey: "vehicle", route: "/master-data/vehicle", roles: ['UG001', 'UG004'], },
+    { title: "Stops", amountKey: "stops", route: "/master-data/stops", roles: ['UG001', 'UG004'] },
+    { title: "Route", amountKey: "route", route: "/master-data/route", roles: ['UG001', 'UG004'] },
   ]);
 
   const saleTargetCards = renderCards([
@@ -317,49 +317,49 @@ const SystemInitializeMasterPage = () => {
       title: "Inventory Transfer Request",
       amountKey: "inventoryTransferRequest",
       route: "/stock-control/inventory-transfer-request",
-      roles: ['UG001', 'UG003']
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Stock Transfer",
       amountKey: "stockTransfer",
       route: "/stock-control/stock-transfer",
-      roles: ['UG001', 'UG003']
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Good Issue",
       amountKey: "goodIssue",
       route: "/stock-control/good-issue",
-      roles: ['UG001', 'UG003']
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Good Receipt",
       amountKey: "goodReceipt",
       route: "/stock-control/good-receipt",
-      roles: ['UG001', 'UG003']
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Pump Test",
       amountKey: "pumpTest",
       route: "/stock-control/pump-test",
-      roles: ['UG001', 'UG003']
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Fuel Level",
       amountKey: "fuelLevel",
       route: "/stock-control/fuel-level",
-      roles: ['UG001', 'UG003']
+      roles: ['UG001', 'UG004']
     },
   ]);
 
   const sections = [
-    { title: "Master Data", cards: masterDataCards, roles: ['UG001', 'UG002', 'UG004'] },
+    { title: "Master Data", cards: masterDataCards, roles: ['UG001', 'UG004'] },
     { title: "Sale Target", cards: saleTargetCards, roles: ['UG001', 'UG004'] },
     { title: "Sale Order", cards: saleOrderCards, roles: ['UG001', 'UG004'] },
     { title: "Sale Invoice", cards: saleInvoiceCards, roles: ['UG001', 'UG004'] },
     { title: "Retail Sale", cards: retailSaleCards, roles: ['UG001', 'UG004'] },
     { title: "Banking", cards: bankingCards, roles: ['UG001', 'UG004'] },
     { title: "Expense Log", cards: expenseLogCards, roles: ['UG001', 'UG004'] },
-    { title: "Stock Control", cards: stockControlCards, roles: ['UG001', 'UG003'] },
+    { title: "Stock Control", cards: stockControlCards, roles: ['UG001'] },
   ];
 
   return (

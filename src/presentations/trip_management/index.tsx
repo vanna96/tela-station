@@ -31,7 +31,7 @@ const TripManagementPage = () => {
     <>
       <MainContainer title="Trip Management">
         {
-          ['UG001', 'UG002', 'UG003'].includes(getRoleCode as Role) && <ItemCard
+          ['UG001', 'UG002'].includes(getRoleCode as Role) && <ItemCard
             title="Transportation Request"
             icon={<AiOutlineFileProtect />}
             onClick={() => goTo("transportation-request")}
@@ -39,7 +39,7 @@ const TripManagementPage = () => {
           />
         }
         {
-          ['UG001', 'UG002', 'UG003'].includes(getRoleCode as Role) && <ItemCard
+          ['UG001', 'UG003'].includes(getRoleCode as Role) && <ItemCard
             title="Transportation Order"
             icon={<AiOutlineFileProtect />}
             onClick={() => goTo("transportation-order")}
@@ -47,7 +47,7 @@ const TripManagementPage = () => {
           />
         }
         {
-          ['UG001', 'UG002', 'UG003'].includes(getRoleCode as Role) && <ItemCard
+          ['UG001', 'UG003'].includes(getRoleCode as Role) && <ItemCard
             title="Bulk Seal Allocation"
             icon={<AiOutlineFileProtect />}
             onClick={() => goTo("bulk-Seal-allocation")}
