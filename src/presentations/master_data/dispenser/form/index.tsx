@@ -1,34 +1,23 @@
 import CoreFormDocument from "@/components/core/CoreFormDocument";
 import { withRouter } from "@/routes/withRouter";
 import { LoadingButton } from "@mui/lab";
-import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
-import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
-import ContentForm from "../components/ContentForm";
-import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
-import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
 import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
-import useState from "react";
-import requestHeader from "@/utilies/requestheader";
 import PumpData from "../components/PumpData";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-
+import { motion } from "framer-motion";
+import { ItemBinModal } from "@/components/modal/ItemBinModal";
+import { RefObject, createRef } from "react";
 class DispenserForm extends CoreFormDocument {
+  itemBinModalRef: RefObject<ItemBinModal> = createRef();
   constructor(props: any) {
     super(props);
+    this.itemBinModalRef = createRef();
     this.state = {
       ...this.state,
       loading: true,
@@ -49,6 +38,7 @@ class DispenserForm extends CoreFormDocument {
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
+      U_tl_bplid: 1 || "1",
       type: "sale", // Initialize type with a default value
       warehouseCode: "",
       tabErrors: {
@@ -60,7 +50,7 @@ class DispenserForm extends CoreFormDocument {
       },
       isDialogOpen: false,
       Status: "New",
-      lineofBusiness: "Oil"
+      lineofBusiness: "Oil",
     } as any;
 
     this.onInit = this.onInit.bind(this);
@@ -103,52 +93,88 @@ class DispenserForm extends CoreFormDocument {
             Attendant1: data?.U_tl_attend1,
             Attendant2: data?.U_tl_attend2,
             U_tl_bplid: data?.U_tl_bplid,
-            PumpData: await Promise.all(
-              (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
-                const UoMGroupEntry = await request(
-                  "GET",
-                  `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
-                );
-                const UoMGroup = UoMGroupEntry
-                const uomGroups: any =
-                  await new UnitOfMeasurementGroupRepository().get();
+            U_tl_whs: data?.U_tl_whs,
+            PumpData: await Promise.all((data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+              let item: any = {
+                pumpCode: e?.U_tl_pumpcode,
+                itemCode: e?.U_tl_itemnum,
+                UomAbsEntry: e?.U_tl_uom,
+                UomLists: [],
+                registerMeeting: e?.U_tl_reg_meter,
+                updateMetering: e?.U_tl_upd_meter,
+                status: e?.U_tl_status,
+                LineId: e?.LineId,
+                binCode: e?.U_tl_bincode,
+              };
+            
+              if (e?.U_tl_itemnum) {
+                const [UoMGroupEntry, uomGroups, uoms, itemResponse] = await Promise.all([
+                  request("GET", `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`),
+                  new UnitOfMeasurementGroupRepository().get(),
+                  new UnitOfMeasurementRepository().get(),
+                  request("GET", `Items('${e?.U_tl_itemnum}')?$select=ItemName`).then(res => res?.data),
+                ]);
+            
+                const UoMGroupAbsEntry = UoMGroupEntry?.data?.UoMGroupEntry;
+                const uomGroup = uomGroups.find(row => row.AbsEntry === UoMGroupAbsEntry);
+            
+                const uomLists = uomGroup?.UoMGroupDefinitionCollection
+                  ?.map(row => uoms.find(record => record?.AbsEntry === row?.AlternateUoM))
+                  .filter(Boolean) ?? [];
+            
+                item.ItemDescription = itemResponse?.ItemName;
+                item.UomLists = uomLists;
+              }
+              return item;
+            })),
+            Edit: true
+            // PumpData: await Promise.all(
+            //   (data?.TL_DISPENSER_LINESCollection || []).map(async (e: any) => {
+            //     const UoMGroupEntry = await request(
+            //       "GET",
+            //       `Items('${e?.U_tl_itemnum}')?$select=UoMGroupEntry`
+            //     );
+            //     const UoMGroup = UoMGroupEntry;
+            //     const uomGroups: any =
+            //       await new UnitOfMeasurementGroupRepository().get();
 
-                const uoms = await new UnitOfMeasurementRepository().get();
-                const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === UoMGroup?.data?.UoMGroupEntry
-                );
-                let uomLists: any[] = [];
-                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-                  const itemUOM = uoms.find(
-                    (record: any) => record?.AbsEntry === row?.AlternateUoM
-                  );
-                  if (itemUOM) {
-                    uomLists.push(itemUOM);
-                  }
-                });
-                //
-                let item: any = {
-                  pumpCode: e?.U_tl_pumpcode,
-                  itemCode: e?.U_tl_itemnum,
-                  UomAbsEntry: e?.U_tl_uom,
-                  UomLists: uomLists,
-                  registerMeeting: e?.U_tl_reg_meter,
-                  updateMetering: e?.U_tl_upd_meter,
-                  status: e?.U_tl_status,
-                  LineId: e?.LineId,
-                };
+            //     const uoms = await new UnitOfMeasurementRepository().get();
+            //     const uomGroup: any = uomGroups.find(
+            //       (row: any) => row.AbsEntry === UoMGroup?.data?.UoMGroupEntry
+            //     );
+            //     let uomLists: any[] = [];
+            //     uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
+            //       const itemUOM = uoms.find(
+            //         (record: any) => record?.AbsEntry === row?.AlternateUoM
+            //       );
+            //       if (itemUOM) {
+            //         uomLists.push(itemUOM);
+            //       }
+            //     });
+            //     //
+            //     let item: any = {
+            //       pumpCode: e?.U_tl_pumpcode,
+            //       itemCode: e?.U_tl_itemnum,
+            //       UomAbsEntry: e?.U_tl_uom,
+            //       UomLists: uomLists,
+            //       registerMeeting: e?.U_tl_reg_meter,
+            //       updateMetering: e?.U_tl_upd_meter,
+            //       status: e?.U_tl_status,
+            //       LineId: e?.LineId,
+            //       binCode: e?.U_tl_bincode,
+            //     };
 
-                if (e?.U_tl_itemnum) {
-                  const itemResponse: any = await request(
-                    "GET",
-                    `Items('${e?.U_tl_itemnum}')?$select=ItemName`
-                  ).then((res: any) => res?.data);
-                  item.ItemDescription = itemResponse?.ItemName;
-                }
-                return item;
-              })
-            ),
-            Edit: true,
+            //     if (e?.U_tl_itemnum) {
+            //       const itemResponse: any = await request(
+            //         "GET",
+            //         `Items('${e?.U_tl_itemnum}')?$select=ItemName`
+            //       ).then((res: any) => res?.data);
+            //       item.ItemDescription = itemResponse?.ItemName;
+            //     }
+            //     return item;
+            //   })
+            // ),
+            
           };
         })
         .catch((err: any) => console.log(err))
@@ -207,30 +233,66 @@ class DispenserForm extends CoreFormDocument {
         throw new FormValidateException("PumpData is missing", 1);
       }
 
+      const lengthData = data?.PumpData?.filter((e:any) => !e.itemCode || !e.ItemDescription || !e.binCode || !e.pumpCode);
+      if(lengthData?.length > 0) {
+        data["error"] = {
+          PumpData: "Pump Data is missing record!",
+        };
+        throw new FormValidateException("PumpData is missing", 1);
+      }
+
+      let DISPENSER_LINESCollection = this.state?.PumpData?.map((e: any) => {
+        let status = "";
+        const registerM =
+          parseFloat(
+            (e?.registerMeeting ?? "0.00").toString().replace(/,/g, "")
+          ) || 0;
+        const updateM =
+          parseFloat(
+            (e?.updateMetering ?? "0.00").toString().replace(/,/g, "")
+          ) || 0;
+
+        if (registerM <= 0 && updateM <= 0) status = "New";
+        if (registerM > 0) status = "Initialized";
+        if (updateM > 0) status = "Active";
+        if (e?.status == "Inactive") status = "Inactive";
+
+        return {
+          U_tl_pumpcode: e?.pumpCode,
+          U_tl_itemnum: e?.itemCode,
+          U_tl_uom: e?.UomAbsEntry,
+          U_tl_reg_meter: registerM,
+          U_tl_upd_meter: updateM,
+          U_tl_status: status,
+          U_tl_bincode: e?.binCode,
+        };
+      });
+
+      let status = this.state?.Status;
+      let statusCondition =
+        DISPENSER_LINESCollection?.filter(
+          (p: any) => (p.U_tl_reg_meter || 0) > 0 || p?.U_tl_upd_meter || 0 > 0
+        ).length > 0
+          ? "Active"
+          : "New";
+
+      if (status !== "Inactive") status = statusCondition;
+
       const payloads = {
         Code: this.state?.PumpCode,
         Name: this.state?.PumpName,
         U_tl_pumpnum: this.state?.NumOfPump,
         U_tl_bplid: `${this.state?.U_tl_bplid}`,
+        U_tl_whs: data?.U_tl_whs,
         U_tl_type: this.state?.lineofBusiness,
-        U_tl_status: this.state?.Status,
-        TL_DISPENSER_LINESCollection: this.state?.PumpData?.map((e: any) => {
-          return {
-            U_tl_pumpcode: e?.pumpCode,
-            U_tl_itemnum: e?.itemCode,
-            U_tl_uom: e?.UomAbsEntry,
-            U_tl_reg_meter: parseFloat((e?.registerMeeting ?? "0.00").toString().replace(/,/g, '')),
-            U_tl_upd_meter: parseFloat((e?.updateMetering ?? "0.00").toString().replace(/,/g, '')),
-            U_tl_status: e?.status,
-          };
-        }),
+        U_tl_status: status,
+        TL_DISPENSER_LINESCollection: DISPENSER_LINESCollection,
       };
 
       if (id) {
         return await request("PATCH", `/TL_Dispenser('${id}')`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
@@ -270,26 +332,21 @@ class DispenserForm extends CoreFormDocument {
     this.setState({ ...this.state, tapIndex: index });
   }
 
-  handleNextTab = () => {
-    const currentTab = this.state.tapIndex;
-    const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field: any) => {
+  handleMenuButtonClick = (index: any) => {
+    const requiredFields = this.getRequiredFieldsByTab(index - 1);
+    const hasErrors = requiredFields.some((field) => {
       if (field === "Items") {
-        // Check if the "Items" array is empty
         return !this.state[field] || this.state[field].length === 0;
       }
       return !this.state[field];
     });
 
     if (hasErrors) {
-      // Show the dialog if there are errors
       this.setState({ isDialogOpen: true });
     } else {
-      // If no errors, allow the user to move to the next tab
-      this.handlerChangeMenu(currentTab + 1);
+      this.setState({ tapIndex: index });
     }
   };
-
   handleCloseDialog = () => {
     // Close the dialog
     this.setState({ isDialogOpen: false });
@@ -297,67 +354,44 @@ class DispenserForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness"],
+      0: ["PumpCode", "PumpName", "NumOfPump", "lineofBusiness", "U_tl_whs"],
       // 1: ["Items"]
     };
     return requiredFieldsMap[tabIndex] || [];
   }
 
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
-    }
-  };
-
   HeaderTaps = () => {
     return (
       <>
         <div className="w-full mt-2">
-          <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>Nozzle</MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 0}
+            onClick={() => this.handleMenuButtonClick(0)}
+          >
+            General
+          </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 1}
+            onClick={() => this.handleMenuButtonClick(1)}
+          >
+            Nozzle
+          </MenuButton>
         </div>
 
-        <div className="sticky w-full bottom-4">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <div className="flex ">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
-              >
-                <NavigateBeforeIcon />
-              </Button>
-            </div> 
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 1}
-                style={{ textTransform: "none" }}
-              >
-                <NavigateNextIcon />
-              </Button>
-
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
-                onClose={this.handleCloseDialog}
-              >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
-            </div>
-          </div>
-        </div>
+        <Snackbar
+          open={this.state.isDialogOpen}
+          autoHideDuration={6000}
+          onClose={this.handleCloseDialog}
+        >
+          <Alert
+            onClose={this.handleCloseDialog}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            Please complete all required fields before proceeding to the next
+            tab.
+          </Alert>
+        </Snackbar>
       </>
     );
   };
@@ -429,68 +463,77 @@ class DispenserForm extends CoreFormDocument {
             ) : (
               <>
                 <div className="grow">
-                  {this.state.tapIndex === 0 && (
-                    <GeneralForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                      handlerChangeObject={(value: any) =>
-                        this.handlerChangeObject(value)
-                      }
-                    />
-                  )}
-                  {this.state.tapIndex === 1 && (
-                    <PumpData
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                      handlerAddItem={(e: any) => {
-                        this.handlerChange("pumpIndex", e);
-                        this.hanndAddNewItem();
-                      }}
-                    />
-                  )}
+                  <motion.div
+                    key={this.state.tapIndex}
+                    transition={{ duration: 0.2 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    {this.state.tapIndex === 0 && (
+                      <GeneralForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) => {
+                          this.handlerChange(key, value);
+                        }}
+                        handlerChangeObject={(value: any) =>
+                          this.handlerChangeObject(value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 1 && (
+                      <PumpData
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) => {
+                          this.handlerChange(key, value);
+                        }}
+                        handlerAddItem={(e: any) => {
+                          this.handlerChange("pumpIndex", e);
+                          this.hanndAddNewItem();
+                        }}
+                      />
+                    )}
 
-                  <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                      <div className="flex ">
-                        <LoadingButton
-                          size="small"
-                          sx={{ height: "25px" }}
-                          variant="outlined"
-                          style={{
-                            background: 'white',
-                            border: '1px solid red'
-                          }}
-                          disableElevation
-                          onClick={() => window.location.href = '/master-data/pump'}
-                        >
-                          <span className="px-3 text-[11px] py-1 text-red-500">
-                            Cancel
-                          </span>
-                        </LoadingButton>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <LoadingButton
-                          type="submit"
-                          sx={{ height: "25px" }}
-                          className="bg-white"
-                          loading={false}
-                          size="small"
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Add"}
-                          </span>
-                        </LoadingButton>
+                    <div className="sticky w-full bottom-4  mt-2 ">
+                      <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+                        <div className="flex ">
+                          <LoadingButton
+                            size="small"
+                            sx={{ height: "25px" }}
+                            variant="outlined"
+                            style={{
+                              background: "white",
+                              border: "1px solid red",
+                            }}
+                            disableElevation
+                            onClick={() =>
+                              (window.location.href = "/master-data/pump")
+                            }
+                          >
+                            <span className="px-3 text-[11px] py-1 text-red-500">
+                              Cancel
+                            </span>
+                          </LoadingButton>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <LoadingButton
+                            type="submit"
+                            sx={{ height: "25px" }}
+                            className="bg-white"
+                            loading={false}
+                            size="small"
+                            variant="contained"
+                            disableElevation
+                          >
+                            <span className="px-6 text-[11px] py-4 text-white">
+                              {this.props.edit ? "Update" : "Add"}
+                            </span>
+                          </LoadingButton>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </>
             )}

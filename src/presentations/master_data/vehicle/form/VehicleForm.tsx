@@ -10,7 +10,7 @@ import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import { Backdrop, CircularProgress } from "@mui/material";
+import { Alert, Backdrop, CircularProgress, Snackbar } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
@@ -22,7 +22,12 @@ import Tyres from "../component/Tyres";
 import Commercial from "../component/Commercial";
 import Compartment from "../component/Compartment";
 import { useParams } from "react-router-dom";
+import CustomToast from "@/components/modal/CustomToast";
+
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
+
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
@@ -50,6 +55,8 @@ const VehicleForm = (props: any) => {
     getValues,
     formState: { errors, defaultValues },
   } = useForm();
+
+
   const { id }: any = useParams();
   const [state, setState] = useState({
     loading: false,
@@ -250,17 +257,38 @@ const VehicleForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    if (!getValues('Code') || getValues('Code') === '') return;
-    if (!getValues('Name') || getValues('Name') === '') return;
-    if (!getValues('U_Type') || getValues('U_Type') === '') return;
-    if (!getValues('U_VH_NO') || getValues('U_VH_NO') === '') return;
-    if (!getValues('U_PlateNumber') || getValues('U_PlateNumber') === '') return;
-    if (!getValues('U_PlateNumber') || getValues('U_PlateNumber') === '') return;
-    if (!getValues('U_Owner') || getValues('U_Owner') === '') return;
+
+    if (!getValues('Code') || getValues('Code') === '') {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues('Name') || getValues('Name') === '') {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues('U_Type') || getValues('U_Type') === '') {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues('U_VH_NO') || getValues('U_VH_NO') === '') {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues('U_PlateNumber') || getValues('U_PlateNumber') === '') {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues('U_PlateNumber') || getValues('U_PlateNumber') === '') {
+      toastRef.current?.open();
+      return
+    };
+    if (!getValues('U_Owner') || getValues('U_Owner') === '') {
+      toastRef.current?.open();
+      return
+    };
 
     handlerChangeMenu(tapIndex)
   }
-
 
   const HeaderTaps = () => {
     return (
@@ -393,6 +421,7 @@ const VehicleForm = (props: any) => {
 
   return (
     <>
+      <CustomToast ref={toastRef} />
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />

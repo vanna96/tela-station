@@ -1,6 +1,6 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AiOutlineSolution } from "react-icons/ai";
 import IncomingPaymentRepository from "@/services/actions/IncomingPaymentRepository";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import DispenserRepository from "@/services/actions/dispenserRepository";
 import request from "@/utilies/request";
 import { useQuery } from "react-query";
+import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 
 const fetchModuleCount = async (endpoint: string): Promise<number> => {
   const response = (await request("GET", endpoint)) as { data: number }; // Assuming response.data is of type number
@@ -153,40 +154,53 @@ const SystemInitializeMasterPage = () => {
     console.error("Error fetching data:", error);
   }
 
+
+  const { getRoleCode } = useContext(AuthorizationContext);
+
   const renderCards = (cards: any[]) => {
-    return cards.map((card) => (
-      <ItemCard
-        key={card.amountKey}
-        title={card.title}
-        icon={<AiOutlineSolution />}
-        amount={count?.[card.amountKey as keyof typeof count] || 0}
-        onClick={() => navigate(card.route)}
-        isLoading={card.isLoading}
-      />
-    ));
+
+
+
+    return cards.map((card) => {
+      if (!card?.roles?.includes(getRoleCode as Role)) return null;
+
+
+      return (
+        <ItemCard
+          key={card.amountKey}
+          title={card.title}
+          icon={<AiOutlineSolution />}
+          amount={count?.[card.amountKey as keyof typeof count] || 0}
+          onClick={() => navigate(card.route)}
+          isLoading={card.isLoading} />
+      );
+    });
   };
 
   const masterDataCards = renderCards([
-    { title: "Pump", amountKey: "pump", route: "/master-data/pump" },
+    { title: "Pump", amountKey: "pump", route: "/master-data/pump", roles: ['UG001', 'UG004'] },
     {
       title: "Pump Attendant",
       amountKey: "pumpAttendant",
       route: "/master-data/pump-attendant",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Expense Dictionary",
       amountKey: "expenseDictionary",
       route: "/master-data/expense-dictionary",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Cash Account",
       amountKey: "cashAccount",
       route: "/master-data/cash-account",
+      roles: ['UG001', 'UG004']
     },
-    { title: "Driver", amountKey: "driver", route: "/master-data/driver" },
-    { title: "Vehicle", amountKey: "vehicle", route: "/master-data/vehicle" },
-    { title: "Stops", amountKey: "stops", route: "/master-data/stops" },
-    { title: "Route", amountKey: "route", route: "/master-data/route" },
+    { title: "Driver", amountKey: "driver", route: "/master-data/driver", roles: ['UG001', 'UG004'] },
+    { title: "Vehicle", amountKey: "vehicle", route: "/master-data/vehicle", roles: ['UG001', 'UG004'], },
+    { title: "Stops", amountKey: "stops", route: "/master-data/stops", roles: ['UG001', 'UG004'] },
+    { title: "Route", amountKey: "route", route: "/master-data/route", roles: ['UG001', 'UG004'] },
   ]);
 
   const saleTargetCards = renderCards([
@@ -194,11 +208,13 @@ const SystemInitializeMasterPage = () => {
       title: "Sale Scenario",
       amountKey: "saleScenario",
       route: "/sale-target/sale-scenario",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Sale Target",
       amountKey: "saleTarget",
       route: "/sale-target/sale-target",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
@@ -207,16 +223,19 @@ const SystemInitializeMasterPage = () => {
       title: "Fuel Sales",
       amountKey: "fuelOrders",
       route: "/sale-order/fuel-sales",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Lube Sales",
       amountKey: "lubeOrders",
       route: "/sale-order/lube-sales",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "LPG Sales",
       amountKey: "lpgOrders",
       route: "/sale-order/lpg-sales",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
@@ -225,16 +244,19 @@ const SystemInitializeMasterPage = () => {
       title: "Fuel Sales",
       amountKey: "fuelOrders",
       route: "/sale-invoice/fuel-sales",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Lube Sales",
       amountKey: "lubeOrders",
       route: "/sale-invoice/lube-sales",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "LPG Sales",
       amountKey: "lpgOrders",
       route: "/sale-invoice/lpg-sales",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
@@ -243,16 +265,19 @@ const SystemInitializeMasterPage = () => {
       title: "Fuel Cash Sale",
       amountKey: "fuelOrders",
       route: "/retail-sale/fuel-cash-sale",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Lube Cash Sale",
       amountKey: "lubeOrders",
       route: "/retail-sale/lube-cash-sale",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "LPG Cash Sale",
       amountKey: "lpgOrders",
       route: "/retail-sale/lpg-cash-sale",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
@@ -261,16 +286,19 @@ const SystemInitializeMasterPage = () => {
       title: "Settle Receipt",
       amountKey: "settleReceipt",
       route: "/banking/settle-receipt",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Payment on Account",
       amountKey: "settleReceipt",
       route: "/banking/payment-account",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Direct to Account",
       amountKey: "directAccount",
       route: "/banking/direct-account",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
@@ -280,6 +308,7 @@ const SystemInitializeMasterPage = () => {
       title: "Expense Clearance",
       amountKey: "expenseClearance",
       route: "/expense/clearance",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
@@ -288,56 +317,66 @@ const SystemInitializeMasterPage = () => {
       title: "Inventory Transfer Request",
       amountKey: "inventoryTransferRequest",
       route: "/stock-control/inventory-transfer-request",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Stock Transfer",
       amountKey: "stockTransfer",
       route: "/stock-control/stock-transfer",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Good Issue",
       amountKey: "goodIssue",
       route: "/stock-control/good-issue",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Good Receipt",
       amountKey: "goodReceipt",
       route: "/stock-control/good-receipt",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Pump Test",
       amountKey: "pumpTest",
       route: "/stock-control/pump-test",
+      roles: ['UG001', 'UG004']
     },
     {
       title: "Fuel Level",
       amountKey: "fuelLevel",
       route: "/stock-control/fuel-level",
+      roles: ['UG001', 'UG004']
     },
   ]);
 
   const sections = [
-    { title: "Master Data", cards: masterDataCards },
-    { title: "Sale Target", cards: saleTargetCards },
-    { title: "Sale Order", cards: saleOrderCards },
-    { title: "Sale Invoice", cards: saleInvoiceCards },
-    { title: "Retail Sale", cards: retailSaleCards },
-    { title: "Banking", cards: bankingCards },
-    { title: "Expense Log", cards: expenseLogCards },
-    { title: "Stock Control", cards: stockControlCards },
+    { title: "Master Data", cards: masterDataCards, roles: ['UG001', 'UG004'] },
+    { title: "Sale Target", cards: saleTargetCards, roles: ['UG001', 'UG004'] },
+    { title: "Sale Order", cards: saleOrderCards, roles: ['UG001', 'UG004'] },
+    { title: "Sale Invoice", cards: saleInvoiceCards, roles: ['UG001', 'UG004'] },
+    { title: "Retail Sale", cards: retailSaleCards, roles: ['UG001', 'UG004'] },
+    { title: "Banking", cards: bankingCards, roles: ['UG001', 'UG004'] },
+    { title: "Expense Log", cards: expenseLogCards, roles: ['UG001', 'UG004'] },
+    { title: "Stock Control", cards: stockControlCards, roles: ['UG001'] },
   ];
 
   return (
     <div className="px-6">
-      {sections.map((section, index) => (
-        <div key={index}>
-          <h1 className="mb-4 mt-10">{section.title}</h1>
-          <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-            {section.cards}
+      {sections.map((section, index) => {
+        if (!section.roles?.includes(getRoleCode as Role)) return null;
+
+        return (
+          <div key={index}>
+            <h1 className="mb-4 mt-10">{section.title}</h1>
+            <div className="grid grid-cols-6 md:grid-cols-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+              {section.cards}
+            </div>
+            <div className="mb-10" />
           </div>
-          <div className="mb-10" />
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };

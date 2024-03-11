@@ -54,6 +54,7 @@ const Engine = ({
             <div className="col-span-3">
               <MUITextField
                 disabled={detail}
+                type="number"
                 inputProps={{ ...register("U_CylinderNo") }}
               />
             </div>
@@ -84,10 +85,11 @@ const Engine = ({
                           U_BatteryType: e.target.value,
                         });
                       }}
-                      value={
-                        staticSelect.U_BatteryType ||
-                        defaultValues?.U_BatteryType
-                      }
+                      // value={
+                      //   staticSelect.U_BatteryType ||
+                      //   defaultValues?.U_BatteryType
+                      // }
+                      value={field.value}
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -125,10 +127,11 @@ const Engine = ({
                           U_TransmissionType: e.target.value,
                         });
                       }}
-                      value={
-                        staticSelect.U_TransmissionType ||
-                        defaultValues?.U_TransmissionType
-                      }
+                      // value={
+                      //   staticSelect.U_TransmissionType ||
+                      //   defaultValues?.U_TransmissionType
+                      // }
+                      value={field.value}
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -145,7 +148,7 @@ const Engine = ({
             </div>
             <div className="col-span-3">
               <Controller
-                name="U_Type"
+                name="U_SparkPlugType"
                 control={control}
                 render={({ field }) => {
                   return (
@@ -164,10 +167,11 @@ const Engine = ({
                           U_SparkPlugType: e.target.value,
                         });
                       }}
-                      value={
-                        staticSelect.U_SparkPlugType ||
-                        defaultValues?.U_SparkPlugType
-                      }
+                      // value={
+                      //   staticSelect.U_SparkPlugType ||
+                      //   defaultValues?.U_SparkPlugType
+                      // }
+                      value={field.value}
                       aliasvalue="value"
                       aliaslabel="label"
                     />
@@ -202,10 +206,11 @@ const Engine = ({
                           U_HeadlampType: e.target.value,
                         });
                       }}
-                      value={
-                        staticSelect.U_HeadlampType ||
-                        defaultValues?.U_HeadlampType
-                      }
+                      // value={
+                      //   staticSelect.U_HeadlampType ||
+                      //   defaultValues?.U_HeadlampType
+                      // }
+                      value={field.value}
                       aliasvalue="value"
                       aliaslabel="label"
                     />

@@ -1,15 +1,11 @@
 import axios, { AxiosError, ResponseType, AxiosResponse } from "axios"
-import { useCookies } from "react-cookie"
-import { useNavigate } from "react-router-dom"
-import { UpdateDataSuccess } from "./ClientError"
 
-// export const url = "https://103.120.133.234:50000/b1s/v1";
-export const url = "https://192.168.1.11:50000/b1s/v1";
+export const url = `${import.meta.env.VITE_URL || "https://192.168.1.11:50000"}/b1s/v1`;
 
 
 export const axiosInstance = axios.create({
-    withCredentials: true,
-    baseURL: url,
+  withCredentials: true,
+  baseURL: url,
 });
 
 axiosInstance.interceptors.response.use(
@@ -83,8 +79,24 @@ const requestHeader = async (
               reject(new Error("Update Successfully"));
             }
 
-            let error = e?.response?.data?.error?.message?.value;
-            reject(new Error(error ?? "Invalid request"));
+            let errorMessage = "Invalid request";
+
+            if (axios.isAxiosError(e)) {
+              if (e.response) {
+                const errorDetails = e.response.data;
+                const tabInfo = errorDetails.tab ? `Tab: ${errorDetails.tab}, ` : '';
+                const detailedError = errorDetails.error?.message?.value || JSON.stringify(errorDetails);
+
+                errorMessage = tabInfo;
+                if (errorDetails.tab) {
+                  errorMessage += `Description: ${detailedError}`;
+                } else {
+                  errorMessage = detailedError;
+                }
+
+              }
+            }
+            reject(new Error(errorMessage));
           });
       } catch (e) {
         // Handle exceptions here if needed

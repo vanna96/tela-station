@@ -19,13 +19,9 @@ export default function BankAutoComplete(props: {
   name?: any;
   disabled?: any;
 }) {
-  // const { data, isLoading }: any = useQuery({
-  //   queryKey: ["department"],
-  //   queryFn: () => new DepartmentRepository().get(),
-  //   staleTime: Infinity,
-  // });
+
   const { data, isLoading }: any = useQuery({
-    queryKey: ["banks"],
+    queryKey: ["Banks"],
     queryFn: async () => {
       const response: any = await request("GET", `${url}/Banks`)
         .then((res: any) => res?.data?.value)
@@ -34,8 +30,7 @@ export default function BankAutoComplete(props: {
         });
       return response;
     },
-    cacheTime: 0,
-    staleTime: 0,
+   
   });
 
   useEffect(() => {

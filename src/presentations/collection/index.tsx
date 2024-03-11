@@ -4,13 +4,16 @@ import { AiOutlineFileProtect } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
+import { useContext } from "react";
 
 interface CollectionItem {
   title: string;
   icon: React.ReactNode;
   queryKey: string;
   filter: string;
-  route: string
+  route: string;
+  roles: Role[]
 }
 
 const CollectionPage = () => {
@@ -43,27 +46,44 @@ const CollectionPage = () => {
       icon: <AiOutlineFileProtect />,
       queryKey: "settleReceipt",
       filter: "DocType eq 'rCustomer'",
-      route: 'settle-receipt'
+      route: 'settle-receipt',
+      roles: ['UG001', 'UG004'],
     },
     {
       title: "Payment on Account",
       icon: <AiOutlineFileProtect />,
       queryKey: "paymentAccount",
       filter: "DocType eq 'rCustomer'",
-      route: 'payment-account'
+      route: 'payment-account',
+      roles: ['UG001', 'UG004'],
     },
     {
       title: "Direct to Account",
       icon: <AiOutlineFileProtect />,
       queryKey: "directAccount",
       filter: "DocType eq 'rAccount'",
-      route: 'direct-account'
+      route: 'direct-account',
+      roles: ['UG001', 'UG004'],
+    },
+    {
+      roles: ['UG001', 'UG004'],
+      title: "Deposit",
+      icon: <AiOutlineFileProtect />,
+      queryKey: "deposit",
+      filter: "DocType eq 'rAccount'",
+      route: 'deposit'
     },
   ];
 
+
+  const { getRoleCode } = useContext(AuthorizationContext);
+
   return (
     <MainContainer title="Collection">
-      {collectionItems.map(({ title, icon, queryKey, filter,route }, index) => {
+      {collectionItems.map(({ title, icon, queryKey, filter, route, roles }, index) => {
+
+        if (!roles.includes(getRoleCode as Role)) return null;
+
         const { data, isLoading } = createUseQuery(queryKey, filter);
         return (
           <ItemCard

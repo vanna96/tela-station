@@ -23,6 +23,8 @@ export default function SaleOrderLists() {
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
   let numAtCardFilter = "";
+  const [dataUrl, setDataUrl] = React.useState("");
+
   switch (salesType) {
     case "fuel-cash-sale":
       numAtCardFilter = "Oil";
@@ -34,13 +36,12 @@ export default function SaleOrderLists() {
       numAtCardFilter = "LPG";
       break;
     default:
-    // Handle the default case or log an error if needed
   }
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No.",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
@@ -54,9 +55,6 @@ export default function SaleOrderLists() {
         visible: true,
         type: "string",
         align: "center",
-        size: 65,
-        Cell: ({ cell }: any) =>
-          new DispenserRepository()?.find("Sopen2")?.Name,
       },
       {
         accessorKey: "U_tl_cardcode",
@@ -65,7 +63,6 @@ export default function SaleOrderLists() {
         visible: true,
         type: "string",
         align: "center",
-        size: 65,
       },
       {
         accessorKey: "U_tl_cardname",
@@ -73,23 +70,22 @@ export default function SaleOrderLists() {
         visible: true,
         type: "string",
         align: "center",
-        size: 90,
       },
+
       {
-        accessorKey: "U_tl_docdate",
+        accessorKey: "TaxDate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
-            "YYYY-MM-DD"
+          const formattedDate = moment(cell.row.original.TaxDate).format(
+            "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
         },
       },
-
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",
@@ -97,7 +93,6 @@ export default function SaleOrderLists() {
         visible: true,
         Cell: ({ cell }: any) =>
           new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-        size: 60,
       },
 
       //
@@ -135,13 +130,9 @@ export default function SaleOrderLists() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              disabled={cell.row.original.U_tl_status === "Close" ?? false}
               className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
+                cell.row.original.U_tl_status === "Close" ? "bg-gray-400" : ""
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
@@ -158,7 +149,7 @@ export default function SaleOrderLists() {
               <DriveFileRenameOutlineIcon
                 fontSize="small"
                 className="text-gray-600 "
-              />{" "}
+              />
               <span style={{ textTransform: "none" }}> Edit</span>
             </Button>
           </div>
@@ -177,7 +168,7 @@ export default function SaleOrderLists() {
   const Count: any = useQuery({
     queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", salesType, filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RetailSale/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -193,28 +184,37 @@ export default function SaleOrderLists() {
     queryKey: [
       "retail-sale-lob",
       salesType,
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
+
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/TL_RetailSale?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }${filter ? ` and ${filter}` : filter}${
-          sortBy !== "" ? "&$orderby=" + sortBy : ""
-        }`
-      )
+      const Url = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+
+      const dataUrl = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+
+      setDataUrl(dataUrl);
+      const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
-
       return response;
     },
+    refetchOnWindowFocus: false,
     // staleTime: Infinity,
     retry: 1,
   });
-
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -366,19 +366,7 @@ export default function SaleOrderLists() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                />
-              </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
                   label="Posting Date"
@@ -424,38 +412,25 @@ export default function SaleOrderLists() {
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "TaxDate" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
             </div>
           </div>
         </div>
         <DataTable
-          columns={columns}
-          data={data}
+          dataUrl={dataUrl}
+          columns={[
+            {
+              accessorKey: "index",
+              header: "No.",
+              size: 20,
+              visible: true,
+              type: "number",
+            },
+            ...columns,
+          ]}
+          data={data?.map((item: any, index: any) => ({
+            ...item,
+            index: index + 1,
+          }))}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}

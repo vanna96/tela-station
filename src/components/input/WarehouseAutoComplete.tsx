@@ -9,7 +9,7 @@ interface Warehouse {
   WarehouseName: string;
 }
 
-export default function zWarehouseAutoComplete(props: {
+export default function WarehouseAutoComplete(props: {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;

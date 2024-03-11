@@ -1,6 +1,6 @@
 import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AiOutlineFileAdd,
@@ -8,6 +8,7 @@ import {
   AiOutlineFileProtect,
 } from "react-icons/ai";
 import SalesOrderRepository from "@/services/actions/SalesOrderRepository";
+import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 
 const SaleInvoicePage = () => {
   const navigate = useNavigate();
@@ -42,27 +43,38 @@ const SaleInvoicePage = () => {
     getCount();
   }, []);
 
+
+  const { getRoleCode } = useContext(AuthorizationContext);
+
   return (
     <>
       <MainContainer title="Sale Invoice">
-        <ItemCard
-          title="Fuel Sales"
-          icon={<AiOutlineFileAdd />}
-          onClick={() => goTo("fuel-sales")}
-          amount={count?.fuel || 0}
-        />
-        <ItemCard
-          title="Lube Sales"
-          icon={<AiOutlineFileExcel />}
-          onClick={() => goTo("lube-sales")}
-          amount={count?.lube || 0}
-        />
-        <ItemCard
-          title="LPG Sales"
-          icon={<AiOutlineFileProtect />}
-          onClick={() => goTo("lpg-sales")}
-          amount={count?.lpg || 0}
-        />
+        {['UG001', 'UG004'].includes(getRoleCode as Role) &&
+          <ItemCard
+            title="Fuel Sales"
+            icon={<AiOutlineFileAdd />}
+            onClick={() => goTo("fuel-sales")}
+            amount={count?.fuel || 0}
+          />
+        }
+
+        {['UG001', 'UG004'].includes(getRoleCode as Role) &&
+          <ItemCard
+            title="Lube Sales"
+            icon={<AiOutlineFileExcel />}
+            onClick={() => goTo("lube-sales")}
+            amount={count?.lube || 0}
+          />
+        }
+
+        {['UG001', 'UG004'].includes(getRoleCode as Role) &&
+          <ItemCard
+            title="LPG Sales"
+            icon={<AiOutlineFileProtect />}
+            onClick={() => goTo("lpg-sales")}
+            amount={count?.lpg || 0}
+          />
+        }
       </MainContainer>
     </>
   );

@@ -4,6 +4,8 @@ import { AiOutlineFileProtect } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import { useContext } from "react";
+import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 
 interface CollectionItem {
   title: string;
@@ -11,6 +13,7 @@ interface CollectionItem {
   queryKey: string;
   filter: string;
   route: string;
+  roles: Role[]
 }
 
 const RetailSalePage = () => {
@@ -23,8 +26,9 @@ const RetailSalePage = () => {
         try {
           const response = await request(
             "GET",
-            `Orders/$count?$filter=${filter}`
+            `TL_RETAILSALE/$count${filter ? `?$filter=${filter}` : ""}`
           );
+
           return (response as { data?: number })?.data as number;
         } catch (error) {
           console.error(`Error fetching data for ${queryKey}:`, error);
@@ -39,33 +43,42 @@ const RetailSalePage = () => {
 
   const collectionItems: CollectionItem[] = [
     {
+      roles: ['UG001', 'UG004'],
       title: "Fuel Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "fuelOrders",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      filter: "",
       route: "fuel-cash-sale",
     },
     {
+      roles: ['UG001', 'UG004'],
       title: "Lube Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lubeOrders",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      filter: "",
       route: "lube-cash-sale",
     },
     {
+      roles: ['UG001', 'UG004'],
       title: "LPG Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lpgOrders",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
+      filter: "",
       route: "lpg-cash-sale",
     },
   ];
 
+  const { getRoleCode } = useContext(AuthorizationContext);
+
   return (
     <MainContainer title="Retail Sale">
       {collectionItems.map(
-        ({ title, icon, queryKey, filter, route }, index) => {
+        ({ title, icon, queryKey, filter, route, roles }, index) => {
+
+          if (!roles.includes(getRoleCode as Role)) return null;
+
           const { data, isLoading } = createUseQuery(queryKey, filter);
+
           return (
             <ItemCard
               key={index}

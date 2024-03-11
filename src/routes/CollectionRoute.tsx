@@ -1,23 +1,25 @@
-import { Route, Routes } from "react-router-dom"
-import { QueryCacheProvider } from "@/utilies/provider"
-import Collection from "@/presentations/collection"
+import { Route, Routes } from "react-router-dom";
+import { QueryCacheProvider } from "@/utilies/provider";
+import Collection from "@/presentations/collection";
 import IncomingPaymentLists from "@/presentations/collection/incoming_payment";
 import Form from "@/presentations/collection/incoming_payment/form";
 import Detail from "@/presentations/collection/incoming_payment/detail";
 import OutGoingLists from "@/presentations/collection/outgoing_payment";
 import OutGoingForm from "@/presentations/collection/outgoing_payment/form";
 import OutGoingDetail from "@/presentations/collection/outgoing_payment/detail";
-import SettleReceiptLists from "@/presentations/collection/settle_receipt"
-import SettleReceiptForm from "@/presentations/collection/settle_receipt/form"
-import SettleReceiptDetail from "@/presentations/collection/settle_receipt/detail/index"
-import { APIContextProvider } from "@/presentations/collection/settle_receipt/context/APIContext"
-import PaymentAccountLists from "@/presentations/collection/payment_account"
-import PaymentAccountForm from "@/presentations/collection/payment_account/form"
-import PaymentAccountDetail from "@/presentations/collection/payment_account/detail"
-import DirectAccountLists from "@/presentations/collection/direct_account"
-import DirectAccountForm from "@/presentations/collection/direct_account/form"
-import DirectAccountDetail from "@/presentations/collection/direct_account/detail"
-
+import SettleReceiptLists from "@/presentations/collection/settle_receipt";
+import SettleReceiptForm from "@/presentations/collection/settle_receipt/form";
+import SettleReceiptDetail from "@/presentations/collection/settle_receipt/detail/index";
+import { APIContextProvider } from "@/presentations/collection/settle_receipt/context/APIContext";
+import PaymentAccountLists from "@/presentations/collection/payment_account";
+import PaymentAccountForm from "@/presentations/collection/payment_account/form";
+import PaymentAccountDetail from "@/presentations/collection/payment_account/detail";
+import DirectAccountLists from "@/presentations/collection/direct_account";
+import DirectAccountForm from "@/presentations/collection/direct_account/form";
+import DirectAccountDetail from "@/presentations/collection/direct_account/detail";
+import DepositList from "@/presentations/collection/deposits";
+import DepositForm from "@/presentations/collection/deposits/form/index"
+import DepositDeatil from "@/presentations/collection/deposits/detail/index"
 export default function CollectionRoute() {
   return (
     <Routes>
@@ -129,6 +131,12 @@ export default function CollectionRoute() {
           }
         />
       </Route>
+      <Route path="/deposit">
+        <Route index element={<DepositList />} />
+        <Route path=":id" element={<DepositDeatil detail={true}/>} />
+        <Route path="create" element={<DepositForm />} />
+        <Route path=":id/edit" element={<DepositDeatil edit={true} />} />
+      </Route>
     </Routes>
-  )
+  );
 }

@@ -72,6 +72,7 @@ export default function FormattedInputs(props: FormattedInputsProps) {
       </label>
 
       <TextField
+        disabled={disabeld}
         value={value}
         defaultValue={defaultValue}
         onChange={onChange}

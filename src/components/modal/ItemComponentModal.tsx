@@ -14,6 +14,7 @@ import { HiSearch, HiX } from "react-icons/hi";
 import shortid from "shortid";
 import WarehouseRepository from "@/services/warehouseRepository";
 import WareBinLocationRepository from "@/services/whBinLocationRepository";
+import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
 
 export type ItemType = "purchase" | "sale" | "inventory";
 export type ItemGroup = 100 | 101 | 102;
@@ -52,15 +53,15 @@ const ItemModal: FC<ItemModalProps> = ({
   const itemsGroupCodes = [100, 101, 102];
 
   const groupCondition =
-    group == undefined ? `(ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)`: `ItemsGroupCode eq ${group}`;
+    group == undefined
+      ? `(ItemsGroupCode eq 100 or ItemsGroupCode eq 101 or ItemsGroupCode eq 102)`
+      : `ItemsGroupCode eq ${group}`;
   const { data, isFetching }: any = useQuery({
     queryKey: ["items", group],
     queryFn: () =>
       new itemRepository().getSaleItem(
         `&$filter=ItemType eq 'itItems' and SalesItem eq 'tYES' and ${groupCondition} &$orderby=ItemCode asc`
       ),
-      
-   
   });
 
   const [pagination, setPagination] = React.useState({
@@ -168,6 +169,8 @@ const ItemModal: FC<ItemModalProps> = ({
       const UoMEntryValues = e?.ItemUnitOfMeasurementCollection?.filter(
         (item: any) => item.UoMType === "iutSales"
       )?.map((item: any) => item.UoMEntry);
+      const unitPriceValue =
+        defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ?? 0;
 
       return {
         ItemCode: e?.ItemCode,
@@ -178,28 +181,23 @@ const ItemModal: FC<ItemModalProps> = ({
         ItemGroup: e?.ItemsGroupCode,
         SaleVatGroup: e?.SalesVATGroup,
         PurchaseVatGroup: e?.PurchaseVATGroup,
-        VatGroup: e?.SalesVATGroup || e?.PurchaseVATGroup,
-        VatRate: e?.SalesVATGroup === "VO10" ? 10 : 0,
-        Quantity: defaultPrice !== null ? 1 : 0,
-        // UnitPrice: defaultPrice ?? 0,
-        DiscountPercent: 0,
+        VatGroup: e?.SalesVATGroup ?? "VO10",
+        Quantity: null,
+        DiscountPercent: null,
         LineTotal: total,
         Total: total,
         TotalGross: 0,
         WarehouseCode: e?.WarehouseCode || WarehouseCode,
-
         BinAbsEntry:
           warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
         BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
         LineOfBussiness: e?.U_tl_dim1,
-        // ProductLine: item.ProductLine ?? "203004",
-        UnitPrice:
-          defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ??
-          0,
+        UnitPrice: formatNumberWithoutRounding(unitPriceValue, 4),
         COGSCostingCode: e?.U_tl_dim1,
         COGSCostingCode2: U_ti_revenue,
         COGSCostingCode3: e?.U_tl_dim2,
-        GrossPrice: defaultPrice,
+        // GrossPrice: defaultPrice,
+        GrossPrice: formatNumberWithoutRounding(defaultPrice, 4),
         ItemPrices: e.ItemPrices,
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
