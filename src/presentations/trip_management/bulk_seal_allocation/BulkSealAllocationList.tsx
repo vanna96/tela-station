@@ -170,7 +170,7 @@ export default function BulkSealAllocationList() {
                     <thead>
                       <tr className="sticky top-0 z-50 shadow-sm border-[1px] border-t-0 border-l-0 border-r-0 font-bold">
                         <th className="w-[70px] text-left  py-2 pl-3 text-[14px] text-gray-500"></th>
-                        <th className="w-[150px] text-left  py-2 pl-3 text-[14px] text-gray-500">
+                        <th className="w-[150px] text-left  py-2 pl-3 text-[14px]">
                           No
                         </th>
                         <th className="w-[250px] text-left py-2 text-[14px]">
