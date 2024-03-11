@@ -55,26 +55,26 @@ const StockControlPage = () => {
   const fuelLevel = createUseQuery("fuel-level", "TL_FUEL_LEVEL/$count");
   const items = [
     {
-      roles: ['UG001', 'UG004', 'UG003'],
+      roles: ['UG001', 'UG004'],
       title: "Inventory Transfer Request",
       route: "inventory-transfer-request",
       icon: <AiOutlineFileAdd />,
     },
     {
-      roles: ['UG001', 'UG004', 'UG003'],
+      roles: ['UG001', 'UG004'],
       title: "Stock Transfer",
       route: "stock-transfer",
       icon: <AiOutlineFileAdd />,
     },
-    { title: "Good Issue", route: "good-issue", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004', 'UG003'] },
+    { title: "Good Issue", route: "good-issue", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004'] },
     {
       title: "Good Receipt",
       route: "good-receipt",
       icon: <AiOutlineFileAdd />,
-      roles: ['UG001', 'UG004', 'UG003']
+      roles: ['UG001', 'UG004']
     },
-    { title: "Pump Test", route: "pump-test", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004', 'UG003'] },
-    { title: "Fuel Level", route: "fuel-level", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004', 'UG003'], },
+    { title: "Pump Test", route: "pump-test", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004'] },
+    { title: "Fuel Level", route: "fuel-level", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004'], },
   ];
 
 

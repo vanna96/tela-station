@@ -9,19 +9,21 @@ import { Controller } from "react-hook-form"
 import shortid from "shortid"
 import FormMessageModal from "@/components/modal/FormMessageModal"
 import CustomToast from "@/components/modal/CustomToast"
+import { useGetBranchesAssignHook } from "@/hook/useGetBranchesAssignHook"
 import FuelLevelBranchAutoComplete from "../components/FuelLevelBranchAutoComplete"
 import { useGetFuelLevelSeriesHook } from "../hook/useGetFuelLevelSeriesHook"
 import FuelLevelWhsAutoComplete from "../components/FuelLevelWarehouseAutoComplete"
 import FuelLevelWarehouseBinAutoComplete from "../components/FuelLevelWarehouseBinAutoComplete"
+import { MdEdit } from 'react-icons/md';
 import { IoCreate } from "react-icons/io5"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
-export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
+export const FuelLevelFormDetail = () => {
   const [tap, setTap] = useState<number>(0)
-  const hook = useFuelLevelFormHook(edit, dialog);
+  const hook = useFuelLevelFormHook(false, dialog);
 
   const onChangeTap = (index: number) => {
 
@@ -33,39 +35,31 @@ export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
     setTap(index)
   }
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { id } = useParams();
 
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Fuel Level Test</h1>
+      <h1>Fuel Level Test </h1>
 
-      {edit && <Button
+      <Button
         variant="outlined"
         size="small"
-        onClick={() => {
-          hook.reset({
-            U_tl_doc_date: new Date().toISOString()?.split('T')[0],
-            TL_FUEL_LEVEL_LINESCollection: [],
-            U_tl_bplid: undefined
-          }, {
-            keepDirtyValues: false,
-            keepErrors: false,
-            keepDirty: false,
-            keepDefaultValues: false,
-            keepIsSubmitted: false,
-            keepIsValid: false,
-            keepSubmitCount: false,
-            keepTouched: false,
-            keepValues: false
-          })
-          navigate(`/stock-control/fuel-level/create`)
-        }}
+        onClick={() => navigate(`/stock-control/fuel-level/${id}/edit`)}
+        endIcon={<MdEdit />}
+      >
+        Edit
+      </Button>
+      <Button
+        variant="outlined"
+        size="small"
+        // sx={{ color: "rgb(59 130 246) !important", marginLeft: "10px" }}
+        onClick={() => navigate(`/stock-control/fuel-level/create`)}
         endIcon={<IoCreate />}
       >
         Create
-      </Button>}
-
+      </Button>
     </div>
 
     <div className="w-full border-t border-b mt-4">
@@ -79,7 +73,6 @@ export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
       onSubmit={hook.handleSubmit(hook.onSubmit, hook.onInvalidForm)}
       className="grow flex flex-col">
       <div className="grow ">
-
         <Backdrop
           sx={{
             color: "#fff",
@@ -91,52 +84,13 @@ export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
           <CircularProgress />
         </Backdrop>
 
-        {tap === 0 && <General {...hook} edit={edit} />}
-        {tap === 1 && <Content {...hook} edit={edit} />}
+        {tap === 0 && <General {...hook} />}
+        {tap === 1 && <Content {...hook} />}
       </div>
 
 
       <FormMessageModal ref={dialog} />
       <CustomToast ref={toastRef} />
-
-      <div className="sticky w-full bottom-4 md:bottom-0 md:p-3  mt-2 ">
-        <div className="backdrop-blur-sm bg-white p-2 rounded-lg  z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-          <div className="flex ">
-            <LoadingButton
-              size="small"
-              sx={{ height: "25px" }}
-              variant="outlined"
-              style={{
-                background: "white",
-                border: "1px solid red",
-              }}
-              disableElevation
-              onClick={() =>
-                (window.location.href = "/stock-control/fuel-level")
-              }
-            >
-              <span className="px-3 text-[11px] py-1 text-red-500">
-                Cancel
-              </span>
-            </LoadingButton>
-          </div>
-          <div className="flex items-center space-x-4">
-            <LoadingButton
-              type="submit"
-              sx={{ height: "25px" }}
-              className="bg-white"
-              loading={false}
-              size="small"
-              variant="contained"
-              disableElevation
-            >
-              <span className="px-6 text-[11px] py-4 text-white">
-                {edit ? 'Update' : 'Add'}
-              </span>
-            </LoadingButton>
-          </div>
-        </div>
-      </div>
     </form>
   </div>
 }
@@ -144,13 +98,10 @@ export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
 
 
 const General = (props: any) => {
-
   // 
   const { series, defaultSerie } = useGetFuelLevelSeriesHook();
 
   useEffect(() => {
-    if (props?.edit) return;
-
     if (!defaultSerie.data) return;
     props?.setValue('DocNum', defaultSerie.data);
   }, [defaultSerie.data])
@@ -169,7 +120,7 @@ const General = (props: any) => {
     <div>
       <div className="grid grid-cols-4 item-center justify-center  text-sm ">
         <label htmlFor="Code" className="text-gray-500 text-[14px] flex items-center gap-1">
-          Branch <span className="text-red-500">*</span>
+          Branch {props.watch('U_tl_bplid')} <span className="text-red-500">*</span>
         </label>
         <div className="col-span-3">
           <Controller
@@ -178,6 +129,7 @@ const General = (props: any) => {
             render={({ field }) => {
               return (
                 <FuelLevelBranchAutoComplete
+                  disabled={true}
                   value={props.watch('U_tl_bplid')}
                   onChange={(e) => props?.setValue('U_tl_bplid', e.BPLID)}
                 />
@@ -201,8 +153,8 @@ const General = (props: any) => {
             render={({ field }) => {
               return (
                 <MUISelect
+                  disabled={true}
                   value={field.value}
-                  disabled={props?.edit}
                   items={series.data ?? []}
                   aliaslabel="Name"
                   aliasvalue="Series"
@@ -211,7 +163,7 @@ const General = (props: any) => {
               );
             }}
           />
-          <MUITextField key={props?.watch('DocNum')} value={props?.watch('DocNum')} disabled={true} />
+          <MUITextField value={props?.watch('DocNum')} disabled={true} />
         </div>
       </div>
 
@@ -227,7 +179,9 @@ const General = (props: any) => {
               return (
                 <MUIDatePicker
                   {...field}
-                  value={props?.watch('U_tl_doc_date') ?? ''}
+                  disabled={true}
+                  key={props?.watch('U_tl_doc_date')}
+                  value={props?.watch('U_tl_doc_date') ?? undefined}
                   onChange={(e: any) => {
                     const val =
                       e.toLowerCase() ===
@@ -300,16 +254,11 @@ const Content = (props: any) => {
 
 
   return <div className="grow w-full h-full mt-8">
-    <div className="border p-2 text-[15px] flex flex-col gap-4  w-full">
-      <div className="w-full flex justify-end ">
-        <div role="button" onClick={handlerDelete} className=" px-4 py-1 rounded-[4px] hover:bg-gray-100 text-red-500 border">Remove</div>
-      </div>
-
+    <div className=" p-2 text-[15px] flex flex-col gap-4  w-full">
       <div className="w-full   overflow-auto">
-        <table className="w-full border table table-fixed p-2 lg:w-[60rem] ">
+        <table className="w-full  table table-fixed p-2 lg:w-[60rem] ">
           <thead className="text-sm font-thin">
             <tr className="border">
-              <th className="w-[4rem]"></th>
               <th className="p-2 font-thin text-left w-[16rem]">Warehouse Code <span className="text-red-500">*</span></th>
               <th className="p-2 font-thin text-left w-[16rem]">Bin Code <span className="text-red-500">*</span></th>
               <th className="w-[12rem] p-2 font-thin text-left">Volumn <span className="text-red-500">*</span></th>
@@ -324,14 +273,13 @@ const Content = (props: any) => {
               </td>
             </tr>}
             {lines.map((row, index: number) => <tr key={shortid.generate()}>
-              <td className="p-2 flex justify-center"><Checkbox checked={selected.includes(index)} onChange={(e) => onSelectChange(e, index)} /></td>
               <td className="p-2 w-full">
                 <Controller
                   name={`TL_FUEL_LEVEL_LINESCollection.${index}.U_tl_whscode`}
                   rules={{ required: `Warehouse on row ${index} is required.` }}
                   control={props?.control}
                   render={({ field }) => {
-                    return <FuelLevelWhsAutoComplete value={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_whscode', e?.WarehouseCode)} />
+                    return <FuelLevelWhsAutoComplete disabled={true} value={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_whscode', e?.WarehouseCode)} />
                   }}
                 />
               </td>
@@ -341,7 +289,7 @@ const Content = (props: any) => {
                   rules={{ required: `Bin Code on row ${index} is required.` }}
                   control={props?.control}
                   render={({ field }) => {
-                    return <FuelLevelWarehouseBinAutoComplete value={row?.U_tl_bincode} whsCode={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_bincode', e?.AbsEntry)} />
+                    return <FuelLevelWarehouseBinAutoComplete disabled={true} value={row?.U_tl_bincode} whsCode={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_bincode', e?.AbsEntry)} />
                   }}
                 />
               </td>
@@ -353,6 +301,7 @@ const Content = (props: any) => {
                   render={({ field }) => {
                     return <MUITextField
                       type="number"
+                      disabled={true}
                       inputProps={{
                         defaultValue: row?.U_tl_volumn,
                         onBlur: (e) => onChangeValue(index, 'U_tl_volumn', e.target.value)
@@ -368,6 +317,7 @@ const Content = (props: any) => {
                   render={({ field }) => {
                     return <MUITextField
                       type="number"
+                      disabled={true}
                       inputProps={{
                         defaultValue: row?.U_tl_qty,
                         onBlur: (e) => onChangeValue(index, 'U_tl_qty', e.target.value)
@@ -376,18 +326,16 @@ const Content = (props: any) => {
                   }}
                 />
               </td>
-              <td className="p-2"><MUITextField
-                inputProps={{
-                  defaultValue: row?.U_Remrk,
-                  onBlur: (e) => onChangeValue(index, 'U_tl_remark', e.target.value)
-                }} /></td>
+              <td className="p-2">
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    defaultValue: row?.U_Remrk,
+                    onBlur: (e) => onChangeValue(index, 'U_tl_remark', e.target.value)
+                  }} /></td>
             </tr>)}
           </tbody>
         </table>
-      </div>
-
-      <div className="w-full flex justify-start ">
-        <div role="button" onClick={onAddCollection} className="px-10 py-1 rounded-[4px] hover:bg-gray-100  border">Add</div>
       </div>
     </div>
   </div>

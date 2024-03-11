@@ -47,7 +47,7 @@ const BasicInformation = ({
     );
   }, [serie]);
 
-  const depositDate = watch("DepositDate"); 
+  const depositDate = watch("DepositDate");
 
   useEffect(() => {
     const currentDate = new Date();
@@ -55,7 +55,7 @@ const BasicInformation = ({
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so we add 1
     const day = String(currentDate.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;    
+    const formattedDate = `${year}-${month}-${day}`;
     setValue("DepositDate", formattedDate);
   }, [setValue]);
 
@@ -175,14 +175,14 @@ const BasicInformation = ({
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
-              <Controller
+                <Controller
                   rules={{ required: "G/L Account Code is required" }}
                   name="U_tl_cash_acc"
                   control={control}
                   render={({ field }) => {
                     return (
                       <DepositCashAccountAutoComplete
-                       disabled={detail}
+                        disabled={detail}
                         value={field.value}
                         onChange={(e: any) => {
                           setValue(
@@ -193,9 +193,10 @@ const BasicInformation = ({
                             "U_tl_cash_des",
                             e?.Name,
                           );
+
                           setValue(
                             "DepositAccount",
-                            e?.U_tl_cash_acc,
+                            e?.U_tl_cashacct,
                           );
                         }}
                       />
@@ -238,11 +239,11 @@ const BasicInformation = ({
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                              console.log(val);
-                              
+                          console.log(val);
+
                           setValue("DepositDate", val);
                         }}
                       />

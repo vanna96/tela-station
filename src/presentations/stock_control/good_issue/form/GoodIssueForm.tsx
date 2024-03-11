@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
@@ -12,51 +13,47 @@ import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
-import BasicInformation from "../components/BasicInformation";
 import { useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
-import Checks from "../components/Checks";
-import Cash from "../components/Cash";
-import DocumentSerieRepository from "@/services/actions/documentSerie";
-import { useDepositHook } from "../hook/useDepositHook";
-import CustomToast from "@/components/modal/CustomToast";
-
+import DepartmentRepository from "@/services/actions/departmentRepository";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useQuery } from "react-query";
+import General from "../components/General";
+import Content from "../components/Content";
+import Tabar from "../components/Tabar";
 let dialog = React.createRef<FormMessageModal>();
-let toastRef = React.createRef<CustomToast>();
-
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?:
-  | Readonly<{
-    [x: string]: any;
-  }>
-  | undefined;
+    | Readonly<{
+        [x: string]: any;
+      }>
+    | undefined;
   setBranchAss?: any;
   branchAss?: any;
+  header?: any;
+  setHeader?: any;
   detail?: boolean;
-  edit?: boolean;
-  data?: any;
   watch: UseFormWatch<FieldValues>;
-  serie?: any;
   getValues: UseFormGetValues<FieldValues>;
 };
 // const { id } = useParams();
-const DepositForm = (props: any) => {
-  // const {
-  //   watch,
-  //   handleSubmit,
-  //   register,
-  //   setValue,
-  //   control,
-  //   reset,
-  //   getValues,
-  //   formState: { errors, defaultValues },
-  // } = useForm();
-  const { id }: any = useParams();
+const GoodIssueForm = (props: any) => {
+  const {
+    handleSubmit,
+    register,
+    setValue,
+    control,
+    reset,
+    getValues,
+    watch,
+    formState: { errors, defaultValues },
+  } = useForm();
+  const { id }: any = props?.match?.params || 0;
 
   const [state, setState] = useState({
     loading: false,
@@ -67,32 +64,21 @@ const DepositForm = (props: any) => {
     showCollapse: true,
     DocNum: id,
   });
-  // const [header, setHeader] = useState({
-  //   firstName: null,
-  //   lastName: null,
-  //   gender: null,
-  //   department: null,
-  //   branch: null,
-  // });
+  const [header, setHeader] = useState({
+    firstName: null,
+    lastName: null,
+    gender: null,
+    department: null,
+    branch: null,
+  });
 
   const [branchAss, setBranchAss] = useState([]);
-  const [deposit, setDeposit] = React.useState<any>();
-  const [serie, setSerie] = useState([]);
+  const [driver, setDriver] = React.useState<any>();
 
   useEffect(() => {
-    fethSeries();
+    // Fetch initial data if needed
     fetchData();
   }, []);
-  const fethSeries = async () => {
-    let seriesList: any = props?.query?.find("deposit-series");
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "25",
-      });
-      props?.query?.set("deposit-series", seriesList);
-    }
-    setSerie(seriesList);
-  };
 
   const fetchData = async () => {
     if (id) {
@@ -100,17 +86,68 @@ const DepositForm = (props: any) => {
         ...state,
         loading: true,
       });
-      await request("GET", `Deposits(${id})`)
+      await request("GET", `EmployeesInfo(${id})`)
         .then((res: any) => {
-          setDeposit(res?.data);
+          setBranchAss(res?.data?.EmployeeBranchAssignment);
+          setDriver(res?.data);
           setState({
             ...state,
             loading: false,
+            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
           });
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
         );
+    }
+  };
+
+  const onSubmit = async (e: any) => {
+    const data: any = Object.fromEntries(
+      Object.entries(e).filter(
+        ([key, value]): any => value !== null && value !== undefined
+      )
+    );
+    const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
+    const payload = {
+      ...data,
+      U_tl_driver: "Y",
+      U_tl_name: fullName,
+      HomeCountry: "KH",
+      EmployeeBranchAssignment: branchAss?.map((e: any) => {
+        return {
+          BPLID: e?.BPLID,
+        };
+      }),
+    };
+    const { id } = props?.match?.params || 0;
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request("PATCH", `/EmployeesInfo(${id})`, payload)
+          .then((res: any) =>
+            dialog.current?.success(
+              "Update Successfully.",
+              res?.data?.EmployeeID
+            )
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/EmployeesInfo", payload)
+          .then((res: any) =>
+            dialog.current?.success(
+              "Create Successfully.",
+              res?.data?.EmployeeID
+            )
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
     }
   };
 
@@ -123,109 +160,55 @@ const DepositForm = (props: any) => {
     },
     [state]
   );
-
   const isNextTap = (tapIndex: number) => {
-    if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "") {
-      toastRef.current?.open()
-      return;
-    }
-
-    if (!getValues("BPLID") || getValues("BPLID") === "") {
-      toastRef.current?.open()
-      return;
-    }
-
-    if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
-      toastRef.current?.open()
-      return;
-    }
-
-    if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
-      toastRef.current?.open()
-      return;
-    }
+    // if (!getValues("FirstName") || getValues("FirstName") === "") return;
+    // if (!getValues("LastName") || getValues("LastName") === "") return;
+    // if (!getValues("EmployeeCode") || getValues("EmployeeCode") === "") return;
+    // if (!getValues("BPLID") || getValues("BPLID") === "") return;
+    // if (!getValues("U_tl_terminal") || getValues("U_tl_terminal") === "")
+    //   return;
+    // if (!getValues("StartDate") || getValues("StartDate") === "") return;
+    // if (!getValues("Position") || getValues("Position") === "") return;
 
     handlerChangeMenu(tapIndex);
   };
-
-  const {
-    onSubmit,
-    onInvalidForm,
-    watch,
-    handleSubmit,
-    register,
-    setValue,
-    control,
-    reset,
-    getValues,
-  } = useDepositHook({ props, state, setState, id, dialog });
 
   const HeaderTaps = () => {
     return (
       <>
         <MenuButton active={state.tapIndex === 0} onClick={() => isNextTap(0)}>
-          Basic Information
+          General
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 1}
-          onClick={() => {
-            isNextTap(1);
-            setValue("DepositType", "dtChecks");
-            setValue("TotalLC", undefined);
-          }}
-        >
-          Checks
+        <MenuButton active={state.tapIndex === 1} onClick={() => isNextTap(1)}>
+          Content
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 2}
-          onClick={() => {
-            setValue("DepositType", "dtCash");
-            setValue("CheckLines", []);
-            isNextTap(2);
-          }}
-        >
-          Cash
-        </MenuButton>
+        {/* ... Other menu buttons ... */}
       </>
     );
   };
 
   React.useEffect(() => {
-    if (deposit) {
-      reset({ ...deposit });
+    if (driver) {
+      reset({ ...driver });
     }
-  }, [deposit]);
+  }, [driver]);
 
-  // const onInvalidForm = (invalids: any) => {
-  //   dialog.current?.error(
-  //     invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-  //       "Oop something wrong!",
-  //     "Invalid Value"
-  //   );
-  // };
+  const onInvalidForm = (invalids: any) => {
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
+  };
   return (
     <>
-      <CustomToast ref={toastRef} />
-
       {state.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent
-            data={state}
-            menuTabs={<HeaderTaps />}
-            HeaderCollapeMenu={
-              <>
-                {/* <Left header={header} data={driver} /> */}
-                {/* <Right header={header} data={driver} /> */}
-                {/* <TotalSummaryRightSide data={this.state} /> */}
-              </>
-            }
-            leftSideField={undefined}
-            rightSideField={undefined}
-          />
+          <Tabar data={state} menuTabs={<HeaderTaps />} />
           <Backdrop
             sx={{
               color: "#fff",
@@ -244,42 +227,31 @@ const DepositForm = (props: any) => {
           >
             {state.tapIndex === 0 && (
               <div className="grow">
-                <BasicInformation
+                <General
                   register={register}
-                  setValue={setValue}
-                  control={control}
-
-                  serie={serie}
-                  watch={watch}
                   getValues={getValues}
+                  control={control}
+                  watch={watch}
+                  setValue={setValue}
                 />
               </div>
             )}
             {state.tapIndex === 1 && (
               <div className="grow">
-                <Checks
-                  watch={watch}
+                <Content
                   register={register}
-                  setValue={setValue}
-                  control={control}
                   getValues={getValues}
-                />
+                  control={control}
+                  watch={watch}
+                  setValue={setValue}
+                />{" "}
               </div>
             )}
-            {state.tapIndex === 2 && (
-              <div className="grow">
-                <Cash
-                  getValues={getValues}
-                  watch={watch}
-                  register={register}
-                  setValue={setValue}
-                  control={control}
-                />
-              </div>
-            )}
-            <div className="sticky w-full  bottom-4 md:bottom-0 md:p-3  mt-2 p-3">
+
+            {/* ... Other form fields ... */}
+            <div className="sticky bottom-4  mt-2 ">
               <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                <div className="flex ">
+                <div className="flex">
                   <LoadingButton
                     size="small"
                     sx={{ height: "25px" }}
@@ -289,9 +261,9 @@ const DepositForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() =>
-                      (window.location.href = "/master-data/vehicle")
-                    }
+                    // onClick={() =>
+                    //   (window.location.href = "/master-data/driver")
+                    // }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
@@ -322,4 +294,4 @@ const DepositForm = (props: any) => {
   );
 };
 
-export default DepositForm;
+export default GoodIssueForm;
