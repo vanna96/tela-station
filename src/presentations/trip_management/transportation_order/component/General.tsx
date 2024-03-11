@@ -72,10 +72,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <RoutAutoComplete
-                        disabled={
-                          create?.at(-1)==="create"?false:
-                           true
-                        }
+                        disabled={create?.at(-1) === "create" ? false : true}
                         {...field}
                         value={watch("U_Route") || defaultValues?.U_Route}
                         onChange={(e: any) => {
@@ -347,7 +344,7 @@ const General = ({
                   {getValues("U_Status") === undefined && (
                     <MUITextField
                       inputProps={{
-                        ...register("Status"),
+                        ...register("U_Status"),
                       }}
                       value={"I"}
                     />
