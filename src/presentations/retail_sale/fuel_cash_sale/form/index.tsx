@@ -19,6 +19,7 @@ import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
 import ErrorLogForm from "../../components/ErrorLogForm";
 import requestHeader from "@/utilies/requestheader";
+import { useExchangeRate } from "@/presentations/master_data/expense_dictionary/hook/useExchangeRate";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -33,6 +34,7 @@ class Form extends NonCoreDcument {
       dispenserData: [],
       U_tl_docdate: new Date(),
       allocationData: [],
+      stockAllocationData: [],
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -42,18 +44,18 @@ class Form extends NonCoreDcument {
         },
       ],
       checkNumberData: [
-        {
-          U_tl_acccheck: "111122",
-          U_tl_checkdate: new Date(),
-          U_tl_checkbank: "",
-          U_tl_paytype: "Check",
-          U_tl_amtcheck: "",
-          U_tl_paycur: "USD",
-        },
+        // {
+        //   U_tl_acccheck: null,
+        //   U_tl_checkdate: new Date(),
+        //   U_tl_checkbank: "",
+        //   U_tl_paytype: "Check",
+        //   U_tl_amtcheck: "",
+        //   U_tl_paycur: "USD",
+        // },
       ],
       couponData: [
         {
-          U_tl_acccoupon: "101111",
+          U_tl_acccoupon: "110101",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -105,6 +107,7 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("retail-series", seriesList);
     }
+
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -118,13 +121,39 @@ class Form extends NonCoreDcument {
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
 
+          const fetchItemPrice = async (itemCode: string) => {
+            try {
+              const res = await request(
+                "GET",
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+              );
+              return res.data;
+            } catch (error) {
+              console.error("Error fetching item details:", error);
+              return null;
+            }
+          };
+
+          const updatedAllocationData = await Promise.all(
+            data.TL_RETAILSALE_CONHCollection?.map(async (item: any) => {
+              const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
+              const price = itemDetails?.ItemPrices?.find(
+                (priceDetail: any) => priceDetail.PriceList === 2
+              )?.Price;
+              return {
+                ...item,
+                ItemPrice: price,
+              };
+            })
+          );
+
           state = {
             ...data,
             vendor,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
             nozzleData: data.TL_RETAILSALE_CONHCollection,
-            allocationData: data.TL_RETAILSALE_CONHCollection,
+            allocationData: updatedAllocationData,
             stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid || 1,
@@ -216,12 +245,12 @@ class Form extends NonCoreDcument {
       U_tl_pump: data?.U_tl_pump,
       U_tl_cardcode: data?.CardCode,
       U_tl_cardname: data?.CardName,
-      U_tl_shiftcode: data?.U_tl_shift_code,
+      U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: new Date(),
       U_tl_docduedate: new Date(),
       U_tl_taxdate: new Date(),
       U_tl_attend: data?.U_tl_attend,
-      U_tl_status: data?.U_tl_status || "1",
+      U_tl_status: data?.U_tl_status || "",
       //Consumption
       TL_RETAILSALE_CONHCollection: data?.allocationData
         ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
@@ -232,7 +261,7 @@ class Form extends NonCoreDcument {
           U_tl_uom: item.U_tl_uom,
           U_tl_nmeter: item.U_tl_nmeter,
           // U_tl_upd_meter: item.U_tl_ometer,
-          U_tl_ometer: item.U_tl_upd_meter,
+          U_tl_ometer: item.U_tl_ometer,
           U_tl_cmeter: item.U_tl_cmeter,
           U_tl_cardallow: item.U_tl_cardallow,
           U_tl_cashallow: item.U_tl_cashallow,
@@ -240,7 +269,13 @@ class Form extends NonCoreDcument {
           U_tl_partallow: item.U_tl_partallow,
           U_tl_pumpallow: item.U_tl_pumpallow,
           U_tl_stockallow: item.U_tl_stockallow,
-          U_tl_totalallow: item.U_tl_totalallow,
+          U_tl_totalallow:
+            item.U_tl_stockallow +
+            item.U_tl_cardallow +
+            item.U_tl_cashallow +
+            item.U_tl_ownallow +
+            item.U_tl_partallow +
+            item.U_tl_pumpallow,
         })),
 
       //  incoming payment
@@ -249,26 +284,38 @@ class Form extends NonCoreDcument {
         ...data?.cashBankData,
         ...data?.couponData,
       ],
-      TL_RETAILSALE_CACCollection: data?.cardCountData?.map((item: any) => ({
-        U_tl_itemCode: item.U_tl_itemcode,
-        U_tl_1l: item?.U_tl_1l,
-        U_tl_2l: item?.U_tl_2l,
-        U_tl_5l: item?.U_tl_5l,
-        U_tl_10l: item?.U_tl_10l,
-        U_tl_20l: item?.U_tl_20l,
-        U_tl_50l: item?.U_tl_50l,
-        U_tl_total:
-          parseFloat(item?.U_tl_1l || 0) +
-          parseFloat(item?.U_tl_2l || 0) +
-          parseFloat(item?.U_tl_5l || 0) +
-          parseFloat(item?.U_tl_10l || 0) +
-          parseFloat(item?.U_tl_20l || 0) +
-          parseFloat(item?.U_tl_50l || 0),
-      })),
+      TL_RETAILSALE_CACCollection: (data?.cardCountData || []).length
+        ? data?.cardCountData?.map((item: any) => ({
+            U_tl_itemCode: item.U_tl_itemcode,
+            U_tl_1l: item?.U_tl_1l,
+            U_tl_2l: item?.U_tl_2l,
+            U_tl_5l: item?.U_tl_5l,
+            U_tl_10l: item?.U_tl_10l,
+            U_tl_20l: item?.U_tl_20l,
+            U_tl_50l: item?.U_tl_50l,
+            U_tl_total:
+              (item?.U_tl_1l || 0) +
+              (item?.U_tl_2l || 0) +
+              (item?.U_tl_5l || 0) +
+              (item?.U_tl_10l || 0) +
+              (item?.U_tl_20l || 0) +
+              (item?.U_tl_50l || 0),
+          }))
+        : data?.allocationData?.map((item: any) => ({
+            U_tl_itemCode: item.U_tl_itemcode,
+            U_tl_1l: 0,
+            U_tl_2l: 0,
+            U_tl_5l: 0,
+            U_tl_10l: 0,
+            U_tl_20l: 0,
+            U_tl_50l: 0,
+            U_tl_total: 0,
+          })),
+
       //Stock Allocation Collection
       TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
         (item: any) => ({
-          U_tl_nozzlecode: item.U_tl_nozzlecode,
+          // U_tl_nozzlecode: item.U_tl_nozzlecode,
           U_tl_itemcode: item.U_tl_itemcode,
           U_tl_itemname: item.U_tl_itemname,
           U_tl_qtycon: item.U_tl_qtycon,
@@ -282,6 +329,9 @@ class Form extends NonCoreDcument {
         })
       ),
     };
+    if (this.props.edit) {
+      delete payload.Series;
+    }
     return payload;
   }
   async handlerSubmit(event: any) {
@@ -324,36 +374,53 @@ class Form extends NonCoreDcument {
     }
   }
 
-  async handlerSubmitPost(event: any) {
+  async handlerSubmitPost(event: any, edit: boolean) {
     event.preventDefault();
     this.setState({ ...this.state, isSubmitting: true });
     const data: any = { ...this.state };
-    // console.log(data);
     const payload = this.createPayload();
+    console.log(data);
+    edit = this.props.edit;
 
     try {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
 
-      // const firstResponse = await request("POST", "/TL_RETAILSALE", payload);
-      // const docEntry = firstResponse.data.DocEntry;
-      // this.setState({ docEntry });
-      // let { docEntry, isFirstAttempt } = this.state;
-      let { docEntry, isFirstAttempt } = this.state;
+      let docEntry;
 
-      if (!docEntry || isFirstAttempt) {
-        const response = await request("POST", "/TL_RETAILSALE", payload);
-        docEntry = response.data.DocEntry;
-        this.setState({ docEntry, isFirstAttempt: false });
+      if (!edit) {
+        const { isFirstAttempt } = this.state;
+
+        if (!this.state.docEntry || isFirstAttempt) {
+          const response = await request("POST", "/TL_RETAILSALE", payload);
+          docEntry = response.data.DocEntry;
+          this.setState({
+            docEntry,
+            isFirstAttempt: false,
+            disableBranch: true,
+          });
+        } else {
+          docEntry = this.state.docEntry; // Assign docEntry from state
+          await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
+        }
       } else {
+        docEntry = data.DocEntry; // Assign docEntry from props
         await request("PATCH", `/TL_RETAILSALE(${docEntry})`, payload);
       }
 
       const generateAllocationPayload = (data: any, allocationType: any) => {
-        return data?.allocationData?.map((item: any) => {
+        const filteredData = data?.allocationData?.filter(
+          (item: any) => item[allocationType] > 0
+        );
+
+        if (!filteredData || filteredData.length === 0) {
+          return [];
+        }
+
+        return filteredData.map((item: any) => {
           let quantity = item[allocationType];
 
           if (item.InventoryUoMEntry !== item.U_tl_uom) {
-            const uomList = item.uomLists.find(
+            const uomList = item.uomLists?.find(
               (list: any) => list.AlternateUoM === item.U_tl_uom
             );
             if (uomList) {
@@ -374,22 +441,46 @@ class Form extends NonCoreDcument {
             RevenueLine: "202004",
             ProductLine: "203004",
             BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
+            // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
             DocumentLinesBinAllocations: [
               {
                 BinAbsEntry: item.U_tl_bincode,
                 Quantity: quantity,
                 AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
               },
             ],
           };
         });
       };
+      const cashSaleItems = data?.allocationData?.filter(
+        (item: any) => item.U_tl_cashallow > 0
+      );
 
+      const cashSale = cashSaleItems?.map((item: any) => ({
+        ItemCode: item.U_tl_itemcode,
+        Quantity: item.U_tl_cashallow,
+        GrossPrice: item.ItemPrice,
+        DiscountPercent: 0,
+        TaxCode: "VO10",
+        UoMEntry: item.U_tl_uom,
+        LineOfBussiness: "201001", // item.LineOfBussiness
+        RevenueLine: "202004", // item.RevenueLine
+        ProductLine: "203004", // item.ProductLine
+        BinAbsEntry: item.U_tl_bincode,
+        // BranchCode: data.U_tl_bplid,
+        WarehouseCode: item.U_tl_whs,
+        DocumentLinesBinAllocations: [
+          {
+            BinAbsEntry: item.U_tl_bincode,
+            Quantity: item.U_tl_cashallow,
+            AllowNegativeQuantity: "tNO",
+          },
+        ],
+      }));
       const PostPayload = {
         SaleDocEntry: docEntry,
+        // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
         U_tl_whsdesc: "WHC",
         InvoiceSeries: data?.INSeries,
@@ -397,82 +488,105 @@ class Form extends NonCoreDcument {
         GISeries: data?.GoodIssueSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: "4000.0",
+        DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        CashAccount: "110101",
-        TransferAccount: "110101",
-        CheckAccount: "110101",
-        CouponAccount: data?.couponData?.U_tl_amtcoupon,
+        CashAccount: "110102",
+        CashAccountFC: "110103",
+        TransferAccount: "110102",
+        TransferAccountFC: "110103",
+        CheckAccount: "110102",
+        CouponAccount: "110102",
         Remarks: data.Remark,
 
         IncomingPayment: [
-          ...data?.cashBankData?.map((item: any) => ({
-            Type: item.U_tl_paytype,
-            DocCurrency: item.U_tl_paycur,
-            Amount: item.U_tl_amtcash || item.U_tl_amtbank,
-          })),
-          ...data?.checkNumberData?.map((item: any) => ({
-            Type: item.U_tl_paytype,
-            DocCurrency: item.U_tl_paycur,
-            DueDate: item.U_tl_checkdate || new Date(),
-            Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
-            Bank: item.U_tl_checkbank,
-            CheckNum: item.U_tl_acccheck,
-          })),
+          ...(data?.cashBankData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              Amount: item.U_tl_amtcash || item.U_tl_amtbank,
+            }))
+            .filter((item: any) => item.Amount > 0),
+          ...(data?.checkNumberData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              DueDate: item.U_tl_checkdate || new Date(),
+              Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
+              Bank: item.U_tl_checkbank,
+              CheckNum: item.U_tl_acccheck,
+            }))
+            .filter((item: any) => item.Amount > 0),
         ],
         IncomingPaymentCoupon: [
-          ...data?.couponData?.map((item: any) => ({
-            Type: item.U_tl_paytype,
-            DocCurrency: item.U_tl_paycur,
-            DueDate: new Date(),
-            Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
-            // CounNum: item.U_tl_acccoupon,
-          })),
+          ...(data?.couponData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              DueDate: new Date(),
+              Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
+              // CounNum: item.U_tl_acccoupon,
+            }))
+            .filter((item: any) => item.Amount > 0),
         ],
 
-        StockAllocation: data?.stockAllocationData?.map((item: any) => {
-          let quantity = item.U_tl_qtyaloc;
+        StockAllocation: (() => {
+          const uniqueItemsMap = new Map();
 
-          if (item.InventoryUoMEntry !== item.U_tl_uom) {
-            const uomList = item.uomLists.find(
-              (list: any) => list.AlternateUoM === item.U_tl_uom
-            );
-            if (uomList) {
-              quantity *= uomList.BaseQuantity;
-            } else {
-              console.error("UoM conversion factor not found!");
+          data?.stockAllocationData?.forEach((item: any) => {
+            let quantity = parseFloat(item.U_tl_qtyaloc);
+
+            if (item.InventoryUoMEntry !== item.U_tl_uom) {
+              const uomList = item.uomLists?.find(
+                (list: any) => list.AlternateUoM === item.U_tl_uom
+              );
+              if (uomList) {
+                quantity *= uomList.BaseQuantity;
+              } else {
+                console.error("UoM conversion factor not found!");
+              }
             }
-          }
 
-          return {
-            ItemCode: item.U_tl_itemcode,
-            Quantity: quantity,
-            GrossPrice: item.ItemPrice,
-            DiscountPercent: 0,
-            TaxCode: "VO10",
-            UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
-            RevenueLine: "202004",
-            ProductLine: "203004",
-            BinAbsEntry: item.U_tl_bincode,
-            BranchCode: item.U_tl_bplid || 1,
-            WarehouseCode: item.U_tl_whs,
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: item.U_tl_bincode,
-                Quantity: quantity,
-                AllowNegativeQuantity: "tNO",
-                BaseLineNumber: 0,
-              },
-            ],
-          };
-        }),
+            if (uniqueItemsMap.has(item.U_tl_itemcode)) {
+              const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
+              uniqueItemsMap.set(
+                item.U_tl_itemcode,
+                existingQuantity + quantity
+              );
+            } else {
+              uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+            }
+          });
+
+          const stockAllocation = Array.from(uniqueItemsMap).map(
+            ([itemCode, quantity]) => ({
+              ItemCode: itemCode,
+              Quantity: quantity.toString(),
+              DiscountPercent: 0,
+              TaxCode: "VO10",
+              LineOfBussiness: "201001",
+              RevenueLine: "202004",
+              ProductLine: "203004",
+              BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+              BranchCode: data.stockAllocationData[0].U_tl_bplid,
+              WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+              DocumentLinesBinAllocations: [
+                {
+                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                  Quantity: quantity.toString(),
+                  AllowNegativeQuantity: "tNO",
+                },
+              ],
+            })
+          );
+
+          return stockAllocation;
+        })(),
 
         CardCount: [].concat(
-          ...data?.allocationData?.map((item: any) => {
+          ...data?.cardCountData?.map((item: any) => {
             const mappedData = [];
             const itemCode = item.U_tl_itemcode;
             for (let i = 1; i <= 50; i++) {
@@ -491,23 +605,17 @@ class Form extends NonCoreDcument {
                   mappedData.push({
                     ItemCode: `${itemCode}-${i.toString().padStart(2, "0")}`,
                     Quantity: quantity,
-                    GrossPrice: item.ItemPrice,
-                    DiscountPercent: 0,
-                    TaxCode: "VO10",
-                    // UoMCode: "L"
                     UoMEntry: item.U_tl_uom,
                     LineOfBussiness: "201001", // item.LineOfBussiness
                     RevenueLine: "202004", // item.RevenueLine
                     ProductLine: "203004", // item.ProductLine
                     BinAbsEntry: item.U_tl_bincode,
-                    BranchCode: item.U_tl_bplid || 1,
                     WarehouseCode: item.U_tl_whs,
                     DocumentLinesBinAllocations: [
                       {
                         BinAbsEntry: item.U_tl_bincode,
                         Quantity: item.U_tl_qtycon,
                         AllowNegativeQuantity: "tNO",
-                        BaseLineNumber: 0,
                       },
                     ],
                   });
@@ -517,29 +625,8 @@ class Form extends NonCoreDcument {
             return mappedData;
           })
         ),
-        CashSale: data?.allocationData?.map((item: any) => ({
-          ItemCode: item.U_tl_itemcode,
-          Quantity: item.U_tl_cashallow,
-          GrossPrice: item.ItemPrice,
-          DiscountPercent: 0,
-          TaxCode: "VO10",
-          // UoMCode: "L"
-          UoMEntry: item.U_tl_uom,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
-          BinAbsEntry: item.U_tl_bincode,
-          BranchCode: item.U_tl_bplid || 1,
-          WarehouseCode: item.U_tl_whs,
-          DocumentLinesBinAllocations: [
-            {
-              BinAbsEntry: item.U_tl_bincode,
-              Quantity: item.U_tl_cashallow,
-              AllowNegativeQuantity: "tNO",
-              BaseLineNumber: 0,
-            },
-          ],
-        })),
+
+        CashSale: cashSale?.length > 0 ? cashSale : [],
         Partnership: generateAllocationPayload(data, "U_tl_partallow"),
         StockTransfer: generateAllocationPayload(data, "U_tl_stockallow"),
         OwnUsage: generateAllocationPayload(data, "U_tl_ownallow"),
@@ -579,7 +666,7 @@ class Form extends NonCoreDcument {
       0: ["U_tl_pump", "CardCode", "U_tl_attend"],
       1: ["nozzleData"],
       2: [],
-      3: ["stockAllocationData"],
+      3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
   }
@@ -810,19 +897,23 @@ class Form extends NonCoreDcument {
                             type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
                             disableElevation
+                            // disabled={this.props.edit}
                           >
                             <span className="px-3 text-[13px] py-1 text-green-500">
                               {this.props.edit ? "Update" : "Add"}
                             </span>
                           </LoadingButton>
                         </div>
-                        {!this.props.edit && (
+                        {
                           <div className="flex items-center space-x-4">
                             <LoadingButton
-                              onClick={this.handlerSubmitPost}
+                              onClick={(event) =>
+                                this.handlerSubmitPost(event, this.props.edit)
+                              }
                               sx={{ height: "30px", textTransform: "none" }}
                               className="bg-white"
                               loading={false}
+                              // disabled={this.state.tapIndex < 4}
                               size="small"
                               variant="contained"
                               disableElevation
@@ -832,7 +923,7 @@ class Form extends NonCoreDcument {
                               </span>
                             </LoadingButton>
                           </div>
-                        )}
+                        }
                       </div>
                     </div>
                   </motion.div>

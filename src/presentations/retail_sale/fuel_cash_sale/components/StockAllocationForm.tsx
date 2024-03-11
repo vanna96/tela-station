@@ -17,6 +17,7 @@ import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { commaFormatNum } from "@/utilies/formatNumber";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -32,53 +33,26 @@ export default function StockAllocationTable({
 }: StockAllocationTableProps) {
   const [cookies] = useCookies(["user"]);
   const userData = cookies.user;
-  // let stockAllocationData = data.stockAllocationData; // Temporary variable
-
-  // if (!edit) {
-  //   data.stockAllocationData = data.nozzleData?.filter(
-  //     (e: any) => parseFloat(e.U_tl_nmeter) > 0
-  //   );
-  // }
   const [rowSelection, setRowSelection] = React.useState<any>({});
-  const onCheckRow = (event: any, index: number) => {
-    const rowSelects: any = { ...rowSelection };
-    rowSelects[index] = true;
-
-    if (!event.target.checked) {
-      delete rowSelects[index];
-    }
-
-    setRowSelection(rowSelects);
-  };
-  const synchronizeStockAllocationData = () => {
-    const updatedStockAllocationData = data.stockAllocationData?.map(
-      (stockItem: any) => {
-        const allocationItem = data?.allocationData?.find(
-          (allocationItem: any) =>
-            allocationItem?.U_tl_itemcode === stockItem?.U_tl_itemcode
-        );
-        if (allocationItem) {
-          return { ...stockItem, U_tl_qtycon: allocationItem?.U_tl_totalallow };
-        }
-        return stockItem;
+  const handlerRemove = () => {
+    let filteredData = data.stockAllocationData.filter(
+      (item: any, index: number) => {
+        return !(index.toString() in rowSelection);
       }
     );
-
-    onChange("stockAllocationData", updatedStockAllocationData);
+    onChange("stockAllocationData", filteredData);
+    setRowSelection({});
   };
-
-  useEffect(() => {
-    synchronizeStockAllocationData();
-  }, [data?.allocationData]);
-
   const onChangeItem = (key: number, obj: any) => {
-    const newData = data.stockAllocationData?.map((item: any, index: number) => {
-      if (index.toString() === key.toString()) {
-        const objKey = Object.keys(obj)[0];
-        item[objKey] = Object.values(obj)[0];
+    const newData = data.stockAllocationData?.map(
+      (item: any, index: number) => {
+        if (index.toString() === key.toString()) {
+          const objKey = Object.keys(obj)[0];
+          item[objKey] = Object.values(obj)[0];
+        }
+        return item;
       }
-      return item;
-    });
+    );
     onChange("stockAllocationData", newData);
   };
 
@@ -95,12 +69,11 @@ export default function StockAllocationTable({
 
     handlerChangeObject({ stockAllocationData: newData });
   };
-  console.log(data.stockAllocationData);
   const handlerAdd = () => {
     let firstData = [
       ...data.stockAllocationData,
       {
-        U_tl_bplid: 1,
+        U_tl_bplid: data.U_tl_bplid,
         U_tl_itemnum: "",
         U_tl_itemdesc: "",
         U_tl_qtyaloc: "",
@@ -115,19 +88,32 @@ export default function StockAllocationTable({
     onChange("stockAllocationData", firstData);
   };
 
+  const onCheckRow = (event: any, index: number) => {
+    setRowSelection((prevSelection: any) => {
+      const updatedSelection = { ...prevSelection };
+
+      if (event.target.checked) {
+        updatedSelection[index] = true;
+      } else {
+        delete updatedSelection[index];
+      }
+
+      return updatedSelection;
+    });
+  };
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "index",
-        size: 2,
-        minSize: 2,
-        maxSize: 2,
+        accessorKey: "index_",
+        size: 45,
+        minSize: 45,
+        maxSize: 45,
         header: "",
         Cell: ({ cell }: any) => {
-          if (cell.row.original?.U_tl_paytype)
+          if (cell.row.original?.U_tl_bplid)
             return (
               <Checkbox
-                checked={cell.row.index in rowSelection}
+                checked={rowSelection[cell.row.index]}
                 size="small"
                 onChange={(event) => onCheckRow(event, cell.row.index)}
               />
@@ -174,7 +160,7 @@ export default function StockAllocationTable({
                   U_tl_bplid: e,
                 });
               }}
-              value={parseInt(cell.getValue())}
+              value={parseInt(cell.getValue()) || 1}
             />
           );
         },
@@ -245,20 +231,43 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.nozzleData?.map((e: any) => ({
+              items={data.allocationData?.map((e: any) => ({
                 value: e.U_tl_itemcode,
                 label: e.U_tl_itemcode,
               }))}
               value={cell.getValue()}
               onChange={(e: any) => {
-                const selectedNozzle = data.nozzleData.find(
+                const selectedNozzle = data.allocationData?.find(
                   (item: any) => item.U_tl_itemcode === e.target.value
                 );
-                onChangeItemObj(cell.row.id, {
-                  U_tl_itemcode: e.target.value,
-                  U_tl_itemname: selectedNozzle.U_tl_itemname,
-                  U_tl_uom: selectedNozzle.U_tl_uom,
-                });
+
+                const previousRows = data.stockAllocationData
+                  ?.slice(0, cell.row.index)
+                  .filter((row: any) => row.U_tl_itemcode === e.target.value);
+
+                if (previousRows.length > 0) {
+                  const lastRecentRow = previousRows[previousRows.length - 1];
+
+                  const newQtyCon =
+                    parseFloat(lastRecentRow.U_tl_qtycon) -
+                    parseFloat(lastRecentRow.U_tl_qtyaloc);
+
+                  onChangeItemObj(cell.row.id, {
+                    U_tl_itemcode: e.target.value,
+                    U_tl_itemname: selectedNozzle.U_tl_itemname,
+                    U_tl_uom: selectedNozzle.U_tl_uom,
+                    U_tl_qtycon: newQtyCon,
+                    // U_tl_qtyopen: newQtyCon,
+                  });
+                } else {
+                  onChangeItemObj(cell.row.id, {
+                    U_tl_itemcode: e.target.value,
+                    U_tl_itemname: selectedNozzle.U_tl_itemname,
+                    U_tl_uom: selectedNozzle.U_tl_uom,
+                    // U_tl_qtyopen: selectedNozzle.U_tl_stockallow,
+                    U_tl_qtycon: selectedNozzle.U_tl_stockallow,
+                  });
+                }
               }}
             />
           );
@@ -303,7 +312,6 @@ export default function StockAllocationTable({
           );
         },
       },
-
       {
         Header: (header: any) => (
           <label>
@@ -315,46 +323,42 @@ export default function StockAllocationTable({
         visible: true,
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
+
           const rowsWithSameItemCode = data?.stockAllocationData?.filter(
             (r: any) => r?.U_tl_itemcode === cell.row.original.U_tl_itemcode
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              return sum + parseFloat(r.U_tl_qtycon);
+              console.log(r.U_tl_qtyaloc);
+              return sum + commaFormatNum(r.U_tl_qtyaloc);
             },
             0
           );
 
-          const nozzle = data.nozzleData?.find(
-            (nozzle: any) =>
-              nozzle.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          const firstQuantity = parseFloat(
+            rowsWithSameItemCode[0]?.U_tl_qtycon
           );
-
-          // const isValid = nozzle
-          //   ? totalQuantity === parseFloat(nozzle?.U_tl_cardallow)
-          //   : false;
-          const isValid =
-            cell.row.original.U_tl_qtycon ===
-            // parseFloat(cell.row.original.U_tl_qtyaloc?.replace(/,/g, ""));
-            totalQuantity;
+          const isValid = totalQuantity === firstQuantity;
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
               thousandSeparator
-              redColor={!isValid}
+              redcolor={!isValid}
               decimalScale={2}
               fixedDecimalScale
               customInput={MUIRightTextField}
               defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                onChangeItem(cell?.row?.id || 0, {
+              onBlur={(e: any) => {
+                onChangeItemObj(cell.row.id, {
                   U_tl_qtyaloc: e.target.value,
-                })
-              }
+                  U_tl_qtyopen: cell.row.original.U_tl_qtycon - e.target.value,
+                });
+              }}
             />
           );
         },
       },
+
       {
         accessorKey: "U_tl_uom",
         header: "UoM",
@@ -384,18 +388,14 @@ export default function StockAllocationTable({
 
           return (
             <NumericFormat
-              disabled
-              key={"amount_" + cell.getValue()}
+              key={"U_tl_qtyopen" + cell.getValue()}
               thousandSeparator
+              disabled
               decimalScale={2}
+              placeholder="0.000"
               fixedDecimalScale
               customInput={MUIRightTextField}
-              defaultValue={cell.getValue()}
-              onBlur={(e: any) =>
-                onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtyopen: e.target.value,
-                })
-              }
+              value={cell.getValue()}
             />
           );
         },
@@ -424,15 +424,7 @@ export default function StockAllocationTable({
     ],
     [data.stockAllocationData]
   );
-  const handlerRemove = () => {
-    let filteredData = data.stockAllocationData.filter(
-      (item: any, index: number) => {
-        return !(index.toString() in rowSelection);
-      }
-    );
-    onChange("stockAllocationData", filteredData);
-    setRowSelection({});
-  };
+
   return (
     <>
       <FormCard title="Stock Allocation ">
@@ -451,7 +443,7 @@ export default function StockAllocationTable({
               </Button>
             </div>
             <MaterialReactTable
-              columns={[...itemColumns]}
+              columns={itemColumns}
               data={[...data.stockAllocationData, { U_tl_bplid: "" }]}
               enableStickyHeader={true}
               enableColumnActions={false}

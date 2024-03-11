@@ -39,6 +39,7 @@ export default function NozzleData({ data, onChange, edit }: NozzleDataProps) {
           }
 
           item.U_tl_cmeter = value;
+          item.U_tl_ometer = Math.max(meterValue, regMeterValue);
           item.U_tl_totalallow = value;
         }
       }

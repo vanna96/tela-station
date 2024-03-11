@@ -10,7 +10,7 @@ export interface MUIRightTextFieldProps extends OutlinedInputProps {
   endIcon?: React.ReactNode;
   helpertext?: string;
   onClick?: () => void;
-  redColor?: boolean;
+  redcolor?: boolean;
 }
 
 const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
@@ -47,7 +47,7 @@ const MUIRightTextField: FC<MUIRightTextFieldProps> = (props) => {
               ...props.inputProps,
               style: {
                 textAlign: "right",
-                color: props.redColor ? "red" : "",
+                color: props.redcolor ? "red" : "",
                 // ...props.inputProps?.style,
               },
             }}

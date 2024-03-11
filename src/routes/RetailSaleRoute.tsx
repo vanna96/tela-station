@@ -9,7 +9,7 @@ import LPGDetail from "@/presentations/retail_sale/lpg_cash_sale/detail";
 
 import LubeForm from "@/presentations/retail_sale/lube_cash_sale/form/index";
 import LubeDetail from "@/presentations/retail_sale/lube_cash_sale/detail";
-
+import LubeLists from "@/presentations/retail_sale/lube_cash_sale";
 export default function RetailSaleRoute() {
   return (
     <Routes>
@@ -22,7 +22,7 @@ export default function RetailSaleRoute() {
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
       <Route path="/lube-cash-sale">
-        <Route index element={<SaleOrderLists />} />
+        <Route index element={<LubeLists />} />
         <Route path="create" element={<LubeForm />} />
         <Route path=":id/edit" element={<LubeForm edit={true} />} />
         <Route path=":id" element={<LubeDetail edit={true} />} />

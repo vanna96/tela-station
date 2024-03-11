@@ -80,25 +80,13 @@ export default function GeneralForm({
 
   const route = useParams();
   const salesType = route["*"];
-  const getValueBasedOnFactor = () => {
-    switch (salesType) {
-      case "fuel-sales/create":
-        return "Oil";
-      case "lube-sales/create":
-        return "Lube";
-      case "lpg-sales/create":
-        return "LPG";
-      default:
-        return ""; // Set a default value if needed
-    }
-  };
 
   if (data) {
     data.DNSeries = seriesDN;
     data.INSeries = seriesIN;
     data.Series = seriesSO;
-    data.U_tl_arbusi = getValueBasedOnFactor();
-    data.lineofBusiness = getValueBasedOnFactor();
+    data.U_tl_arbusi = "Lube";
+    data.lineofBusiness = "Lube";
   }
 
   const { data: CurrencyAPI }: any = useQuery({
@@ -367,19 +355,6 @@ export default function GeneralForm({
                 disabled={edit && data?.Status?.includes("A")}
                 value={data.DocDate}
                 onChange={(e: any) => handlerChange("DocDate", e)}
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-5 py-2">
-            <div className="col-span-2">
-              <label htmlFor="Code" className="text-gray-600 ">
-                Sale Employee
-              </label>
-            </div>
-            <div className="col-span-3">
-              <SalePersonAutoComplete
-                value={data.SalesPersonCode}
-                onChange={(e) => handlerChange("SalesPersonCode", e)}
               />
             </div>
           </div>
