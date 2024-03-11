@@ -1,6 +1,6 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -18,7 +18,7 @@ import { loadavg } from "os";
 import ToWarehouseAutoComplete from "./ToWarehouseAutoComplete";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
-
+import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
 const BasicInformation = ({
   register,
   control,
@@ -51,25 +51,37 @@ const BasicInformation = ({
       );
     }
   }, [defaultValues]);
-  const nextNumber = serie?.find(
-    (e: any) => e?.Series === staticSelect?.serie
-  )?.NextNumber;
-
-  const dataSeries = React.useMemo(() => {
-    const targetYear = "2024";
-    return serie?.filter((e: any) => {
-      const itemYear = new Date(e.PeriodIndicator).getFullYear().toString();
-      return itemYear === targetYear;
-    });
-  }, [serie]);
 
   const docdate = watch("DocDate");
+  const duedate = watch("DueDate");
 
   useEffect(() => {
     const defaultDate = new Date();
     setValue("DocDate", defaultDate);
+    setValue("DueDate", defaultDate);
+
   }, [setValue]);
 
+  const { series, defaultSerie } = useGetITRSeriesHook();
+  useEffect(() => {
+    if (edit) return;
+
+    if (!defaultSerie.data) return;
+    setValue("DocNum", defaultSerie.data);
+  }, [defaultSerie.data]);
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const serie = series.data?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+      if (!serie) return;
+
+      setValue("Series", event?.target?.value);
+      setValue("DocNum", serie?.NextNumber);
+    },
+    [series?.data]
+  );
 
   return (
     <>
@@ -88,7 +100,7 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
-                  value={nextNumber || defaultValues?.nextNumber}
+                  value={defaultValues?.nextNumber}
                 />
               </div>
             </div>
@@ -111,7 +123,7 @@ const BasicInformation = ({
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          setValue("BPLID", e.BusinessPlaceID)
+                          setValue("BPLID", e.BusinessPlaceID);
                           setValue("FromWarehouse", e.WarehouseCode);
                         }}
                       />
@@ -130,8 +142,11 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  value={branch?.data?.find((e:any)=>e?.BPLID ===  watch("BPLID"))?.BPLName}
-                  inputProps={{...register("BPLID")}}
+                  value={
+                    branch?.data?.find((e: any) => e?.BPLID === watch("BPLID"))
+                      ?.BPLName
+                  }
+                  inputProps={{ ...register("BPLID") }}
                 />
               </div>
             </div>
@@ -181,7 +196,10 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
-                <MUITextField value={watch("U_tl_sobincode")} />
+                <MUITextField 
+                  value={watch("U_tl_sobincode")} 
+                  disabled
+                  />
               </div>
             </div>
           </div>
@@ -196,25 +214,17 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Controller
-                    // rules={{ required: "Terminal is required" }}
                     name="Series"
                     control={control}
                     render={({ field }) => {
                       return (
                         <MUISelect
-                          {...field}
-                          items={dataSeries}
-                          value={staticSelect?.serie || defaultValues?.serie}
-                          aliasvalue="Series"
+                          value={field.value}
+                          disabled={edit}
+                          items={series.data ?? []}
                           aliaslabel="Name"
-                          name="Series"
-                          onChange={(e: any) => {
-                            setValue("Series", e?.target?.value);
-                            setStaticSelect({
-                              ...staticSelect,
-                              serie: e?.target?.value,
-                            });
-                          }}
+                          aliasvalue="Series"
+                          onChange={onChangeSerie}
                         />
                       );
                     }}
@@ -222,11 +232,9 @@ const BasicInformation = ({
 
                   <div className="-mt-1">
                     <MUITextField
-                      size="small"
-                      name="DocNum"
-                      value={nextNumber || defaultValues?.nextNumber}
-                      disabled
-                      placeholder="Document No"
+                      key={watch("DocNum")}
+                      value={watch("DocNum")}
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -276,7 +284,7 @@ const BasicInformation = ({
                     return (
                       <MUIDatePicker
                         {...field}
-                        defaultValue={docdate} // Use the watch value as the defaultValue
+                        defaultValue={duedate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===

@@ -126,19 +126,10 @@ const InventoryTransferRequestForm = (props: any) => {
       toastRef.current?.open();
       return;
     }
-    // if (!getValues("BPLID") || getValues("BPLID") === "") {
-    //   toastRef.current?.open();
-    //   return;
-    // }
-    // if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
-    //   toastRef.current?.open();
-    //   return;
-    // }
-    // if (!getValues("U_tl_busi") || getValues("U_tl_busi") === "") {
-    //   toastRef.current?.open();
-    //   return;
-    // }
-
+    if (!getValues("ToWarehouse") || getValues("ToWarehouse") === "") {
+      toastRef.current?.open();
+      return;
+    }
     handlerChangeMenu(tapIndex);
   };
 
@@ -164,8 +155,6 @@ const InventoryTransferRequestForm = (props: any) => {
           active={state.tapIndex === 1}
           onClick={() => {
             isNextTap(1);
-            // setValue("DepositType", "dtChecks");
-            // setValue("TotalLC", undefined);
           }}
         >
           Contents
