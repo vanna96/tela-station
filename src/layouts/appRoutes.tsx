@@ -422,8 +422,8 @@ export const appRoutes: RouteType[] = [
       },
       {
         roles: ['UG001', 'UG003'],
-        path: "/bulk/seal/allocation",
-        state: "bulk/seal/allocation",
+        path: "/trip-management/bulk-seal-allocation",
+        state: "bulk-seal-allocation",
         sidebarProps: {
           displayText: "Bulk Seal Allocation",
         },

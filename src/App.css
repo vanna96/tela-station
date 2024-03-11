@@ -179,7 +179,7 @@ input[type="number"]::-webkit-inner-spin-button {
   display: none;
 }
 .MuiOutlinedInput-root.Mui-disabled .MuiOutlinedInput-input {
-  color: #1f2937 ;
+  color: #1f2937;
   -webkit-text-fill-color: #1f2937;
 }
 input[type="number"] {
@@ -239,4 +239,15 @@ MuiButton-contained {
 
 .flex.text-sm.text-gray-500.border.border-gray-300.rounded.shadow-sm.transition-all {
   height: 30px;
+}
+.anime {
+  animation: anime 0.5s linear;
+}
+@keyframes anime {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }

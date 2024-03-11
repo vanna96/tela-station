@@ -26,8 +26,7 @@ export default function SaleEmployeeAutoComplete(props: {
         });
       return response;
     },
-    cacheTime: 0,
-    staleTime: 0,
+    staleTime: Infinity,
   });
 
   useEffect(() => {

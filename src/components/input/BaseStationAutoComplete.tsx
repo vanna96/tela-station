@@ -32,8 +32,7 @@ const BaseStationAutoComplete = forwardRef<
         });
       return response;
     },
-    staleTime: 0,
-    cacheTime: 0,
+    staleTime: Infinity,
   });
 
   useEffect(() => {

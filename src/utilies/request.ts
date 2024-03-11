@@ -32,7 +32,7 @@ const request = async (
   responseType?: ResponseType,
   headers?: any
 ) => {
-  return new Promise((resolve, reject) => {
+  return  new Promise((resolve, reject) => {
     setTimeout(() => {
       try {
         axiosInstance({

@@ -65,15 +65,6 @@ const removeDocument = (index:number) => {
               Load Document
             </span>
           </Button>
-          {/* <Button
-            sx={{ height: "25px" }}
-            className="bg-white"
-            size="small"
-            variant="contained"
-            disableElevation
-          >
-            <span className="px-4 text-[11px] py-4 text-white">+ ITR</span>
-          </Button> */}
         </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
