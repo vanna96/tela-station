@@ -15,6 +15,9 @@ import AttentionTerminalAutoComplete from "./AttentionTerminalAutoComplete";
 import request from "@/utilies/request";
 import { CircularProgress } from "@mui/material";
 import { loadavg } from "os";
+import ToWarehouseAutoComplete from "./ToWarehouseAutoComplete";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useQuery } from "react-query";
 
 const BasicInformation = ({
   register,
@@ -33,6 +36,12 @@ const BasicInformation = ({
   const [staticSelect, setStaticSelect] = useState({
     branchASS: null,
     serie: 7838,
+  });
+
+  const branch: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
   });
 
   useEffect(() => {
@@ -60,6 +69,8 @@ const BasicInformation = ({
     const defaultDate = new Date();
     setValue("DocDate", defaultDate);
   }, [setValue]);
+
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -95,12 +106,13 @@ const BasicInformation = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BaseStationAutoComplete
+                      <AttentionTerminalAutoComplete
                         disabled={detail}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          setValue("FromWarehouse", e);
+                          setValue("BPLID", e.BusinessPlaceID)
+                          setValue("FromWarehouse", e.WarehouseCode);
                         }}
                       />
                     );
@@ -116,25 +128,14 @@ const BasicInformation = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPLID"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BranchAssignmentAuto
-                        {...field}
-                        disabled={detail || defaultValues?.U_Status === "C"}
-                        onChange={(e: any) => {
-                          setValue("BPLID", e?.BPLID);
-                        }}
-                        value={field?.value}
-                      />
-                    );
-                  }}
+                <MUITextField
+                  disabled={true}
+                  value={branch?.data?.find((e:any)=>e?.BPLID ===  watch("BPLID"))?.BPLName}
+                  inputProps={{...register("BPLID")}}
                 />
               </div>
             </div>
+
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
@@ -149,12 +150,12 @@ const BasicInformation = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <AttentionTerminalAutoComplete
+                      <ToWarehouseAutoComplete
                         disabled={detail}
                         {...field}
                         value={field.value}
                         onChange={async (e: any) => {
-                          console.log(e.DefaultBin);
+                          // console.log(e.DefaultBin);
                           setValue("ToWarehouse", e.WarehouseCode);
 
                           if (!e.DefaultBin) return;
@@ -180,9 +181,7 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
-                <MUITextField
-                  value={watch("U_tl_sobincode")}
-                />
+                <MUITextField value={watch("U_tl_sobincode")} />
               </div>
             </div>
           </div>

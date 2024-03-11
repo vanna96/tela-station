@@ -122,10 +122,10 @@ const InventoryTransferRequestForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    // if (!getValues("DepositCurrency") || getValues("DepositCurrency") === "") {
-    //   toastRef.current?.open();
-    //   return;
-    // }
+    if (!getValues("FromWarehouse") || getValues("FromWarehouse") === "") {
+      toastRef.current?.open();
+      return;
+    }
     // if (!getValues("BPLID") || getValues("BPLID") === "") {
     //   toastRef.current?.open();
     //   return;

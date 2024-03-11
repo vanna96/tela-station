@@ -58,13 +58,13 @@ export default function UomSelect(props: UomSelectProp) {
     }, [uomList.data, group.data])
 
 
-    useEffect(() => {
-        if (props.value) {
-            setSelected(props.value)
-        } else {
-            setSelected(group.data?.BaseUoM)
-        }
-    }, [props.value, group.data])
+    // useEffect(() => {
+    //     if (props.value) {
+    //         setSelected(props.value)
+    //     } else {
+    //         setSelected(group.data?.BaseUoM)
+    //     }
+    // }, [props.value, group.data])
 
 
     const onSelectChange = (event: any,) => {

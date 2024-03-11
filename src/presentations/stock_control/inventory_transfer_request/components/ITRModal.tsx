@@ -31,7 +31,7 @@ export default function ITRModal(props: any) {
       queryFn: async () => {
         const response: any = await request(
           "GET",
-          `${url}/Items?$select=ItemCode,ItemName,InventoryItem& $filter=InventoryItem eq 'tYES'`
+          `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry & $filter=InventoryItem eq 'tYES'`
         )
           .then((res: any) => res?.data?.value)
           .catch((e: Error) => {
@@ -39,7 +39,7 @@ export default function ITRModal(props: any) {
           });
         return response;
       },
-      staleTime:Infinity,
+      staleTime:0,
     });
   const [currentPage, setCurrentPage] = useState<any>(1);
   const [itemsPerPage, setItemsPerPage] = useState(10); 

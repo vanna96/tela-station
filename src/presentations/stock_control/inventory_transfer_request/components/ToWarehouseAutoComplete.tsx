@@ -1,6 +1,7 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
+import WarehouseRepository from "@/services/warehouseRepository";
 import request, { url } from "@/utilies/request";
 
 interface WarehouseProps {
@@ -8,7 +9,7 @@ interface WarehouseProps {
   WarehouseName: string;
 }
 
-const AttentionTerminalAutoComplete = forwardRef<
+const ToWarehouseAutoComplete = forwardRef<
   HTMLInputElement,
   {
     label?: any;
@@ -19,11 +20,11 @@ const AttentionTerminalAutoComplete = forwardRef<
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["ATT_WHS"],
+    queryKey: ["TL_WHS"],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `/Warehouses?$select=BusinessPlaceID,WarehouseName,WarehouseCode & $filter=U_tl_attn_ter eq 'Y'`
+        `/Warehouses`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -108,4 +109,4 @@ const AttentionTerminalAutoComplete = forwardRef<
   );
 });
 
-export default AttentionTerminalAutoComplete;
+export default ToWarehouseAutoComplete;

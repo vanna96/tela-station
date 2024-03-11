@@ -17,7 +17,8 @@ import GoodIssueDetails from "@/presentations/stock_control/good_issue/detail/in
 import InventoryTransferRequestDetails from "@/presentations/stock_control/inventory_transfer_request/detail/index"
 import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
 import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form";
-import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"import { FuelLevelForm } from "@/presentations/stock_control/fuel_level/form/FuelLevelForm";
+import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"
+import { FuelLevelForm } from "@/presentations/stock_control/fuel_level/form/FuelLevelForm";
 
 export default function StockControlRoute() {
   return (

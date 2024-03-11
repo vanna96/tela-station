@@ -195,6 +195,7 @@ const InventoryTransferRequestDetails = (props: any) => {
                   setContent={setContent}
                   data={transferR}
                   detail={props?.detail}
+                  register={register}
                 />
               </div>
             )}

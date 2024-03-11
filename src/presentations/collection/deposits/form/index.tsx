@@ -133,7 +133,7 @@ const DepositForm = (props: any) => {
       toastRef.current?.open()
       return;
     }
-    if (!getValues("DepositAccount") || getValues("DepositAccount") === "") {
+    if (!getValues("U_tl_cash_acc") || getValues("U_tl_cash_acc") === "") {
       toastRef.current?.open()
       return;
     }

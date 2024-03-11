@@ -1,14 +1,15 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
+import WarehouseRepository from "@/services/warehouseRepository";
 import request, { url } from "@/utilies/request";
 
-interface WarehouseProps {
+interface Type {
   WarehouseCode: string;
   WarehouseName: string;
 }
 
-const AttentionTerminalAutoComplete = forwardRef<
+const WarehouseAutoComplete = forwardRef<
   HTMLInputElement,
   {
     label?: any;
@@ -19,11 +20,11 @@ const AttentionTerminalAutoComplete = forwardRef<
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["ATT_WHS"],
+    queryKey: ["TL_WH"],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `/Warehouses?$select=BusinessPlaceID,WarehouseName,WarehouseCode & $filter=U_tl_attn_ter eq 'Y'`
+        `${url}/Warehouses?$select=BusinessPlaceID & $filter=U_tl_attn_ter eq 'Y'`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -34,11 +35,12 @@ const AttentionTerminalAutoComplete = forwardRef<
     staleTime: 0,
     cacheTime: 0,
   });
+console.log(data);
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value && data) {
-      const selected = data.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+      const selected = data.find((e: Type) => e.WarehouseCode === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -46,7 +48,7 @@ const AttentionTerminalAutoComplete = forwardRef<
   }, [props.value, data]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);
+  const [selectedValue, setSelectedValue] = useState<Type | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -54,7 +56,8 @@ const AttentionTerminalAutoComplete = forwardRef<
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      props.onChange(newValue);
+      const selected = newValue ? newValue.WarehouseCode : null;
+      props.onChange(selected);
     }
   };
   const disabled = props.disabled;
@@ -74,10 +77,10 @@ const AttentionTerminalAutoComplete = forwardRef<
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: WarehouseProps) =>
+        getOptionLabel={(option: Type) =>
           option.WarehouseCode + " - " + option.WarehouseName
         }
-        renderOption={(props, option: WarehouseProps) => (
+        renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
             {option.WarehouseCode + " - " + option.WarehouseName}
           </Box>
@@ -108,4 +111,4 @@ const AttentionTerminalAutoComplete = forwardRef<
   );
 });
 
-export default AttentionTerminalAutoComplete;
+export default AttenAutoComplete;

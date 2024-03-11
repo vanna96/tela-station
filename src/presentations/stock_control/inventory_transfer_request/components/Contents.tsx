@@ -6,6 +6,8 @@ import React from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import ITRModal from "./ITRModal";
+import UomSelect from "../../fuel_level/components/UomSelect";
+import { log } from "console";
 export default function Contents({
   register,
   defaultValue,
@@ -19,6 +21,8 @@ export default function Contents({
     control,
     name: "StockTransferLines",
   });
+  const [id, setId] = useState();
+
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [openItem, setOpenItem] = useState(false);
   const [clickedRowIndex, setClickedRowIndex] = useState<number | null>(null);
@@ -37,6 +41,7 @@ export default function Contents({
     selectedItems.forEach((index) => remove(index));
     setSelectedItems([]);
   };
+  console.log(id);
 
   return (
     <>
@@ -122,11 +127,36 @@ export default function Contents({
                       />
                     </td>
                     <td className="pr-4">
-                      <MUITextField />
+                      <MUITextField
+                         inputProps={{
+                          ...register(
+                            `StockTransferLines.${index}.Quantity`,
+                          ),
+                        }}
+                      />
                     </td>
                     <td className="pr-4">
-                      <MUITextField />
-                    </td>                   
+                      <Controller
+                        name="UoMCode"
+                        control={control}
+                        render={({ field }) => {
+                          return (
+                            <UomSelect
+                              disabled={detail}
+                              {...field}
+                              onChange={(e: any) => {
+                                console.log(e);
+                                setValue(
+                                  `StockTransferLines.${index}.UoMCode`,
+                                  e.AbsEntry
+                                );
+                              }}
+                              id={id}
+                            />
+                          );
+                        }}
+                      />
+                    </td>
                   </tr>
                 </>
               );
@@ -144,7 +174,7 @@ export default function Contents({
         <div className="grid grid-cols-5 w-[30%] py-2 float-right mt-10">
           <div className="col-span-1">
             <label htmlFor="Code" className="text-gray-500 ">
-              Remarks{" "}
+              Remarks
             </label>
           </div>
           <div className="col-span-4">
@@ -156,18 +186,23 @@ export default function Contents({
               rows={3}
               name="Comments"
               className="w-full "
-              inputProps={{ ...register("Remarks") }}
+              inputProps={{ ...register("Comments") }}
             />
           </div>
         </div>
       </div>
       <ITRModal
         onClick={(e: any) => {
-          setValue(`StockTransferLines.${clickedRowIndex}.ItemCode`, e?.ItemCode);
+          setValue(
+            `StockTransferLines.${clickedRowIndex}.ItemCode`,
+            e?.ItemCode
+          );
           setValue(
             `StockTransferLines.${clickedRowIndex}.ItemDescription`,
             e?.ItemName
           );
+          setId(e?.UoMGroupEntry);
+          console.log(e);
 
           setOpenItem(false);
         }}
