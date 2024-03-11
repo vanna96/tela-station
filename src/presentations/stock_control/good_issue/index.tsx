@@ -2,7 +2,6 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -24,8 +23,15 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import DataTable from "./components/DataTableGI";
+import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 
 export default function GoodIssueList() {
+   const [searchValues, setSearchValues] = React.useState({
+     docnum: "",
+     deliveryDate: "",
+     branch:""
+   });
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
   const salesTypes = useParams();
@@ -34,69 +40,77 @@ export default function GoodIssueList() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
+        accessorKey: "No",
+        header: "No.", //uses the default width from defaultColumn prop
         size: 40,
         visible: true,
         type: "number",
+        Cell: (cell: any) => {
+          return <span>{cell?.row?.id}</span>;
+        },
       },
-     
+      {
+        accessorKey: "DocNum",
+        header: "Document No", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        visible: true,
+        type: "number",
+        size: 88,
+      },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        visible: true,
+        size: 88,
+
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository().find(cell.getValue())?.BPLName,
+      },
+      {
+        accessorKey: "U_tl_whsdesc",
+        header: "Warehouse", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        visible: true,
+        size: 88,
+
+        type: "number",
+      },
       {
         accessorKey: "TaxDate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
-        size: 60,
+        size: 88,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.value).format("YY.MM.DD");
           return <span>{formattedDate}</span>;
         },
-      },
-      {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      // {
-      //   accessorKey: "DocTotal",
-      //   header: " DocumentTotal",
-      //   visible: true,
-      //   type: "string",
-      //   size: 70,
-      //   Cell: ({ cell }: any) => (
-      //     <>
-      //       {"$"} {cell.getValue().toFixed(2)}
-      //     </>
-      //   ),
-      // },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
-        header: "Branch",
-        enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
       },
       {
         accessorKey: "DocumentStatus",
         header: " Status",
         visible: true,
         type: "string",
-        size: 60,
+        size: 88,
+
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-
+      {
+        accessorKey: "TotalQty",
+        header: "Total Qty",
+        visible: true,
+        type: "string",
+        align: "center",
+        size: 88,
+        Cell: (cell: any) => {
+          const formattedDate = moment(cell.value).format("YY.MM.DD");
+          return <span>{formattedDate}</span>;
+        },
+      },
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -105,9 +119,9 @@ export default function GoodIssueList() {
         enableColumnFilters: false,
         enableColumnOrdering: false,
         enableSorting: false,
+        header: "Action",
         minSize: 100,
         maxSize: 100,
-        header: "Action",
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
@@ -171,136 +185,109 @@ export default function GoodIssueList() {
     pageSize: 10,
   });
 
-  const Count: any = useQuery({
-    queryKey: ["good-issue-count" + filter !== "" ? "-f" : ""],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/InventoryGenEntries/$count?$select=DocNum${filter}`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-  });
+ const Count: any = useQuery({
+   queryKey: [`good-issue-count`, `${filter !== "" ? "f" : ""}`],
+   queryFn: async () => {
+     const response: any = await request(
+       "GET",
+       `${url}/InventoryGenExits/$count?${filter ? `$filter=${filter}` : ""}`
+     )
+       .then(async (res: any) => res?.data)
+       .catch((e: Error) => {
+         throw new Error(e.message);
+       });
+     return response;
+   },
+   cacheTime: 0,
+   staleTime: 0,
+ });
 
-  const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: [
-      "good-issue",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
-    ],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/InventoryGenEntries?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-    retry: 1,
-  });
+ const { data, isLoading, refetch, isFetching }: any = useQuery({
+   queryKey: [
+     "good-issue",
+     `${pagination.pageIndex * pagination.pageSize}_${
+       filter !== "" ? "f" : ""
+     }`,
+     pagination.pageSize,
+   ],
+   queryFn: async () => {
+     const Url = `${url}/InventoryGenExits?$top=${pagination.pageSize}&$skip=${
+       pagination.pageIndex * pagination.pageSize
+     }${filter ? `&$filter=${filter}` : filter}${
+       sortBy !== "" ? "&$orderby=" + sortBy : ""
+     }`;
 
-  const handlerRefresh = React.useCallback(() => {
-    setFilter("");
-    setSortBy("");
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  }, []);
+     const response: any = await request("GET", `${Url}`)
+       .then((res: any) => res?.data?.value)
+       .catch((e: Error) => {
+         throw new Error(e.message);
+       });
+     return response;
+   },
+   cacheTime: 0,
+   staleTime: 0,
+   refetchOnWindowFocus: false,
+ });
+ const handlerSortby = (value: any) => {
+   setSortBy(value);
+   setPagination({
+     pageIndex: 0,
+     pageSize: 10,
+   });
 
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
+   setTimeout(() => {
+     refetch();
+   }, 500);
+ };
 
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
+ const handlerRefresh = React.useCallback(() => {
+   setFilter("");
+   setSortBy("");
+   setPagination({
+     pageIndex: 0,
+     pageSize: 10,
+   });
+   setTimeout(() => {
+     Count.refetch();
+     refetch();
+   }, 500);
+ }, []);
 
-  const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
+ let queryFilters = "";
+ const handlerSearch = (value: string) => {
+   if (searchValues.docnum) {
+     queryFilters += queryFilters
+       ? ` and (contains(DocNum, '${searchValues.docnum}'))`
+       : `(contains(DocNum, '${searchValues.docnum}'))`;
+   }
 
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
+   if (searchValues.deliveryDate) {
+     queryFilters += queryFilters
+       ? ` and (contains(DocDate, '${searchValues.deliveryDate}'))`
+       : `(contains(DocDate, '${searchValues.deliveryDate}'))`;
+   }
+   if (searchValues.branch) {
+     queryFilters += queryFilters
+       ? ` and BPL_IDAssignedToInvoice eq ${searchValues.branch}`
+       : `BPL_IDAssignedToInvoice eq ${searchValues.branch}`;
+   }
+   let query = queryFilters;
 
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
-  };
+   if (value) {
+     query = queryFilters + `and ${value}`;
+   }
+   setFilter(query);
+   setPagination({
+     pageIndex: 0,
+     pageSize: 10,
+   });
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-  const [cookies] = useCookies(["user"]);
+   setTimeout(() => {
+     Count.refetch();
+     refetch();
+   }, 500);
+ };
 
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    deliveryDate: null,
-    status: "",
-    bplid: "",
-  });
-
-  const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.deliveryDate) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
-    }
-
-    handlerSearchFilter(queryFilters);
-  };
-  const { id }: any = useParams();
   function capitalizeHyphenatedWords(str: any) {
     return str
       .split("-")
@@ -335,7 +322,7 @@ export default function GoodIssueList() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Document No."
-                  placeholder="Document No."
+                  placeholder=""
                   className="bg-white"
                   autoComplete="off"
                   type="number"
@@ -345,44 +332,13 @@ export default function GoodIssueList() {
                   }
                 />
               </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                />
-              </div> */}
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Branch
-                  </label>
-                  <div className="">
-                    <BranchAutoComplete
-                      BPdata={cookies?.user?.UserBranchAssignment}
-                      onChange={(selectedValue) =>
-                        setSearchValues({
-                          ...searchValues,
-                          bplid: selectedValue,
-                        })
-                      }
-                      value={searchValues.bplid}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
+              <div className="col-span-2 2xl:col-span-3 -mt-[2px]">
                 <MUIDatePicker
                   label="Delivery Date"
                   value={searchValues.deliveryDate}
+                  placeholder=""
                   // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
+                  onChange={(e: any) => {
                     setSearchValues({
                       ...searchValues,
                       deliveryDate: e,
@@ -390,6 +346,28 @@ export default function GoodIssueList() {
                   }}
                 />
               </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Branch
+                  </label>
+                  <div className="">
+                    <BranchAssignmentAuto
+                    // BPdata={cookies?.user?.UserBranchAssignment}
+                      onChange={(e) => {
+                          setSearchValues({
+                            ...searchValues,
+                            branch: e?.BPLID,
+                          });
+                      }
+                      
+                    }
+                    value={searchValues.branch}
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -423,37 +401,10 @@ export default function GoodIssueList() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={()=>handlerSearch("")}
                 >
                   Go
                 </Button>
-              </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
               </div>
             </div>
           </div>
@@ -468,8 +419,9 @@ export default function GoodIssueList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Good Issue Lists"
+          title="Good Issue "
           createRoute={`/stock-control/${salesType}/create`}
+          filter={filter}
         />
       </div>
     </>

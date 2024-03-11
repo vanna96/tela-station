@@ -6,7 +6,7 @@ import InventoryTransferRequestForm from "@/presentations/stock_control/inventor
 import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
 import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form/index";
 import GoodIssueList from "@/presentations/stock_control/good_issue";
-import GoodIssueForm from "@/presentations/stock_control/good_issue/form/index";
+import GoodIssueForm from "@/presentations/stock_control/good_issue/form/GoodIssueForm";
 import PumpTestList from "@/presentations/stock_control/pump_test";
 import PumpTestForm from "@/presentations/stock_control/pump_test/form/index";
 import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index";
@@ -14,7 +14,7 @@ import FuelLevelList from "@/presentations/stock_control/fuel_level";
 import FuelLevelForm from "@/presentations/stock_control/fuel_level/form/index";
 import FuelLevelDetails from "@/presentations/stock_control/fuel_level/detail/index";
 import GoodReceiptList from "@/presentations/stock_control/good_receipt";
-import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/index";
+import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/GoodReceiptForm";
 import GoodReceiptDetails from "@/presentations/stock_control/good_receipt/detail/index";
 import GoodIssueDetails from "@/presentations/stock_control/good_issue/detail/index";
 import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index";

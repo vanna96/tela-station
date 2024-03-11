@@ -238,3 +238,13 @@ MuiButton-contained {
 .flex.text-sm.text-gray-500.border.border-gray-300.rounded.shadow-sm.transition-all {
   height: 30px;
 }
+.anime{
+  animation:  anime 0.5s linear;
+}
+@keyframes anime{
+  from{
+    opacity: 0;
+  }to{
+    opacity: 1;
+  }
+}

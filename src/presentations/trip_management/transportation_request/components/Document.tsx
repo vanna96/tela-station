@@ -147,25 +147,24 @@ export default function Document({
 
   return (
     <>
-      <div className="ml-3">
-        <div className={`${detail && "hidden"}`}>
-          <Button
-            sx={{ height: "30px" }}
-            className="bg-white"
-            size="small"
-            variant="contained"
-            disableElevation
-            onClick={handleOpen}
-          >
-            <span className="text-[12px] p-4 inline-block text-white">
-              Load Document
-            </span>
-          </Button>
-        </div>
-      </div>
-      <div className="rounded-lg shadow-sm border pt-6 m-3 px-8 h-full">
+      <div className="ml-3"></div>
+      <div className="rounded-lg shadow-sm border pt-6 ml-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
           <h2 className="mr-3">Source Document</h2>
+          <div className={`${detail && "hidden"}`}>
+            <Button
+              sx={{ height: "25px" }}
+              className="bg-white"
+              size="small"
+              variant="contained"
+              disableElevation
+              onClick={handleOpen}
+            >
+              <span className="text-[11px] p-3 inline-block text-white">
+                Load Document
+              </span>
+            </Button>
+          </div>
         </div>
         <div>
           <table className="w-full border-[#dadde0]">
@@ -175,19 +174,19 @@ export default function Document({
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Source Document <span className="text-red-500 ml-1">*</span>
                 </th>
-                <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
+                <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Document Number{" "}
                 </th>
-                <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
+                <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Item{" "}
                 </th>
-                <th className="text-left font-normal py-2 text-[14px] text-gray-500">
+                <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Ship To <span className="text-red-500 ml-1">*</span>
                 </th>
-                <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
+                <th className="w-180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Delivery Date <span className="text-red-500 ml-1">*</span>
                 </th>
-                <th className="w-[200px] text-left font-normal py-2 text-[14px] text-gray-500">
+                <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Quantity <span className="text-red-500 ml-1">*</span>
                 </th>
                 <th
@@ -355,7 +354,9 @@ export default function Document({
                           defaultValue={e?.U_Quantity}
                         />
                       </td>
-                      <td className={`text-center ${(detail || watch("U_Status") === "C" || e?.U_Children?.length > 0)  && "hidden"}`}>
+                      <td
+                        className={`text-center ${(detail || watch("U_Status") === "C" || e?.U_Children?.length > 0) && "hidden"}`}
+                      >
                         <div
                           onClick={() => removeDocument(index)}
                           className={`w-[17px] cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
@@ -479,7 +480,7 @@ export default function Document({
                               />
                             </td>
                             <td
-                              className={`text-center ${(child?.U_Status === "C"|| detail || watch("U_Status") === "C") && "hidden"}`}
+                              className={`text-center ${(child?.U_Status === "C" || detail || watch("U_Status") === "C") && "hidden"}`}
                             >
                               <div
                                 onClick={() => handleDelete(index, childIndex)}
@@ -500,7 +501,7 @@ export default function Document({
                       {e.U_Children && e.U_Children.length > 0 ? (
                         <td colSpan={4} className="">
                           <div
-                            className={`pt-1 ${ (watch("U_Status") === "C"||detail) && "hidden"}`}
+                            className={`pt-1 ${(watch("U_Status") === "C" || detail) && "hidden"}`}
                           >
                             <Button
                               onClick={() => addNewChild(index)}

@@ -384,8 +384,8 @@ const appRoutes: RouteType[] = [
         },
       },
       {
-        path: "/bulk/seal/allocation",
-        state: "bulk/seal/allocation",
+        path: "/trip-management/bulk-seal-allocation",
+        state: "bulk-seal-allocation",
         sidebarProps: {
           displayText: "Bulk Seal Allocation",
         },

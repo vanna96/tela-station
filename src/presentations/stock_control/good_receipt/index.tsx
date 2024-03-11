@@ -2,7 +2,6 @@ import request, { url } from "@/utilies/request";
 import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
-import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
@@ -24,6 +23,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import DataTable from "./components/DataTableGR";
 
 export default function GoodReceiptList() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -34,69 +34,65 @@ export default function GoodReceiptList() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
-        enableClickToCopy: true,
-        enableFilterMatchHighlighting: true,
+        accessorKey: "No",
+        header: "No.", //uses the default width from defaultColumn prop
         size: 40,
         visible: true,
         type: "number",
+        Cell: (cell: any) => {
+          return <span>{cell?.row?.id}</span>;
+        },
       },
-     
+      {
+        accessorKey: "DocNum",
+        header: "Document No", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        visible: true,
+        type: "number",
+        size: 88,
+      },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        visible: true,
+        size: 88,
+
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository().find(cell.getValue())?.BPLName,
+      },
+      {
+        accessorKey: "Warehouse",
+        header: "Warehouse", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        visible: true,
+        size: 88,
+
+        type: "number",
+      },
       {
         accessorKey: "TaxDate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
-        size: 60,
+        size: 88,
         Cell: (cell: any) => {
           const formattedDate = moment(cell.value).format("YY.MM.DD");
           return <span>{formattedDate}</span>;
         },
-      },
-      {
-        accessorKey: "DocDueDate",
-        header: "Delivery Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      // {
-      //   accessorKey: "DocTotal",
-      //   header: " DocumentTotal",
-      //   visible: true,
-      //   type: "string",
-      //   size: 70,
-      //   Cell: ({ cell }: any) => (
-      //     <>
-      //       {"$"} {cell.getValue().toFixed(2)}
-      //     </>
-      //   ),
-      // },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
-        header: "Branch",
-        enableClickToCopy: true,
-        visible: true,
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
       },
       {
         accessorKey: "DocumentStatus",
         header: " Status",
         visible: true,
         type: "string",
-        size: 60,
+        size: 88,
+
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
-
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -105,9 +101,9 @@ export default function GoodReceiptList() {
         enableColumnFilters: false,
         enableColumnOrdering: false,
         enableSorting: false,
+        header: "Action",
         minSize: 100,
         maxSize: 100,
-        header: "Action",
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
@@ -172,11 +168,11 @@ export default function GoodReceiptList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["good-receipt-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["good-issue-count" + filter !== "" ? "-f" : ""],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryGenExits/$count?$select=DocNum${filter}`
+        `${url}/InventoryGenEntries/$count?$select=DocNum${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -189,13 +185,13 @@ export default function GoodReceiptList() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "good-receipt",
+      "good-issue",
       `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
     ],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryGenExits?$top=${pagination.pageSize}&$skip=${
+        `${url}/InventoryGenEntries?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
       )
@@ -335,7 +331,7 @@ export default function GoodReceiptList() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Document No."
-                  placeholder="Document No."
+                  placeholder=""
                   className="bg-white"
                   autoComplete="off"
                   type="number"
@@ -345,19 +341,20 @@ export default function GoodReceiptList() {
                   }
                 />
               </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
+              <div className="col-span-2 2xl:col-span-3 -mt-[2px]">
+                <MUIDatePicker
+                  label="Delivery Date"
+                  value={searchValues.deliveryDate}
+                  placeholder=""
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
+                  onChange={(e: any) => {
                     setSearchValues({
                       ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
+                      deliveryDate: e,
+                    });
+                  }}
                 />
-              </div> */}
+              </div>
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -365,7 +362,7 @@ export default function GoodReceiptList() {
                   </label>
                   <div className="">
                     <BranchAutoComplete
-                      BPdata={cookies?.user?.UserBranchAssignment}
+                      // BPdata={cookies?.user?.UserBranchAssignment}
                       onChange={(selectedValue) =>
                         setSearchValues({
                           ...searchValues,
@@ -377,19 +374,7 @@ export default function GoodReceiptList() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Delivery Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
+
               {/* <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -428,33 +413,7 @@ export default function GoodReceiptList() {
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
+              
             </div>
           </div>
         </div>
@@ -468,8 +427,9 @@ export default function GoodReceiptList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Good Receipt Lists"
+          title="Good Receipt"
           createRoute={`/stock-control/${salesType}/create`}
+          filter={filter}
         />
       </div>
     </>
