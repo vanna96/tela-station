@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
@@ -111,34 +110,26 @@ const GoodIssueForm = (props: any) => {
     const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
     const payload = {
       ...data,
-      U_tl_driver: "Y",
-      U_tl_name: fullName,
-      HomeCountry: "KH",
-      EmployeeBranchAssignment: branchAss?.map((e: any) => {
-        return {
-          BPLID: e?.BPLID,
-        };
-      }),
     };
     const { id } = props?.match?.params || 0;
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
-        await request("PATCH", `/EmployeesInfo(${id})`, payload)
+        await request("PATCH", `/InventoryGenExits(${id})`, payload)
           .then((res: any) =>
             dialog.current?.success(
               "Update Successfully.",
-              res?.data?.EmployeeID
+              res?.data?.DocEntry
             )
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));
       } else {
-        await request("POST", "/EmployeesInfo", payload)
+        await request("POST", "/InventoryGenExits", payload)
           .then((res: any) =>
             dialog.current?.success(
               "Create Successfully.",
-              res?.data?.EmployeeID
+              res?.data?.DocEntry
             )
           )
           .catch((err: any) => dialog.current?.error(err.message))

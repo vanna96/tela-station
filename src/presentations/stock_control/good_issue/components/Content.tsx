@@ -1,12 +1,13 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
-import UOMAutoComplete from "@/components/input/UOMAutoComplete";
+import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import ItemModal from "@/presentations/trip_management/transportation_order/ItemModal";
 import { Button, Checkbox, TextField } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import React from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import UomSelect from "../../fuel_level/components/UomSelect";
 export default function Content({
   register,
   defaultValue,
@@ -22,7 +23,7 @@ export default function Content({
   });
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [openItem, setOpenItem] = useState(false);
-    const [uomCode, setUomCode] = useState(null);
+  const [id, setId] = useState<any>(0);
 
   const [clickedRowIndex, setClickedRowIndex] = useState<number | null>(null);
   const handleCheck = (index: number) => {
@@ -128,13 +129,34 @@ export default function Content({
                       />
                     </td>
                     <td className="pr-4">
-                      <MUITextField />
+                      <MUITextField
+                        type="number"
+                        inputProps={{
+                          ...register(`DocumentLines.${index}.Quantity`),
+                        }}
+                      />
                     </td>
                     <td className="pr-4">
-                   as
+                      <UomSelect
+                        onChange={(e) => {
+                          setValue(
+                            `DocumentLines.${index}.UoMCode`,
+                            e?.AbsEntry
+                          );
+                        }}
+                        id={id}
+                        // value={}
+                      />
                     </td>
                     <td className="pr-4">
-                      <MUITextField />
+                      <MUITextField
+                        inputProps={{
+                          // ...register(
+                          //   `DocumentLines.${index}.ItemDescription`
+                            
+                          // ),
+                        }}
+                      />
                     </td>
                   </tr>
                 </>
@@ -177,7 +199,7 @@ export default function Content({
             `DocumentLines.${clickedRowIndex}.ItemDescription`,
             e?.ItemName
           );
-            setUomCode(e?.UoMGroupEntry);
+          setId(e?.UoMGroupEntry);
           setOpenItem(false);
         }}
         setOpen={setOpenItem}

@@ -214,7 +214,7 @@ export default function BulkSealAllocationList() {
                         <tr>
                           <td
                             colSpan={8}
-                            className="text-center p-10 py-[5rem] text-[16px] text-gray-400"
+                            className="text-center p-10 py-[5rem] text-[16px] text-gray-600"
                           >
                             No Record
                           </td>

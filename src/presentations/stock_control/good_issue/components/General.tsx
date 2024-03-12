@@ -6,7 +6,7 @@ import PositionAutoComplete from "@/components/input/PositionAutoComplete";
 import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
@@ -17,6 +17,9 @@ import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete"
 import { TextField } from "@mui/material";
 import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
 import SaleEmployeeAutoComplete from "@/components/input/SaleEmployeeAutoComplete";
+import { useGetFuelLevelSeriesHook } from "../../fuel_level/hook/useGetFuelLevelSeriesHook";
+import { useParams } from "react-router-dom";
+import { useGetIssueSeriesHook } from "../hook/useGetIssueSeriesHook";
 
 const General = ({
   register,
@@ -31,17 +34,31 @@ const General = ({
   watch,
   getValues,
 }: any) => {
-  const [staticSelect, setStaticSelect] = useState({
-    branchASS: null,
-  });
+  const { series, defaultSerie } = useGetIssueSeriesHook();
+  const { id }: any = useParams();
+  useEffect(() => {
+    if (id) return;
+    if (!defaultSerie.data) return;
+    setValue("DocNum", defaultSerie.data);
+  }, [defaultSerie.data]);
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const serie = series.data?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+      if (!serie) return;
+
+      setValue("Series", event?.target?.value);
+      setValue("DocNum", serie?.NextNumber);
+    },
+    [series?.data]
+  );
 
   useEffect(() => {
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
-  }, [defaultValues]);
+   console.log(getValues("DocDate"),getValues("TaxDate"));
+   
+  },[watch("DocDate"),watch("TaxDate")]);
 
   return (
     <>
@@ -112,7 +129,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_tl_empl"
+                  name="SalesPersonCode"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -121,7 +138,7 @@ const General = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("U_tl_empl", e?.SalesEmployeeCode);
+                          setValue("SalesPersonCode", e?.SalesEmployeeCode);
                         }}
                       />
                     );
@@ -139,7 +156,7 @@ const General = ({
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("TransNum"),
+                    ...register("U_tl_trano"),
                   }}
                 />
               </div>
@@ -154,9 +171,7 @@ const General = ({
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("EmployeeCode", {
-                      required: "Employee Code is required",
-                    }),
+                    ...register("U_tl_truno"),
                   }}
                 />
               </div>
@@ -218,20 +233,17 @@ const General = ({
               </div>
               <div className="col-span-1">
                 <Controller
-                  rules={{ required: "Series is required" }}
-                  name="U_tl_terminal"
+                  name="Series"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BaseStationAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={
-                          watch("U_tl_terminal") || defaultValues?.U_tl_terminal
-                        }
-                        onChange={(e: any) => {
-                          setValue("U_tl_terminal", e);
-                        }}
+                      <MUISelect
+                        value={field.value}
+                        disabled={id}
+                        items={series.data ?? []}
+                        aliaslabel="Name"
+                        aliasvalue="Series"
+                        onChange={onChangeSerie}
                       />
                     );
                   }}
@@ -240,11 +252,8 @@ const General = ({
               <div className="col-span-2 -mt-1 ml-5">
                 <MUITextField
                   disabled={detail}
-                  inputProps={{
-                    ...register("EmployeeCode", {
-                      required: "Employee Code is required",
-                    }),
-                  }}
+                  key={watch("DocNum")}
+                  value={watch("DocNum")}
                 />
               </div>
             </div>
@@ -264,6 +273,8 @@ const General = ({
                       <MUIDatePicker
                         disabled={detail}
                         {...field}
+
+                        value={watch("DocDate") || new Date()}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -295,6 +306,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
+                        value={watch("TaxDate") || new Date()}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -347,16 +359,16 @@ const General = ({
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "Position is required" }}
-                  name="Position"
+                  name="U_tl_stype"
                   control={control}
                   render={({ field }) => {
                     return (
                       <PositionAutoComplete
                         disabled={detail}
                         {...field}
-                        value={watch("Position") || defaultValues?.Position}
+                        value={field.value}
                         onChange={(e: any) => {
-                          setValue("Position", e);
+                          setValue("U_tl_stype", e);
 
                           // setHeader({ ...header, data5: e?.Name })
                         }}
@@ -377,9 +389,7 @@ const General = ({
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("EmployeeCode", {
-                      required: "Employee Code is required",
-                    }),
+                    ...register("Reference2"),
                   }}
                 />
               </div>

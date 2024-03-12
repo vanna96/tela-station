@@ -24,7 +24,7 @@ const BaseStationAutoComplete = forwardRef<
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}//Warehouses?$filter=U_tl_attn_ter eq 'Y'`
+        `${url}/Warehouses?$filter=U_tl_attn_ter eq 'Y'`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {

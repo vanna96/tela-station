@@ -2,6 +2,7 @@ import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
 import ManagerRepository from "@/services/actions/ManagerRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
   EmployeeID: number;
@@ -20,9 +21,20 @@ const ManagerAutoComplete = forwardRef<
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery<Type[], Error>({
-    queryKey: ["manager"],
-    queryFn: () => new ManagerRepository().get(),
+    queryKey: ["u_dv"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/EmployeesInfo?$filter=U_tl_driver eq 'Y'`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
     staleTime: Infinity,
+    cacheTime: 0,
   });
 
   useEffect(() => {
