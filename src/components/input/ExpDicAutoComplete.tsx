@@ -1,8 +1,11 @@
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
 import ExpdicRepository from "@/services/actions/ExpDicRepository";
+import request from "@/utilies/request";
+
+
 export default function ExpDicAutoComplete(props: {
   label?: any;
   value?: any;
@@ -11,38 +14,40 @@ export default function ExpDicAutoComplete(props: {
   disabled?: any;
   name?: any;
 }) {
-  const { data, isLoading }: any = useQuery({
-    queryKey: ["expdic"],
-    queryFn: () => new ExpdicRepository().get(),
-    // staleTime: Infinity,
-  });
-
-  useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
-      const selectedBranch = data?.find(
-        (branch: any) => branch?.Code === props.value
-      );
-      if (selectedBranch) {
-        setSelectedValue(selectedBranch);
-      }
-    }
-  }, [props.value, data]);
-
-  // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
 
+  const { data, isLoading }: any = useQuery({ queryKey: ["expdic"], queryFn: () => request('GET', '/TL_ExpDic?$select=Code, Name') });
+
+  const getList = useMemo(() => {
+    if (!data?.data?.value) return;
+
+    return data?.data?.value ?? []
+  }, [data])
+
+
+  useEffect(() => {
+    if (!props.value) return;
+
+    const selectedBranch = getList?.find((expense: any) => expense?.Code === props.value);
+    if (selectedBranch) setSelectedValue(selectedBranch);
+
+  }, [props.value, getList]);
+
+  // Use local state to store the selected value
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
     setSelectedValue(newValue);
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selectedId = newValue ? newValue.Code : null;
-      props.onChange(selectedId);
+      props.onChange(newValue);
     }
   };
-  const disabled = props.disabled;
+
+
+
+
+  const { disabled } = props;
 
   return (
     <div className="block text-[14px] xl:text-[13px] ">
@@ -55,24 +60,23 @@ export default function ExpDicAutoComplete(props: {
 
       <Autocomplete
         disabled={disabled}
-        options={data}
+        options={getList}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option.Code}
+        getOptionLabel={(option: any) => option?.Code}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             <BsDot />
-            {option.Code} - {option.Name}
+            {option?.Code} - {option?.Name}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

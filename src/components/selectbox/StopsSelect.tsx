@@ -3,6 +3,7 @@ import { useQuery } from "react-query";
 import { SelectInputProps } from "@mui/material/Select/SelectInput";
 import StopsRepository from "@/services/actions/StopsRepository";
 import React from "react";
+import request from "@/utilies/request";
 
 
 interface StopsProps<T = unknown> {
@@ -21,25 +22,22 @@ export type StopSchema = {
 }
 
 function StopsSelect(props: StopsProps) {
-  const { data, isLoading }: any = useQuery({ queryKey: ['stops'], queryFn: () => new StopsRepository().get(), staleTime: Infinity })
+  const { data, isLoading }: any = useQuery({ queryKey: ['stops'], queryFn: () => request('GET', '/TL_STOPS'), staleTime: 0 })
+
+
+  const values = React.useMemo(() => {
+    if (!data?.data?.value) return [];
+
+    return data?.data?.value?.map((e: StopSchema) => ({ ...e, FullName: e?.Code + " - " + e?.Name }));
+  }, [data])
 
   const onHandlerChange = (event: any) => {
-    const val = data?.find((e: StopSchema) => e.Code === event?.target?.value);
+    const val = values?.find((e: StopSchema) => e.Code === event?.target?.value);
 
     if (props.onHandlerChange) {
       props.onHandlerChange(val)
     }
   }
-
-
-  const values = React.useMemo(() => {
-    if (!data) return [];
-
-    return data?.map((e: StopSchema) => ({ ...e, FullName: e?.Code + " - " + e?.Name }));
-  }, [data])
-
-
-
 
   return <MUISelect
     {...props}
