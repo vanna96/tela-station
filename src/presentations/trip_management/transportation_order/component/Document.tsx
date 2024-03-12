@@ -96,7 +96,7 @@ const removeDocument = (index:number) => {
             {document?.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={8}
                   className="text-center p-10 text-[16px] text-gray-400"
                 >
                   No Record
