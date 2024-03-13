@@ -32,8 +32,8 @@ function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
     }
 }
 
-const keyData = 'fuel-count';
-const keyCount = 'fuel-list';
+const keyData = 'fuel-lists';
+const keyCount = 'fuel_count';
 
 
 export const useFuelLevelListHook = (pagination: any) => {
@@ -67,7 +67,6 @@ export const useFuelLevelListHook = (pagination: any) => {
     const setSort = (value: string) => {
         dispatch({ type: 'orderby', value })
     }
-
 
     const loading: boolean = React.useMemo(() => {
         return dataQuery.isFetching || countQuery.isFetching;
