@@ -92,8 +92,6 @@ export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
           <CircularProgress />
         </Backdrop>
 
-        <UomSelectByItem item="LPG0001" onChange={(e) => console.log(e)} />
-
         {tap === 0 && <General {...hook} edit={edit} />}
         {tap === 1 && <Content {...hook} edit={edit} />}
       </div>
