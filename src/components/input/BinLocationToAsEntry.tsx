@@ -10,7 +10,7 @@ interface WareBinLocation {
   WhsCode: string;
   OnHandQty: number;
   BinCode: string;
-  BinAbsEntry: number;
+  BinID: number;
   id__: number;
 }
 

@@ -73,14 +73,14 @@ export default function SaleOrderLists() {
       },
 
       {
-        accessorKey: "TaxDate",
+        accessorKey: "DocDate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.TaxDate).format(
+          const formattedDate = moment(cell.row.original.DocDate).format(
             "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
@@ -195,13 +195,13 @@ export default function SaleOrderLists() {
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status"}`;
 
       const dataUrl = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)

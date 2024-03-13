@@ -4,27 +4,17 @@ import { LoadingButton } from "@mui/lab";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
-import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/IncomingPayment";
-import ContentForm from "../components/UnitSaleForm";
-import AttachmentForm from "../components/AttachmentForm";
-import AccountingForm from "../components/AccountingForm";
-import React from "react";
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
+import { formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
 import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
-import useState from "react";
-import requestHeader from "@/utilies/requestheader";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import Consumption from "../components/Consumption";
 import IncomingPaymentForm from "../components/IncomingPayment";
-import UnitSaleForm from "../components/UnitSaleForm";
+import ContentForm from "../components/ContentForm";
+import ErrorLogForm from "../../components/ErrorLogForm";
+import { motion } from "framer-motion";
 
 class SalesOrderForm extends CoreFormDocument {
   constructor(props: any) {
@@ -47,20 +37,36 @@ class SalesOrderForm extends CoreFormDocument {
       Rounding: false,
       DocDiscount: 0,
       RoundingValue: 0,
-      AttachmentList: [],
       VatGroup: "S1",
       type: "sale", // Initialize type with a default value
       lineofBusiness: "",
       warehouseCode: "",
       nozzleData: [],
       allocationData: [],
-      cashBankData: [{ type: "cash", currency: "USD", amount: 0 }],
+      cashBankData: [
+        {
+          U_tl_paytype: "Cash",
+          U_tl_paycur: "USD",
+          U_tl_amtcash: "",
+          U_tl_amtbank: "",
+        },
+      ],
       checkNumberData: [
         {
-          check_no: "",
-          check_date: new Date(),
-          bank: "",
-          check_amount: 0,
+          U_tl_acccheck: " ",
+          U_tl_checkdate: new Date(),
+          U_tl_checkbank: "",
+          U_tl_paytype: "Check",
+          U_tl_amtcheck: "",
+          U_tl_paycur: "USD",
+        },
+      ],
+      couponData: [
+        {
+          U_tl_acccoupon: "110101",
+          U_tl_amtcoupon: "",
+          U_tl_paycur: "USD",
+          U_tl_paytype: "Coupon",
         },
       ],
       isDialogOpen: false,
@@ -188,11 +194,6 @@ class SalesOrderForm extends CoreFormDocument {
         throw new FormValidateException("Items is missing", 1);
       }
 
-      // attachment
-      let AttachmentEntry = null;
-      const files = data?.AttachmentList?.map((item: any) => item);
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files);
-
       // items
 
       const warehouseCodeGet = this.state.warehouseCode;
@@ -253,7 +254,6 @@ class SalesOrderForm extends CoreFormDocument {
         // JournalMemo: data?.JournalRemark,
         // Project: data?.BPProject || null,
         // attachment
-        AttachmentEntry,
       };
 
       if (id) {
@@ -331,70 +331,72 @@ class SalesOrderForm extends CoreFormDocument {
     return requiredFieldsMap[tabIndex] || [];
   }
 
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
+  handleMenuButtonClick = (index: any) => {
+    const requiredFields = this.getRequiredFieldsByTab(index - 1);
+    const hasErrors = requiredFields.some((field) => {
+      if (field === "Items") {
+        return !this.state[field] || this.state[field].length === 0;
+      }
+      return !this.state[field];
+    });
+
+    if (hasErrors) {
+      this.setState({ isDialogOpen: true });
+    } else {
+      this.setState({ tapIndex: index });
     }
   };
-
   HeaderTaps = () => {
     return (
       <>
         <div className="w-full flex justify-start">
-          <MenuButton active={this.state.tapIndex === 0}>
+          <MenuButton
+            active={this.state.tapIndex === 0}
+            onClick={() => this.handleMenuButtonClick(0)}
+          >
             <span className="flex">Basic Information</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 1}>
-            <span>Consumption</span>
+          <MenuButton
+            active={this.state.tapIndex === 1}
+            onClick={() => this.handleMenuButtonClick(1)}
+          >
+            <span>Pump Sale</span>
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 2}>Pump Sale</MenuButton>
-          <MenuButton active={this.state.tapIndex === 3}>Unit Sale</MenuButton>
-          <MenuButton active={this.state.tapIndex === 4}>
-            <span> Incoming Payment</span>
+          <MenuButton
+            active={this.state.tapIndex === 2}
+            onClick={() => this.handleMenuButtonClick(2)}
+          >
+            Unit Sale
           </MenuButton>
-          <MenuButton active={this.state.tapIndex === 5}>
+          <MenuButton
+            active={this.state.tapIndex === 3}
+            onClick={() => this.handleMenuButtonClick(3)}
+          >
+            Incoming Payment
+          </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 4}
+            onClick={() => this.handleMenuButtonClick(4)}
+          >
             <span> Error Log</span>
           </MenuButton>
         </div>
         <div className="sticky w-full bottom-4   ">
           <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <div className="flex ">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
-              >
-                Previous
-              </Button>
-            </div>
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 3}
-                style={{ textTransform: "none" }}
-              >
-                Next
-              </Button>
-
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
+            <Snackbar
+              open={this.state.isDialogOpen}
+              autoHideDuration={6000}
+              onClose={this.handleCloseDialog}
+            >
+              <Alert
                 onClose={this.handleCloseDialog}
+                severity="error"
+                sx={{ width: "100%" }}
               >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
-            </div>
+                Please complete all required fields before proceeding to the
+                next tab.
+              </Alert>
+            </Snackbar>
           </div>
         </div>
       </>
@@ -436,95 +438,104 @@ class SalesOrderForm extends CoreFormDocument {
             ) : (
               <>
                 <div className="grow">
-                  {this.state.tapIndex === 0 && (
-                    <GeneralForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
-                      lineofBusiness={this.state.lineofBusiness}
-                      warehouseCode={this.state.warehouseCode}
-                      onWarehouseChange={this.handleWarehouseChange}
-                      onLineofBusinessChange={this.handleLineofBusinessChange}
-                    />
-                  )}
-                  {this.state.tapIndex === 1 && (
-                    <Consumption
-                      data={this.state}
-                      handlerChange={this.handlerChange}
-                      edit={this.props?.edit}
-                      handlerChangeObject={(value) =>
-                        this.handlerChangeObject(value)
-                      }
-                    />
-                  )}
+                  <motion.div
+                    key={this.state.tapIndex}
+                    transition={{ duration: 0.2 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    {this.state.tapIndex === 0 && (
+                      <GeneralForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                        lineofBusiness={this.state.lineofBusiness}
+                        warehouseCode={this.state.warehouseCode}
+                        onWarehouseChange={this.handleWarehouseChange}
+                        onLineofBusinessChange={this.handleLineofBusinessChange}
+                      />
+                    )}
+                    {this.state.tapIndex === 1 && (
+                      <Consumption
+                        data={this.state}
+                        handlerChange={this.handlerChange}
+                        edit={this.props?.edit}
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                      />
+                    )}
 
-                  {this.state.tapIndex === 2 && (
-                    <UnitSaleForm
-                      data={this.state}
-                      handlerAddItem={() => {
-                        this.hanndAddNewItem();
-                      }}
-                      handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Items: items })
-                      }
-                      handlerChangeItem={this.handlerChangeItems}
-                      onChangeItemByCode={this.handlerChangeItemByCode}
-                      onChange={this.handlerChange}
-                    />
-                  )}
+                    {this.state.tapIndex === 2 && (
+                      <ContentForm
+                        data={this.state}
+                        handlerAddItem={() => {
+                          this.hanndAddNewItem();
+                        }}
+                        handlerRemoveItem={(items: any[]) =>
+                          this.setState({ ...this.state, Items: items })
+                        }
+                        handlerChangeItem={this.handlerChangeItems}
+                        onChangeItemByCode={this.handlerChangeItemByCode}
+                        onChange={this.handlerChange}
+                        ContentLoading={undefined}
+                        edit={this.props?.edit}
+                      />
+                    )}
 
-                  {this.state.tapIndex === 3 && (
-                    <IncomingPaymentForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
+                    {this.state.tapIndex === 3 && (
+                      <IncomingPaymentForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) => {
+                          this.handlerChange(key, value);
+                        }}
+                      />
+                    )}
                     {this.state.tapIndex === 4 && (
-                    <ErrorLogForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
+                      <ErrorLogForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) => {
+                          this.handlerChange(key, value);
+                        }}
+                      />
+                    )}
 
-                  <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <div className="flex ">
-                        <LoadingButton
-                          size="small"
-                          sx={{ height: "25px" }}
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-3 text-[11px] py-1 text-white">
-                            Cancel
-                          </span>
-                        </LoadingButton>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <LoadingButton
-                          type="submit"
-                          sx={{ height: "25px" }}
-                          className="bg-white"
-                          loading={false}
-                          size="small"
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Save"}
-                          </span>
-                        </LoadingButton>
+                    <div className="sticky w-full bottom-4  mt-2 ">
+                      <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                        <div className="flex ">
+                          <LoadingButton
+                            size="small"
+                            sx={{ height: "25px" }}
+                            variant="contained"
+                            disableElevation
+                          >
+                            <span className="px-3 text-[11px] py-1 text-white">
+                              Cancel
+                            </span>
+                          </LoadingButton>
+                        </div>
+                        <div className="flex items-center space-x-4">
+                          <LoadingButton
+                            type="submit"
+                            sx={{ height: "25px" }}
+                            className="bg-white"
+                            loading={false}
+                            size="small"
+                            variant="contained"
+                            disableElevation
+                          >
+                            <span className="px-6 text-[11px] py-4 text-white">
+                              {this.props.edit ? "Update" : "Save"}
+                            </span>
+                          </LoadingButton>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </>
             )}

@@ -5,7 +5,7 @@ import Binlocation from '@/models/Binlocation';
 
 export default class BinlocationRepository extends Repository<Binlocation> {
 
-  url: string = '/BinLocations?$select=BinCode,AbsEntry';
+  url: string = '/BinLocations';
   static get: any;
 
 
