@@ -193,7 +193,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <WarehouseAutoComplete
                 Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
+                value={data?.U_tl_whsdesc} 
                 onChange={(e) => {
                   handlerChange("U_tl_whsdesc", e);
                   onWarehouseChange(e);
