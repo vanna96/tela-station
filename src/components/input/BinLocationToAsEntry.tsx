@@ -10,7 +10,7 @@ interface WareBinLocation {
   WhsCode: string;
   OnHandQty: number;
   BinCode: string;
-  BinAbsEntry: number;
+  BinID: number;
   id__: number;
 }
 
@@ -55,7 +55,7 @@ export default function BinLocationToAsEntry(props: {
       }
 
       const selectedBinLocation = uniqueWarehouses?.find(
-        (warebin: any) => warebin.BinAbsEntry === selectedValue
+        (warebin: any) => warebin.BinID === selectedValue
       );
 
       setSelectedValue(selectedBinLocation);
@@ -68,7 +68,7 @@ export default function BinLocationToAsEntry(props: {
     setSelectedValue(newValue);
 
     if (props.onChange) {
-      const selectedCode = newValue ? newValue.BinAbsEntry : null;
+      const selectedCode = newValue ? newValue.BinID : null;
       props.onChange(selectedCode);
     }
   };
@@ -88,7 +88,7 @@ export default function BinLocationToAsEntry(props: {
         loading={isLoading}
         getOptionLabel={(option: WareBinLocation) => option.BinCode}
         renderOption={(props, option: WareBinLocation) => (
-          <Box component="li" {...props} key={option.BinAbsEntry}>
+          <Box component="li" {...props} key={option.BinID}>
             <BsDot />
             {option.BinCode}
           </Box>
