@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -385,7 +385,14 @@ export default function SaleOrderLists() {
         return "Unknown Sale Lists";
     }
   };
-
+  const indexedData = useMemo(
+    () =>
+      data?.map((item: any, index: any) => ({
+        ...item,
+        index: pagination.pageIndex * pagination.pageSize + index + 1,
+      })),
+    [data, pagination.pageIndex, pagination.pageSize]
+  );
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -512,10 +519,7 @@ export default function SaleOrderLists() {
             },
             ...columns,
           ]}
-          data={data?.map((item: any, index: any) => ({
-            ...item,
-            index: index + 1,
-          }))}
+          data={indexedData}
           dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
