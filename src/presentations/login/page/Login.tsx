@@ -95,7 +95,7 @@ export default function Login() {
       await new SalePersonRepository().get(),
       await new GLAccountRepository().get(),
       await new VatGroupRepository().get(),
-      await new WarehouseRepository().get(),
+      // await new WarehouseRepository().get(),
       await new DistributionRuleRepository().get(),
       await new PriceListRepository().get(),
       await new UsersRepository().get(),

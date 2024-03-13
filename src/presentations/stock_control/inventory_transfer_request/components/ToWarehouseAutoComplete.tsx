@@ -33,7 +33,6 @@ const ToWarehouseAutoComplete = forwardRef<
       return response;
     },
     staleTime: 0,
-    cacheTime: 0,
   });
 
   useEffect(() => {

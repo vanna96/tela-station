@@ -23,7 +23,11 @@ export const useTransferRequestHook = ({
     reset,
     getValues,
     formState: { errors, defaultValues },
-  } = useForm();
+  } = useForm({
+    defaultValues:{
+      UseBaseUnits : 'tNO'
+    }
+  });
 
   const onSubmit = async (e: any) => {
     const payload: any = {
@@ -43,7 +47,7 @@ export const useTransferRequestHook = ({
       } else {
         await request("POST", "/InventoryTransferRequests", payload)
           .then((res: any) =>
-            dialog.current?.success("Create Successfully.", res?.data?.AbsEntry)
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
           )
           .catch((err: any) => dialog.current?.error(err.message))
           .finally(() => setState({ ...state, isSubmitting: false }));

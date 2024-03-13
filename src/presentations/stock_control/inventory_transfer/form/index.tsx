@@ -250,7 +250,7 @@ const InventoryTransferForm = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      (window.location.href = "/master-data/vehicle")
+                      (window.location.href = "/stock-control/stock-transfer")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">

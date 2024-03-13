@@ -1,17 +1,16 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
-import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
-import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import React from "react";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
-
+import AttentionTerminalAutoComplete from "../../inventory_transfer_request/components/AttentionTerminalAutoComplete";
+import request from "@/utilies/request";
+import ToWarehouseAutoComplete from "../../inventory_transfer_request/components/ToWarehouseAutoComplete";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useQuery } from "react-query";
+import { useGetInventoryTransferSeriesHook } from "../hook/useGetInventoryTransferSerieHook";
 const BasicInformation = ({
   register,
   control,
@@ -28,7 +27,13 @@ const BasicInformation = ({
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     branchASS: null,
-    serie: 7855,
+    serie: 7838,
+  });
+
+  const branch: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
   });
 
   useEffect(() => {
@@ -38,23 +43,36 @@ const BasicInformation = ({
       );
     }
   }, [defaultValues]);
-  const nextNumber = serie?.find(
-    (e: any) => e?.Series === staticSelect?.serie
-  )?.NextNumber;
 
-  const dataSeries = React.useMemo(() => {
-    return serie?.filter(
-      (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
-    );
-  }, [serie]);
-
-  const depositDate = watch("DepositDate"); // Assuming the field name is DepositDate
+  const docdate = watch("DocDate");
+  const duedate = watch("DueDate");
 
   useEffect(() => {
-    // Set default date when the component mounts
-    const defaultDate = new Date(); // Replace with your desired default date
-    setValue("DepositDate", defaultDate);
+    const defaultDate = new Date();
+    setValue("DocDate", defaultDate);
+    setValue("DueDate", defaultDate);
   }, [setValue]);
+
+  const { series, defaultSerie } = useGetInventoryTransferSeriesHook();
+  useEffect(() => {
+    if (edit) return;
+
+    if (!defaultSerie.data) return;
+    setValue("DocNum", defaultSerie.data);
+  }, [defaultSerie.data]);
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const serie = series.data?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+      if (!serie) return;
+
+      setValue("Series", event?.target?.value);
+      setValue("DocNum", serie?.NextNumber);
+    },
+    [series?.data]
+  );
 
   return (
     <>
@@ -64,108 +82,106 @@ const BasicInformation = ({
         </div>
         <div className="grid grid-cols-2 md:grid-cols-1 gap-[6rem] md:gap-0 ">
           <div className="">
-            <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Transfer Type
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  name="U_BaseStation"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BaseStationAutoComplete
-                        disabled={detail}
-                        {...field}
-                        // value={defaultValues?.U_BaseStation}
-                        value={field.value}
-                        onChange={(e: any) => {
-                          setValue("U_BaseStation", e);
-                        }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
-              <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
+                <label htmlFor="GIT Warehouse" className="text-gray-500 ">
                   GIT Warehouse
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("Bank"),
-                  }}
+                  disabled={detail || true}
+                  value={defaultValues?.nextNumber}
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 mb-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
+                <label htmlFor="Attention Termianl" className="text-gray-500 ">
                   Attention Terminal
-                </label>
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-              </div>
-              <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("Bank"),
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
-              <div className="col-span-2">
-                <label htmlFor="Deposit Currency" className="text-gray-500 ">
-                  Branch
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPLID"
+                  rules={{ required: "Attention Termianl is required" }}
+                  name="FromWarehouse"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <AttentionTerminalAutoComplete
+                        disabled={detail}
                         {...field}
+                        value={field.value}
                         onChange={(e: any) => {
-                          setValue("BPLID", e?.BPLID);
-                          //   setValue("CheckLines", []);
+                          setValue("BPLID", e.BusinessPlaceID);
+                          setValue("FromWarehouse", e.WarehouseCode);
                         }}
-                        value={field?.value}
                       />
                     );
                   }}
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 ">
               <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
-                  To WHS Code
+                <label
+                  htmlFor="Branch"
+                  className="text-gray-500 inline-block mt-1"
+                >
+                  Branch
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail || edit}
-                  inputProps={{
-                    ...register("Bank"),
+                  disabled={true}
+                  value={
+                    branch?.data?.find((e: any) => e?.BPLID === watch("BPLID"))
+                      ?.BPLName
+                  }
+                  inputProps={{ ...register("BPLID") }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="To Warehouse Code" className="text-gray-500 ">
+                  To Warehouse Code
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  rules={{ required: "To Warehouse Code is required" }}
+                  name="ToWarehouse"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ToWarehouseAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={field.value}
+                        onChange={async (e: any) => {
+                          // console.log(e.DefaultBin);
+                          setValue("ToWarehouse", e.WarehouseCode);
+
+                          if (!e.DefaultBin) return;
+
+                          const res: any = await request(
+                            "GET",
+                            `BinLocations(${e.DefaultBin})`
+                          );
+                          setValue("U_tl_sobincode", res.data.BinCode);
+                        }}
+                      />
+                    );
                   }}
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="To Bin Code" className="text-gray-500 ">
                   To Bin Code
@@ -173,12 +189,8 @@ const BasicInformation = ({
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail || edit}
-                  inputProps={{
-                    ...register("Bank"),
-                  }}
-                />
+                {/* {isLoading} */}
+                <MUITextField value={watch("U_tl_sobincode")} disabled />
               </div>
             </div>
           </div>
@@ -193,27 +205,17 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Controller
-                    // rules={{ required: "Terminal is required" }}
                     name="Series"
                     control={control}
                     render={({ field }) => {
                       return (
                         <MUISelect
-                          {...field}
-                          items={serie}
-                          disabled={detail || defaultValues?.U_Status === "C"}
-                          value={staticSelect.serie || defaultValues?.serie}
-                          aliasvalue="Series"
+                          value={field.value}
+                          disabled={edit}
+                          items={series.data ?? []}
                           aliaslabel="Name"
-                          name="Series"
-                          onChange={(e: any) => {
-                            console.log(e);
-                            setValue("Series", e?.target?.value);
-                            setStaticSelect({
-                              ...staticSelect,
-                              serie: e?.target?.value,
-                            });
-                          }}
+                          aliasvalue="Series"
+                          onChange={onChangeSerie}
                         />
                       );
                     }}
@@ -221,11 +223,9 @@ const BasicInformation = ({
 
                   <div className="-mt-1">
                     <MUITextField
-                      size="small"
-                      name="DocNum"
-                      value={nextNumber || defaultValues?.nextNumber}
-                      disabled
-                      placeholder="Document No"
+                      key={watch("DocNum")}
+                      value={watch("DocNum")}
+                      disabled={true}
                     />
                   </div>
                 </div>
@@ -238,31 +238,31 @@ const BasicInformation = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {getValues("U_Status") === undefined && (
+                {getValues("DocumentStatus") === undefined && (
                   <div className="hidden">
                     <MUITextField
                       inputProps={{
-                        ...register("U_Status"),
+                        ...register("DocumentStatus"),
                       }}
-                      value={"O"}
+                      value={"bost_Open"}
                     />
                   </div>
                 )}
                 <Controller
-                  name="U_Status"
+                  name="DocumentStatus"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUISelect
                         disabled={detail || defaultValues?.U_Status === "C"}
                         items={[
-                          { value: "O", label: "Open" },
-                          { value: "C", label: "Closed" },
+                          { value: "bost_Open", label: "Open" },
+                          { value: "bost_Closed", label: "Closed" },
                         ]}
                         onChange={(e: any) => {
-                          setValue("U_Status", e.target.value);
+                          setValue("DocumentStatus", e.target.value);
                         }}
-                        value={watch("U_Status") ?? "O"}
+                        value={watch("DocumentStatus") ?? "bost_Open"}
                         aliasvalue="value"
                         aliaslabel="label"
                       />
@@ -279,20 +279,20 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="PostingDate"
+                  name="DocDate"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
                         {...field}
-                        defaultValue={depositDate} // Use the watch value as the defaultValue
+                        defaultValue={docdate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("PostingDate", val);
+                          setValue("DocDate", val);
                         }}
                       />
                     );
@@ -309,20 +309,20 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DepositDate"
+                  name="DueDate"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
                         {...field}
-                        defaultValue={depositDate} // Use the watch value as the defaultValue
+                        defaultValue={duedate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DepositDate", val);
+                          setValue("DueDate", val);
                         }}
                       />
                     );
@@ -330,36 +330,53 @@ const BasicInformation = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            
+            <div className="grid grid-cols-5 py-2 mt-1">
               <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
-                  From WHS Code
+                <label htmlFor="To Warehouse Code" className="text-gray-500 ">
+                  From Warehouse Code
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail || edit}
-                  inputProps={{
-                    ...register("Bank"),
+                <Controller
+                  rules={{ required: "To Warehouse Code is required" }}
+                  name="ToWarehouse"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <ToWarehouseAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={field.value}
+                        onChange={async (e: any) => {
+                          // console.log(e.DefaultBin);
+                          setValue("ToWarehouse", e.WarehouseCode);
+
+                          if (!e.DefaultBin) return;
+
+                          const res: any = await request(
+                            "GET",
+                            `BinLocations(${e.DefaultBin})`
+                          );
+                          setValue("U_tl_sobincode", res.data.BinCode);
+                        }}
+                      />
+                    );
                   }}
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2 ">
               <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
+                <label htmlFor="To Bin Code" className="text-gray-500 inline-block mt-1">
                   From Bin Code
                 </label>
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={detail || edit}
-                  inputProps={{
-                    ...register("Bank"),
-                  }}
-                />
+                {/* {isLoading} */}
+                <MUITextField value={watch("U_tl_sobincode")} disabled />
               </div>
             </div>
           </div>

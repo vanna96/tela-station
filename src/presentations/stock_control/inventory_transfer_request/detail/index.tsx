@@ -71,12 +71,12 @@ const InventoryTransferRequestDetails = (props: any) => {
   }, [transferR, contents]);
 
   const fethSeries = async () => {
-    let seriesList: any = props?.query?.find("deposit-series");
+    let seriesList: any = props?.query?.find("itr-series");
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "1250000001",
       });
-      props?.query?.set("deposit-series", seriesList);
+      props?.query?.set("itr-series", seriesList);
     }
     setSerie(seriesList);
   };
@@ -190,6 +190,7 @@ const InventoryTransferRequestDetails = (props: any) => {
               {state.tapIndex === 1 && (
               <div className="m-5">
                 <Contents
+                  setValue={setValue}
                   content={content}
                   control={control}
                   setContent={setContent}

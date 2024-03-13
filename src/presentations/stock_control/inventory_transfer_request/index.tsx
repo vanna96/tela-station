@@ -82,12 +82,14 @@ export default function InventoryTransferRequestList() {
       },
 
       {
-        accessorKey: "U_active",
+        accessorKey: "DocumentStatus",
         header: "Status",
         size: 40,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_active
+          return cell.row.original.DocumentStatus === "bost_Open"
+            ? "Active"
+            : "Inactive";
         },
       },
       {

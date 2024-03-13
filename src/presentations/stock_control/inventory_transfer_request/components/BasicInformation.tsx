@@ -53,12 +53,12 @@ const BasicInformation = ({
   }, [defaultValues]);
 
   const docdate = watch("DocDate");
-  const duedate = watch("DueDate");
+  const taxdate = watch("TaxDate");
 
   useEffect(() => {
     const defaultDate = new Date();
     setValue("DocDate", defaultDate);
-    setValue("DueDate", defaultDate);
+    setValue("TaxDate", defaultDate);
 
   }, [setValue]);
 
@@ -106,14 +106,14 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Attention Termianl" className="text-gray-500 ">
-                  Attention Termianl
+                <label htmlFor="Attention Terminal" className="text-gray-500 ">
+                  Attention Terminal
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Attention Termianl is required" }}
+                  rules={{ required: "Attention Terminal is required" }}
                   name="FromWarehouse"
                   control={control}
                   render={({ field }) => {
@@ -132,9 +132,9 @@ const BasicInformation = ({
                 />
               </div>
             </div>
-            <div className="grid grid-cols-5 py-2 mb-1">
+            <div className="grid grid-cols-5 py-2 ">
               <div className="col-span-2">
-                <label htmlFor="Deposit Currency" className="text-gray-500 ">
+                <label htmlFor="Branch" className="text-gray-500 inline-block mt-1">
                   Branch
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
@@ -278,20 +278,20 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DueDate"
+                  name="TaxDate"
                   control={control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
                         {...field}
-                        defaultValue={duedate} // Use the watch value as the defaultValue
+                        defaultValue={taxdate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DueDate", val);
+                          setValue("TaxDate", val);
                         }}
                       />
                     );
