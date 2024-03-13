@@ -200,6 +200,7 @@ export default function Lists() {
   const { data:gl6 }: any = useQuery({
     queryKey: ["gl_account_6"],
     queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+    staleTime: Infinity
   });
 
   const handlerRefresh = React.useCallback(() => {

@@ -12,6 +12,7 @@ import MenuCompoment from "@/components/data_table/MenuComponent"
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import request, { url } from "@/utilies/request"
 import GLAccountRepository from "@/services/actions/GLAccountRepository"
+import { useQuery } from "react-query"
 
 interface DataTableProps {
   columns: any[]
@@ -33,6 +34,12 @@ export default function DataTable(props: DataTableProps) {
   const [colVisibility, setColVisibility] = React.useState<Record<string, boolean>>(
     {}
   )
+
+  const { data:gl6 }: any = useQuery({
+    queryKey: ["gl_account_6"],
+    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+    staleTime: Infinity
+  });
 
   React.useEffect(() => {
     const cols: any = {}
@@ -83,13 +90,12 @@ export default function DataTable(props: DataTableProps) {
       "G/L Account",
       "Status",
     ];
-
+    
     // Map the data to the desired field names
     const mappedData = data.map((row) => ({
       "Expense Code": row.Code,
       "Description": row.Name,
-      "G/L Account": ` ${row.U_tl_expacct ?? "N/A"} - ${new GLAccountRepository().find(row.U_tl_expacct)
-        ?.Name ?? 'N/A'}`,
+      "G/L Account": ` ${row.U_tl_expacct ?? "N/A"} - ${gl6?.find((e:any) => row.U_tl_expacct === e.Code)?.Name ?? 'N/A'}`,
       "Status": row.U_tl_expactive == 'Y' ? "Active": "Inactive",
     }));
 
