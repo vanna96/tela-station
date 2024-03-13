@@ -28,7 +28,7 @@ export default function WarehouseAutoComplete(props: {
   );
   if (props.isSOWarehouse) {
     filteredWarehouses = filteredWarehouses?.filter(
-      (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Yes"
+      (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Y"
     );
   }
 

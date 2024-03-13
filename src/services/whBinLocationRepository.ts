@@ -8,7 +8,7 @@ export default class WareBinLocationRepository extends Repository<WareBinLocatio
         throw new Error("Method not implemented.");
     }
 
-    url = '/sml.svc/BIZ_GET_BIN_QUERY';
+    url = '/sml.svc/BIZ_BIN_QUERY';
 
     // specific key
     key = 'WareBinLocation';

@@ -101,6 +101,8 @@ export default function StockAllocationTable({
       return updatedSelection;
     });
   };
+
+  console.log(data.stockAllocationData);
   const itemColumns = React.useMemo(
     () => [
       {
@@ -160,7 +162,7 @@ export default function StockAllocationTable({
                   U_tl_bplid: e,
                 });
               }}
-              value={parseInt(cell.getValue()) || 1}
+              value={cell.getValue === null ? parseInt(cell.getValue()) : 1}
             />
           );
         },
