@@ -63,7 +63,6 @@ export default function GeneralForm({
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
@@ -96,12 +95,17 @@ export default function GeneralForm({
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   )?.find((series: any) => series.BPLID === BPL)?.Series;
+  const seriesGR = data?.GRSeries?.filter(
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+  )?.find((series: any) => series.BPLID === BPL)?.Series;
 
   if (data) {
     data.DNSeries = seriesIncoming;
     data.INSeries = seriesINV;
     data.Series = seriesSO;
     data.GoodIssueSeries = seriesGI;
+    data.GoodReceiptSeries = seriesGR;
   }
 
   const [isDispenserLoading, setIsDispenserLoading] = useState(false);

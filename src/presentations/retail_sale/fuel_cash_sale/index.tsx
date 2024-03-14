@@ -73,14 +73,14 @@ export default function SaleOrderLists() {
       },
 
       {
-        accessorKey: "DocDate",
+        accessorKey: "U_tl_docdate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.DocDate).format(
+          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
             "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
@@ -291,8 +291,8 @@ export default function SaleOrderLists() {
     }
     if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and TaxDate ge '${searchValues.postingDate}'`
-        : `TaxDate ge '${searchValues.postingDate}'`;
+        ? ` and U_tl_docdate ge '${searchValues.postingDate}'`
+        : `U_tl_docdate ge '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters

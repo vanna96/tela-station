@@ -87,7 +87,7 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
-
+  console.log(data);
   const onCheckRow = (event: any, index: number) => {
     setRowSelection((prevSelection: any) => {
       const updatedSelection = { ...prevSelection };
@@ -156,13 +156,14 @@ export default function StockAllocationTable({
 
           return (
             <BranchAutoComplete
+              disableClearable={true}
               BPdata={userData?.UserBranchAssignment}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_bplid: e,
                 });
               }}
-              value={cell.getValue === null ? parseInt(cell.getValue()) : 1}
+              value={parseInt(cell.getValue())}
             />
           );
         },
@@ -341,6 +342,7 @@ export default function StockAllocationTable({
             rowsWithSameItemCode[0]?.U_tl_qtycon
           );
           const isValid = totalQuantity === firstQuantity;
+          console.log(isValid);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
