@@ -171,6 +171,7 @@ class Form extends NonCoreDcument {
           state = {
             ...data,
             vendor,
+            dispenser,
             U_tl_whs: dispenser.U_tl_whs,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
@@ -456,12 +457,20 @@ class Form extends NonCoreDcument {
       );
 
       const payload = this.createPayload();
-      const { allocationData, stockAllocationData } = data;
+      const { allocationData, stockAllocationData, cardCountData } = data;
       const validationResult = validateData(
         allocationData,
         stockAllocationData
       );
-
+      const validationResultCC = validateCardCountData(
+        allocationData,
+        cardCountData
+      );
+      if (!validationResultCC.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResultCC.message, "Invalid");
+        return;
+      }
       if (!validationResult.isValid) {
         this.setState({ ...data, isSubmitting: false });
         this.dialog.current?.error(validationResult.message, "Invalid");
@@ -884,16 +893,31 @@ class Form extends NonCoreDcument {
                   mappedData.push({
                     ItemCode: `${itemCode}-${i.toString().padStart(2, "0")}`,
                     Quantity: quantity,
-                    UoMEntry: item.U_tl_uom,
+                    UoMEntry: data.nozzleData?.find(
+                      (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
+                    )?.U_tl_uom,
                     LineOfBussiness: "201001", // item.LineOfBussiness
                     RevenueLine: "202004", // item.RevenueLine
                     ProductLine: "203004", // item.ProductLine
-                    BinAbsEntry: item.U_tl_bincode,
-                    WarehouseCode: item.U_tl_whs,
+                    // BinAbsEntry: data.U_tl_bincode,
+                    U_tl_bincode: edit
+                      ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
+                          (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
+                        )?.U_tl_bincode
+                      : data.nozzleData?.find(
+                          (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
+                        )?.U_tl_bincode,
+                    WarehouseCode: data.U_tl_whs,
                     DocumentLinesBinAllocations: [
                       {
-                        BinAbsEntry: item.U_tl_bincode,
-                        Quantity: item.U_tl_qtycon,
+                        BinAbsEntry: edit
+                          ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
+                              (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
+                            )?.U_tl_bincode
+                          : data.nozzleData?.find(
+                              (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
+                            )?.U_tl_bincode,
+                        Quantity: quantity,
                         AllowNegativeQuantity: "tNO",
                       },
                     ],
@@ -1313,4 +1337,90 @@ function validateData(
       ? "Stock Allocation Data is valid."
       : "Stock Allocation Data does not match the totals in Allocation Data.",
   };
+}
+interface AllocationDataItem {
+  U_tl_itemcode: string;
+  U_tl_cardallow?: number;
+}
+
+interface CardCountDataItem {
+  U_tl_itemcode: string;
+  U_tl_1l?: number;
+  U_tl_2l?: number;
+  U_tl_5l?: number;
+  U_tl_10l?: number;
+  U_tl_20l?: number;
+  U_tl_50l?: number;
+  U_tl_total: number;
+  U_tl_cardallow?: number;
+}
+
+function commaFormatNum(num: number | string): number {
+  // Implement the logic for commaFormatNum function
+  return typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
+}
+function validateCardCountData(
+  allocationData: AllocationDataItem[],
+  cardCountData: CardCountDataItem[]
+): { isValid: boolean; message: string } {
+  const itemcodeCardAllowMap = new Map<string, number>();
+
+  allocationData.forEach((item) => {
+    const { U_tl_itemcode, U_tl_cardallow } = item;
+    if (U_tl_itemcode && U_tl_cardallow !== undefined) {
+      itemcodeCardAllowMap.set(U_tl_itemcode, U_tl_cardallow);
+    }
+  });
+
+  const isValid = cardCountData.every((item) => {
+    const { U_tl_itemcode } = item;
+    const expectedCardAllow = itemcodeCardAllowMap.get(U_tl_itemcode) || 0;
+
+    const total =
+      (item.U_tl_1l || 0) +
+      (item.U_tl_2l || 0) +
+      (item.U_tl_5l || 0) +
+      (item.U_tl_10l || 0) +
+      (item.U_tl_20l || 0) +
+      (item.U_tl_50l || 0);
+
+    if (total !== expectedCardAllow) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const message = isValid
+    ? "Card Count Data is valid."
+    : `Card Count Data does not match the Tela Card values in Allocation Data. ${getErrorDetails(cardCountData, itemcodeCardAllowMap)}`;
+
+  return {
+    isValid,
+    message,
+  };
+}
+
+function getErrorDetails(
+  cardCountData: CardCountDataItem[],
+  itemcodeCardAllowMap: Map<string, number>
+): string {
+  const errors: string[] = [];
+  cardCountData.forEach((item) => {
+    const { U_tl_itemcode } = item;
+    const expectedCardAllow = itemcodeCardAllowMap.get(U_tl_itemcode) || 0;
+    const total =
+      (item.U_tl_1l || 0) +
+      (item.U_tl_2l || 0) +
+      (item.U_tl_5l || 0) +
+      (item.U_tl_10l || 0) +
+      (item.U_tl_20l || 0) +
+      (item.U_tl_50l || 0);
+    if (total !== expectedCardAllow) {
+      errors.push(
+        `Invalid total for Item ${U_tl_itemcode}. Expected: ${expectedCardAllow}, Actual: ${total}`
+      );
+    }
+  });
+  return errors.join("\n");
 }
