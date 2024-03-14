@@ -91,6 +91,14 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("good-issue-series", GISeries);
     }
+    let GRSeries: any = this.props?.query?.find("good-receipt-series");
+
+    if (!GRSeries) {
+      GRSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "59",
+      });
+      this.props?.query?.set("good-receipt-series", GRSeries);
+    }
     let invoiceSeries: any = this.props?.query?.find("invoice-series");
 
     if (!invoiceSeries) {
@@ -141,15 +149,13 @@ class Form extends NonCoreDcument {
             );
             return res.data;
           };
-
+          const dispenser = await fetchDispenserData(data.U_tl_pump);
           const updatedAllocationData = await Promise.all(
-            data.TL_RETAILSALE_CONHCollection?.map(async (item: any) => {
+            data.TL_RETAILSALE_FU_COCollection?.map(async (item: any) => {
               const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
               const price = itemDetails?.ItemPrices?.find(
                 (priceDetail: any) => priceDetail.PriceList === 2
               )?.Price;
-
-              const dispenser = await fetchDispenserData(data.U_tl_pump);
 
               return {
                 ...item,
@@ -165,11 +171,12 @@ class Form extends NonCoreDcument {
           state = {
             ...data,
             vendor,
+            U_tl_whs: dispenser.U_tl_whs,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
-            nozzleData: data.TL_RETAILSALE_CONHCollection,
+            nozzleData: data.TL_RETAILSALE_FU_COCollection,
             allocationData: updatedAllocationData,
-            stockAllocationData: data?.TL_RETAILSALE_STACollection?.map(
+            stockAllocationData: data?.TL_RETAILSALE_FU_SACollection?.map(
               (item: any) => ({
                 U_tl_bplid: item.U_tl_bplid || 1,
                 U_tl_itemcode: item.U_tl_itemcode,
@@ -183,7 +190,7 @@ class Form extends NonCoreDcument {
                 U_tl_bincode: item.U_tl_bincode,
               })
             ),
-            cashBankData: data?.TL_RETAILSALE_INCCollection?.filter(
+            cashBankData: data?.TL_RETAILSALE_FU_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
             )?.map((item: any) => ({
               U_tl_acccash: item.U_tl_acccash,
@@ -195,7 +202,7 @@ class Form extends NonCoreDcument {
               U_tl_paycur: item?.U_tl_paycur,
             })),
 
-            checkNumberData: data?.TL_RETAILSALE_INCCollection?.filter(
+            checkNumberData: data?.TL_RETAILSALE_FU_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Check"
             )?.map((item: any) => ({
               U_tl_acccheck: item.U_tl_acccheck,
@@ -206,7 +213,7 @@ class Form extends NonCoreDcument {
               U_tl_checkbank: item?.U_tl_checkbank,
             })),
 
-            couponData: data?.TL_RETAILSALE_INCCollection?.filter(
+            couponData: data?.TL_RETAILSALE_FU_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Coupon"
             )?.map((item: any) => ({
               U_tl_acccoupon: item.U_tl_acccoupon,
@@ -215,7 +222,7 @@ class Form extends NonCoreDcument {
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
-            cardCountData: data?.TL_RETAILSALE_CACCollection?.map(
+            cardCountData: data?.TL_RETAILSALE_FU_CCCollection?.map(
               (item: any) => ({
                 U_tl_itemcode: item.U_tl_itemCode,
                 U_tl_1l: item?.U_tl_1l,
@@ -236,6 +243,7 @@ class Form extends NonCoreDcument {
           state["isLoadingSerie"] = false;
           state["incomingSeries"] = incomingSeries;
           state["GISeries"] = GISeries;
+          state["GRSeries"] = GRSeries;
           state["invoiceSeries"] = invoiceSeries;
           this.setState(state);
           console.log(state);
@@ -246,6 +254,7 @@ class Form extends NonCoreDcument {
       state["isLoadingSerie"] = false;
       state["incomingSeries"] = incomingSeries;
       state["GISeries"] = GISeries;
+      state["GRSeries"] = GRSeries;
       state["invoiceSeries"] = invoiceSeries;
       this.setState(state);
       console.log(state);
@@ -261,13 +270,11 @@ class Form extends NonCoreDcument {
       U_tl_cardcode: data?.CardCode,
       U_tl_cardname: data?.CardName,
       U_tl_shiftcode: data?.U_tl_shiftcode,
-      U_tl_docdate: new Date(),
-      U_tl_docduedate: new Date(),
-      U_tl_taxdate: new Date(),
+      U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
-      U_tl_status: data?.U_tl_status || "",
+      // U_tl_status: data?.U_tl_status || "",
       //Consumption
-      TL_RETAILSALE_CONHCollection: data?.allocationData
+      TL_RETAILSALE_FU_COCollection: data?.allocationData
         ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
         ?.map((item: any) => ({
           U_tl_nozzlecode: item.U_tl_nozzlecode,
@@ -294,12 +301,12 @@ class Form extends NonCoreDcument {
         })),
 
       //  incoming payment
-      TL_RETAILSALE_INCCollection: [
+      TL_RETAILSALE_FU_INCollection: [
         ...data?.checkNumberData,
         ...data?.cashBankData,
         ...data?.couponData,
       ],
-      TL_RETAILSALE_CACCollection: (data?.cardCountData || []).length
+      TL_RETAILSALE_FU_CCCollection: (data?.cardCountData || []).length
         ? data?.cardCountData?.map((item: any) => ({
             U_tl_itemCode: item.U_tl_itemcode,
             U_tl_1l: item?.U_tl_1l,
@@ -328,7 +335,7 @@ class Form extends NonCoreDcument {
           })),
 
       //Stock Allocation Collection
-      TL_RETAILSALE_STACollection: data?.stockAllocationData?.map(
+      TL_RETAILSALE_FU_SACollection: data?.stockAllocationData?.map(
         (item: any) => ({
           // U_tl_nozzlecode: item.U_tl_nozzlecode,
           U_tl_itemcode: item.U_tl_itemcode,
@@ -340,7 +347,7 @@ class Form extends NonCoreDcument {
           U_tl_remark: item.U_tl_remark,
           U_tl_whs: item.U_tl_whs,
           U_tl_bincode: item.U_tl_bincode,
-          U_tl_bplid: data.U_tl_bplid || 1,
+          U_tl_bplid: item.U_tl_bplid,
         })
       ),
     };
@@ -357,6 +364,97 @@ class Form extends NonCoreDcument {
       this.setState({ ...this.state, isSubmitting: true });
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const { id } = this.props?.match?.params || 0;
+
+      const validations = [
+        {
+          field: "U_tl_bplid",
+          message: "Branch is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "U_tl_pump",
+          message: "Pump is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "CardCode",
+          message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_attend",
+          message: "Pump Attendant is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Series",
+          message: "Series is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "U_tl_docdate",
+          message: "Document date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "nozzleData",
+          message:
+            "Nozzle Data is missing or does not have a valid record with New Meter!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.nozzleData) &&
+              data.nozzleData.some((item: any) => item.U_tl_nmeter)
+            );
+          },
+        },
+        {
+          field: "allocationData",
+          message:
+            "Allocation Data is missing or does not have a valid record with Cash Sales!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.allocationData) &&
+              data.allocationData.some((item: any) => item.U_tl_cashallow)
+            );
+          },
+        },
+        {
+          field: "cashBankData",
+          message: "Please enter at least one amount of Cash Sale!",
+          isArray: true,
+          getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.cashBankData) &&
+              data.cashBankData.some(
+                (item: any) => item.U_tl_amtcash || item.U_tl_amtbank
+              )
+            );
+          },
+        },
+      ];
+
+      validations.forEach(
+        ({ field, message, isArray, getTabIndex, validate }) => {
+          const value = isArray ? data[field] : data[field];
+          if (
+            !value ||
+            (isArray && value.length === 0) ||
+            (validate && !validate(data))
+          ) {
+            data.error = { [field]: message };
+            throw new FormValidateException(message, getTabIndex());
+          }
+        }
+      );
+
       const payload = this.createPayload();
 
       if (id) {
@@ -393,15 +491,209 @@ class Form extends NonCoreDcument {
     event.preventDefault();
     this.setState({ ...this.state, isSubmitting: true });
     const data: any = { ...this.state };
+
     const payload = this.createPayload();
     console.log(data);
     edit = this.props.edit;
 
     try {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
+      const validations = [
+        {
+          field: "U_tl_bplid",
+          message: "Branch is Required!",
+          getTabIndex: () => 0,
+        },
 
+        {
+          field: "U_tl_pump",
+          message: "Pump is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "CardCode",
+          message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_attend",
+          message: "Pump Attendant is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Series",
+          message: "Series is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "U_tl_docdate",
+          message: "Document date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "nozzleData",
+          message:
+            "Nozzle Data is missing or does not have a valid record with New Meter!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.nozzleData) &&
+              data.nozzleData.some((item: any) => item.U_tl_nmeter)
+            );
+          },
+        },
+        {
+          field: "allocationData",
+          message:
+            "Allocation Data is missing or does not have a valid quantity allowed!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.allocationData) &&
+              data.allocationData.every((item: any) => {
+                const cashSales = item["U_tl_cashallow"] || 0;
+                const partnership = item["U_tl_partallow"] || 0;
+                const stockTransfer = item["U_tl_stockallow"] || 0;
+                const ownUsage = item["U_tl_ownallow"] || 0;
+                const telaCard = item["U_tl_cardallow"] || 0;
+                const pumpTest = item["U_tl_pumpallow"] || 0;
+                const total = item["U_tl_cmeter"] || 0;
+                return (
+                  cashSales +
+                    partnership +
+                    stockTransfer +
+                    ownUsage +
+                    telaCard +
+                    pumpTest ===
+                  total
+                );
+              })
+            );
+          },
+        },
+        {
+          field: "cashBankData",
+          message: "Please enter at least one amount of Cash Sale!",
+          isArray: true,
+          getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.cashBankData) &&
+              data.cashBankData.some(
+                (item: any) => item.U_tl_amtcash || item.U_tl_amtbank
+              )
+            );
+          },
+        },
+
+        // {
+        //   field: "stockAllocationData",
+        //   message:
+        //     "Stock Allocation Data is missing or does not have a valid quantity allowed!",
+        //   isArray: true,
+        //   getTabIndex: () => 3,
+        //   validate: (data: any): boolean => {
+        //     const isDefined: boolean = data.allocationData.some(
+        //       (item: any) => item["U_tl_stockallow"] !== undefined
+        //     );
+
+        //     if (isDefined) {
+        //       const isValid: boolean =
+        //         Array.isArray(data.stockAllocationData) &&
+        //         data.stockAllocationData.every((item: any) => {
+        //           const rowsWithSameItemCode: any[] =
+        //             data.stockAllocationData.filter(
+        //               (r: any) => r["U_tl_itemcode"] === item["U_tl_itemcode"]
+        //             );
+        //           const totalQuantity: number = rowsWithSameItemCode.reduce(
+        //             (sum: number, r: any) =>
+        //               sum + parseFloat(r["U_tl_qtyaloc"] || 0),
+        //             0
+        //           );
+        //           const firstQuantity: number = parseFloat(
+        //             rowsWithSameItemCode[0]?.U_tl_qtycon || 0
+        //           );
+        //           const isValid: boolean = totalQuantity === firstQuantity;
+
+        //           return isValid;
+        //         });
+        //       return isValid;
+        //     } else {
+        //       return true; // Return true if U_tl_stockallow is undefined
+        //     }
+        //   },
+        // },
+
+        // {
+        //   field: "cardCountData",
+        //   message:
+        //     "Card Count Data is missing or does not have a valid quantity allowed!",
+        //   isArray: true,
+        //   getTabIndex: () => 4,
+        //   validate: (data: any) => {
+        //     // return (
+        //     //   Array.isArray(data.cardCountData) &&
+        //     //   data.cardCountData.every((item: any) => {
+        //     //     const total = [
+        //     //       "U_tl_1l",
+        //     //       "U_tl_2l",
+        //     //       "U_tl_5l",
+        //     //       "U_tl_10l",
+        //     //       "U_tl_20l",
+        //     //       "U_tl_50l",
+        //     //     ].reduce((sum, property) => sum + (item[property] || 0), 0);
+        //     //     return item["U_tl_nmeter"] === total;
+        //     //   })
+        //     // );
+        //     if (
+        //       data.allocationData.some(
+        //         (item: any) =>
+        //           item["U_tl_cardallow"] > 0 ||
+        //           item["U_tl_cardallow"] === undefined ||
+        //           item["U_tl_cardallow"] === null
+        //       )
+        //     ) {
+        //       const isValid =
+        //         Array.isArray(data.cardCountData) &&
+        //         data.cardCountData.every((item: any) => {
+        //           const total = [
+        //             "U_tl_1l",
+        //             "U_tl_2l",
+        //             "U_tl_5l",
+        //             "U_tl_10l",
+        //             "U_tl_20l",
+        //             "U_tl_50l",
+        //           ].reduce((sum, property) => sum + (item[property] || 0), 0);
+        //           const isValid = item["U_tl_nmeter"] === total;
+
+        //           return isValid;
+        //         });
+        //       return isValid;
+        //     } else {
+        //       return true;
+        //     }
+        //   },
+        // },
+      ];
+
+      validations.forEach(
+        ({ field, message, isArray, getTabIndex, validate }) => {
+          const value = isArray ? data[field] : data[field];
+          if (
+            !value ||
+            (isArray && value.length === 0) ||
+            (validate && !validate(data))
+          ) {
+            data.error = { [field]: message };
+            throw new FormValidateException(message, getTabIndex());
+          }
+        }
+      );
       let docEntry;
-
       if (!edit) {
         const { isFirstAttempt } = this.state;
 
@@ -497,10 +789,12 @@ class Form extends NonCoreDcument {
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
-        U_tl_whsdesc: "WHC",
+        // U_tl_whsdesc: "WHC",
+        U_tl_whsdesc: data?.U_tl_whs,
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
         GISeries: data?.GoodIssueSeries,
+        GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
         DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
@@ -652,9 +946,18 @@ class Form extends NonCoreDcument {
       await requestHeader("POST", "/script/test/FuelCashSales", PostPayload);
       this.dialog.current?.success("Create Successfully.", docEntry);
     } catch (error: any) {
-      console.log(error);
-      this.dialog.current?.error(error?.toString() ?? "Invalid Request");
-      this.handleError(error);
+      if (!this.dialog.current) {
+        console.error("Dialog component reference is not set properly.");
+        return;
+      }
+
+      if (error instanceof FormValidateException) {
+        this.dialog.current?.error(error.message, "Invalid");
+        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
+      } else {
+        this.dialog.current?.error(error?.toString() ?? "An error occurred");
+        this.handleError(error);
+      }
     } finally {
       this.setState({ isSubmitting: false });
     }
@@ -678,7 +981,7 @@ class Form extends NonCoreDcument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["U_tl_pump", "CardCode", "U_tl_attend"],
+      0: ["Series", "U_tl_pump", "CardCode", "U_tl_attend"],
       1: ["nozzleData"],
       2: [],
       3: [],

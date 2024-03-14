@@ -11,6 +11,7 @@ export default function BranchAutoComplete(props: {
   BPdata?: any;
   disabled?: any;
   name?: any;
+  disableClearable?: boolean;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchBPL"],
@@ -22,19 +23,19 @@ export default function BranchAutoComplete(props: {
   const filteredBranch = data?.filter((e: any) =>
     uniqueBPLIDs.includes(e.BPLID)
   );
- useEffect(() => {
-  if (props.value) {
-    let selectedValue: number | null = null;
+  useEffect(() => {
+    if (props.value) {
+      let selectedValue: number | null = null;
 
-    if (typeof props.value === "string") {
-      const numericValue = parseFloat(props.value);
+      if (typeof props.value === "string") {
+        const numericValue = parseFloat(props.value);
 
-      if (!isNaN(numericValue)) {
-        selectedValue = numericValue;
+        if (!isNaN(numericValue)) {
+          selectedValue = numericValue;
+        }
+      } else {
+        selectedValue = props.value;
       }
-    } else {
-      selectedValue = props.value;
-    }
 
       const selectedBranch = filteredBranch?.find(
         (branch: any) => branch?.BPLID === props.value
@@ -69,6 +70,7 @@ export default function BranchAutoComplete(props: {
       </label>
 
       <Autocomplete
+        disableClearable={props.disableClearable || false}
         disabled={disabled}
         options={props.BPdata ? filteredBranch : data}
         autoHighlight
