@@ -1,25 +1,15 @@
 import MUITextField from "@/components/input/MUITextField";
-import PositionSelect from "@/components/selectbox/Position";
-import DepartmentSelect from "@/components/selectbox/Department";
-import ManagerSelect from "@/components/selectbox/Manager";
 import PositionAutoComplete from "@/components/input/PositionAutoComplete";
-import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
-import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import { formatDate } from "@/helper/helper";
-import VendorModal from "@/components/modal/VendorModal";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
-import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
-import { TextField } from "@mui/material";
-import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
-import SaleEmployeeAutoComplete from "@/components/input/SaleEmployeeAutoComplete";
-import { useGetFuelLevelSeriesHook } from "../../fuel_level/hook/useGetFuelLevelSeriesHook";
 import { useParams } from "react-router-dom";
 import { useGetIssueSeriesHook } from "../hook/useGetIssueSeriesHook";
+import DistributionRulesAutoComplete from "@/components/input/DistributionRulesAutoComplete";
+import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
+import WareHAutoComplete from "@/components/input/WareHAutoComplete";
 
 const General = ({
   register,
@@ -32,6 +22,7 @@ const General = ({
   setHeader,
   detail,
   watch,
+  reset,
   getValues,
 }: any) => {
   const { series, defaultSerie } = useGetIssueSeriesHook();
@@ -54,11 +45,13 @@ const General = ({
     },
     [series?.data]
   );
-
-  useEffect(() => {
-   console.log(getValues("DocDate"),getValues("TaxDate"));
-   
-  },[watch("DocDate"),watch("TaxDate")]);
+  // useEffect(() => {
+  //   reset({
+  //     fields:fields,
+  //     DocDate: new Date().toISOString()?.split("T")[0],
+  //     TaxDate: new Date().toISOString()?.split("T")[0],
+  //   });
+  // }, []);
 
   return (
     <>
@@ -87,6 +80,7 @@ const General = ({
                         value={field?.value}
                         onChange={(e: any) => {
                           setValue("BPL_IDAssignedToInvoice", e?.BPLID);
+                          setValue("BPLName", e?.BPLName);
                         }}
                       />
                     );
@@ -108,7 +102,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BaseStationAutoComplete
+                      <WareHAutoComplete
                         disabled={detail}
                         {...field}
                         value={field?.value}
@@ -129,16 +123,16 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="SalesPersonCode"
+                  name="U_tl_grempl"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <SaleEmployeeAutoComplete
+                      <EmployeeAutoComplete
                         disabled={detail}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("SalesPersonCode", e?.SalesEmployeeCode);
+                          setValue("U_tl_grempl", e);
                         }}
                       />
                     );
@@ -156,7 +150,7 @@ const General = ({
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("U_tl_trano"),
+                    ...register("U_tl_grtrano"),
                   }}
                 />
               </div>
@@ -171,7 +165,7 @@ const General = ({
                 <MUITextField
                   disabled={detail}
                   inputProps={{
-                    ...register("U_tl_truno"),
+                    ...register("U_tl_grtruno"),
                   }}
                 />
               </div>
@@ -188,11 +182,13 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <PositionAutoComplete
+                      <DistributionRulesAutoComplete
                         disabled={detail}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
+                          console.log(e);
+
                           setValue("U_ti_revenue", e);
                         }}
                       />
@@ -201,7 +197,6 @@ const General = ({
                 />
               </div>
             </div>
-
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -209,15 +204,21 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <TextField
-                  disabled={detail}
-                  size="small"
-                  fullWidth
-                  multiline
-                  rows={3}
-                  name="Comments"
-                  className="w-full "
-                  inputProps={{ ...register("ShipToCode") }}
+                <Controller
+                  name="U_tl_branc"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <WareHAutoComplete
+                        disabled={detail}
+                        {...field}
+                        value={field?.value}
+                        onChange={(e: any) => {
+                          setValue("U_tl_branc", e);
+                        }}
+                      />
+                    );
+                  }}
                 />
               </div>
             </div>
@@ -265,7 +266,6 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Request Date is required" }}
                   name="DocDate"
                   control={control}
                   render={({ field }) => {
@@ -273,8 +273,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={detail}
                         {...field}
-
-                        value={watch("DocDate") || new Date()}
+                        value={watch("DocDate")}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -304,9 +303,9 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={detail}
                         {...field}
-                        value={watch("TaxDate") || new Date()}
+                        value={watch("TaxDate")}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -358,20 +357,23 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Position is required" }}
                   name="U_tl_stype"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <PositionAutoComplete
+                      <MUISelect
                         disabled={detail}
-                        {...field}
-                        value={field.value}
+                        items={[
+                          { label: "T01 - PertnerShip", value: "T01" },
+                          { label: "T02 - TelaCard", value: "T02" },
+                          { label: "T03 - Government", value: "T03" },
+                        ]}
                         onChange={(e: any) => {
-                          setValue("U_tl_stype", e);
-
-                          // setHeader({ ...header, data5: e?.Name })
+                          setValue("U_tl_stype", e.target.value);
                         }}
+                        value={field.value}
+                        aliasvalue="value"
+                        aliaslabel="label"
                       />
                     );
                   }}
