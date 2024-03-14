@@ -456,7 +456,17 @@ class Form extends NonCoreDcument {
       );
 
       const payload = this.createPayload();
+      const { allocationData, stockAllocationData } = data;
+      const validationResult = validateData(
+        allocationData,
+        stockAllocationData
+      );
 
+      if (!validationResult.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResult.message, "Invalid");
+        return;
+      }
       if (id) {
         return await request("PATCH", `/TL_RETAILSALE(${id})`, payload)
           .then((res: any) =>
@@ -589,45 +599,6 @@ class Form extends NonCoreDcument {
             );
           },
         },
-
-        // {
-        //   field: "stockAllocationData",
-        //   message:
-        //     "Stock Allocation Data is missing or does not have a valid quantity allowed!",
-        //   isArray: true,
-        //   getTabIndex: () => 3,
-        //   validate: (data: any): boolean => {
-        //     const isDefined: boolean = data.allocationData.some(
-        //       (item: any) => item["U_tl_stockallow"] !== undefined
-        //     );
-
-        //     if (isDefined) {
-        //       const isValid: boolean =
-        //         Array.isArray(data.stockAllocationData) &&
-        //         data.stockAllocationData.every((item: any) => {
-        //           const rowsWithSameItemCode: any[] =
-        //             data.stockAllocationData.filter(
-        //               (r: any) => r["U_tl_itemcode"] === item["U_tl_itemcode"]
-        //             );
-        //           const totalQuantity: number = rowsWithSameItemCode.reduce(
-        //             (sum: number, r: any) =>
-        //               sum + parseFloat(r["U_tl_qtyaloc"] || 0),
-        //             0
-        //           );
-        //           const firstQuantity: number = parseFloat(
-        //             rowsWithSameItemCode[0]?.U_tl_qtycon || 0
-        //           );
-        //           const isValid: boolean = totalQuantity === firstQuantity;
-
-        //           return isValid;
-        //         });
-        //       return isValid;
-        //     } else {
-        //       return true; // Return true if U_tl_stockallow is undefined
-        //     }
-        //   },
-        // },
-
         // {
         //   field: "cardCountData",
         //   message:
@@ -669,7 +640,6 @@ class Form extends NonCoreDcument {
         //             "U_tl_50l",
         //           ].reduce((sum, property) => sum + (item[property] || 0), 0);
         //           const isValid = item["U_tl_nmeter"] === total;
-
         //           return isValid;
         //         });
         //       return isValid;
@@ -1256,3 +1226,91 @@ class Form extends NonCoreDcument {
 }
 
 export default withRouter(Form);
+interface AllocationDataItem {
+  U_tl_itemcode: string;
+  U_tl_stockallow?: number;
+}
+
+interface StockAllocationDataItem {
+  U_tl_itemcode: string;
+  U_tl_qtycon: number;
+  U_tl_qtyaloc?: number;
+}
+
+function validateData(
+  allocationData: AllocationDataItem[],
+  stockAllocationData: StockAllocationDataItem[]
+): { isValid: boolean; message: string } {
+  // Check if allocationData has at least one item with valid U_tl_itemcode and U_tl_stockallow > 0
+  const hasValidAllocationData = allocationData.some(
+    (item) =>
+      item.U_tl_itemcode && item.U_tl_stockallow && item.U_tl_stockallow > 0
+  );
+
+  if (!hasValidAllocationData) {
+    return {
+      isValid: true,
+      message: "No validation required for Stock Allocation Data.",
+    };
+  }
+
+  const hasStockAllowData = allocationData.some(
+    (item) => item.U_tl_stockallow !== undefined && item.U_tl_stockallow > 0
+  );
+
+  if (!hasStockAllowData) {
+    return {
+      isValid: true,
+      message: "No Stock Allocation Data validation required.",
+    };
+  }
+
+  const itemcodeAllocationMap = new Map<string, number>();
+
+  allocationData.forEach((item) => {
+    const { U_tl_itemcode, U_tl_stockallow } = item;
+    if (U_tl_itemcode && U_tl_stockallow) {
+      const existingTotal = itemcodeAllocationMap.get(U_tl_itemcode) || 0;
+      itemcodeAllocationMap.set(U_tl_itemcode, existingTotal + U_tl_stockallow);
+    }
+  });
+
+  const isValid = [...itemcodeAllocationMap.entries()].every(
+    ([itemcode, expectedTotalAllow]) => {
+      const rowsWithSameItemCode = stockAllocationData.filter(
+        (r) => r.U_tl_itemcode === itemcode
+      );
+
+      if (rowsWithSameItemCode.length === 0) {
+        const message = `No entries found in stock Allocation Data for Item Code: ${itemcode}`;
+        console.log(message);
+        throw new FormValidateException(message, 3);
+      }
+
+      const totalQuantity = rowsWithSameItemCode.reduce(
+        (sum, r) => sum + parseFloat((r.U_tl_qtyaloc || 0).toString()),
+        0
+      );
+
+      const firstQuantity = rowsWithSameItemCode[0]?.U_tl_qtycon || 0;
+
+      const isValid =
+        totalQuantity === firstQuantity && totalQuantity === expectedTotalAllow;
+
+      if (!isValid) {
+        const message = `Stock Allocation does not match the totals in Allocation Data for Item Code: ${itemcode}`;
+        console.log(message);
+        throw new FormValidateException(message, 3);
+      }
+
+      return isValid;
+    }
+  );
+
+  return {
+    isValid,
+    message: isValid
+      ? "Stock Allocation Data is valid."
+      : "Stock Allocation Data does not match the totals in Allocation Data.",
+  };
+}
