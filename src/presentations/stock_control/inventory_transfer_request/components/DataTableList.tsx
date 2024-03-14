@@ -58,7 +58,7 @@ export default function DataTableList(props: DataTableProps) {
   const handleExportToCSV = async () => {
     const response: any = await request(
       "GET",
-      `${url}/EmployeesInfo?$filter=U_tl_driver eq 'Y'${props?.filter.replace(
+      `${url}/InventoryTransferRequests${props?.filter.replace(
         "&",
         ""
       )}`
@@ -76,7 +76,7 @@ export default function DataTableList(props: DataTableProps) {
     // Create a link element to download the CSV file
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "Driver_list.csv";
+    link.download = "Inventory_Transfer_Request_list.csv";
 
     // Simulate a click on the link to trigger the download
     document.body.appendChild(link);
@@ -92,7 +92,7 @@ export default function DataTableList(props: DataTableProps) {
 
     // Map the data to the desired field names
     const mappedData = data?.map((row, index) => ({
-      // EmployeeID: row?.EmployeeID,
+      // DocEntry: row?.DocEntry,
       No: index + 1,
       Name: row?.FirstName + " " + row?.LastName,
       Gender: row?.Gender?.replace("gt_", ""),
@@ -239,7 +239,7 @@ console.log(rowSelection);
           enableFilters={false}
           enableGlobalFilter={false}
           rowCount={props.count ?? 0}
-          getRowId={(e: any) => e?.EmployeeID}
+          getRowId={(e: any) => e?.DocEntry}
           onPaginationChange={props.paginationChange}
           state={{
             isLoading: props.loading,

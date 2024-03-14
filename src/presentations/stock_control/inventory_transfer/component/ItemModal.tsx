@@ -10,7 +10,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import SelectPage from "./SelectPage";
+import SelectPage from "../../inventory_transfer_request/components/SelectPage";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -21,7 +21,7 @@ const style = {
   p: 4,
 };
 
-export default function ITRModal(props: any) {
+export default function ItemModal(props: any) {
   const handleClose = () => {
     props?.setOpen(false);
   };

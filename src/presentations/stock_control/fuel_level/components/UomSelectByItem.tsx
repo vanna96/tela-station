@@ -16,6 +16,7 @@ export type UomSelectProp = {
     value?: any,
     onChange: (val: OnChangeProp) => void,
     item?: string | undefined
+    quantity?: number | undefined
 }
 
 const getUOMGroup = async (item?: string | undefined) => {
@@ -64,13 +65,13 @@ export default function UomSelectByItem(props: UomSelectProp) {
     }, [uomList.data, group.data, props.item])
 
 
-    useEffect(() => {
-        if (props.value) {
-            setSelected(props.value)
-        } else {
-            setSelected(group.data?.BaseUoM)
-        }
-    }, [props.value, group.data])
+    // useEffect(() => {
+    //     if (props.value) {
+    //         setSelected(props.value)
+    //     } else {
+    //         setSelected(group.data?.BaseUoM)
+    //     }
+    // }, [props.value, group.data])
 
 
     const onSelectChange = (event: any,) => {
@@ -79,7 +80,7 @@ export default function UomSelectByItem(props: UomSelectProp) {
         const selectedUoM = group.data?.UoMGroupDefinitionCollection?.find((e: any) => e.AlternateUoM === event.target.value);
         const value = data.find((e) => e.AbsEntry === event.target.value)
 
-        props.onChange({ AbsEntry: value.AbsEntry, Code: value.Code, Quantity: calculateUOM(selectedUoM.BaseQuantity, selectedUoM.AlternateQuantity, 1) } as OnChangeProp)
+        props.onChange({ AbsEntry: value.AbsEntry, Code: value.Code, Quantity: calculateUOM(selectedUoM.BaseQuantity, selectedUoM.AlternateQuantity, 1)  } as OnChangeProp)
     }
 
 
