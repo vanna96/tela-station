@@ -91,14 +91,18 @@ export default function GeneralForm({
     ) || {}
   ).Series;
 
-  const seriesGI = data?.GISeries?.filter(
-    (series: any) =>
-      series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year
-  );
-  const seriesGR = data?.GRSeries?.filter(
-    (series: any) =>
-      series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year
-  );
+  const seriesGI = data?.GISeries?.reduce((acc: any, series: any) => {
+    if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
+      acc.push({ BPLID: series.BPLID, Series: series.Series });
+    }
+    return acc;
+  }, []);
+  const seriesGR = data?.GRSeries?.reduce((acc: any, series: any) => {
+    if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
+      acc.push({ BPLID: series.BPLID, Series: series.Series });
+    }
+    return acc;
+  }, []);
 
   if (data) {
     data.DNSeries = seriesIncoming;
