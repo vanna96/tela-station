@@ -7,7 +7,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import React, { useMemo } from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import UomSelectByItem from "../../fuel_level/components/UomSelectByItem";
+import UomSelectByItem from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 export default function Content({
   register,

@@ -9,6 +9,7 @@ import ToWarehouseAutoComplete from "./ToWarehouseAutoComplete";
 import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
 import { useInfiniteQuery } from "react-query";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
@@ -18,7 +19,6 @@ const BasicInformation = (props: any) => {
 
     if (!defaultSerie.data) return;
 
-    console.log(defaultSerie);
     props?.setValue("Series", defaultSerie?.data?.Series);
     props?.setValue("DocNum", defaultSerie?.data?.NextNum);
   }, [defaultSerie.data]);
@@ -42,6 +42,9 @@ const BasicInformation = (props: any) => {
     staleTime: Infinity,
   });
 
+  const { data } = useGetWhsTerminalAssignHook(false);
+
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3-full mt-3">
@@ -59,7 +62,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <MUITextField
                   disabled={props.detail || true}
-                  value={props.defaultValues?.nextNumber}
+                  value={props?.watch('FromWarehouse')}
                 />
               </div>
             </div>
@@ -73,7 +76,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "Attention Terminal is required" }}
-                  name="FromWarehouse"
+                  name="U_tl_attn_ter"
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -83,7 +86,9 @@ const BasicInformation = (props: any) => {
                         value={field.value}
                         onChange={(e: any) => {
                           props.setValue("BPLID", e.BusinessPlaceID);
-                          props.setValue("FromWarehouse", e.WarehouseCode);
+                          props.setValue("U_tl_attn_ter", e.WarehouseCode);
+                          const git = data?.find((whs: any) => whs?.U_tl_git_whs === 'Y' && whs?.BusinessPlaceID === e.BusinessPlaceID)
+                          props.setValue("FromWarehouse", git?.WarehouseCode);
                         }}
                       />
                     );
@@ -214,10 +219,10 @@ const BasicInformation = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                              props.setValue("DocDate", val);
+                          props.setValue("DocDate", val);
                         }}
                       />
                     );
@@ -244,10 +249,10 @@ const BasicInformation = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                              props.setValue("TaxDate", val);
+                          props.setValue("TaxDate", val);
                         }}
                       />
                     );
