@@ -7,7 +7,7 @@ import { DatePicker } from "@mui/x-date-pickers";
 import React, { useMemo } from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import UomSelect from "../../fuel_level/components/UomSelect";
+import UomSelectByItem from "../../fuel_level/components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 export default function Content({
   register,
@@ -216,17 +216,17 @@ export default function Content({
                         control={control}
                         render={({ field }) => {
                           return (
-                            <UomSelect
+                            <UomSelectByItem
                               id={id}
                               onChange={(e: any) => {
                                 setValue(
                                   `DocumentLines[${index}].UoMCode`,
                                   e?.AbsEntry
                                 );
-                                 setValue(
-                                   `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].Quantity`,
-                                   e?.Quantity
-                                 );
+                                setValue(
+                                  `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].Quantity`,
+                                  e?.Quantity
+                                );
                               }}
                             />
                           );
