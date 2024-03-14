@@ -93,12 +93,12 @@ export default function GeneralForm({
 
   const seriesGI = data?.GISeries?.filter(
     (series: any) =>
-      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
-  )?.find((series: any) => series.BPLID === BPL)?.Series;
+      series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year
+  );
   const seriesGR = data?.GRSeries?.filter(
     (series: any) =>
-      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
-  )?.find((series: any) => series.BPLID === BPL)?.Series;
+      series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year
+  );
 
   if (data) {
     data.DNSeries = seriesIncoming;
@@ -107,7 +107,7 @@ export default function GeneralForm({
     data.GoodIssueSeries = seriesGI;
     data.GoodReceiptSeries = seriesGR;
   }
-
+  console.log(data);
   const [isDispenserLoading, setIsDispenserLoading] = useState(false);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
