@@ -116,8 +116,8 @@ const Engine = ({
                     <MUISelect
                       disabled={detail}
                       items={[
-                        { label: "Manual", value: "MANUAL" },
-                        { label: "Auto", value: "AUTO" },
+                        { label: "Manual", value: "Manual" },
+                        { label: "Auto", value: "Auto" },
                       ]}
                       onChange={(e: any) => {
                         setValue("U_TransmissionType", e.target.value);

@@ -9,7 +9,7 @@ interface Type {
   WarehouseName: string;
 }
 
-const BaseStationAutoComplete = forwardRef<
+const WareHAutoComplete = forwardRef<
   HTMLInputElement,
   {
     label?: any;
@@ -20,11 +20,11 @@ const BaseStationAutoComplete = forwardRef<
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["TL_WH"],
+    queryKey: ["TL_All_WH"],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Warehouses?$filter=U_tl_attn_ter eq 'Y'`
+        `${url}/Warehouses`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -33,6 +33,7 @@ const BaseStationAutoComplete = forwardRef<
       return response;
     },
     staleTime: Infinity,
+    cacheTime:0
   });
 
   useEffect(() => {
@@ -109,4 +110,4 @@ const BaseStationAutoComplete = forwardRef<
   );
 });
 
-export default BaseStationAutoComplete;
+export default WareHAutoComplete;

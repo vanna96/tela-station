@@ -345,7 +345,7 @@ const General = ({
                       inputProps={{
                         ...register("U_Status"),
                       }}
-                      value={"Active"}
+                      value={"Y"}
                     />
                   </div>
                 )}
@@ -357,8 +357,8 @@ const General = ({
                       <MUISelect
                         disabled={detail}
                         items={[
-                          { value: "Active", label: "Active" },
-                          { value: "Inactive", label: "Inactive" },
+                          { value: "Y", label: "Active" },
+                          { value: "N", label: "Inactive" },
                         ]}
                         onChange={(e: any) => {
                           setValue("U_Status", e.target.value);
@@ -393,12 +393,12 @@ const General = ({
                         useWatch({
                           control: control,
                           name: "U_UnderMaintenance",
-                        }) === "YES"
+                        }) === "Y"
                       } // Use checked prop for a controlled Checkbox
                       onChange={(e) =>
                         setValue(
                           "U_UnderMaintenance",
-                          e.target.checked === true ? "YES" : "No"
+                          e.target.checked === true ? "Y" : "N"
                         )
                       }
                     />

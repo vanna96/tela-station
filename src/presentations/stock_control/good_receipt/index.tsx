@@ -20,12 +20,16 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
-import { useCookies } from "react-cookie";
-import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+
+import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import DataTable from "./components/DataTableGR";
 
-export default function GoodReceiptList() {
+export default function GoodIssueList() {
+  const [searchValues, setSearchValues] = React.useState({
+    docnum: "",
+    deliveryDate: "",
+    branch: "",
+  });
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
   const salesTypes = useParams();
@@ -63,7 +67,7 @@ export default function GoodReceiptList() {
           new BranchBPLRepository().find(cell.getValue())?.BPLName,
       },
       {
-        accessorKey: "Warehouse",
+        accessorKey: "U_tl_whsdesc",
         header: "Warehouse", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -112,8 +116,15 @@ export default function GoodReceiptList() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
+                // route(
+                //   `/stock-control/${salesType}/` + cell.row.original.DocEntry,
+                //   {
+                //     state: cell.row.original,
+                //     replace: true,
+                //   }
+                // );
                 route(
-                  `/stock-control/${salesType}/` + cell.row.original.DocEntry,
+                  "/stock-control/good-issue/" + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -137,7 +148,7 @@ export default function GoodReceiptList() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/stock-control/${salesType}/` +
+                  "/stock-control/good-issue/" +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -168,42 +179,63 @@ export default function GoodReceiptList() {
   });
 
   const Count: any = useQuery({
-    queryKey: ["good-issue-count" + filter !== "" ? "-f" : ""],
+    queryKey: [`good-receipt-count`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryGenEntries/$count?$select=DocNum${filter}`
+        `${url}/InventoryGenEntries/$count?${filter ? `$filter=${filter}` : ""}`
       )
-        .then(async (res: any) => res?.data)
+        .then(async (res: any) => {
+          //  console.log(res);
+          return res?.data;
+        })
         .catch((e: Error) => {
           throw new Error(e.message);
         });
+
       return response;
     },
-    staleTime: Infinity,
+    cacheTime: 0,
+    staleTime: 0,
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "good-issue",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      "good-receipt",
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/InventoryGenEntries?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
-      )
+      const Url = `${url}/InventoryGenEntries?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? `&$filter=${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : ""
+      }`;
+
+      const response: any = await request("GET", `${Url}`)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
       return response;
     },
-    staleTime: Infinity,
-    retry: 1,
+    cacheTime: 0,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
   });
+  const handlerSortby = (value: any) => {
+    setSortBy(value);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 10,
+    });
+
+    setTimeout(() => {
+      refetch();
+    }, 500);
+  };
 
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
@@ -218,21 +250,30 @@ export default function GoodReceiptList() {
     }, 500);
   }, []);
 
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
+    if (searchValues.docnum) {
+      queryFilters += queryFilters
+        ? ` and (contains(DocNum, '${searchValues.docnum}'))`
+        : `(contains(DocNum, '${searchValues.docnum}'))`;
+    }
+
+    if (searchValues.deliveryDate) {
+      queryFilters += queryFilters
+        ? ` and (contains(DocDate, '${searchValues.deliveryDate}'))`
+        : `(contains(DocDate, '${searchValues.deliveryDate}'))`;
+    }
+    if (searchValues.branch) {
+      queryFilters += queryFilters
+        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.branch}`
+        : `BPL_IDAssignedToInvoice eq ${searchValues.branch}`;
+    }
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + `and ${value}`;
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -244,59 +285,6 @@ export default function GoodReceiptList() {
     }, 500);
   };
 
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
-  };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    deliveryDate: null,
-    status: "",
-    bplid: "",
-  });
-
-  const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.deliveryDate) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate ge '${searchValues.deliveryDate}'`
-        : `DocDueDate ge '${searchValues.deliveryDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
-    }
-
-    handlerSearchFilter(queryFilters);
-  };
-  const { id }: any = useParams();
   function capitalizeHyphenatedWords(str: any) {
     return str
       .split("-")
@@ -361,15 +349,15 @@ export default function GoodReceiptList() {
                     Branch
                   </label>
                   <div className="">
-                    <BranchAutoComplete
+                    <BranchAssignmentAuto
                       // BPdata={cookies?.user?.UserBranchAssignment}
-                      onChange={(selectedValue) =>
+                      onChange={(e) => {
                         setSearchValues({
                           ...searchValues,
-                          bplid: selectedValue,
-                        })
-                      }
-                      value={searchValues.bplid}
+                          branch: e?.BPLID,
+                        });
+                      }}
+                      value={searchValues.branch}
                     />
                   </div>
                 </div>
@@ -408,12 +396,11 @@ export default function GoodReceiptList() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>
               </div>
-              
             </div>
           </div>
         </div>
@@ -427,7 +414,7 @@ export default function GoodReceiptList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Good Receipt"
+          title="Good Receipt "
           createRoute={`/stock-control/${salesType}/create`}
           filter={filter}
         />

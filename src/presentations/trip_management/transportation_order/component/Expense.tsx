@@ -28,7 +28,7 @@ export default function Expense({
       </div>
     );
   };
-const {id} = useParams()
+  const { id } = useParams();
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
@@ -121,7 +121,7 @@ const {id} = useParams()
                 </tr>
               );
             })}
-            <tr className={`${detail? "hidden":""}`}>
+            <tr className={`${detail ? "hidden" : ""}`}>
               <td className="py-6 flex justify-center gap-5 items-center"></td>
               <td className="pr-4 ">
                 <Controller
@@ -130,9 +130,10 @@ const {id} = useParams()
                   render={({ field }) => {
                     return (
                       <ExpenseCodeAutoComplete
-                      disabled={detail || id}
+                        disabled={detail || id}
                         {...field}
                         onChange={(e: any) => {
+                          if (e === null) return;
                           addExpense({ U_Code: e });
                         }}
                         value={watch("U_Code")}

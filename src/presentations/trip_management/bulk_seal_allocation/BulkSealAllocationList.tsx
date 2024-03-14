@@ -28,7 +28,8 @@ export default function BulkSealAllocationList() {
   const [currentData, setCurrenData] = useState<any[]>([]);
   const [newDataA, setNewdataA] = useState([]);
   const [keys, setKeys] = useState<any>({});
-  const { data }: any = useQuery({
+
+  const { data, isLoading }: any = useQuery({
     queryKey: ["tl-to"],
     queryFn: async () => {
       const response: any = await request("GET", `/TL_TO`)
@@ -39,6 +40,7 @@ export default function BulkSealAllocationList() {
       return response;
     },
     staleTime: Infinity,
+    retry: 1,
   });
 
   const totalPages = isNaN(data?.length)
@@ -57,7 +59,7 @@ export default function BulkSealAllocationList() {
   const endIndex = startIndex + itemsPerPage;
 
   useEffect(() => {
-    setCurrenData(data?.slice(startIndex, endIndex));
+    setCurrenData(data?.slice(startIndex, endIndex) ?? []);
   }, [startIndex, endIndex, data]);
 
   const selectChangeRow = (event: any, index: number) => {
@@ -81,6 +83,8 @@ export default function BulkSealAllocationList() {
     );
     setNewdataA(filteredObjects);
   };
+  console.log(currentData);
+
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-red-40">
@@ -159,42 +163,42 @@ export default function BulkSealAllocationList() {
                 </span>
               </Button>
             </div>
-            <div className="border ">
+            <div className="border-t mt-3">
               <div className="grow">
                 <div className="max-h-[58.5vh] w-full overflow-y-auto">
-                  <table className="w-full shadow-sm bg-white">
+                  <table className="w-full bg-white">
                     <thead>
-                      <tr className="sticky top-0 z-50 shadow-sm border-[1px] border-[#dadde0] border-t-0 border-l-0 border-r-0 bg-gray-50">
-                        <th className="w-[70px] text-left font-normal  py-2 pl-3 text-[14px] text-gray-500"></th>
-                        <th className="w-[150px] text-left font-normal  py-2 pl-3 text-[14px] text-gray-500">
+                      <tr className="sticky top-0 z-50 shadow-sm border-[1px] border-t-0 border-l-0 border-r-0 font-bold">
+                        <th className="w-[70px] text-left  py-2 pl-3 text-[14px] text-gray-500"></th>
+                        <th className="w-[150px] text-left  py-2 pl-3 text-[14px]">
                           No
                         </th>
-                        <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                        <th className="w-[250px] text-left py-2 text-[14px]">
                           Trip Number
                         </th>
-                        <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                        <th className="w-[250px] text-left py-2 text-[14px]">
                           Driver
                         </th>
-                        <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                        <th className="w-[250px] text-left py-2 text-[14px]">
                           Vehicle Number
                         </th>
-                        <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                        <th className="w-[250px] text-left py-2 text-[14px]">
                           Route
                         </th>
-                        <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                        <th className="w-[250px] text-left py-2 text-[14px]">
                           Document Date
                         </th>
-                        <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                        <th className="w-[250px] text-left py-2 text-[14px]">
                           Total Seal
                         </th>
                       </tr>
                     </thead>
-                    {loading ? (
+                    {isLoading ? (
                       <tbody>
                         <tr>
                           <td
-                            colSpan={7}
-                            className="text-center p-10 text-[16px] text-gray-400"
+                            colSpan={8}
+                            className="text-center p-10 py-[4.8rem] text-[16px] text-gray-400"
                           >
                             <div className="w-full flex items-center justify-center gap-5">
                               <span>
@@ -209,8 +213,8 @@ export default function BulkSealAllocationList() {
                       <tbody>
                         <tr>
                           <td
-                            colSpan={7}
-                            className="text-center p-10 py-[5rem] text-[16px] text-gray-400"
+                            colSpan={8}
+                            className="text-center p-10 py-[5rem] text-[16px] text-gray-600"
                           >
                             No Record
                           </td>

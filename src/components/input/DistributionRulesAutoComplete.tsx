@@ -1,15 +1,14 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
-import WarehouseRepository from "@/services/warehouseRepository";
 import request, { url } from "@/utilies/request";
 
 interface Type {
-  WarehouseCode: string;
-  WarehouseName: string;
+  FactorCode: Number;
+  FactorDescription: string;
 }
 
-const BaseStationAutoComplete = forwardRef<
+const DistributionRulesAutoComplete = forwardRef<
   HTMLInputElement,
   {
     label?: any;
@@ -19,12 +18,12 @@ const BaseStationAutoComplete = forwardRef<
     disabled?: any;
   }
 >((props, ref) => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["TL_WH"],
+  const { data, isLoading } = useQuery<Type[], Error>({
+    queryKey: ["TL_DistributionRules"],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Warehouses?$filter=U_tl_attn_ter eq 'Y'`
+        `${url}/DistributionRules?$filter=InWhichDimension eq 2 and Active eq 'Y'&$select=FactorCode,FactorDescription`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -32,13 +31,14 @@ const BaseStationAutoComplete = forwardRef<
         });
       return response;
     },
-    staleTime: Infinity,
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value && data) {
-      const selected = data.find((e: Type) => e.WarehouseCode === props.value);
+      const selected = data.find((e: Type) => e.FactorCode === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
@@ -54,10 +54,11 @@ const BaseStationAutoComplete = forwardRef<
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue.WarehouseCode : null;
+      const selected = newValue ? newValue?.FactorCode : null;
       props.onChange(selected);
     }
   };
+
   const disabled = props.disabled;
 
   return (
@@ -68,6 +69,7 @@ const BaseStationAutoComplete = forwardRef<
       >
         {props?.label}
       </label>
+
       <Autocomplete
         disabled={disabled}
         options={data ?? []}
@@ -76,11 +78,11 @@ const BaseStationAutoComplete = forwardRef<
         onChange={handleAutocompleteChange}
         loading={isLoading}
         getOptionLabel={(option: Type) =>
-          option.WarehouseCode + " - " + option.WarehouseName
+          option.FactorCode + " - " + option.FactorDescription
         }
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.WarehouseCode + " - " + option.WarehouseName}
+            {option.FactorCode + " - " + option.FactorDescription}
           </Box>
         )}
         renderInput={(params) => (
@@ -109,4 +111,4 @@ const BaseStationAutoComplete = forwardRef<
   );
 });
 
-export default BaseStationAutoComplete;
+export default DistributionRulesAutoComplete;

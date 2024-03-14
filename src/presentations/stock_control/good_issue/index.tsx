@@ -25,6 +25,7 @@ import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import DataTable from "./components/DataTableGI";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
+import { log } from "util";
 
 export default function GoodIssueList() {
    const [searchValues, setSearchValues] = React.useState({
@@ -100,16 +101,16 @@ export default function GoodIssueList() {
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
       {
-        accessorKey: "TotalQty",
+        accessorKey: "DocTotal",
         header: "Total Qty",
         visible: true,
         type: "string",
         align: "center",
         size: 88,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
+        // Cell: (cell: any) => {
+        //   const formattedDate = moment(cell.value).format("YY.MM.DD");
+        //   return <span>{formattedDate}</span>;
+        // },
       },
       {
         accessorKey: "DocEntry",
@@ -130,13 +131,20 @@ export default function GoodIssueList() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  `/stock-control/${salesType}/` + cell.row.original.DocEntry,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                // route(
+                //   `/stock-control/${salesType}/` + cell.row.original.DocEntry,
+                //   {
+                //     state: cell.row.original,
+                //     replace: true,
+                //   }
+                // );
+                 route(
+                   "/stock-control/good-issue/" + cell.row.original.DocEntry,
+                   {
+                     state: cell.row.original,
+                     replace: true,
+                   }
+                 );
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
@@ -155,9 +163,7 @@ export default function GoodIssueList() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/stock-control/${salesType}/` +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  "/stock-control/good-issue/" + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -192,10 +198,16 @@ export default function GoodIssueList() {
        "GET",
        `${url}/InventoryGenExits/$count?${filter ? `$filter=${filter}` : ""}`
      )
-       .then(async (res: any) => res?.data)
+       .then(async (res: any) => {
+        //  console.log(res);
+         return res?.data
+       })
        .catch((e: Error) => {
          throw new Error(e.message);
        });
+     
+     
+     
      return response;
    },
    cacheTime: 0,
