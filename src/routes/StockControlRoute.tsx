@@ -17,8 +17,8 @@ import { FuelLevelForm } from "@/presentations/stock_control/fuel_level/form/Fue
 
 import {InventoryTransferRequestDetails} from "@/presentations/stock_control/inventory_transfer_request/detail/index"
 import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
-import InventoryTransferForm from "@/presentations/stock_control/inventory_transfer/form";
-import InventoryTransferDetails from "@/presentations/stock_control/inventory_transfer/detail/index"
+import {InventoryTransferForm} from "@/presentations/stock_control/inventory_transfer/form";
+import {InventoryTransferDetails} from "@/presentations/stock_control/inventory_transfer/detail/index"
 import { FuelLevelFormDetail } from "@/presentations/stock_control/fuel_level/form/FuelLevelFormDetail";
 
 export default function StockControlRoute() {
@@ -36,9 +36,8 @@ export default function StockControlRoute() {
         <Route path="/stock-transfer">
           <Route index element={<InventoryTransferList />} />
           <Route path="create" element={<InventoryTransferForm />} />
-          <Route path=":id/edit" element={<InventoryTransferDetails edit={true} />}
-          />
-          <Route path=":id" element={<InventoryTransferDetails detail={true} />} />
+          <Route path=":id/edit" element={<InventoryTransferForm edit={true} />} />
+          <Route path=":id" element={<InventoryTransferDetails />} />
         </Route>
         <Route path="/good-issue">
           <Route index element={<GoodIssueList />} />

@@ -1,24 +1,28 @@
 import MUITextField from "@/components/input/MUITextField";
 import { Button, Checkbox, TextField } from "@mui/material";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import UomSelectByItem from "../../fuel_level/components/UomSelectByItem";
 import ItemModal from "./ItemModal";
+import UomSelectByItem from "../../fuel_level/components/UomSelectByItem";
 export default function Contents({
   register,
   setValue,
   detail,
   control,
+  watch,
 }: any) {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "StockTransferLines",
-  });
-  const [id, setId] = useState();
+ 
+
+  const fields = useMemo(() => {
+    return watch('StockTransferLines') ?? [];
+  }, [watch('StockTransferLines')])
+  
 
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [openItem, setOpenItem] = useState(false);
   const [clickedRowIndex, setClickedRowIndex] = useState<number | null>(null);
+
+
   const handleCheck = (index: number) => {
     const selectedIndex = selectedItems.indexOf(index);
     if (selectedIndex === -1) {
@@ -31,10 +35,64 @@ export default function Contents({
   };
 
   const handleDeleteChecked = () => {
-    selectedItems.forEach((index) => remove(index));
+    // selectedItems.forEach((index) => remove(index));
     setSelectedItems([]);
   };
-  
+  // console.log(id);
+
+  const handlerAddNew = () => {
+    const state = [...fields];
+    state.push( {
+      ItemCode : undefined,
+      ItemName: undefined,
+      Quantity: undefined,
+    })
+
+    setValue('StockTransferLines', state)
+  }
+
+  const handleSelectItem = (value:any) => {
+    const state = [...fields];
+    const index = clickedRowIndex as number;
+    state[index] = {...state[index], ItemCode: value?.ItemCode, ItemDescription : value?.ItemName, Quantity : 0}
+
+    setOpenItem(false);
+    setValue('StockTransferLines',state )
+  }
+
+  const handlerChangeValue = (index: number, field: string, value: any) => {
+    const state = [...fields];
+    state[index][field] = value;
+    setValue('StockTransferLines',state )
+  }
+
+  const handlerchangeUom = (value: any, index: number) => {
+    const state = [...fields];
+    // state[index]['UoMCode'] = value.UoMCode;
+    // state[index]['ItemCode'] = value.ItemCode;
+
+    // state[index]['UomEntry'] = value.AbsEntry;
+    state[index]['StockTransferLinesBinAllocations'] = [
+      {
+          "BinAbsEntry": value.AbsEntry,
+          "Quantity": value.Quantity,
+          "AllowNegativeQuantity": value.allowAllowNegativeQuantity,
+          "SerialAndBatchNumbersBaseLine": value.SerialAndBatchNumbersBaseLine,
+          "BinActionType" : "batToWarehouse",
+          "BaseLineNumber" : index,
+      },
+      {
+        "BinAbsEntry": value.AbsEntry,
+        "Quantity": value.Quantity,
+        "AllowNegativeQuantity": "tNO",
+        "SerialAndBatchNumbersBaseLine": value.SerialAndBatchNumbersBaseLine,
+        "BinActionType" : "batFromWarehouse",
+        "BaseLineNumber" : index,
+    }
+  ];
+  console.log(state);
+
+}
 
   return (
     <>
@@ -81,6 +139,8 @@ export default function Contents({
               </tr>
             )}
             {fields?.map((e: any, index: number) => {
+              console.log(e);
+              
               return (
                 <>
                   <tr key={index}>
@@ -137,14 +197,16 @@ export default function Contents({
                             <UomSelectByItem
                               disabled={detail}
                               {...field}
-                              onChange={(e: any) => {
+                              // onChange={(e: any) => handlerchangeUom(e, index)}
+                              onChange={(e) => {
                                 console.log(e);
                                 setValue(
                                   `StockTransferLines.${index}.UoMCode`,
-                                  e.AbsEntry
+                                  e?.AbsEntry
                                 );
+                                handlerchangeUom(e, index);
                               }}
-                              item={e?.ItemCode}
+                              item={e.ItemCode}
                             />
                           );
                         }}
@@ -157,7 +219,7 @@ export default function Contents({
           </table>
           {detail ? null : (
             <span
-              onClick={() => append({})}
+              onClick={handlerAddNew}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               Add
@@ -185,20 +247,7 @@ export default function Contents({
         </div>
       </div>
       <ItemModal
-        onClick={(e: any) => {
-          setValue(
-            `StockTransferLines.${clickedRowIndex}.ItemCode`,
-            e?.ItemCode
-          );
-          setValue(
-            `StockTransferLines.${clickedRowIndex}.ItemDescription`,
-            e?.ItemName
-          );
-          setId(e?.UoMGroupEntry);
-          console.log(e);
-
-          setOpenItem(false);
-        }}
+        onClick={handleSelectItem}
         setOpen={setOpenItem}
         open={openItem}
       />

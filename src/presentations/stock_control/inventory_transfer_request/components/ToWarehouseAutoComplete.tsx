@@ -24,7 +24,7 @@ const ToWarehouseAutoComplete = forwardRef<
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `/Warehouses`
+        `/Warehouses?$select=WarehouseCode,WarehouseName,DefaultBin`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {

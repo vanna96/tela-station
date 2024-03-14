@@ -1,64 +1,26 @@
 import MUITextField from "@/components/input/MUITextField";
-import { UseFormProps } from "../form";
 import { useCallback, useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
-import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
 import AttentionTerminalAutoComplete from "../../inventory_transfer_request/components/AttentionTerminalAutoComplete";
 import request from "@/utilies/request";
 import ToWarehouseAutoComplete from "../../inventory_transfer_request/components/ToWarehouseAutoComplete";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { useQuery } from "react-query";
 import { useGetInventoryTransferSeriesHook } from "../hook/useGetInventoryTransferSerieHook";
-const BasicInformation = ({
-  register,
-  control,
-  defaultValues,
-  setValue,
-  setBranchAss,
-  branchAss,
-  detail,
-  data,
-  watch,
-  serie,
-  edit,
-  getValues,
-}: UseFormProps) => {
-  const [staticSelect, setStaticSelect] = useState({
-    branchASS: null,
-    serie: 7838,
-  });
-
-  const branch: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
-
-  useEffect(() => {
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
-  }, [defaultValues]);
-
-  const docdate = watch("DocDate");
-  const duedate = watch("DueDate");
-
-  useEffect(() => {
-    const defaultDate = new Date();
-    setValue("DocDate", defaultDate);
-    setValue("DueDate", defaultDate);
-  }, [setValue]);
-
+import { useInfiniteQuery } from "react-query";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+const BasicInformation = (props: any) => {
+  //
   const { series, defaultSerie } = useGetInventoryTransferSeriesHook();
+
   useEffect(() => {
-    if (edit) return;
+    if (props?.edit) return;
 
     if (!defaultSerie.data) return;
-    setValue("DocNum", defaultSerie.data);
+
+    console.log(defaultSerie);
+    props?.setValue("Series", defaultSerie?.data?.Series);
+    props?.setValue("DocNum", defaultSerie?.data?.NextNum);
   }, [defaultSerie.data]);
 
   const onChangeSerie = useCallback(
@@ -68,15 +30,21 @@ const BasicInformation = ({
       );
       if (!serie) return;
 
-      setValue("Series", event?.target?.value);
-      setValue("DocNum", serie?.NextNumber);
+      props?.setValue("Series", event?.target?.value);
+      props?.setValue("DocNum", serie?.NextNumber);
     },
     [series?.data]
   );
 
+  const branch: any = useInfiniteQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
+
   return (
     <>
-      <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
+      <div className="rounded-lg shadow-sm border p-6 m-3-full mt-3">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-4 pb-1">
           <h2>Information</h2>
         </div>
@@ -90,32 +58,32 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail || true}
-                  value={defaultValues?.nextNumber}
+                  disabled={props.detail || true}
+                  value={props.defaultValues?.nextNumber}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Attention Termianl" className="text-gray-500 ">
+                <label htmlFor="Attention Terminal" className="text-gray-500 ">
                   Attention Terminal
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Attention Termianl is required" }}
+                  rules={{ required: "Attention Terminal is required" }}
                   name="FromWarehouse"
-                  control={control}
+                  control={props.control}
                   render={({ field }) => {
                     return (
                       <AttentionTerminalAutoComplete
-                        disabled={detail}
+                        disabled={props.detail}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          setValue("BPLID", e.BusinessPlaceID);
-                          setValue("FromWarehouse", e.WarehouseCode);
+                          props.setValue("BPLID", e.BusinessPlaceID);
+                          props.setValue("FromWarehouse", e.WarehouseCode);
                         }}
                       />
                     );
@@ -130,17 +98,14 @@ const BasicInformation = ({
                   className="text-gray-500 inline-block mt-1"
                 >
                   Branch
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  value={
-                    branch?.data?.find((e: any) => e?.BPLID === watch("BPLID"))
-                      ?.BPLName
-                  }
-                  inputProps={{ ...register("BPLID") }}
+                  value={branch?.data?.pages[0]?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
+                  inputProps={{ ...props.register("BPLID") }}
                 />
               </div>
             </div>
@@ -149,23 +114,23 @@ const BasicInformation = ({
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
                   To Warehouse Code
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "To Warehouse Code is required" }}
                   name="ToWarehouse"
-                  control={control}
+                  control={props.control}
                   render={({ field }) => {
                     return (
                       <ToWarehouseAutoComplete
-                        disabled={detail}
+                        disabled={props.detail}
                         {...field}
                         value={field.value}
                         onChange={async (e: any) => {
                           // console.log(e.DefaultBin);
-                          setValue("ToWarehouse", e.WarehouseCode);
+                          props.setValue("ToWarehouse", e.WarehouseCode);
 
                           if (!e.DefaultBin) return;
 
@@ -173,7 +138,7 @@ const BasicInformation = ({
                             "GET",
                             `BinLocations(${e.DefaultBin})`
                           );
-                          setValue("U_tl_sobincode", res.data.BinCode);
+                          props.setValue("U_tl_sobincode", res.data.BinCode);
                         }}
                       />
                     );
@@ -183,14 +148,14 @@ const BasicInformation = ({
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
+                <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
-                <MUITextField value={watch("U_tl_sobincode")} disabled />
+                <MUITextField value={props.watch("U_tl_sobincode")} disabled />
               </div>
             </div>
           </div>
@@ -206,12 +171,12 @@ const BasicInformation = ({
                 <div className="grid grid-cols-2 gap-3">
                   <Controller
                     name="Series"
-                    control={control}
+                    control={props?.control}
                     render={({ field }) => {
                       return (
                         <MUISelect
                           value={field.value}
-                          disabled={edit}
+                          disabled={props?.edit}
                           items={series.data ?? []}
                           aliaslabel="Name"
                           aliasvalue="Series"
@@ -223,52 +188,12 @@ const BasicInformation = ({
 
                   <div className="-mt-1">
                     <MUITextField
-                      key={watch("DocNum")}
-                      value={watch("DocNum")}
+                      key={props?.watch("DocNum")}
+                      value={props?.watch("DocNum")}
                       disabled={true}
                     />
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Status
-                </label>
-              </div>
-              <div className="col-span-3">
-                {getValues("DocumentStatus") === undefined && (
-                  <div className="hidden">
-                    <MUITextField
-                      inputProps={{
-                        ...register("DocumentStatus"),
-                      }}
-                      value={"bost_Open"}
-                    />
-                  </div>
-                )}
-                <Controller
-                  name="DocumentStatus"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <MUISelect
-                        disabled={detail || defaultValues?.U_Status === "C"}
-                        items={[
-                          { value: "bost_Open", label: "Open" },
-                          { value: "bost_Closed", label: "Closed" },
-                        ]}
-                        onChange={(e: any) => {
-                          setValue("DocumentStatus", e.target.value);
-                        }}
-                        value={watch("DocumentStatus") ?? "bost_Open"}
-                        aliasvalue="value"
-                        aliaslabel="label"
-                      />
-                    );
-                  }}
-                />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -280,19 +205,19 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <Controller
                   name="DocDate"
-                  control={control}
+                  control={props.control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
                         {...field}
-                        defaultValue={docdate} // Use the watch value as the defaultValue
+                        defaultValue={props.docdate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DocDate", val);
+                              props.setValue("DocDate", val);
                         }}
                       />
                     );
@@ -304,25 +229,25 @@ const BasicInformation = ({
               <div className="col-span-2">
                 <label htmlFor="Document Date" className="text-gray-500 ">
                   Document Date
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="DueDate"
-                  control={control}
+                  name="TaxDate"
+                  control={props.control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
                         {...field}
-                        defaultValue={duedate} // Use the watch value as the defaultValue
+                        defaultValue={props.taxdate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
                             "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DueDate", val);
+                              props.setValue("TaxDate", val);
                         }}
                       />
                     );
@@ -330,53 +255,45 @@ const BasicInformation = ({
                 />
               </div>
             </div>
-            
-            <div className="grid grid-cols-5 py-2 mt-1">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="To Warehouse Code" className="text-gray-500 ">
-                  From Warehouse Code
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Status
                 </label>
               </div>
               <div className="col-span-3">
+                {props.getValues("DocumentStatus") === undefined && (
+                  <div className="hidden">
+                    <MUITextField
+                      inputProps={{
+                        ...props.register("DocumentStatus"),
+                      }}
+                      value={"bost_Open"}
+                    />
+                  </div>
+                )}
+
                 <Controller
-                  rules={{ required: "To Warehouse Code is required" }}
-                  name="ToWarehouse"
-                  control={control}
+                  name="DocumentStatus"
+                  control={props.control}
                   render={({ field }) => {
                     return (
-                      <ToWarehouseAutoComplete
-                        disabled={detail}
-                        {...field}
-                        value={field.value}
-                        onChange={async (e: any) => {
-                          // console.log(e.DefaultBin);
-                          setValue("ToWarehouse", e.WarehouseCode);
-
-                          if (!e.DefaultBin) return;
-
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e.DefaultBin})`
-                          );
-                          setValue("U_tl_sobincode", res.data.BinCode);
+                      <MUISelect
+                        disabled={props.detail || props.defaultValues?.U_Status === "C"}
+                        items={[
+                          { value: "bost_Open", label: "Open" },
+                          { value: "bost_Closed", label: "Closed" },
+                        ]}
+                        onChange={(e: any) => {
+                          props.setValue("DocumentStatus", e.target.value);
                         }}
+                        value={props.watch("DocumentStatus") ?? "bost_Open"}
+                        aliasvalue="value"
+                        aliaslabel="label"
                       />
                     );
                   }}
                 />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2 ">
-              <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 inline-block mt-1">
-                  From Bin Code
-                </label>
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-              </div>
-              <div className="col-span-3">
-                {/* {isLoading} */}
-                <MUITextField value={watch("U_tl_sobincode")} disabled />
               </div>
             </div>
           </div>

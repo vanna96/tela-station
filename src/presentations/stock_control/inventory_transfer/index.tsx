@@ -116,7 +116,7 @@ export default function InventoryTransferList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 transfer(
-                  `/banking/stock-transfer/${cell.row.original.DocEntry}/edit`,
+                  `/stock-control/stock-transfer/${cell.row.original.DocEntry}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,

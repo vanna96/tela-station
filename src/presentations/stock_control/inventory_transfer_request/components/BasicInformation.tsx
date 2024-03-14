@@ -7,6 +7,8 @@ import AttentionTerminalAutoComplete from "./AttentionTerminalAutoComplete";
 import request from "@/utilies/request";
 import ToWarehouseAutoComplete from "./ToWarehouseAutoComplete";
 import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
+import { useInfiniteQuery } from "react-query";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
@@ -33,6 +35,12 @@ const BasicInformation = (props: any) => {
     },
     [series?.data]
   );
+
+  const branch: any = useInfiniteQuery({
+    queryKey: ["branchAss"],
+    queryFn: () => new BranchBPLRepository().get(),
+    staleTime: Infinity,
+  });
 
   return (
     <>
@@ -96,10 +104,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  value={
-                    props?.branch?.data?.find((e: any) => e?.BPLID === props?.watch("BPLID"))
-                      ?.BPLName
-                  }
+                  value={branch?.data?.pages[0]?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
                   inputProps={{ ...props.register("BPLID") }}
                 />
               </div>
@@ -143,7 +148,7 @@ const BasicInformation = (props: any) => {
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
-                <label htmlFor="To Bin Code" className="text-gray-500 ">
+                <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
                 <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
