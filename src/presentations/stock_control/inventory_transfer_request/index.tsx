@@ -10,8 +10,7 @@ import { useCookies } from "react-cookie";
 import MUISelect from "@/components/selectbox/MUISelect";
 import DataTableList from "./components/DataTableList";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import moment from "moment";
-import { formatDate } from "@/helper/helper";
+import ToWarehouseAutoComplete from "./components/ToWarehouseAutoComplete";
 export default function InventoryTransferRequestList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const [cookies] = useCookies(["user"]);
@@ -109,10 +108,14 @@ export default function InventoryTransferRequestList() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                transferRequest("/stock-control/inventory-transfer-request/" + cell.row.original.DocEntry, {
-                  state: cell.row.original,
-                  replace: true,
-                });
+                transferRequest(
+                  "/stock-control/inventory-transfer-request/" +
+                    cell.row.original.DocEntry,
+                  {
+                    state: cell.row.original,
+                    replace: true,
+                  }
+                );
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />
@@ -154,7 +157,9 @@ export default function InventoryTransferRequestList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/InventoryTransferRequests/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/InventoryTransferRequests/$count?${
+          filter ? `$filter=${filter}` : ""
+        }`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -216,28 +221,29 @@ export default function InventoryTransferRequestList() {
   };
   let queryFilters = "";
   const handlerSearch = (value: string) => {
+    
     if (searchValues.docno) {
       queryFilters += queryFilters
-        ? ` and (contains(DepositNumber, '${searchValues.docno}'))`
-        : `contains(DepositNumber, '${searchValues.docno}')`;
+        ? ` and (contains(DocNum, '${searchValues.docno}'))`
+        : `contains(DocNum, '${searchValues.docno}')`;
     }
     if (searchValues.towarehouse) {
       queryFilters += queryFilters
-        ? ` and (contains(DepositAccount, '${searchValues.towarehouse}'))`
-        : `contains(DepositAccount, '${searchValues.towarehouse}')`;
+        ? ` and (contains(ToWarehouse, '${searchValues.towarehouse}'))`
+        : `contains(ToWarehouse, '${searchValues.towarehouse}')`;
     }
 
     if (searchValues.fromwarehouse) {
       queryFilters += queryFilters
-        ? ` and (contains(DepositAccount, '${searchValues.fromwarehouse}'))`
-        : `contains(DepositAccount, '${searchValues.fromwarehouse}')`;
+        ? ` and (contains(FromWarehouse, '${searchValues.fromwarehouse}'))`
+        : `contains(FromWarehouse, '${searchValues.fromwarehouse}')`;
     }
     if (searchValues.status) {
       searchValues.status === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-          ? ` and U_Status eq '${searchValues.status}'`
-          : `U_Status eq '${searchValues.status}'`);
+            ? ` and U_Status eq '${searchValues.status}'`
+            : `U_Status eq '${searchValues.status}'`);
     }
     console.log(queryFilters);
 
@@ -306,11 +312,11 @@ export default function InventoryTransferRequestList() {
                   placeholder="Attention Warehouse"
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.towarehouse}
+                  value={searchValues.fromwarehouse}
                   onChange={(e) =>
                     setSearchValues({
                       ...searchValues,
-                      towarehouse: e.target.value,
+                      fromwarehouse: e.target.value,
                     })
                   }
                 />

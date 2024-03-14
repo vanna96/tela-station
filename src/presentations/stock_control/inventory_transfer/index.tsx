@@ -10,6 +10,7 @@ import { useCookies } from "react-cookie";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import DataTable from "../components/DataTable";
 import { formatDate } from "@/helper/helper";
+import MUISelect from "@/components/selectbox/MUISelect";
 export default function InventoryTransferList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const [cookies] = useCookies(["user"]);
@@ -81,7 +82,7 @@ export default function InventoryTransferList() {
         size: 40,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_active === "bost_Open"
+          return cell.row.original.DocumentStatus === "bost_Open"
             ? "Active"
             : "Inactive";
         },
@@ -227,12 +228,13 @@ export default function InventoryTransferList() {
           : `contains(ToWarehouse , '${searchValues.towarehouse}')`;
       }
 
-    if (searchValues.status) {
-      const formattedDate = formatDate(searchValues.status);
-      queryFilters += queryFilters
-        ? ` and (DepositDate eq '${formattedDate}')`
-        : `DepositDate eq '${formattedDate}'`;
-    }
+      if (searchValues.status) {
+        searchValues.status === "All"
+          ? (queryFilters += queryFilters ? "" : "")
+          : (queryFilters += queryFilters
+            ? ` and DocumentStatus eq '${searchValues.status}'`
+            : `DocumentStatus eq '${searchValues.status}'`);
+      }
 
     console.log(queryFilters);
 
@@ -311,19 +313,30 @@ export default function InventoryTransferList() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Status"
-                  placeholder="Deposit Code"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.status}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      status: e.target.value,
-                    })
-                  }
-                />
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "All", name: "All" },
+                        { id: "bost_Open", name: "Active" },
+                        { id: "bost_Closed", name: "Inactive" },
+                      ]}
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          status: e?.target?.value as string,
+                        })
+                      }
+                      value={searchValues.status || "All"}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="DocumentStatus"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="col-span-2 2xl:col-span-3"></div>

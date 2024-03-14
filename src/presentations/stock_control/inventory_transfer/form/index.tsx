@@ -62,7 +62,7 @@ const InventoryTransferForm = (props: any) => {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
         Document: "25",
       });
-      props?.query?.set("deposit-series", seriesList);
+      props?.query?.set("inventory-transfer-series", seriesList);
     }
     setSerie(seriesList);
   };
@@ -229,6 +229,7 @@ const InventoryTransferForm = (props: any) => {
             {state.tapIndex === 1 && (
               <div className="grow">
                 <Contents
+                  setValue={setValue}
                   register={register}
                   item={item}
                   control={control}
