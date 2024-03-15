@@ -59,8 +59,29 @@ export default function GeneralForm({
   }
 
   const route = useParams();
+  const month = currentDate.getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
+  const formattedDateB = `${yearLastTwoDigits}B${formattedMonth}`;
 
+  const seriesIncoming = data?.incomingSeries
+    ?.filter(
+      (series: any) =>
+        series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    )
+    ?.find((series: any) => series.BPLID === BPL)?.Series;
+
+  const seriesINV = (
+    data?.invoiceSeries?.find(
+      (entry: any) =>
+        entry.BPLID === BPL &&
+        (entry.Name.startsWith(formattedDateA) ||
+          entry.Name.startsWith(formattedDateB))
+    ) || {}
+  ).Series;
   if (data) {
+    data.DNSeries = seriesIncoming;
+    data.INSeries = seriesINV;
     data.Series = seriesSO;
     data.U_tl_arbusi = "Lube";
     data.lineofBusiness = "Lube";

@@ -28,18 +28,7 @@ export default function IncomingPaymentForm({
     setIsChecked(e.target.checked);
   };
 
-  const totalCashSale: number = React.useMemo(() => {
-    const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
-      const lineTotal = Formular.findLineTotal(
-        (item.U_tl_cashallow || 0)?.toString(),
-        item.ItemPrice || 0,
-        "0"
-      );
-      return prevTotal + lineTotal;
-    }, 0);
-    return total;
-  }, [data.allocationData]);
-
+  const totalCashSale: number = data.U_tl_doctotal;
   const parseAmount = (amount: any) => {
     return (
       Number(typeof amount === "string" ? amount.replace(/,/g, "") : amount) ||
