@@ -441,7 +441,7 @@ class Form extends CoreFormDocument {
 
     await request(
       "GET",
-      `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and ${filter.join(
+      `/sml.svc/BIZ_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and ${filter.join(
         " and "
       )}`
     )

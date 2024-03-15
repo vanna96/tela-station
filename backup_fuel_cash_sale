@@ -50,28 +50,22 @@ function POST() {
     
     try {
         // CASH SALE
-        // if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) 
-        CashSaleTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj);
     
         // PARTNERSHIP
-        // if(fuelSale.body['U_tl_s_partallow'] !== 'Y' && jsonObj["Partnership"].length > 0) 
-        PartnerShipTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_partallow'] !== 'Y' && jsonObj["Partnership"].length > 0) PartnerShipTransaction(slContext, jsonObj);
     
         // STOCK TRANSFER
-        // if(fuelSale.body['U_tl_s_stockallow'] !== 'Y' && jsonObj["StockTransfer"].length > 0) 
-        StockTransferTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_stockallow'] !== 'Y' && jsonObj["StockTransfer"].length > 0) StockTransferTransaction(slContext, jsonObj);
     
         // OWN USAGE
-        // if(fuelSale.body['U_tl_s_ownallow'] !== 'Y' && jsonObj["OwnUsage"].length > 0) 
-        OwnUsageTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_ownallow'] !== 'Y' && jsonObj["OwnUsage"].length > 0) OwnUsageTransaction(slContext, jsonObj);
     
         // TELA CARD
-        // if(fuelSale.body['U_tl_s_cardallow'] !== 'Y' && jsonObj["TelaCard"].length > 0) 
-        TelaCardTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_cardallow'] !== 'Y' && jsonObj["TelaCard"].length > 0) TelaCardTransaction(slContext, jsonObj);
     
         // PUMP TEST
-        // if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) 
-        PumpTestTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);

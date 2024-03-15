@@ -11,6 +11,10 @@ http.response.setHeader("Access-Control-Allow-Credentials", true);
  * 
  * POST /b1s/v1/script/{{partner name}}/{{script name}}}
  */
+// var queryOption = ``;
+// var retCaseSensitive = slContext.BusinessPartners.query(queryOption);
+// var retCaseInsensitive = slContext.query("SeriesService_GetDocumentSeries", queryOption, true);
+// return http.response.send(200, retCaseInsensitive.toArray())
 function POST() {
 
     var jsonObj = http.request.getJsonObj();
@@ -25,7 +29,7 @@ function POST() {
         "CardName",
         "BPL_IDAssignedToInvoice",
         "U_tl_whsdesc",
-        "Content"
+        "DocumentLines"
     ].forEach((value) => {
         if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
     })
@@ -33,17 +37,19 @@ function POST() {
     // Initialize ServiceLayerContext instance
     var slContext = new ServiceLayerContext();
     
-    const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
-    if (fuelSale.status !== 200) http.response.send(fuelSale.status, fuelSale.body);
+    const fuelSale = slContext.get("TL_RETAILSALE_LU", jsonObj['SaleDocEntry']);
+    if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
     
     try {
         // CASH SALE
-        if(jsonObj["Content"].length > 0) CashSaleTransaction(slContext, jsonObj);
+        if(jsonObj["DocumentLines"].length > 0) SaleTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
-        slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
+        slContext.update("TL_RETAILSALE_LU", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
+
         return http.response.send(200, fuelSale.body);
     } catch (error) {
+        slContext.update("TL_RETAILSALE_LU", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
         return http.response.send(400, error);
     }
 }
@@ -138,7 +144,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
 }
 
 
-function CashSaleTransaction(slContext, jsonObj){
+function SaleTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Create A/R Invoice
     var invoice = {
@@ -153,7 +159,7 @@ function CashSaleTransaction(slContext, jsonObj){
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         NumAtCard: "Oil",
         U_tl_invtype:"Retail",
-        DocumentLines: jsonObj.CashSale.map((item, index) => {
+        DocumentLines: jsonObj.DocumentLines.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
                 Quantity: item['Quantity'],
@@ -173,7 +179,6 @@ function CashSaleTransaction(slContext, jsonObj){
     };
 
     var invoiceContext = slContext.add("Invoices", invoice);
-    
     if (invoiceContext.status !== 201) {
         slContext.rollbackTransaction();
         throw ({
@@ -223,7 +228,7 @@ function CashSaleTransaction(slContext, jsonObj){
             });
         }
     }
-
+    
     // Coupon USD Payment
     var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
     if( paymentUS != null) {
@@ -235,13 +240,6 @@ function CashSaleTransaction(slContext, jsonObj){
                 ...incomingContext.body
             });
         }
-    }
-
-    // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_cashallow: 'Y' }, jsonObj['SaleDocEntry'])
-    if (TlRetailSaleContext.status !== 204) {
-        slContext.rollbackTransaction();
-        throw ({ ...TlRetailSaleContext.body });
     }
 
     slContext.commitTransaction();
