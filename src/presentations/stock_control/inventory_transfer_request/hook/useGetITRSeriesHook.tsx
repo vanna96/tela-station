@@ -23,7 +23,7 @@ const getDefaultSerie = async () => {
 
     if (response?.code === "ERR_BAD_REQUEST") return undefined
 
-    return response?.data?.Series;
+    return { Series: response?.data?.Series, NextNumber: response?.data?.NextNumber };
 }
 
 export const useGetITRSeriesHook = () => {

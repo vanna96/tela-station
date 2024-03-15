@@ -10,12 +10,12 @@ export type OnChangeProp = {
 };
 
 export type UomSelectProp = {
-  id?: number | undefined;
-  value?: any;
-  onChange: (val: OnChangeProp) => void;
-  item?: string | undefined;
-  quantity?: number | undefined;
-};
+    id?: number | undefined,
+    value?: any,
+    onChange: (val: OnChangeProp) => void,
+    item?: string | undefined
+    quantity?: number | undefined,
+}
 
 const getUOMGroup = async (item?: string | undefined) => {
   if (!item) return [];
@@ -77,39 +77,32 @@ export default function UomSelectByItem(props: UomSelectProp) {
     );
   }, [uomList.data, group.data, props.item]);
 
-  useEffect(() => {
-    const val = data?.find((e) => e?.AbsEntry === props?.value);
-    setSelected(val?.AbsEntry);
-  }, [props.value, data]);
+    useEffect(() => {
+        const val = data?.find((e) => e?.AbsEntry === props?.value)
+        setSelected(val?.AbsEntry)
+    }, [props.value, data])
 
-  const onSelectChange = (event: any) => {
-    setSelected(event.target.value);
 
-    console.log(event.target.value);
-    //
-    const selectedUoM = group.data?.UoMGroupDefinitionCollection?.find(
-      (e: any) => e.AlternateUoM === event.target.value
-    );
-    const value = data.find((e) => e.AbsEntry === event.target.value);
 
-    props.onChange({
-      AbsEntry: value.AbsEntry,
-      Code: value.Code,
-      Quantity: calculateUOM(
-        selectedUoM.BaseQuantity,
-        selectedUoM.AlternateQuantity,
-        props?.quantity ?? 0
-      ),
-    } as OnChangeProp);
-  };
+    const onSelectChange = (event: any,) => {
+        setSelected(event.target.value)
+        // 
+        const selectedUoM = group.data?.UoMGroupDefinitionCollection?.find((e: any) => e.AlternateUoM === event.target.value);
+        const value = data.find((e) => e.AbsEntry === event.target.value)
 
-  return (
-    <MUISelect
-      value={selected}
-      items={data}
-      onChange={onSelectChange}
-      aliaslabel="Code"
-      aliasvalue="AbsEntry"
+        props.onChange({ AbsEntry: value.AbsEntry, Code: value.Code, Quantity: calculateUOM(selectedUoM.BaseQuantity, selectedUoM.AlternateQuantity, props?.quantity ?? 0) } as OnChangeProp)
+    }
+
+
+
+
+    return <MUISelect
+        value={selected}
+        items={data}
+        onChange={onSelectChange}
+        aliaslabel='Code'
+        aliasvalue='AbsEntry'
+        loading={group.isLoading}
     />
-  );
+  
 }

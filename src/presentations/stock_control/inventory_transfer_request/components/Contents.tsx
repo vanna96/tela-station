@@ -1,9 +1,14 @@
+import React, { useCallback } from "react";
 import MUITextField from "@/components/input/MUITextField";
 import { Button, Checkbox, TextField } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import ITRModal from "./ITRModal";
+import ITRModal, { InventoryItemModal } from "./ITRModal";
 import UomSelectByItem from "../../components/UomSelectByItem";
+import { AiOutlineConsoleSql } from "react-icons/ai";
+
+let itemRef = React.createRef<InventoryItemModal>();
+
 export default function Contents({
   register,
   setValue,
@@ -12,79 +17,54 @@ export default function Contents({
   watch,
 }: any) {
 
+  const [selecteds, setSelects] = useState<{ [key: number]: number | undefined }>({});
 
   const fields = useMemo(() => {
     return watch('StockTransferLines') ?? [];
   }, [watch('StockTransferLines')])
 
 
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
-  const [openItem, setOpenItem] = useState(false);
-  const [clickedRowIndex, setClickedRowIndex] = useState<number | null>(null);
-
-
-  const handleCheck = (index: number) => {
-    const selectedIndex = selectedItems.indexOf(index);
-    if (selectedIndex === -1) {
-      setSelectedItems([...selectedItems, index]);
-    } else {
-      const updatedSelectedItems = [...selectedItems];
-      updatedSelectedItems.splice(selectedIndex, 1);
-      setSelectedItems(updatedSelectedItems);
-    }
-  };
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const items = { ...selecteds };
+    items[index] = event.target.checked ? index : undefined;
+    setSelects(items)
+  }
 
   const handleDeleteChecked = () => {
-    // selectedItems.forEach((index) => remove(index));
-    setSelectedItems([]);
+    const state = [...watch('StockTransferLines')];
+
+    const newValues = state.filter((e, index) => !(Object.values(selecteds).includes(index)));
+    setValue('StockTransferLines', newValues)
+    setSelects({})
   };
-  // console.log(id);
 
-  const handlerAddNew = () => {
-    const state = [...fields];
-    state.push({
-      ItemCode: undefined,
-      ItemName: undefined,
-      Quantity: undefined,
-    })
+  const handlerAddNew = useCallback((items: any[] | any, index: number | undefined) => {
+    const state: any = [...watch('StockTransferLines')];
+
+
+    if (items instanceof Array) {
+      for (const item of items) {
+        if (state.find((e: any) => e?.ItemCode === item?.ItemCode)) continue;
+
+        state.push({
+          ItemCode: item?.ItemCode,
+          ItemDescription: item?.ItemName,
+          Quantity: undefined,
+        })
+      }
+    } else {
+      state[index as number] = {
+        ItemCode: items?.ItemCode,
+        ItemDescription: items?.ItemName,
+        Quantity: state[index as number]?.Quantity,
+        UoMCode: undefined,
+        UoMAbsEntry: undefined,
+      }
+    }
 
     setValue('StockTransferLines', state)
-  }
+  }, [watch('StockTransferLines')])
 
-  const handleSelectItem = (value: any) => {
-    const state = [...fields];
-    const index = clickedRowIndex as number;
-    state[index] = { ...state[index], ItemCode: value?.ItemCode, ItemDescription: value?.ItemName, Quantity: 0 }
-
-    setOpenItem(false);
-    setValue('StockTransferLines', state)
-  }
-
-  const handlerChangeValue = (index: number, field: string, value: any) => {
-    const state = [...fields];
-    state[index][field] = value;
-    setValue('StockTransferLines', state)
-  }
-
-  const handlerchangeUom = (value: any, index: number) => {
-    const state = [...fields];
-    // state[index]['UoMCode'] = value.UoMCode;
-    // state[index]['ItemCode'] = value.ItemCode;
-
-    // state[index]['UomEntry'] = value.AbsEntry;
-    //   state[index]['StockTransferLinesBinAllocations'] = [
-    //     {
-    //         "BinAbsEntry": value.AbsEntry,
-    //         "Quantity": value.Quantity,
-    //         "AllowNegativeQuantity": "tNO",
-    //         "SerialAndBatchNumbersBaseLine": -1,
-    //         "BinActionType" : "batFromWarehouse",
-    //         "BaseLineNumber" : index,
-    //     }
-    // ];
-    console.log(state);
-
-  }
 
   return (
     <>
@@ -137,17 +117,14 @@ export default function Contents({
                     <td className="py-2 flex justify-center gap-5 items-center">
                       {!detail && (
                         <Checkbox
-                          onChange={() => handleCheck(index)}
-                          checked={selectedItems.includes(index)}
+                          onChange={(event) => handleCheck(event, index)}
+                          checked={selecteds[index] === undefined ? false : true}
                         />
                       )}
                     </td>
                     <td className="pr-4">
                       <MUITextField
-                        onClick={() => {
-                          setClickedRowIndex(index);
-                          setOpenItem(true);
-                        }}
+                        onClick={() => itemRef.current?.onOpen('single', index)}
                         endAdornment
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemCode`, {
@@ -155,15 +132,15 @@ export default function Contents({
                           }),
                         }}
                       />
+
                     </td>
                     <td className="pr-4">
                       <MUITextField
                         disabled
                         inputProps={{
-                          ...register(
-                            `StockTransferLines.${index}.ItemDescription`,
+                          ...register(`StockTransferLines.${index}.ItemDescription`,
                             {
-                              required: "Item Description. is required",
+                              required: false,
                             }
                           ),
                         }}
@@ -171,33 +148,34 @@ export default function Contents({
                     </td>
                     <td className="pr-4">
                       <MUITextField
+                        type="number"
                         inputProps={{
-                          ...register(
-                            `StockTransferLines.${index}.Quantity`,
-                          ),
+                          ...register(`StockTransferLines.${index}.Quantity`, { required: `Quantity is required at ${index}`, }),
+
                         }}
                       />
                     </td>
                     <td className="pr-4">
                       <Controller
-                        name="UoMCode"
+                        name={`StockTransferLines.${index}.UoMEntry`}
+                        rules={
+                          {
+                            required: 'UoM is required'
+                          }
+                        }
                         control={control}
                         render={({ field }) => {
                           return (
                             <UomSelectByItem
                               disabled={detail}
                               {...field}
-                              // onChange={(e: any) => handlerchangeUom(e, index)}
                               onChange={(e) => {
-                                setValue(
-                                  `StockTransferLines.${index}.UoMCode`,
-                                  e?.AbsEntry
-                                );
-                                handlerchangeUom(e, index);
+                                setValue(`StockTransferLines.${index}.UoMEntry`, e?.AbsEntry);
+                                setValue(`StockTransferLines.${index}.UoMCode`, e?.Code);
                               }}
                               item={e.ItemCode}
                               quantity={e?.Quantity}
-                              value={e.UoMCode}
+                              value={field.value}
                             />
                           );
                         }}
@@ -210,7 +188,7 @@ export default function Contents({
           </table>
           {detail ? null : (
             <span
-              onClick={handlerAddNew}
+              onClick={() => itemRef.current?.onOpen('multiple')}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               Add
@@ -237,11 +215,8 @@ export default function Contents({
           </div>
         </div>
       </div>
-      <ITRModal
-        onClick={handleSelectItem}
-        setOpen={setOpenItem}
-        open={openItem}
-      />
+
+      <InventoryItemModal ref={itemRef} onSelectItems={handlerAddNew} />
     </>
   );
 }
