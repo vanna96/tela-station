@@ -11,17 +11,20 @@ export type OnChangeProp = {
     Quantity: number,
 }
 
-
 export type UomSelectProp = {
     id?: number | undefined,
     value?: any,
-    onChange: (val: OnChangeProp) => void
+    onChange: (val: OnChangeProp) => void,
+    item?: string | undefined
 }
 
-const getUOMGroup = (id?: number | undefined) => {
-    if (!id) return []
+const getUOMGroup = async (item?: string | undefined) => {
+    if (!item) return [];
 
-    return request('GET', `UnitOfMeasurementGroups(${id})`).then((res: any) => res.data);
+    const response: any = await request('GET', `/Items('${item}')?$select=UoMGroupEntry`);
+    if (!response?.data) return [];
+
+    return request('GET', `UnitOfMeasurementGroups(${response?.data?.UoMGroupEntry})`).then((res: any) => res.data);
 }
 
 export const fractionDigits = (value: number, digit?: number) => {
@@ -43,19 +46,22 @@ const calculateUOM = (
     return totalQty;
 };
 
-export default function UomSelect(props: UomSelectProp) {
+export default function UomSelectByItem(props: UomSelectProp) {
     const [selected, setSelected] = useState<string>('');
 
-    const group = useQuery({ queryKey: [`uom_group_lists_${props.id}`], queryFn: () => getUOMGroup(props.id) })
+    const group = useQuery({ queryKey: [`uom_group_lists_${props.item}`], queryFn: () => getUOMGroup(props.item) })
     const uomList = useQuery({ queryKey: ['uom_lists'], queryFn: () => request('GET', 'UnitOfMeasurements?$select=Code,Name,AbsEntry') });
 
+    console.log(props.item)
 
     const data: any[] = useMemo(() => {
+        if (!props.item) return []
+
         if (!uomList.data || !group.data) return [];
 
         const uomGroups: number[] = group.data?.UoMGroupDefinitionCollection?.map((e: any) => e.AlternateUoM)
         return (uomList.data as any).data.value?.filter((e: any) => uomGroups?.includes(e.AbsEntry))
-    }, [uomList.data, group.data])
+    }, [uomList.data, group.data, props.item])
 
 
     useEffect(() => {

@@ -86,7 +86,7 @@ export default function WorkingWithTransportationRequest() {
     for (const item of items) {
       const res: any = await request(
         "GET",
-        `/sml.svc/GETBIN?$filter=WhsCode eq '${searchValues.Terminal}' and ItemCode eq '${item?.ItemCode}' and BinID eq ${binId}`
+        `/sml.svc/BIZ_GET_BIN_QUERY?$filter=WhsCode eq '${searchValues.Terminal}' and ItemCode eq '${item?.ItemCode}' and BinID eq ${binId}`
       );
 
       bin[index]["QuantityOnHand"] = res?.data?.value?.at(0)?.OnHandQty ?? 0;
@@ -152,7 +152,7 @@ export default function WorkingWithTransportationRequest() {
       if (item?.OrderQuantity > item?.QuantityOnHand) {
         dialog.current?.error(
           `Inventory quantity falls into negative on '${item?.ItemCode}'.` ??
-            "Oops, something went wrong!",
+          "Oops, something went wrong!",
           "Invalid Value"
         );
         return;
@@ -420,8 +420,8 @@ export default function WorkingWithTransportationRequest() {
                                       (r: any) =>
                                         r?.SalesEmployeeCode === e?.U_Requester
                                     )?.SalesEmployeeName || (
-                                      <CircularProgress size={"18px"} />
-                                    )}
+                                        <CircularProgress size={"18px"} />
+                                      )}
                                   </span>
                                 </td>
                                 <td className="pr-4 border-r text-center">
@@ -429,8 +429,8 @@ export default function WorkingWithTransportationRequest() {
                                     {branchAss?.data?.find(
                                       (b: any) => b?.BPLID === e?.U_Branch
                                     )?.BPLName || (
-                                      <CircularProgress size={"18px"} />
-                                    )}
+                                        <CircularProgress size={"18px"} />
+                                      )}
                                   </span>
                                 </td>
 
@@ -667,9 +667,8 @@ export default function WorkingWithTransportationRequest() {
         </div>
       </div>
       <div
-        className={`w-full h-full ${
-          openLoading ? "block" : "hidden"
-        } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
+        className={`w-full h-full ${openLoading ? "block" : "hidden"
+          } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
       >
         <CircularProgress color="success" />{" "}
       </div>
