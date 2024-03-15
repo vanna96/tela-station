@@ -10,6 +10,7 @@ import { useCookies } from "react-cookie";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import DataTable from "../components/DataTable";
 import { formatDate } from "@/helper/helper";
+import MUISelect from "@/components/selectbox/MUISelect";
 export default function InventoryTransferList() {
   const [open, setOpen] = React.useState<boolean>(false);
   const [cookies] = useCookies(["user"]);
@@ -19,16 +20,12 @@ export default function InventoryTransferList() {
     towarehouse: "",
     status: "",
   });
-  const branchAss: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
+
   const transfer = useNavigate();
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "AbsEntry",
+        accessorKey: "DocEntry",
         header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -45,7 +42,7 @@ export default function InventoryTransferList() {
         },
       },
       {
-        accessorKey: "DepositNumber",
+        accessorKey: "DocNum",
         header: "Document No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -54,7 +51,7 @@ export default function InventoryTransferList() {
         type: "string",
       },
       {
-        accessorKey: "U_tl_cash_acc",
+        accessorKey: "FromWarehouse",
         header: "From Warehouse", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -62,12 +59,12 @@ export default function InventoryTransferList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.U_tl_cash_acc;
+          return cell.row.original.FromWarehouse;
         },
       },
 
       {
-        accessorKey: "DepositCurrency",
+        accessorKey: "ToWarehouse",
         header: "To Warehouse", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -75,23 +72,23 @@ export default function InventoryTransferList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.DepositCurrency;
+          return cell.row.original.ToWarehouse;
         },
       },
 
       {
-        accessorKey: "U_active",
+        accessorKey: "DocumentStatus",
         header: "Status",
         size: 40,
         visible: true,
         Cell: (cell: any) => {
-          return cell.row.original.U_active === "Y"
+          return cell.row.original.DocumentStatus === "bost_Open"
             ? "Active"
             : "Inactive";
         },
       },
       {
-        accessorKey: "AbsEntry",
+        accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
         enableColumnFilterModes: false,
         enableColumnActions: false,
@@ -107,7 +104,7 @@ export default function InventoryTransferList() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                transfer("/stock-control/stock-transfer/" + cell.row.original.AbsEntry, {
+                transfer("/stock-control/stock-transfer/" + cell.row.original.DocEntry, {
                   state: cell.row.original,
                   replace: true,
                 });
@@ -119,7 +116,7 @@ export default function InventoryTransferList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 transfer(
-                  `/banking/deposit/${cell.row.original.AbsEntry}/edit`,
+                  `/stock-control/stock-transfer/${cell.row.original.DocEntry}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -148,11 +145,11 @@ export default function InventoryTransferList() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`Deposits`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`StockTransfers`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Deposits/$count?${filter ? `$filter=${filter}` : ""}`
+        `${url}/StockTransfers/$count?${filter ? `$filter=${filter}` : ""}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -165,7 +162,7 @@ export default function InventoryTransferList() {
   });
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "Deposits",
+      "StockTransfers",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -174,9 +171,9 @@ export default function InventoryTransferList() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/Deposits?$top=${pagination.pageSize}&$skip=${
+        `${url}/StockTransfers?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
-        }&$orderby= AbsEntry desc ${filter ? `&$filter=${filter}` : filter}`
+        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}` : filter}`
       )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -216,27 +213,28 @@ export default function InventoryTransferList() {
   const handlerSearch = (value: string) => {
     if (searchValues.docno) {
       queryFilters += queryFilters
-        ? ` and (contains(DepositNumber, '${searchValues.docno}'))`
-        : `contains(DepositNumber, '${searchValues.docno}')`;
+        ? ` and (contains(DocNum, '${searchValues.docno}'))`
+        : `contains(DocNum, '${searchValues.docno}')`;
     }
     if (searchValues.fromwarehouse) {
       queryFilters += queryFilters
-        ? ` and (contains(DepositAccount, '${searchValues.fromwarehouse}'))`
-        : `contains(DepositAccount, '${searchValues.fromwarehouse}')`;
+        ? ` and (contains(FromWarehouse, '${searchValues.fromwarehouse}'))`
+        : `contains(FromWarehouse, '${searchValues.fromwarehouse}')`;
     }
 
     if (searchValues.towarehouse) {
         queryFilters += queryFilters
-          ? ` and (contains(DepositAccount, '${searchValues.towarehouse}'))`
-          : `contains(DepositAccount, '${searchValues.towarehouse}')`;
+          ? ` and (contains(ToWarehouse, '${searchValues.towarehouse}'))`
+          : `contains(ToWarehouse , '${searchValues.towarehouse}')`;
       }
 
-    if (searchValues.status) {
-      const formattedDate = formatDate(searchValues.status);
-      queryFilters += queryFilters
-        ? ` and (DepositDate eq '${formattedDate}')`
-        : `DepositDate eq '${formattedDate}'`;
-    }
+      if (searchValues.status) {
+        searchValues.status === "All"
+          ? (queryFilters += queryFilters ? "" : "")
+          : (queryFilters += queryFilters
+            ? ` and DocumentStatus eq '${searchValues.status}'`
+            : `DocumentStatus eq '${searchValues.status}'`);
+      }
 
     console.log(queryFilters);
 
@@ -272,7 +270,7 @@ export default function InventoryTransferList() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Document No."
-                  placeholder="Deposit No."
+                  placeholder="Document No."
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.docno}
@@ -287,7 +285,7 @@ export default function InventoryTransferList() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="From Warehouse"
-                  placeholder="Deposit Code"
+                  placeholder="From Warehouse"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.fromwarehouse}
@@ -302,7 +300,7 @@ export default function InventoryTransferList() {
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="To Warehouse"
-                  placeholder="Deposit Code"
+                  placeholder="To Warehouse"
                   className="bg-white"
                   autoComplete="off"
                   value={searchValues.towarehouse}
@@ -315,19 +313,30 @@ export default function InventoryTransferList() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Status"
-                  placeholder="Deposit Code"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.status}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      status: e.target.value,
-                    })
-                  }
-                />
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "All", name: "All" },
+                        { id: "bost_Open", name: "Active" },
+                        { id: "bost_Closed", name: "Inactive" },
+                      ]}
+                      onChange={(e) =>
+                        setSearchValues({
+                          ...searchValues,
+                          status: e?.target?.value as string,
+                        })
+                      }
+                      value={searchValues.status || "All"}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="DocumentStatus"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="col-span-2 2xl:col-span-3"></div>

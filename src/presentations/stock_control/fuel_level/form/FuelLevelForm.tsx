@@ -15,7 +15,7 @@ import FuelLevelWhsAutoComplete from "../components/FuelLevelWarehouseAutoComple
 import FuelLevelWarehouseBinAutoComplete from "../components/FuelLevelWarehouseBinAutoComplete"
 import { IoCreate } from "react-icons/io5"
 import { useNavigate } from "react-router-dom"
-import UomSelectByItem from "../components/UomSelectByItem"
+import UomSelectByItem from "../../components/UomSelectByItem"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -91,8 +91,6 @@ export const FuelLevelForm = ({ edit = false }: { edit?: boolean }) => {
         >
           <CircularProgress />
         </Backdrop>
-
-        <UomSelectByItem item="LPG0001" onChange={(e) => console.log(e)} />
 
         {tap === 0 && <General {...hook} edit={edit} />}
         {tap === 1 && <Content {...hook} edit={edit} />}
