@@ -46,6 +46,16 @@ const BasicInformation = (props: any) => {
 
   const { data } = useGetWhsTerminalAssignHook(false);
 
+
+  const onChangeBranch = (value: any) => {
+    const period = new Date().getFullYear();
+    const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
+
+    props?.setValue("Series", serie?.Series);
+    props?.setValue("DocNum", serie?.NextNumber);
+    props?.setValue('BPLID', value?.BPLID)
+  }
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3-full mt-3">
@@ -86,7 +96,7 @@ const BasicInformation = (props: any) => {
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          props.setValue("BPLID", e.BusinessPlaceID);
+                          onChangeBranch({ BPLID: e.BusinessPlaceID })
                           props.setValue("U_tl_attn_ter", e.WarehouseCode);
                           const git = data?.find((whs: any) => whs?.U_tl_git_whs === 'Y' && whs?.BusinessPlaceID === e.BusinessPlaceID)
                           props.setValue("FromWarehouse", git?.WarehouseCode);
