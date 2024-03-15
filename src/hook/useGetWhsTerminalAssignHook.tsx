@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useQuery } from "react-query";
 
 const getData = (query: string) => {
-    return request('GET', `Warehouses?$select=WarehouseCode,WarehouseName,BusinessPlaceID,DefaultBin${query}`)
+    return request('GET', `Warehouses?$select=WarehouseCode,WarehouseName,U_tl_attn_ter,U_tl_whsclear,BusinessPlaceID,U_tl_git_whs,DefaultBin${query}`)
         .then((res: any) => res.data.value);
 }
 

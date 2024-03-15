@@ -1,12 +1,14 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
-import UOMAutoComplete from "@/components/input/UOMAutoComplete";
+import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import ItemModal from "@/presentations/trip_management/transportation_order/ItemModal";
-import { Button, Checkbox, TextField } from "@mui/material";
+import { Button, Checkbox, TextField, easing } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import React from "react";
+import React, { useMemo } from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import UomSelectByItem from "../../components/UomSelectByItem";
+import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 export default function Content({
   register,
   defaultValue,
@@ -14,31 +16,86 @@ export default function Content({
   compart,
   setCompart,
   detail,
+  watch,
   control,
 }: any) {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "DocumentLines",
-  });
-  const [selectedItems, setSelectedItems] = useState<any[]>([]);
+  const [id, setId] = useState(0);
   const [openItem, setOpenItem] = useState(false);
-    const [uomCode, setUomCode] = useState(null);
+  const [selectIndex, setSelectIndex] = useState(0);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [bin, setBin] = useState("");
+  const fields: any[] = useMemo(() => {
+    if (!watch("DocumentLines")) return [];
+    return watch("DocumentLines");
+  }, [watch("DocumentLines")]);
 
-  const [clickedRowIndex, setClickedRowIndex] = useState<number | null>(null);
-  const handleCheck = (index: number) => {
-    const selectedIndex = selectedItems.indexOf(index);
-    if (selectedIndex === -1) {
-      setSelectedItems([...selectedItems, index]);
-    } else {
-      const updatedSelectedItems = [...selectedItems];
-      updatedSelectedItems.splice(selectedIndex, 1);
-      setSelectedItems(updatedSelectedItems);
-    }
+  const onAddDocument = () => {
+    const state = [
+      ...fields,
+      {
+        ItemCode: null,
+        ItemDescription: null,
+        Quantity: null,
+        UoMCode: null,
+      },
+    ];
+    setValue("DocumentLines", state);
   };
 
-  const handleDeleteChecked = () => {
-    selectedItems.forEach((index) => remove(index));
-    setSelectedItems([]);
+  const onSelectChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    let state = [...selected];
+    if (selected.includes(index)) {
+      state = state.filter((e) => e !== index);
+    } else {
+      state.push(index);
+    }
+
+    setSelected(state);
+  };
+
+  const handlerDelete = () => {
+    if (selected.length === 0) return; // [1,2,3,5]
+
+    let state = [...fields];
+    state = state.filter((item, index) => !selected.includes(index));
+    setValue("DocumentLines", state);
+    setSelected([]);
+  };
+
+  const onChangeValue = (index: number, field: string, value: any) => {
+    const state: any[] = [...(fields ?? [])];
+    state[index][field] = value;
+    setValue("DocumentLines", state);
+  };
+  const handleSelectItem = (value: any) => {
+    const state = [...fields];
+    const index = selectIndex as number;
+    state[index] = {
+      ...state[index],
+      ItemCode: value?.ItemCode,
+      ItemDescription: value?.ItemName,
+      Quantity: 0,
+    };
+    setId(value?.UoMGroupEntry);
+    setOpenItem(false);
+    setValue("DocumentLines", state);
+  };
+  const handlerchangeBin = (value: any, index: number) => {
+    const state = [...fields];
+    state[index]["UoMCode"] = value.AbsEntry;
+    state[index]["DocumentLinesBinAllocations"] = [
+      {
+        BinAbsEntry: value?.AbsEntry,
+        Quantity: value?.Quantity ?? 0,
+        AllowNegativeQuantity: "tNO",
+        SerialAndBatchNumbersBaseLine: -1,
+        BaseLineNumber: index,
+      },
+    ];
+    setValue("DocumentLines", state);
   };
 
   return (
@@ -49,15 +106,15 @@ export default function Content({
           {!detail && (
             <Button
               variant="outlined"
-              onClick={handleDeleteChecked}
+              onClick={handlerDelete}
               className="px-4 border-gray-400"
             >
               <span className="px-2 text-xs">Remove</span>
             </Button>
           )}
         </div>
-        <div className="w-full  overflow-x-auto">
-          <table className="table table-auto border min-w-full shadow-sm bg-white border-[#dadde0]">
+        <div className="w-full">
+          <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
               <th className="w-[4rem] "></th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
@@ -75,7 +132,7 @@ export default function Content({
                 UoM{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Bin Code{" "}
+                Bin Code
               </th>
             </tr>
             {fields?.length === 0 && (
@@ -95,24 +152,36 @@ export default function Content({
                     <td className="py-2 flex justify-center gap-5 items-center">
                       {!detail && (
                         <Checkbox
-                          onChange={() => handleCheck(index)}
-                          checked={selectedItems.includes(index)}
+                          onChange={() => onSelectChange(e, index)}
+                          checked={selected.includes(index)}
                         />
                       )}
                     </td>
                     <td className="pr-4">
-                      <MUITextField
-                        onClick={() => {
-                          setClickedRowIndex(index);
-                          setOpenItem(true);
-                        }}
-                        endAdornment
-                        inputProps={{
-                          ...register(`DocumentLines.${index}.ItemCode`, {
-                            required: "Item No. is required",
-                          }),
-                        }}
-                      />
+                      {detail ? (
+                        <MUITextField
+                          disabled={detail}
+                          inputProps={{
+                            ...register(`DocumentLines.${index}.ItemCode`, {
+                              required: "Item No. is required",
+                            }),
+                          }}
+                        />
+                      ) : (
+                        <MUITextField
+                          disabled={detail}
+                          onClick={() => {
+                            setSelectIndex(index);
+                            setOpenItem(true);
+                          }}
+                          endAdornment
+                          inputProps={{
+                            ...register(`DocumentLines.${index}.ItemCode`, {
+                              required: "Item No. is required",
+                            }),
+                          }}
+                        />
+                      )}
                     </td>
                     <td className="pr-4">
                       <MUITextField
@@ -128,13 +197,61 @@ export default function Content({
                       />
                     </td>
                     <td className="pr-4">
-                      <MUITextField />
+                      <MUITextField
+                        disabled={detail}
+                        type="number"
+                        inputProps={{
+                          ...register(`DocumentLines.${index}.Quantity`),
+                        }}
+                      />
                     </td>
                     <td className="pr-4">
-                   as
+                      {/* <UomSelect
+                        onChange={(e) => handlerchangeBin(e, index)}
+                        id={id}
+                      /> */}
+                      <Controller
+                        // name={`DocumentLines.${index}.BinCode`}
+                        name={`AbsEntry`}
+                        control={control}
+                        render={({ field }) => {
+                          return (
+                            <UomSelectByItem
+                              id={id}
+                              onChange={(e: any) => {
+                                setValue(
+                                  `DocumentLines[${index}].UoMCode`,
+                                  e?.AbsEntry
+                                );
+                                setValue(
+                                  `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].Quantity`,
+                                  e?.Quantity
+                                );
+                              }}
+                            />
+                          );
+                        }}
+                      />
                     </td>
                     <td className="pr-4">
-                      <MUITextField />
+                      <Controller
+                        // name={`DocumentLines.${index}.BinCode`}
+                        name={`AbsEntry`}
+                        control={control}
+                        render={({ field }) => {
+                          return (
+                            <FuelLevelWarehouseBinAutoComplete
+                              value={watch(
+                                `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`
+                              )}
+                              whsCode={watch("U_tl_whsdesc")}
+                              onChange={(e: any) => {
+                                handlerchangeBin(e, index);
+                              }}
+                            />
+                          );
+                        }}
+                      />
                     </td>
                   </tr>
                 </>
@@ -143,7 +260,7 @@ export default function Content({
           </table>
           {detail ? null : (
             <span
-              onClick={() => append({})}
+              onClick={onAddDocument}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               Add
@@ -164,22 +281,14 @@ export default function Content({
               multiline
               rows={3}
               name="Comments"
-              className="w-full "
+              className={`w-full ${detail && "bg-gray-100"}`}
               inputProps={{ ...register("Remarks") }}
             />
           </div>
         </div>
       </div>
       <ItemModal
-        onClick={(e: any) => {
-          setValue(`DocumentLines.${clickedRowIndex}.ItemCode`, e?.ItemCode);
-          setValue(
-            `DocumentLines.${clickedRowIndex}.ItemDescription`,
-            e?.ItemName
-          );
-            setUomCode(e?.UoMGroupEntry);
-          setOpenItem(false);
-        }}
+        onClick={handleSelectItem}
         setOpen={setOpenItem}
         open={openItem}
       />

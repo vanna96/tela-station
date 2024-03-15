@@ -3,7 +3,7 @@ import { Button, Checkbox, TextField } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import ITRModal from "./ITRModal";
-import UomSelectByItem from "../../fuel_level/components/UomSelectByItem";
+import UomSelectByItem from "../../components/UomSelectByItem";
 export default function Contents({
   register,
   setValue,
@@ -11,12 +11,12 @@ export default function Contents({
   control,
   watch,
 }: any) {
- 
+
 
   const fields = useMemo(() => {
     return watch('StockTransferLines') ?? [];
   }, [watch('StockTransferLines')])
-  
+
 
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [openItem, setOpenItem] = useState(false);
@@ -42,8 +42,8 @@ export default function Contents({
 
   const handlerAddNew = () => {
     const state = [...fields];
-    state.push( {
-      ItemCode : undefined,
+    state.push({
+      ItemCode: undefined,
       ItemName: undefined,
       Quantity: undefined,
     })
@@ -51,19 +51,19 @@ export default function Contents({
     setValue('StockTransferLines', state)
   }
 
-  const handleSelectItem = (value:any) => {
+  const handleSelectItem = (value: any) => {
     const state = [...fields];
     const index = clickedRowIndex as number;
-    state[index] = {...state[index], ItemCode: value?.ItemCode, ItemDescription : value?.ItemName, Quantity : 0}
+    state[index] = { ...state[index], ItemCode: value?.ItemCode, ItemDescription: value?.ItemName, Quantity: 0 }
 
     setOpenItem(false);
-    setValue('StockTransferLines',state )
+    setValue('StockTransferLines', state)
   }
 
   const handlerChangeValue = (index: number, field: string, value: any) => {
     const state = [...fields];
     state[index][field] = value;
-    setValue('StockTransferLines',state )
+    setValue('StockTransferLines', state)
   }
 
   const handlerchangeUom = (value: any, index: number) => {
@@ -72,19 +72,19 @@ export default function Contents({
     // state[index]['ItemCode'] = value.ItemCode;
 
     // state[index]['UomEntry'] = value.AbsEntry;
-  //   state[index]['StockTransferLinesBinAllocations'] = [
-  //     {
-  //         "BinAbsEntry": value.AbsEntry,
-  //         "Quantity": value.Quantity,
-  //         "AllowNegativeQuantity": "tNO",
-  //         "SerialAndBatchNumbersBaseLine": -1,
-  //         "BinActionType" : "batFromWarehouse",
-  //         "BaseLineNumber" : index,
-  //     }
-  // ];
-  console.log(state);
+    //   state[index]['StockTransferLinesBinAllocations'] = [
+    //     {
+    //         "BinAbsEntry": value.AbsEntry,
+    //         "Quantity": value.Quantity,
+    //         "AllowNegativeQuantity": "tNO",
+    //         "SerialAndBatchNumbersBaseLine": -1,
+    //         "BinActionType" : "batFromWarehouse",
+    //         "BaseLineNumber" : index,
+    //     }
+    // ];
+    console.log(state);
 
-}
+  }
 
   return (
     <>
@@ -131,8 +131,6 @@ export default function Contents({
               </tr>
             )}
             {fields?.map((e: any, index: number) => {
-              console.log(e);
-              
               return (
                 <>
                   <tr key={index}>
@@ -173,7 +171,7 @@ export default function Contents({
                     </td>
                     <td className="pr-4">
                       <MUITextField
-                         inputProps={{
+                        inputProps={{
                           ...register(
                             `StockTransferLines.${index}.Quantity`,
                           ),
@@ -191,7 +189,6 @@ export default function Contents({
                               {...field}
                               // onChange={(e: any) => handlerchangeUom(e, index)}
                               onChange={(e) => {
-                                console.log(e);
                                 setValue(
                                   `StockTransferLines.${index}.UoMCode`,
                                   e?.AbsEntry
@@ -199,7 +196,8 @@ export default function Contents({
                                 handlerchangeUom(e, index);
                               }}
                               item={e.ItemCode}
-                              value={e?.AbsEntry}
+                              quantity={e?.Quantity}
+                              value={e.UoMCode}
                             />
                           );
                         }}

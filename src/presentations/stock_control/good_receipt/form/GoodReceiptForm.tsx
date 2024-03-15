@@ -3,35 +3,31 @@ import {
   FieldValues,
   UseFormGetValues,
   UseFormRegister,
+  UseFormReset,
   UseFormSetValue,
   UseFormWatch,
+  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import { withRouter } from "@/routes/withRouter";
 import request from "@/utilies/request";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import { useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { useQuery } from "react-query";
-import Tabar from "../../good_issue/components/Tabar";
 import General from "../components/General";
 import Content from "../components/Content";
+import CustomToast from "@/components/modal/CustomToast";
+import Tabar from "../../good_issue/components/Tabar";
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
 export type UseFormProps = {
-  register: UseFormRegister<FieldValues>;
-  setValue: UseFormSetValue<FieldValues>;
+  register?: UseFormRegister<FieldValues>;
+  setValue?: UseFormSetValue<FieldValues>;
   control?: any;
-  defaultValues?:
-    | Readonly<{
-        [x: string]: any;
-      }>
-    | undefined;
+  defaultValues?: any;
   setBranchAss?: any;
   branchAss?: any;
   header?: any;
@@ -39,20 +35,17 @@ export type UseFormProps = {
   detail?: boolean;
   watch: UseFormWatch<FieldValues>;
   getValues: UseFormGetValues<FieldValues>;
+  reset: any;
 };
-// const { id } = useParams();
-const GoodReceiptForm = (props: any) => {
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    control,
-    reset,
-    getValues,
-    watch,
-    formState: { errors, defaultValues },
-  } = useForm();
-  const { id }: any = props?.match?.params || 0;
+const GoodIssueForm = (props: any) => {
+  const { handleSubmit, register, setValue, control, reset, getValues, watch } =
+    useForm({
+      defaultValues: {
+        DocumentLines: [],
+      },
+    });
+
+  const { id }: any = useParams();
 
   const [state, setState] = useState({
     loading: false,
@@ -61,93 +54,25 @@ const GoodReceiptForm = (props: any) => {
     isError: false,
     message: "",
     showCollapse: true,
-    DocNum: id,
-  });
-  const [header, setHeader] = useState({
-    firstName: null,
-    lastName: null,
-    gender: null,
-    department: null,
-    branch: null,
+    DocNum: 0,
   });
 
-  const [branchAss, setBranchAss] = useState([]);
-  const [driver, setDriver] = React.useState<any>();
-
-  useEffect(() => {
-    // Fetch initial data if needed
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    if (id) {
-      setState({
-        ...state,
-        loading: true,
-      });
-      await request("GET", `EmployeesInfo(${id})`)
-        .then((res: any) => {
-          setBranchAss(res?.data?.EmployeeBranchAssignment);
-          setDriver(res?.data);
-          setState({
-            ...state,
-            loading: false,
-            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
-          });
-        })
-        .catch((err: any) =>
-          setState({ ...state, isError: true, message: err.message })
-        );
-    }
-  };
-
-  const onSubmit = async (e: any) => {
-    const data: any = Object.fromEntries(
-      Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
+  const onSubmit = async (payload: any) => {
+    // console.log(payload);
+    // return
+    const url = props.edit
+      ? `/InventoryGenEntries(${id})`
+      : `/InventoryGenEntries`;
+    setState({ ...state, isSubmitting: true });
+    await request(props?.edit ? "PATCH" : "POST", url, payload)
+      .then((res: any) =>
+        dialog.current?.success(
+          props?.edit ? "Update Successfully." : "Create Successfully.",
+          res?.data?.DocEntry
+        )
       )
-    );
-    const fullName = `${getValues("FirstName")} ${getValues("LastName")}`;
-    const payload = {
-      ...data,
-      U_tl_driver: "Y",
-      U_tl_name: fullName,
-      HomeCountry: "KH",
-      EmployeeBranchAssignment: branchAss?.map((e: any) => {
-        return {
-          BPLID: e?.BPLID,
-        };
-      }),
-    };
-    const { id } = props?.match?.params || 0;
-    try {
-      setState({ ...state, isSubmitting: true });
-      if (props.edit) {
-        await request("PATCH", `/EmployeesInfo(${id})`, payload)
-          .then((res: any) =>
-            dialog.current?.success(
-              "Update Successfully.",
-              res?.data?.EmployeeID
-            )
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      } else {
-        await request("POST", "/EmployeesInfo", payload)
-          .then((res: any) =>
-            dialog.current?.success(
-              "Create Successfully.",
-              res?.data?.EmployeeID
-            )
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setState({ ...state, isSubmitting: false });
-    }
+      .catch((err: any) => dialog.current?.error(err.message))
+      .finally(() => setState({ ...state, isSubmitting: false }));
   };
 
   const handlerChangeMenu = useCallback(
@@ -159,15 +84,15 @@ const GoodReceiptForm = (props: any) => {
     },
     [state]
   );
+
   const isNextTap = (tapIndex: number) => {
-    // if (!getValues("FirstName") || getValues("FirstName") === "") return;
-    // if (!getValues("LastName") || getValues("LastName") === "") return;
-    // if (!getValues("EmployeeCode") || getValues("EmployeeCode") === "") return;
-    // if (!getValues("BPLID") || getValues("BPLID") === "") return;
-    // if (!getValues("U_tl_terminal") || getValues("U_tl_terminal") === "")
+    // if (
+    //   !getValues("BPL_IDAssignedToInvoice") ||
+    //    getValues("BPL_IDAssignedToInvoice") === ""
+    // ) {
+    //   toastRef.current?.open();
     //   return;
-    // if (!getValues("StartDate") || getValues("StartDate") === "") return;
-    // if (!getValues("Position") || getValues("Position") === "") return;
+    // }
 
     handlerChangeMenu(tapIndex);
   };
@@ -185,12 +110,28 @@ const GoodReceiptForm = (props: any) => {
       </>
     );
   };
-
-  React.useEffect(() => {
-    if (driver) {
-      reset({ ...driver });
-    }
-  }, [driver]);
+  useEffect(() => {
+    if (!id) return;
+    setState({
+      ...state,
+      loading: true,
+    });
+    request("GET", `InventoryGenEntries(${id})`)
+      .then((res: any) => {
+        setState({
+          ...state,
+          loading: false,
+        });
+        reset({ ...res.data }, { keepValues: false });
+      })
+      .catch((e: any) => {
+        setState({
+          ...state,
+          loading: false,
+        });
+        dialog.current?.error(e?.message);
+      });
+  }, [id]);
 
   const onInvalidForm = (invalids: any) => {
     dialog.current?.error(
@@ -199,6 +140,7 @@ const GoodReceiptForm = (props: any) => {
       "Invalid Value"
     );
   };
+
   return (
     <>
       {state.loading ? (
@@ -219,6 +161,7 @@ const GoodReceiptForm = (props: any) => {
             <CircularProgress />
           </Backdrop>
           <FormMessageModal ref={dialog} />
+          <CustomToast ref={toastRef} />
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
@@ -231,6 +174,8 @@ const GoodReceiptForm = (props: any) => {
                   getValues={getValues}
                   control={control}
                   watch={watch}
+                  setValue={setValue}
+                  reset={reset}
                 />
               </div>
             )}
@@ -241,6 +186,7 @@ const GoodReceiptForm = (props: any) => {
                   getValues={getValues}
                   control={control}
                   watch={watch}
+                  setValue={setValue}
                 />{" "}
               </div>
             )}
@@ -291,4 +237,4 @@ const GoodReceiptForm = (props: any) => {
   );
 };
 
-export default GoodReceiptForm;
+export default GoodIssueForm;

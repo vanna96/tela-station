@@ -167,7 +167,7 @@ export default function Document({
           </div>
         </div>
         <div>
-          <table className="w-full border-[#dadde0]">
+          <table className="w-full border border-[#dadde0]">
             <thead>
               <tr className="border-[1px] border-[#dadde0]">
                 <th className="w-[100px] "></th>
@@ -200,7 +200,7 @@ export default function Document({
               {document && document?.length === 0 && (
                 <tr>
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="text-center p-10 text-[16px] text-gray-400"
                   >
                     No Record

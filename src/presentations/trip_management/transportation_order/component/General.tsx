@@ -42,7 +42,7 @@ const General = ({
   });
   const { id } = useParams();
   useEffect(() => {
-    setValue("Series", 7918);
+    setValue("Series", undefined);
    
   }, [defaultValues]);
   const nextNumber = serie?.find(
@@ -72,10 +72,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <RoutAutoComplete
-                        disabled={
-                          create?.at(-1)==="create"?false:
-                           true
-                        }
+                        disabled={create?.at(-1) === "create" ? false : true}
                         {...field}
                         value={watch("U_Route") || defaultValues?.U_Route}
                         onChange={(e: any) => {
@@ -284,9 +281,9 @@ const General = ({
                           aliasvalue="Series"
                           aliaslabel="Name"
                           name="Series"
-                          onChange={(e: any) => {
-                            setValue("Series", e?.target?.value);
-                          }}
+                          // onChange={(e: any) => {
+                          //   setValue("Series", e?.target?.value);
+                          // }}
                         />
                       );
                     }}
@@ -295,9 +292,9 @@ const General = ({
                   <div className="-mt-1">
                     <MUITextField
                       disabled={true}
-                      inputProps={{
-                        ...register("DocNum"),
-                      }}
+                      // inputProps={{
+                      //   ...register("DocNum"),
+                      // }}
                       value={nextNumber || defaultValues?.DocNum}
                     />
                   </div>
@@ -347,7 +344,7 @@ const General = ({
                   {getValues("U_Status") === undefined && (
                     <MUITextField
                       inputProps={{
-                        ...register("Status"),
+                        ...register("U_Status"),
                       }}
                       value={"I"}
                     />

@@ -86,7 +86,7 @@ export default function TRModal(props: any) {
     },
     cacheTime: 0,
     staleTime: 0,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   });
 
   const columns = React.useMemo(
@@ -215,7 +215,6 @@ export default function TRModal(props: any) {
       pageSize: 10,
     });
 
-
     setTimeout(() => {
       refetch();
     }, 500);
@@ -269,7 +268,7 @@ export default function TRModal(props: any) {
   };
   const handleClose = () => {
     setRowSelection({});
-
+    setOpenLoading(false);
     props?.setOpen(false);
   };
   const onSelectData = React.useCallback(async () => {
@@ -310,27 +309,27 @@ export default function TRModal(props: any) {
             ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0 })),
           ]);
           // props?.setValue("TL_TO_COMPARTMENTCollection", [
-            // ...props?.compartment?.map((e: any) => ({
-            //   ...e,
-            //   ...res?.data?.value?.map((e: any) => {
-            //     return {
-            //       U_DocNum: e?.U_DocNum,
-            //       U_SourceDocEntry: e?.U_SourceDocEntry,
-            //       U_ItemCode: e?.U_ItemCode,
-            //     };
-            //   }
-            //   )
-            // })),
-            // ...res?.data?.value?.map((e: any) => {
-            //   return {
-            //     ...props?.compartment,
-            //     U_DocNum: e?.U_DocNum,
-            //     U_SourceDocEntry: e?.U_SourceDocEntry,
-            //     U_ItemCode: e?.U_ItemCode,
-            //   };
-            // }
+          // ...props?.compartment?.map((e: any) => ({
+          //   ...e,
+          //   ...res?.data?.value?.map((e: any) => {
+          //     return {
+          //       U_DocNum: e?.U_DocNum,
+          //       U_SourceDocEntry: e?.U_SourceDocEntry,
+          //       U_ItemCode: e?.U_ItemCode,
+          //     };
+          //   }
+          //   )
+          // })),
+          // ...res?.data?.value?.map((e: any) => {
+          //   return {
+          //     ...props?.compartment,
+          //     U_DocNum: e?.U_DocNum,
+          //     U_SourceDocEntry: e?.U_SourceDocEntry,
+          //     U_ItemCode: e?.U_ItemCode,
+          //   };
+          // }
 
-            // ),
+          // ),
           // ]);
           props?.setHeadTrans(res?.data?.value);
           setRowSelection({});

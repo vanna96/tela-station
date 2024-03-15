@@ -267,7 +267,7 @@ export default function TRModal(props: any) {
   };
   const handleClose = () => {
     setRowSelection({});
-
+ setOpenLoading(false);
     props?.setOpen(false);
   };
   const onSelectData = React.useCallback(async () => {

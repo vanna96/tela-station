@@ -1,31 +1,28 @@
-import request, { url } from "@/utilies/request";
 import React from "react";
-import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import { Button } from "@mui/material";
-import { useCookies } from "react-cookie";
+import { Button, CircularProgress } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
-import DataTableList from "./components/DataTableList";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ToWarehouseAutoComplete from "./components/ToWarehouseAutoComplete";
+import { Controller, useForm } from "react-hook-form";
+import { conditionString } from "@/lib/utils";
+import DataTable from "../components/DataTable";
+import { useInventoryTransferRequestListHook } from "./hook/useInventoryTransferRequestListHook";
+import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+
 export default function InventoryTransferRequestList() {
-  const [open, setOpen] = React.useState<boolean>(false);
-  const [cookies] = useCookies(["user"]);
-  const [searchValues, setSearchValues] = React.useState({
-    docno: "",
-    towarehouse: "",
-    fromwarehouse: "",
-    status: "",
+
+  const navigate = useNavigate();
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
   });
-  const branchAss: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
-  const transferRequest = useNavigate();
+
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state } = useInventoryTransferRequestListHook(pagination)
+
   const columns = React.useMemo(
     () => [
       {
@@ -35,13 +32,8 @@ export default function InventoryTransferRequestList() {
         enableFilterMatchHighlighting: true,
         size: 88,
         Cell: (cell: any, index: number) => {
-          console.log(sortBy);
           return (
-            <span>
-              {sortBy.includes("asc") || sortBy === ""
-                ? cell?.row?.index + 1
-                : Count?.data - cell?.row?.index}
-            </span>
+            <span>{cell?.row?.index + 1}</span>
           );
         },
       },
@@ -55,7 +47,7 @@ export default function InventoryTransferRequestList() {
         type: "string",
       },
       {
-        accessorKey: "FromWarehouse",
+        accessorKey: "U_tl_attn_ter",
         header: "Attention Terminal", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
@@ -63,7 +55,7 @@ export default function InventoryTransferRequestList() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original.FromWarehouse;
+          return cell.row.original.U_tl_attn_ter;
         },
       },
 
@@ -93,12 +85,6 @@ export default function InventoryTransferRequestList() {
       },
       {
         accessorKey: "DocEntry",
-        enableFilterMatchHighlighting: false,
-        enableColumnFilterModes: false,
-        enableColumnActions: false,
-        enableColumnFilters: false,
-        enableColumnOrdering: false,
-        enableSorting: false,
         minSize: 100,
         maxSize: 100,
         header: "Action",
@@ -108,9 +94,9 @@ export default function InventoryTransferRequestList() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                transferRequest(
+                navigate(
                   "/stock-control/inventory-transfer-request/" +
-                    cell.row.original.DocEntry,
+                  cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -123,7 +109,7 @@ export default function InventoryTransferRequestList() {
             <button
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                transferRequest(
+                navigate(
                   `/stock-control/inventory-transfer-request/${cell.row.original.DocEntry}/edit`,
                   {
                     state: cell.row.original,
@@ -145,126 +131,6 @@ export default function InventoryTransferRequestList() {
     []
   );
 
-  const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const Count: any = useQuery({
-    queryKey: [`TransferR`, `${filter !== "" ? "f" : ""}`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/InventoryTransferRequests/$count?${
-          filter ? `$filter=${filter}` : ""
-        }`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
-  const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: [
-      "TransferR",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
-      }`,
-      pagination.pageSize,
-    ],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/InventoryTransferRequests?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocEntry desc ${filter ? `&$filter=${filter}` : filter}`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
-
-  const handlerRefresh = React.useCallback(() => {
-    setFilter("");
-    setSortBy("");
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  }, []);
-
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-  let queryFilters = "";
-  const handlerSearch = (value: string) => {
-    
-    if (searchValues.docno) {
-      queryFilters += queryFilters
-        ? ` and (contains(DocNum, '${searchValues.docno}'))`
-        : `contains(DocNum, '${searchValues.docno}')`;
-    }
-    if (searchValues.towarehouse) {
-      queryFilters += queryFilters
-        ? ` and (contains(ToWarehouse, '${searchValues.towarehouse}'))`
-        : `contains(ToWarehouse, '${searchValues.towarehouse}')`;
-    }
-
-    if (searchValues.fromwarehouse) {
-      queryFilters += queryFilters
-        ? ` and (contains(FromWarehouse, '${searchValues.fromwarehouse}'))`
-        : `contains(FromWarehouse, '${searchValues.fromwarehouse}')`;
-    }
-    if (searchValues.status) {
-      searchValues.status === "All"
-        ? (queryFilters += queryFilters ? "" : "")
-        : (queryFilters += queryFilters
-            ? ` and U_Status eq '${searchValues.status}'`
-            : `U_Status eq '${searchValues.status}'`);
-    }
-    console.log(queryFilters);
-
-    let query = queryFilters;
-
-    if (value) {
-      query = queryFilters + ` and ${value}`;
-    }
-    console.log(queryFilters);
-    setFilter(query);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
-
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
@@ -273,112 +139,201 @@ export default function InventoryTransferRequestList() {
             Stock Control / Inventory Transfer Request
           </h3>
         </div>
-        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <div className="col-span-10">
-            <div className="grid grid-cols-12  space-x-4">
-              <div className="col-span-2 2xl:col-span-3">
+
+        <InventoryTransferRequestFilter onFilter={(queries, queryString) => setFilter(queryString)} />
+
+        <div className="grow">
+          <DataTable
+            columns={columns}
+            data={data}
+            handlerRefresh={refetchData}
+            handlerSearch={() => { }}
+            handlerSortby={setSort}
+            count={totalRecords}
+            loading={loading}
+            pagination={pagination}
+            paginationChange={setPagination}
+            title="Fuel Level Lists"
+            createRoute={`/stock-control/inventory-transfer-request/create`}
+          >
+            <Button
+              size="small"
+              variant="text"
+              onClick={exportExcelTemplate}
+              disabled={false} // Adjust based on the actual loading state
+            >
+              {loading ? (
+                <>
+                  <span className="text-xs mr-2">
+                    <CircularProgress size={16} />
+                  </span>
+                  <span className="capitalize text-[13px]">Exporting...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs mr-1 text-gray-700">
+                    <InsertDriveFileOutlinedIcon
+                      style={{ fontSize: "18px", marginBottom: "2px" }}
+                    />
+                  </span>
+                  <span className="capitalize text-xs">Export to CSV</span>
+                </>
+              )}
+            </Button>
+          </DataTable>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export interface FilterProps {
+  DocNum_$eq_number: undefined | string,
+  ToWarehouse_$eq: undefined | string,
+  U_tl_attn_ter_$eq: undefined | string,
+  DocumentStatus_$eq: undefined | string,
+}
+
+const defaultValueFilter: FilterProps = {
+  DocNum_$eq_number: undefined,
+  ToWarehouse_$eq: undefined,
+  U_tl_attn_ter_$eq: undefined,
+  DocumentStatus_$eq: '',
+}
+
+export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
+  const {
+    handleSubmit,
+    setValue,
+    control,
+    watch
+  } = useForm({
+    defaultValues: defaultValueFilter
+  });
+
+
+  function onSubmit(data: any) {
+    const queryString: (string | undefined)[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (!value) continue;
+
+      queryString.push('and');
+      queryString.push(conditionString(key, value as any))
+    }
+
+    queryString.splice(0, 1);
+    const query = queryString.join(' ');
+
+    if (onFilter) onFilter(queryString, query);
+  }
+
+
+  return <form
+    onSubmit={handleSubmit(onSubmit)}
+    className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+    <div className="col-span-10">
+      <div className="grid grid-cols-12  space-x-4">
+        <div className="col-span-2 2xl:col-span-3">
+          <Controller
+            name="DocNum_$eq_number"
+            control={control}
+            render={({ field }) => {
+              return (
+
                 <MUITextField
                   label="Document No."
                   placeholder="Document No."
                   className="bg-white"
                   autoComplete="off"
-                  value={searchValues.docno}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      docno: e.target.value,
-                    })
-                  }
+                  onBlur={(e) => setValue('DocNum_$eq_number', e.target.value)}
                 />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="To Warehouse"
-                  placeholder="To Warehouse"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.towarehouse}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      towarehouse: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Attention Warehouse"
-                  placeholder="Attention Warehouse"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.fromwarehouse}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      fromwarehouse: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
+              );
+            }}
+          />
+
+        </div>
+
+        <div className="col-span-2 2xl:col-span-3">
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              To Warehouses
+            </label>
+            <div className="">
+              <Controller
+                name="ToWarehouse_$eq"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <ToWarehouseAutoComplete onChange={(e: any) => {
+                      setValue('ToWarehouse_$eq', e?.WarehouseCode)
+                    }} />
+                  );
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-2 2xl:col-span-3">
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Attention Terminal
+            </label>
+            <div className="">
+              <Controller
+                name="U_tl_attn_ter_$eq"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <ToWarehouseAutoComplete onChange={(e: any) => {
+                      setValue('U_tl_attn_ter_$eq', e?.WarehouseCode)
+                    }} />
+                  );
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-2 2xl:col-span-3">
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              Status
+            </label>
+            <div className="">
+
+              <Controller
+                name="U_tl_attn_ter_$eq"
+                control={control}
+                render={({ field }) => {
+                  return (
                     <MUISelect
                       items={[
-                        { id: "All", name: "All" },
-                        { id: "Y", name: "Active" },
-                        { id: "N", name: "Inactive" },
+                        { id: "", name: "All" },
+                        { id: "bost_Open", name: "Open" },
+                        { id: "bost_Close", name: "Closed" },
                       ]}
-                      onChange={(e) =>
-                        setSearchValues({
-                          ...searchValues,
-                          status: e?.target?.value as string,
-                        })
-                      }
-                      value={searchValues.status || "All"} // Set default value to "All"
+                      onChange={(e) => setValue('DocumentStatus_$eq', e?.target?.value as string,)}
+                      value={watch('DocumentStatus_$eq')} // Set default value to "All"
                       aliasvalue="id"
                       aliaslabel="name"
                       name="U_Status"
                     />
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-2 2xl:col-span-3"></div>
-            </div>
-          </div>
-          <div className="col-span-2">
-            <div className="flex justify-end items-center align-center space-x-2 mt-4">
-              <div className="">
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={() => handlerSearch("")}
-                >
-                  Go
-                </Button>
-              </div>
+                  );
+                }}
+              />
             </div>
           </div>
         </div>
-        <DataTableList
-          columns={columns}
-          data={data}
-          handlerRefresh={handlerRefresh}
-          handlerSearch={handlerSearch}
-          handlerSortby={handlerSortby}
-          count={Count?.data || 0}
-          loading={isLoading || isFetching}
-          pagination={pagination}
-          paginationChange={setPagination}
-          title="Invantory Transfer Request"
-          createRoute="/stock-control/inventory-transfer-request/create"
-          filter={filter}
-        />
+        <div className="col-span-2 2xl:col-span-3"></div>
       </div>
-    </>
-  );
+    </div>
+    <div className="col-span-2">
+      <div className="flex justify-end items-center align-center space-x-2 mt-4">
+        <div className="">
+          <Button variant="contained" size="small" type="submit" > Go </Button>
+        </div>
+      </div>
+    </div>
+  </form>
 }
