@@ -104,7 +104,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  value={branch?.data?.pages[0]?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
+                  value={branch?.data?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
                   inputProps={{ ...props.register("BPLID") }}
                 />
               </div>

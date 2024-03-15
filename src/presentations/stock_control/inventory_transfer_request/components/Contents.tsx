@@ -199,6 +199,7 @@ export default function Contents({
                                 handlerchangeUom(e, index);
                               }}
                               item={e.ItemCode}
+                              value={e?.AbsEntry}
                             />
                           );
                         }}
