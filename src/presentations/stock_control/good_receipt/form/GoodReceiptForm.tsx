@@ -58,23 +58,30 @@ const GoodIssueForm = (props: any) => {
   });
 
   const onSubmit = async (payload: any) => {
-    // console.log(payload);
-    // return
-    const url = props.edit
-      ? `/InventoryGenEntries(${id})`
-      : `/InventoryGenEntries`;
-    setState({ ...state, isSubmitting: true });
-    await request(props?.edit ? "PATCH" : "POST", url, payload)
-      .then((res: any) =>
-        dialog.current?.success(
-          props?.edit ? "Update Successfully." : "Create Successfully.",
-          res?.data?.DocEntry
-        )
-      )
-      .catch((err: any) => dialog.current?.error(err.message))
-      .finally(() => setState({ ...state, isSubmitting: false }));
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request("PATCH", `/InventoryGenEntries(${id})`, payload)
+          .then((res: any) =>
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/InventoryGenEntries", payload)
+          .then((res: any) =>
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
+    }
   };
-
+  
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({

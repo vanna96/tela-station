@@ -10,6 +10,7 @@ import { useGetIssueSeriesHook } from "../hook/useGetIssueSeriesHook";
 import DistributionRulesAutoComplete from "@/components/input/DistributionRulesAutoComplete";
 import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
 import WareHAutoComplete from "@/components/input/WareHAutoComplete";
+import GoodIssueTypeAutoComplete from "@/components/input/GoodIssueTypeAutoComplete";
 
 const General = ({
   register,
@@ -334,7 +335,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <PositionAutoComplete
+                      <GoodIssueTypeAutoComplete
                         disabled={detail}
                         {...field}
                         value={field?.value}

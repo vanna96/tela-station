@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button } from "@mui/material";
+import { Button, CircularProgress } from "@mui/material";
 import { HiRefresh } from "react-icons/hi";
 import { BiFilterAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ import request, { url } from "@/utilies/request";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
+import { UseExportHook } from "../hook/UseExportHook";
 interface DataTableProps {
   filter: any;
   columns: any[];
@@ -52,75 +53,17 @@ export default function DataTable(props: DataTableProps) {
     if (queries === "") return;
     props.handlerSearch("&$filter=" + queries);
   };
-  const branchAss: any = useQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
-  const handleExportToCSV = async () => {
-    const response: any = await request(
-      "GET",
-      `${url}/EmployeesInfo?$filter=U_tl_driver eq 'Y'${props?.filter.replace(
-        "&",
-        ""
-      )}`
-    )
-      .then(async (res: any) => res?.data)
-      .catch((e: Error) => {
-        throw new Error(e.message);
-      });
+  const {
+    data,
+    loading,
+    totalRecords,
+    state,
+    setFilter,
+    setSort,
+    exportExcelTemplate,
+    refetchData,
+  } = UseExportHook(props?.pagination);
 
-    const csvContent = convertToCSV(response?.value);
-
-    // Create a Blob containing the CSV data
-    const blob = new Blob([csvContent], { type: "text/csv" });
-
-    // Create a link element to download the CSV file
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "Driver_list.csv";
-
-    // Simulate a click on the link to trigger the download
-    document.body.appendChild(link);
-    link.click();
-
-    // Remove the link from the DOM
-    document.body.removeChild(link);
-  };
-
-  const convertToCSV = (data: any[]) => {
-    // Specify the desired field names
-    const fields = ["No", "Name", "Gender", "Department", "Branch", "Active"];
-
-    // Map the data to the desired field names
-    const mappedData = data?.map((row, index) => ({
-      // EmployeeID: row?.EmployeeID,
-      No: index + 1,
-      Name: row?.FirstName + " " + row?.LastName,
-      Gender: row?.Gender?.replace("gt_", ""),
-      Department: new DepartmentRepository().find(row?.Department)?.Name,
-      Branch: branchAss?.data?.find((e: any) => e?.BPLID === row?.BPLID)
-        ?.BPLName,
-      Active: row?.Active === "tYES" ? "Active" : "Inactive",
-    }));
-
-    // Create CSV content with the specified fields
-    const csvContent = Papa.unparse(
-      {
-        fields,
-        data: mappedData,
-      },
-      {
-        delimiter: ",", // Specify the delimiter
-        header: true, // Include headers in the CSV
-      }
-    );
-
-    return csvContent;
-  };
-  const getRow = (e: any) => {
-    console.log(e);
-  };
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   console.log(rowSelection);
 
@@ -186,16 +129,27 @@ export default function DataTable(props: DataTableProps) {
             variant="text"
             onClick={() => {
               if (props.data && props.data.length > 0) {
-                handleExportToCSV();
+                exportExcelTemplate();
               }
             }}
           >
-            <span className="text-sm mr-2">
-              <InsertDriveFileOutlinedIcon
-                style={{ fontSize: "18px", marginBottom: "2px" }}
-              />
-            </span>
-            <span className="capitalize text-[13px] ">Export to CSV</span>
+            {/* {loading ? (
+              <>
+                <span className="text-xs mr-2">
+                  <CircularProgress size={16} />
+                </span>
+                <span className="capitalize text-[13px]">Exporting...</span>
+              </>
+            ) : (
+              <>
+                <span className="text-xs mr-1 text-gray-700">
+                  <InsertDriveFileOutlinedIcon
+                    style={{ fontSize: "18px", marginBottom: "2px" }}
+                  />
+                </span>
+                <span className="capitalize text-xs">Export to CSV</span>
+              </>
+            )} */}
           </Button>
           {/* <DataTableColumnVisibility
             title={

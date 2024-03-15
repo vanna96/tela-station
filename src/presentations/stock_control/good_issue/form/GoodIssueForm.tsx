@@ -41,9 +41,8 @@ const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
     useForm({
       defaultValues: {
-        DocumentLines: [],
-      },
-    });
+      Docdate:new Date()
+    }});
 
   const { id }: any = useParams();
 
@@ -58,17 +57,28 @@ const GoodIssueForm = (props: any) => {
   });
 
   const onSubmit = async (payload: any) => {
-    const url = props.edit ? `/InventoryGenExits(${id})` : `/InventoryGenExits`;
-    setState({ ...state, isSubmitting: true });
-    await request(props?.edit ? "PATCH" : "POST", url, payload)
-      .then((res: any) =>
-        dialog.current?.success(
-          props?.edit ? "Update Successfully." : "Create Successfully.",
-          res?.data?.DocEntry
-        )
-      )
-      .catch((err: any) => dialog.current?.error(err.message))
-      .finally(() => setState({ ...state, isSubmitting: false }));
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request("PATCH", `/InventoryGenExits(${id})`, payload)
+          .then((res: any) =>
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/InventoryGenExits", payload)
+          .then((res: any) =>
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
+    }
   };
 
   const handlerChangeMenu = useCallback(
@@ -82,7 +92,6 @@ const GoodIssueForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-
     // if (
     //   !getValues("BPL_IDAssignedToInvoice") ||
     //    getValues("BPL_IDAssignedToInvoice") === ""
@@ -131,11 +140,11 @@ const GoodIssueForm = (props: any) => {
   }, [id]);
 
   const onInvalidForm = (invalids: any) => {
-    // dialog.current?.error(
-    //   invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-    //     "Oop something wrong!",
-    //   "Invalid Value"
-    // );
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
   };
 
   return (

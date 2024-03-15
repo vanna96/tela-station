@@ -19,11 +19,9 @@ export default function Content({
   watch,
   control,
 }: any) {
-  const [id, setId] = useState(0);
   const [openItem, setOpenItem] = useState(false);
   const [selectIndex, setSelectIndex] = useState(0);
   const [selected, setSelected] = useState<number[]>([]);
-  const [bin, setBin] = useState("");
   const fields: any[] = useMemo(() => {
     if (!watch("DocumentLines")) return [];
     return watch("DocumentLines");
@@ -78,24 +76,28 @@ export default function Content({
       ItemCode: value?.ItemCode,
       ItemDescription: value?.ItemName,
       Quantity: 0,
+      WarehouseCode: watch("U_tl_branc"),
     };
-    setId(value?.UoMGroupEntry);
     setOpenItem(false);
     setValue("DocumentLines", state);
   };
-  const handlerchangeBin = (value: any, index: number) => {
-    const state = [...fields];
-    state[index]["UoMCode"] = value.AbsEntry;
-    state[index]["DocumentLinesBinAllocations"] = [
-      {
-        BinAbsEntry: value?.AbsEntry,
-        Quantity: value?.Quantity ?? 0,
-        AllowNegativeQuantity: "tNO",
-        SerialAndBatchNumbersBaseLine: -1,
-        BaseLineNumber: index,
-      },
-    ];
-    setValue("DocumentLines", state);
+  const handlerchangeBin = (e: any, index: number) => {
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`,
+      e?.AbsEntry
+    );
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BaseLineNumber`,
+      index
+    );
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].AllowNegativeQuantity`,
+      "tNO"
+    );
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].SerialAndBatchNumbersBaseLine`,
+      -1
+    );
   };
 
   return (
@@ -206,37 +208,46 @@ export default function Content({
                       />
                     </td>
                     <td className="pr-4">
-                      {/* <UomSelect
-                        onChange={(e) => handlerchangeBin(e, index)}
-                        id={id}
-                      /> */}
                       <Controller
-                        // name={`DocumentLines.${index}.BinCode`}
-                        name={`AbsEntry`}
+                        name={`DocumentLines.${index}.UoMCode`}
                         control={control}
                         render={({ field }) => {
                           return (
-                            <UomSelectByItem
-                              id={id}
-                              onChange={(e: any) => {
-                                setValue(
-                                  `DocumentLines[${index}].UoMCode`,
-                                  e?.AbsEntry
-                                );
-                                setValue(
-                                  `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].Quantity`,
-                                  e?.Quantity
-                                );
-                              }}
-                            />
+                            <>
+                              <UomSelectByItem
+                                item={e.ItemCode}
+                                quantity={e?.Quantity}
+                                onChange={(ev: any) => {
+                                  console.log(ev);
+                                  setValue(
+                                    `DocumentLines[${index}].UoMCode`,
+                                    ev?.Code
+                                  );
+                                    setValue(
+                                      `DocumentLines[${index}].UoMEntry`,
+                                      ev?.AbsEntry
+                                    );
+                                  setValue(
+                                    `DocumentLines[${index}].UseBaseUnits`,
+                                    "tNO"
+                                  );
+                                  setValue(
+                                    `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].Quantity`,
+                                    ev?.Quantity
+                                  );
+                                }}
+                                value={                                
+                                  e?.UoMEntry
+                                }
+                              />
+                            </>
                           );
                         }}
                       />
                     </td>
                     <td className="pr-4">
                       <Controller
-                        // name={`DocumentLines.${index}.BinCode`}
-                        name={`AbsEntry`}
+                        name={`DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`}
                         control={control}
                         render={({ field }) => {
                           return (
