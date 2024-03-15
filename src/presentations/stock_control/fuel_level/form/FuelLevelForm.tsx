@@ -169,6 +169,19 @@ const General = (props: any) => {
   }, [series?.data])
 
 
+  const onChangeBranch = (value: any) => {
+    const period = new Date().getFullYear();
+    const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
+
+    if (serie) {
+      props?.setValue("Series", serie?.Series);
+      props?.setValue("DocNum", serie?.NextNumber);
+    }
+
+    props?.setValue('U_tl_bplid', value?.BPLID)
+  }
+
+
   return <div className="grid grid-cols-2 lg:grid-cols-1 gap-[8rem] lg:gap-4 xl:gap-[1rem] mt-4">
     <div>
       <div className="grid grid-cols-4 item-center justify-center  text-sm ">
@@ -183,7 +196,7 @@ const General = (props: any) => {
               return (
                 <FuelLevelBranchAutoComplete
                   value={props.watch('U_tl_bplid')}
-                  onChange={(e) => props?.setValue('U_tl_bplid', e.BPLID)}
+                  onChange={onChangeBranch}
                 />
               );
             }}

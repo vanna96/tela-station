@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import { APIContextProvider } from "@/presentations/expense/context/APIContext";
 import StockControlPage from "@/presentations/stock_control";
-import InventoryTransferRequestList from "@/presentations/stock_control/inventory_transfer";
+import InventoryTransferRequestList from "@/presentations/stock_control/inventory_transfer_request";
 import { InventoryTransferRequestForm } from "@/presentations/stock_control/inventory_transfer_request/form/index";
 import GoodIssueList from "@/presentations/stock_control/good_issue";
 import GoodIssueForm from "@/presentations/stock_control/good_issue/form/GoodIssueForm";

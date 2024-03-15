@@ -31,7 +31,7 @@ export const InventoryTransferRequestForm = ({ edit = false }: { edit?: boolean 
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Fuel Level Test</h1>
+      <h1>Inventory Transfer Request</h1>
 
       {edit && <Button
         variant="outlined"
