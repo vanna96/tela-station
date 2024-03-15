@@ -2,16 +2,7 @@ import MainContainer from "@/components/MainContainer";
 import ItemCard from "@/components/card/ItemCart";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AiOutlineAccountBook,
-  AiOutlineAlipay,
-  AiOutlineFileAdd,
-  AiOutlineFileDone,
-  AiOutlineFileExcel,
-  AiOutlineFilePpt,
-  AiOutlineFileProtect,
-  AiOutlineFileSearch,
-} from "react-icons/ai";
+import { AiOutlineFileAdd } from "react-icons/ai";
 import request from "@/utilies/request";
 import { useQuery } from "react-query";
 import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";

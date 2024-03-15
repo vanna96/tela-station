@@ -6,15 +6,16 @@ import FormMessageModal from "@/components/modal/FormMessageModal"
 import CustomToast from "@/components/modal/CustomToast"
 import { IoCreate } from "react-icons/io5"
 import { useNavigate } from "react-router-dom"
-import { useTransferHook } from "../hook/useTransferHook"
-import BasicInformation from "../component/BasicInformation"
-import Contents from "../component/Contents"
+import BasicInformation from "../components/BasicInformation"
+import Contents from "../components/Contents"
+import { useStockTransferFormHook } from "../hook/useStockTransferHook"
+
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
-export const InventoryTransferForm = ({ edit = false }: { edit?: boolean }) => {
+export const InventoryTransferForm = ({ edit = false, detail = false }: { edit?: boolean, detail?: boolean | undefined }) => {
   const [tap, setTap] = useState<number>(0)
-  const hook = useTransferHook(edit, dialog);
+  const hook = useStockTransferFormHook(edit, dialog);
 
   const onChangeTap = (index: number) => {
 
@@ -31,7 +32,7 @@ export const InventoryTransferForm = ({ edit = false }: { edit?: boolean }) => {
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Inventory Transfer</h1>
+      <h1>Stock Transfer</h1>
 
       {edit && <Button
         variant="outlined"
@@ -52,11 +53,37 @@ export const InventoryTransferForm = ({ edit = false }: { edit?: boolean }) => {
             keepTouched: false,
             keepValues: false
           })
-          navigate(`/stock-control/inventory-transfer/create`)
+          navigate(`/stock-control/stock-transfer/create`)
         }}
         endIcon={<IoCreate />}
       >
         Create
+      </Button>}
+
+      {detail && <Button
+        variant="outlined"
+        size="small"
+        onClick={() => {
+          hook.reset({
+            DocDate: new Date().toISOString()?.split('T')[0],
+            StockTransferLines: [],
+            BPLID: undefined
+          }, {
+            keepDirtyValues: false,
+            keepErrors: false,
+            keepDirty: false,
+            keepDefaultValues: false,
+            keepIsSubmitted: false,
+            keepIsValid: false,
+            keepSubmitCount: false,
+            keepTouched: false,
+            keepValues: false
+          })
+          navigate(`/stock-control/stock-transfer/${hook.id}/edit`)
+        }}
+        endIcon={<IoCreate />}
+      >
+        Edit
       </Button>}
 
     </div>
@@ -93,7 +120,7 @@ export const InventoryTransferForm = ({ edit = false }: { edit?: boolean }) => {
       <FormMessageModal ref={dialog} />
       <CustomToast ref={toastRef} />
 
-      <div className="sticky w-full bottom-4 md:bottom-0 md:p-3  mt-2 ">
+      {!detail && <div className="sticky w-full bottom-4 md:bottom-0 md:p-3  mt-2 ">
         <div className="backdrop-blur-sm bg-white p-2 rounded-lg  z-[1000] flex justify-end gap-3 border drop-shadow-sm">
           <div className="flex ">
             <LoadingButton
@@ -106,7 +133,7 @@ export const InventoryTransferForm = ({ edit = false }: { edit?: boolean }) => {
               }}
               disableElevation
               onClick={() =>
-                (window.location.href = "/stock-control/inventory-transfer")
+                (window.location.href = "/stock-control/fuel-level")
               }
             >
               <span className="px-3 text-[11px] py-1 text-red-500">
@@ -130,7 +157,7 @@ export const InventoryTransferForm = ({ edit = false }: { edit?: boolean }) => {
             </LoadingButton>
           </div>
         </div>
-      </div>
+      </div>}
     </form>
   </div>
 }

@@ -17,6 +17,7 @@ export type UomSelectProp = {
     onChange: (val: OnChangeProp) => void,
     item?: string | undefined
     quantity?: number | undefined,
+    disabled?: boolean | undefined
 }
 
 const getUOMGroup = async (item?: string | undefined) => {
@@ -37,7 +38,7 @@ export const fractionDigits = (value: number, digit?: number) => {
     return formater.format(value).replace(/,/g, "");
 };
 
-const calculateUOM = (
+export const calculateUOM = (
     baseQty: number,
     alternativeQty: number,
     qty: number
@@ -80,8 +81,6 @@ export default function UomSelectByItem(props: UomSelectProp) {
     }
 
 
-
-
     return <MUISelect
         value={selected}
         items={data}
@@ -89,5 +88,6 @@ export default function UomSelectByItem(props: UomSelectProp) {
         aliaslabel='Code'
         aliasvalue='AbsEntry'
         loading={group.isLoading}
+        disabled={props.disabled}
     />
 }
