@@ -13,7 +13,7 @@ interface CollectionItem {
   queryKey: string;
   filter: string;
   route: string;
-  roles: Role[]
+  roles: Role[];
 }
 
 const RetailSalePage = () => {
@@ -43,7 +43,7 @@ const RetailSalePage = () => {
 
   const collectionItems: CollectionItem[] = [
     {
-      roles: ['UG001', 'UG004'],
+      roles: ["UG001", "UG004"],
       title: "Fuel Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "fuelOrders",
@@ -51,7 +51,7 @@ const RetailSalePage = () => {
       route: "fuel-cash-sale",
     },
     {
-      roles: ['UG001', 'UG004'],
+      roles: ["UG001", "UG004"],
       title: "Lube Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lubeOrders",
@@ -59,7 +59,7 @@ const RetailSalePage = () => {
       route: "lube-cash-sale",
     },
     {
-      roles: ['UG001', 'UG004'],
+      roles: ["UG001", "UG004"],
       title: "LPG Cash Sales",
       icon: <AiOutlineFileProtect />,
       queryKey: "lpgOrders",
@@ -74,7 +74,6 @@ const RetailSalePage = () => {
     <MainContainer title="Retail Sale">
       {collectionItems.map(
         ({ title, icon, queryKey, filter, route, roles }, index) => {
-
           if (!roles.includes(getRoleCode as Role)) return null;
 
           const { data, isLoading } = createUseQuery(queryKey, filter);

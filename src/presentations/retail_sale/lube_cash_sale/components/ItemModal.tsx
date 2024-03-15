@@ -30,6 +30,7 @@ interface ItemModalProps {
   lineofbusiness: any;
   priceList: any;
   bin: any;
+  branch: any;
 }
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
@@ -40,9 +41,10 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       open: false,
       priceList: props.priceList,
       lineofbusiness: props.lineofbusiness,
-      wh: props.wh,
-      WarehouseCode: props.wh,
+      WarehouseCode: this.props.wh,
+      wh: this.props.wh,
       BinAbsEntry: this.props.bin,
+      branch: props.branch,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -128,6 +130,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
     this.setState({ ...temps });
   }
   render() {
+    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -297,8 +300,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Warehouse</div>
                 <div className="mb-1"></div>
                 <WarehouseAutoComplete
-                  disabled
-                  Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
+                  // disabled
+                  Branch={parseInt(this.props.branch)}
                   value={this.state.WarehouseCode}
                   onChange={(event) =>
                     this.handlerChange(event, "WarehouseCode")
@@ -309,8 +312,10 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Bin Location</div>
                 <div className="mb-1"></div>
                 <BinLocationToAsEntry
-                  value={this.props.bin}
-                  disabled
+                  value={this.state.BinAbsEntry}
+                  onChange={(event) =>
+                    this.handlerChange(event, "BinAbsEntry")
+                  }
                   Warehouse={this.state?.WarehouseCode ?? "WH01"}
                 />
               </div>

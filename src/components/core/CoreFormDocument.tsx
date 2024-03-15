@@ -96,6 +96,9 @@ export interface CoreFormDocumentState {
   U_Destination: string | null;
   U_Distance: string | null;
   U_Duration: string | null;
+  isFirstAttempt?: any;
+  docEntry?: any;
+  disableBranch?: boolean;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
