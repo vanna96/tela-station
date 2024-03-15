@@ -263,7 +263,7 @@ function General({ data }: any) {
           <div className="col-span-5">
             {renderKeyValue(
               "Branch",
-              new BranchBPLRepository().find(1)?.BPLName
+              new BranchBPLRepository().find(data?.U_tl_bplid)?.BPLName
             )}
             {renderKeyValue("Pump", data?.U_tl_pump)}
             {renderKeyValue("Customer", data.U_tl_cardcode)}

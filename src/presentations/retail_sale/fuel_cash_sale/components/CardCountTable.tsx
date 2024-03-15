@@ -21,11 +21,10 @@ export default function CardCount({
   handlerChangeObject,
 }: CardCountProps) {
   if (!edit) {
-    data.cardCountData = data.nozzleData?.filter(
-      (e: any) => parseFloat(e.U_tl_nmeter) > 0
+    data.cardCountData = data.allocationData?.filter(
+      (e: any) => parseFloat(e.U_tl_cardallow) > 0
     );
   }
-
   const handlerChangeItem = (key: number, obj: any) => {
     const newData = data.cardCountData?.map((item: any, index: number) => {
       if (index.toString() === key.toString()) {
@@ -193,17 +192,19 @@ export default function CardCount({
             commaFormatNum(cell.row.original?.U_tl_10l || 0) +
             commaFormatNum(cell.row.original?.U_tl_20l || 0) +
             commaFormatNum(cell.row.original?.U_tl_50l || 0);
-
-          const isValid =
-            total === commaFormatNum(cell.row.original.U_tl_nmeter);
+          const cardAllow = data.allocationData?.find(
+            (e: any) => e.U_tl_itemcode === cell.row.original.U_tl_itemcode
+          )?.U_tl_cardallow;
+          const isValid = total === commaFormatNum(cardAllow);
           return (
             <NumericFormat
               thousandSeparator
               decimalScale={3}
               // readOnly
+              redcolor={!isValid}
               customInput={MUIRightTextField}
               placeholder="0.000"
-              value={cell.row.original.U_tl_nmeter === 0 ? "" : total}
+              value={cardAllow === 0 ? "" : total}
               inputProps={{
                 style: {
                   color: isValid ? "inherit" : "red",
