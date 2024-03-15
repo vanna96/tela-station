@@ -38,13 +38,15 @@ export default function GeneralForm({
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
-  const BPL = parseFloat(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
+  const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const yearLastTwoDigits = year.toString().slice(-2); // Get last two digits of the year
 
-  //Filtering SO series
   const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
@@ -52,42 +54,18 @@ export default function GeneralForm({
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
-  // Finding date and to filter DN and INVOICE series Name
-  const currentDate = new Date();
-  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
-  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
-  const formattedMonth = month.toString().padStart(2, "0");
-  const formattedDateA = `23A${formattedMonth}`;
-  const formattedDateB = `23B${formattedMonth}`;
-
-  const seriesDN = (
-    data?.dnSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
-  const seriesIN = (
-    data?.invoiceSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
+  if (filteredSeries[0]?.NextNumber && data) {
+    data.DocNum = filteredSeries[0].NextNumber;
+  }
 
   const route = useParams();
-  const salesType = route["*"];
 
   if (data) {
-    data.DNSeries = seriesDN;
-    data.INSeries = seriesIN;
     data.Series = seriesSO;
     data.U_tl_arbusi = "Lube";
     data.lineofBusiness = "Lube";
   }
+  console.log(data);
 
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
@@ -148,7 +126,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
-                Branch={parseFloat(data?.U_tl_bplid) }
+                Branch={parseFloat(data?.U_tl_bplid)}
                 value={data?.U_tl_whs}
                 onChange={(e) => {
                   handlerChange("U_tl_whs", e);
@@ -175,18 +153,6 @@ export default function GeneralForm({
             </div>
           </div>
           <div>
-            <input
-              hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
             <input
               hidden
               name="U_tl_arbusi"

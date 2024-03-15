@@ -740,7 +740,7 @@ function Content(props: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={data.U_tl_doccur === "USD" ? 3 : 0}
               // fixedDecimalScale
             />
           );
@@ -752,19 +752,26 @@ function Content(props: any) {
         header: "UoM ",
 
         Cell: ({ cell }: any) => {
-          return <MUITextField disabled value={cell.getValue()} />;
+          return (
+            <MUITextField
+              disabled
+              value={
+                new UnitOfMeasurementRepository().find(cell.getValue())?.Name
+              }
+            />
+          );
         },
       },
       {
-        accessorKey: "GrossPrice",
+        accessorKey: "U_tl_price",
         header: "Unit Price",
 
         Cell: ({ cell }: any) => (
           <NumericFormat
             disabled
-            key={"GrossPrice" + cell.getValue()}
+            key={"U_tl_price" + cell.getValue()}
             thousandSeparator
-            decimalScale={data.Currency === "USD" ? 4 : 0}
+            decimalScale={data.U_tl_doccur === "USD" ? 4 : 0}
             // fixedDecimalScale
             customInput={MUIRightTextField}
             value={cell.getValue() || 0}
@@ -800,7 +807,7 @@ function Content(props: any) {
             thousandSeparator
             disabled
             customInput={MUIRightTextField}
-            decimalScale={props.data.Currency === "USD" ? 3 : 0}
+            decimalScale={props.data.U_tl_doccur === "USD" ? 3 : 0}
             // fixedDecimalScale
           />
         ),
@@ -867,14 +874,10 @@ function Content(props: any) {
                 </div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    value={
-                      props?.data?.DocTotal +
-                      props.data?.TotalDiscount -
-                      props.data.VatSum
-                    }
+                    value={props?.data?.U_tl_totalbefdis}
                     thousandSeparator
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    startAdornment={props?.data?.U_tl_doccur}
+                    decimalScale={props.data.U_tl_doccur === "USD" ? 3 : 0}
                     // fixedDecimalScale
                     placeholder="0.000"
                     readonly
@@ -892,7 +895,7 @@ function Content(props: any) {
                         placeholder="0.000"
                         type="number"
                         startAdornment={"%"}
-                        value={props?.data?.DiscountPercent ?? 0}
+                        value={props?.data?.U_tl_dispercent ?? 0}
                         onChange={(event: any) => {
                           if (
                             !(
@@ -917,9 +920,9 @@ function Content(props: any) {
                         // value={
                         //   discountAmount === 0 || "" ? "0.000" : discountAmount
                         // }
-                        value={props.data?.TotalDiscount}
-                        startAdornment={props?.data?.Currency}
-                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        value={props.data?.U_tl_disperamt}
+                        startAdornment={props?.data?.U_tl_doccur}
+                        decimalScale={props.data.U_tl_doccur === "USD" ? 3 : 0}
                         // fixedDecimalScale
                         placeholder="0.000"
                         readonly
@@ -938,10 +941,10 @@ function Content(props: any) {
                     // value={
                     //   discountedDocTaxTotal === 0 ? "" : discountedDocTaxTotal
                     // }
-                    value={props.data.VatSum}
+                    value={props.data.U_tl_tax}
                     thousandSeparator
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    startAdornment={props?.data?.U_tl_doccur}
+                    decimalScale={props.data.U_tl_doccur === "USD" ? 3 : 0}
                     // fixedDecimalScale
                     placeholder="0.000"
                     readonly
@@ -956,10 +959,10 @@ function Content(props: any) {
                   <NumericFormat
                     readOnly
                     // value={discountedDocTotal === 0 ? "" : discountedDocTotal}
-                    value={props.data?.DocTotal}
+                    value={props.data?.U_tl_doctotal}
                     thousandSeparator
-                    startAdornment={props?.data?.Currency}
-                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    startAdornment={props?.data?.U_tl_doccur}
+                    decimalScale={props.data.U_tl_doccur === "USD" ? 3 : 0}
                     // fixedDecimalScale
                     placeholder="0.000"
                     readonly

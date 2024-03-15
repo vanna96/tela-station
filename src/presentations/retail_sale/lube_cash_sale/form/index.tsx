@@ -54,6 +54,11 @@ class LubeForm extends CoreFormDocument {
       BPAddresses: [],
       Rounding: false,
       DocDiscount: 0,
+      U_tl_totalbefdis: 0.0,
+      U_tl_dispercent: 0.0,
+      U_tl_disperamt: 0.0,
+      U_tl_tax: 0.0,
+      U_tl_doctotal: 0.0,
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
@@ -129,13 +134,13 @@ class LubeForm extends CoreFormDocument {
           };
           state = {
             ...data,
-
+            seriesList,
             vendor,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
             warehouseCode: data.U_tl_whsdesc,
             lob: data.U_tl_arbusi,
-            Currency: data.DocCurrency,
+            Currency: data.U_tl_doccur,
             cashBankData: data?.TL_RETAILSALE_LU_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
             )?.map((item: any) => ({
@@ -214,7 +219,7 @@ class LubeForm extends CoreFormDocument {
                     UnitPrice:
                       item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                     Discount: item.DiscountPercent || 0,
-                    GrossPrice: item.GrossPrice,
+                    GrossPrice: item.U_tl_price,
                     TotalGross: item.GrossTotal,
                     TotalUnit: item.LineTotal,
                     LineTotal: item.U_tl_amount,
@@ -264,17 +269,12 @@ class LubeForm extends CoreFormDocument {
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          // state["dnSeries"] = dnSeries;
-          // state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      // state["dnSeries"] = dnSeries;
-      // state["invoiceSeries"] = invoiceSeries;
-      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
       this.setState(state);
@@ -308,14 +308,15 @@ class LubeForm extends CoreFormDocument {
           message: "Warehouse is Required!",
           getTabIndex: () => 0,
         },
-        // {
-        //   field: "U_tl_sobincode",
-        //   message: "Bin Location is Required!",
-        //   getTabIndex: () => 0,
-        // },
+
         {
           field: "CardCode",
           message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Series",
+          message: "Series is Required!",
           getTabIndex: () => 0,
         },
         {
@@ -409,7 +410,7 @@ class LubeForm extends CoreFormDocument {
           U_tl_qty: item.Quantity,
           U_tl_uom: item.UomAbsEntry,
           U_tl_dispercent: item.DiscountPercent,
-          U_tl_disperamt: 0.0,
+          U_tl_price: item.GrossPrice,
           U_tl_amount: item.LineTotal,
         })),
         TL_RETAILSALE_LU_INCollection: [
@@ -486,7 +487,7 @@ class LubeForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode"],
+      0: ["CardCode", "Series", "U_tl_bplid", "U_tl_whs", "U_tl_bincode"],
       1: ["Items"],
       2: [],
       3: [],
@@ -571,7 +572,8 @@ class LubeForm extends CoreFormDocument {
   FormRender = () => {
     const itemGroupCode = 101;
 
-    const priceList = parseInt(this.state.U_tl_sopricelist);
+    // const priceList = parseInt(this.state.U_tl_sopricelist);
+    const priceList = 9;
     const navigate = useNavigate();
     return (
       <>
