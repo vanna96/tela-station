@@ -11,17 +11,13 @@ export default function Contents({
   control,
   watch,
 }: any) {
-
-
   const fields = useMemo(() => {
-    return watch('StockTransferLines') ?? [];
-  }, [watch('StockTransferLines')])
-
+    return watch("StockTransferLines") ?? [];
+  }, [watch("StockTransferLines")]);
 
   const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [openItem, setOpenItem] = useState(false);
   const [clickedRowIndex, setClickedRowIndex] = useState<number | null>(null);
-
 
   const handleCheck = (index: number) => {
     const selectedIndex = selectedItems.indexOf(index);
@@ -46,25 +42,30 @@ export default function Contents({
       ItemCode: undefined,
       ItemName: undefined,
       Quantity: undefined,
-    })
+    });
 
-    setValue('StockTransferLines', state)
-  }
+    setValue("StockTransferLines", state);
+  };
 
   const handleSelectItem = (value: any) => {
     const state = [...fields];
     const index = clickedRowIndex as number;
-    state[index] = { ...state[index], ItemCode: value?.ItemCode, ItemDescription: value?.ItemName, Quantity: 0 }
+    state[index] = {
+      ...state[index],
+      ItemCode: value?.ItemCode,
+      ItemDescription: value?.ItemName,
+      Quantity: 0,
+    };
 
     setOpenItem(false);
-    setValue('StockTransferLines', state)
-  }
+    setValue("StockTransferLines", state);
+  };
 
   const handlerChangeValue = (index: number, field: string, value: any) => {
     const state = [...fields];
     state[index][field] = value;
-    setValue('StockTransferLines', state)
-  }
+    setValue("StockTransferLines", state);
+  };
 
   const handlerchangeUom = (value: any, index: number) => {
     const state = [...fields];
@@ -83,8 +84,7 @@ export default function Contents({
     //     }
     // ];
     console.log(state);
-
-  }
+  };
 
   return (
     <>
@@ -172,9 +172,7 @@ export default function Contents({
                     <td className="pr-4">
                       <MUITextField
                         inputProps={{
-                          ...register(
-                            `StockTransferLines.${index}.Quantity`,
-                          ),
+                          ...register(`StockTransferLines.${index}.Quantity`),
                         }}
                       />
                     </td>
@@ -185,19 +183,20 @@ export default function Contents({
                         render={({ field }) => {
                           return (
                             <UomSelectByItem
-                              disabled={detail}
-                              {...field}
-                              // onChange={(e: any) => handlerchangeUom(e, index)}
-                              onChange={(e) => {
-                                setValue(
-                                  `StockTransferLines.${index}.UoMCode`,
-                                  e?.AbsEntry
-                                );
-                                handlerchangeUom(e, index);
-                              }}
                               item={e.ItemCode}
                               quantity={e?.Quantity}
-                              value={e.UoMCode}
+                              onChange={(ev: any) => {
+                                console.log(ev);
+                                setValue(
+                                  `DocumentLines[${index}].UoMCode`,
+                                  ev?.Code
+                                );
+                                setValue(
+                                  `DocumentLines[${index}].UoMEntry`,
+                                  ev?.AbsEntry
+                                );
+                              }}
+                              value={e?.UoMEntry}
                             />
                           );
                         }}

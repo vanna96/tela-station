@@ -9,6 +9,7 @@ import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
 import BasicInformation from "../components/BasicInformation"
 import Contents from "../components/Contents"
+import BasicInformationDetail from "./BasicInformationDetail"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -75,7 +76,7 @@ export const InventoryTransferRequestDetails = () => {
           <CircularProgress />
         </Backdrop>
 
-        {tap === 0 && <BasicInformation {...hook} />}
+        {tap === 0 && <BasicInformationDetail {...hook} />}
         {tap === 1 && <Contents {...hook} />}
       </div>
 
