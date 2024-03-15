@@ -38,13 +38,15 @@ export default function GeneralForm({
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
-  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
+  const BPL = parseInt(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const yearLastTwoDigits = year.toString().slice(-2); // Get last two digits of the year
 
-  //Filtering SO series
   const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
+    (series: any) =>
+      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
@@ -52,24 +54,24 @@ export default function GeneralForm({
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
-  // Finding date and to filter DN and INVOICE series Name
-  const currentDate = new Date();
-  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
-  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
+  if (filteredSeries[0]?.NextNumber && data) {
+    data.DocNum = filteredSeries[0].NextNumber;
+  }
+
+  const route = useParams();
+  const month = currentDate.getMonth() + 1;
   const formattedMonth = month.toString().padStart(2, "0");
-  const formattedDateA = `23A${formattedMonth}`;
-  const formattedDateB = `23B${formattedMonth}`;
+  const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
+  const formattedDateB = `${yearLastTwoDigits}B${formattedMonth}`;
 
-  const seriesDN = (
-    data?.dnSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
+  const seriesIncoming = data?.incomingSeries
+    ?.filter(
+      (series: any) =>
+        series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+    )
+    ?.find((series: any) => series.BPLID === BPL)?.Series;
 
-  const seriesIN = (
+  const seriesINV = (
     data?.invoiceSeries?.find(
       (entry: any) =>
         entry.BPLID === BPL &&
@@ -77,17 +79,14 @@ export default function GeneralForm({
           entry.Name.startsWith(formattedDateB))
     ) || {}
   ).Series;
-
-  const route = useParams();
-  const salesType = route["*"];
-
   if (data) {
-    data.DNSeries = seriesDN;
-    data.INSeries = seriesIN;
+    data.DNSeries = seriesIncoming;
+    data.INSeries = seriesINV;
     data.Series = seriesSO;
     data.U_tl_arbusi = "Lube";
     data.lineofBusiness = "Lube";
   }
+  console.log(data);
 
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
@@ -135,7 +134,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                onChange={(e) => handlerChange("U_tl_bplid", e)}
                 value={BPL}
               />
             </div>
@@ -148,10 +147,10 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
+                Branch={parseFloat(data?.U_tl_bplid)}
+                value={data?.U_tl_whs}
                 onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
+                  handlerChange("U_tl_whs", e);
                   onWarehouseChange(e);
                 }}
               />
@@ -165,28 +164,16 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                value={data?.U_tl_bincode}
+                Warehouse={data?.U_tl_whs ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
+                  handlerChange("U_tl_bincode", e);
                   // onWarehouseChange(e);
                 }}
               />
             </div>
           </div>
           <div>
-            <input
-              hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
             <input
               hidden
               name="U_tl_arbusi"
@@ -204,7 +191,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3 text-gray-900">
               <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
+                branch={data?.U_tl_bplid}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
@@ -318,8 +305,8 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUIDatePicker
                 disabled={data?.isStatusClose || false}
-                value={edit ? data.TaxDate : data.TaxDate}
-                onChange={(e: any) => handlerChange("TaxDate", e)}
+                value={data.U_tl_taxdate}
+                onChange={(e: any) => handlerChange("U_tl_taxdate", e)}
               />
             </div>
           </div>
@@ -339,8 +326,8 @@ export default function GeneralForm({
                 error={"DocDueDate" in data?.error}
                 helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
-                value={edit ? data.DocDueDate : data.DocDueDate ?? null}
-                onChange={(e: any) => handlerChange("DocDueDate", e)}
+                value={edit ? data.U_tl_devdate : data.U_tl_devdate ?? null}
+                onChange={(e: any) => handlerChange("U_tl_devdate", e)}
               />
             </div>
           </div>
@@ -352,9 +339,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={edit && data?.Status?.includes("A")}
-                value={data.DocDate}
-                onChange={(e: any) => handlerChange("DocDate", e)}
+                disabled={edit}
+                value={data.U_tl_docdate}
+                onChange={(e: any) => handlerChange("U_tl_docdate", e)}
               />
             </div>
           </div>
@@ -371,11 +358,9 @@ export default function GeneralForm({
                 fullWidth
                 multiline
                 rows={2}
-                name="User_Text"
-                value={data?.User_Text}
-                onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
-                }
+                name="Remark"
+                value={data?.Remark}
+                onChange={(e: any) => handlerChange("Remark", e.target.value)}
               />
             </div>
           </div>

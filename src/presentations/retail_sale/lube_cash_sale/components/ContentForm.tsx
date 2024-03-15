@@ -48,8 +48,9 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
-  const vendorPriceList = data.U_tl_sopricelist;
-  const wh = data.U_tl_whsdesc;
+  const vendorPriceList = 9;
+  const wh = data.U_tl_whs;
+  const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
@@ -488,13 +489,14 @@ export default function ContentForm({
         }}
       />
       <ItemModal
+        branch={branch}
         wh={wh}
         priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
-        bin={data.U_tl_sobincode}
+        bin={data.U_tl_bincode}
       />
     </>
   );
