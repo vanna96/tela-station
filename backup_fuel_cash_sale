@@ -11,6 +11,10 @@ http.response.setHeader("Access-Control-Allow-Credentials", true);
  * 
  * POST /b1s/v1/script/{{partner name}}/{{script name}}}
  */
+// var queryOption = ``;
+// var retCaseSensitive = slContext.BusinessPartners.query(queryOption);
+// var retCaseInsensitive = slContext.query("SeriesService_GetDocumentSeries", queryOption, true);
+// return http.response.send(200, retCaseInsensitive.toArray())
 function POST() {
 
     var jsonObj = http.request.getJsonObj();
@@ -21,6 +25,8 @@ function POST() {
         "DocDate",
         "InvoiceSeries",
         "IncomingSeries",
+        "GISeries",
+        "GRSeries",
         "CardCode",
         "CardName",
         "BPL_IDAssignedToInvoice",
@@ -39,7 +45,8 @@ function POST() {
     var slContext = new ServiceLayerContext();
     
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
-    if (fuelSale.status !== 200) http.response.send(fuelSale.status, fuelSale.body);
+    if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    // return StockTransferTransaction(slContext, jsonObj);
     
     try {
         // CASH SALE
@@ -64,7 +71,7 @@ function POST() {
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
 
         // update metter in pump
-        const nozzles = fuelSale.body['TL_RETAILSALE_CONHCollection']
+        const nozzles = fuelSale.body['TL_RETAILSALE_FU_COCollection']
         const pumpData = slContext.get("TL_Dispenser", fuelSale.body['U_tl_pump']).body;
         let TL_DISPENSER_LINESCollection = pumpData['TL_DISPENSER_LINESCollection'].map((pump) => {
             const find = nozzles.find((nozzle) => nozzle.U_tl_itemcode === pump.U_tl_itemnum);
@@ -291,7 +298,7 @@ function PartnerShipTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Good Issue
     var goodIssue = {
-        Series: jsonObj["GISeries"],
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -314,9 +321,8 @@ function PartnerShipTransaction(slContext, jsonObj){
                 COGSCostingCode: item['LineOfBussiness'],
                 COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
                 WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: []
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
     }
@@ -332,6 +338,7 @@ function PartnerShipTransaction(slContext, jsonObj){
     
     // Good Receipt
     var goodReceipt = {
+        Series: findSerie(jsonObj["GRSeries"], 1),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -404,7 +411,7 @@ function StockTransferTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Goods Issue
     var goodIssue = {
-        Series: jsonObj["GISeries"],
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -426,9 +433,8 @@ function StockTransferTransaction(slContext, jsonObj){
                 COGSCostingCode: item['LineOfBussiness'],
                 COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
                 WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: []
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
     }
@@ -459,15 +465,19 @@ function StockTransferTransaction(slContext, jsonObj){
             const items = groupedItems[key].map((item) => {
                 const price = goodIssueContext.body.DocumentLines.find((line) => line['ItemCode'] == item['ItemCode'])
                 return {
+                    WarehouseCode: key,
                     ItemCode: item['ItemCode'],
                     Price: undefined,
+                    Quantity: item["Quantity"],
                     U_tl_itmcost: price["U_tl_itmcost"],
                     U_tl_ltotal: price["U_tl_itmcost"] * item["Quantity"],
                     LineTotal: price["U_tl_itmcost"] * item["Quantity"],
+                    DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
                 }
             });
             
-            goodReceipt = {
+            var goodReceipt = {
+                Series: findSerie(jsonObj["GRSeries"], groupedItems[key][0]['BranchCode']),
                 DocType: "dDocument_Items",
                 DocDate: jsonObj['DocDate'],
                 DocDueDate: jsonObj['DocDate'],
@@ -488,7 +498,7 @@ function StockTransferTransaction(slContext, jsonObj){
                     }
                 ]
             }
-
+            
             var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
             if (goodReceiptContext.status !== 201) {
                 slContext.rollbackTransaction();
@@ -535,7 +545,7 @@ function OwnUsageTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Goods Issue
     var goodIssue = {
-        Series: jsonObj["GISeries"],
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -556,9 +566,8 @@ function OwnUsageTransaction(slContext, jsonObj){
                 COGSCostingCode: item['LineOfBussiness'],
                 COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
                 WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: []
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
     } 
@@ -586,7 +595,7 @@ function TelaCardTransaction(slContext, jsonObj){
     slContext.startTransaction();
     //  Goods Issue
     var goodIssue = {
-        Series: jsonObj["GISeries"],
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -608,9 +617,8 @@ function TelaCardTransaction(slContext, jsonObj){
                 COGSCostingCode: item['LineOfBussiness'],
                 COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
                 WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: []
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
     } 
@@ -626,6 +634,7 @@ function TelaCardTransaction(slContext, jsonObj){
 
     //  Goods Receipt
     var goodReceipt = {
+        Series: findSerie(jsonObj["GRSeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -638,7 +647,10 @@ function TelaCardTransaction(slContext, jsonObj){
         DocumentLines: jsonObj['CardCount'].map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
-                Quantity: item['Quantity']
+                Quantity: item['Quantity'],
+                WarehouseCode: item['WarehouseCode'],
+                ItemCode: item['ItemCode'],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         }),
         DocumentReferences: [
@@ -696,7 +708,7 @@ function PumpTestTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Goods Issue
     var goodIssue = {
-        Series: jsonObj["GISeries"],
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -717,9 +729,8 @@ function PumpTestTransaction(slContext, jsonObj){
                 COGSCostingCode: item['LineOfBussiness'],
                 COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
-                BinAbsEntry: item["BinAbsEntry"],
                 WarehouseCode: item["WarehouseCode"],
-                DocumentLinesBinAllocations: []
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
     } 
@@ -741,4 +752,9 @@ function PumpTestTransaction(slContext, jsonObj){
     }
 
     slContext.commitTransaction();
+}
+
+function findSerie(series, bplid){
+    const foundItem = series.find((s) => s.BPLID == bplid);
+    return foundItem ? foundItem.Series : null;
 }
