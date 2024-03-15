@@ -1,9 +1,7 @@
 import request, { url } from "@/utilies/request";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import MUITextField from "@/components/input/MUITextField";
-import { Box, Button, CircularProgress, Modal } from "@mui/material";
-import { LoadingButton } from "@mui/lab";
-import { log } from "console";
+import { Box, Button, Checkbox, CircularProgress, Modal } from "@mui/material";
 import { useQuery } from "react-query";
 import itemRepository from "@/services/actions/itemRepostory";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
@@ -11,42 +9,94 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SelectPage from "./SelectPage";
+import { SearchIcon } from "lucide-react";
+import { debounce } from "@/lib/utils";
+import { AiOutlineConsoleSql } from "react-icons/ai";
+
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "50vw",
+  width: "60vw",
   bgcolor: "background.paper",
   p: 4,
+  height: '80vh',
 };
 
-export default function ITRModal(props: any) {
-  const handleClose = () => {
-    props?.setOpen(false);
+type ModalType = 'single' | 'multiple';
+interface InventoryItemModalProps {
+  onSelectItems: (items: any[] | any, index: number | undefined) => any,
+}
+
+interface InventoryItemModalState {
+  open: boolean,
+  index: undefined | number,
+  type: ModalType
+};
+
+export class InventoryItemModal extends React.Component<InventoryItemModalProps, InventoryItemModalState> {
+  state = { open: false, index: undefined, type: 'multiple' } as InventoryItemModalState;
+
+
+  onClose() {
+    this.setState({ open: false, index: undefined });
+  }
+
+  onOpen(type: ModalType, index?: number | undefined) {
+    this.setState({ open: true, index: index, type: type });
+  }
+
+  onSelectChangeItems(items: any[]) {
+    this.props.onSelectItems(items, this.state.index)
+    this.setState({ open: false, index: undefined })
+
+  }
+
+  render() {
+    return <ITRModal type={this.state.type ?? 'multiple'} open={this.state.open} onClose={() => this.onClose()} onSelectItems={(items) => this.onSelectChangeItems(items)} />
+  }
+}
+
+
+export default function ITRModal(props: { open: boolean, onClose: () => void, onSelectItems: (items: any[] | any) => void, type: ModalType }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["item-inventory"],
+    queryFn: () => request("GET", `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry & $filter=InventoryItem eq 'tYES'`),
+    staleTime: 0,
+  });
+
+  const [selecteds, setSelects] = useState<{ [key: string]: string | undefined }>({});
+  const [searchText, setSearchText] = useState('');
+  // Define a debounced version of the handleChange function
+  const debouncedHandleChange = debounce(function (this: any, newValue: string) {
+    setSearchText(newValue);
+  }, 500); // Adjust the delay time as needed
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    // setSearchText(newValue);
+    // Call the debounced function with the new value
+    debouncedHandleChange(newValue);
   };
-  
-    const { data, isLoading } = useQuery({
-      queryKey: ["item-modals"],
-      queryFn: async () => {
-        const response: any = await request(
-          "GET",
-          `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry & $filter=InventoryItem eq 'tYES'`
-        )
-          .then((res: any) => res?.data?.value)
-          .catch((e: Error) => {
-            throw new Error(e.message);
-          });
-        return response;
-      },
-      staleTime:0,
-    });
+
+
+  const itemsLists = useMemo(() => {
+    const list: any[] = (data as any)?.data?.value ?? [];
+
+    if (searchText !== '') {
+      return list.filter((e): any => e?.ItemCode?.toLowerCase()?.includes(searchText.toLowerCase()))
+    }
+
+    return list;
+  }, [searchText, data])
+
   const [currentPage, setCurrentPage] = useState<any>(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10); 
-const totalPages = isNaN(data?.length)
-  ? 0
-  : Math.ceil(data.length / itemsPerPage);
- 
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const totalPages = isNaN(itemsLists?.length)
+    ? 0
+    : Math.ceil(itemsLists.length / itemsPerPage);
+
 
   const handleFirstPage = () => setCurrentPage(1);
   const handlePrevPage = () => setCurrentPage(currentPage - 1);
@@ -60,33 +110,62 @@ const totalPages = isNaN(data?.length)
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = data?.slice(startIndex, endIndex);
+  const currentData = itemsLists?.slice(startIndex, endIndex);
 
   const handleGetItem = (event: any) => {
-    if (props.onClick) {
-      props.onClick(event);
-    }
+    if (!props.onSelectItems) return;
+
+    props.onSelectItems(event);
   };
+
+
+
+  const onSelectChange = (event: React.ChangeEvent<HTMLInputElement>, code: string) => {
+    const items = { ...selecteds };
+    items[code] = event.target.checked ? code : undefined;
+    setSelects(items)
+  }
+
+
+  const onSubmit = useCallback(() => {
+    const values = Object.values(selecteds)
+    const items = itemsLists.filter((e) => values.includes(e?.ItemCode));
+
+    props.onSelectItems(items);
+  }, [selecteds])
+
+
+  // useEffect(() => {
+  //   return () => {
+  //     console.log('')
+  //   }
+  // }, [])
+
   return (
     <>
       <Modal
         open={props?.open}
-        onClose={handleClose}
+        onClose={props.onClose}
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={style} borderRadius={3}>
-          <div className="h-[60vh] overflow-hidden relative flex flex-col">
+        <Box sx={{ ...style, display: 'flex', flexDirection: 'column' }} borderRadius={3}  >
+          <div className="grow overflow-hidden relative flex flex-col">
             <div className="grow">
               {/* <div className="w-[80vw] h-[80vh] px-6 py-2 flex flex-col gap-1 relative bg-white"> */}
-              <div className="border-b pb-5 mb-[30px] border-zinc-300 text-black font-bold">
-                Items
+              <div className="text-lg pb-5   text-black font-bold flex justify-between">
+                <h2>Items</h2>
+
+                <div className="w-[16rem]">
+                  <MUITextField placeholder="Code" onChange={handleChange} />
+                </div>
               </div>
-              <div className="max-h-[43.5vh] border w-full overflow-y-auto">
+              <div className="max-h-[49vh]  border-t w-full overflow-y-auto">
                 <table className="border table-fixed w-full shadow-sm bg-white border-[#dadde0]">
                   <thead>
-                    <tr className="border-[1px] sticky top-0 border-[#dadde0] font-semibold shadow-sm drop-shadow-md text-black bg-zinc-50">
-                      <th className="w-[150px] text-left font-normal  py-2 pl-5 text-[14px] ">
+                    <tr className="border-[1px] sticky top-0 border-[#dadde0] z-10 font-semibold shadow-sm drop-shadow-md text-black bg-zinc-50">
+                      {props.type === 'multiple' && <th className="w-[1rem]"></th>}
+                      <th className="w-[2rem] text-left font-normal  py-2 pl-5 text-[14px] ">
                         NO
                       </th>
 
@@ -113,8 +192,9 @@ const totalPages = isNaN(data?.length)
                         <tr
                           className="text-sm cursor-default hover:bg-zinc-50 border-b border-zinc-200"
                           key={index}
-                          onClick={()=>handleGetItem(e)}
+                          onClick={props.type === 'multiple' ? undefined : () => handleGetItem(e)}
                         >
+                          {props.type === 'multiple' && <td className=""><Checkbox checked={selecteds[e?.ItemCode] ? true : false} onChange={(event) => onSelectChange(event, e?.ItemCode)} /></td>}
                           <td className="pl-5 py-2">
                             <span>
                               {(currentPage - 1) * itemsPerPage + (index + 1)}
@@ -133,7 +213,7 @@ const totalPages = isNaN(data?.length)
                 </table>
               </div>
             </div>
-            <div className="h-[70px] bg-white border items-center pr-7 flex gap-5 justify-end text-sm sticky bottom-5">
+            <div className="h-[3rem] bg-white border items-center pr-7 flex gap-5 justify-end text-sm sticky bottom-5">
               <div>Row Per page</div>
               <SelectPage
                 value={itemsPerPage}
@@ -187,8 +267,16 @@ const totalPages = isNaN(data?.length)
                 </button>
               </div>
             </div>
+
+
           </div>
+
+          {props.type === 'multiple' && <div className="flex gap-2 mt-3 justify-end">
+            <Button size="small" variant="outlined"  ><span className="px-3" onClick={props?.onClose}>Close</span></Button>
+            <Button size="small" variant="contained" ><span className="px-3" onClick={onSubmit}>Ok</span></Button>
+          </div>}
         </Box>
+
       </Modal>
     </>
   );
