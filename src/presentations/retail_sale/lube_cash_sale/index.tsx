@@ -145,7 +145,7 @@ export default function List() {
   const Count: any = useQuery({
     queryKey: ["lube-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RETAILSALE_LCS/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE_LU/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -167,13 +167,13 @@ export default function List() {
     ],
 
     queryFn: async () => {
-      const Url = `${url}/TL_RETAILSALE_LCS?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE_LCS?$top=${pagination.pageSize}&$skip=${
+      const dataUrl = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"

@@ -38,7 +38,7 @@ export default function GeneralForm({
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
 
-  const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
+  const BPL = parseFloat(data?.U_tl_bplid) || (cookies.user?.Branch <= 0 && 1);
 
   //Filtering SO series
   const filteredSeries = data?.SerieLists?.filter(
@@ -135,7 +135,7 @@ export default function GeneralForm({
             <div className="col-span-3">
               <BranchAutoComplete
                 BPdata={userData?.UserBranchAssignment}
-                onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
+                onChange={(e) => handlerChange("U_tl_bplid", e)}
                 value={BPL}
               />
             </div>
@@ -148,10 +148,10 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <WarehouseAutoComplete
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                value={data?.U_tl_whsdesc}
+                Branch={parseFloat(data?.U_tl_bplid) }
+                value={data?.U_tl_whs}
                 onChange={(e) => {
-                  handlerChange("U_tl_whsdesc", e);
+                  handlerChange("U_tl_whs", e);
                   onWarehouseChange(e);
                 }}
               />
@@ -165,10 +165,10 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                value={data?.BinLocation}
-                Warehouse={data?.U_tl_whsdesc ?? "WH01"}
+                value={data?.U_tl_bincode}
+                Warehouse={data?.U_tl_whs ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
+                  handlerChange("U_tl_bincode", e);
                   // onWarehouseChange(e);
                 }}
               />
@@ -204,7 +204,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3 text-gray-900">
               <VendorByBranch
-                branch={data?.BPL_IDAssignedToInvoice}
+                branch={data?.U_tl_bplid}
                 vtype="customer"
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
@@ -318,8 +318,8 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUIDatePicker
                 disabled={data?.isStatusClose || false}
-                value={edit ? data.TaxDate : data.TaxDate}
-                onChange={(e: any) => handlerChange("TaxDate", e)}
+                value={data.U_tl_taxdate}
+                onChange={(e: any) => handlerChange("U_tl_taxdate", e)}
               />
             </div>
           </div>
@@ -339,8 +339,8 @@ export default function GeneralForm({
                 error={"DocDueDate" in data?.error}
                 helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
-                value={edit ? data.DocDueDate : data.DocDueDate ?? null}
-                onChange={(e: any) => handlerChange("DocDueDate", e)}
+                value={edit ? data.U_tl_devdate : data.U_tl_devdate ?? null}
+                onChange={(e: any) => handlerChange("U_tl_devdate", e)}
               />
             </div>
           </div>
@@ -352,9 +352,9 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={edit && data?.Status?.includes("A")}
-                value={data.DocDate}
-                onChange={(e: any) => handlerChange("DocDate", e)}
+                disabled={edit}
+                value={data.U_tl_docdate}
+                onChange={(e: any) => handlerChange("U_tl_docdate", e)}
               />
             </div>
           </div>
@@ -371,11 +371,9 @@ export default function GeneralForm({
                 fullWidth
                 multiline
                 rows={2}
-                name="User_Text"
-                value={data?.User_Text}
-                onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
-                }
+                name="Remark"
+                value={data?.Remark}
+                onChange={(e: any) => handlerChange("Remark", e.target.value)}
               />
             </div>
           </div>
