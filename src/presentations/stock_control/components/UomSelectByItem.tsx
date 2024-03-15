@@ -16,7 +16,7 @@ export type UomSelectProp = {
     value?: any,
     onChange: (val: OnChangeProp) => void,
     item?: string | undefined
-    quantity?: number | undefined
+    quantity?: number | undefined,
 }
 
 const getUOMGroup = async (item?: string | undefined) => {
@@ -64,15 +64,14 @@ export default function UomSelectByItem(props: UomSelectProp) {
 
 
     useEffect(() => {
-        const val = data?.find((e) => e?.Code === props?.value)
+        const val = data?.find((e) => e?.AbsEntry === props?.value)
         setSelected(val?.AbsEntry)
     }, [props.value, data])
 
 
+
     const onSelectChange = (event: any,) => {
         setSelected(event.target.value)
-
-        console.log(event.target.value)
         // 
         const selectedUoM = group.data?.UoMGroupDefinitionCollection?.find((e: any) => e.AlternateUoM === event.target.value);
         const value = data.find((e) => e.AbsEntry === event.target.value)
@@ -81,11 +80,14 @@ export default function UomSelectByItem(props: UomSelectProp) {
     }
 
 
+
+
     return <MUISelect
         value={selected}
         items={data}
         onChange={onSelectChange}
         aliaslabel='Code'
         aliasvalue='AbsEntry'
+        loading={group.isLoading}
     />
 }

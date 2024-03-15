@@ -17,10 +17,11 @@ const BasicInformation = (props: any) => {
   useEffect(() => {
     if (props?.edit) return;
 
+    defaultSerie.refetch();
     if (!defaultSerie.data) return;
 
     props?.setValue("Series", defaultSerie?.data?.Series);
-    props?.setValue("DocNum", defaultSerie?.data?.NextNum);
+    props?.setValue("DocNum", defaultSerie?.data?.NextNumber);
   }, [defaultSerie.data]);
 
   const onChangeSerie = useCallback(
@@ -28,6 +29,7 @@ const BasicInformation = (props: any) => {
       const serie = series.data?.find(
         (e: any) => e?.Series === event?.target?.value
       );
+
       if (!serie) return;
 
       props?.setValue("Series", event?.target?.value);
@@ -43,7 +45,6 @@ const BasicInformation = (props: any) => {
   });
 
   const { data } = useGetWhsTerminalAssignHook(false);
-
 
   return (
     <>
