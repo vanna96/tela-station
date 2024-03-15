@@ -9,7 +9,7 @@ interface Type {
   Name: string;
 }
 
-const GoodIssueTypeAutoComplete = forwardRef<
+const GoodReceiptTypeAutoComplete = forwardRef<
   HTMLInputElement,
   {
     label?: any;
@@ -20,9 +20,9 @@ const GoodIssueTypeAutoComplete = forwardRef<
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["TL_OIGE"],
+    queryKey: ["TL_OGIN "],
     queryFn: async () => {
-      const response: any = await request("GET", `${url}/sml.svc/TL_OIGE`)
+      const response: any = await request("GET", `${url}/sml.svc/TL_OGIN `)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -72,9 +72,7 @@ const GoodIssueTypeAutoComplete = forwardRef<
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) =>
-          option.Code + " - " + option.Name
-        }
+        getOptionLabel={(option: Type) => option.Code + " - " + option.Name}
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
             {option.Code + " - " + option.Name}
@@ -106,4 +104,4 @@ const GoodIssueTypeAutoComplete = forwardRef<
   );
 });
 
-export default GoodIssueTypeAutoComplete;
+export default GoodReceiptTypeAutoComplete;

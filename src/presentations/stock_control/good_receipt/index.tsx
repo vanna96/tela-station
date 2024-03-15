@@ -124,7 +124,7 @@ export default function GoodIssueList() {
                 //   }
                 // );
                 route(
-                  "/stock-control/good-issue/" + cell.row.original.DocEntry,
+                  "/stock-control/good-receipt/" + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -148,7 +148,7 @@ export default function GoodIssueList() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  "/stock-control/good-issue/" +
+                  "/stock-control/good-receipt/" +
                     cell.row.original.DocEntry +
                     "/edit",
                   {

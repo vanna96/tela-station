@@ -4,11 +4,16 @@ import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import ItemModal from "@/presentations/trip_management/transportation_order/ItemModal";
 import { Button, Checkbox, TextField, easing } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
+import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
+import { InventoryItemModal } from "../../inventory_transfer_request/components/ITRModal";
+
+let itemRef = React.createRef<InventoryItemModal>();
+
 export default function Content({
   register,
   defaultValue,
@@ -19,28 +24,45 @@ export default function Content({
   watch,
   control,
 }: any) {
-  const [id, setId] = useState(0);
   const [openItem, setOpenItem] = useState(false);
   const [selectIndex, setSelectIndex] = useState(0);
   const [selected, setSelected] = useState<number[]>([]);
-
   const fields: any[] = useMemo(() => {
     if (!watch("DocumentLines")) return [];
     return watch("DocumentLines");
   }, [watch("DocumentLines")]);
 
-  const onAddDocument = () => {
-    const state = [
-      ...fields,
-      {
-        ItemCode: null,
-        ItemDescription: null,
-        Quantity: null,
-        UoMCode: null,
-      },
-    ];
-    setValue("DocumentLines", state);
-  };
+  const handlerAddNew = useCallback(
+    (items: any[] | any, index: number | undefined) => {
+      const state: any = [...fields];
+
+      if (items instanceof Array) {
+        for (const item of items) {
+          if (state.find((e: any) => e?.ItemCode === item?.ItemCode)) continue;
+
+          state.push({
+            ItemCode: item?.ItemCode,
+            ItemDescription: item?.ItemName,
+            Quantity: undefined,
+            WarehouseCode: watch("U_tl_whsdesc"),
+            UseBaseUnits: "tNO",
+          });
+        }
+      } else {
+        state[index as number] = {
+          ItemCode: items?.ItemCode,
+          ItemDescription: items?.ItemName,
+          Quantity: state[index as number]?.Quantity,
+          UoMCode: undefined,
+          UoMAbsEntry: undefined,
+          DocumentLinesBinAllocations: [],
+        };
+      }
+
+      setValue("DocumentLines", state);
+    },
+    [watch("DocumentLines")]
+  );
 
   const onSelectChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -58,44 +80,29 @@ export default function Content({
 
   const handlerDelete = () => {
     if (selected.length === 0) return; // [1,2,3,5]
-
     let state = [...fields];
     state = state.filter((item, index) => !selected.includes(index));
     setValue("DocumentLines", state);
     setSelected([]);
   };
 
-  const onChangeValue = (index: number, field: string, value: any) => {
-    const state: any[] = [...(fields ?? [])];
-    state[index][field] = value;
-    setValue("DocumentLines", state);
-  };
-  const handleSelectItem = (value: any) => {
-    const state = [...fields];
-    const index = selectIndex as number;
-    state[index] = {
-      ...state[index],
-      ItemCode: value?.ItemCode,
-      ItemDescription: value?.ItemName,
-      Quantity: 0,
-    };
-    setId(value?.UoMGroupEntry);
-    setOpenItem(false);
-    setValue("DocumentLines", state);
-  };
-  const handlerchangeBin = (value: any, index: number) => {
-    const state = [...fields];
-    state[index]["UoMCode"] = value.AbsEntry;
-    state[index]["DocumentLinesBinAllocations"] = [
-      {
-        BinAbsEntry: value?.AbsEntry,
-        Quantity: value?.Quantity ?? 0,
-        AllowNegativeQuantity: "tNO",
-        SerialAndBatchNumbersBaseLine: -1,
-        BaseLineNumber: index,
-      },
-    ];
-    setValue("DocumentLines", state);
+  const handlerchangeBin = (e: any, index: number) => {
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`,
+      e?.AbsEntry
+    );
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BaseLineNumber`,
+      index
+    );
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].AllowNegativeQuantity`,
+      "tNO"
+    );
+    setValue(
+      `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].SerialAndBatchNumbersBaseLine`,
+      -1
+    );
   };
 
   return (
@@ -132,7 +139,7 @@ export default function Content({
                 UoM{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Bin Code{watch("BinCode")}
+                Bin Code
               </th>
             </tr>
             {fields?.length === 0 && (
@@ -170,10 +177,9 @@ export default function Content({
                       ) : (
                         <MUITextField
                           disabled={detail}
-                          onClick={() => {
-                            setSelectIndex(index);
-                            setOpenItem(true);
-                          }}
+                          onClick={() =>
+                            itemRef.current?.onOpen("single", index)
+                          }
                           endAdornment
                           inputProps={{
                             ...register(`DocumentLines.${index}.ItemCode`, {
@@ -206,19 +212,53 @@ export default function Content({
                       />
                     </td>
                     <td className="pr-4">
-                      <UomSelectByItem
-                        onChange={(e) => handlerchangeBin(e, index)}
-                        id={id}
+                      <Controller
+                        name={`DocumentLines.${index}.UoMCode`}
+                        control={control}
+                        render={({ field }) => {
+                          return (
+                            <>
+                              <UomSelectByItem
+                                disabled={detail}
+                                item={e.ItemCode}
+                                quantity={e?.Quantity}
+                                onChange={(ev: any) => {
+                                  console.log(ev);
+                                  setValue(
+                                    `DocumentLines[${index}].UoMCode`,
+                                    ev?.Code
+                                  );
+                                  setValue(
+                                    `DocumentLines[${index}].UoMEntry`,
+                                    ev?.AbsEntry
+                                  );
+                                  setValue(
+                                    `DocumentLines[${index}].UseBaseUnits`,
+                                    "tNO"
+                                  );
+                                  setValue(
+                                    `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].Quantity`,
+                                    ev?.Quantity
+                                  );
+                                }}
+                                value={e?.UoMEntry}
+                              />
+                            </>
+                          );
+                        }}
                       />
                     </td>
                     <td className="pr-4">
                       <Controller
-                        name="BinCode"
+                        name={`DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`}
                         control={control}
                         render={({ field }) => {
                           return (
                             <FuelLevelWarehouseBinAutoComplete
-                              value={field?.value}
+                              disabled={detail}
+                              value={watch(
+                                `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`
+                              )}
                               whsCode={watch("U_tl_whsdesc")}
                               onChange={(e: any) => {
                                 handlerchangeBin(e, index);
@@ -235,7 +275,7 @@ export default function Content({
           </table>
           {detail ? null : (
             <span
-              onClick={onAddDocument}
+              onClick={() => itemRef.current?.onOpen("multiple")}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               Add
@@ -257,16 +297,12 @@ export default function Content({
               rows={3}
               name="Comments"
               className={`w-full ${detail && "bg-gray-100"}`}
-              inputProps={{ ...register("Remarks") }}
+              inputProps={{ ...register("Comments") }}
             />
           </div>
         </div>
       </div>
-      <ItemModal
-        onClick={handleSelectItem}
-        setOpen={setOpenItem}
-        open={openItem}
-      />
+      <InventoryItemModal ref={itemRef} onSelectItems={handlerAddNew} />
     </>
   );
 }

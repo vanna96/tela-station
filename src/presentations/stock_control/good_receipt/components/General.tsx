@@ -1,7 +1,7 @@
 import MUITextField from "@/components/input/MUITextField";
 import PositionAutoComplete from "@/components/input/PositionAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -10,6 +10,10 @@ import DistributionRulesAutoComplete from "@/components/input/DistributionRulesA
 import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
 import WareHAutoComplete from "@/components/input/WareHAutoComplete";
 import { useGetReceiptSeriesHook } from "../hook/useGetReceiptSeriesHook";
+import GoodReceiptTypeAutoComplete from "@/components/input/GoodReceiptTypeAutoComplete";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import { useQuery } from "react-query";
+import request, { url } from "@/utilies/request";
 
 const General = ({
   register,
@@ -32,7 +36,21 @@ const General = ({
     if (!defaultSerie.data) return;
     setValue("DocNum", defaultSerie.data);
   }, [defaultSerie.data]);
-
+ const branch: any = useQuery({
+    queryKey: ["branch"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    staleTime: Infinity,
+  })
   const onChangeSerie = useCallback(
     (event: any) => {
       const serie = series.data?.find(
@@ -69,22 +87,16 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPL_IDAssignedToInvoice"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BranchAssignmentAuto
-                        disabled={detail}
-                        value={field?.value}
-                        onChange={(e: any) => {
-                          setValue("BPL_IDAssignedToInvoice", e?.BPLID);
-                          setValue("BPLName", e?.BPLName);
-                        }}
-                      />
-                    );
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("BPLName"),
                   }}
+                  value={
+                    branch?.data?.find(
+                      (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
+                    )?.BPLName
+                  }
                 />
               </div>
             </div>
@@ -107,7 +119,13 @@ const General = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("U_tl_whsdesc", e);
+                          console.log(e);
+                          setValue(
+                            "BPL_IDAssignedToInvoice",
+                            e?.BusinessPlaceID
+                          );
+                          // setValue("BPLName", e?.BusinessPlaceID);
+                          setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
                       />
                     );
@@ -200,12 +218,12 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Ship To{" "}
+                  Ship From{" "}
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  name="U_tl_branc"
+                  name="U_tl_grsuppo"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -214,7 +232,7 @@ const General = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("U_tl_branc", e);
+                          setValue("U_tl_grsuppo", e?.WarehouseCode);
                         }}
                       />
                     );
@@ -239,7 +257,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        value={field.value}
+                        value={field?.value}
                         disabled={id}
                         items={series.data ?? []}
                         aliaslabel="Name"
@@ -330,16 +348,16 @@ const General = ({
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "Good Issue Type Date is required" }}
-                  name="U_tl_gitype"
+                  name="U_tl_grtype"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <PositionAutoComplete
+                      <GoodReceiptTypeAutoComplete
                         disabled={detail}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("U_tl_gitype", e);
+                          setValue("U_tl_grtype", e);
 
                           // setHeader({ ...header, data5: e?.Name })
                         }}

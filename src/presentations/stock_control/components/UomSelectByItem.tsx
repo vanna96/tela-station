@@ -10,12 +10,13 @@ export type OnChangeProp = {
 };
 
 export type UomSelectProp = {
-    id?: number | undefined,
-    value?: any,
-    onChange: (val: OnChangeProp) => void,
-    item?: string | undefined
-    quantity?: number | undefined,
-}
+  id?: number | undefined;
+  value?: any;
+  onChange: (val: OnChangeProp) => void;
+  item?: string | undefined;
+  quantity?: number | undefined;
+  disabled?: boolean 
+};
 
 const getUOMGroup = async (item?: string | undefined) => {
   if (!item) return [];
@@ -96,7 +97,8 @@ export default function UomSelectByItem(props: UomSelectProp) {
 
 
 
-    return <MUISelect
+  return <MUISelect
+        disabled={props?.disabled}
         value={selected}
         items={data}
         onChange={onSelectChange}

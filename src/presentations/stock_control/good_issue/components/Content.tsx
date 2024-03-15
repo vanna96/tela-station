@@ -4,11 +4,16 @@ import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import ItemModal from "@/presentations/trip_management/transportation_order/ItemModal";
 import { Button, Checkbox, TextField, easing } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
+import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
+import { InventoryItemModal } from "../../inventory_transfer_request/components/ITRModal";
+
+let itemRef = React.createRef<InventoryItemModal>();
+
 export default function Content({
   register,
   defaultValue,
@@ -27,18 +32,37 @@ export default function Content({
     return watch("DocumentLines");
   }, [watch("DocumentLines")]);
 
-  const onAddDocument = () => {
-    const state = [
-      ...fields,
-      {
-        ItemCode: null,
-        ItemDescription: null,
-        Quantity: null,
-        UoMCode: null,
-      },
-    ];
-    setValue("DocumentLines", state);
-  };
+  const handlerAddNew = useCallback(
+    (items: any[] | any, index: number | undefined) => {
+      const state: any = [...fields];
+
+      if (items instanceof Array) {
+        for (const item of items) {
+          if (state.find((e: any) => e?.ItemCode === item?.ItemCode)) continue;
+
+          state.push({
+            ItemCode: item?.ItemCode,
+            ItemDescription: item?.ItemName,
+            Quantity: undefined,
+            WarehouseCode: watch("U_tl_whsdesc"),
+          });
+        }
+      } else {
+        state[index as number] = {
+          ItemCode: items?.ItemCode,
+          ItemDescription: items?.ItemName,
+          Quantity: state[index as number]?.Quantity,
+          UoMCode: undefined,
+          UoMAbsEntry: undefined,
+          DocumentLinesBinAllocations:[],
+        };
+      }
+
+      setValue("DocumentLines", state);
+    },
+    [watch("DocumentLines")]
+  );
+
 
   const onSelectChange = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -56,31 +80,12 @@ export default function Content({
 
   const handlerDelete = () => {
     if (selected.length === 0) return; // [1,2,3,5]
-
     let state = [...fields];
     state = state.filter((item, index) => !selected.includes(index));
     setValue("DocumentLines", state);
     setSelected([]);
   };
 
-  const onChangeValue = (index: number, field: string, value: any) => {
-    const state: any[] = [...(fields ?? [])];
-    state[index][field] = value;
-    setValue("DocumentLines", state);
-  };
-  const handleSelectItem = (value: any) => {
-    const state = [...fields];
-    const index = selectIndex as number;
-    state[index] = {
-      ...state[index],
-      ItemCode: value?.ItemCode,
-      ItemDescription: value?.ItemName,
-      Quantity: 0,
-      WarehouseCode: watch("U_tl_branc"),
-    };
-    setOpenItem(false);
-    setValue("DocumentLines", state);
-  };
   const handlerchangeBin = (e: any, index: number) => {
     setValue(
       `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`,
@@ -172,10 +177,9 @@ export default function Content({
                       ) : (
                         <MUITextField
                           disabled={detail}
-                          onClick={() => {
-                            setSelectIndex(index);
-                            setOpenItem(true);
-                          }}
+                          onClick={() =>
+                            itemRef.current?.onOpen("single", index)
+                          }
                           endAdornment
                           inputProps={{
                             ...register(`DocumentLines.${index}.ItemCode`, {
@@ -215,6 +219,7 @@ export default function Content({
                           return (
                             <>
                               <UomSelectByItem
+                                disabled={detail}
                                 item={e.ItemCode}
                                 quantity={e?.Quantity}
                                 onChange={(ev: any) => {
@@ -223,10 +228,10 @@ export default function Content({
                                     `DocumentLines[${index}].UoMCode`,
                                     ev?.Code
                                   );
-                                    setValue(
-                                      `DocumentLines[${index}].UoMEntry`,
-                                      ev?.AbsEntry
-                                    );
+                                  setValue(
+                                    `DocumentLines[${index}].UoMEntry`,
+                                    ev?.AbsEntry
+                                  );
                                   setValue(
                                     `DocumentLines[${index}].UseBaseUnits`,
                                     "tNO"
@@ -236,9 +241,7 @@ export default function Content({
                                     ev?.Quantity
                                   );
                                 }}
-                                value={                                
-                                  e?.UoMEntry
-                                }
+                                value={e?.UoMEntry}
                               />
                             </>
                           );
@@ -251,7 +254,9 @@ export default function Content({
                         control={control}
                         render={({ field }) => {
                           return (
-                            <FuelLevelWarehouseBinAutoComplete
+                            <GoodIssueBinAutoComplete
+                              disabled={detail}
+                              itemCode={e?.ItemCode}
                               value={watch(
                                 `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`
                               )}
@@ -271,7 +276,7 @@ export default function Content({
           </table>
           {detail ? null : (
             <span
-              onClick={onAddDocument}
+              onClick={() => itemRef.current?.onOpen("multiple")}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               Add
@@ -298,11 +303,7 @@ export default function Content({
           </div>
         </div>
       </div>
-      <ItemModal
-        onClick={handleSelectItem}
-        setOpen={setOpenItem}
-        open={openItem}
-      />
+      <InventoryItemModal ref={itemRef} onSelectItems={handlerAddNew} />
     </>
   );
 }
