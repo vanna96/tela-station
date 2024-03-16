@@ -39,11 +39,7 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm({
-      defaultValues: {
-        DocumentLines: [],
-      },
-    });
+    useForm();
 
   const { id }: any = useParams();
 
@@ -62,7 +58,7 @@ const GoodIssueForm = (props: any) => {
       ...e,
       // DocNum: undefined,
       // Series:undefined
-}
+    };
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
@@ -86,7 +82,7 @@ const GoodIssueForm = (props: any) => {
       setState({ ...state, isSubmitting: false });
     }
   };
-  
+
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -98,13 +94,17 @@ const GoodIssueForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    // if (
-    //   !getValues("BPL_IDAssignedToInvoice") ||
-    //    getValues("BPL_IDAssignedToInvoice") === ""
-    // ) {
-    //   toastRef.current?.open();
-    //   return;
-    // }
+    if (
+      !getValues("BPL_IDAssignedToInvoice") ||
+      getValues("BPL_IDAssignedToInvoice") === ""
+    ) {
+      toastRef.current?.open();
+      return;
+    }
+     if (!getValues("U_tl_whsdesc") || getValues("U_tl_whsdesc") === "") {
+       toastRef.current?.open();
+       return;
+     }
 
     handlerChangeMenu(tapIndex);
   };
