@@ -111,7 +111,6 @@ export const UseGoodReceiptListHook = (pagination: any) => {
 
     for (const [index, goodReceipt] of reponseData?.entries()) {
       lists.push([
-        index + 1,
         goodReceipt.DocNum,
         goodReceipt.BPLName,
         goodReceipt.U_tl_whsdesc,

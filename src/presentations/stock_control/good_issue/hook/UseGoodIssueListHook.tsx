@@ -99,7 +99,7 @@ export const UseGoodIssueListHook = (pagination: any) => {
     //
     const reponse: any = await request(
       "GET",
-      `/InventoryGenExits?${queryOptionParser(query)}`
+      `/InventoryGenExits?${queryOptionParser(query)}&$select=DocNum,BPLName,U_tl_whsdesc,DocDate,DocumentStatus,DocTotal`
     );
 
     const lists: string[][] = [];
@@ -107,7 +107,6 @@ export const UseGoodIssueListHook = (pagination: any) => {
 
     for (const [index, goodIssue] of reponseData?.entries()) {
       lists.push([
-        index + 1,
         goodIssue.DocNum,
         goodIssue.BPLName,
         goodIssue.U_tl_whsdesc,
