@@ -31,12 +31,18 @@ const General = ({
 }: any) => {
   const { series, defaultSerie } = useGetReceiptSeriesHook();
   const { id }: any = useParams();
+console.log(series);
+
   useEffect(() => {
     if (id) return;
     if (!defaultSerie.data) return;
-    setValue("DocNum", defaultSerie.data);
+
+    setValue("Series", defaultSerie?.data?.Series);
+    setValue("DocNum", defaultSerie.data?.NextNumber);
   }, [defaultSerie.data]);
- const branch: any = useQuery({
+// console.log(defaultSerie);
+
+  const branch: any = useQuery({
     queryKey: ["branch"],
     queryFn: async () => {
       const response: any = await request(
@@ -50,7 +56,7 @@ const General = ({
       return response;
     },
     staleTime: Infinity,
-  })
+  });
   const onChangeSerie = useCallback(
     (event: any) => {
       const serie = series.data?.find(
@@ -63,13 +69,18 @@ const General = ({
     },
     [series?.data]
   );
-  // useEffect(() => {
-  //   reset({
-  //     fields:fields,
-  //     DocDate: new Date().toISOString()?.split("T")[0],
-  //     TaxDate: new Date().toISOString()?.split("T")[0],
-  //   });
-  // }, []);
+
+  const onChangeBranch = (value: any) => {
+
+   const period = new Date().getFullYear();
+   const serie = series?.data?.find(
+     (e: any) =>
+       e?.PeriodIndicator === period.toString() && e?.BPLID === value
+   );
+   setValue("Series", serie?.Series);
+   setValue("DocNum", serie?.NextNumber);
+   setValue("BPLID", value?.BPLID);
+ };
 
   return (
     <>
@@ -119,12 +130,12 @@ const General = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          console.log(e);
                           setValue(
                             "BPL_IDAssignedToInvoice",
                             e?.BusinessPlaceID
                           );
                           // setValue("BPLName", e?.BusinessPlaceID);
+                          onChangeBranch(e?.BusinessPlaceID);
                           setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
                       />
@@ -257,7 +268,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        value={field?.value}
+                        value={field.value}
                         disabled={id}
                         items={series.data ?? []}
                         aliaslabel="Name"
@@ -270,9 +281,9 @@ const General = ({
               </div>
               <div className="col-span-2 -mt-1 ml-5">
                 <MUITextField
-                  disabled={detail}
                   key={watch("DocNum")}
                   value={watch("DocNum")}
+                  disabled={true}
                 />
               </div>
             </div>

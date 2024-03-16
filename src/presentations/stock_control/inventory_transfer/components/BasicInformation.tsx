@@ -29,6 +29,7 @@ const BasicInformation = (props: any) => {
 
   const onChangeSerie = useCallback(
     (event: any) => {
+      
       const serie = series.data?.find(
         (e: any) => e?.Series === event?.target?.value
       );
@@ -51,9 +52,10 @@ const BasicInformation = (props: any) => {
 
 
   const onChangeBranch = (value: any) => {
+
     const period = new Date().getFullYear();
     const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
-
+    
     props?.setValue("Series", serie?.Series);
     props?.setValue("DocNum", serie?.NextNumber);
     props?.setValue('BPLID', value?.BPLID)

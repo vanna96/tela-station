@@ -15,7 +15,7 @@ export type UomSelectProp = {
     onChange: (val: OnChangeProp) => void,
     item?: string | undefined
     quantity?: number | undefined,
-    disabled?: boolean | undefined
+    disabled?: boolean
 }
 
 const getUOMGroup = async (item?: string | undefined) => {
@@ -103,7 +103,6 @@ export default function UomSelectByItem(props: UomSelectProp) {
         aliaslabel='Code'
         aliasvalue='AbsEntry'
         loading={group.isLoading}
-        disabled={props.disabled}
     />
   
 }

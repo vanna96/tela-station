@@ -7,7 +7,7 @@ const getSeries = async () => {
     "/SeriesService_GetDocumentSeries",
     {
       DocumentTypeParams: {
-        Document: "60",
+        Document: "59",
       },
     }
   );
@@ -23,14 +23,14 @@ const getDefaultSerie = async () => {
     "/SeriesService_GetDefaultSeries",
     {
       DocumentTypeParams: {
-        Document: "60",
+        Document: "59",
       },
     }
   );
 
   if (response?.code === "ERR_BAD_REQUEST") return undefined;
 
-  return response?.data?.Series;
+  return response?.data
 };
 
 export const useGetReceiptSeriesHook = () => {
@@ -42,6 +42,7 @@ export const useGetReceiptSeriesHook = () => {
     queryKey: ["goods_receipt_default_series"],
     queryFn: () => getDefaultSerie(),
     retry: 1,
+    cacheTime:0
   });
 
   return { series, defaultSerie };
