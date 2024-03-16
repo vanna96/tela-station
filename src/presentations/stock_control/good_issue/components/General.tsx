@@ -6,13 +6,13 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { useParams } from "react-router-dom";
-import { useGetIssueSeriesHook } from "../hook/useGetIssueSeriesHook";
 import DistributionRulesAutoComplete from "@/components/input/DistributionRulesAutoComplete";
 import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
 import WareHAutoComplete from "@/components/input/WareHAutoComplete";
 import GoodIssueTypeAutoComplete from "@/components/input/GoodIssueTypeAutoComplete";
 import { useQuery } from "react-query";
 import request, { url } from "@/utilies/request";
+import { useGetIssueSeriesHook } from "../hook/UseGetIssueSeriesHooks";
 
 const General = ({
   register,

@@ -1,7 +1,7 @@
 import { exportDefaulExcelTemplate } from "@/lib/excel/export_excel";
 import { Sheet } from "@/lib/excel/type";
 import { QueryOptionAPI } from "@/lib/filter_type";
-import { delay, queryOptionParser } from "@/lib/utils";
+import { queryOptionParser } from "@/lib/utils";
 import request from "@/utilies/request";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
@@ -36,10 +36,10 @@ function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
   }
 }
 
-const keyData = "fuel-lists";
-const keyCount = "fuel_count";
+const keyData = "good-issue-lists";
+const keyCount = "good-issue-count";
 
-export const UseExportHook = (pagination: any) => {
+export const UseGoodIssueListHook = (pagination: any) => {
   const [state, dispatch] = React.useReducer(reducer, initialState);
 
   const filters = useMemo(() => {
@@ -105,40 +105,30 @@ export const UseExportHook = (pagination: any) => {
     const lists: string[][] = [];
     const reponseData: any[] = reponse?.data?.value ?? ([] as any[]);
 
-    for (const [index, issue] of reponseData.entries()) {
+    for (const [index, goodIssue] of reponseData?.entries()) {
       lists.push([
-        "null",
-        issue?.DocNum,
-        issue?.BPLName,
-        issue?.U_tl_whsdesc,
-        issue?.DocDate,
-        issue?.DocumentStatus,
-        issue?.DocTotal,
-        // fuelLevel.U_tl_doc_date?.split("T")[0],
-        // fuelLevel.U_tl_bplid,
-        // fuelLevel.Status === "O" ? "OPEN" : "CLOSED",
+        index + 1,
+        goodIssue.DocNum,
+        goodIssue.BPLName,
+        goodIssue.U_tl_whsdesc,
+        goodIssue.DocDate?.split("T")[0],
+        goodIssue.DocumentStatus === "bost_Open" ? "OPEN" : "CLOSED",
+        goodIssue.DocTotal,
       ]);
     }
     //
-    //   No: index + 1,
-    // Name: row?.FirstName + " " + row?.LastName,
-    // Gender: row?.Gender?.replace("gt_", ""),
-    // Department: new DepartmentRepository().find(row?.Department)?.Name,
-    // Branch: branchAss?.data?.find((e: any) => e?.BPLID === row?.BPLID)
-    //   ?.BPLName,
-    // Active: row?.Active === "tYES" ? "Active" : "Inactive",
     const headers = [
       "No",
       "Document No",
       "Branch",
-      "Warehouse",
+      "Warehouses",
       "Posting Date",
       "Status",
-      "Total Quantity",
+      "Total Qty"
     ];
     const sheet: Sheet = {
-      filename: "good_issue",
-      sheetName: "good issue",
+      filename: "Goods Issue",
+      sheetName: "Goods Issue",
       header: {
         value: headers.map((e) => ({ value: e })),
         startCol: 1,

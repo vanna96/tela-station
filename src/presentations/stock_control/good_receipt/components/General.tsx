@@ -9,11 +9,11 @@ import { useParams } from "react-router-dom";
 import DistributionRulesAutoComplete from "@/components/input/DistributionRulesAutoComplete";
 import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
 import WareHAutoComplete from "@/components/input/WareHAutoComplete";
-import { useGetReceiptSeriesHook } from "../hook/useGetReceiptSeriesHook";
 import GoodReceiptTypeAutoComplete from "@/components/input/GoodReceiptTypeAutoComplete";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import request, { url } from "@/utilies/request";
+import { UseGetReceiptSeriesHook } from "../hook/UseGetReceiptSeriesHooks";
 
 const General = ({
   register,
@@ -29,7 +29,7 @@ const General = ({
   reset,
   getValues,
 }: any) => {
-  const { series, defaultSerie } = useGetReceiptSeriesHook();
+  const { series, defaultSerie } = UseGetReceiptSeriesHook();
   const { id }: any = useParams();
 console.log(series);
 

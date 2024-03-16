@@ -33,7 +33,7 @@ const getDefaultSerie = async () => {
   return response?.data
 };
 
-export const useGetReceiptSeriesHook = () => {
+export const UseGetReceiptSeriesHook = () => {
   const series = useQuery({
     queryKey: ["goods_receipt_series"],
     queryFn: () => getSeries(),

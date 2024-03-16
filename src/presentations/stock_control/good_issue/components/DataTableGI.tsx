@@ -18,7 +18,7 @@ import request, { url } from "@/utilies/request";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
-import { UseExportHook } from "../hook/UseExportHook";
+import { UseExportHook } from "../hook/UseGoodIssueListHook";
 interface DataTableProps {
   filter: any;
   columns: any[];
