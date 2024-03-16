@@ -95,20 +95,21 @@ export const UseGoodReceiptListHook = (pagination: any) => {
   }, [dataQuery.isFetching, countQuery.isFetching]);
 
   const exportExcelTemplate = useCallback(async () => {
-    const query = { ...state } as QueryOptionAPI;
+    let query = { ...state } as QueryOptionAPI;
 
     delete query.top;
     delete query.skip;
+
     //
     const reponse: any = await request(
       "GET",
-      `/InventoryGenEntries?${queryOptionParser(query)}`
+      `/InventoryGenEntries?${queryOptionParser(query)}&$select=DocNum,BPLName,U_tl_whsdesc,DocDate,DocumentStatus`
     );
 
     const lists: string[][] = [];
     const reponseData: any[] = reponse?.data?.value ?? ([] as any[]);
 
-    for (const [index,goodReceipt] of reponseData?.entries()) {
+    for (const [index, goodReceipt] of reponseData?.entries()) {
       lists.push([
         index + 1,
         goodReceipt.DocNum,
