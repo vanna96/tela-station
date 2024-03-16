@@ -1,22 +1,21 @@
 
 import { Backdrop, Button, Checkbox, CircularProgress } from "@mui/material"
 import React, { useState } from "react"
+import { useTransferRequestFormHook } from "../hook/useStockTransferHook"
 import FormMessageModal from "@/components/modal/FormMessageModal"
 import CustomToast from "@/components/modal/CustomToast"
 import { MdEdit } from 'react-icons/md';
 import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
-import BasicInformation from "../component/BasicInformation"
-import Contents from "../component/Contents"
-import { useTransferHook } from "../hook/useTransferHook"
-
+import BasicInformation from "../components/BasicInformation"
+import Contents from "../components/Contents"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
-export const InventoryTransferDetails = () => {
+export const InventoryTransferRequestDetails = () => {
   const [tap, setTap] = useState<number>(0)
-  const hook = useTransferHook(false, dialog);
+  const hook = useTransferRequestFormHook(false, dialog);
 
   const onChangeTap = (index: number) => {
 
@@ -34,12 +33,12 @@ export const InventoryTransferDetails = () => {
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Inventory Transfer</h1>
+      <h1>Inventory Transfer Request</h1>
 
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/inventory-transfer/${id}/edit`)}
+        onClick={() => navigate(`/stock-control/inventory-transfer-request/${id}/edit`)}
         endIcon={<MdEdit />}
       >
         Edit
@@ -47,7 +46,7 @@ export const InventoryTransferDetails = () => {
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/inventory-transfer/create`)}
+        onClick={() => navigate(`/stock-control/inventory-transfer-request/create`)}
         endIcon={<IoCreate />}
       >
         Create

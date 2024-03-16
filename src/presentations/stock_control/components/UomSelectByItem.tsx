@@ -10,13 +10,13 @@ export type OnChangeProp = {
 };
 
 export type UomSelectProp = {
-  id?: number | undefined;
-  value?: any;
-  onChange: (val: OnChangeProp) => void;
-  item?: string | undefined;
-  quantity?: number | undefined;
-  disabled?: boolean 
-};
+    id?: number | undefined,
+    value?: any,
+    onChange: (val: OnChangeProp) => void,
+    item?: string | undefined
+    quantity?: number | undefined,
+    disabled?: boolean | undefined
+}
 
 const getUOMGroup = async (item?: string | undefined) => {
   if (!item) return [];
@@ -42,10 +42,10 @@ export const fractionDigits = (value: number, digit?: number) => {
   return formater.format(value).replace(/,/g, "");
 };
 
-const calculateUOM = (
-  baseQty: number,
-  alternativeQty: number,
-  qty: number
+export const calculateUOM = (
+    baseQty: number,
+    alternativeQty: number,
+    qty: number
 ): any => {
   let totalQty: any = fractionDigits(baseQty / alternativeQty, 6);
   totalQty = fractionDigits(qty * totalQty, 4);
@@ -95,8 +95,6 @@ export default function UomSelectByItem(props: UomSelectProp) {
     }
 
 
-
-
   return <MUISelect
         disabled={props?.disabled}
         value={selected}
@@ -105,6 +103,7 @@ export default function UomSelectByItem(props: UomSelectProp) {
         aliaslabel='Code'
         aliasvalue='AbsEntry'
         loading={group.isLoading}
+        disabled={props.disabled}
     />
   
 }

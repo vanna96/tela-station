@@ -6,12 +6,12 @@ import MUITextField from "@/components/input/MUITextField";
 import { Button, CircularProgress } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import ToWarehouseAutoComplete from "./components/ToWarehouseAutoComplete";
+import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString } from "@/lib/utils";
 import DataTable from "../components/DataTable";
-import { useInventoryTransferRequestListHook } from "./hook/useInventoryTransferRequestListHook";
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import { useInventoryTransferRequestListHook } from "./hook/useInventoryTransferRequestListHook";
 
 export default function InventoryTransferRequestList() {
 
@@ -48,7 +48,7 @@ export default function InventoryTransferRequestList() {
       },
       {
         accessorKey: "U_tl_attn_ter",
-        header: "Attention Terminal", //uses the default width from defaultColumn prop
+        header: "Attention Ternimal", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -189,15 +189,15 @@ export default function InventoryTransferRequestList() {
 
 export interface FilterProps {
   DocNum_$eq_number: undefined | string,
-  ToWarehouse_$eq: undefined | string,
   U_tl_attn_ter_$eq: undefined | string,
+  ToWarehouse_$eq: undefined | string,
   DocumentStatus_$eq: undefined | string,
 }
 
 const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
-  ToWarehouse_$eq: undefined,
   U_tl_attn_ter_$eq: undefined,
+  ToWarehouse_$eq: undefined,
   DocumentStatus_$eq: '',
 }
 
@@ -256,28 +256,7 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
         <div className="col-span-2 2xl:col-span-3">
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              To Warehouses
-            </label>
-            <div className="">
-              <Controller
-                name="ToWarehouse_$eq"
-                control={control}
-                render={({ field }) => {
-                  return (
-                    <ToWarehouseAutoComplete onChange={(e: any) => {
-                      setValue('ToWarehouse_$eq', e?.WarehouseCode)
-                    }} />
-                  );
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="col-span-2 2xl:col-span-3">
-          <div className="flex flex-col gap-1 text-sm">
-            <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              Attention Terminal
+              From Warehouses
             </label>
             <div className="">
               <Controller
@@ -298,12 +277,33 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
         <div className="col-span-2 2xl:col-span-3">
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
+              To Warehouse
+            </label>
+            <div className="">
+              <Controller
+                name="ToWarehouse_$eq"
+                control={control}
+                render={({ field }) => {
+                  return (
+                    <ToWarehouseAutoComplete onChange={(e: any) => {
+                      setValue('ToWarehouse_$eq', e?.WarehouseCode)
+                    }} />
+                  );
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-2 2xl:col-span-3">
+          <div className="flex flex-col gap-1 text-sm">
+            <label htmlFor="Code" className="text-gray-500 text-[14px]">
               Status
             </label>
             <div className="">
 
               <Controller
-                name="U_tl_attn_ter_$eq"
+                name="DocumentStatus_$eq"
                 control={control}
                 render={({ field }) => {
                   return (

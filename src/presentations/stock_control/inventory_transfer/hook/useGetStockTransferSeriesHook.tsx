@@ -1,4 +1,5 @@
 import request from "@/utilies/request"
+import { useEffect } from "react";
 import { useQuery } from "react-query"
 
 const getSeries = async () => {
@@ -23,13 +24,14 @@ const getDefaultSerie = async () => {
 
     if (response?.code === "ERR_BAD_REQUEST") return undefined
 
-    return response?.data?.Series;
+    return { Series: response?.data?.Series, NextNumber: response?.data?.NextNumber };
 }
 
-export const useGetInventoryTransferSeriesHook = () => {
+export const useGetStockTransferSeriesHook = () => {
 
-    const series = useQuery({ queryKey: ['it_series'], queryFn: () => getSeries() });
-    const defaultSerie = useQuery({ queryKey: ['it_default_series'], queryFn: () => getDefaultSerie(), retry: 1 });
+    const series = useQuery({ queryKey: ['itr_series'], queryFn: () => getSeries() });
+    const defaultSerie = useQuery({ queryKey: ['itr_default_series'], queryFn: () => getDefaultSerie(), retry: 1 });
+
 
     return { series, defaultSerie }
 }
