@@ -39,10 +39,7 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm({
-      defaultValues: {
-      Docdate:new Date()
-    }});
+    useForm();
 
   const { id }: any = useParams();
 
@@ -92,13 +89,29 @@ const GoodIssueForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    // if (
-    //   !getValues("BPL_IDAssignedToInvoice") ||
-    //    getValues("BPL_IDAssignedToInvoice") === ""
-    // ) {
-    //   toastRef.current?.open();
-    //   return;
-    // }
+    if (
+      !getValues("BPL_IDAssignedToInvoice") ||
+      getValues("BPL_IDAssignedToInvoice") === ""
+    ) {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_tl_whsdesc") || getValues("U_tl_whsdesc") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("Series") || getValues("Series") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("TaxDate") || getValues("TaxDate") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_tl_gitype") || getValues("U_tl_gitype") === "") {
+      toastRef.current?.open();
+      return;
+    }
 
     handlerChangeMenu(tapIndex);
   };

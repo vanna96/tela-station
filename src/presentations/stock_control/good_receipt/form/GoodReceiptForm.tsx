@@ -101,11 +101,22 @@ const GoodIssueForm = (props: any) => {
       toastRef.current?.open();
       return;
     }
-     if (!getValues("U_tl_whsdesc") || getValues("U_tl_whsdesc") === "") {
-       toastRef.current?.open();
-       return;
-     }
-
+    if (!getValues("U_tl_whsdesc") || getValues("U_tl_whsdesc") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("TaxDate") || getValues("TaxDate") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_tl_grtype") || getValues("U_tl_grtype") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("Series") || getValues("Series") === "") {
+      toastRef.current?.open();
+      return;
+    }
     handlerChangeMenu(tapIndex);
   };
 
