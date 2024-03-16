@@ -41,6 +41,7 @@ const keyCount = "good-issue-count";
 
 export const UseGoodIssueListHook = (pagination: any) => {
   const [state, dispatch] = React.useReducer(reducer, initialState);
+  const [waiting, setwaiting] = React.useState(false);
 
   const filters = useMemo(() => {
     return {
@@ -92,6 +93,7 @@ export const UseGoodIssueListHook = (pagination: any) => {
   }, [dataQuery.isFetching, countQuery.isFetching]);
 
   const exportExcelTemplate = useCallback(async () => {
+    setwaiting(true)
     const query = { ...state } as QueryOptionAPI;
 
     delete query.top;
@@ -139,6 +141,7 @@ export const UseGoodIssueListHook = (pagination: any) => {
     };
     await exportDefaulExcelTemplate(sheet);
     // setLoadingDialog(false);
+    setwaiting(false)
   }, [state]);
 
   return {
@@ -150,5 +153,6 @@ export const UseGoodIssueListHook = (pagination: any) => {
     setSort,
     exportExcelTemplate,
     refetchData,
+    waiting
   };
 };

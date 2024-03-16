@@ -41,7 +41,7 @@ const keyCount = "good-receipt-count";
 
 export const UseGoodReceiptListHook = (pagination: any) => {
   const [state, dispatch] = React.useReducer(reducer, initialState);
-
+  const [waiting,setwaiting] = React.useState(false)
   const filters = useMemo(() => {
     return {
       ...state,
@@ -95,8 +95,8 @@ export const UseGoodReceiptListHook = (pagination: any) => {
   }, [dataQuery.isFetching, countQuery.isFetching]);
 
   const exportExcelTemplate = useCallback(async () => {
+    setwaiting(true)
     let query = { ...state } as QueryOptionAPI;
-
     delete query.top;
     delete query.skip;
 
@@ -141,6 +141,7 @@ export const UseGoodReceiptListHook = (pagination: any) => {
     };
     await exportDefaulExcelTemplate(sheet);
     // setLoadingDialog(false);
+    setwaiting(false)
   }, [state]);
 
   return {
@@ -152,5 +153,6 @@ export const UseGoodReceiptListHook = (pagination: any) => {
     setSort,
     exportExcelTemplate,
     refetchData,
+    waiting
   };
 };

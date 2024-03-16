@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import { Button, CircularProgress } from "@mui/material";
+import { Backdrop, Button, CircularProgress } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
@@ -33,6 +33,7 @@ export default function InventoryTransferList() {
     totalRecords,
     exportExcelTemplate,
     state,
+    waiting
   } = UseGoodReceiptListHook(pagination);
 
   const columns = React.useMemo(
@@ -176,7 +177,7 @@ export default function InventoryTransferList() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Stock Control / Goods Receipt
+            Stock Control / Goods Receipt {waiting ? "asasasa" : null}
           </h3>
         </div>
 
@@ -225,6 +226,16 @@ export default function InventoryTransferList() {
           </DataTable>
         </div>
       </div>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={waiting}
+        // onClick={handleClose}
+      >
+        <div className="flex flex-col justify-center gap-3 items-center">
+          <CircularProgress color="inherit" size={25} />
+          <span className="text-sm -mr-2">Waiting for export to CSV ...</span>
+        </div>
+      </Backdrop>
     </>
   );
 }

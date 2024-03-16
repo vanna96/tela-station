@@ -140,14 +140,16 @@ export default function InventoryTransferList() {
           </h3>
         </div>
 
-        <InventoryTransferFilter onFilter={(queries, queryString) => setFilter(queryString)} />
+        <InventoryTransferFilter
+          onFilter={(queries, queryString) => setFilter(queryString)}
+        />
 
         <div className="grow">
           <DataTable
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => { }}
+            handlerSearch={() => {}}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
