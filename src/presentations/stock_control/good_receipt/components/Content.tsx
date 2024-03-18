@@ -11,6 +11,7 @@ import UomSelectByItem from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
 import { InventoryItemModal } from "../../inventory_transfer_request/components/ITRModal";
+import { useParams } from "react-router-dom";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
@@ -24,8 +25,7 @@ export default function Content({
   watch,
   control,
 }: any) {
-  const [openItem, setOpenItem] = useState(false);
-  const [selectIndex, setSelectIndex] = useState(0);
+ const {id}:any = useParams()
   const [selected, setSelected] = useState<number[]>([]);
   const fields: any[] = useMemo(() => {
     if (!watch("DocumentLines")) return [];
@@ -157,7 +157,7 @@ export default function Content({
                 <>
                   <tr key={index}>
                     <td className="py-2 flex justify-center gap-5 items-center">
-                      {!detail && (
+                      {!id && (
                         <Checkbox
                           onChange={() => onSelectChange(e, index)}
                           checked={selected.includes(index)}
@@ -165,9 +165,9 @@ export default function Content({
                       )}
                     </td>
                     <td className="pr-4">
-                      {detail ? (
+                      {id ? (
                         <MUITextField
-                          disabled={detail}
+                          disabled={id}
                           inputProps={{
                             ...register(`DocumentLines.${index}.ItemCode`, {
                               required: "Item No. is required",
@@ -176,7 +176,7 @@ export default function Content({
                         />
                       ) : (
                         <MUITextField
-                          disabled={detail}
+                          disabled={id}
                           onClick={() =>
                             itemRef.current?.onOpen("single", index)
                           }
@@ -204,7 +204,7 @@ export default function Content({
                     </td>
                     <td className="pr-4">
                       <MUITextField
-                        disabled={detail}
+                        disabled={id}
                         type="number"
                         inputProps={{
                           ...register(`DocumentLines.${index}.Quantity`),
@@ -219,7 +219,7 @@ export default function Content({
                           return (
                             <>
                               <UomSelectByItem
-                                disabled={detail}
+                                disabled={id}
                                 item={e.ItemCode}
                                 quantity={e?.Quantity}
                                 onChange={(ev: any) => {
@@ -255,7 +255,7 @@ export default function Content({
                         render={({ field }) => {
                           return (
                             <FuelLevelWarehouseBinAutoComplete
-                              disabled={detail}
+                              disabled={id}
                               value={watch(
                                 `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].BinAbsEntry`
                               )}
@@ -273,7 +273,7 @@ export default function Content({
               );
             })}
           </table>
-          {detail ? null : (
+          {id ? null : (
             <span
               onClick={() => itemRef.current?.onOpen("multiple")}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"

@@ -10,14 +10,14 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
-import { conditionString } from "@/lib/utils";
+import { conditionString, displayTextDate } from "@/lib/utils";
 import DataTable from "../components/DataTable";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import moment from "moment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseGoodIssueListHook } from "./hook/UseGoodIssueListHook";
-
+// import {displayT}
 export default function InventoryTransferList() {
   const route = useNavigate();
   const [pagination, setPagination] = React.useState({
@@ -85,9 +85,8 @@ export default function InventoryTransferList() {
         type: "string",
         align: "center",
         size: 88,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
+        Cell: ({ cell }: any) => {
+          return <span>{displayTextDate(cell?.getValue())}</span>;
         },
       },
       {
@@ -252,13 +251,13 @@ export default function InventoryTransferList() {
 export interface FilterProps {
   DocNum_$eq_number: undefined | string;
   DocDate_$eq: undefined | string;
-  BPL_IDAssignedToInvoice_$eq: undefined | number;
+  BPL_IDAssignedToInvoice_$eq_number: undefined | number;
 }
 
 const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   DocDate_$eq: undefined,
-  BPL_IDAssignedToInvoice_$eq: undefined,
+  BPL_IDAssignedToInvoice_$eq_number: undefined,
 };
 
 export const InventoryTransferFilter = ({
@@ -344,13 +343,13 @@ export const InventoryTransferFilter = ({
               </label>
               <div className="">
                 <Controller
-                  name="BPL_IDAssignedToInvoice_$eq"
+                  name="BPL_IDAssignedToInvoice_$eq_number"
                   control={control}
                   render={({ field }) => {
                     return (
                       <BranchAssignmentAuto
                         onChange={(e: any) => {
-                          setValue("BPL_IDAssignedToInvoice_$eq", e?.BPLID);
+                          setValue("BPL_IDAssignedToInvoice_$eq_number", e?.BPLID);
                         }}
                         // value={searchValues.branch}
                       />

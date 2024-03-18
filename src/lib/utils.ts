@@ -132,7 +132,7 @@ export const debounce = (func: Function, delay: number) => {
   };
 };
 
-export const dispayTextDate = (date: string | undefined | null) => {
+export const displayTextDate = (date: string | undefined | null) => {
   if (!date || date === "") return "";
 
   return dayjs(date).format("DD.MMM.YYYY");

@@ -78,10 +78,10 @@ export default function BranchAssignmentAuto(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: Type) => option.BPLName}
+        getOptionLabel={(option: Type) => option?.BPLName}
         renderOption={(props, option: Type) => (
           <Box component="li" {...props}>
-            {option.BPLName}
+            {option?.BPLName}
           </Box>
         )}
         renderInput={(params) => (

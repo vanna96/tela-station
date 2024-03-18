@@ -126,7 +126,7 @@ console.log(series);
                   render={({ field }) => {
                     return (
                       <WareHAutoComplete
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -157,7 +157,7 @@ console.log(series);
                   render={({ field }) => {
                     return (
                       <EmployeeAutoComplete
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -300,7 +300,7 @@ console.log(series);
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={watch("DocDate")}
                         onChange={(e: any) => {
@@ -332,7 +332,7 @@ console.log(series);
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={watch("TaxDate")}
                         onChange={(e: any) => {

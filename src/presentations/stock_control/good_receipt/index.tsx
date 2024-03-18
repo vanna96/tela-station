@@ -7,7 +7,7 @@ import MUITextField from "@/components/input/MUITextField";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Controller, useForm } from "react-hook-form";
-import { conditionString } from "@/lib/utils";
+import { conditionString, displayTextDate } from "@/lib/utils";
 import DataTable from "../components/DataTable";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
 import moment from "moment";
@@ -82,9 +82,8 @@ export default function InventoryTransferList() {
         type: "string",
         align: "center",
         size: 88,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
+        Cell: ({ cell }: any) => {
+          return <span>{displayTextDate(cell?.getValue())}</span>;
         },
       },
       {
