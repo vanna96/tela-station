@@ -24,8 +24,7 @@ export default function BinLocationToAsEntry(props: {
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["ware-BinLocation"],
-    queryFn: () => new WareBinLocationRepository().get(),
-    staleTime: Infinity,
+    queryFn: () => new WareBinLocationRepository().get()
   });
 
   const filteredWarehouses = data?.filter(

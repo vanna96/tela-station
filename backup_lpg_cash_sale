@@ -44,7 +44,7 @@ function POST() {
     // Initialize ServiceLayerContext instance
     var slContext = new ServiceLayerContext();
     
-    const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
+    const fuelSale = slContext.get("TL_RETAILSALE_LP", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
     // return StockTransferTransaction(slContext, jsonObj);
     
@@ -68,14 +68,13 @@ function POST() {
         if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
-        slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
-        
+        slContext.update("TL_RETAILSALE_LP", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
+
         // update metter in pump
-        const nozzles = fuelSale.body['TL_RETAILSALE_FU_COCollection']
+        const nozzles = fuelSale.body['TL_RETAILSALE_LP_CCCollection']
         const pumpData = slContext.get("TL_Dispenser", fuelSale.body['U_tl_pump']).body;
         let TL_DISPENSER_LINESCollection = pumpData['TL_DISPENSER_LINESCollection'].map((pump) => {
             const find = nozzles.find((nozzle) => nozzle.U_tl_itemcode === pump.U_tl_itemnum);
-            if(!find) return pump;
             return {
                 ...pump,
                 U_tl_reg_meter: parseFloat(find.U_tl_ometer || 0),
@@ -91,7 +90,7 @@ function POST() {
         
         return http.response.send(200, fuelSale.body);
     } catch (error) {
-        slContext.update("TL_RETAILSALE", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
+        slContext.update("TL_RETAILSALE_LP", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
         return http.response.send(400, error);
     }
 }
@@ -286,7 +285,7 @@ function CashSaleTransaction(slContext, jsonObj){
     }
 
     // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_cashallow: 'Y' }, jsonObj['SaleDocEntry'])
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE_LP", { U_tl_s_cashallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
@@ -400,7 +399,7 @@ function PartnerShipTransaction(slContext, jsonObj){
     }
 
     // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_partallow: 'Y' }, jsonObj['SaleDocEntry'])
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE_LP", { U_tl_s_partallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
@@ -533,7 +532,7 @@ function StockTransferTransaction(slContext, jsonObj){
     }
 
     // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_stockallow: 'Y' }, jsonObj['SaleDocEntry'])
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE_LP", { U_tl_s_stockallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
@@ -583,7 +582,7 @@ function OwnUsageTransaction(slContext, jsonObj){
     }
 
     // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_ownallow: 'Y' }, jsonObj['SaleDocEntry'])
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE_LP", { U_tl_s_ownallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
@@ -696,7 +695,7 @@ function TelaCardTransaction(slContext, jsonObj){
     }
 
     // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_cardallow: 'Y' }, jsonObj['SaleDocEntry'])
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE_LP", { U_tl_s_cardallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
@@ -746,7 +745,7 @@ function PumpTestTransaction(slContext, jsonObj){
     } 
 
     // update status Fuel Cash Sale
-    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_pumpallow: 'Y' }, jsonObj['SaleDocEntry'])
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE_LP", { U_tl_s_pumpallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
