@@ -118,7 +118,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <WareHAutoComplete
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -149,7 +149,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <EmployeeAutoComplete
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
@@ -273,7 +273,7 @@ const General = ({
               </div>
               <div className="col-span-2 -mt-1 ml-5">
                 <MUITextField
-                  disabled={detail}
+                  disabled={true}
                   key={watch("DocNum")}
                   value={watch("DocNum")}
                 />
@@ -292,7 +292,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={watch("DocDate")}
                         onChange={(e: any) => {
@@ -324,7 +324,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail}
+                        disabled={id}
                         {...field}
                         value={watch("TaxDate")}
                         onChange={(e: any) => {

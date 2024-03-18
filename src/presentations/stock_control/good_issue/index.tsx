@@ -17,7 +17,7 @@ import moment from "moment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseGoodIssueListHook } from "./hook/UseGoodIssueListHook";
-
+// import {displayT}
 export default function InventoryTransferList() {
   const route = useNavigate();
   const [pagination, setPagination] = React.useState({
@@ -86,8 +86,8 @@ export default function InventoryTransferList() {
         align: "center",
         size: 88,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
+          
+          return <span>{}</span>;
         },
       },
       {
