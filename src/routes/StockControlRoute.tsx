@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import { APIContextProvider } from "@/presentations/expense/context/APIContext";
 import StockControlPage from "@/presentations/stock_control";
 import InventoryTransferRequestList from "@/presentations/stock_control/inventory_transfer_request";
 import { InventoryTransferRequestForm } from "@/presentations/stock_control/inventory_transfer_request/form/index";
@@ -18,41 +17,39 @@ import GoodReceiptDetail from "@/presentations/stock_control/good_receipt/detail
 
 export default function StockControlRoute() {
   return (
-    <APIContextProvider>
-      <Routes>
-        <Route index element={<StockControlPage />} />
+    <Routes>
+      <Route index element={<StockControlPage />} />
 
-        <Route path="/inventory-transfer-request">
-          <Route index element={<InventoryTransferRequestList />} />
-          <Route path="create" element={<InventoryTransferRequestForm />} />
-          <Route path=":id/edit" element={<InventoryTransferRequestForm edit={true} />} />
-          <Route path=":id" element={<InventoryTransferRequestDetails />} />
-        </Route>
-        <Route path="/stock-transfer">
-          <Route index element={<InventoryTransferList />} />
-          <Route path="create" element={<InventoryTransferForm />} />
-          <Route path=":id/edit" element={<InventoryTransferForm edit={true} />} />
-          <Route path=":id" element={<InventoryTransferForm edit={true} detail={true} />} />
-        </Route>
-        <Route path="/good-issue">
-          <Route index element={<GoodIssueList />} />
-          <Route path="create" element={<GoodIssueForm />} />
-          <Route path=":id/edit" element={<GoodIssueForm edit={true} />} />
-          <Route path=":id" element={<GoodIssueDetail detail={true} />} />
-        </Route>
-        <Route path="/good-receipt">
-          <Route index element={<GoodReceiptList />} />
-          <Route path="create" element={<GoodReceiptForm />} />
-          <Route path=":id/edit" element={<GoodReceiptForm edit={true} />} />
-          <Route path=":id" element={<GoodReceiptDetail edit={true} />} />
-        </Route>
-        <Route path="/fuel-level">
-          <Route index element={<FuelLevelList />} />
-          <Route path="create" element={<FuelLevelForm />} />
-          <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
-          <Route path=":id" element={<FuelLevelFormDetail />} />
-        </Route>
-      </Routes>
-    </APIContextProvider>
+      <Route path="/inventory-transfer-request">
+        <Route index element={<InventoryTransferRequestList />} />
+        <Route path="create" element={<InventoryTransferRequestForm />} />
+        <Route path=":id/edit" element={<InventoryTransferRequestForm edit={true} />} />
+        <Route path=":id" element={<InventoryTransferRequestDetails />} />
+      </Route>
+      <Route path="/stock-transfer">
+        <Route index element={<InventoryTransferList />} />
+        <Route path="create" element={<InventoryTransferForm />} />
+        <Route path=":id/edit" element={<InventoryTransferForm edit={true} />} />
+        <Route path=":id" element={<InventoryTransferForm edit={true} detail={true} />} />
+      </Route>
+      <Route path="/good-issue">
+        <Route index element={<GoodIssueList />} />
+        <Route path="create" element={<GoodIssueForm />} />
+        <Route path=":id/edit" element={<GoodIssueForm edit={true} />} />
+        <Route path=":id" element={<GoodIssueDetail detail={true} />} />
+      </Route>
+      <Route path="/good-receipt">
+        <Route index element={<GoodReceiptList />} />
+        <Route path="create" element={<GoodReceiptForm />} />
+        <Route path=":id/edit" element={<GoodReceiptForm edit={true} />} />
+        <Route path=":id" element={<GoodReceiptDetail edit={true} />} />
+      </Route>
+      <Route path="/fuel-level">
+        <Route index element={<FuelLevelList />} />
+        <Route path="create" element={<FuelLevelForm />} />
+        <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
+        <Route path=":id" element={<FuelLevelFormDetail />} />
+      </Route>
+    </Routes>
   );
 }

@@ -101,9 +101,11 @@ const General = (props: any) => {
   // 
   const { series, defaultSerie } = useGetFuelLevelSeriesHook();
 
+  console.log(defaultSerie.data)
+
   useEffect(() => {
     if (!defaultSerie.data) return;
-    props?.setValue('DocNum', defaultSerie.data);
+    props?.setValue('DocNum', defaultSerie.data?.NextNum);
   }, [defaultSerie.data])
 
 
@@ -330,7 +332,7 @@ const Content = (props: any) => {
                 <MUITextField
                   disabled={true}
                   inputProps={{
-                    defaultValue: row?.U_Remrk,
+                    defaultValue: row?.U_tl_remark,
                     onBlur: (e) => onChangeValue(index, 'U_tl_remark', e.target.value)
                   }} /></td>
             </tr>)}
