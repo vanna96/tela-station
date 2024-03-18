@@ -95,7 +95,7 @@ export default function InventoryTransferList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 navigate(
-                  "/stock-control/inventory-transfer-request/" +
+                  "/stock-control/stock-transfer/" +
                   cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
@@ -110,7 +110,7 @@ export default function InventoryTransferList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 navigate(
-                  `/stock-control/inventory-transfer-request/${cell.row.original.DocEntry}/edit`,
+                  `/stock-control/stock-transfer/${cell.row.original.DocEntry}/edit`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -153,7 +153,7 @@ export default function InventoryTransferList() {
             loading={loading}
             pagination={pagination}
             paginationChange={setPagination}
-            title="Fuel Level Lists"
+            title="Inventory Transfer Lists"
             createRoute={`/stock-control/stock-transfer/create`}
           >
             <Button
