@@ -3,13 +3,13 @@ import MUITextField from "@/components/input/MUITextField";
 import { Button, Checkbox, TextField } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import ITRModal, { InventoryItemModal } from "./ITRModal";
+import { InventoryItemModal } from "../components/ITRModal";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
-export default function Contents({
+export default function ContentDetail({
   register,
   setValue,
   detail,
@@ -116,6 +116,7 @@ export default function Contents({
                     <td className="py-2 flex justify-center gap-5 items-center">
                       {!detail && (
                         <Checkbox
+                          disabled
                           onChange={(event) => handleCheck(event, index)}
                           checked={selecteds[index] === undefined ? false : true}
                         />
@@ -125,6 +126,7 @@ export default function Contents({
                       <MUITextField
                         onClick={() => itemRef.current?.onOpen('single', index)}
                         endAdornment
+                        disabled
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemCode`, {
                             required: "Item No. is required",
@@ -147,6 +149,7 @@ export default function Contents({
                     </td>
                     <td className="pr-4">
                       <MUITextField
+                        disabled
                         type="number"
                         inputProps={{
                           ...register(`StockTransferLines.${index}.Quantity`, { required: `Quantity is required at ${index}`, }),
@@ -163,10 +166,11 @@ export default function Contents({
                           }
                         }
                         control={control}
+                        disabled
                         render={({ field }) => {
                           return (
                             <UomSelectByItem
-                              disabled={detail}
+                            
                               {...field}
                               onChange={(e) => {
                                 setValue(`StockTransferLines.${index}.UoMEntry`, e?.AbsEntry);
@@ -185,14 +189,6 @@ export default function Contents({
               );
             })}
           </table>
-          {detail ? null : (
-            <span
-              onClick={() => itemRef.current?.onOpen('multiple')}
-              className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
-            >
-              Add
-            </span>
-          )}
         </div>
         <div className="grid grid-cols-5 w-[30%] py-2 float-right mt-10">
           <div className="col-span-1">
@@ -202,7 +198,7 @@ export default function Contents({
           </div>
           <div className="col-span-4">
             <TextField
-              disabled={detail}
+              disabled
               size="small"
               fullWidth
               multiline

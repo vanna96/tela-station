@@ -1,7 +1,6 @@
 import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
-import WarehouseRepository from "@/services/warehouseRepository";
 import request, { url } from "@/utilies/request";
 
 interface Type {
@@ -17,6 +16,7 @@ const BaseStationAutoComplete = forwardRef<
     onChange?: (value: any) => void;
     name?: any;
     disabled?: any;
+    onBlur?: any;
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery({
@@ -74,6 +74,7 @@ const BaseStationAutoComplete = forwardRef<
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
+        onBlur={props?.onBlur}
         loading={isLoading}
         getOptionLabel={(option: Type) =>
           option.WarehouseCode + " - " + option.WarehouseName

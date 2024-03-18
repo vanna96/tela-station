@@ -4,10 +4,10 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
 import AttentionTerminalAutoComplete from "./AttentionTerminalAutoComplete";
-import request from "@/utilies/request";
+import request, { url } from "@/utilies/request";
 import ToWarehouseAutoComplete from "./ToWarehouseAutoComplete";
 import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
-import { useInfiniteQuery } from "react-query";
+import { useQuery } from "react-query";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 import { delay } from "@/lib/utils";
@@ -41,11 +41,22 @@ const BasicInformation = (props: any) => {
     [series?.data]
   );
 
-  const branch: any = useInfiniteQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
+  const branch: any = useQuery({
+    queryKey: ["branchid"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
     staleTime: Infinity,
-  });
+  })
+  console.log(branch);
 
   const { data } = useGetWhsTerminalAssignHook(false);
 
@@ -127,8 +138,8 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  value={branch?.data?.pages[0]?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
-                  inputProps={{ ...props.register("BPLID") }}
+                  value={branch?.data?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
+                  inputProps={{ ...props.register("BPLName") }}
                 />
               </div>
             </div>
