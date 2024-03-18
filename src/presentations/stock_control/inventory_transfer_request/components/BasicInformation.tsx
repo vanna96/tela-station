@@ -10,6 +10,9 @@ import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
 import { useInfiniteQuery } from "react-query";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
+import { delay } from "@/lib/utils";
+import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
@@ -54,6 +57,10 @@ const BasicInformation = (props: any) => {
     props?.setValue("Series", serie?.Series);
     props?.setValue("DocNum", serie?.NextNumber);
     props?.setValue('BPLID', value?.BPLID)
+  }
+
+  const onChangeToWarehouse = async (e: any) => {
+    props.setValue("ToWarehouse", e.WarehouseCode);
   }
 
   return (
@@ -140,22 +147,12 @@ const BasicInformation = (props: any) => {
                   control={props.control}
                   render={({ field }) => {
                     return (
-                      <ToWarehouseAutoComplete
+                      <WarehouseAutoComplete
+                        branchId={props?.watch('BPLID')}
                         disabled={props.detail}
                         {...field}
                         value={field.value}
-                        onChange={async (e: any) => {
-                          // console.log(e.DefaultBin);
-                          props.setValue("ToWarehouse", e.WarehouseCode);
-
-                          if (!e.DefaultBin) return;
-
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e.DefaultBin})`
-                          );
-                          props.setValue("U_tl_sobincode", res.data.BinCode);
-                        }}
+                        onChange={onChangeToWarehouse}
                       />
                     );
                   }}
@@ -171,7 +168,23 @@ const BasicInformation = (props: any) => {
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
-                <MUITextField value={props.watch("U_tl_sobincode")} disabled />
+                {/* <MUITextField value={props.watch("U_tl_sobincode")} disabled /> */}
+                <Controller
+                  rules={{ required: "To Bin Code is required" }}
+                  name="U_tl_sobincode"
+                  control={props.control}
+                  render={({ field }) => {
+                    return (
+                      <BinAllocationAutoComplete
+                        warehouse={props?.watch('ToWarehouse')}
+                        disabled={props.detail}
+                        {...field}
+                        value={field.value}
+                        onChange={(value) => props?.setValue('U_tl_sobincode', value?.BinCode)}
+                      />
+                    );
+                  }}
+                />
               </div>
             </div>
           </div>

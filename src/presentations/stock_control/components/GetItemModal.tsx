@@ -8,7 +8,7 @@ import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
-import SelectPage from "./SelectPage";
+import SelectPage from "../inventory_transfer/components/SelectPage";
 import { SearchIcon } from "lucide-react";
 import { debounce } from "@/lib/utils";
 import { AiOutlineConsoleSql } from "react-icons/ai";
@@ -54,12 +54,12 @@ export class InventoryItemModal extends React.Component<InventoryItemModalProps,
   }
 
   render() {
-    return <ITRModal type={this.state.type ?? 'multiple'} open={this.state.open} onClose={() => this.onClose()} onSelectItems={(items) => this.onSelectChangeItems(items)} />
+    return <GetItemModal type={this.state.type ?? 'multiple'} open={this.state.open} onClose={() => this.onClose()} onSelectItems={(items) => this.onSelectChangeItems(items)} />
   }
 }
 
 
-export default function ITRModal(props: { open: boolean, onClose: () => void, onSelectItems: (items: any[] | any) => void, type: ModalType }) {
+export default function GetItemModal(props: { open: boolean, onClose: () => void, onSelectItems: (items: any[] | any) => void, type: ModalType }) {
   const { data, isLoading } = useQuery({
     queryKey: ["item-inventory"],
     queryFn: () => request("GET", `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry & $filter=InventoryItem eq 'tYES'`),

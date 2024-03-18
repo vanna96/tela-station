@@ -1,5 +1,4 @@
 import MUITextField from "@/components/input/MUITextField";
-import { UseFormProps } from "../form";
 import { useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
@@ -15,6 +14,7 @@ import request from "@/utilies/request";
 import { CircularProgress } from "@mui/material";
 import { loadavg } from "os";
 import AttentionTerminalAutoComplete from "../components/AttentionTerminalAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 
 const BasicInformationDetail = ({
   register,
@@ -29,7 +29,7 @@ const BasicInformationDetail = ({
   serie,
   edit,
   getValues,
-}: UseFormProps) => {
+}: any) => {
   const [staticSelect, setStaticSelect] = useState({
     branchASS: null,
     serie: 7838,
@@ -149,21 +149,13 @@ const BasicInformationDetail = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <ToWarehouseAutoComplete
+                      <WarehouseAutoComplete
+                        branchId={watch('BPLID')}
                         disabled={detail}
                         {...field}
                         value={field.value}
                         onChange={async (e: any) => {
-                          console.log(e.DefaultBin);
                           setValue("ToWarehouse", e.WarehouseCode);
-
-                          if (!e.DefaultBin) return;
-
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e.DefaultBin})`
-                          );
-                          setValue("U_tl_sobincode", res.data.BinCode);
                         }}
                       />
                     );
@@ -251,7 +243,7 @@ const BasicInformationDetail = ({
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           setValue("DocDate", val);
@@ -281,7 +273,7 @@ const BasicInformationDetail = ({
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           setValue("DueDate", val);

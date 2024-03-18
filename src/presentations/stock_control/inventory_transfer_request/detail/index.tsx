@@ -9,6 +9,7 @@ import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
 import BasicInformation from "../components/BasicInformation"
 import Contents from "../components/Contents"
+import { LoadingButton } from "@mui/lab"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -82,6 +83,30 @@ export const InventoryTransferRequestDetails = () => {
 
       <FormMessageModal ref={dialog} />
       <CustomToast ref={toastRef} />
+
+      <div className="sticky w-full bottom-4 md:bottom-0 md:p-3  mt-2 ">
+        <div className="backdrop-blur-sm bg-white p-2 rounded-lg  z-[1000] flex justify-end gap-3 border drop-shadow-sm">
+
+
+          {/*  */}
+          <div className="flex ">
+            <LoadingButton
+              size="small"
+              sx={{ height: "25px", }}
+              style={{
+                background: '#2D31AB',
+                backgroundColor: '#2D31AB',
+              }}
+              disableElevation
+              onClick={() => navigate(`/stock-control/stock-transfer/create?type=external&id=${hook.id}`)}
+            >
+              <span className="px-3 text-[11px] py-1 text-white">
+                Copy To
+              </span>
+            </LoadingButton>
+          </div>
+        </div>
+      </div>
     </form>
   </div>
 }

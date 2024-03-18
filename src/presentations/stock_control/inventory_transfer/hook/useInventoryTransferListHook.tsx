@@ -6,6 +6,9 @@ import request from "@/utilies/request";
 import React, { useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 
+
+export type TransferType = 'internal' | 'external';
+
 const defaultQuery: QueryOptionAPI = { skip: 0, top: 10, orderby: 'DocEntry desc' } as const;
 
 const initialState = { ...defaultQuery };

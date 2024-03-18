@@ -16,6 +16,7 @@ export const InventoryTransferRequestForm = ({ edit = false }: { edit?: boolean 
   const [tap, setTap] = useState<number>(0)
   const hook = useTransferRequestFormHook(edit, dialog);
 
+
   const onChangeTap = (index: number) => {
 
     if (index === 1 && !hook.watch('BPLID')) {
@@ -52,7 +53,7 @@ export const InventoryTransferRequestForm = ({ edit = false }: { edit?: boolean 
             keepTouched: false,
             keepValues: false
           })
-          navigate(`/stock-control/inventory-transfer/create`)
+          navigate(`/stock-control/inventory-transfer-request/create`)
         }}
         endIcon={<IoCreate />}
       >
@@ -106,7 +107,7 @@ export const InventoryTransferRequestForm = ({ edit = false }: { edit?: boolean 
               }}
               disableElevation
               onClick={() =>
-                (window.location.href = "/stock-control/fuel-level")
+                (window.location.href = "/stock-control/stock-transfer")
               }
             >
               <span className="px-3 text-[11px] py-1 text-red-500">
@@ -114,6 +115,26 @@ export const InventoryTransferRequestForm = ({ edit = false }: { edit?: boolean 
               </span>
             </LoadingButton>
           </div>
+
+          {/*  */}
+          {edit && <div className="flex ">
+            <LoadingButton
+              size="small"
+              sx={{ height: "25px", }}
+              style={{
+                background: '#2D31AB',
+                backgroundColor: '#2D31AB',
+              }}
+              disableElevation
+              onClick={() => navigate(`/stock-control/stock-transfer/create?type=external&id=${hook.id}`)}
+            >
+              <span className="px-3 text-[11px] py-1 text-white">
+                Copy To
+              </span>
+            </LoadingButton>
+          </div>}
+
+          {/*  */}
           <div className="flex items-center space-x-4">
             <LoadingButton
               type="submit"

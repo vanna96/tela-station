@@ -3,6 +3,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import { twMerge } from "tailwind-merge";
 import { ConditionQuery, QueryOptionAPI } from "./filter_type";
+import dayjs from "dayjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -73,6 +74,7 @@ export function getCookie(name: string) {
 
 export function useQueryParams() {
   const { search } = useLocation();
+  console.log(search);
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 
@@ -128,4 +130,10 @@ export const debounce = (func: Function, delay: number) => {
       func.apply(this, args);
     }, delay);
   };
+};
+
+export const dispayTextDate = (date: string | undefined | null) => {
+  if (!date || date === "") return "";
+
+  return dayjs(date).format("DD.MMM.YYYY");
 };

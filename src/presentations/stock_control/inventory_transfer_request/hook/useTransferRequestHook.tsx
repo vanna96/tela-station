@@ -34,23 +34,28 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
 
 
     const onSubmit = async (payload: any) => {
-        if (!payload.StockTransferLines || payload.StockTransferLines.length === 0) {
-            dialog.current?.error("Stock Transfer Lines must have at least one row.")
-            return;
+        try {
+            if (!payload.StockTransferLines || payload.StockTransferLines.length === 0) {
+                dialog.current?.error("Stock Transfer Lines must have at least one row.")
+                return;
+            }
+
+            setLoading(true);
+            const url = edit ? `InventoryTransferRequests(${id})` : 'InventoryTransferRequests';
+            const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
+            setLoading(false)
+
+
+            if (!response.data && typeof response !== 'string') {
+                dialog.current?.error("Error")
+                return;
+            }
+
+            dialog.current?.success(`${edit ? 'Update' : 'Create'} Successfully.`, response?.data?.DocEntry)
+        } catch (error: any) {
+            setLoading(false)
+            dialog.current?.error(error?.message);
         }
-
-        setLoading(true);
-        const url = edit ? `InventoryTransferRequests(${id})` : 'InventoryTransferRequests';
-        const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
-        setLoading(false)
-
-
-        if (!response.data && typeof response !== 'string') {
-            dialog.current?.error("Error")
-            return;
-        }
-
-        dialog.current?.success(`${edit ? 'Update' : 'Create'} Successfully.`, response?.data?.DocEntry)
     };
 
     const onInvalidForm = (e: any) => {
@@ -62,6 +67,7 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
     }
 
     useEffect(() => {
+        setLoading(false)
         if (!id) return;
         setLoading(true)
         request('GET', `InventoryTransferRequests(${id})`)
@@ -89,5 +95,7 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
         onInvalidForm,
         onSubmit,
         loading,
+        setLoading,
+        id
     }
 }
