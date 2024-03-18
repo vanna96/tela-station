@@ -39,7 +39,7 @@ export default function InventoryTransferList() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "No",
+        accessorKey: "DocNum",
         header: "No.", //uses the default width from defaultColumn prop
         size: 40,
         visible: true,
