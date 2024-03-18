@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from "react";
 import {
   FieldValues,
+  UseFormGetValues,
   UseFormRegister,
   UseFormSetValue,
   useForm,
@@ -34,15 +35,16 @@ export type UseFormProps = {
   useWatch?: any;
   control?: any;
   defaultValues?:
-  | Readonly<{
-    [x: string]: any;
-  }>
-  | undefined;
+    | Readonly<{
+        [x: string]: any;
+      }>
+    | undefined;
   setBranchAss?: any;
   branchAss?: any;
   header?: any;
   setHeader?: any;
   detail?: boolean;
+  getValues: UseFormGetValues<FieldValues>;
 };
 // const { id } = useParams();
 const VehicleForm = (props: any) => {
@@ -467,6 +469,7 @@ const VehicleForm = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                   useWatch={useWatch}
+                  getValues={getValues}
                 />
               </div>
             )}
@@ -479,12 +482,14 @@ const VehicleForm = (props: any) => {
                   register={register}
                   control={control}
                   defaultValues={defaultValues}
+                  getValues={getValues}
                 />
               </div>
             )}
             {state.tapIndex === 2 && (
               <div className="grow">
                 <Engine
+                  getValues={getValues}
                   register={register}
                   setValue={setValue}
                   control={control}
@@ -497,6 +502,7 @@ const VehicleForm = (props: any) => {
             {state.tapIndex === 3 && (
               <div className="grow">
                 <Tyres
+                  getValues={getValues}
                   register={register}
                   setValue={setValue}
                   control={control}
