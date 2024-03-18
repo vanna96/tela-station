@@ -4,6 +4,7 @@ import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
   PositionID: number;
@@ -17,11 +18,18 @@ export default function PositionAutoComplete(props: {
   name?: any;
   disabled?: any;
 }) {
-    const { data, isLoading }: any = useQuery({
-      queryKey: ["position"],
-      queryFn: () => new PositionRepository().get(),
-      staleTime: Infinity,
-    });
+  const { data, isLoading }: any = useQuery({
+    queryKey: ["position"],
+    queryFn: async () => {
+      const response: any = await request("GET", `${url}/EmployeePosition`)
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    staleTime: Infinity,
+  });
 
 
   useEffect(() => {

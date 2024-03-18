@@ -11,7 +11,6 @@ import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index
 import FuelLevelList from "@/presentations/stock_control/fuel_level";
 import GoodReceiptList from "@/presentations/stock_control/good_receipt";
 import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/GoodReceiptForm";
-import GoodReceiptDetails from "@/presentations/stock_control/good_receipt/detail/index";
 import { FuelLevelForm } from "@/presentations/stock_control/fuel_level/form/FuelLevelForm";
 
 import { InventoryTransferRequestDetails } from "@/presentations/stock_control/inventory_transfer_request/detail/index"
@@ -20,6 +19,7 @@ import { InventoryTransferForm } from "@/presentations/stock_control/inventory_t
 // import { InventoryTransferDetails } from "@/presentations/stock_control/inventory_transfer/detail/index"
 import { FuelLevelFormDetail } from "@/presentations/stock_control/fuel_level/form/FuelLevelFormDetail";
 import GoodIssueDetail from "@/presentations/stock_control/good_issue/detail/GoodIssueDetail";
+import GoodReceiptDetail from "@/presentations/stock_control/good_receipt/detail/GoodReceiptDetail";
 
 export default function StockControlRoute() {
   return (
@@ -49,7 +49,7 @@ export default function StockControlRoute() {
           <Route index element={<GoodReceiptList />} />
           <Route path="create" element={<GoodReceiptForm />} />
           <Route path=":id/edit" element={<GoodReceiptForm edit={true} />} />
-          <Route path=":id" element={<GoodReceiptDetails edit={true} />} />
+          <Route path=":id" element={<GoodReceiptDetail edit={true} />} />
         </Route>
 
         <Route path="/pump-test">

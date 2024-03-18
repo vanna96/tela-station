@@ -5,6 +5,7 @@ import { useQuery } from "react-query";
 import SalePersonRepository from "@/services/actions/salePersonRepository";
 import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
   Code: number;
@@ -20,7 +21,14 @@ export default function DepartmentAutoComplete(props: {
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["department"],
-    queryFn: () => new DepartmentRepository().get(),
+    queryFn: async () => {
+      const response: any = await request("GET", `${url}/Departments`)
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
     staleTime: Infinity,
   });
 

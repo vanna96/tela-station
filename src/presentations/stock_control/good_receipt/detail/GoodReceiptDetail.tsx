@@ -18,8 +18,8 @@ import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import General from "../components/General";
 import Content from "../components/Content";
-import Tabar from "../components/Tabar";
 import CustomToast from "@/components/modal/CustomToast";
+import Tabar from "../../good_issue/components/Tabar";
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
@@ -37,9 +37,13 @@ export type UseFormProps = {
   getValues: UseFormGetValues<FieldValues>;
   reset: any;
 };
-const GoodIssueForm = (props: any) => {
+const GoodReceiptDetail = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm();
+    useForm({
+      defaultValues: {
+        DocumentLines: [],
+      },
+    });
 
   const { id }: any = useParams();
 
@@ -53,31 +57,6 @@ const GoodIssueForm = (props: any) => {
     DocNum: 0,
   });
 
-  const onSubmit = async (payload: any) => {
-    try {
-      setState({ ...state, isSubmitting: true });
-      if (props.edit) {
-        await request("PATCH", `/InventoryGenExits(${id})`, payload)
-          .then((res: any) =>
-            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      } else {
-        await request("POST", "/InventoryGenExits", payload)
-          .then((res: any) =>
-            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setState({ ...state, isSubmitting: false });
-    }
-  };
-
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -89,30 +68,6 @@ const GoodIssueForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    if (
-      !getValues("BPL_IDAssignedToInvoice") ||
-      getValues("BPL_IDAssignedToInvoice") === ""
-    ) {
-      toastRef.current?.open();
-      return;
-    }
-    if (!getValues("U_tl_whsdesc") || getValues("U_tl_whsdesc") === "") {
-      toastRef.current?.open();
-      return;
-    }
-    if (!getValues("Series") || getValues("Series") === "") {
-      toastRef.current?.open();
-      return;
-    }
-    if (!getValues("TaxDate") || getValues("TaxDate") === "") {
-      toastRef.current?.open();
-      return;
-    }
-    if (!getValues("U_tl_gitype") || getValues("U_tl_gitype") === "") {
-      toastRef.current?.open();
-      return;
-    }
-
     handlerChangeMenu(tapIndex);
   };
 
@@ -135,7 +90,7 @@ const GoodIssueForm = (props: any) => {
       ...state,
       loading: true,
     });
-    request("GET", `InventoryGenExits(${id})`)
+    request("GET", `InventoryGenEntries(${id})`)
       .then((res: any) => {
         setState({
           ...state,
@@ -184,7 +139,6 @@ const GoodIssueForm = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <div className="grow">
@@ -195,6 +149,7 @@ const GoodIssueForm = (props: any) => {
                   watch={watch}
                   setValue={setValue}
                   reset={reset}
+                  detail={props?.edit}
                 />
               </div>
             )}
@@ -205,6 +160,7 @@ const GoodIssueForm = (props: any) => {
                   getValues={getValues}
                   control={control}
                   watch={watch}
+                  detail={props?.edit}
                   setValue={setValue}
                 />{" "}
               </div>
@@ -256,4 +212,4 @@ const GoodIssueForm = (props: any) => {
   );
 };
 
-export default GoodIssueForm;
+export default GoodReceiptDetail;

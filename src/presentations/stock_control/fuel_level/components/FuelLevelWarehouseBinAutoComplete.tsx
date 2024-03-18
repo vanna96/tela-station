@@ -20,7 +20,8 @@ export default function FuelLevelWarehouseBinAutoComplete(props: {
     BPdata?: any;
     disabled?: any;
     name?: any;
-    whsCode: string | undefined
+    whsCode: string | undefined;
+    disable?: boolean
 }) {
     const { data, isLoading } = useQuery({ queryKey: [`whs_bins_${props.whsCode}`], queryFn: () => getData(props.whsCode) })
     const { disabled } = props;
@@ -40,8 +41,6 @@ export default function FuelLevelWarehouseBinAutoComplete(props: {
             if (selectedBranch) setSelectedValue(selectedBranch);
         }
     }, [props.value, data]);
-
-
     return (
         <Autocomplete
             disabled={disabled}

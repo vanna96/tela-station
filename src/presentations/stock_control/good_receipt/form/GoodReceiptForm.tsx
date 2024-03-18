@@ -3,10 +3,8 @@ import {
   FieldValues,
   UseFormGetValues,
   UseFormRegister,
-  UseFormReset,
   UseFormSetValue,
   UseFormWatch,
-  useFieldArray,
   useForm,
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
@@ -39,11 +37,7 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm({
-      defaultValues: {
-        DocumentLines: [],
-      },
-    });
+    useForm();
 
   const { id }: any = useParams();
 
@@ -57,22 +51,34 @@ const GoodIssueForm = (props: any) => {
     DocNum: 0,
   });
 
-  const onSubmit = async (payload: any) => {
-    // console.log(payload);
-    // return
-    const url = props.edit
-      ? `/InventoryGenEntries(${id})`
-      : `/InventoryGenEntries`;
-    setState({ ...state, isSubmitting: true });
-    await request(props?.edit ? "PATCH" : "POST", url, payload)
-      .then((res: any) =>
-        dialog.current?.success(
-          props?.edit ? "Update Successfully." : "Create Successfully.",
-          res?.data?.DocEntry
-        )
-      )
-      .catch((err: any) => dialog.current?.error(err.message))
-      .finally(() => setState({ ...state, isSubmitting: false }));
+  const onSubmit = async (e: any) => {
+    const payload = {
+      ...e,
+      // DocNum: undefined,
+      // Series:undefined
+    };
+    try {
+      setState({ ...state, isSubmitting: true });
+      if (props.edit) {
+        await request("PATCH", `/InventoryGenEntries(${id})`, payload)
+          .then((res: any) =>
+            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      } else {
+        await request("POST", "/InventoryGenEntries", payload)
+          .then((res: any) =>
+            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
+          )
+          .catch((err: any) => dialog.current?.error(err.message))
+          .finally(() => setState({ ...state, isSubmitting: false }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setState({ ...state, isSubmitting: false });
+    }
   };
 
   const handlerChangeMenu = useCallback(
@@ -86,14 +92,29 @@ const GoodIssueForm = (props: any) => {
   );
 
   const isNextTap = (tapIndex: number) => {
-    // if (
-    //   !getValues("BPL_IDAssignedToInvoice") ||
-    //    getValues("BPL_IDAssignedToInvoice") === ""
-    // ) {
-    //   toastRef.current?.open();
-    //   return;
-    // }
-
+    if (
+      !getValues("BPL_IDAssignedToInvoice") ||
+      getValues("BPL_IDAssignedToInvoice") === ""
+    ) {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_tl_whsdesc") || getValues("U_tl_whsdesc") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("TaxDate") || getValues("TaxDate") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_tl_grtype") || getValues("U_tl_grtype") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("Series") || getValues("Series") === "") {
+      toastRef.current?.open();
+      return;
+    }
     handlerChangeMenu(tapIndex);
   };
 

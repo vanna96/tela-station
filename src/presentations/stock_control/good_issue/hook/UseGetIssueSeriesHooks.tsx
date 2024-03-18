@@ -30,7 +30,7 @@ const getDefaultSerie = async () => {
 
   if (response?.code === "ERR_BAD_REQUEST") return undefined;
 
-  return response?.data?.Series;
+  return response?.data;
 };
 
 export const useGetIssueSeriesHook = () => {

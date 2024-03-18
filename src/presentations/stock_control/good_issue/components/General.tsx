@@ -6,10 +6,13 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { useParams } from "react-router-dom";
-import { useGetIssueSeriesHook } from "../hook/useGetIssueSeriesHook";
 import DistributionRulesAutoComplete from "@/components/input/DistributionRulesAutoComplete";
 import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
 import WareHAutoComplete from "@/components/input/WareHAutoComplete";
+import GoodIssueTypeAutoComplete from "@/components/input/GoodIssueTypeAutoComplete";
+import { useQuery } from "react-query";
+import request, { url } from "@/utilies/request";
+import { useGetIssueSeriesHook } from "../hook/UseGetIssueSeriesHooks";
 
 const General = ({
   register,
@@ -30,7 +33,8 @@ const General = ({
   useEffect(() => {
     if (id) return;
     if (!defaultSerie.data) return;
-    setValue("DocNum", defaultSerie.data);
+    setValue("Series", defaultSerie?.data?.Series);
+    setValue("DocNum", defaultSerie.data?.NextNumber);
   }, [defaultSerie.data]);
 
   const onChangeSerie = useCallback(
@@ -45,13 +49,30 @@ const General = ({
     },
     [series?.data]
   );
-  // useEffect(() => {
-  //   reset({
-  //     fields:fields,
-  //     DocDate: new Date().toISOString()?.split("T")[0],
-  //     TaxDate: new Date().toISOString()?.split("T")[0],
-  //   });
-  // }, []);
+  const branch: any = useQuery({
+    queryKey: ["branch"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    staleTime: Infinity,
+  });
+  const onChangeBranch = (value: any) => {
+    const period = new Date().getFullYear();
+    const serie = series?.data?.find(
+      (e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value
+    );
+    setValue("Series", serie?.Series);
+    setValue("DocNum", serie?.NextNumber);
+    setValue("BPLID", value?.BPLID);
+  };
 
   return (
     <>
@@ -69,22 +90,16 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPL_IDAssignedToInvoice"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BranchAssignmentAuto
-                        disabled={detail}
-                        value={field?.value}
-                        onChange={(e: any) => {
-                          setValue("BPL_IDAssignedToInvoice", e?.BPLID);
-                          setValue("BPLName", e?.BPLName);
-                        }}
-                      />
-                    );
+                <MUITextField
+                  disabled={true}
+                  inputProps={{
+                    ...register("BPLName"),
                   }}
+                  value={
+                    branch?.data?.find(
+                      (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
+                    )?.BPLName
+                  }
                 />
               </div>
             </div>
@@ -107,7 +122,13 @@ const General = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("U_tl_whsdesc", e);
+                          setValue(
+                            "BPL_IDAssignedToInvoice",
+                            e?.BusinessPlaceID
+                          );
+                          onChangeBranch(e?.BusinessPlaceID);
+
+                          setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
                       />
                     );
@@ -334,7 +355,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <PositionAutoComplete
+                      <GoodIssueTypeAutoComplete
                         disabled={detail}
                         {...field}
                         value={field?.value}
