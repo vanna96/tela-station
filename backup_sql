@@ -1,0 +1,262 @@
+--- BIZ BIN QUERY ---
+CREATE VIEW "TLTELA_DEVELOPER"."BIZ_BIN_QUERY" ( "ItemCode",
+	 "ItemName",
+	 "WhsCode",
+	 "OnHandQty",
+	 "BinCode",
+	 "BinID" ) AS SELECT
+	 T0."ItemCode",
+	T5."ItemName",
+	T0."WhsCode",
+	T2."OnHandQty",
+	T1."BinCode",
+	 T1."AbsEntry" "BinID" 
+FROM OITW T0 
+INNER JOIN "OBIN" T1 ON T0."WhsCode" = T1."WhsCode" 
+INNER JOIN OIBQ T2 ON T2."WhsCode" = T0."WhsCode" 
+AND T1."AbsEntry" = T2."BinAbs" 
+AND T0."ItemCode" = T2."ItemCode" 
+INNER JOIN OITM T5 ON T5."ItemCode" = T0."ItemCode" WITH READ ONLY
+
+--- BIZ BIN QUERY ---
+CREATE VIEW "TLTELA_DEVELOPER"."BIZ_BP_BRANCH_QUERY" ( "CardCode",
+	 "CardName",
+	 "CardType",
+	 "DisabledBP",
+	 "BPLId",
+	 "BPLName",
+	 "Currency",
+	 "Balance" ) AS SELECT
+	 A."CardCode" ,
+	A."CardName" ,
+	A."CardType" ,
+	B."DisabledBP" ,
+	C."BPLId" ,
+	C."BPLName" ,
+	CASE WHEN "Currency"='##' 
+THEN 'All Currencies' 
+ELSE "Currency" 
+END "Currency" ,
+	IFNULL(D."Balance",
+	0) "Balance" 
+FROM OCRD A 
+LEFT OUTER JOIN CRD8 B ON A."CardCode"=B."CardCode" 
+LEFT OUTER JOIN OBPL C ON B."BPLId"=C."BPLId" 
+LEFT OUTER JOIN (SELECT
+	 B."CardCode",
+	SUM(A."Debit"-A."Credit") "Balance" 
+	FROM JDT1 A 
+	INNER JOIN OCRD B ON A."ShortName"=B."CardCode" 
+	GROUP BY B."CardCode")D ON A."CardCode"=D."CardCode" 
+ORDER BY A."CardType",
+	A."CardCode",
+	C."BPLId",
+	D."Balance" ASC WITH READ ONLY
+
+
+--- AR INCOMING ---
+CREATE VIEW "TLTELA_DEVELOPER"."BIZ_AR_INCOMING_PAYMENT" ( "TransTypeName",
+	 "TransType",
+	 "DocumentNo",
+	 "DocEntry",
+	 "FCCurrency",
+	 "DocTotal",
+	 "DocBalance",
+	 "DocTotalFC",
+	 "DocBalanceFC",
+	 "BPCode",
+	 "DueDate",
+	 "TaxDate",
+	 "Memo",
+	 "MthDate",
+	 "DocRate",
+	 "DocStatus",
+	 "OverDueDays",
+	 "InvoiceType",
+	 "PaymentTerm",
+	 "CardParent",
+	 "BALDUEDEB",
+	 "BALDUECRED",
+	 "BPLId",
+	 "NumAtCard",
+	 "SlpCode" ) AS SELECT
+	 "TransTypeName",
+	 "TransType",
+	 "DocumentNo",
+	 "DocEntry",
+	 "FCCurrency",
+	 "DocTotal",
+	 "DocBalance",
+	 "DocTotalFC",
+	 "DocBalanceFC",
+	 "BPCode",
+	 "DueDate",
+	 "TaxDate",
+	 "Memo",
+	 "MthDate",
+	 "DocRate",
+	 "DocStatus",
+	 DAYS_BETWEEN("DueDate",
+	 CURRENT_DATE) AS "OverDueDays",
+	 CASE WHEN "TransType" = '13' 
+THEN 'it_Invoice' WHEN "TransType" = '14' 
+THEN 'it_CredItnote' WHEN "TransType" = '203' 
+THEN 'it_DownPayment' 
+ELSE 'it_JournalEntry' 
+END AS "InvoiceType",
+	 "PaymentTerm",
+	 "CardParent",
+	 BalDueDeb,
+	 BalDueCred,
+	 "BPLId",
+	 "NumAtCard",
+	 "SlpCode" 
+FROM ( SELECT
+	 CASE WHEN A."ObjType" = '13' 
+	THEN 'A/R Invoice' WHEN A."ObjType" = '14' 
+	THEN 'A/R Credit Memo' WHEN A."ObjType" = '203' 
+	THEN 'A/R Down Payment' 
+	END AS "TransTypeName",
+	 A."ObjType" AS "TransType",
+	 A."DocNum" AS "DocumentNo",
+	 A."DocEntry",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN B."DocStatus" WHEN A."ObjType" = '14' 
+	THEN C."DocStatus" WHEN A."ObjType" = '203' 
+	THEN D."DocStatus" 
+	END AS "DocStatus",
+	 A."DocCur" AS "FCCurrency",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN B."DocTotal" WHEN A."ObjType" = '14' 
+	THEN C."DocTotal" * -1 WHEN A."ObjType" = '203' 
+	THEN D."DocTotal" 
+	END AS "DocTotal",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN B."DocTotal" - B."PaidToDate" WHEN A."ObjType" = '14' 
+	THEN (C."DocTotal" - C."PaidToDate") * -1 WHEN A."ObjType" = '203' 
+	THEN D."DocTotal" - D."PaidToDate" 
+	END AS "DocBalance",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN COALESCE(B."DocTotalFC",
+	 0) WHEN A."ObjType" = '14' 
+	THEN COALESCE(C."DocTotalFC",
+	 0) * -1 WHEN A."ObjType" = '203' 
+	THEN COALESCE(D."DocTotalFC",
+	 0) 
+	END AS "DocTotalFC",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN COALESCE(B."DocTotalFC",
+	 0) - COALESCE(B."PaidFC",
+	 0) WHEN A."ObjType" = '14' 
+	THEN (COALESCE(C."DocTotalFC",
+	 0) - COALESCE(C."PaidFC",
+	 0)) * -1 WHEN A."ObjType" = '203' 
+	THEN COALESCE(D."DocTotalFC",
+	 0) - COALESCE(D."PaidFC",
+	 0) 
+	END AS "DocBalanceFC",
+	 A."CardCode" AS "BPCode",
+	 A."DocDueDate" AS "DueDate",
+	 A."TaxDate",
+	 A."JrnlMemo" AS "Memo",
+	 A."DocDate" AS "MthDate",
+	 A."DocRate",
+	 ( SELECT
+	 CONCAT("NumOfDays",
+	 CONCAT(',',
+	 "Discount")) 
+		FROM "TLTELA_DEVELOPER"."OCTG" AS T0 
+		INNER JOIN "TLTELA_DEVELOPER"."OCDC" AS T1 ON T0."DiscCode" = T1."Code" 
+		INNER JOIN "TLTELA_DEVELOPER"."CDC1" AS T2 ON T1."Code" = T2."CdcCode" 
+		WHERE (A."ObjType" = '13' 
+			AND T0."GroupNum" IN (B."GroupNum",
+	 D."GroupNum")) 
+		OR (IFNULL(D."TransId",
+	 0) <> 0 
+			AND A."ObjType" = '203') ) AS "PaymentTerm",
+	 CASE WHEN B."FatherCard" IS NOT NULL 
+	THEN B."FatherCard" WHEN C."FatherCard" IS NOT NULL 
+	THEN C."FatherCard" WHEN D."FatherCard" IS NOT NULL 
+	THEN D."FatherCard" 
+	END AS "CardParent",
+	 '0' AS BalDueDeb,
+	 '0' AS BalDueCred,
+	 CASE WHEN A."ObjType" = '13' 
+	THEN B."BPLId" WHEN A."ObjType" = '14' 
+	THEN C."BPLId" WHEN A."ObjType" = '203' 
+	THEN D."BPLId" 
+	END AS "BPLId",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN B."NumAtCard" WHEN A."ObjType" = '14' 
+	THEN C."NumAtCard" WHEN A."ObjType" = '203' 
+	THEN D."NumAtCard" 
+	END AS "NumAtCard",
+	 CASE WHEN A."ObjType" = '13' 
+	THEN B."SlpCode" WHEN A."ObjType" = '14' 
+	THEN C."SlpCode" WHEN A."ObjType" = '203' 
+	THEN D."SlpCode" 
+	END AS "SlpCode" 
+	FROM "TLTELA_DEVELOPER"."B1_AllDocumentsView" AS A 
+	LEFT OUTER JOIN "TLTELA_DEVELOPER"."OINV" AS B ON A."DocEntry" = B."DocEntry" 
+	AND A."ObjType" = B."ObjType" 
+	LEFT OUTER JOIN "TLTELA_DEVELOPER"."ORIN" AS C ON A."DocEntry" = C."DocEntry" 
+	AND A."ObjType" = C."ObjType" 
+	LEFT OUTER JOIN "TLTELA_DEVELOPER"."ODPI" AS D ON A."DocEntry" = D."DocEntry" 
+	AND A."ObjType" = D."ObjType" 
+	WHERE (A."IsDraft" = 'N') 
+	AND (A."ObjType" IN ('13',
+	 '14',
+	 '203')) 
+	UNION ALL SELECT
+	 'Journal Entry' AS "TransTypeName",
+	 A."TransType",
+	 A."TransId" AS "DocumentNo",
+	 A."CreatedBy" AS "DocEntry",
+	 CASE WHEN A."BalDueCred" <> 0 
+	OR A."BalDueDeb" <> 0 
+	THEN 'O' 
+	ELSE 'C' 
+	END AS "DocStatus",
+	 IFNULL(A."FCCurrency",
+	 'AUD') AS "FCCurrency",
+	 CASE WHEN A."Credit" <> 0 
+	THEN A."Credit" * -1 
+	ELSE A."Debit" 
+	END AS "DocTotal",
+	 CASE WHEN A."BalDueCred" <> 0 
+	THEN A."BalDueCred" * -1 
+	ELSE A."BalDueDeb" 
+	END AS "DocBalance",
+	 CASE WHEN A."FCCredit" <> 0 
+	THEN A."FCCredit" * -1 
+	ELSE A."FCDebit" 
+	END AS "DocTotalFC",
+	 CASE WHEN A."BalFcCred" <> 0 
+	THEN A."BalFcCred" * -1 
+	ELSE A."BalFcDeb" 
+	END AS "DocBalanceFC",
+	 A."ShortName" AS "BPCode",
+	 A."DueDate",
+	 A."TaxDate",
+	 B."Memo",
+	 A."MthDate",
+	 IFNULL( ( SELECT
+	 "Rate" 
+			FROM "TLTELA_DEVELOPER"."ORTT" 
+			WHERE "A"."FCCurrency" = "ORTT"."Currency" 
+			AND "ORTT"."RateDate" = "A"."DueDate" ),
+	 1 ) AS "DocRate",
+	 NULL AS "PaymentTerm",
+	 NULL AS "CardParent",
+	 A."BalDueDeb",
+	 A."BalDueCred",
+	 A."BPLId",
+	 NULL as "NumAtCard",
+	 NULL as "SlpCode" 
+	FROM "TLTELA_DEVELOPER"."JDT1" AS "A" 
+	LEFT OUTER JOIN "TLTELA_DEVELOPER"."OJDT" AS "B" ON A."TransId" = "B"."TransId" 
+	WHERE ("A"."LineType" <> '1') 
+	AND (A."TransType" IN ('24',
+	 '30',
+	 '46',
+	 '25')) ) AS R WITH READ ONLY

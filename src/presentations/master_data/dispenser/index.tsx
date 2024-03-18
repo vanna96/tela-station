@@ -34,6 +34,14 @@ export default function DispenserList() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        Cell: (cell: any) => cell?.row?.index + 1,
+      },
+      {
         accessorKey: "Code",
         header: "Pump Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
@@ -295,6 +303,7 @@ export default function DispenserList() {
                     <MUISelect
                       items={[
                         { label: "None", value: "" },
+                        { label: "New", value: "New" },
                         { label: "Active", value: "Active" },
                         { label: "Inactive", value: "Inactive"}
                       ]}
