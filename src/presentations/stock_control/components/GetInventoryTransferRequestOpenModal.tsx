@@ -8,7 +8,7 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SelectPage from "../inventory_transfer/components/SelectPage";
-import { debounce, dispayTextDate } from "@/lib/utils";
+import { debounce, displayTextDate } from "@/lib/utils";
 
 const style = {
   position: "absolute" as "absolute",
@@ -18,22 +18,26 @@ const style = {
   width: "60vw",
   bgcolor: "background.paper",
   p: 4,
-  height: '80vh',
+  height: "80vh",
 };
 
 interface InventoryTransferRequestModalProps {
-  onSelect: (items: any) => any,
-
+  onSelect: (items: any) => any;
 }
 
 interface GetInventoryTransferRequestModalState {
-  open: boolean,
-  fromWhs: string | undefined
-};
+  open: boolean;
+  fromWhs: string | undefined;
+}
 
-export class GetInventoryTransferRequestModal extends React.Component<InventoryTransferRequestModalProps, GetInventoryTransferRequestModalState> {
-  state = { open: false, fromWhs: undefined } as GetInventoryTransferRequestModalState;
-
+export class GetInventoryTransferRequestModal extends React.Component<
+  InventoryTransferRequestModalProps,
+  GetInventoryTransferRequestModalState
+> {
+  state = {
+    open: false,
+    fromWhs: undefined,
+  } as GetInventoryTransferRequestModalState;
 
   onClose() {
     this.setState({ open: false, fromWhs: undefined });
@@ -44,27 +48,47 @@ export class GetInventoryTransferRequestModal extends React.Component<InventoryT
   }
 
   onSelectChangeItems(items: any[]) {
-    this.props.onSelect(items)
-    this.setState({ open: false, fromWhs: undefined })
+    this.props.onSelect(items);
+    this.setState({ open: false, fromWhs: undefined });
   }
 
   render() {
-    return <InventoryTransferRequestModal whs={this.state.fromWhs} open={this.state.open} onClose={() => this.onClose()} onSelectItems={(items) => this.onSelectChangeItems(items)} />
+    return (
+      <InventoryTransferRequestModal
+        whs={this.state.fromWhs}
+        open={this.state.open}
+        onClose={() => this.onClose()}
+        onSelectItems={(items) => this.onSelectChangeItems(items)}
+      />
+    );
   }
 }
 
-
-export default function InventoryTransferRequestModal(props: { open: boolean, onClose: () => void, onSelectItems: (items: any[] | any) => void, whs: string | undefined }) {
+export default function InventoryTransferRequestModal(props: {
+  open: boolean;
+  onClose: () => void;
+  onSelectItems: (items: any[] | any) => void;
+  whs: string | undefined;
+}) {
   const { data, isLoading } = useQuery({
     queryKey: [`inventory-transfer-request-modal-${props.whs}`],
-    queryFn: () => request("GET", `${url}/InventoryTransferRequests?$select=DocNum,DocDate,FromWarehouse,DocEntry&$filter=FromWarehouse eq '${props.whs}' and DocumentStatus eq 'bost_Open'`),
+    queryFn: () =>
+      request(
+        "GET",
+        `${url}/InventoryTransferRequests?$select=DocNum,DocDate,FromWarehouse,DocEntry&$filter=FromWarehouse eq '${props.whs}' and DocumentStatus eq 'bost_Open'`
+      ),
     staleTime: 0,
   });
 
-  const [selecteds, setSelects] = useState<{ [key: string]: string | undefined }>({});
-  const [searchText, setSearchText] = useState('');
+  const [selecteds, setSelects] = useState<{
+    [key: string]: string | undefined;
+  }>({});
+  const [searchText, setSearchText] = useState("");
   // Define a debounced version of the handleChange function
-  const debouncedHandleChange = debounce(function (this: any, newValue: string) {
+  const debouncedHandleChange = debounce(function (
+    this: any,
+    newValue: string
+  ) {
     setSearchText(newValue);
   }, 500); // Adjust the delay time as needed
 
@@ -75,23 +99,23 @@ export default function InventoryTransferRequestModal(props: { open: boolean, on
     debouncedHandleChange(newValue);
   };
 
-
   const itemsLists = useMemo(() => {
     const list: any[] = (data as any)?.data?.value ?? [];
 
-    if (searchText !== '') {
-      return list.filter((e): any => e?.ItemCode?.toLowerCase()?.includes(searchText.toLowerCase()))
+    if (searchText !== "") {
+      return list.filter((e): any =>
+        e?.ItemCode?.toLowerCase()?.includes(searchText.toLowerCase())
+      );
     }
 
     return list;
-  }, [searchText, data])
+  }, [searchText, data]);
 
   const [currentPage, setCurrentPage] = useState<any>(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const totalPages = isNaN(itemsLists?.length)
     ? 0
     : Math.ceil(itemsLists.length / itemsPerPage);
-
 
   const handleFirstPage = () => setCurrentPage(1);
   const handlePrevPage = () => setCurrentPage(currentPage - 1);
@@ -113,21 +137,21 @@ export default function InventoryTransferRequestModal(props: { open: boolean, on
     props.onSelectItems(event);
   };
 
-
-
-  const onSelectChange = (event: React.ChangeEvent<HTMLInputElement>, code: string) => {
+  const onSelectChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    code: string
+  ) => {
     const items = { ...selecteds };
     items[code] = event.target.checked ? code : undefined;
-    setSelects(items)
-  }
-
+    setSelects(items);
+  };
 
   const onSubmit = useCallback(() => {
-    const values = Object.values(selecteds)
+    const values = Object.values(selecteds);
     const items = itemsLists.filter((e) => values.includes(e?.ItemCode));
 
     props.onSelectItems(items);
-  }, [selecteds])
+  }, [selecteds]);
 
   return (
     <>
@@ -137,7 +161,10 @@ export default function InventoryTransferRequestModal(props: { open: boolean, on
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
-        <Box sx={{ ...style, display: 'flex', flexDirection: 'column' }} borderRadius={3}  >
+        <Box
+          sx={{ ...style, display: "flex", flexDirection: "column" }}
+          borderRadius={3}
+        >
           <div className="grow overflow-hidden relative flex flex-col">
             <div className="grow">
               {/* <div className="w-[80vw] h-[80vh] px-6 py-2 flex flex-col gap-1 relative bg-white"> */}
@@ -193,14 +220,12 @@ export default function InventoryTransferRequestModal(props: { open: boolean, on
                             <span>{e?.DocNum}</span>
                           </td>
                           <td className="">
-                            <span>{dispayTextDate(e?.DocDate)}</span>
+                            <span>{displayTextDate(e?.DocDate)}</span>
                           </td>
                           <td className="">
                             <span>{e?.FromWarehouse}</span>
                           </td>
-                          <td className="">
-
-                          </td>
+                          <td className=""></td>
                         </tr>
                       ))
                     )}
@@ -262,12 +287,14 @@ export default function InventoryTransferRequestModal(props: { open: boolean, on
                 </button>
               </div>
             </div>
-
-
           </div>
 
           <div className="flex gap-2 mt-3 justify-end">
-            <Button size="small" variant="outlined"  ><span className="px-3" onClick={props?.onClose}>Close</span></Button>
+            <Button size="small" variant="outlined">
+              <span className="px-3" onClick={props?.onClose}>
+                Close
+              </span>
+            </Button>
           </div>
         </Box>
       </Modal>

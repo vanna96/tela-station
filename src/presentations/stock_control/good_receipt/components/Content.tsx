@@ -290,13 +290,13 @@ export default function Content({
           </div>
           <div className="col-span-4">
             <TextField
-              disabled={id}
+              disabled={detail}
               size="small"
               fullWidth
               multiline
               rows={3}
               name="Comments"
-              className={`w-full ${id && "bg-gray-100"}`}
+              className={`w-full ${detail && "bg-gray-100"}`}
               inputProps={{ ...register("Comments") }}
             />
           </div>
