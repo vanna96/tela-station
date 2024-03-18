@@ -289,7 +289,14 @@ export default function List() {
       </span>
     </>
   );
-
+  const indexedData = React.useMemo(
+    () =>
+      data?.map((item: any, index: any) => ({
+        ...item,
+        index: pagination.pageIndex * pagination.pageSize + index + 1,
+      })),
+    [data, pagination.pageIndex, pagination.pageSize]
+  );
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -374,10 +381,7 @@ export default function List() {
             },
             ...columns,
           ]}
-          data={data?.map((item: any, index: any) => ({
-            ...item,
-            index: index + 1,
-          }))}
+          data={indexedData}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}

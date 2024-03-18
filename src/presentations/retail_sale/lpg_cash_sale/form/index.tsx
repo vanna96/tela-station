@@ -193,12 +193,12 @@ class SalesOrderForm extends CoreFormDocument {
                 U_tl_bplid: item.U_tl_bplid || 1,
                 U_tl_itemcode: item.U_tl_itemcode,
                 U_tl_itemname: item.U_tl_itemname,
-                U_tl_qtyaloc: item.U_tl_qtyaloc,
-                U_tl_qtycon: item.U_tl_qtycon,
-                U_tl_qtyopen: item.U_tl_qtyopen,
+                U_tl_alocqty: item.U_tl_alocqty,
+                U_tl_consqty: item.U_tl_consqty,
+                U_tl_openqty: item.U_tl_openqty,
                 U_tl_remark: item.U_tl_remark,
                 U_tl_uom: item.U_tl_uom,
-                U_tl_whs: item.U_tl_whs,
+                U_tl_whscode: item.U_tl_whscode,
                 U_tl_bincode: item.U_tl_bincode,
               })
             ),
@@ -429,12 +429,12 @@ class SalesOrderForm extends CoreFormDocument {
           // U_tl_nozzlecode: item.U_tl_nozzlecode,
           U_tl_itemcode: item.U_tl_itemcode,
           U_tl_itemname: item.U_tl_itemname,
-          U_tl_qtycon: item.U_tl_qtycon,
-          U_tl_qtyaloc: item.U_tl_qtyaloc,
+          U_tl_consqty: item.U_tl_consqty,
+          U_tl_alocqty: item.U_tl_alocqty,
           U_tl_uom: item.U_tl_uom,
-          U_tl_qtyopen: item.U_tl_qtyopen,
+          U_tl_openqty: item.U_tl_openqty,
           U_tl_remark: item.U_tl_remark,
-          U_tl_whs: item.U_tl_whs,
+          U_tl_whscode: item.U_tl_whscode,
           U_tl_bincode: item.U_tl_bincode,
           U_tl_bplid: item.U_tl_bplid,
         })
@@ -513,26 +513,6 @@ class SalesOrderForm extends CoreFormDocument {
           getTabIndex: () => 0,
         },
         {
-          field: "Items",
-          message: "Items is missing and must have at least one record!",
-          isArray: true,
-          getTabIndex: () => 1,
-        },
-        {
-          field: "cashBankData",
-          message: "Please enter at least one amount of Cash Sale!",
-          isArray: true,
-          getTabIndex: () => 2,
-          validate: (data: any) => {
-            return (
-              Array.isArray(data.cashBankData) &&
-              data.cashBankData.some(
-                (item: any) => item.U_tl_amtcash || item.U_tl_amtbank
-              )
-            );
-          },
-        },
-        {
           field: "nozzleData",
           message:
             "Nozzle Data is missing or does not have a valid record with New Meter!",
@@ -548,21 +528,44 @@ class SalesOrderForm extends CoreFormDocument {
         {
           field: "allocationData",
           message:
-            "Allocation Data is missing or does not have a valid record with Cash Sales!",
+            "Allocation Data is missing or does not have a valid quantity allowed!",
           isArray: true,
           getTabIndex: () => 1,
           validate: (data: any) => {
             return (
               Array.isArray(data.allocationData) &&
-              data.allocationData.some((item: any) => item.U_tl_cashallow)
+              data.allocationData.every((item: any) => {
+                const cashSales = item["U_tl_cashallow"] || 0;
+                const partnership = item["U_tl_partallow"] || 0;
+                const stockTransfer = item["U_tl_stockallow"] || 0;
+                const ownUsage = item["U_tl_ownallow"] || 0;
+                const telaCard = item["U_tl_cardallow"] || 0;
+                const pumpTest = item["U_tl_pumpallow"] || 0;
+                const total = item["U_tl_cmeter"] || 0;
+                return (
+                  cashSales +
+                    partnership +
+                    stockTransfer +
+                    ownUsage +
+                    telaCard +
+                    pumpTest ===
+                  total
+                );
+              })
             );
           },
+        },
+        {
+          field: "Items",
+          message: "Items is missing and must have at least one record!",
+          isArray: true,
+          getTabIndex: () => 2,
         },
         {
           field: "cashBankData",
           message: "Please enter at least one amount of Cash Sale!",
           isArray: true,
-          getTabIndex: () => 2,
+          getTabIndex: () => 3,
           validate: (data: any) => {
             return (
               Array.isArray(data.cashBankData) &&
@@ -964,7 +967,7 @@ class SalesOrderForm extends CoreFormDocument {
           const uniqueItemsMap = new Map();
 
           data?.stockAllocationData?.forEach((item: any) => {
-            let quantity = parseFloat(item.U_tl_qtyaloc);
+            let quantity = parseFloat(item.U_tl_alocqty);
 
             if (item.InventoryUoMEntry !== item.U_tl_uom) {
               const uomList = item.uomLists?.find(
@@ -999,7 +1002,7 @@ class SalesOrderForm extends CoreFormDocument {
               ProductLine: "203004",
               BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
               BranchCode: data.stockAllocationData[0].U_tl_bplid,
-              WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+              WarehouseCode: data.stockAllocationData[0].U_tl_whscode,
               DocumentLinesBinAllocations: [
                 {
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
@@ -1451,8 +1454,8 @@ interface AllocationDataItem {
 
 interface StockAllocationDataItem {
   U_tl_itemcode: string;
-  U_tl_qtycon: number;
-  U_tl_qtyaloc?: number;
+  U_tl_consqty: number;
+  U_tl_alocqty?: number;
 }
 
 function validateData(
@@ -1506,11 +1509,11 @@ function validateData(
       }
 
       const totalQuantity = rowsWithSameItemCode.reduce(
-        (sum, r) => sum + parseFloat((r.U_tl_qtyaloc || 0).toString()),
+        (sum, r) => sum + parseFloat((r.U_tl_alocqty || 0).toString()),
         0
       );
 
-      const firstQuantity = rowsWithSameItemCode[0]?.U_tl_qtycon || 0;
+      const firstQuantity = rowsWithSameItemCode[0]?.U_tl_consqty || 0;
 
       const isValid =
         totalQuantity === firstQuantity && totalQuantity === expectedTotalAllow;

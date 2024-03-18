@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -25,18 +25,6 @@ export default function SaleOrderLists() {
   let numAtCardFilter = "";
   const [dataUrl, setDataUrl] = React.useState("");
 
-  switch (salesType) {
-    case "fuel-cash-sale":
-      numAtCardFilter = "Oil";
-      break;
-    case "lube-cash-sale":
-      numAtCardFilter = "Lube";
-      break;
-    case "lpg-cash-sale":
-      numAtCardFilter = "LPG";
-      break;
-    default:
-  }
   const columns = React.useMemo(
     () => [
       {
@@ -116,7 +104,7 @@ export default function SaleOrderLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/retail-sale/${salesType}/` + cell.row.original.DocEntry,
+                  `/retail-sale/fuel-cash-sale/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -136,8 +124,9 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/retail-sale/${salesType}/` +
+                  `/retail-sale/fuel-cash-sale/` +
                     cell.row.original.DocEntry +
+                    "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -322,26 +311,19 @@ export default function SaleOrderLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/retail-sale/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
+      <span className="" onClick={() => route(`/retail-sale/fuel-cash-sale`)}>
+        <span className=""></span> {"Fuel Cash Sale"}
       </span>
     </>
   );
-  const getTitleBySalesType = (salesType: any) => {
-    switch (salesType) {
-      case "fuel-cash-sale":
-        return "Fuel Cash Sale Lists";
-      case "lpg-cash-sale":
-        return "LPG Cash Sale Lists";
-
-      case "lube-cash-sale":
-        return "Lube Cash Sale Lists";
-      // Add other cases as needed
-      default:
-        return "Unknown Sale Lists";
-    }
-  };
-
+  const indexedData = useMemo(
+    () =>
+      data?.map((item: any, index: any) => ({
+        ...item,
+        index: pagination.pageIndex * pagination.pageSize + index + 1,
+      })),
+    [data, pagination.pageIndex, pagination.pageSize]
+  );
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -426,10 +408,7 @@ export default function SaleOrderLists() {
             },
             ...columns,
           ]}
-          data={data?.map((item: any, index: any) => ({
-            ...item,
-            index: index + 1,
-          }))}
+          data={indexedData}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}
@@ -437,8 +416,8 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title={getTitleBySalesType(salesType)}
-          createRoute={`/retail-sale/${salesType}/create`}
+          title={"Fuel Cash Sale List"}
+          createRoute={`/retail-sale/fuel-cash-sale/create`}
         />
       </div>
     </>

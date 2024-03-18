@@ -87,7 +87,6 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
-  console.log(data);
   const onCheckRow = (event: any, index: number) => {
     setRowSelection((prevSelection: any) => {
       const updatedSelection = { ...prevSelection };
@@ -102,7 +101,6 @@ export default function StockAllocationTable({
     });
   };
 
-  console.log(data.stockAllocationData);
   const itemColumns = React.useMemo(
     () => [
       {
@@ -332,7 +330,6 @@ export default function StockAllocationTable({
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              console.log(r.U_tl_qtyaloc);
               return sum + commaFormatNum(r.U_tl_qtyaloc);
             },
             0
@@ -342,7 +339,6 @@ export default function StockAllocationTable({
             rowsWithSameItemCode[0]?.U_tl_qtycon
           );
           const isValid = totalQuantity === firstQuantity;
-          console.log(isValid);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
