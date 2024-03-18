@@ -64,7 +64,6 @@ const StockControlPage = () => {
       icon: <AiOutlineFileAdd />,
       roles: ['UG001', 'UG004']
     },
-    { title: "Pump Test", route: "pump-test", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004'] },
     { title: "Fuel Level", route: "fuel-level", icon: <AiOutlineFileAdd />, roles: ['UG001', 'UG004'], },
   ];
 

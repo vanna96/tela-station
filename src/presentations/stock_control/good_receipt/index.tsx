@@ -133,16 +133,15 @@ export default function InventoryTransferList() {
               disabled={
                 cell.row.original.DocumentStatus === "bost_Close" ?? false
               }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+              className={`${cell.row.original.DocumentStatus === "bost_Close"
+                ? "bg-gray-400"
+                : ""
+                } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/stock-control/good-receipt/" +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  cell.row.original.DocEntry +
+                  "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -181,7 +180,7 @@ export default function InventoryTransferList() {
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => {}}
+            handlerSearch={() => { }}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
@@ -220,7 +219,7 @@ export default function InventoryTransferList() {
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
-        // onClick={handleClose}
+      // onClick={handleClose}
       >
         <div className="flex flex-col justify-center gap-3 items-center">
           <CircularProgress color="inherit" size={25} />
@@ -234,13 +233,13 @@ export default function InventoryTransferList() {
 export interface FilterProps {
   DocNum_$eq_number: undefined | string;
   DocDate_$eq: undefined | string;
-  BPL_IDAssignedToInvoice_$eq: undefined | number;
+  BPL_IDAssignedToInvoice_$eq_number: undefined | number;
 }
 
 const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   DocDate_$eq: undefined,
-  BPL_IDAssignedToInvoice_$eq: undefined,
+  BPL_IDAssignedToInvoice_$eq_number: undefined,
 };
 
 export const InventoryTransferFilter = ({
@@ -326,15 +325,15 @@ export const InventoryTransferFilter = ({
               </label>
               <div className="">
                 <Controller
-                  name="BPL_IDAssignedToInvoice_$eq"
+                  name="BPL_IDAssignedToInvoice_$eq_number"
                   control={control}
                   render={({ field }) => {
                     return (
                       <BranchAssignmentAuto
                         onChange={(e: any) => {
-                          setValue("BPL_IDAssignedToInvoice_$eq", e?.BPLID);
+                          setValue("BPL_IDAssignedToInvoice_$eq_number", e?.BPLID);
                         }}
-                        // value={searchValues.branch}
+                      // value={searchValues.branch}
                       />
                     );
                   }}

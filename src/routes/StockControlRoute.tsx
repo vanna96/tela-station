@@ -5,18 +5,13 @@ import InventoryTransferRequestList from "@/presentations/stock_control/inventor
 import { InventoryTransferRequestForm } from "@/presentations/stock_control/inventory_transfer_request/form/index";
 import GoodIssueList from "@/presentations/stock_control/good_issue";
 import GoodIssueForm from "@/presentations/stock_control/good_issue/form/GoodIssueForm";
-import PumpTestList from "@/presentations/stock_control/pump_test";
-import PumpTestForm from "@/presentations/stock_control/pump_test/form/index";
-import PumpTestDetail from "@/presentations/stock_control/pump_test/detail/index";
 import FuelLevelList from "@/presentations/stock_control/fuel_level";
 import GoodReceiptList from "@/presentations/stock_control/good_receipt";
 import GoodReceiptForm from "@/presentations/stock_control/good_receipt/form/GoodReceiptForm";
 import { FuelLevelForm } from "@/presentations/stock_control/fuel_level/form/FuelLevelForm";
-
 import { InventoryTransferRequestDetails } from "@/presentations/stock_control/inventory_transfer_request/detail/index"
 import InventoryTransferList from "@/presentations/stock_control/inventory_transfer";
 import { InventoryTransferForm } from "@/presentations/stock_control/inventory_transfer/form";
-// import { InventoryTransferDetails } from "@/presentations/stock_control/inventory_transfer/detail/index"
 import { FuelLevelFormDetail } from "@/presentations/stock_control/fuel_level/form/FuelLevelFormDetail";
 import GoodIssueDetail from "@/presentations/stock_control/good_issue/detail/GoodIssueDetail";
 import GoodReceiptDetail from "@/presentations/stock_control/good_receipt/detail/GoodReceiptDetail";
@@ -50,13 +45,6 @@ export default function StockControlRoute() {
           <Route path="create" element={<GoodReceiptForm />} />
           <Route path=":id/edit" element={<GoodReceiptForm edit={true} />} />
           <Route path=":id" element={<GoodReceiptDetail edit={true} />} />
-        </Route>
-
-        <Route path="/pump-test">
-          <Route index element={<PumpTestList />} />
-          <Route path="create" element={<PumpTestForm />} />
-          <Route path=":id/edit" element={<PumpTestForm edit={true} />} />
-          <Route path=":id" element={<PumpTestDetail edit={true} />} />
         </Route>
         <Route path="/fuel-level">
           <Route index element={<FuelLevelList />} />

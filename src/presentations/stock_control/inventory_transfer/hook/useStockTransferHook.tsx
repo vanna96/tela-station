@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { calculateUOM } from "../../components/UomSelectByItem";
+import { useGetStockTransferSeriesHook } from "./useGetStockTransferSeriesHook";
 
 export type TransferType = 'Internal' | 'External';
 
@@ -137,6 +138,9 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
 export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<FormMessageModal>) => {
     const [loading, setLoading] = useState(false);
 
+
+    const { series } = useGetStockTransferSeriesHook()
+
     const { id } = useParams();
 
     const queryParams = useQueryParams();
@@ -208,12 +212,23 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         }
     }
 
+    const onChangeBranch = (series: any, value: any) => {
+
+        const period = new Date().getFullYear();
+        const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
+
+        setValue("Series", serie?.Series);
+        setValue("DocNum", serie?.NextNumber);
+        setValue('BPLID', value?.BPLID)
+    }
+
     const onCopyFrom = (id: number | undefined) => {
         try {
             setLoading(true);
             getMappingStockTransferRequestToStockTransfer(id)
                 .then((res) => {
                     reset({ ...res })
+                    onChangeBranch(series, { BPLID: res?.BPLID })
                 })
                 .catch((err) => {
                     dialog.current?.error(err?.message)
@@ -239,14 +254,14 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
             });
     }, [id, edit])
 
-
-
     useEffect(() => {
         if (queryParams.get('id') && queryParams.get('type')) {
             setLoading(true);
             getMappingStockTransferRequestToStockTransfer(queryParams.get('id'))
                 .then((res) => {
-                    reset({ ...res })
+                    reset({ ...res });
+                    onChangeBranch(series, { BPLID: res?.BPLID })
+
                 })
                 .catch((err) => {
                     dialog.current?.error(err?.message)
@@ -271,6 +286,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         loading,
         id,
         queryParams,
-        onCopyFrom
+        onCopyFrom,
+        onChangeBranch
     }
 }
