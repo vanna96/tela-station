@@ -50,6 +50,6 @@ export default function StockControlRoute() {
         <Route path=":id/edit" element={<FuelLevelForm edit={true} />} />
         <Route path=":id" element={<FuelLevelFormDetail />} />
       </Route>
-    </Routes>
+    </Routes >
   );
 }
