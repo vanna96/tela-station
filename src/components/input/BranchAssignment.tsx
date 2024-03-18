@@ -7,6 +7,7 @@ import PositionRepository from "@/services/actions/positionRepository";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import ManagerRepository from "@/services/actions/ManagerRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
   BPLID: number;
@@ -22,9 +23,20 @@ export default function BranchAssignmentAuto(props: {
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
+  queryFn: async () => {
+     const response: any = await request(
+       "GET",
+       `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+     )
+       .then((res: any) => res?.data?.value)
+       .catch((e: Error) => {
+         throw new Error(e.message);
+       });
+      return response;
+    },
+    staleTime: Infinity, 
   });
+  
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted

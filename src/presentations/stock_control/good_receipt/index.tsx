@@ -5,9 +5,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
-import MUISelect from "@/components/selectbox/MUISelect";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString } from "@/lib/utils";
 import DataTable from "../components/DataTable";
@@ -117,13 +115,6 @@ export default function InventoryTransferList() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                // route(
-                //   `/stock-control/${salesType}/` + cell.row.original.DocEntry,
-                //   {
-                //     state: cell.row.original,
-                //     replace: true,
-                //   }
-                // );
                 route(
                   "/stock-control/good-receipt/" + cell.row.original.DocEntry,
                   {
