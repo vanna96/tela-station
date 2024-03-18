@@ -38,7 +38,7 @@ const VehicleDetail = (props: any) => {
     setValue,
     control,
     reset,
-
+    getValues,
     formState: { errors, defaultValues },
   } = useForm();
   const { id }: any = useParams();
@@ -275,6 +275,7 @@ const VehicleDetail = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                   detail={props?.detail}
+                  getValues={getValues}
                 />
               </h1>
             )}
@@ -288,6 +289,7 @@ const VehicleDetail = (props: any) => {
                   control={control}
                   detail={props?.detail}
                   defaultValues={defaultValues}
+                  getValues={getValues}
                 />
               </h1>
             )}
@@ -301,6 +303,7 @@ const VehicleDetail = (props: any) => {
                   header={header}
                   setHeader={setHeader}
                   detail={props?.detail}
+                  getValues={getValues}
                 />
               </h1>
             )}
@@ -312,6 +315,7 @@ const VehicleDetail = (props: any) => {
                   control={control}
                   defaultValues={defaultValues}
                   detail={props?.detail}
+                  getValues={getValues}
                 />
               </h1>
             )}
