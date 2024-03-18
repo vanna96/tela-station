@@ -126,7 +126,28 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("invoice-series", invoiceSeries);
     }
+    let GISeries: any = this.props?.query?.find("good-issue-series");
+    if (!GISeries) {
+      GISeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "60",
+      });
+      this.props?.query?.set("good-issue-series", GISeries);
+    }
+    let GRSeries: any = this.props?.query?.find("good-receipt-series");
 
+    if (!GRSeries) {
+      GRSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "59",
+      });
+      this.props?.query?.set("good-receipt-series", GRSeries);
+    }
+    let incomingSeries: any = this.props?.query?.find("incomingSeries-series");
+    if (!incomingSeries) {
+      incomingSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "24",
+      });
+      this.props?.query?.set("dn-series", incomingSeries);
+    }
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE_LP(${id})`)
@@ -323,20 +344,23 @@ class SalesOrderForm extends CoreFormDocument {
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
-          state["SerieLists"] = seriesList;
-          state["dnSeries"] = dnSeries;
-          state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
+          state["SerieLists"] = seriesList;
           state["isLoadingSerie"] = false;
+          state["incomingSeries"] = incomingSeries;
+          state["GISeries"] = GISeries;
+          state["GRSeries"] = GRSeries;
+          state["invoiceSeries"] = invoiceSeries;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      state["dnSeries"] = dnSeries;
-      state["invoiceSeries"] = invoiceSeries;
-      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
+      state["incomingSeries"] = incomingSeries;
+      state["GISeries"] = GISeries;
+      state["GRSeries"] = GRSeries;
+      state["invoiceSeries"] = invoiceSeries;
       this.setState(state);
     }
   }
@@ -591,7 +615,7 @@ class SalesOrderForm extends CoreFormDocument {
         }
       );
 
-      const warehouseCodeGet = data.U_tl_whsdesc;
+      const warehouseCodeGet = data.U_tl_whs;
       const DocumentLines = getItem(
         data?.Items || [],
         data?.DocType,
@@ -909,7 +933,7 @@ class SalesOrderForm extends CoreFormDocument {
           },
         ],
       }));
-      const cashSales = [...cashSale, DocumentLines];
+      const cashSales = [...cashSale, ...DocumentLines];
 
       const PostPayload = {
         SaleDocEntry: docEntry,
@@ -919,6 +943,8 @@ class SalesOrderForm extends CoreFormDocument {
         U_tl_whsdesc: data?.U_tl_whs,
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
+        GISeries: data?.GoodIssueSeries,
+        GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
         DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
@@ -969,7 +995,7 @@ class SalesOrderForm extends CoreFormDocument {
           const uniqueItemsMap = new Map();
 
           data?.stockAllocationData?.forEach((item: any) => {
-            let quantity = parseFloat(item.U_tl_qtyaloc);
+            let quantity = parseFloat(item.U_tl_alocqty);
 
             if (quantity >= 0 && !isNaN(quantity)) {
               if (item.InventoryUoMEntry !== item.U_tl_uom) {
@@ -1008,7 +1034,7 @@ class SalesOrderForm extends CoreFormDocument {
                   ProductLine: "203004",
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
                   BranchCode: data.stockAllocationData[0].U_tl_bplid,
-                  WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+                  WarehouseCode: data.stockAllocationData[0].U_tl_whscode,
                   DocumentLinesBinAllocations: [
                     {
                       BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
@@ -1087,7 +1113,7 @@ class SalesOrderForm extends CoreFormDocument {
         PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
 
-      await request("POST", "/script/test/LubeCashSales", PostPayload);
+      await request("POST", "/script/test/LPGCashSales", PostPayload);
       this.dialog.current?.success("Create Successfully.", docEntry);
     } catch (error: any) {
       if (!this.dialog.current) {
@@ -1240,7 +1266,7 @@ class SalesOrderForm extends CoreFormDocument {
   FormRender = () => {
     const itemGroupCode = 102;
     const navigate = useNavigate();
-    const priceList = 13;
+    const priceList = 9;
     return (
       <>
         <ItemModalComponent

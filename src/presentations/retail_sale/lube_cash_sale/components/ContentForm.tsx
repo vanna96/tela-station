@@ -48,7 +48,7 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
-  const vendorPriceList = 9;
+  const vendorPriceList = 13;
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
