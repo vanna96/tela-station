@@ -98,7 +98,7 @@ export default function GeneralForm({
   }
   console.log(data);
   const [isDispenserLoading, setIsDispenserLoading] = useState(false);
-  console.log(isDispenserLoading)
+  console.log(isDispenserLoading);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -227,13 +227,28 @@ export default function GeneralForm({
                       uomLists: item.uomLists,
                     })
                   );
-
+                  const updatedCardCountData = updatedNozzleData
+                    ?.filter((e: any) => e?.U_tl_nmeter > 0)
+                    .map((item: any) => ({
+                      U_tl_itemcode: item.U_tl_itemcode,
+                      U_tl_1l: item?.U_tl_1l,
+                      U_tl_2l: item?.U_tl_2l,
+                      U_tl_5l: item?.U_tl_5l,
+                      U_tl_10l: item?.U_tl_10l,
+                      U_tl_20l: item?.U_tl_20l,
+                      U_tl_50l: item?.U_tl_50l,
+                      U_tl_total: item?.U_tl_total,
+                      UoMGroupEntry: item?.UoMGroupEntry,
+                      InventoryUoMEntry: item?.InventoryUoMEntry,
+                      uomLists: item.uomLists,
+                    }));
                   // Update your component state or pass this data as needed
                   handlerChangeObject({
                     U_tl_pump: e,
                     // stockAllocationData: updatedStockAllocationData,
                     nozzleData: updatedNozzleData,
                     U_tl_whs: dispenserData?.U_tl_whs,
+                    cardCountData: updatedCardCountData,
                   });
                   setIsDispenserLoading(false);
                 }}

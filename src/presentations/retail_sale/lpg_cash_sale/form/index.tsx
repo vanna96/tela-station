@@ -18,8 +18,23 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import StockAllocationTable from "../components/StockAllocationForm";
+import CardCount from "../components/CardCountTable";
+import { ReactNode } from "react";
 
 class SalesOrderForm extends CoreFormDocument {
+  LeftSideField?(): JSX.Element | ReactNode {
+    return null;
+  }
+
+  RightSideField?(): JSX.Element | ReactNode {
+    return null;
+  }
+
+  HeaderCollapeMenu?(): JSX.Element | ReactNode {
+    return <></>;
+  }
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -41,8 +56,10 @@ class SalesOrderForm extends CoreFormDocument {
       VatGroup: "S1",
       type: "sale",
       lineofBusiness: "",
+      showCollapse: false,
       warehouseCode: "",
       nozzleData: [],
+      stockAllocationData: [],
       allocationData: [],
       cashBankData: [
         {
@@ -170,7 +187,21 @@ class SalesOrderForm extends CoreFormDocument {
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
             nozzleData: updatedAllocationData,
-            // allocationData: updatedAllocationData,
+            allocationData: updatedAllocationData,
+            stockAllocationData: data?.TL_RETAILSALE_LP_CSCollection?.map(
+              (item: any) => ({
+                U_tl_bplid: item.U_tl_bplid || 1,
+                U_tl_itemcode: item.U_tl_itemcode,
+                U_tl_itemname: item.U_tl_itemname,
+                U_tl_qtyaloc: item.U_tl_qtyaloc,
+                U_tl_qtycon: item.U_tl_qtycon,
+                U_tl_qtyopen: item.U_tl_qtyopen,
+                U_tl_remark: item.U_tl_remark,
+                U_tl_uom: item.U_tl_uom,
+                U_tl_whs: item.U_tl_whs,
+                U_tl_bincode: item.U_tl_bincode,
+              })
+            ),
             cashBankData: data?.TL_RETAILSALE_LP_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
             )?.map((item: any) => ({
@@ -203,6 +234,18 @@ class SalesOrderForm extends CoreFormDocument {
               U_tl_paytype: item?.U_tl_paytype,
               U_tl_paycur: item?.U_tl_paycur,
             })),
+            cardCountData: data?.TL_RETAILSALE_LP_CCCollection?.map(
+              (item: any) => ({
+                U_tl_itemcode: item.U_tl_itemCode,
+                U_tl_1l: item?.U_tl_1l,
+                U_tl_2l: item?.U_tl_2l,
+                U_tl_5l: item?.U_tl_5l,
+                U_tl_10l: item?.U_tl_10l,
+                U_tl_20l: item?.U_tl_20l,
+                U_tl_50l: item?.U_tl_50l,
+                U_tl_total: item?.U_tl_total,
+              })
+            ),
             Items: await Promise.all(
               (data?.TL_RETAILSALE_LP_USCollection || []).map(
                 async (item: any) => {
@@ -308,7 +351,11 @@ class SalesOrderForm extends CoreFormDocument {
       U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
-
+      U_tl_totalbefdis: data?.U_tl_totalbefdis,
+      U_tl_dispercent: data?.U_tl_dispercent,
+      U_tl_disperamt: data?.U_tl_disperamt,
+      U_tl_tax: data?.U_tl_tax,
+      U_tl_doctotal: data?.U_tl_doctotal,
       TL_RETAILSALE_LP_PSCollection: data.nozzleData
         ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
         ?.map((item: any) => ({
@@ -348,6 +395,50 @@ class SalesOrderForm extends CoreFormDocument {
         ...data?.cashBankData,
         ...data?.couponData,
       ],
+      TL_RETAILSALE_LP_CCCollection: (data?.cardCountData || []).length
+        ? data?.cardCountData?.map((item: any) => ({
+            U_tl_itemCode: item.U_tl_itemcode,
+            U_tl_1l: item?.U_tl_1l,
+            U_tl_2l: item?.U_tl_2l,
+            U_tl_5l: item?.U_tl_5l,
+            U_tl_10l: item?.U_tl_10l,
+            U_tl_20l: item?.U_tl_20l,
+            U_tl_50l: item?.U_tl_50l,
+            U_tl_total:
+              (item?.U_tl_1l || 0) +
+              (item?.U_tl_2l || 0) +
+              (item?.U_tl_5l || 0) +
+              (item?.U_tl_10l || 0) +
+              (item?.U_tl_20l || 0) +
+              (item?.U_tl_50l || 0),
+          }))
+        : data?.allocationData?.map((item: any) => ({
+            U_tl_itemCode: item.U_tl_itemcode,
+            U_tl_1l: 0,
+            U_tl_2l: 0,
+            U_tl_5l: 0,
+            U_tl_10l: 0,
+            U_tl_20l: 0,
+            U_tl_50l: 0,
+            U_tl_total: 0,
+          })),
+
+      //Stock Allocation Collection
+      TL_RETAILSALE_LP_CSCollection: data?.stockAllocationData?.map(
+        (item: any) => ({
+          // U_tl_nozzlecode: item.U_tl_nozzlecode,
+          U_tl_itemcode: item.U_tl_itemcode,
+          U_tl_itemname: item.U_tl_itemname,
+          U_tl_qtycon: item.U_tl_qtycon,
+          U_tl_qtyaloc: item.U_tl_qtyaloc,
+          U_tl_uom: item.U_tl_uom,
+          U_tl_qtyopen: item.U_tl_qtyopen,
+          U_tl_remark: item.U_tl_remark,
+          U_tl_whs: item.U_tl_whs,
+          U_tl_bincode: item.U_tl_bincode,
+          U_tl_bplid: item.U_tl_bplid,
+        })
+      ),
     };
     if (this.props.edit) {
       delete payload.Series;
@@ -377,10 +468,39 @@ class SalesOrderForm extends CoreFormDocument {
 
       const validations = [
         {
+          field: "U_tl_bplid",
+          message: "Branch is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "U_tl_pump",
+          message: "Pump is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
           field: "CardCode",
           message: "Customer is Required!",
           getTabIndex: () => 0,
         },
+        {
+          field: "U_tl_attend",
+          message: "Pump Attendant is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Series",
+          message: "Series is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "U_tl_docdate",
+          message: "Document date is Required!",
+          getTabIndex: () => 0,
+        },
+
         {
           field: "Series",
           message: "Series is Required!",
@@ -397,6 +517,46 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Items is missing and must have at least one record!",
           isArray: true,
           getTabIndex: () => 1,
+        },
+        {
+          field: "cashBankData",
+          message: "Please enter at least one amount of Cash Sale!",
+          isArray: true,
+          getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.cashBankData) &&
+              data.cashBankData.some(
+                (item: any) => item.U_tl_amtcash || item.U_tl_amtbank
+              )
+            );
+          },
+        },
+        {
+          field: "nozzleData",
+          message:
+            "Nozzle Data is missing or does not have a valid record with New Meter!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.nozzleData) &&
+              data.nozzleData.some((item: any) => item.U_tl_nmeter)
+            );
+          },
+        },
+        {
+          field: "allocationData",
+          message:
+            "Allocation Data is missing or does not have a valid record with Cash Sales!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.allocationData) &&
+              data.allocationData.some((item: any) => item.U_tl_cashallow)
+            );
+          },
         },
         {
           field: "cashBankData",
@@ -439,6 +599,25 @@ class SalesOrderForm extends CoreFormDocument {
       );
 
       const payload = this.createPayload();
+      const { allocationData, stockAllocationData, cardCountData } = data;
+      const validationResult = validateData(
+        allocationData,
+        stockAllocationData
+      );
+      const validationResultCC = validateCardCountData(
+        allocationData,
+        cardCountData
+      );
+      if (!validationResultCC.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResultCC.message, "Invalid");
+        return;
+      }
+      if (!validationResult.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResult.message, "Invalid");
+        return;
+      }
 
       if (id) {
         return await request("PATCH", `/TL_RETAILSALE_LP(${id})`, payload)
@@ -488,8 +667,25 @@ class SalesOrderForm extends CoreFormDocument {
       await new Promise((resolve) => setTimeout(() => resolve(""), 800));
       const validations = [
         {
+          field: "U_tl_bplid",
+          message: "Branch is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "U_tl_pump",
+          message: "Pump is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
           field: "CardCode",
           message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_attend",
+          message: "Pump Attendant is Required!",
           getTabIndex: () => 0,
         },
         {
@@ -497,16 +693,54 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Series is Required!",
           getTabIndex: () => 0,
         },
+
         {
           field: "U_tl_docdate",
           message: "Document date is Required!",
           getTabIndex: () => 0,
         },
         {
-          field: "Items",
-          message: "Items is missing and must have at least one record!",
+          field: "nozzleData",
+          message:
+            "Nozzle Data is missing or does not have a valid record with New Meter!",
           isArray: true,
           getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.nozzleData) &&
+              data.nozzleData.some((item: any) => item.U_tl_nmeter)
+            );
+          },
+        },
+        {
+          field: "allocationData",
+          message:
+            "Allocation Data is missing or does not have a valid quantity allowed!",
+          isArray: true,
+          getTabIndex: () => 1,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.allocationData) &&
+              data.allocationData.every((item: any) => {
+                const cashSales = item["U_tl_cashallow"] || 0;
+                const partnership = item["U_tl_partallow"] || 0;
+                const stockTransfer = item["U_tl_stockallow"] || 0;
+                const ownUsage = item["U_tl_ownallow"] || 0;
+                const telaCard = item["U_tl_cardallow"] || 0;
+                const pumpTest = item["U_tl_pumpallow"] || 0;
+                const total = item["U_tl_cmeter"] || 0;
+                return (
+                  cashSales +
+                    partnership +
+                    stockTransfer +
+                    ownUsage +
+                    telaCard +
+                    pumpTest ===
+                  total
+                );
+              })
+            );
+          },
         },
         {
           field: "cashBankData",
@@ -558,6 +792,77 @@ class SalesOrderForm extends CoreFormDocument {
         await request("PATCH", `/TL_RETAILSALE_LP(${docEntry})`, payload);
       }
 
+      const generateAllocationPayload = (data: any, allocationType: any) => {
+        const filteredData = data?.allocationData?.filter(
+          (item: any) => item[allocationType] > 0
+        );
+
+        if (!filteredData || filteredData.length === 0) {
+          return [];
+        }
+
+        return filteredData.map((item: any) => {
+          let quantity = item[allocationType];
+
+          if (item.InventoryUoMEntry !== item.U_tl_uom) {
+            const uomList = item.uomLists?.find(
+              (list: any) => list.AlternateUoM === item.U_tl_uom
+            );
+            if (uomList) {
+              quantity *= uomList.BaseQuantity;
+            } else {
+              console.error("UoM conversion factor not found!");
+            }
+          }
+
+          return {
+            ItemCode: item.U_tl_itemcode,
+            Quantity: quantity,
+            GrossPrice: item.ItemPrice,
+            DiscountPercent: 0,
+            TaxCode: "VO10",
+            UoMEntry: item.InventoryUoMEntry,
+            LineOfBussiness: "201001",
+            RevenueLine: "202004",
+            ProductLine: "203004",
+            BinAbsEntry: item.U_tl_bincode,
+            // BranchCode: data.U_tl_bplid,
+            WarehouseCode: item.U_tl_whs,
+            DocumentLinesBinAllocations: [
+              {
+                BinAbsEntry: item.U_tl_bincode,
+                Quantity: quantity,
+                AllowNegativeQuantity: "tNO",
+              },
+            ],
+          };
+        });
+      };
+      const cashSaleItems = data?.allocationData?.filter(
+        (item: any) => item.U_tl_cashallow > 0
+      );
+
+      const cashSale = cashSaleItems?.map((item: any) => ({
+        ItemCode: item.U_tl_itemcode,
+        Quantity: item.U_tl_cashallow,
+        GrossPrice: item.ItemPrice,
+        DiscountPercent: 0,
+        TaxCode: "VO10",
+        UoMEntry: item.U_tl_uom,
+        LineOfBussiness: "201001", // item.LineOfBussiness
+        RevenueLine: "202004", // item.RevenueLine
+        ProductLine: "203004", // item.ProductLine
+        BinAbsEntry: item.U_tl_bincode,
+        // BranchCode: data.U_tl_bplid,
+        WarehouseCode: item.U_tl_whs,
+        DocumentLinesBinAllocations: [
+          {
+            BinAbsEntry: item.U_tl_bincode,
+            Quantity: item.U_tl_cashallow,
+            AllowNegativeQuantity: "tNO",
+          },
+        ],
+      }));
       const DocumentLines = data?.Items?.map((item: any) => {
         let quantity = item["Quantity"];
 
@@ -655,7 +960,121 @@ class SalesOrderForm extends CoreFormDocument {
             .filter((item: any) => item.Amount > 0),
         ],
 
-        DocumentLines: DocumentLines?.length > 0 ? DocumentLines : [],
+        StockAllocation: (() => {
+          const uniqueItemsMap = new Map();
+
+          data?.stockAllocationData?.forEach((item: any) => {
+            let quantity = parseFloat(item.U_tl_qtyaloc);
+
+            if (item.InventoryUoMEntry !== item.U_tl_uom) {
+              const uomList = item.uomLists?.find(
+                (list: any) => list.AlternateUoM === item.U_tl_uom
+              );
+              if (uomList) {
+                quantity *= uomList.BaseQuantity;
+              } else {
+                console.error("UoM conversion factor not found!");
+              }
+            }
+
+            if (uniqueItemsMap.has(item.U_tl_itemcode)) {
+              const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
+              uniqueItemsMap.set(
+                item.U_tl_itemcode,
+                existingQuantity + quantity
+              );
+            } else {
+              uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+            }
+          });
+
+          const stockAllocation = Array.from(uniqueItemsMap).map(
+            ([itemCode, quantity]) => ({
+              ItemCode: itemCode,
+              Quantity: quantity.toString(),
+              DiscountPercent: 0,
+              TaxCode: "VO10",
+              LineOfBussiness: "201001",
+              RevenueLine: "202004",
+              ProductLine: "203004",
+              BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+              BranchCode: data.stockAllocationData[0].U_tl_bplid,
+              WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+              DocumentLinesBinAllocations: [
+                {
+                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                  Quantity: quantity.toString(),
+                  AllowNegativeQuantity: "tNO",
+                },
+              ],
+            })
+          );
+
+          return stockAllocation;
+        })(),
+
+        CardCount: [].concat(
+          ...data?.cardCountData?.map((item: any) => {
+            const mappedData = [];
+            const itemCode = item.U_tl_itemcode;
+            for (let i = 1; i <= 50; i++) {
+              // considering up to 50L
+              const quantityKey = `U_tl_${i}l`;
+              const allowKey = `U_tl_${i}l`;
+              if (item[quantityKey]) {
+                let quantity = parseFloat(item[quantityKey]);
+                let allow = parseFloat(item[allowKey]);
+                if (quantity > 0) {
+                  // Adjust quantity based on the specified rules
+                  if (i > 1) {
+                    quantity /= i;
+                    allow /= i;
+                  }
+                  mappedData.push({
+                    ItemCode: `${itemCode}-${i.toString().padStart(2, "0")}`,
+                    Quantity: quantity,
+                    UoMEntry: data.nozzleData?.find(
+                      (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
+                    )?.U_tl_uom,
+                    LineOfBussiness: "201001", // item.LineOfBussiness
+                    RevenueLine: "202004", // item.RevenueLine
+                    ProductLine: "203004", // item.ProductLine
+                    // BinAbsEntry: data.U_tl_bincode,
+                    U_tl_bincode: edit
+                      ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
+                          (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
+                        )?.U_tl_bincode
+                      : data.nozzleData?.find(
+                          (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
+                        )?.U_tl_bincode,
+                    WarehouseCode: data.U_tl_whs,
+                    DocumentLinesBinAllocations: [
+                      {
+                        BinAbsEntry: edit
+                          ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
+                              (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
+                            )?.U_tl_bincode
+                          : data.nozzleData?.find(
+                              (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
+                            )?.U_tl_bincode,
+                        Quantity: quantity,
+                        AllowNegativeQuantity: "tNO",
+                      },
+                    ],
+                  });
+                }
+              }
+            }
+            return mappedData;
+          })
+        ),
+
+        CashSale: cashSale?.length > 0 ? cashSale : [],
+        Partnership: generateAllocationPayload(data, "U_tl_partallow"),
+        StockTransfer: generateAllocationPayload(data, "U_tl_stockallow"),
+        OwnUsage: generateAllocationPayload(data, "U_tl_ownallow"),
+        TelaCard: generateAllocationPayload(data, "U_tl_cardallow"),
+        PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
 
       await request("POST", "/script/test/LubeCashSales", PostPayload);
@@ -744,7 +1163,7 @@ class SalesOrderForm extends CoreFormDocument {
             active={this.state.tapIndex === 1}
             onClick={() => this.handleMenuButtonClick(1)}
           >
-            <span>Pump Sale</span>
+            <span>Consumption</span>
           </MenuButton>
           <MenuButton
             active={this.state.tapIndex === 2}
@@ -756,27 +1175,43 @@ class SalesOrderForm extends CoreFormDocument {
             active={this.state.tapIndex === 3}
             onClick={() => this.handleMenuButtonClick(3)}
           >
-            Incoming Payment
+            <span> Incoming Payment</span>
+          </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 4}
+            onClick={() => this.handleMenuButtonClick(4)}
+          >
+            <span> Stock Allocation</span>
+          </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 5}
+            onClick={() => this.handleMenuButtonClick(5)}
+          >
+            <span>Card Count</span>
+          </MenuButton>
+          <MenuButton
+            active={this.state.tapIndex === 6}
+            onClick={() => this.handleMenuButtonClick(6)}
+          >
+            <span>Error Log</span>
           </MenuButton>
         </div>
-        <div className="sticky w-full bottom-4   ">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
-            <Snackbar
-              open={this.state.isDialogOpen}
-              autoHideDuration={6000}
-              onClose={this.handleCloseDialog}
-            >
-              <Alert
-                onClose={this.handleCloseDialog}
-                severity="error"
-                sx={{ width: "100%" }}
-              >
-                Please complete all required fields before proceeding to the
-                next tab.
-              </Alert>
-            </Snackbar>
-          </div>
-        </div>
+
+        <Snackbar
+          open={this.state.isDialogOpen}
+          autoHideDuration={6000}
+          onClose={this.handleCloseDialog}
+        >
+          <Alert
+            onClose={this.handleCloseDialog}
+            severity="error"
+            sx={{ width: "100%" }}
+          >
+            {this.state.message}
+            Please complete all required fields before proceeding to the next
+            tab.
+          </Alert>
+        </Snackbar>
       </>
     );
   };
@@ -874,7 +1309,39 @@ class SalesOrderForm extends CoreFormDocument {
                         }}
                       />
                     )}
-
+                    {this.state.tapIndex === 4 && (
+                      <StockAllocationTable
+                        data={this.state}
+                        edit={this.props?.edit}
+                        onChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 5 && (
+                      <CardCount
+                        handlerChangeObject={(value) =>
+                          this.handlerChangeObject(value)
+                        }
+                        data={this.state}
+                        edit={this.props?.edit}
+                        onChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                      />
+                    )}
+                    {this.state.tapIndex === 6 && (
+                      <ErrorLogForm
+                        data={this.state}
+                        edit={this.props?.edit}
+                        handlerChange={(key, value) =>
+                          this.handlerChange(key, value)
+                        }
+                      />
+                    )}
                     <div className="sticky w-full bottom-4 mt-2">
                       <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
                         <div className="flex gap-2">
@@ -977,3 +1444,177 @@ const getItem = (
       ],
     };
   });
+interface AllocationDataItem {
+  U_tl_itemcode: string;
+  U_tl_stockallow?: number;
+}
+
+interface StockAllocationDataItem {
+  U_tl_itemcode: string;
+  U_tl_qtycon: number;
+  U_tl_qtyaloc?: number;
+}
+
+function validateData(
+  allocationData: AllocationDataItem[],
+  stockAllocationData: StockAllocationDataItem[]
+): { isValid: boolean; message: string } {
+  // Check if allocationData has at least one item with valid U_tl_itemcode and U_tl_stockallow > 0
+  const hasValidAllocationData = allocationData.some(
+    (item) =>
+      item.U_tl_itemcode && item.U_tl_stockallow && item.U_tl_stockallow > 0
+  );
+
+  if (!hasValidAllocationData) {
+    return {
+      isValid: true,
+      message: "No validation required for Stock Allocation Data.",
+    };
+  }
+
+  const hasStockAllowData = allocationData.some(
+    (item) => item.U_tl_stockallow !== undefined && item.U_tl_stockallow > 0
+  );
+
+  if (!hasStockAllowData) {
+    return {
+      isValid: true,
+      message: "No Stock Allocation Data validation required.",
+    };
+  }
+
+  const itemcodeAllocationMap = new Map<string, number>();
+
+  allocationData.forEach((item) => {
+    const { U_tl_itemcode, U_tl_stockallow } = item;
+    if (U_tl_itemcode && U_tl_stockallow) {
+      const existingTotal = itemcodeAllocationMap.get(U_tl_itemcode) || 0;
+      itemcodeAllocationMap.set(U_tl_itemcode, existingTotal + U_tl_stockallow);
+    }
+  });
+
+  const isValid = [...itemcodeAllocationMap.entries()].every(
+    ([itemcode, expectedTotalAllow]) => {
+      const rowsWithSameItemCode = stockAllocationData.filter(
+        (r) => r.U_tl_itemcode === itemcode
+      );
+
+      if (rowsWithSameItemCode.length === 0) {
+        const message = `No entries found in stock Allocation Data for Item Code: ${itemcode}`;
+        console.log(message);
+        throw new FormValidateException(message, 3);
+      }
+
+      const totalQuantity = rowsWithSameItemCode.reduce(
+        (sum, r) => sum + parseFloat((r.U_tl_qtyaloc || 0).toString()),
+        0
+      );
+
+      const firstQuantity = rowsWithSameItemCode[0]?.U_tl_qtycon || 0;
+
+      const isValid =
+        totalQuantity === firstQuantity && totalQuantity === expectedTotalAllow;
+
+      if (!isValid) {
+        const message = `Stock Allocation does not match the totals in Allocation Data for Item Code: ${itemcode}`;
+        console.log(message);
+        throw new FormValidateException(message, 3);
+      }
+
+      return isValid;
+    }
+  );
+
+  return {
+    isValid,
+    message: isValid
+      ? "Stock Allocation Data is valid."
+      : "Stock Allocation Data does not match the totals in Allocation Data.",
+  };
+}
+interface AllocationDataItem {
+  U_tl_itemcode: string;
+  U_tl_cardallow?: number;
+}
+
+interface CardCountDataItem {
+  U_tl_itemcode: string;
+  U_tl_1l?: number;
+  U_tl_2l?: number;
+  U_tl_5l?: number;
+  U_tl_10l?: number;
+  U_tl_20l?: number;
+  U_tl_50l?: number;
+  U_tl_total: number;
+  U_tl_cardallow?: number;
+}
+
+function commaFormatNum(num: number | string): number {
+  // Implement the logic for commaFormatNum function
+  return typeof num === "string" ? parseFloat(num.replace(/,/g, "")) : num;
+}
+function validateCardCountData(
+  allocationData: AllocationDataItem[],
+  cardCountData: CardCountDataItem[]
+): { isValid: boolean; message: string } {
+  const itemcodeCardAllowMap = new Map<string, number>();
+
+  allocationData.forEach((item) => {
+    const { U_tl_itemcode, U_tl_cardallow } = item;
+    if (U_tl_itemcode && U_tl_cardallow !== undefined) {
+      itemcodeCardAllowMap.set(U_tl_itemcode, U_tl_cardallow);
+    }
+  });
+
+  const isValid = cardCountData.every((item) => {
+    const { U_tl_itemcode } = item;
+    const expectedCardAllow = itemcodeCardAllowMap.get(U_tl_itemcode) || 0;
+
+    const total =
+      (item.U_tl_1l || 0) +
+      (item.U_tl_2l || 0) +
+      (item.U_tl_5l || 0) +
+      (item.U_tl_10l || 0) +
+      (item.U_tl_20l || 0) +
+      (item.U_tl_50l || 0);
+
+    if (total !== expectedCardAllow) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const message = isValid
+    ? "Card Count Data is valid."
+    : `Card Count Data does not match the Tela Card values in Allocation Data. ${getErrorDetails(cardCountData, itemcodeCardAllowMap)}`;
+
+  return {
+    isValid,
+    message,
+  };
+}
+
+function getErrorDetails(
+  cardCountData: CardCountDataItem[],
+  itemcodeCardAllowMap: Map<string, number>
+): string {
+  const errors: string[] = [];
+  cardCountData.forEach((item) => {
+    const { U_tl_itemcode } = item;
+    const expectedCardAllow = itemcodeCardAllowMap.get(U_tl_itemcode) || 0;
+    const total =
+      (item.U_tl_1l || 0) +
+      (item.U_tl_2l || 0) +
+      (item.U_tl_5l || 0) +
+      (item.U_tl_10l || 0) +
+      (item.U_tl_20l || 0) +
+      (item.U_tl_50l || 0);
+    if (total !== expectedCardAllow) {
+      errors.push(
+        `Invalid total for Item ${U_tl_itemcode}. Expected: ${expectedCardAllow}, Actual: ${total}`
+      );
+    }
+  });
+  return errors.join("\n");
+}

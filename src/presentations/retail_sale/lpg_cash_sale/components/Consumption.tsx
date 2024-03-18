@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import NozzleData from "./NozzleDataTable";
-import AllocationTable from "./AllocationTable";
+import AllocationTable from "../../fuel_cash_sale/components/AllocationTable";
 import { Button } from "@mui/material";
 
 export interface ConsumptionProps {
@@ -23,6 +23,13 @@ export default function Consumption({
           <h2>Nozzle Data</h2>
         </div>
         <NozzleData data={data} onChange={handlerChange} edit={edit} />
+
+        <AllocationTable
+          data={data}
+          onChange={handlerChange}
+          edit={edit}
+          handlerChangeObject={handlerChangeObject}
+        />
       </div>
     </>
   );
