@@ -27,6 +27,7 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
     } = useForm({
         defaultValues: {
             DocDate: new Date().toISOString()?.split('T')[0],
+            TaxDate: new Date().toISOString()?.split('T')[0],
             BPLID: undefined,
             StockTransferLines: []
         }

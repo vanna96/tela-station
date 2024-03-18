@@ -4,10 +4,10 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
 import AttentionTerminalAutoComplete from "../components/AttentionTerminalAutoComplete";
-import request from "@/utilies/request";
+import request, { url } from "@/utilies/request";
 import ToWarehouseAutoComplete from "../components/ToWarehouseAutoComplete";
 import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery, useQuery } from "react-query";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 const BasicInformationDetail = (props: any) => {
@@ -20,7 +20,7 @@ const BasicInformationDetail = (props: any) => {
     if (!defaultSerie.data) return;
 
     props?.setValue("Series", defaultSerie?.data?.Series);
-    props?.setValue("DocNum", defaultSerie?.data?.NextNum);
+    props?.setValue("DocNum", defaultSerie?.data?.NextNumber);
   }, [defaultSerie.data]);
 
   const onChangeSerie = useCallback(
@@ -36,11 +36,21 @@ const BasicInformationDetail = (props: any) => {
     [series?.data]
   );
 
-  const branch: any = useInfiniteQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
+  const branch: any = useQuery({
+    queryKey: ["branchid"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
     staleTime: Infinity,
-  });
+  })
 
   const { data } = useGetWhsTerminalAssignHook(false);
 
@@ -79,11 +89,10 @@ const BasicInformationDetail = (props: any) => {
                   rules={{ required: "Attention Terminal is required" }}
                   name="U_tl_attn_ter"
                   control={props.control}
-                  disabled
                   render={({ field }) => {
                     return (
                       <AttentionTerminalAutoComplete
-                        disabled={props.detail}
+                        disabled={true}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -117,12 +126,7 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-3">
                 <MUITextField
                   disabled={true}
-                  value={
-                    props?.branch?.data?.find(
-                      (e: any) => e?.BPLID === props?.watch("BPLID")
-                    )?.BPLName
-                  }
-                  inputProps={{ ...props.register("BPLID") }}
+                  inputProps={{ ...props.register("BPLName") }}
                 />
               </div>
             </div>
@@ -197,8 +201,9 @@ const BasicInformationDetail = (props: any) => {
                     render={({ field }) => {
                       return (
                         <MUISelect
+                        
                           value={field.value}
-                          disabled={props?.edit}
+                          disabled
                           items={series.data ?? []}
                           aliaslabel="Name"
                           aliasvalue="Series"
