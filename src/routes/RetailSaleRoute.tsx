@@ -4,12 +4,14 @@ import SalesOrderForm from "@/presentations/retail_sale/fuel_cash_sale/form/inde
 import SaleOrderDetail from "@/presentations/retail_sale/fuel_cash_sale/detail";
 import RetailSalePage from "@/presentations/retail_sale";
 
-import LPGForm from "@/presentations/retail_sale/lpg_cash_sale/form/index";
 import LPGDetail from "@/presentations/retail_sale/lpg_cash_sale/detail";
 
 import LubeForm from "@/presentations/retail_sale/lube_cash_sale/form/index";
 import LubeDetail from "@/presentations/retail_sale/lube_cash_sale/detail";
 import LubeLists from "@/presentations/retail_sale/lube_cash_sale";
+import LPGLists from "@/presentations/retail_sale/lpg_cash_sale";
+import LPGForm from "@/presentations/retail_sale/lpg_cash_sale/form/index";
+
 export default function RetailSaleRoute() {
   return (
     <Routes>
@@ -29,7 +31,7 @@ export default function RetailSaleRoute() {
       </Route>
 
       <Route path="/lpg-cash-sale">
-        <Route index element={<SaleOrderLists />} />
+        <Route index element={<LPGLists />} />
         <Route path="create" element={<LPGForm />} />
         <Route path=":id/edit" element={<LPGForm edit={true} />} />
         <Route path=":id" element={<LPGDetail edit={true} />} />

@@ -247,7 +247,6 @@ class Form extends NonCoreDcument {
           state["GRSeries"] = GRSeries;
           state["invoiceSeries"] = invoiceSeries;
           this.setState(state);
-          console.log(state);
         });
     } else {
       state["SerieLists"] = seriesList;
@@ -258,7 +257,6 @@ class Form extends NonCoreDcument {
       state["GRSeries"] = GRSeries;
       state["invoiceSeries"] = invoiceSeries;
       this.setState(state);
-      console.log(state);
     }
   }
   createPayload() {
@@ -512,7 +510,6 @@ class Form extends NonCoreDcument {
     const data: any = { ...this.state };
 
     const payload = this.createPayload();
-    console.log(data);
     edit = this.props.edit;
 
     try {
@@ -608,57 +605,7 @@ class Form extends NonCoreDcument {
             );
           },
         },
-        // {
-        //   field: "cardCountData",
-        //   message:
-        //     "Card Count Data is missing or does not have a valid quantity allowed!",
-        //   isArray: true,
-        //   getTabIndex: () => 4,
-        //   validate: (data: any) => {
-        //     // return (
-        //     //   Array.isArray(data.cardCountData) &&
-        //     //   data.cardCountData.every((item: any) => {
-        //     //     const total = [
-        //     //       "U_tl_1l",
-        //     //       "U_tl_2l",
-        //     //       "U_tl_5l",
-        //     //       "U_tl_10l",
-        //     //       "U_tl_20l",
-        //     //       "U_tl_50l",
-        //     //     ].reduce((sum, property) => sum + (item[property] || 0), 0);
-        //     //     return item["U_tl_nmeter"] === total;
-        //     //   })
-        //     // );
-        //     if (
-        //       data.allocationData.some(
-        //         (item: any) =>
-        //           item["U_tl_cardallow"] > 0 ||
-        //           item["U_tl_cardallow"] === undefined ||
-        //           item["U_tl_cardallow"] === null
-        //       )
-        //     ) {
-        //       const isValid =
-        //         Array.isArray(data.cardCountData) &&
-        //         data.cardCountData.every((item: any) => {
-        //           const total = [
-        //             "U_tl_1l",
-        //             "U_tl_2l",
-        //             "U_tl_5l",
-        //             "U_tl_10l",
-        //             "U_tl_20l",
-        //             "U_tl_50l",
-        //           ].reduce((sum, property) => sum + (item[property] || 0), 0);
-        //           const isValid = item["U_tl_nmeter"] === total;
-        //           return isValid;
-        //         });
-        //       return isValid;
-        //     } else {
-        //       return true;
-        //     }
-        //   },
-        // },
       ];
-
       validations.forEach(
         ({ field, message, isArray, getTabIndex, validate }) => {
           const value = isArray ? data[field] : data[field];
@@ -672,6 +619,24 @@ class Form extends NonCoreDcument {
           }
         }
       );
+      const validationResult = validateData(
+        data.allocationData,
+        data.stockAllocationData
+      );
+      const validationResultCC = validateCardCountData(
+        data.allocationData,
+        data.cardCountData
+      );
+      if (!validationResultCC.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResultCC.message, "Invalid");
+        return;
+      }
+      if (!validationResult.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResult.message, "Invalid");
+        return;
+      }
       let docEntry;
       if (!edit) {
         const { isFirstAttempt } = this.state;
@@ -819,56 +784,61 @@ class Form extends NonCoreDcument {
             }))
             .filter((item: any) => item.Amount > 0),
         ],
-
         StockAllocation: (() => {
           const uniqueItemsMap = new Map();
 
           data?.stockAllocationData?.forEach((item: any) => {
             let quantity = parseFloat(item.U_tl_qtyaloc);
 
-            if (item.InventoryUoMEntry !== item.U_tl_uom) {
-              const uomList = item.uomLists?.find(
-                (list: any) => list.AlternateUoM === item.U_tl_uom
-              );
-              if (uomList) {
-                quantity *= uomList.BaseQuantity;
-              } else {
-                console.error("UoM conversion factor not found!");
+            if (quantity >= 0 && !isNaN(quantity)) {
+              if (item.InventoryUoMEntry !== item.U_tl_uom) {
+                const uomList = item.uomLists?.find(
+                  (list: any) => list.AlternateUoM === item.U_tl_uom
+                );
+                if (uomList) {
+                  quantity *= uomList.BaseQuantity;
+                } else {
+                  console.error("UoM conversion factor not found!");
+                }
               }
-            }
 
-            if (uniqueItemsMap.has(item.U_tl_itemcode)) {
-              const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
-              uniqueItemsMap.set(
-                item.U_tl_itemcode,
-                existingQuantity + quantity
-              );
-            } else {
-              uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+              if (uniqueItemsMap.has(item.U_tl_itemcode)) {
+                const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
+                uniqueItemsMap.set(
+                  item.U_tl_itemcode,
+                  existingQuantity + quantity
+                );
+              } else {
+                uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+              }
             }
           });
 
-          const stockAllocation = Array.from(uniqueItemsMap).map(
-            ([itemCode, quantity]) => ({
-              ItemCode: itemCode,
-              Quantity: quantity.toString(),
-              DiscountPercent: 0,
-              TaxCode: "VO10",
-              LineOfBussiness: "201001",
-              RevenueLine: "202004",
-              ProductLine: "203004",
-              BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
-              BranchCode: data.stockAllocationData[0].U_tl_bplid,
-              WarehouseCode: data.stockAllocationData[0].U_tl_whs,
-              DocumentLinesBinAllocations: [
-                {
-                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+          const stockAllocation = Array.from(uniqueItemsMap)
+            .map(([itemCode, quantity]) => {
+              if (quantity >= 0) {
+                return {
+                  ItemCode: itemCode,
                   Quantity: quantity.toString(),
-                  AllowNegativeQuantity: "tNO",
-                },
-              ],
+                  DiscountPercent: 0,
+                  TaxCode: "VO10",
+                  LineOfBussiness: "201001",
+                  RevenueLine: "202004",
+                  ProductLine: "203004",
+                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                  BranchCode: data.stockAllocationData[0].U_tl_bplid,
+                  WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+                  DocumentLinesBinAllocations: [
+                    {
+                      BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                      Quantity: quantity.toString(),
+                      AllowNegativeQuantity: "tNO",
+                    },
+                  ],
+                };
+              }
             })
-          );
+            .filter(Boolean); // Filter out undefined items
 
           return stockAllocation;
         })(),
@@ -1259,8 +1229,10 @@ interface StockAllocationDataItem {
   U_tl_itemcode: string;
   U_tl_qtycon: number;
   U_tl_qtyaloc?: number;
+  U_tl_bincode: any;
+  U_tl_bplid: number;
+  U_tl_whs: any;
 }
-
 function validateData(
   allocationData: AllocationDataItem[],
   stockAllocationData: StockAllocationDataItem[]
@@ -1307,7 +1279,6 @@ function validateData(
 
       if (rowsWithSameItemCode.length === 0) {
         const message = `No entries found in stock Allocation Data for Item Code: ${itemcode}`;
-        console.log(message);
         throw new FormValidateException(message, 3);
       }
 
@@ -1323,13 +1294,28 @@ function validateData(
 
       if (!isValid) {
         const message = `Stock Allocation does not match the totals in Allocation Data for Item Code: ${itemcode}`;
-        console.log(message);
         throw new FormValidateException(message, 3);
       }
 
       return isValid;
     }
   );
+
+  // Check for required fields in stockAllocationData
+  const hasMissingFields = stockAllocationData.some(
+    (item) =>
+      !item.U_tl_whs ||
+      !item.U_tl_bincode ||
+      !item.U_tl_bplid ||
+      !item.U_tl_itemcode ||
+      !item.U_tl_qtyaloc
+  );
+
+  if (hasMissingFields) {
+    const message =
+      "One or more required fields are missing in Stock Allocation Data.";
+    throw new FormValidateException(message, 3);
+  }
 
   return {
     isValid,
@@ -1338,6 +1324,7 @@ function validateData(
       : "Stock Allocation Data does not match the totals in Allocation Data.",
   };
 }
+
 interface AllocationDataItem {
   U_tl_itemcode: string;
   U_tl_cardallow?: number;
