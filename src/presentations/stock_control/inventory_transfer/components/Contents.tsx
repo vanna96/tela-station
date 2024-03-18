@@ -3,7 +3,7 @@ import MUITextField from "@/components/input/MUITextField";
 import { Button, Checkbox, TextField } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import ITRModal, { InventoryItemModal } from "./ITRModal";
+import ITRModal, { InventoryItemModal } from "../../components/GetItemModal";
 import UomSelectByItem, { calculateUOM } from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { QueryCache, QueryClient, useQueryClient } from "react-query";

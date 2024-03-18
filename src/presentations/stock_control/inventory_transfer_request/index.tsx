@@ -27,7 +27,7 @@ export default function InventoryTransferRequestList() {
     () => [
       {
         accessorKey: "DocEntry",
-        header: "No", //uses the default width from defaultColumn prop
+        header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -153,7 +153,7 @@ export default function InventoryTransferRequestList() {
             loading={loading}
             pagination={pagination}
             paginationChange={setPagination}
-            title="Fuel Level Lists"
+            title="Inventory Transfer Request List"
             createRoute={`/stock-control/inventory-transfer-request/create`}
           >
             <Button

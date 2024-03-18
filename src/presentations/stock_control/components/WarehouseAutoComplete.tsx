@@ -1,52 +1,44 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, forwardRef, useMemo } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { useQuery } from "react-query";
-import request, { url } from "@/utilies/request";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 
-interface Type {
+interface WarehouseProps {
   WarehouseCode: string;
   WarehouseName: string;
 }
 
-const BaseStationAutoComplete = forwardRef<
-  HTMLInputElement,
-  {
-    label?: any;
-    value?: any;
-    onChange?: (value: any) => void;
-    name?: any;
-    disabled?: any;
-    onBlur?: any;
-  }
->((props, ref) => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["TL_WH"],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/Warehouses?$filter=U_tl_attn_ter eq 'Y'`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-  });
+export type WarehouseAutoCompleteProp = {
+  label?: any;
+  value?: any;
+  onChange?: (value: any) => void;
+  name?: any;
+  disabled?: any;
+  branchId: number | undefined
+}
+
+const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
+  const { data, isLoading } = useGetWhsTerminalAssignHook(false)
+
+
+  const warehoueses = useMemo(() => {
+    if (props.branchId)
+      return data?.filter((e: any) => e?.BusinessPlaceID === props?.branchId)
+
+    return data;
+  }, [props.branchId, data])
+
 
   useEffect(() => {
-    // Ensure that the selected value is set when the component is mounted
-    if (props.value && data) {
-      const selected = data.find((e: Type) => e.WarehouseCode === props.value);
+    if (props.value && warehoueses) {
+      const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
       if (selected) {
         setSelectedValue(selected);
       }
     }
-  }, [props.value, data]);
+  }, [props.value, warehoueses]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState<Type | null>(null);
+  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -54,8 +46,7 @@ const BaseStationAutoComplete = forwardRef<
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue.WarehouseCode : null;
-      props.onChange(selected);
+      props.onChange(newValue);
     }
   };
   const disabled = props.disabled;
@@ -70,16 +61,15 @@ const BaseStationAutoComplete = forwardRef<
       </label>
       <Autocomplete
         disabled={disabled}
-        options={data ?? []}
+        options={warehoueses ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
-        onBlur={props?.onBlur}
         loading={isLoading}
-        getOptionLabel={(option: Type) =>
+        getOptionLabel={(option: WarehouseProps) =>
           option.WarehouseCode + " - " + option.WarehouseName
         }
-        renderOption={(props, option: Type) => (
+        renderOption={(props, option: WarehouseProps) => (
           <Box component="li" {...props}>
             {option.WarehouseCode + " - " + option.WarehouseName}
           </Box>
@@ -88,9 +78,8 @@ const BaseStationAutoComplete = forwardRef<
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -102,12 +91,11 @@ const BaseStationAutoComplete = forwardRef<
                 </React.Fragment>
               ),
             }}
-            inputRef={ref}
           />
         )}
       />
     </div>
   );
-});
+}
 
-export default BaseStationAutoComplete;
+export default WarehouseAutoComplete;

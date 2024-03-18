@@ -1,5 +1,4 @@
 import MUITextField from "@/components/input/MUITextField";
-import { UseFormProps } from "../form";
 import { useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
@@ -10,11 +9,11 @@ import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
 import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import React from "react";
-import ToWarehouseAutoComplete from "../components/WarehouseAutoComplete";
 import request from "@/utilies/request";
 import { CircularProgress } from "@mui/material";
 import { loadavg } from "os";
 import AttentionTerminalAutoComplete from "../components/AttentionTerminalAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 
 const BasicInformationDetail = ({
   register,
@@ -29,7 +28,7 @@ const BasicInformationDetail = ({
   serie,
   edit,
   getValues,
-}: UseFormProps) => {
+}: any) => {
   const [staticSelect, setStaticSelect] = useState({
     branchASS: null,
     serie: 7838,
@@ -60,6 +59,9 @@ const BasicInformationDetail = ({
     const defaultDate = new Date();
     setValue("DocDate", defaultDate);
   }, [setValue]);
+
+
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -149,7 +151,8 @@ const BasicInformationDetail = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <ToWarehouseAutoComplete
+                      <WarehouseAutoComplete
+                        branchId={watch('BPLID')}
                         disabled={detail}
                         {...field}
                         value={field.value}

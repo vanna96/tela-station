@@ -1,7 +1,6 @@
 
 import { Backdrop, Button, Checkbox, CircularProgress } from "@mui/material"
 import React, { useState } from "react"
-import { useTransferRequestFormHook } from "../hook/useStockTransferHook"
 import FormMessageModal from "@/components/modal/FormMessageModal"
 import CustomToast from "@/components/modal/CustomToast"
 import { MdEdit } from 'react-icons/md';
@@ -9,13 +8,14 @@ import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
 import BasicInformation from "../components/BasicInformation"
 import Contents from "../components/Contents"
+import { useStockTransferFormHook } from "../hook/useStockTransferHook";
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
 export const InventoryTransferRequestDetails = () => {
   const [tap, setTap] = useState<number>(0)
-  const hook = useTransferRequestFormHook(false, dialog);
+  const hook = useStockTransferFormHook(false, dialog);
 
   const onChangeTap = (index: number) => {
 

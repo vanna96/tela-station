@@ -5,13 +5,14 @@ import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
 import AttentionTerminalAutoComplete from "./AttentionTerminalAutoComplete";
 import request from "@/utilies/request";
-import ToWarehouseAutoComplete from "./WarehouseAutoComplete";
 import { useInfiniteQuery } from "react-query";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 import { useGetStockTransferSeriesHook } from "../hook/useGetStockTransferSeriesHook";
 import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
-import WarehouseAutoComplete from "./WarehouseAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
+import { TransferType } from "../hook/useStockTransferHook";
+import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 
 const BasicInformation = (props: any) => {
   //
@@ -87,9 +88,12 @@ const BasicInformation = (props: any) => {
                       <MUISelect
                         value={field.value}
                         disabled={props?.edit}
-                        onChange={(e) => props.setValue('U_tl_transType', e.target.value)}
+                        onChange={(e) => {
+                          props.setValue('U_tl_transType', e.target.value)
+                          props.setValue('FromWarehouse', undefined)
+                        }}
                         items={[
-                          { value: 'Internal Transfer', label: 'Internal Transfer' },
+                          { value: 'Internal', label: 'Internal Transfer' },
                           { value: 'External', label: 'Transfer Cross Branch' },
                         ]}
                       />
@@ -106,10 +110,35 @@ const BasicInformation = (props: any) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={props.detail || true}
-                  value={props?.watch('FromWarehouse')}
-                />
+                {props?.watch('U_tl_transType') as TransferType === 'External' ? <Controller
+                  rules={{ required: "From Warehouse Code is required" }}
+                  name="FromWarehouse"
+                  control={props.control}
+                  render={({ field }) => {
+                    return (
+                      <WarehouseAutoComplete
+                        branchId={props.watch('BPLID')}
+                        disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'external'}
+                        {...field}
+
+                        value={field.value}
+                        onChange={async (e: any) => {
+                          props.setValue("FromWarehouse", e?.WarehouseCode);
+                          onChangeBranch({ BPLID: e?.BusinessPlaceID })
+
+                          if (!e?.DefaultBin) return;
+
+                          props?.setLoading(true);
+                          const res: any = await request("GET", `BinLocations(${e?.DefaultBin})`);
+
+                          props?.setLoading(false);
+                          props.setValue("U_tl_uobincode", res.data.BinCode);
+                          props.setValue("U_tl_fromBinId", undefined);
+                        }}
+                      />
+                    );
+                  }}
+                /> : <MUITextField disabled />}
               </div>
             </div>
 
@@ -124,7 +153,7 @@ const BasicInformation = (props: any) => {
                 <Controller
                   rules={{ required: "Attention Terminal is required" }}
                   name="U_tl_attn_ter"
-                  disabled={props?.edit}
+                  disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'internal'}
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -205,7 +234,7 @@ const BasicInformation = (props: any) => {
                           );
                           props?.setLoading(false);
                           props.setValue("U_tl_sobincode", res.data.BinCode);
-                          props.setValue("U_tl_toBinId", e?.DefaultBin);
+                          props.setValue("U_tl_toBinId", undefined);
                         }}
                       />
                     );
@@ -222,7 +251,25 @@ const BasicInformation = (props: any) => {
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
-                <MUITextField value={props.watch("U_tl_sobincode")} disabled={props?.edit} />
+                <Controller
+                  rules={{ required: "To Bin Code is required" }}
+                  name="U_tl_sobincode"
+                  control={props.control}
+                  render={({ field }) => {
+                    return (
+                      <BinAllocationAutoComplete
+                        warehouse={props?.watch('ToWarehouse')}
+                        disabled={props.detail}
+                        {...field}
+                        value={field.value}
+                        onChange={(value) => {
+                          props?.setValue('U_tl_sobincode', value?.BinCode)
+                          props?.setValue('U_tl_toBinId', value?.AbsEntry)
+                        }}
+                      />
+                    );
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -353,7 +400,7 @@ const BasicInformation = (props: any) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
+                {props?.watch('U_tl_transType') as TransferType === 'Internal' ? <Controller
                   rules={{ required: "From Warehouse Code is required" }}
                   name="FromWarehouse"
                   control={props.control}
@@ -361,7 +408,7 @@ const BasicInformation = (props: any) => {
                     return (
                       <WarehouseAutoComplete
                         branchId={props.watch('BPLID')}
-                        disabled={props?.edit}
+                        disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
 
                         value={field.value}
@@ -378,12 +425,14 @@ const BasicInformation = (props: any) => {
 
                           props?.setLoading(false);
                           props.setValue("U_tl_uobincode", res.data.BinCode);
-                          props.setValue("U_tl_fromBinId", e?.DefaultBin);
+                          // props.setValue("U_tl_fromBinId", e?.DefaultBin);
+                          props.setValue("U_tl_fromBinId", undefined);
                         }}
                       />
                     );
                   }}
-                />
+                /> : <MUITextField disabled />}
+
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -394,8 +443,25 @@ const BasicInformation = (props: any) => {
                 <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
-                {/* {isLoading} */}
-                <MUITextField value={props.watch("U_tl_uobincode")} disabled={props?.edit} />
+                {props?.watch('U_tl_transType') as TransferType === 'Internal' ? <Controller
+                  rules={{ required: "From Bin Code is required" }}
+                  name="U_tl_uobincode"
+                  control={props.control}
+                  render={({ field }) => {
+                    return (
+                      <BinAllocationAutoComplete
+                        warehouse={props?.watch('FromWarehouse')}
+                        disabled={props.detail}
+                        {...field}
+                        value={field.value}
+                        onChange={(value) => {
+                          props?.setValue('U_tl_uobincode', value?.BinCode)
+                          props?.setValue('U_tl_fromBinId', value?.AbsEntry)
+                        }}
+                      />
+                    );
+                  }}
+                /> : <MUITextField disabled />}
               </div>
             </div>
           </div>
