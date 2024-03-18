@@ -841,31 +841,7 @@ class SalesOrderForm extends CoreFormDocument {
           };
         });
       };
-      const cashSaleItems = data?.allocationData?.filter(
-        (item: any) => item.U_tl_cashallow > 0
-      );
 
-      const cashSale = cashSaleItems?.map((item: any) => ({
-        ItemCode: item.U_tl_itemcode,
-        Quantity: item.U_tl_cashallow,
-        GrossPrice: item.ItemPrice,
-        DiscountPercent: 0,
-        TaxCode: "VO10",
-        UoMEntry: item.U_tl_uom,
-        LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202004", // item.RevenueLine
-        ProductLine: "203004", // item.ProductLine
-        BinAbsEntry: item.U_tl_bincode,
-        // BranchCode: data.U_tl_bplid,
-        WarehouseCode: item.U_tl_whs,
-        DocumentLinesBinAllocations: [
-          {
-            BinAbsEntry: item.U_tl_bincode,
-            Quantity: item.U_tl_cashallow,
-            AllowNegativeQuantity: "tNO",
-          },
-        ],
-      }));
       const DocumentLines = data?.Items?.map((item: any) => {
         let quantity = item["Quantity"];
 
@@ -908,6 +884,32 @@ class SalesOrderForm extends CoreFormDocument {
           ],
         };
       });
+      const cashSaleItems = data?.allocationData?.filter(
+        (item: any) => item.U_tl_cashallow > 0
+      );
+
+      const cashSale = cashSaleItems?.map((item: any) => ({
+        ItemCode: item.U_tl_itemcode,
+        Quantity: item.U_tl_cashallow,
+        GrossPrice: item.ItemPrice,
+        DiscountPercent: 0,
+        TaxCode: "VO10",
+        UoMEntry: item.U_tl_uom,
+        LineOfBussiness: "201001", // item.LineOfBussiness
+        RevenueLine: "202004", // item.RevenueLine
+        ProductLine: "203004", // item.ProductLine
+        BinAbsEntry: item.U_tl_bincode,
+        // BranchCode: data.U_tl_bplid,
+        WarehouseCode: item.U_tl_whs,
+        DocumentLinesBinAllocations: [
+          {
+            BinAbsEntry: item.U_tl_bincode,
+            Quantity: item.U_tl_cashallow,
+            AllowNegativeQuantity: "tNO",
+          },
+        ],
+      }));
+      const cashSales = [...cashSale, DocumentLines];
 
       const PostPayload = {
         SaleDocEntry: docEntry,
@@ -967,55 +969,60 @@ class SalesOrderForm extends CoreFormDocument {
           const uniqueItemsMap = new Map();
 
           data?.stockAllocationData?.forEach((item: any) => {
-            let quantity = parseFloat(item.U_tl_alocqty);
+            let quantity = parseFloat(item.U_tl_qtyaloc);
 
-            if (item.InventoryUoMEntry !== item.U_tl_uom) {
-              const uomList = item.uomLists?.find(
-                (list: any) => list.AlternateUoM === item.U_tl_uom
-              );
-              if (uomList) {
-                quantity *= uomList.BaseQuantity;
-              } else {
-                console.error("UoM conversion factor not found!");
+            if (quantity >= 0 && !isNaN(quantity)) {
+              if (item.InventoryUoMEntry !== item.U_tl_uom) {
+                const uomList = item.uomLists?.find(
+                  (list: any) => list.AlternateUoM === item.U_tl_uom
+                );
+                if (uomList) {
+                  quantity *= uomList.BaseQuantity;
+                } else {
+                  console.error("UoM conversion factor not found!");
+                }
               }
-            }
 
-            if (uniqueItemsMap.has(item.U_tl_itemcode)) {
-              const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
-              uniqueItemsMap.set(
-                item.U_tl_itemcode,
-                existingQuantity + quantity
-              );
-            } else {
-              uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+              if (uniqueItemsMap.has(item.U_tl_itemcode)) {
+                const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
+                uniqueItemsMap.set(
+                  item.U_tl_itemcode,
+                  existingQuantity + quantity
+                );
+              } else {
+                uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+              }
             }
           });
 
-          const stockAllocation = Array.from(uniqueItemsMap).map(
-            ([itemCode, quantity]) => ({
-              ItemCode: itemCode,
-              Quantity: quantity.toString(),
-              DiscountPercent: 0,
-              TaxCode: "VO10",
-              LineOfBussiness: "201001",
-              RevenueLine: "202004",
-              ProductLine: "203004",
-              BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
-              BranchCode: data.stockAllocationData[0].U_tl_bplid,
-              WarehouseCode: data.stockAllocationData[0].U_tl_whscode,
-              DocumentLinesBinAllocations: [
-                {
-                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+          const stockAllocation = Array.from(uniqueItemsMap)
+            .map(([itemCode, quantity]) => {
+              if (quantity >= 0) {
+                return {
+                  ItemCode: itemCode,
                   Quantity: quantity.toString(),
-                  AllowNegativeQuantity: "tNO",
-                },
-              ],
+                  DiscountPercent: 0,
+                  TaxCode: "VO10",
+                  LineOfBussiness: "201001",
+                  RevenueLine: "202004",
+                  ProductLine: "203004",
+                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                  BranchCode: data.stockAllocationData[0].U_tl_bplid,
+                  WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+                  DocumentLinesBinAllocations: [
+                    {
+                      BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                      Quantity: quantity.toString(),
+                      AllowNegativeQuantity: "tNO",
+                    },
+                  ],
+                };
+              }
             })
-          );
+            .filter(Boolean); // Filter out undefined items
 
           return stockAllocation;
         })(),
-
         CardCount: [].concat(
           ...data?.cardCountData?.map((item: any) => {
             const mappedData = [];
@@ -1072,7 +1079,7 @@ class SalesOrderForm extends CoreFormDocument {
           })
         ),
 
-        CashSale: cashSale?.length > 0 ? cashSale : [],
+        CashSale: cashSales?.length > 0 ? cashSales : [],
         Partnership: generateAllocationPayload(data, "U_tl_partallow"),
         StockTransfer: generateAllocationPayload(data, "U_tl_stockallow"),
         OwnUsage: generateAllocationPayload(data, "U_tl_ownallow"),
@@ -1456,6 +1463,9 @@ interface StockAllocationDataItem {
   U_tl_itemcode: string;
   U_tl_consqty: number;
   U_tl_alocqty?: number;
+  U_tl_bincode: any;
+  U_tl_bplid: number;
+  U_tl_whscode: any;
 }
 
 function validateData(
@@ -1527,7 +1537,21 @@ function validateData(
       return isValid;
     }
   );
+  // Check for required fields in stockAllocationData
+  const hasMissingFields = stockAllocationData.some(
+    (item) =>
+      !item.U_tl_whscode ||
+      !item.U_tl_bincode ||
+      !item.U_tl_bplid ||
+      !item.U_tl_itemcode ||
+      !item.U_tl_alocqty
+  );
 
+  if (hasMissingFields) {
+    const message =
+      "One or more required fields are missing in Stock Allocation Data.";
+    throw new FormValidateException(message, 3);
+  }
   return {
     isValid,
     message: isValid
