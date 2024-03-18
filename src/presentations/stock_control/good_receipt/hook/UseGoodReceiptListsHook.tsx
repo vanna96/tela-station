@@ -120,7 +120,6 @@ export const UseGoodReceiptListHook = (pagination: any) => {
     }
     //
     const headers = [
-      "No",
       "Document No",
       "Branch",
       "Warehouses",
