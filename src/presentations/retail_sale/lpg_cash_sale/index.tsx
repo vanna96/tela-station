@@ -50,14 +50,14 @@ export default function List() {
       },
 
       {
-        accessorKey: "TaxDate",
+        accessorKey: "U_tl_docdate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.TaxDate).format(
+          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
             "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
@@ -93,7 +93,7 @@ export default function List() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/retail-sale/lube-cash-sale/` + cell.row.original.DocEntry,
+                  `/retail-sale/lpg-cash-sale/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -113,7 +113,7 @@ export default function List() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/retail-sale/lube-cash-sale/` +
+                  `/retail-sale/lpg-cash-sale/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -143,9 +143,9 @@ export default function List() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["lube-cash-sale", filter !== "" ? "-f" : "", filter],
+    queryKey: ["lpg-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RETAILSALE_LU/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE_LP/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -159,7 +159,7 @@ export default function List() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "lube-cash-sale",
+      "lpg-cash-sale",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -167,17 +167,17 @@ export default function List() {
     ],
 
     queryFn: async () => {
-      const Url = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
+      const dataUrl = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
@@ -254,18 +254,18 @@ export default function List() {
     if (searchValues.cardcode) {
       queryFilters += queryFilters
         ? // : `eq(CardCode, '${searchValues.cardcode}')`;
-          ` and CardCode eq '${searchValues.cardcode}'`
-        : `CardCode eq '${searchValues.cardcode}'`;
+          ` and U_tl_cardcode eq '${searchValues.cardcode}'`
+        : `U_tl_cardcode eq '${searchValues.cardcode}'`;
     }
     if (searchValues.cardname) {
       queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
+        ? ` and startswith(U_tl_cardname, '${searchValues.cardname}')`
+        : `startswith(U_tl_cardname, '${searchValues.cardname}')`;
     }
     if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and TaxDate ge '${searchValues.postingDate}'`
-        : `TaxDate ge '${searchValues.postingDate}'`;
+        ? ` and U_tl_docdate ge '${searchValues.postingDate}'`
+        : `U_tl_docdate ge '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -274,8 +274,8 @@ export default function List() {
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
+        ? ` and U_tl_bplid eq ${searchValues.bplid}`
+        : `U_tl_bplid eq ${searchValues.bplid}`;
     }
 
     handlerSearchFilter(queryFilters);
@@ -284,8 +284,8 @@ export default function List() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/retail-sale/lube-cash-sale`)}>
-        <span className=""></span> Lube Cash Sale
+      <span className="" onClick={() => route(`/retail-sale/lpg-cash-sale`)}>
+        <span className=""></span> LPG Cash Sale
       </span>
     </>
   );
@@ -389,8 +389,8 @@ export default function List() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title={"Lube Cash Sale"}
-          createRoute={`/retail-sale/lube-cash-sale/create`}
+          title={"LPG Cash Sale"}
+          createRoute={`/retail-sale/lpg-cash-sale/create`}
         />
       </div>
     </>
