@@ -811,7 +811,7 @@ class LubeForm extends CoreFormDocument {
     const itemGroupCode = 101;
 
     // const priceList = parseInt(this.state.U_tl_sopricelist);
-    const priceList = 9;
+    const priceList = 13;
     const navigate = useNavigate();
     return (
       <>

@@ -34,6 +34,7 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
+
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;

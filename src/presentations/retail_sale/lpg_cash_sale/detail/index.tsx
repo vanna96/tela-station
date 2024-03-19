@@ -115,9 +115,12 @@ class DeliveryDetail extends Component<any, any> {
   HeaderTabs = () => {
     const menuItems = [
       { label: "Basic Information" },
-      { label: "Nozzle Data" },
+      { label: "Consumption" },
       { label: "Unit Sale" },
       { label: "Incoming Payment" },
+      { label: "Stock Allocation" },
+      { label: "Card Count" },
+      { label: "Error Log" },
     ];
 
     return (
@@ -168,12 +171,13 @@ class DeliveryDetail extends Component<any, any> {
                   {this.state.tapIndex === 1 && (
                     <NozzleData data={this.state} />
                   )}
-                  {this.state.tapIndex === 2 && (
-                    <Content data={this.state} />
-                  )}
+                  {this.state.tapIndex === 2 && <Content data={this.state} />}
                   {this.state.tapIndex === 3 && (
                     <IncomingPayment data={this.state} />
                   )}
+                  {this.state.tapIndex === 4 && <Stock data={this.state} />}
+                  {this.state.tapIndex === 5 && <CardCount data={this.state} />}
+                  {this.state.tapIndex === 6 && <ErrorLog data={this.state} />}
                 </motion.div>
               </div>
             </>
@@ -422,6 +426,134 @@ function NozzleData({ data }: any) {
     []
   );
 
+  const GenerateAllocationColumn: any = useMemo(
+    () => [
+      {
+        accessorKey: "U_tl_cmeter",
+        header: "",
+        size: 10,
+        Cell: ({ cell }: any) => null,
+      },
+
+      {
+        accessorKey: "U_tl_itemname",
+        header: "Item Name",
+        enableClickToCopy: true,
+        Cell: ({ cell }: any) => {
+          return <MUITextField disabled value={cell.getValue()} />;
+        },
+      },
+
+      {
+        accessorKey: "U_tl_cashallow",
+        header: "Cash Sales (Litre)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_cashallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_tl_partallow",
+        header: "Partnership (Litre)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_partallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_tl_stockallow",
+        header: "  Stock Transfer (Liter)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_stockallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+
+      {
+        accessorKey: "U_tl_ownallow",
+        header: " Own Usage (Litre)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_ownallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_tl_cardallow",
+        header: "Tela Card (Litre)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_cardallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_tl_pumpallow",
+        header: " Pump Test (Litre)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_pumpallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+      {
+        accessorKey: "U_tl_totalallow",
+        header: " Total (Litre)",
+        Cell: ({ cell }: any) => (
+          <NumericFormat
+            disabled
+            key={"U_tl_totalallow" + cell.getValue()}
+            thousandSeparator
+            // decimalScale={data.Currency === "USD" ? 4 : 0}
+            customInput={MUIRightTextField}
+            value={cell.getValue() || 0}
+          />
+        ),
+      },
+
+      {
+        accessorKey: "U_tl_cmeter",
+        header: "",
+        size: 10,
+        Cell: ({ cell }: any) => null,
+      },
+    ],
+    []
+  );
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
@@ -431,6 +563,18 @@ function NozzleData({ data }: any) {
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
             columns={NozzleDataColumn}
+            data={data?.TL_RETAILSALE_LP_PSCollection || []}
+          />
+        </div>
+      </div>
+      <div className="mt-8" />
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Generate Allocation </h2>
+        </div>
+        <div className="col-span-2 data-table">
+          <CustomMaterialReactTable
+            columns={GenerateAllocationColumn}
             data={data?.TL_RETAILSALE_LP_PSCollection || []}
           />
         </div>
@@ -804,6 +948,241 @@ function IncomingPayment({ data }: any) {
     </div>
   );
 }
+
+function Stock({ data }: any) {
+  const stockColumns = React.useMemo(
+    () => [
+      {
+        accessorKey: "U_tl_bplid",
+        header: "Branch",
+        type: "number",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              disabled
+              value={
+                new BranchBPLRepository()?.find(cell.row.original.U_tl_bplid)
+                  ?.BPLName
+              }
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "U_tl_whscode",
+        header: "Warehouse",
+        type: "number",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              disabled
+              value={
+                new WarehouseRepository()?.find(cell.row.original.U_tl_whscode)
+                  ?.WarehouseName
+              }
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_bincode",
+        header: "Bin Location",
+        type: "number",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              disabled
+              value={
+                data.bin.value?.find(
+                  (e: any) =>
+                    e?.AbsEntry === parseInt(cell.row.original.U_tl_bincode)
+                )?.BinCode
+              }
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_itemcode",
+        header: "Item Code",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField disabled value={cell.row.original.U_tl_itemcode} />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_itemname",
+        header: "Item Name",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField disabled value={cell.row.original.U_tl_itemname} />
+          );
+        },
+      },
+
+      {
+        accessorKey: "U_tl_consqty",
+        header: "Cons. Qty ",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              key={"U_tl_consqty" + cell.getValue()}
+              thousandSeparator
+              disabled
+              decimalScale={2}
+              placeholder="0.000"
+              customInput={MUIRightTextField}
+              value={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_alocqty",
+        header: "Aloc. Qty",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              disabled
+              key={"amount_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+      {
+        accessorKey: "U_tl_uom",
+        header: "UoM",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              value={
+                new UnitOfMeasurementRepository().find(
+                  cell.row.original.U_tl_uom
+                )?.Name
+              }
+              disabled
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "U_tl_openqty",
+        header: "Open. Qty",
+        Cell: ({ cell }: any) => {
+          return (
+            <NumericFormat
+              disabled
+              key={"amount_" + cell.getValue()}
+              thousandSeparator
+              decimalScale={2}
+              customInput={MUIRightTextField}
+              defaultValue={cell.getValue()}
+            />
+          );
+        },
+      },
+
+      {
+        accessorKey: "U_tl_remark",
+        header: "Remark",
+        Cell: ({ cell }: any) => {
+          return (
+            <MUITextField
+              key={"U_tl_remark" + cell.getValue()}
+              defaultValue={cell.getValue()}
+              disabled
+            />
+          );
+        },
+      },
+    ],
+    []
+  );
+  return (
+    <>
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Stock Allocation</h2>
+        </div>
+        <div className="col-span-2 data-table">
+          <CustomMaterialReactTable
+            columns={stockColumns}
+            data={data?.TL_RETAILSALE_LP_CSCollection || []}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function CardCount({ data }: any) {
+  const cardCountColumn = React.useMemo(
+    () => [
+      { key: "U_tl_1l", header: "1L" },
+      { key: "U_tl_2l", header: "2L" },
+      { key: "U_tl_5l", header: "5L" },
+      { key: "U_tl_10l", header: "10L" },
+      { key: "U_tl_20l", header: "20L" },
+      { key: "U_tl_50l", header: "50L" },
+      { key: "U_tl_total", header: "Total (Litre)" },
+    ],
+    []
+  );
+  return (
+    <>
+      <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Card Count </h2>
+        </div>
+        <div className="col-span-2 data-table">
+          <CustomMaterialReactTable
+            columns={[
+              {
+                accessorKey: "U_tl_itemCode",
+                header: "Item Code",
+                Cell: ({ cell }: any) => {
+                  return <MUITextField disabled value={cell.getValue()} />;
+                },
+              },
+              ...cardCountColumn.map(({ key, header }) => ({
+                accessorKey: key,
+                header,
+                Cell: renderCell(key),
+              })),
+            ]}
+            data={data?.TL_RETAILSALE_LP_CCCollection || []}
+          />
+        </div>
+      </div>
+    </>
+  );
+}
+
+function ErrorLog({ data }: any) {
+  return (
+    <>
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <TextField
+          fullWidth
+          multiline
+          className="w-full"
+          aria-readonly
+          rows={15}
+          disabled
+          value={data?.U_tl_errormsg}
+        />
+      </div>
+    </>
+  );
+}
+
 function Content(props: any) {
   const { data } = props;
   const [docTotal, docTaxTotal, totalBefore] = useDocumentTotalHook(

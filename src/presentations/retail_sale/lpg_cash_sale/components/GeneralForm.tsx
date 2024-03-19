@@ -90,15 +90,26 @@ export default function GeneralForm({
           entry.Name.startsWith(formattedDateB))
     ) || {}
   ).Series;
-
+  const seriesGI = data?.GISeries?.reduce((acc: any, series: any) => {
+    if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
+      acc.push({ BPLID: series.BPLID, Series: series.Series });
+    }
+    return acc;
+  }, []);
+  const seriesGR = data?.GRSeries?.reduce((acc: any, series: any) => {
+    if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
+      acc.push({ BPLID: series.BPLID, Series: series.Series });
+    }
+    return acc;
+  }, []);
   if (data) {
     data.DNSeries = seriesIncoming;
     data.INSeries = seriesINV;
     data.Series = seriesSO;
+    data.GoodIssueSeries = seriesGI;
+    data.GoodReceiptSeries = seriesGR;
   }
-  console.log(data);
   const [isDispenserLoading, setIsDispenserLoading] = useState(false);
-  console.log(isDispenserLoading);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -144,7 +155,7 @@ export default function GeneralForm({
                 value={data?.U_tl_pump}
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
-                pumpType="Oil"
+                pumpType="LPG"
                 name={"Pump"}
                 loading={isDispenserLoading}
                 onChange={async (e: any) => {
@@ -165,7 +176,7 @@ export default function GeneralForm({
                       );
                       const price = itemDetails?.ItemPrices?.find(
                         (priceDetail: any) =>
-                          priceDetail.PriceList === data.PriceList
+                          priceDetail.PriceList === 9
                       )?.Price;
                       const uomGroup: any = uomGroups.find(
                         (row: any) =>
