@@ -739,7 +739,7 @@ class Form extends NonCoreDcument {
         ],
       }));
       const PostPayload = {
-        app_ulr: import.meta.env.VITE_APP_URL,
+        app_url: import.meta.env.VITE_APP_URL,
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
