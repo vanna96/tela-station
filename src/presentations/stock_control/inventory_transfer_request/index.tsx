@@ -198,7 +198,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   U_tl_attn_ter_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: '',
+  DocumentStatus_$eq: '_all',
 }
 
 export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
@@ -224,7 +224,7 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
     queryString.splice(0, 1);
     const query = queryString.join(' ');
 
-    if (onFilter) onFilter(queryString, query);
+    if (onFilter) onFilter(queryString, query.replaceAll('_all', ''));
   }
 
 
@@ -309,7 +309,7 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
                   return (
                     <MUISelect
                       items={[
-                        { id: "", name: "All" },
+                        { id: "_all", name: "All" },
                         { id: "bost_Open", name: "Open" },
                         { id: "bost_Close", name: "Closed" },
                       ]}

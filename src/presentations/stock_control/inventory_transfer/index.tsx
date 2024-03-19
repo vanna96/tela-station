@@ -149,7 +149,7 @@ export default function InventoryTransferList() {
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => {}}
+            handlerSearch={() => { }}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
@@ -200,7 +200,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   FromWarehouse_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: '',
+  DocumentStatus_$eq: '_all',
 }
 
 export const InventoryTransferFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
@@ -226,7 +226,7 @@ export const InventoryTransferFilter = ({ onFilter }: { onFilter?: (values: (str
     queryString.splice(0, 1);
     const query = queryString.join(' ');
 
-    if (onFilter) onFilter(queryString, query);
+    if (onFilter) onFilter(queryString, query.replaceAll('_all', ''));
   }
 
 
@@ -311,7 +311,7 @@ export const InventoryTransferFilter = ({ onFilter }: { onFilter?: (values: (str
                   return (
                     <MUISelect
                       items={[
-                        { id: "", name: "All" },
+                        { id: "_all", name: "All" },
                         { id: "bost_Open", name: "Open" },
                         { id: "bost_Close", name: "Closed" },
                       ]}
