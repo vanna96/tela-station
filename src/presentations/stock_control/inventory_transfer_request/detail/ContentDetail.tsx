@@ -70,15 +70,6 @@ export default function ContentDetail({
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Content</h2>
-          {!detail && (
-            <Button
-              variant="outlined"
-              onClick={handleDeleteChecked}
-              className="px-4 border-gray-400"
-            >
-              <span className="px-2 text-xs">Remove</span>
-            </Button>
-          )}
         </div>
         <div className="w-full  overflow-x-auto">
           <table className="table table-auto border min-w-full shadow-sm bg-white border-[#dadde0]">
@@ -204,7 +195,7 @@ export default function ContentDetail({
               multiline
               rows={3}
               name="Comments"
-              className="w-full "
+              className="bg-gray-100"         
               inputProps={{ ...register("Comments") }}
             />
           </div>
