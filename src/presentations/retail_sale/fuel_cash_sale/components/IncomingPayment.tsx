@@ -95,6 +95,11 @@ export default function IncomingPaymentForm({
     () => calculateTotalByCurrency(data, "USD"),
     [data]
   );
+  // console.log(data);
+  if (data) {
+    data.DocRate = data.ExchangeRate;
+  }
+  console.log(data.DocRate)
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">

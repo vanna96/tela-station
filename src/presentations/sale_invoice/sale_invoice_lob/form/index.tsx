@@ -49,6 +49,11 @@ class SalesOrderForm extends CoreFormDocument {
       Rounding: false,
       DocDiscount: 0,
       RoundingValue: 0,
+      headerText: (() => {
+        const pathSegments = location.pathname.split("/");
+        const segment = pathSegments[3].replace("-", " ");
+        return segment.toLowerCase() === "lpg invoice" ? "LPG Invoice" : segment;
+      })(),
       AttachmentList: [],
       VatGroup: "S1",
       type: "sale", // Initialize type with a default value
@@ -336,9 +341,8 @@ class SalesOrderForm extends CoreFormDocument {
 
       if (id) {
         return await request("PATCH", `/Orders(${id})`, edit_payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
+          .then((res: any) =>
+            this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));

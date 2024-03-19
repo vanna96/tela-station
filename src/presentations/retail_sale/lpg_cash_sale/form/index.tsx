@@ -974,6 +974,7 @@ class SalesOrderForm extends CoreFormDocument {
       const cashSales = [...cashSale, ...DocumentLines];
 
       const PostPayload = {
+        app_ulr: import.meta.env.VITE_APP_URL,
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
