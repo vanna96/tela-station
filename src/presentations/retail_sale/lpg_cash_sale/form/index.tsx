@@ -58,6 +58,7 @@ class SalesOrderForm extends CoreFormDocument {
       lineofBusiness: "",
       showCollapse: false,
       warehouseCode: "",
+      headerText: "LPG Cash Sale",
       nozzleData: [],
       stockAllocationData: [],
       allocationData: [],
@@ -186,7 +187,7 @@ class SalesOrderForm extends CoreFormDocument {
             data.TL_RETAILSALE_LP_PSCollection?.map(async (item: any) => {
               const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
               const price = itemDetails?.ItemPrices?.find(
-                (priceDetail: any) => priceDetail.PriceList === 2
+                (priceDetail: any) => priceDetail.PriceList === 9
               )?.Price;
 
               return {

@@ -95,7 +95,6 @@ export default function IncomingPaymentForm({
     () => calculateTotalByCurrency(data, "USD"),
     [data]
   );
-
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -130,10 +129,15 @@ export default function IncomingPaymentForm({
                 placeholder="0.000"
                 decimalScale={3}
                 customInput={MUIRightTextField}
+                // value={
+                //   totalUSD + TotalKHRtoUSD - totalCashSale === 0 || ""
+                //     ? ""
+                //     : totalUSD + TotalKHRtoUSD - totalCashSale
+                // }
                 value={
-                  +totalUSD + TotalKHRtoUSD - totalCashSale === 0 || ""
+                  Math.abs(totalUSD + TotalKHRtoUSD - totalCashSale) < 0.001 // Adjust the tolerance level as needed
                     ? ""
-                    : +totalUSD + TotalKHRtoUSD - totalCashSale
+                    : totalUSD + TotalKHRtoUSD - totalCashSale
                 }
               />
             </div>

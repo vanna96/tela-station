@@ -90,10 +90,37 @@ class DeliveryDetail extends Component<any, any> {
       await request("GET", `TL_RETAILSALE_LP(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
+          const fetchItemPrice = async (itemCode: string) => {
+            try {
+              const res = await request(
+                "GET",
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+              );
+              return res.data;
+            } catch (error) {
+              console.error("Error fetching item details:", error);
+              return null;
+            }
+          };
+
+          const updatedAllocationData = await Promise.all(
+            data.TL_RETAILSALE_LP_PSCollection?.map(async (item: any) => {
+              const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
+              const price = itemDetails?.ItemPrices?.find(
+                (priceDetail: any) => priceDetail.PriceList === 9
+              )?.Price;
+
+              return {
+                ...item,
+                ItemPrice: price,
+              };
+            })
+          );
           this.setState({
             seriesList,
             bin,
             pumpAttend,
+            allocationData: updatedAllocationData,
             ...data,
             loading: false,
           });
@@ -146,6 +173,7 @@ class DeliveryDetail extends Component<any, any> {
         <DocumentHeader
           data={this.state}
           menuTabs={this.HeaderTabs}
+          headerText="LPG Cash Sale"
           handlerChangeMenu={this.handlerChangeMenu}
         />
 
@@ -251,7 +279,7 @@ function CustomMaterialReactTable({
 }
 function General({ data }: any) {
   const filteredSeries = data?.seriesList?.filter(
-    (e: any) => e.Series === data?.Series
+    (e: any) => e.BPLID === parseInt(data?.U_tl_bplid)
   );
 
   const seriesNames = filteredSeries?.map((series: any) => series.Name);
@@ -436,8 +464,8 @@ function NozzleData({ data }: any) {
       },
 
       {
-        accessorKey: "U_tl_itemname",
-        header: "Item Name",
+        accessorKey: "U_tl_itemcode",
+        header: "Item Code",
         enableClickToCopy: true,
         Cell: ({ cell }: any) => {
           return <MUITextField disabled value={cell.getValue()} />;
@@ -532,16 +560,25 @@ function NozzleData({ data }: any) {
       {
         accessorKey: "U_tl_totalallow",
         header: " Total (Litre)",
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            disabled
-            key={"U_tl_totalallow" + cell.getValue()}
-            thousandSeparator
-            // decimalScale={data.Currency === "USD" ? 4 : 0}
-            customInput={MUIRightTextField}
-            value={cell.getValue() || 0}
-          />
-        ),
+        Cell: ({ cell }: any) => {
+          const total =
+            (cell.row.original?.U_tl_cardallow || 0) +
+            (cell.row.original?.U_tl_cashallow || 0) +
+            (cell.row.original?.U_tl_ownallow || 0) +
+            (cell.row.original?.U_tl_partallow || 0) +
+            (cell.row.original?.U_tl_pumpallow || 0) +
+            (cell.row.original?.U_tl_stockallow || 0);
+          return (
+            <NumericFormat
+              disabled
+              key={"U_tl_totalallow" + cell.getValue()}
+              thousandSeparator
+              // decimalScale={data.Currency === "USD" ? 4 : 0}
+              customInput={MUIRightTextField}
+              value={cell.getValue() !== 0 ? cell.getValue() : total}
+            />
+          );
+        },
       },
 
       {
@@ -585,18 +622,14 @@ function NozzleData({ data }: any) {
 
 function IncomingPayment({ data }: any) {
   const totalCashSale: number = React.useMemo(() => {
-    const total = data?.TL_RETAILSALE_FU_COCollection?.reduce(
-      (prevTotal: any, item: any) => {
-        const lineTotal = Formular.findLineTotal(
-          (item.U_tl_cashallow || 0)?.toString(),
-          // item.ItemPrice || 0,
-          "1",
-          "0"
-        );
-        return prevTotal + lineTotal;
-      },
-      0
-    );
+    const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
+      const lineTotal = Formular.findLineTotal(
+        (item.U_tl_cashallow || 0)?.toString(),
+        item.ItemPrice || 0,
+        "0"
+      );
+      return prevTotal + lineTotal;
+    }, 0);
     return total;
   }, []);
 

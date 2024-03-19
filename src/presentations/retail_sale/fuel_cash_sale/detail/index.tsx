@@ -88,10 +88,45 @@ class DeliveryDetail extends Component<any, any> {
       await request("GET", `TL_RETAILSALE(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
+          const fetchItemPrice = async (itemCode: string) => {
+            try {
+              const res = await request(
+                "GET",
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+              );
+              return res.data;
+            } catch (error) {
+              console.error("Error fetching item details:", error);
+              return null;
+            }
+          };
+
+          const fetchDispenserData = async (pump: string) => {
+            const res = await request(
+              "GET",
+              `TL_Dispenser('${pump}')?$select=U_tl_whs,TL_DISPENSER_LINESCollection`
+            );
+            return res.data;
+          };
+          const dispenser = await fetchDispenserData(data.U_tl_pump);
+          const updatedAllocationData = await Promise.all(
+            data.TL_RETAILSALE_FU_COCollection?.map(async (item: any) => {
+              const itemDetails = await fetchItemPrice(item.U_tl_itemcode);
+              const price = itemDetails?.ItemPrices?.find(
+                (priceDetail: any) => priceDetail.PriceList === 2
+              )?.Price;
+
+              return {
+                ...item,
+                ItemPrice: price,
+              };
+            })
+          );
           this.setState({
             seriesList,
             bin,
             pumpAttend,
+            allocationData: updatedAllocationData,
             ...data,
             loading: false,
           });
@@ -113,7 +148,7 @@ class DeliveryDetail extends Component<any, any> {
   HeaderTabs = () => {
     const menuItems = [
       { label: "Basic Information" },
-      { label: "Nozzle Data" },
+      { label: "Consumption" },
       { label: "Incoming Payment" },
       { label: "Stock Allocation" },
       { label: "Card Count" },
@@ -136,8 +171,8 @@ class DeliveryDetail extends Component<any, any> {
       </div>
     );
   };
-
   render() {
+    console.log(this.state);
     return (
       <>
         <DocumentHeader
@@ -247,7 +282,7 @@ function CustomMaterialReactTable({
 }
 function General({ data }: any) {
   const filteredSeries = data?.seriesList?.filter(
-    (e: any) => e.Series === data?.Series
+    (e: any) => e.BPLID === parseInt(data?.U_tl_bplid)
   );
 
   const seriesNames = filteredSeries?.map((series: any) => series.Name);
@@ -432,8 +467,8 @@ function NozzleData({ data }: any) {
       },
 
       {
-        accessorKey: "U_tl_itemname",
-        header: "Item Name",
+        accessorKey: "U_tl_itemcode",
+        header: "Item Code",
         enableClickToCopy: true,
         Cell: ({ cell }: any) => {
           return <MUITextField disabled value={cell.getValue()} />;
@@ -528,16 +563,25 @@ function NozzleData({ data }: any) {
       {
         accessorKey: "U_tl_totalallow",
         header: " Total (Litre)",
-        Cell: ({ cell }: any) => (
-          <NumericFormat
-            disabled
-            key={"U_tl_totalallow" + cell.getValue()}
-            thousandSeparator
-            // decimalScale={data.Currency === "USD" ? 4 : 0}
-            customInput={MUIRightTextField}
-            value={cell.getValue() || 0}
-          />
-        ),
+        Cell: ({ cell }: any) => {
+          const total =
+            (cell.row.original?.U_tl_cardallow || 0) +
+            (cell.row.original?.U_tl_cashallow || 0) +
+            (cell.row.original?.U_tl_ownallow || 0) +
+            (cell.row.original?.U_tl_partallow || 0) +
+            (cell.row.original?.U_tl_pumpallow || 0) +
+            (cell.row.original?.U_tl_stockallow || 0);
+          return (
+            <NumericFormat
+              disabled
+              key={"U_tl_totalallow" + cell.getValue()}
+              thousandSeparator
+              // decimalScale={data.Currency === "USD" ? 4 : 0}
+              customInput={MUIRightTextField}
+              value={cell.getValue() !== 0 ? cell.getValue() : total}
+            />
+          );
+        },
       },
 
       {
@@ -581,12 +625,12 @@ function NozzleData({ data }: any) {
 
 function IncomingPayment({ data }: any) {
   const totalCashSale: number = React.useMemo(() => {
-    const total = data?.TL_RETAILSALE_FU_COCollection?.reduce(
+    const total = data?.allocationData?.reduce(
       (prevTotal: any, item: any) => {
         const lineTotal = Formular.findLineTotal(
           (item.U_tl_cashallow || 0)?.toString(),
-          // item.ItemPrice || 0,
-          "1",
+          item.ItemPrice || 0,
+          // "1",
           "0"
         );
         return prevTotal + lineTotal;
@@ -606,32 +650,41 @@ function IncomingPayment({ data }: any) {
     let total = 0;
 
     // Aggregate CashBankData
-    total += data.TL_RETAILSALE_FU_INCollection.reduce((acc: any, item: any) => {
-      if (item.U_tl_paycur === currency) {
-        const cashAmount = parseAmount(item.U_tl_amtcash) || 0;
-        const bankAmount = parseAmount(item.U_tl_amtbank) || 0;
-        return acc + cashAmount + bankAmount;
-      }
-      return acc;
-    }, 0);
+    total += data.TL_RETAILSALE_FU_INCollection.reduce(
+      (acc: any, item: any) => {
+        if (item.U_tl_paycur === currency) {
+          const cashAmount = parseAmount(item.U_tl_amtcash) || 0;
+          const bankAmount = parseAmount(item.U_tl_amtbank) || 0;
+          return acc + cashAmount + bankAmount;
+        }
+        return acc;
+      },
+      0
+    );
 
     // Aggregate CheckNumberData
-    total += data.TL_RETAILSALE_FU_INCollection.reduce((acc: any, item: any) => {
-      if (item.U_tl_paycur === currency) {
-        const checkAmount = parseAmount(item.U_tl_amtcheck) || 0;
-        return acc + checkAmount;
-      }
-      return acc;
-    }, 0);
+    total += data.TL_RETAILSALE_FU_INCollection.reduce(
+      (acc: any, item: any) => {
+        if (item.U_tl_paycur === currency) {
+          const checkAmount = parseAmount(item.U_tl_amtcheck) || 0;
+          return acc + checkAmount;
+        }
+        return acc;
+      },
+      0
+    );
 
     // Aggregate CouponData
-    total += data.TL_RETAILSALE_FU_INCollection.reduce((acc: any, item: any) => {
-      if (item.U_tl_paycur === currency) {
-        const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
-        return acc + couponAmount;
-      }
-      return acc;
-    }, 0);
+    total += data.TL_RETAILSALE_FU_INCollection.reduce(
+      (acc: any, item: any) => {
+        if (item.U_tl_paycur === currency) {
+          const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
+          return acc + couponAmount;
+        }
+        return acc;
+      },
+      0
+    );
 
     return total;
   };

@@ -28,6 +28,7 @@ interface DocumentHeaderProps {
   type?: string;
   handlerChangeMenu?: (index: number) => void;
   HeaderCollapeMenu?: any;
+  headerText?: string;
 }
 
 const DocumentHeader: React.FC<DocumentHeaderProps> = (
@@ -100,6 +101,11 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = (
         : `${segment.charAt(0).toUpperCase()}${segment.slice(1).toLowerCase()}`;
     })
     .join(" ");
+
+  // Capitalize the first letter of the entire string
+  const finalFormattedText =
+    formattedText.charAt(0).toUpperCase() + formattedText.slice(1);
+
   const [discount, setDiscount] = React.useState(props?.data?.DocDiscount || 0);
   const [docTotal, docTaxTotal] = useDocumentTotalHook(
     props.data.Items ?? [],
@@ -129,7 +135,7 @@ const DocumentHeader: React.FC<DocumentHeaderProps> = (
       >
         <div className="flex gap-2 items-center mb-2">
           <h1 className="text-md  capitalize">
-            {formattedText} - {props?.data?.DocNum}
+            {props?.headerText ?? finalFormattedText} - {props?.data?.DocNum}
           </h1>
           {props.data.DocumentStatus === "bost_Close" ||
             (!isStatusClose && !(location.pathname.includes("edit") || !id) && (
