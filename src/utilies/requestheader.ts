@@ -45,7 +45,7 @@ const requestHeader = async (
         })
           .then((response) => {
             // Check if status code is 201 in the response headers
-            if (response.headers && response.headers.status === '201 OK') {
+            if (response.headers && response.headers.status === 201) {
               resolve("Update Successfully");
             } else {
               resolve({ data: response.data, headers: response.headers });

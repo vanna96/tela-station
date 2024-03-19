@@ -19,7 +19,7 @@ import NonCoreDcument from "@/components/core/NonCoreDocument";
 import { motion } from "framer-motion";
 import ErrorLogForm from "../../components/ErrorLogForm";
 import requestHeader from "@/utilies/requestheader";
-import { useExchangeRate } from "@/presentations/master_data/expense_dictionary/hook/useExchangeRate";
+import { formatDate } from "@/helper/helper";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -115,7 +115,15 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("retail-series", seriesList);
     }
-
+    const date = formatDate(new Date(), "");
+    let exchangeRate: any = await request(
+      "POST",
+      "/SBOBobService_GetCurrencyRate",
+      {
+        Currency: "KHR",
+        Date: `${date}`,
+      }
+    );
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -172,6 +180,7 @@ class Form extends NonCoreDcument {
             ...data,
             vendor,
             dispenser,
+            ExchangeRate: exchangeRate.data,
             U_tl_whs: dispenser.U_tl_whs,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
@@ -730,6 +739,7 @@ class Form extends NonCoreDcument {
         ],
       }));
       const PostPayload = {
+        app_ulr: import.meta.env.VITE_APP_URL,
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
@@ -741,7 +751,7 @@ class Form extends NonCoreDcument {
         GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
+        DocRate: data.ExchangeRate ?? 0,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,

@@ -115,7 +115,8 @@ export default function SaleOrderLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/sale-invoice/${salesType}/` + cell.row.original.DocEntry,
+                  `/whoelsae/sale-invoice/${salesType}/` +
+                    cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -139,7 +140,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale-invoice/${salesType}/` +
+                  `/whoelsae/sale-invoice/${salesType}/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -184,7 +185,12 @@ export default function SaleOrderLists() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["sale-invoice-lob", filter !== "" ? "-f" : "", salesType, filter],
+    queryKey: [
+      "sale-invoice-lob",
+      filter !== "" ? "-f" : "",
+      salesType,
+      filter,
+    ],
     queryFn: async () => {
       let numAtCardFilter = "";
 
@@ -372,13 +378,13 @@ export default function SaleOrderLists() {
   );
   const getTitleBySalesType = (salesType: any) => {
     switch (salesType) {
-      case "fuel-sales":
-        return "Fuel Sale Lists";
-      case "lpg-sales":
-        return "LPG Sale Lists";
+      case "fuel-invoice":
+        return "Fuel Invoice Lists";
+      case "lpg-invoice":
+        return "LPG Invoice Lists";
 
-      case "lube-sales":
-        return "Lube Sale Lists";
+      case "lube-invoice":
+        return "Lube Invoice Lists";
       // Add other cases as needed
       default:
         return "Unknown Sale Lists";
@@ -522,7 +528,7 @@ export default function SaleOrderLists() {
           pagination={pagination}
           paginationChange={setPagination}
           title={getTitleBySalesType(salesType)}
-          createRoute={`/sale-invoice/${salesType}/create`}
+          createRoute={`/wholesale/sale-invoice/${salesType}/create`}
         />
       </div>
     </>
