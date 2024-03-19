@@ -39,7 +39,7 @@ export default function InventoryTransferRequestList() {
       },
       {
         accessorKey: "DocNum",
-        header: "Document No.", //uses the default width from defaultColumn prop
+        header: "Document No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
@@ -79,8 +79,8 @@ export default function InventoryTransferRequestList() {
         visible: true,
         Cell: (cell: any) => {
           return cell.row.original.DocumentStatus === "bost_Open"
-            ? "Active"
-            : "Inactive";
+            ? "Open"
+            : "Closed";
         },
       },
       {
