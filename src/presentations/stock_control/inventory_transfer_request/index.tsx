@@ -21,7 +21,7 @@ export default function InventoryTransferRequestList() {
     pageSize: 10,
   });
 
-  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state } = useInventoryTransferRequestListHook(pagination)
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting } = useInventoryTransferRequestListHook(pagination)
 
   const columns = React.useMemo(
     () => [
@@ -160,9 +160,9 @@ export default function InventoryTransferRequestList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {exporting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
