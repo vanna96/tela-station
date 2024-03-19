@@ -225,7 +225,7 @@ const GoodIssueForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() => route("/master-data/driver")}
+                    onClick={() => route("/stock-control/good-receipt")}
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel

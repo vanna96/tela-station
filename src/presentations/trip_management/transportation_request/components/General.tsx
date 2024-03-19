@@ -21,6 +21,7 @@ import SeriesSelect from "./Series";
 import { TextField } from "@mui/material";
 import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
 import SaleEmployeeAutoComplete from "@/components/input/SaleEmployeeAutoComplete";
+import { useParams } from "react-router-dom";
 
 const General = ({
   register,
@@ -33,8 +34,8 @@ const General = ({
   detail,
   data,
   serie,
-  watch,
   getValues,
+  watch
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     requestDate: null,
@@ -44,20 +45,15 @@ const General = ({
     emp: null,
     serie: 7916,
   });
-  const [number, setNumber] = useState(null);
-  useEffect(() => {
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
-  }, [defaultValues]);
-  const [cookies] = useCookies(["user"]);
-  const [selectedSeries, setSelectedSeries] = useState("");
+const {id}:any = useParams()
   const nextNumber = serie?.find(
     (e: any) => e?.Series === staticSelect?.serie
   )?.NextNumber;
-
+  useEffect(() => {
+    if (id) return;
+    setValue("U_RequestDate", new Date().toISOString()?.split("T")[0]);
+    // setValue("TaxDate", new Date().toISOString()?.split("T")[0]);
+  }, [getValues("U_RequestDate")]);
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">

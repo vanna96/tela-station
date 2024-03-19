@@ -10,6 +10,7 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import DataTable from "@/presentations/master_data/components/DataTable";
+import { displayTextDate } from "@/lib/utils";
 
 
 export default function Lists() {
@@ -132,8 +133,8 @@ export default function Lists() {
         size: 40,
         visible: true,
         type: "number",
-        Cell: (cell: any) => {
-          return cell.row.original.CreateDate?.split("T")[0];
+        Cell: ({ cell }: any) => {
+          return <span>{displayTextDate(cell?.getValue())}</span>;
         },
       },
       {

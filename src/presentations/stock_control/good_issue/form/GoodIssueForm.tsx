@@ -224,7 +224,7 @@ const GoodIssueForm = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      route("/master-data/driver")
+                      route("/stock-control/good-issue")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">

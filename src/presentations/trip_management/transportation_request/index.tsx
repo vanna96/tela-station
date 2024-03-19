@@ -17,6 +17,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import EmployeeRepository from "@/services/actions/employeeRepository";
 import ExpdicRepository from "@/services/actions/ExpDicRepository";
 import ManagerRepository from "@/services/actions/ManagerRepository";
+import { displayTextDate } from "@/lib/utils";
 
 export default function TransportationRequestList() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -120,11 +121,8 @@ const branchAss: any = useQuery({
         header: "Request Date",
         size: 40,
         visible: true,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.U_RequestDate).format(
-            "YYYY-MM-DD"
-          );
-          return <span>{formattedDate}</span>;
+        Cell: ({ cell }: any) => {
+          return <span>{displayTextDate(cell?.getValue())}</span>;
         },
       },
       {
