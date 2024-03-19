@@ -13,6 +13,7 @@ import moment from "moment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseGoodReceiptListHook } from "./hook/UseGoodReceiptListsHook";
+import GetBranchAutoComplete from "../components/GetBranchAutoComplete";
 
 export default function InventoryTransferList() {
   const route = useNavigate();
@@ -126,14 +127,8 @@ export default function InventoryTransferList() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+             
+              className={` bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/stock-control/good-receipt/" +
@@ -326,11 +321,10 @@ export const InventoryTransferFilter = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <GetBranchAutoComplete
                         onChange={(e: any) => {
                           setValue("BPL_IDAssignedToInvoice_$eq_number", e?.BPLID);
                         }}
-                        // value={searchValues.branch}
                       />
                     );
                   }}

@@ -351,7 +351,7 @@ const General = ({
                   )}
                 </div>
                 <Controller
-                  name="Status"
+                  name="U_Status"
                   control={control}
                   render={({ field }) => {
                     return (

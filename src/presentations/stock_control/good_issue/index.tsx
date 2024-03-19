@@ -12,6 +12,7 @@ import moment from "moment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseGoodIssueListHook } from "./hook/UseGoodIssueListHook";
+import GetBranchAutoComplete from "../components/GetBranchAutoComplete";
 // import {displayT}
 export default function InventoryTransferList() {
   const route = useNavigate();
@@ -59,7 +60,6 @@ export default function InventoryTransferList() {
         enableClickToCopy: true,
         visible: true,
         size: 88,
-
       },
       {
         accessorKey: "U_tl_whsdesc",
@@ -119,13 +119,6 @@ export default function InventoryTransferList() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                // route(
-                //   `/stock-control/${salesType}/` + cell.row.original.DocEntry,
-                //   {
-                //     state: cell.row.original,
-                //     replace: true,
-                //   }
-                // );
                 route(
                   "/stock-control/good-issue/" + cell.row.original.DocEntry,
                   {
@@ -141,14 +134,7 @@ export default function InventoryTransferList() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+              className={` bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/stock-control/good-issue/" +
@@ -341,8 +327,8 @@ export const InventoryTransferFilter = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
-                        onChange={(e: any) => {
+                      <GetBranchAutoComplete
+                        onChange={(e: any) => {                    
                           setValue(
                             "BPL_IDAssignedToInvoice_$eq_number",
                             e?.BPLID
