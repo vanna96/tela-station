@@ -6,8 +6,6 @@ import CustomToast from "@/components/modal/CustomToast"
 import { MdEdit } from 'react-icons/md';
 import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
-import BasicInformation from "../components/BasicInformation"
-import Contents from "../components/Contents"
 import { useStockTransferFormHook } from "../hook/useStockTransferHook";
 import BasicInformationDetail from "./BasicInformationDetail";
 import ContentDetail from "../../inventory_transfer_request/detail/ContentDetail";

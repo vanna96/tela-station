@@ -159,7 +159,7 @@ const BasicInformationDetail = (props: any) => {
                 <Controller
                   rules={{ required: "Attention Terminal is required" }}
                   name="U_tl_attn_ter"
-                  disabled
+                  disabled={true}
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -385,13 +385,12 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-3">
                 <Controller
                   name="TaxDate"
-                  disabled={props?.detail}
                   control={props.control}
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
                         {...field}
-                        disabled
+                        disabled={true}
                         defaultValue={props.taxdate} // Use the watch value as the defaultValue
                         onChange={(e) => {
                           const val =
