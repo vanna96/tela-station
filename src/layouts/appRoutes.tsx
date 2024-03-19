@@ -39,11 +39,7 @@ export const appRoutes: RouteType[] = [
   {
     path: "/master-data",
     state: "master-data",
-<<<<<<< HEAD
-    roles: ['UG001'],
-=======
     roles: ["UG001", "UG002", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
     sidebarProps: {
       displayText: "Master Data",
       icon: <DatasetLinkedIcon />,
