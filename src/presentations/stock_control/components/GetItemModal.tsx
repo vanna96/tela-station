@@ -98,10 +98,7 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
     : Math.ceil(itemsLists.length / itemsPerPage);
 
 
-  const handleFirstPage = () => setCurrentPage(1);
-  const handlePrevPage = () => setCurrentPage(currentPage - 1);
-  const handleNextPage = () => setCurrentPage(currentPage + 1);
-  const handleLastPage = () => setCurrentPage(totalPages);
+
   const handleChangeItemsPerPage = (e: any) => {
     const newItemsPerPage = parseInt(e.target.value);
     setCurrentPage(1);
@@ -110,14 +107,18 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentData = itemsLists?.slice(startIndex, endIndex);
+
+  const currentData = useMemo(() => {
+    if (itemsLists.length <= startIndex) return itemsLists;
+
+    return itemsLists?.slice(startIndex, endIndex);
+  }, [itemsLists, startIndex, endIndex, searchText])
 
   const handleGetItem = (event: any) => {
     if (!props.onSelectItems) return;
 
     props.onSelectItems(event);
   };
-
 
 
   const onSelectChange = (event: React.ChangeEvent<HTMLInputElement>, code: string) => {
@@ -135,11 +136,31 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
   }, [selecteds])
 
 
-  // useEffect(() => {
-  //   return () => {
-  //     console.log('')
-  //   }
-  // }, [])
+  const page = useMemo(() => {
+    if (itemsLists.length <= startIndex) return 1;
+
+    return currentPage;
+  }, [currentPage, startIndex, endIndex, itemsLists])
+
+
+  const isCanNext = useMemo(() => {
+    if (itemsLists.length === 0) return false;
+
+    if (itemsLists.length <= itemsPerPage && page === 1) return false;
+
+    return true
+  }, [itemsLists, page, itemsPerPage]);
+
+
+
+  const handleFirstPage = () => setCurrentPage(1);
+  const handlePrevPage = () => setCurrentPage(currentPage - 1);
+  const handleNextPage = () => {
+    if (currentPage >= totalPages) return;
+
+    setCurrentPage(currentPage + 1)
+  }
+  const handleLastPage = () => setCurrentPage(totalPages);
 
   return (
     <>
@@ -180,7 +201,7 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
                   <tbody>
                     {isLoading ? (
                       <tr>
-                        <td colSpan={3}>
+                        <td colSpan={props.type === 'multiple' ? 4 : 3}>
                           <div className="flex justify-center items-center flex-col gap-5 h-[38vh]">
                             <CircularProgress color="success" size={30} />{" "}
                             <span className="text-[0.95]">Loading...</span>
@@ -221,10 +242,10 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
                   handleChangeItemsPerPage({ target: { value: newValue } })
                 }
               />{" "}
-              <div>{currentPage + "-" + currentPage + " of " + totalPages}</div>
+              <div>{page + "-" + page + " of " + totalPages}</div>
               <div className="flex gap-1">
                 <button
-                  disabled={currentPage === 1}
+                  disabled={currentPage === 1 || itemsLists.length <= itemsPerPage}
                   onClick={handleFirstPage}
                   className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
                 >
@@ -235,7 +256,7 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
                   </span>
                 </button>
                 <button
-                  disabled={currentPage === 1}
+                  disabled={currentPage === 1 || itemsLists.length <= itemsPerPage}
                   onClick={handlePrevPage}
                   className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
                 >
@@ -244,8 +265,10 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
                   </span>
                 </button>
                 <button
-                  disabled={currentPage === totalPages}
+                  // disabled={currentPage === totalPages || itemsLists.length === 0}
+                  disabled={!isCanNext}
                   onClick={handleNextPage}
+                  // onClick={!isCanNext ? handleNextPage : undefined}
                   className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
                 >
                   <span

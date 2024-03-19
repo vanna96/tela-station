@@ -10,8 +10,8 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
-import { InventoryItemModal } from "../../inventory_transfer_request/components/ITRModal";
 import { useParams } from "react-router-dom";
+import { InventoryItemModal } from "../../components/GetItemModal";
 
 let itemRef = React.createRef<InventoryItemModal>();
 

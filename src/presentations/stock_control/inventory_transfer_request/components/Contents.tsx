@@ -3,9 +3,9 @@ import MUITextField from "@/components/input/MUITextField";
 import { Button, Checkbox, TextField } from "@mui/material";
 import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import ITRModal, { InventoryItemModal } from "./ITRModal";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
+import { InventoryItemModal } from "../../components/GetItemModal";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
