@@ -372,7 +372,6 @@ const SystemInitializeMasterPage = () => {
       roles: ["UG001", "UG003"],
     },
     { title: "Master Data", cards: masterDataCards, roles: ['UG001', 'UG004'] },
-    { title: "Sale Target", cards: saleTargetCards, roles: ['UG001', 'UG004'] },
     { title: "Sale Order", cards: saleOrderCards, roles: ['UG001', 'UG004'] },
     { title: "Sale Invoice", cards: saleInvoiceCards, roles: ['UG001', 'UG004'] },
     { title: "Retail Sale", cards: retailSaleCards, roles: ['UG001', 'UG004'] },
