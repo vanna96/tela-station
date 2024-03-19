@@ -312,10 +312,7 @@ class SalesOrderForm extends CoreFormDocument {
                     Quantity: item.U_tl_qty || null,
                     UnitPrice:
                       item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
-                    Discount: item.DiscountPercent || 0,
                     GrossPrice: item.U_tl_unitprice,
-                    TotalGross: item.GrossTotal,
-                    TotalUnit: item.LineTotal,
                     LineTotal: item.U_tl_doctotal,
                     DiscountPercent: item.U_tl_dispercent || 0,
                     VatGroup: item.VatGroup,
@@ -584,6 +581,12 @@ class SalesOrderForm extends CoreFormDocument {
           message: "Items is missing and must have at least one record!",
           isArray: true,
           getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.Items) &&
+              data.Items.some((item: any) => item.Quantity > 0)
+            );
+          },
         },
         {
           field: "cashBankData",
@@ -635,14 +638,13 @@ class SalesOrderForm extends CoreFormDocument {
         allocationData,
         cardCountData
       );
-      if (!validationResultCC.isValid) {
-        this.setState({ ...data, isSubmitting: false });
-        this.dialog.current?.error(validationResultCC.message, "Invalid");
-        return;
-      }
       if (!validationResult.isValid) {
         this.setState({ ...data, isSubmitting: false });
         this.dialog.current?.error(validationResult.message, "Invalid");
+        return;
+      } else if (!validationResultCC.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResultCC.message, "Invalid");
         return;
       }
 
@@ -770,10 +772,22 @@ class SalesOrderForm extends CoreFormDocument {
           },
         },
         {
+          field: "Items",
+          message: "Items is missing and must have at least one record!",
+          isArray: true,
+          getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.Items) &&
+              data.Items.some((item: any) => item.Quantity > 0)
+            );
+          },
+        },
+        {
           field: "cashBankData",
           message: "Please enter at least one amount of Cash Sale!",
           isArray: true,
-          getTabIndex: () => 2,
+          getTabIndex: () => 3,
           validate: (data: any) => {
             return (
               Array.isArray(data.cashBankData) &&
@@ -798,6 +812,25 @@ class SalesOrderForm extends CoreFormDocument {
           }
         }
       );
+      const { allocationData, stockAllocationData, cardCountData } = data;
+      const validationResult = validateData(
+        allocationData,
+        stockAllocationData
+      );
+      const validationResultCC = validateCardCountData(
+        allocationData,
+        cardCountData
+      );
+      if (!validationResult.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResult.message, "Invalid");
+        return;
+      } else if (!validationResultCC.isValid) {
+        this.setState({ ...data, isSubmitting: false });
+        this.dialog.current?.error(validationResultCC.message, "Invalid");
+        return;
+      }
+
       let docEntry;
       if (!edit) {
         const { isFirstAttempt } = this.state;
@@ -884,24 +917,28 @@ class SalesOrderForm extends CoreFormDocument {
           ItemCode: item.ItemCode,
           Quantity: quantity,
           GrossPrice: item.GrossPrice,
-          DiscountPercent: item.DiscountPercent,
+          DiscountPercent: item.DiscountPercent ?? 0,
           TaxCode: "VO10",
           UoMEntry: item.InventoryUoMEntry,
           LineOfBussiness: "201001", // item.LineOfBussiness
           RevenueLine: "202004", // item.RevenueLine
           ProductLine: "203004", // item.ProductLine
           BinAbsEntry:
-            item.BinAbsEntry === undefined || item.BinAbsEntry === null
-              ? data.U_tl_bincode
-              : item.BinAbsEntry,
+            item.Bin ??
+            data.nozzleData?.find((e: any) => e.U_tl_itemcode === item.ItemCode)
+              ?.U_tl_bincode,
           // BranchCode: data.U_tl_bplid,
-          WarehouseCode: item.WarehouseCode,
+          WarehouseCode:
+            item.Warehouse ??
+            data.nozzleData?.find((e: any) => e.U_tl_itemcode === item.ItemCode)
+              ?.U_tl_whs,
           DocumentLinesBinAllocations: [
             {
               BinAbsEntry:
-                item.BinAbsEntry === undefined || item.BinAbsEntry === null
-                  ? data.U_tl_bincode
-                  : item.BinAbsEntry,
+                item.Bin ??
+                data.nozzleData?.find(
+                  (e: any) => e.U_tl_itemcode === item.ItemCode
+                )?.U_tl_bincode,
               Quantity: quantity,
               AllowNegativeQuantity: "tNO",
             },
@@ -1126,11 +1163,19 @@ class SalesOrderForm extends CoreFormDocument {
         this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
       } else {
         this.dialog.current?.error(error?.toString() ?? "An error occurred");
+        this.handleError(error);
       }
     } finally {
       this.setState({ isSubmitting: false });
     }
   }
+  handleError = (message: any) => {
+    this.setState({
+      U_tl_errormsg: message,
+      tapIndex: 6,
+      isDialogOpen: true,
+    });
+  };
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
@@ -1541,7 +1586,7 @@ function validateData(
       if (rowsWithSameItemCode.length === 0) {
         const message = `No entries found in stock Allocation Data for Item Code: ${itemcode}`;
         console.log(message);
-        throw new FormValidateException(message, 3);
+        throw new FormValidateException(message, 4);
       }
 
       const totalQuantity = rowsWithSameItemCode.reduce(
@@ -1557,7 +1602,7 @@ function validateData(
       if (!isValid) {
         const message = `Stock Allocation does not match the totals in Allocation Data for Item Code: ${itemcode}`;
         console.log(message);
-        throw new FormValidateException(message, 3);
+        throw new FormValidateException(message, 4);
       }
 
       return isValid;
@@ -1576,7 +1621,7 @@ function validateData(
   if (hasMissingFields) {
     const message =
       "One or more required fields are missing in Stock Allocation Data.";
-    throw new FormValidateException(message, 3);
+    throw new FormValidateException(message, 4);
   }
   return {
     isValid,
@@ -1637,6 +1682,8 @@ function validateCardCountData(
 
     return true;
   });
+
+  console.log(isValid);
 
   const message = isValid
     ? "Card Count Data is valid."

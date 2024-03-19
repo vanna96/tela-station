@@ -41,9 +41,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       open: false,
       priceList: props.priceList,
       lineofbusiness: props.lineofbusiness,
-      WarehouseCode: this.props.wh,
-      wh: this.props.wh,
-      BinAbsEntry: this.props.bin,
+      Warehouse: this.props.wh,
+      Bin: props.bin?.find((e: any) => e.U_tl_whs)?.U_tl_bincode,
       branch: props.branch,
     } as any;
 
@@ -302,21 +301,17 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <WarehouseAutoComplete
                   // disabled
                   Branch={parseInt(this.props.branch)}
-                  value={this.state.WarehouseCode}
-                  onChange={(event) =>
-                    this.handlerChange(event, "WarehouseCode")
-                  }
+                  value={this.state.Warehouse}
+                  onChange={(event) => this.handlerChange(event, "Warehouse")}
                 />
               </div>
               <div className="flex flex-col">
                 <div className="text-sm">Bin Location</div>
                 <div className="mb-1"></div>
                 <BinLocationToAsEntry
-                  value={this.state.BinAbsEntry}
-                  onChange={(event) =>
-                    this.handlerChange(event, "BinAbsEntry")
-                  }
-                  Warehouse={this.state?.WarehouseCode ?? "WH01"}
+                  value={parseInt(this.state.Bin)}
+                  onChange={(event) => this.handlerChange(event, "Bin")}
+                  Warehouse={this.state?.Warehouse ?? "WH01"}
                 />
               </div>
 
