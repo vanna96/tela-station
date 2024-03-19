@@ -117,7 +117,7 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
       >
         <div className="flex gap-2 items-center">
           <h1 className="text-md  capitalize">
-            {formattedText} - {props?.data?.DocNum}
+            {props?.data?.headerText ?? formattedText} - {props?.data?.DocNum}
           </h1>
           {props.data.DocumentStatus === "bost_Close" ||
             (!(location.pathname.includes("edit") || !id) && (
