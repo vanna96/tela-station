@@ -198,7 +198,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   U_tl_attn_ter_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: '_all',
+  DocumentStatus_$eq: `DocumentStatus eq '_all'`,
 }
 
 export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
@@ -215,7 +215,7 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
   function onSubmit(data: any) {
     const queryString: (string | undefined)[] = [];
     for (const [key, value] of Object.entries(data)) {
-      if (!value) continue;
+      if (!value || (value as string)?.includes('_all')) continue;
 
       queryString.push('and');
       queryString.push(conditionString(key, value as any))
@@ -224,7 +224,8 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
     queryString.splice(0, 1);
     const query = queryString.join(' ');
 
-    if (onFilter) onFilter(queryString, query.replaceAll('_all', ''));
+
+    if (onFilter) onFilter(queryString, query.replaceAll(`DocumentStatus eq '_all'`, ''));
   }
 
 
