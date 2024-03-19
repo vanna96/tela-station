@@ -52,11 +52,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/pump",
         state: "pump",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Pump",
         },
@@ -64,11 +60,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/pump-attendant",
         state: "pump-attendant",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Pump Attendant",
         },
@@ -76,11 +68,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/expense-dictionary",
         state: "expense-dictionary",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Expense Dictionary",
         },
@@ -88,11 +76,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/cash-account",
         state: "cash-account",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Cash Account",
         },
@@ -101,11 +85,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/driver",
         state: "driver",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG002"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Driver",
         },
@@ -113,11 +93,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/vehicle",
         state: "vehicle",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG002"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Vehicle",
         },
@@ -125,11 +101,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/stops",
         state: "stops",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG002"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Stops",
         },
@@ -137,11 +109,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/route",
         state: "route",
-<<<<<<< HEAD
-        roles: ['UG001'],
-=======
         roles: ["UG001", "UG002"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Route",
         },
@@ -426,22 +394,14 @@ export const appRoutes: RouteType[] = [
   {
     path: "/stock-control",
     state: "stock-control",
-<<<<<<< HEAD
-    roles: ['UG001', 'UG004'],
-=======
     roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
     sidebarProps: {
       displayText: "Stock Control",
       icon: <TrendingUpIcon />,
     },
     child: [
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG004'],
-=======
         roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         path: "/stock-control/inventory-transfer-request",
         state: "/inventory-transfer-request",
         sidebarProps: {
@@ -449,11 +409,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG004'],
-=======
         roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         path: "/stock-control/stock-transfer",
         state: "/stock-transfer",
         sidebarProps: {
@@ -461,11 +417,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG004'],
-=======
         roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         path: "/stock-control/good-issue",
         state: "/good-issue",
         sidebarProps: {
@@ -473,11 +425,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG004'],
-=======
         roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         path: "/stock-control/good-receipt",
         state: "/good-receipt",
         sidebarProps: {
@@ -486,11 +434,7 @@ export const appRoutes: RouteType[] = [
       },
 
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG004'],
-=======
         roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         path: "/stock-control/pump-test",
         state: "/pump-test",
         sidebarProps: {
@@ -498,11 +442,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG004'],
-=======
         roles: ["UG001", "UG003", "UG004"],
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         path: "/stock-control/fuel-level",
         state: "/fuel-level",
         sidebarProps: {
@@ -537,15 +477,9 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-<<<<<<< HEAD
-        roles: ['UG001', 'UG003'],
-        path: "/trip-management/bulk-seal-allocation",
-        state: "bulk-seal-allocation",
-=======
         roles: ["UG001", "UG003"],
         path: "/bulk/seal/allocation",
         state: "allocation",
->>>>>>> 05f923f (fix sidebar, sale order, cash sales)
         sidebarProps: {
           displayText: "Bulk Seal Allocation",
         },
