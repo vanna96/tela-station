@@ -5,7 +5,6 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString, displayTextDate } from "@/lib/utils";
 import DataTable from "../components/DataTable";
@@ -56,14 +55,12 @@ export default function InventoryTransferList() {
         size: 88,
       },
       {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "BPLName",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
         size: 88,
 
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
       },
       {
         accessorKey: "U_tl_whsdesc",
@@ -296,7 +293,7 @@ export const InventoryTransferFilter = ({
           <div className="col-span-2 2xl:col-span-3">
             <div className="flex flex-col gap-1 text-sm">
               <label htmlFor="Code" className="text-gray-500 -mt-1 text-[14px]">
-                Delivery Date
+                Posting Date
               </label>
               <div className="">
                 <Controller

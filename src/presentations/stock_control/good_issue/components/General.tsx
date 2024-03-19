@@ -33,6 +33,8 @@ const General = ({
   useEffect(() => {
     if (id) return;
     if (!defaultSerie.data) return;
+    setValue("DocDate", new Date().toISOString()?.split("T")[0]);
+    setValue("TaxDate", new Date().toISOString()?.split("T")[0]);
     setValue("Series", defaultSerie?.data?.Series);
     setValue("DocNum", defaultSerie.data?.NextNumber);
   }, [defaultSerie.data]);

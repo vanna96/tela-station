@@ -10,7 +10,7 @@ import {
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
 import request from "@/utilies/request";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
@@ -38,7 +38,7 @@ export type UseFormProps = {
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
     useForm();
-
+  const route = useNavigate()
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -225,9 +225,7 @@ const GoodIssueForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    // onClick={() =>
-                    //   (window.location.href = "/master-data/driver")
-                    // }
+                    onClick={() => route("/master-data/driver")}
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
