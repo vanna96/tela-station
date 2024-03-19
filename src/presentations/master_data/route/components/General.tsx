@@ -1,9 +1,9 @@
 import React from "react";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
 import StopsSelect from "@/components/selectbox/StopsSelect";
 import { DurationPicker } from "./duration-picker";
+import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -31,10 +31,9 @@ export default function GeneralForm({
             label="Base Station"
             required
             inputComponent={
-              <WarehouseAttendTo
-                U_tl_attn_ter={true}
+              <BaseStationAutoComplete
                 value={data?.U_BaseStation}
-                onChange={(e) => handlerChange("U_BaseStation", e)}
+                onChange={(e: any) => handlerChange("U_BaseStation", e)}
                 onBlur={(e: any) => setData({ ...data, U_BaseStation: e })}
               />
             }
@@ -75,7 +74,7 @@ export default function GeneralForm({
             }
           />
 
-          <FormField
+          {/* <FormField
             label="Driver Incentive"
             inputComponent={
               <MUITextField
@@ -85,7 +84,7 @@ export default function GeneralForm({
                 onChange={(e) => handlerChange("U_Incentive", e.target.value)}
               />
             }
-          />
+          /> */}
         </div>
         <div className="col-span-2 md:col-span-2"></div>
         <div className="col-span-5 md:col-span-12">
@@ -122,7 +121,7 @@ export default function GeneralForm({
             label="Travel Hour"
             inputComponent={
               <DurationPicker
-                value={data?.U_Distance}
+                value={data?.U_Duration}
                 onChange={(e) => handlerChange("U_Duration", e)}
               />
             }

@@ -106,14 +106,12 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
 
   return (
     <div
-      className={`w-full flex flex-col rounded ${
-        !collapse ? "gap-3" : ""
-      } justify-between items-center  sticky top-0 border-y bg-white z-50 px-4  `}
+      className={`w-full flex flex-col rounded ${!collapse ? "gap-3" : ""
+        } justify-between items-center  sticky top-0 border-y bg-white z-50 px-4  `}
     >
       <div
-        className={`w-full flex justify-between px-6 ${
-          !collapse ? "border-b  py-2" : "pt-2"
-        } border-b-gray-200 z-50 px-0`}
+        className={`w-full flex justify-between px-6 ${!collapse ? "border-b  py-2" : "pt-2"
+          } border-b-gray-200 z-50 px-0`}
       >
         <div className="flex gap-2 items-center">
           <h1 className="text-md  capitalize">
@@ -147,9 +145,8 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         <div className=" flex gap-3 pr-3"></div>
       </div>
       <div
-        className={`w-full  grid grid-cols-2 duration-300 ease-in overflow-hidden  ${
-          collapse ? "h-[10rem]" : "h-0"
-        }`}
+        className={`w-full  grid grid-cols-2 duration-300 ease-in overflow-hidden  ${collapse ? "h-[10rem]" : "h-0"
+          }`}
       >
         {/* left side fields  */}
 
@@ -161,9 +158,8 @@ const DocumentHeaderComponent: React.FC<DocumentHeaderComponentProps> = (
         {props?.HeaderCollapeMenu}
       </div>
       <div
-        className={`w-full flex gap-2 px-4 text-sm border-t-gray-200 py-0 sticky ${
-          !collapse ? "mt-0" : ""
-        } ${props?.data.showCollapse ? `border-t` : `mt-[-22px]`}`}
+        className={`w-full flex gap-2 px-4 text-sm border-t-gray-200 py-0 sticky ${!collapse ? "mt-0" : ""
+          } ${props?.data.showCollapse ? `border-t` : `mt-[-22px]`}`}
       >
         {props?.menuTabs}
         {props?.data.showCollapse && (

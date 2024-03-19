@@ -10,6 +10,7 @@ import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
 import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import React from "react";
+import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
 
 const BasicInformation = ({
   register,
@@ -25,7 +26,6 @@ const BasicInformation = ({
   edit,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
-    depositDate: null,
     branchASS: null,
     serie: 7855,
   });
@@ -46,6 +46,18 @@ const BasicInformation = ({
       (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
     );
   }, [serie]);
+
+  const depositDate = watch("DepositDate");
+
+  useEffect(() => {
+    const currentDate = new Date();
+
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so we add 1
+    const day = String(currentDate.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    setValue("DepositDate", formattedDate);
+  }, [setValue]);
 
   return (
     <>
@@ -119,7 +131,7 @@ const BasicInformation = ({
                         value={field?.value}
                         onChange={(e: any) => {
                           setValue("DepositCurrency", e?.Code);
-                          setValue('CheckLines', [])
+                          setValue("CheckLines", []);
                         }}
                       />
                     );
@@ -146,7 +158,7 @@ const BasicInformation = ({
                         // disabled={detail || defaultValues?.U_Status === "C"}
                         onChange={(e: any) => {
                           setValue("BPLID", e?.BPLID);
-                          setValue('CheckLines', [])
+                          setValue("CheckLines", []);
                         }}
                         value={field?.value}
                       />
@@ -165,16 +177,27 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "G/L Account Code is required" }}
-                  name="DepositAccount"
+                  name="U_tl_cash_acc"
                   control={control}
-                  disabled={detail}
                   render={({ field }) => {
                     return (
-                      <CashACAutoComplete
-                        {...field}
-                        value={field?.value}
+                      <DepositCashAccountAutoComplete
+                        disabled={detail}
+                        value={field.value}
                         onChange={(e: any) => {
-                          setValue("DepositAccount", e);
+                          setValue(
+                            "U_tl_cash_acc",
+                            e?.Code,
+                          );
+                          setValue(
+                            "U_tl_cash_des",
+                            e?.Name,
+                          );
+
+                          setValue(
+                            "DepositAccount",
+                            e?.U_tl_cashacct,
+                          );
                         }}
                       />
                     );
@@ -191,10 +214,7 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <MUITextField
                   // disabled={detail || true}
-                  value={
-                    new GLAccountRepository().find(watch("DepositAccount"))
-                      ?.Name
-                  }
+                  value={watch('U_tl_cash_acc')}
                 />
               </div>
             </div>
@@ -214,23 +234,17 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        // disabled={detail}
                         {...field}
-                        defaultValue={
-                          defaultValues?.DepositDate || staticSelect.depositDate
-                        }
-                        key={`deposit_date_${staticSelect.depositDate}`}
-                        onChange={(e: any) => {
+                        defaultValue={depositDate} // Use the watch value as the defaultValue
+                        onChange={(e) => {
                           const val =
-                            e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
+                            e?.toLowerCase() ===
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DepositDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            depositDate: e,
-                          });
+                          console.log(val);
+
+                          setValue("DepositDate", val);
                         }}
                       />
                     );
@@ -262,10 +276,10 @@ const BasicInformation = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                // disabled={detail}
-                inputProps={{
-                  ...register("BankAccountNum"),
-                }}
+                  // disabled={detail}
+                  inputProps={{
+                    ...register("BankAccountNum"),
+                  }}
                 />
               </div>
             </div>

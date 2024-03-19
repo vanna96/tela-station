@@ -4,6 +4,8 @@ import { Button, Checkbox } from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import shortid from "shortid";
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 
 export default function TableCheck({
@@ -18,12 +20,11 @@ export default function TableCheck({
   watch,
   data,
   depositcheck,
+  searchText
 }: any) {
 
-
-
   const respose: any = useQuery({
-    queryKey: [`getlistdeposit`],
+    queryKey: [`getlistdeposit_${watch('DepositCurrency')}_${watch('BPLID')}`],
     queryFn: async () => request("GET", `/sml.svc/TL_DEPOSITLIST?$filter=Branch eq ${watch('BPLID')} and CheckCurrency eq '${watch('DepositCurrency')}'`),
     cacheTime: 0,
     staleTime: 0,
@@ -34,12 +35,17 @@ export default function TableCheck({
 
   const documents: any[] = React.useMemo(() => {
 
+    if (searchText !== '')
+      return respose?.data?.data?.value?.filter((e: any) => e?.CheckNumber?.toString()?.includes(searchText)) ?? [];
+
+
     if (depositcheck?.toLowerCase() === 'all') return respose?.data?.data?.value ?? [];
 
     if (depositcheck) return respose?.data?.data?.value?.filter((e: any) => e?.CashCheck === depositcheck) ?? [];
 
     return respose?.data?.data?.value ?? [];
-  }, [respose.data, depositcheck])
+  }, [respose.data, depositcheck, searchText])
+
 
   const selectedValues: any[] = useMemo(() => {
     if (!watch("CheckLines")) return [];
@@ -100,7 +106,17 @@ export default function TableCheck({
 
 
   const handlerSelectAll = (event: React.ChangeEvent<HTMLInputElement>,) => {
-    setValue("CheckLines", event.target.checked ? documents : []);
+    setValue("CheckLines", event.target.checked ? documents.map((value) => ({
+      CheckKey: value?.CheckKey,
+      CheckNumber: value?.CheckNumber,
+      Bank: value?.Bank,
+      Branch: value?.Branch,
+      CashCheck: value?.CashCheck,
+      CheckDate: value?.CheckDate,
+      Customer: value?.CardCode,
+      CheckAmount: value?.CheckAmount,
+
+    })) : []);
   }
 
 
@@ -110,7 +126,8 @@ export default function TableCheck({
   }
 
   const isSelected = (e: any) => {
-    return selectedValues?.find((val) => val.CheckKey === e.CheckKey) ? true : false;
+    const selected = selectedValues?.find((val) => val.CheckKey === e.CheckKey)
+    return selected ? true : false;
   }
 
 
@@ -150,22 +167,43 @@ export default function TableCheck({
               </tr>
             )}
             <tbody>
-              {documents?.map((e: any, index: number) => (
+
+              {(!respose?.isLoading && documents.length === 0) && <tr>
+                <td colSpan={6} className="p-10 text-center">
+
+                  <div className="w-full flex justify-center items-center gap-2 text-gray-400">
+                    <span>No data.</span>
+                  </div>
+
+                </td>
+              </tr>}
+
+              {respose?.isLoading ?
                 <tr>
-                  <td>
-                    <Checkbox
-                      key={rowKey(e) + isSelected(e)}
-                      checked={isSelected(e)}
-                      onChange={(event) => onSelectChange(event, e)}
-                    />
+                  <td colSpan={6} className="p-10 text-center">
+
+                    <div className="w-full flex justify-center items-center gap-2">
+                      <CircularProgress size={20} thickness={6} /> <span>Loading....</span>
+                    </div>
+
                   </td>
-                  <td>{e.CheckDate}</td>
-                  <td>{e.CashCheck}</td>
-                  <td>{e.CardCode + ' - ' + e.CardName}</td>
-                  <td>{e.CheckAmount}</td>
-                  <td>{e.DocNum}</td>
                 </tr>
-              ))}
+                : documents?.map((e: any, index: number) => (
+                  <tr>
+                    <td>
+                      <Checkbox
+                        key={rowKey(e) + isSelected(e)}
+                        checked={isSelected(e)}
+                        onChange={(event) => onSelectChange(event, e)}
+                      />
+                    </td>
+                    <td>{e.CheckDate}</td>
+                    <td>{e.CheckNumber}</td>
+                    <td>{e.CardCode + ' - ' + e.CardName}</td>
+                    <td>{e.CheckAmount}</td>
+                    <td>{e.DocNum}</td>
+                  </tr>
+                ))}
             </tbody>
             <tfoot>
               <tr className="text-[0.90rem] border-gray-200 bg-gray-100  text-gray-600 sticky bottom-0">

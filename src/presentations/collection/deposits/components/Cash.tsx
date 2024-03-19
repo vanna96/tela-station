@@ -3,6 +3,7 @@ import { UseFormProps } from "../form";
 import { useEffect, useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 const Cash = ({
   register,
@@ -14,21 +15,13 @@ const Cash = ({
   detail,
   data,
   watch,
+  getValues,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
     depositDate: null,
     status: "",
-    termination: null,
-    branchASS: null,
+    U_tl_cash_des: "",
   });
-
-  useEffect(() => {
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
-  }, [defaultValues]);
 
   return (
     <>
@@ -40,50 +33,53 @@ const Cash = ({
           <div className=" md:col-span-12">
           <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Deposit Code" className="text-gray-500">
-                  Deposit Code
+                <label htmlFor="Code" className="text-gray-500 ">
+                  Fuel Type
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "G/L Account Code is required" }}
-                  name="U_tl_cash_acc"
+                  name="U_tl_cash_des"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <DepositCashAccountAutoComplete
-                       disabled={detail}
-                        value={field.value}
+                      <MUISelect
+                        disabled={detail}
+                        items={[
+                          { label: "111102 - Cash balance - station(USD)", value: "111102" },
+                          { label: "111103 - Cash balance - station(KHR)", value: "111103" },
+                        ]}
                         onChange={(e: any) => {
-                          setValue(
-                            "U_tl_cash_acc",
-                            e?.Code,
-                          );
-                          setValue(
-                            "U_tl_cash_des",
-                            e?.Name,
-                          );
-                          setValue(
-                            "AllocationAccount",
-                            e?.U_tl_cashacct,
-                          );
+                          setValue("U_tl_cash_des", e.target.value);
+
+                          setStaticSelect({
+                            ...staticSelect,
+                            U_tl_cash_des: e.target.value,
+                          });
                         }}
+                        value={field.value}
+                        // value={
+                        //   staticSelect.U_FuelType || defaultValues?.U_FuelType
+                        // }
+                        aliasvalue="value"
+                        aliaslabel="label"
                       />
                     );
                   }}
                 />
               </div>
-            </div>
+            </div>  
+            
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
-                <label htmlFor="Deposit Name" className="text-gray-500">
-                  Deposit Name
+                <label htmlFor="Cash Balance Station" className="text-gray-500">
+                Cash Balance Station
                 </label>
               </div>
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
-                  value={useWatch({control, name: 'U_tl_cash_des' })}
+                  value={useWatch({ control, name: "U_tl_cash_des" })}
                   name="U_tl_cash_des"
                 />
               </div>
@@ -97,7 +93,7 @@ const Cash = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                startAdornment={watch('DepositCurrency') ?? 'USD'}
+                  startAdornment={watch("DepositCurrency") ?? "USD"}
                   disabled={detail}
                   inputProps={{
                     ...register("TotalLC"),

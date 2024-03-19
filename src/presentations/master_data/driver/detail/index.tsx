@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FieldValues,
@@ -34,7 +32,8 @@ const FormDetail = (props: any) => {
     setValue,
     control,
     reset,
-
+    getValues,
+    watch,
     formState: { errors, defaultValues },
   } = useForm();
   const { id }: any = props?.match?.params || 0;
@@ -46,7 +45,7 @@ const FormDetail = (props: any) => {
     isError: false,
     message: "",
     showCollapse: true,
-    DocNum: '',
+    DocNum: "",
   });
   const [header, setHeader] = useState({
     firstName: null,
@@ -74,11 +73,11 @@ const FormDetail = (props: any) => {
         .then((res: any) => {
           setBranchAss(res?.data?.EmployeeBranchAssignment);
           setDriver(res?.data);
-        setState({
-          ...state,
-          loading: false,
-          DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
-        });    
+          setState({
+            ...state,
+            loading: false,
+            DocNum: res?.data?.FirstName + " " + res?.data?.LastName,
+          });
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -251,6 +250,8 @@ const FormDetail = (props: any) => {
             {state.tapIndex === 0 && (
               <h1>
                 <General
+                  watch={watch}
+                  getValues={getValues}
                   detail={props?.detail}
                   register={register}
                   setValue={setValue}
@@ -269,6 +270,8 @@ const FormDetail = (props: any) => {
                   setValue={setValue}
                   register={register}
                   detail={props.detail}
+                  watch={watch}
+                  getValues={getValues}
                 />
               </h1>
             )}
@@ -280,8 +283,10 @@ const FormDetail = (props: any) => {
                   control={control}
                   defaultValues={defaultValues}
                   header={header}
-                    setHeader={setHeader}
-                    detail={props?.detail}
+                  setHeader={setHeader}
+                  detail={props?.detail}
+                  watch={watch}
+                  getValues={getValues}
                 />
               </h1>
             )}
@@ -291,18 +296,25 @@ const FormDetail = (props: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                    defaultValues={defaultValues}
-                    detail={props?.detail}
+                  defaultValues={defaultValues}
+                  detail={props?.detail}
+                  watch={watch}
+                  getValues={getValues}
                 />
               </h1>
             )}
             {state.tapIndex === 4 && (
               <h1>
-                <Remarks setValue={setValue} detail={props?.detail} register={register} />
+                <Remarks
+                  watch={watch}
+                  getValues={getValues}
+                  setValue={setValue}
+                  detail={props?.detail}
+                  register={register}
+                />
               </h1>
             )}
             {/* ... Other form fields ... */}
-           
           </form>
         </>
       )}

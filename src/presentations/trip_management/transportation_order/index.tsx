@@ -35,11 +35,11 @@ export default function Lists() {
   });
 
   const Count: any = useQuery({
-    queryKey: [`TL_TR`, `${filter !== "" ? "f" : ""}`],
+    queryKey: [`TL_TO-COUNT`, `${filter !== "" ? "f" : ""}`],
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_TR/$count?${filter}`
+        `${url}/TL_TO/$count?${filter}`
       )
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -53,7 +53,7 @@ export default function Lists() {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_TR",
+      "TL_TO",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -62,7 +62,7 @@ export default function Lists() {
     queryFn: async () => {
       const response: any = await request(
         "GET",
-        `${url}/TL_TR?$top=${pagination.pageSize}&$skip=${
+        `${url}/TL_TO?$top=${pagination.pageSize}&$skip=${
           pagination.pageIndex * pagination.pageSize
         }&$orderby= DocNum desc &${filter}`
       )
@@ -255,7 +255,6 @@ export default function Lists() {
       refetch();
     }, 500);
   };
-  const statusParams = ["i", "b", "c"]; // Possible status parameters
 
   return (
     <>

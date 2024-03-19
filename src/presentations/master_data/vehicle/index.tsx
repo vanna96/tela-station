@@ -115,7 +115,7 @@ export default function Lists() {
         visible: true,
         type: "string",
         Cell: (cell: any) => {
-          return cell.row.original?.U_Status;
+          return cell.row.original?.U_Status === "Y"?"Active":"Inactive";
         },
       },
       {

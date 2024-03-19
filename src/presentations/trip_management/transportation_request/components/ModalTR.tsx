@@ -83,6 +83,7 @@ export default function TRModal(props: any) {
     },
     cacheTime: 0,
     staleTime: 0,
+    retry: 1,
   });
 
   const columns = React.useMemo(
@@ -266,7 +267,7 @@ export default function TRModal(props: any) {
   };
   const handleClose = () => {
     setRowSelection({});
-
+ setOpenLoading(false);
     props?.setOpen(false);
   };
   const onSelectData = React.useCallback(async () => {
@@ -274,7 +275,6 @@ export default function TRModal(props: any) {
     let ids = [];
     for (const [key, value] of Object.entries(rowSelection)) {
       if (!value) continue;
-
       const docNum = key.split("_")?.at(-1);
       ids.push(`U_DocNum eq ${docNum}`);
     }

@@ -18,15 +18,10 @@ const General = ({
   header,
   setHeader,
   detail,
+  getValues,
 }: UseFormProps) => {
   
-  const [staticSelect, setStaticSelect] = useState({
-    U_Type: "",
-    U_Owner: "",
-    U_FuelType: "",
-    U_Status: "",
-  });
-
+ 
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -100,11 +95,6 @@ const General = ({
                         ]}
                         onChange={(e: any) => {
                           setValue("U_Type", e.target.value);
-
-                          setStaticSelect({
-                            ...staticSelect,
-                            U_Type: e.target.value,
-                          });
                         }}
                         value={field.value}
                         // value={staticSelect.U_Type || defaultValues?.U_Type}
@@ -189,9 +179,6 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{
-                    required: "Fuel Type is required",
-                  }}
                   name="U_FuelType"
                   control={control}
                   render={({ field }) => {
@@ -205,11 +192,6 @@ const General = ({
                         ]}
                         onChange={(e: any) => {
                           setValue("U_FuelType", e.target.value);
-
-                          setStaticSelect({
-                            ...staticSelect,
-                            U_FuelType: e.target.value,
-                          });
                         }}
                         value={field.value}
                         // value={
@@ -299,10 +281,6 @@ const General = ({
                         onChange={(e: any) => {
                           setValue("U_Owner", e.target.value);
                           setHeader({ ...header, owner: e?.target?.value });
-                          setStaticSelect({
-                            ...staticSelect,
-                            U_Owner: e.target.value,
-                          });
                         }}
                         value={field.value}
                         aliasvalue="value"
@@ -339,13 +317,13 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                {staticSelect?.U_Status === "" && (
+                {getValues("U_Status") === undefined && (
                   <div className="hidden">
                     <MUITextField
                       inputProps={{
                         ...register("U_Status"),
                       }}
-                      value={"Active"}
+                      value={"Y"}
                     />
                   </div>
                 )}
@@ -357,18 +335,14 @@ const General = ({
                       <MUISelect
                         disabled={detail}
                         items={[
-                          { value: "Active", label: "Active" },
-                          { value: "Inactive", label: "Inactive" },
+                          { value: "Y", label: "Active" },
+                          { value: "N", label: "Inactive" },
                         ]}
                         onChange={(e: any) => {
                           setValue("U_Status", e.target.value);
-                          setStaticSelect({
-                            ...staticSelect,
-                            U_Status: e.target.value,
-                          });
                           setHeader({ ...header, status: e?.target?.value });
                         }}
-                        value={field.value}
+                        value={field.value || "Y"}
                         // value={
                         //   staticSelect.U_Status ||
                         //   defaultValues?.U_Status ||
@@ -393,12 +367,12 @@ const General = ({
                         useWatch({
                           control: control,
                           name: "U_UnderMaintenance",
-                        }) === "YES"
+                        }) === "Y"
                       } // Use checked prop for a controlled Checkbox
                       onChange={(e) =>
                         setValue(
                           "U_UnderMaintenance",
-                          e.target.checked === true ? "YES" : "No"
+                          e.target.checked === true ? "Y" : "N"
                         )
                       }
                     />

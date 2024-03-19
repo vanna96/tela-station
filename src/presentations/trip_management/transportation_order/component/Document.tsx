@@ -65,15 +65,6 @@ const removeDocument = (index:number) => {
               Load Document
             </span>
           </Button>
-          {/* <Button
-            sx={{ height: "25px" }}
-            className="bg-white"
-            size="small"
-            variant="contained"
-            disableElevation
-          >
-            <span className="px-4 text-[11px] py-4 text-white">+ ITR</span>
-          </Button> */}
         </div>{" "}
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
@@ -105,7 +96,7 @@ const removeDocument = (index:number) => {
             {document?.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={8}
                   className="text-center p-10 text-[16px] text-gray-400"
                 >
                   No Record

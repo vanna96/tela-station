@@ -44,10 +44,10 @@ export default function TableCheckDetail({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm  mt-[2rem] overflow-x-auto">
+      <div className="max-h-[40vh]  2xl:max-h-[35vh] rounded-lg shadow-sm  mt-[2rem] overflow-x-auto">
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
-            <tr className="border-[1px] border-[#dadde0] text-black">
+            <tr className="border-[1px] border-gray-200 text-black sticky top-0 bg-gray-100 shadow-sm drop-shadow-sm z-10">
               <th className="w-[5rem]">
                 <span className="">
                   {/* <Checkbox size="small" /> */}
@@ -100,7 +100,7 @@ export default function TableCheckDetail({
               ))}
             </tbody>
             <tfoot>
-              <tr className="text-[0.90rem] border bg-zinc-100 text-gray-600">
+              <tr className="text-[0.90rem] border-gray-200 bg-gray-100  text-gray-600 sticky bottom-0">
                 <td className="py-2 border-r text-right pr-10" colSpan={2}>
                   No. of Checks
                 </td>

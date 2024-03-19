@@ -63,7 +63,7 @@ export default function DepositCashAccountAutoComplete(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option.Code}
+        getOptionLabel={(option: any) => option?.Name}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             <BsDot />

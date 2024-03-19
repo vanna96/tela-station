@@ -1,625 +1,197 @@
-import CoreFormDocument from "@/components/core/CoreFormDocument";
-import { withRouter } from "@/routes/withRouter";
-import { LoadingButton } from "@mui/lab";
-import DocumentSerieRepository from "@/services/actions/documentSerie";
-import MenuButton from "@/components/button/MenuButton";
-import { FormValidateException } from "@/utilies/error";
-import LoadingProgress from "@/components/LoadingProgress";
-import GeneralForm from "../components/GeneralForm";
-import ContentForm from "../components/ContentForm";
-import AttachmentForm from "../components/AttachmentForm";
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
-import request from "@/utilies/request";
-import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
-import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
-import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
-import useState from "react";
-import requestHeader from "@/utilies/requestheader";
-import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
-import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 
-class Form extends CoreFormDocument {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      ...this.state,
-      loading: true,
-      DocumentDate: new Date(),
-      PostingDate: new Date(),
-      DueDate: new Date(),
-      error: {},
-      BPCurrenciesCollection: [],
-      CurrencyType: "L",
-      Currency: "USD",
-      DocType: "dDocument_Items",
-      ExchangeRate: 1,
-      JournalRemark: "",
-      BPAddresses: [],
-      Rounding: false,
-      DocDiscount: 0,
-      RoundingValue: 0,
-      AttachmentList: [],
-      VatGroup: "S1",
-      type: "sale", // Initialize type with a default value
-      lineofBusiness: "",
-      warehouseCode: "",
-      FromWarehouse: "",
-      ToWarehouse:"",
-      Items: [{ ItemCode: "" }],
+import { LoadingButton } from "@mui/lab"
+import { Backdrop, Button, Checkbox, CircularProgress } from "@mui/material"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import FormMessageModal from "@/components/modal/FormMessageModal"
+import CustomToast from "@/components/modal/CustomToast"
+import { IoCreate } from "react-icons/io5"
+import { useNavigate } from "react-router-dom"
+import BasicInformation from "../components/BasicInformation"
+import Contents from "../components/Contents"
+import { useStockTransferFormHook } from "../hook/useStockTransferHook"
+import { GetInventoryTransferRequestModal } from '../../components/GetInventoryTransferRequestOpenModal';
 
-      tabErrors: {
-        // Initialize error flags for each tab
-        general: false,
-        content: false,
-        logistic: false,
-        attachment: false,
-      },
-      isDialogOpen: false,
-    } as any;
+let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+let inventoryTransferRequestModalRef = React.createRef<GetInventoryTransferRequestModal>();
 
-    this.onInit = this.onInit.bind(this);
-    this.handlerRemoveItem = this.handlerRemoveItem.bind(this);
-    this.handlerSubmit = this.handlerSubmit.bind(this);
-    this.handlerChangeMenu = this.handlerChangeMenu.bind(this);
-    this.hanndAddNewItem = this.hanndAddNewItem.bind(this);
-    this.handleModalItem = this.handleModalItem.bind(this);
-  }
-  handleLineofBusinessChange = (value: any) => {
-    this.setState({ lineofBusiness: value });
-  };
+export const InventoryTransferForm = ({ edit = false, detail = false }: { edit?: boolean, detail?: boolean | undefined }) => {
+  const [tap, setTap] = useState<number>(0)
+  const hook = useStockTransferFormHook(edit, dialog);
 
-  handleWarehouseChange = (value: any) => {
-    this.setState({ warehouseCode: value });
-  };
+  const onChangeTap = (index: number) => {
 
-  componentDidMount(): void {
-    this.setState({ loading: true });
-    this.onInit();
-  }
-  handleModalItem = () => {};
-
-  async onInit() {
-    let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("good-receipt-series");
-
-    if (!seriesList) {
-      seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "67",
-      });
-      this.props?.query?.set("good-receipt-series", seriesList);
+    if (index === 1 && !hook.watch('BPLID')) {
+      toastRef.current?.open();
+      return;
     }
 
-    if (this.props.edit) {
-      const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `StockTransfers(${id})`)
-        .then(async (res: any) => {
-          const data: any = res?.data;
-          // vendor
-
-          // attachment
-          let AttachmentList: any = [];
-          let disabledFields: any = {
-            CurrencyType: true,
-          };
-
-          if (data?.AttachmentEntry > 0) {
-            AttachmentList = await requestHeader(
-              "GET",
-              `/Attachments2(${data?.AttachmentEntry})`
-            )
-              .then(async (res: any) => {
-                const attachments: any = res?.data?.Attachments2_Lines;
-                if (attachments.length <= 0) return;
-
-                const files: any = attachments.map(async (e: any) => {
-                  const req: any = await fetchSAPFile(
-                    `/Attachments2(${data?.AttachmentEntry})/$value?filename='${e?.FileName}.${e?.FileExtension}'`
-                  );
-                  const blob: any = await arrayBufferToBlob(
-                    req.data,
-                    req.headers["content-type"],
-                    `${e?.FileName}.${e?.FileExtension}`
-                  );
-
-                  return {
-                    id: shortid.generate(),
-                    key: Date.now(),
-                    file: blob,
-                    Path: "C:/Attachments2",
-                    Filename: `${e?.FileName}.${e?.FileExtension}`,
-                    Extension: `.${e?.FileExtension}`,
-                    FreeText: "",
-                    AttachmentDate: e?.AttachmentDate?.split("T")[0],
-                  };
-                });
-                return await Promise.all(files);
-              })
-              .catch((error) => console.log(error));
-          }
-
-          state = {
-            ...data,
-            Items: await Promise.all(
-              (data?.StockTransferLines || []).map(async (item: any) => {
-                const uomGroups: any =
-                  await new UnitOfMeasurementGroupRepository().get();
-
-                const uoms = await new UnitOfMeasurementRepository().get();
-                const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === item?.UoMEntry
-                );
-                let uomLists: any[] = [];
-                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-                  const itemUOM = uoms.find(
-                    (record: any) => record?.AbsEntry === row?.AlternateUoM
-                  );
-                  if (itemUOM) {
-                    uomLists.push(itemUOM);
-                  }
-                });
-                return {
-                  ItemCode: item.ItemCode || null,
-                  ItemName: item.ItemDescription || item.Name || null,
-                  Quantity: item.Quantity || null,
-                  UnitPrice: item.UnitPrice || item.total,
-                  Discount: item.DiscountPercent || 0,
-                  VatGroup: item.VatGroup || "",
-                  GrossPrice: item.GrossPrice,
-                  TotalGross: item.GrossTotal,
-                  DiscountPercent: item.DiscountPercent || 0,
-                  TaxCode: item.VatGroup || item.taxCode || null,
-                  UoMEntry: item.UomAbsEntry || null,
-                  WarehouseCode: item?.WarehouseCode || null,
-                  UomAbsEntry: item?.UoMEntry,
-                  LineTotal: item.LineTotal,
-                  VatRate: item.TaxPercentagePerRow,
-                  UomLists: uomLists,
-                  ExchangeRate: data?.DocRate || 1,
-                  // ShippingTo: data?.ShipToCode || null,
-                  // BillingTo: data?.PayToCode || null,
-                  JournalMemo: data?.JournalMemo,
-                  // PaymentTermType: data?.PaymentGroupCode,
-                  // ShippingType: data?.TransportationCode,
-                  // FederalTax: data?.FederalTaxID || null,
-                  CurrencyType: "B",
-                  vendor,
-                  warehouseCode: data?.U_tl_whsdesc,
-                  DocDiscount: data?.DiscountPercent,
-                  BPAddresses: vendor?.bpAddress?.map(
-                    ({ addressName, addressType }: any) => {
-                      return {
-                        addressName: addressName,
-                        addressType: addressType,
-                      };
-                    }
-                  ),
-                  AttachmentList,
-                  disabledFields,
-                  isStatusClose: data?.DocumentStatus === "bost_Close",
-                  RoundingValue:
-                    data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-                  Rounding: (data?.Rounding == "tYES").toString(),
-                  Edit: true,
-                  PostingDate: data?.DocDate,
-                  DueDate: data?.DocDueDate,
-                  DocumentDate: data?.TaxDate,
-                };
-              })
-            ),
-          };
-        })
-        .catch((err: any) => console.log(err))
-        .finally(() => {
-          state["SerieLists"] = seriesList;
-          state["loading"] = false;
-          state["isLoadingSerie"] = false;
-          this.setState(state);
-        });
-    } else {
-      state["SerieLists"] = seriesList;
-      // state["DocNum"] = defaultSeries.NextNumber ;
-      state["loading"] = false;
-      state["isLoadingSerie"] = false;
-      this.setState(state);
-    }
+    setTap(index)
   }
 
-  handlerRemoveItem(code: string) {
-    let items = [...(this.state.Items ?? [])];
-    const index = items.findIndex((e: any) => e?.ItemCode === code);
-    items.splice(index, 1);
-    this.setState({ ...this.state, Items: items });
-  }
+  const navigate = useNavigate()
 
-  async handlerSubmit(event: any) {
-    event.preventDefault();
-    const data: any = { ...this.state };
 
-    try {
-      this.setState({
-        ...this.state,
-        isSubmitting: false,
-        warehouseCode: "",
+  return <div className="w-full h-full p-6 flex flex-col gap-2">
+    <div className="w-full flex gap-4">
+      <h1>Stock Transfer</h1>
 
-        loading: true,
-      });
-      await new Promise((resolve) => setTimeout(() => resolve(""), 800));
-      const { id } = this.props?.match?.params || 0;
+      {edit && <Button
+        variant="outlined"
+        size="small"
+        onClick={() => {
+          hook.reset({
+            DocDate: new Date().toISOString()?.split('T')[0],
+            StockTransferLines: [],
+            BPLID: undefined
+          }, {
+            keepDirtyValues: false,
+            keepErrors: false,
+            keepDirty: false,
+            keepDefaultValues: false,
+            keepIsSubmitted: false,
+            keepIsValid: false,
+            keepSubmitCount: false,
+            keepTouched: false,
+            keepValues: false
+          })
+          navigate(`/stock-control/stock-transfer/create`)
+        }}
+        endIcon={<IoCreate />}
+      >
+        Create
+      </Button>}
 
-      if (!data.warehouseCode || !data.ToWarehouse) {
-        data["error"] = { CardCode: "Warehouse is Required!" };
-        throw new FormValidateException("Warehouse is Required!", 0);
-      }
+      {detail && <Button
+        variant="outlined"
+        size="small"
+        onClick={() => {
+          hook.reset({
+            DocDate: new Date().toISOString()?.split('T')[0],
+            StockTransferLines: [],
+            BPLID: undefined
+          }, {
+            keepDirtyValues: false,
+            keepErrors: false,
+            keepDirty: false,
+            keepDefaultValues: false,
+            keepIsSubmitted: false,
+            keepIsValid: false,
+            keepSubmitCount: false,
+            keepTouched: false,
+            keepValues: false
+          })
+          navigate(`/stock-control/stock-transfer/${hook.id}/edit`)
+        }}
+        endIcon={<IoCreate />}
+      >
+        Edit
+      </Button>}
 
-      if (!data?.DueDate) {
-        data["error"] = { DueDate: "End date is Required!" };
-        throw new FormValidateException("End date is Required!", 0);
-      }
+    </div>
 
-      if (!data?.Items || data?.Items?.length === 0) {
-        data["error"] = {
-          Items: "Items is missing and must at least one record!",
-        };
-        throw new FormValidateException("Items is missing", 1);
-      }
+    <div className="w-full border-t border-b mt-4">
+      <ul className="flex gap-8 text-[15px] py-2">
+        <li role="button" className={tap === 0 ? 'text-green-600 ' : ''} onClick={() => onChangeTap(0)}>Basic Information</li>
+        <li role="button" className={tap === 1 ? 'text-green-600 ' : ''} onClick={() => onChangeTap(1)} >Content</li>
+      </ul>
+    </div>
 
-      // attachment
-      let AttachmentEntry = null;
-      const files = data?.AttachmentList?.map((item: any) => item);
-      if (files?.length > 0) AttachmentEntry = await getAttachment(files);
+    <form
+      onSubmit={hook.handleSubmit(hook.onSubmit, hook.onInvalidForm)}
+      className="grow flex flex-col">
+      <div className="grow ">
 
-      // items
+        <Backdrop
+          sx={{
+            color: "#fff",
+            backgroundColor: "rgb(251 251 251 / 60%)",
+            zIndex: (theme) => theme.zIndex.drawer + 1,
+          }}
+          open={hook.loading}
+        >
+          <CircularProgress />
+        </Backdrop>
 
-      const warehouseCodeGet = this.state.warehouseCode;
 
-      const StockTransferLines = getItem(
-        data?.Items || [],
-        data?.DocType,
-        warehouseCodeGet,
-        data.FromWarehouse
-      );
-      // console.log(this.state.lineofBusiness);
-      const isUSD = (data?.Currency || "USD") === "USD";
-      const roundingValue = data?.RoundingValue || 0;
-      const payloads = {
-        // general
-        // Series: data?.Series,
-        DocDate: `${formatDate(data?.PostingDate)}"T00:00:00Z"`,
-        DueDate: `${formatDate(data?.DueDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.DocumentDate)}"T00:00:00Z"`,
+        {tap === 0 && <BasicInformation {...hook} edit={edit} />}
+        {tap === 1 && <Contents {...hook} edit={edit} />}
+      </div>
 
-        DocumentStatus: data?.DocumentStatus,
-        BPLID: data?.BPL_IDAssignedToInvoice ?? 1,
-        FromWarehouse: data?.FromWarehouse,
-        ToWarehouse: data?.ToWarehouse,
-        SalesPersonCode: data?.SalesPersonCode,
 
-        U_tl_arbusi: data?.U_tl_arbusi,
+      <FormMessageModal ref={dialog} />
+      <CustomToast ref={toastRef} />
+      <GetInventoryTransferRequestModal ref={inventoryTransferRequestModalRef} onSelect={(e) => hook.onCopyFrom(e?.DocEntry)} />
 
-        StockTransferLines,
+      {!detail && <div className="sticky w-full bottom-4 md:bottom-0 md:p-3  mt-2 ">
+        <div className="backdrop-blur-sm bg-white p-2 rounded-lg  z-[1000] flex justify-between gap-3 border drop-shadow-sm">
 
-        U_tl_grsuppo: data?.U_tl_grsuppo,
-        U_tl_dnsuppo: data?.U_tl_dnsuppo,
-        Comments: data?.Comments,
-        JournalMemo: data?.JournalMemo,
-        AttachmentEntry,
-      };
+          <div className="flex ">
+            {!edit && <LoadingButton
+              size="small"
+              sx={{ height: "25px" }}
+              variant="outlined"
+              style={{
+                background: hook.watch('FromWarehouse') ? "#2D31AB" : '#DADADA',
+                border: 'none'
+              }}
+              disableElevation
+              disabled={!hook.watch('FromWarehouse')}
+              onClick={() => inventoryTransferRequestModalRef.current?.onOpen(hook.watch('FromWarehouse'))}
+            >
+              <span className="px-3 text-[11px] py-1 text-white">
+                Copy From
+              </span>
+            </LoadingButton>}
+          </div>
 
-      if (id) {
-        return await request("PATCH", `/StockTransfers(${id})`, payloads)
-          .then(
-            (res: any) =>
-              this.dialog.current?.success("Update Successfully.", id)
-          )
-          .catch((err: any) => this.dialog.current?.error(err.message))
-          .finally(() => this.setState({ ...this.state, isSubmitting: false }));
-      }
-      await request("POST", "/StockTransfers", payloads)
-        .then(async (res: any) => {
-          if ((res && res.status === 200) || 201) {
-            const docEntry = res.data.DocEntry;
-            this.dialog.current?.success("Create Successfully.", docEntry);
-          } else {
-            console.error("Error in POST request:", res.statusText);
-          }
-        })
-        .catch((err: any) => {
-          this.dialog.current?.error(err.message);
-          console.error("Error in POST request:", err.message);
-        })
-        .finally(() => {
-          this.setState({ ...this.state, isSubmitting: false, loading: false });
-        });
-    } catch (error: any) {
-      if (error instanceof FormValidateException) {
-        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
-        this.dialog.current?.error(error.message, "Invalid");
-        return;
-      }
-
-      this.setState({ ...data, isSubmitting: false });
-      this.dialog.current?.error(error.message, "Invalid");
-    }
-  }
-
-  async handlerChangeMenu(index: number) {
-    this.setState({ ...this.state, tapIndex: index });
-  }
-
-  handleNextTab = () => {
-    const currentTab = this.state.tapIndex;
-    const requiredFields = this.getRequiredFieldsByTab(currentTab);
-    const hasErrors = requiredFields.some((field: any) => {
-      if (field === "Items") {
-        // Check if the "Items" array is empty
-        return !this.state[field] || this.state[field].length === 0;
-      }
-      return !this.state[field];
-    });
-
-    if (hasErrors) {
-      // Show the dialog if there are errors
-      this.setState({ isDialogOpen: true });
-    } else {
-      // If no errors, allow the user to move to the next tab
-      this.handlerChangeMenu(currentTab + 1);
-    }
-  };
-
-  handleCloseDialog = () => {
-    // Close the dialog
-    this.setState({ isDialogOpen: false });
-  };
-
-  getRequiredFieldsByTab(tabIndex: number): string[] {
-    const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["FromWarehouse", "ToWarehouse"],
-      1: ["Items"],
-      // 2: ["U_tl_dnsuppo", "PayToCode"],
-      // 3: [],
-    };
-    return requiredFieldsMap[tabIndex] || [];
-  }
-
-  handlePreviousTab = () => {
-    if (this.state.tapIndex > 0) {
-      this.handlerChangeMenu(this.state.tapIndex - 1);
-    }
-  };
-
-  HeaderTaps = () => {
-    return (
-      <>
-        <MenuButton active={this.state.tapIndex === 0}>General</MenuButton>
-        <MenuButton active={this.state.tapIndex === 1}>Content</MenuButton>
-        {/* <MenuButton active={this.state.tapIndex === 2}>Logistic</MenuButton>
-        <MenuButton active={this.state.tapIndex === 3}>Attachment</MenuButton> */}
-        <div className="sticky w-full bottom-4   ">
-          <div className="  p-2 rounded-lg flex justify-end gap-3  ">
+          <div className="flex justify-end gap-3  items-center border">
             <div className="flex ">
-              <Button
+              <LoadingButton
                 size="small"
+                sx={{ height: "25px" }}
                 variant="outlined"
-                onClick={this.handlePreviousTab}
-                disabled={this.state.tapIndex === 0}
-                style={{ textTransform: "none" }}
+                style={{
+                  background: "white",
+                  border: "1px solid red",
+                }}
+                disableElevation
+                onClick={() =>
+                  (window.location.href = "/stock-control/stock-transfer")
+                }
               >
-                Previous
-              </Button>
+                <span className="px-3 text-[11px] py-1 text-red-500">
+                  Cancel
+                </span>
+              </LoadingButton>
             </div>
-            <div className="flex items-center">
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={this.handleNextTab}
-                disabled={this.state.tapIndex === 1}
-                style={{ textTransform: "none" }}
-              >
-                Next
-              </Button>
 
-              <Snackbar
-                open={this.state.isDialogOpen}
-                autoHideDuration={6000}
-                onClose={this.handleCloseDialog}
+
+
+            <div className="flex items-center space-x-4">
+              <LoadingButton
+                type="submit"
+                sx={{ height: "25px" }}
+                className="bg-white"
+                loading={false}
+                size="small"
+                variant="contained"
+                disableElevation
               >
-                <Alert
-                  onClose={this.handleCloseDialog}
-                  severity="error"
-                  sx={{ width: "100%" }}
-                >
-                  Please complete all required fields before proceeding to the
-                  next tab.
-                </Alert>
-              </Snackbar>
+                <span className="px-6 text-[11px] py-4 text-white">
+                  {edit ? 'Update' : 'Add'}
+                </span>
+              </LoadingButton>
             </div>
           </div>
         </div>
-      </>
-    );
-  };
-
-  hanndAddNewItem() {
-    if (!this.state?.warehouseCode) {
-      // Notify the user to enter the warehouse code
-      alert("Please enter the warehouse code");
-      return;
-    }
-    if (this.state.DocType === "dDocument_Items")
-      return this.itemModalRef.current?.onOpen(
-        this.state?.CardCode,
-        "sale",
-        this.state?.warehouseCode,
-        this.state?.Currency
-      );
-  }
-
-  FormRender = () => {
-    const getGroupByLineofBusiness = (lineofBusiness: any) => {
-      switch (lineofBusiness) {
-        case "Oil":
-          return 100;
-        case "Lube":
-          return 101;
-        case "LPG":
-          return 102;
-        default:
-          return 0;
-      }
-    };
-
-    const itemGroupCode = getGroupByLineofBusiness(this.state.lineofBusiness);
-    console.log(this.state);
-
-    return (
-      <>
-        <ItemModalComponent
-          type="sale"
-          group={itemGroupCode}
-          onOk={this.handlerConfirmItem}
-          ref={this.itemModalRef}
-        />
-        <form
-          id="formData"
-          onSubmit={this.handlerSubmit}
-          className="h-full w-full flex flex-col gap-4 relative"
-        >
-          <div className="w-full h-full flex items-center justify-center">
-            {this.state.loading ? (
-              <div className="flex items-center justify-center">
-                <CircularProgress />
-              </div>
-            ) : (
-              <>
-                <div className="grow">
-                  {this.state.tapIndex === 0 && (
-                    <GeneralForm
-                      data={this.state}
-                      edit={this.props?.edit}
-                      handlerChange={(key, value) =>
-                        this.handlerChange(key, value)
-                      }
-                      lineofBusiness={this.state.lineofBusiness}
-                      warehouseCode={this.state.warehouseCode}
-                      onWarehouseChange={this.handleWarehouseChange}
-                      onLineofBusinessChange={this.handleLineofBusinessChange}
-                    />
-                  )}
-
-                  {this.state.tapIndex === 1 && (
-                    <ContentForm
-                      edit={this.props?.edit}
-                      ContentLoading={this.state.ContentLoading}
-                      data={this.state}
-                      handlerAddItem={() => {
-                        this.hanndAddNewItem();
-                      }}
-                      handlerRemoveItem={(items: any[]) =>
-                        this.setState({ ...this.state, Items: items })
-                      }
-                      handlerChangeItem={this.handlerChangeItems}
-                      onChangeItemByCode={this.handlerChangeItemByCode}
-                      onChange={this.handlerChange}
-                    />
-                  )}
-
-                  {this.state.tapIndex === 3 && (
-                    <AttachmentForm
-                      data={this.state}
-                      handlerChange={(key: any, value: any) => {
-                        this.handlerChange(key, value);
-                      }}
-                    />
-                  )}
-
-                  <div className="sticky w-full bottom-4  mt-2 ">
-                    <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
-                      <div className="flex ">
-                        <LoadingButton
-                          size="small"
-                          sx={{ height: "25px" }}
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-3 text-[11px] py-1 text-white">
-                            Cancel
-                          </span>
-                        </LoadingButton>
-                      </div>
-                      <div className="flex items-center space-x-4">
-                        <LoadingButton
-                          type="submit"
-                          sx={{ height: "25px" }}
-                          className="bg-white"
-                          loading={false}
-                          size="small"
-                          variant="contained"
-                          disableElevation
-                        >
-                          <span className="px-6 text-[11px] py-4 text-white">
-                            {this.props.edit ? "Update" : "Save"}
-                          </span>
-                        </LoadingButton>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </form>
-      </>
-    );
-  };
+      </div>}
+    </form>
+  </div>
 }
 
-export default withRouter(Form);
 
-const getItem = (
-  items: any,
-  type: any,
-  warehouseCode: any,
-  FromWarehouse: any
-) =>
-  items?.map((item: any, index: number) => {
-    return {
-      ItemCode: item.ItemCode || null,
-      Quantity: item.Quantity || null,
-      UnitPrice: item.UnitPrice || item.total,
-      DiscountPercent: item.DiscountPercent || 0,
-      // UoMCode: item.UomGroupCode || null,
-      UoMEntry: item.UomAbsEntry || null,
-      // BinAbsEntry: item.BinAbsEntry ?? 65,
-      FromWarehouseCode: item?.FromWarehouseCode,
-      WarehouseCode: item?.WarehouseCode || null,
-      // StockTransferLinesBinAllocations: [
-      //   {
-      //     BinAbsEntry: item.BinAbsEntry,
-      //     Quantity: item.UnitsOfMeasurement,
-      //     // AllowNegativeQuantity: "tNO",
-      //     // SerialAndBatchNumbersBaseLine: -1,
-      //     BaseLineNumber: index,
-      //   },
-      // ],
-      StockTransferLinesBinAllocations: [
-        {
-          BinAbsEntry: item.FromBin,
-          Quantity: item.Quantity,
-          AllowNegativeQuantity: "tNO",
-          SerialAndBatchNumbersBaseLine: -1,
-          BinActionType: "batFromWarehouse",
-          // BaseLineNumber: 0,
-        },
-        {
-          BinAbsEntry: item.ToBin,
-          Quantity: item.Quantity,
-          AllowNegativeQuantity: "tNO",
-          SerialAndBatchNumbersBaseLine: -1,
-          BinActionType: "batToWarehouse",
-          // BaseLineNumber: 0,
-        },
-      ],
-    };
-  });
+
+
+
+

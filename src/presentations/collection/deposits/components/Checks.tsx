@@ -11,6 +11,19 @@ import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mu
 import TableCheck from "./TableChecks";
 import DepositCheckAutoComplete from "./DepositCheckAutoComplete";
 
+
+const debounce = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+
+  return function (...args: any) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+};
+
+
 const Checks = ({
   register,
   control,
@@ -29,7 +42,7 @@ const Checks = ({
     branchASS: null,
   });
 
-  const [depositcheck, setDepositcheck] = useState()
+  const [depositcheck, setDepositcheck] = useState<any>()
 
   useEffect(() => {
     if (defaultValues) {
@@ -38,6 +51,30 @@ const Checks = ({
       );
     }
   }, [defaultValues]);
+
+
+  const onSwitchValue = (event: any, value: string) => {
+    if (value === 'posted_check') {
+      setDepositcheck('unkown');
+      return;
+    }
+
+
+    setDepositcheck(undefined);
+  }
+
+  const [searchText, setSearchText] = useState('');
+  // Define a debounced version of the handleChange function
+  const debouncedHandleChange = debounce(function (this: any, newValue: string) {
+    // Do something with the debounced value, like updating state
+  }, 500); // Adjust the delay time as needed
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setSearchText(newValue);
+    // Call the debounced function with the new value
+    debouncedHandleChange(newValue);
+  };
 
   return (
     <>
@@ -69,44 +106,18 @@ const Checks = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail}
+                  // onChange={()}
                   inputProps={{
+                    onChange: handleChange
                     // ...register("Find"),
                   }}
                 />
               </div>
             </div>
           </div>
-
-          <div className="">
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-3">
-                {/* <FormControlLabel
-                  control={
-                    <Radio
-                      disabled={detail}
-
-                    />
-                  }
-                  label={<span className="text-gray-500">Cash Checks</span>}
-                /> */}
-                <FormControl className="w-full">
-                  <RadioGroup
-                    aria-labelledby="demo-radio-buttons-group-label"
-                    defaultValue="female"
-                    name="radio-buttons-group"
-                    style={{ alignSelf: 'flex-start' }}
-                  >
-                    <FormControlLabel value="Cash Checks" className="flex justify-start" control={<Radio />} label={<span>Cash Checks</span>}
-                    />
-                    <FormControlLabel value="Postdated Checks" control={<Radio />} label="Postdated Checks" />
-                  </RadioGroup>
-                </FormControl>
-              </div>
-            </div>
-          </div>
         </div>
         <div>
-          <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} />
+          <TableCheck data={data} control={control} setValue={setValue} watch={watch} depositcheck={depositcheck} searchText={searchText} />
         </div>
       </div>
     </>

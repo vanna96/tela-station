@@ -3,9 +3,7 @@ import { TextField } from "@mui/material";
 import React from "react";
 import { UseFormProps } from "../form";
 
-const Address = ({ register, detail }: UseFormProps) => {
-  console.log(detail);
-  
+const Address = ({ register, detail }: UseFormProps) => {  
   return (
     <div>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">

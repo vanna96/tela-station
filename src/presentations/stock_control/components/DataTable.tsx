@@ -23,7 +23,8 @@ interface DataTableProps {
   pagination: any
   paginationChange: (value: any) => void
   title?: string
-  createRoute?: string
+  createRoute?: string,
+  children?: React.ReactNode,
 }
 
 export default function DataTable(props: DataTableProps) {
@@ -74,11 +75,11 @@ export default function DataTable(props: DataTableProps) {
             </span>
             <span className="capitalize text-sm">Refresh</span>
           </Button>*/}
-          
+
           <Button
             size="small"
             variant="text"
-            onClick={() => route(props?.createRoute)}
+            onClick={() => route(props?.createRoute ?? '')}
           >
             <span className="text-lg mr-2">
               <BsPencilSquare />
@@ -102,21 +103,8 @@ export default function DataTable(props: DataTableProps) {
             }
             items={props.columns}
             onClick={props.handlerSortby}
-          /> 
-          <DataTableColumnVisibility
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <AiOutlineSetting />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Columns</span>
-              </div>
-            }
-            items={props.columns}
-            onClick={(value) => {
-              setColVisibility(value)
-            }}
           />
+          {props.children}
         </div>
       </div>
 
@@ -131,7 +119,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableDensityToggle={true}
           // enableColumnResizing
-        
+
           enableFullScreenToggle={false}
           enableStickyHeader={false}
           enableStickyFooter={false}

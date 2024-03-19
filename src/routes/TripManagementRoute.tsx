@@ -9,6 +9,8 @@ import TransportationOrderForm from "@/presentations/trip_management/transportat
 import TransportationRequestDetail from "@/presentations/trip_management/transportation_request/detail";
 import TransportationOrderDashboad from "@/presentations/trip_management/transportation_order/TransportationOrderDashboad";
 import TransportationOrderDetail from "@/presentations/trip_management/transportation_order/detail/TransportationOrderDetail";
+import WorkingWithTransportationRequest from "@/presentations/trip_management/transportation_order/WorkingWithTransportationRequest";
+import BulkSealAllocationList from "@/presentations/trip_management/bulk_seal_allocation/BulkSealAllocationList";
 
 export default function TripManagementRoute() {
   return (
@@ -35,6 +37,13 @@ export default function TripManagementRoute() {
           path=":id/edit"
           element={<TransportationOrderForm edit={true} />}
         />
+      </Route>
+      <Route path="/working-transportation-request">
+        <Route index element={<WorkingWithTransportationRequest />} />
+      </Route>
+      <Route path="/bulk-seal-allocation">
+        <Route index element={<BulkSealAllocationList />} />
+  
       </Route>
     </Routes>
   );

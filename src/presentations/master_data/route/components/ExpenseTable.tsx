@@ -66,10 +66,10 @@ export default function ExpenseTable(
             disabled={data?.edit}
             onChange={(e: any) => {
               handlerChangeItem(cell?.row?.id || 0, {
-                U_Code: e,
+                U_Code: e?.Code,
               });
               handlerChangeItem(cell?.row?.id || 0, {
-                U_Description: new ExpdicRepository().find(e)?.Name,
+                U_Description: e?.Name,
               });
             }}
           />
@@ -163,7 +163,7 @@ export default function ExpenseTable(
         onClick={handlerAddCheck}
         className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
       >
-         Add
+        Add
       </span>
     </>
   );
