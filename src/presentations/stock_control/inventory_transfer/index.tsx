@@ -27,7 +27,7 @@ export default function InventoryTransferList() {
     () => [
       {
         accessorKey: "DocEntry",
-        header: "No.", //uses the default width from defaultColumn prop
+        header: "No", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
