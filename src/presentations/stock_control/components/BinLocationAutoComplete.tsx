@@ -21,7 +21,7 @@ type BinAllocationAutoCompleteProps = {
 const getBinLists = async (warehouse: string | undefined) => {
   if (warehouse === '' || !warehouse) return []
 
-  return request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode&$filter=Warehouse eq '${warehouse}'`).then((res: any) => res?.data?.value)
+  return request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode`).then((res: any) => res?.data?.value)
 }
 
 const BinAllocationAutoComplete = forwardRef<
@@ -30,18 +30,13 @@ const BinAllocationAutoComplete = forwardRef<
   const { data, isLoading } = useQuery({ queryKey: ['bin-allocation-list-' + props.warehouse], queryFn: () => getBinLists(props.warehouse) });
 
   const bins = useMemo(() => {
-
-    return data;
-  }, [data])
+    return data?.filter((e: any) => e?.Warehouse === props.warehouse)
+  }, [data, props.warehouse])
 
 
   useEffect(() => {
-    if (props.value && bins) {
-      const selected = bins.find((e: BinProps) => e.BinCode === props.value);
-      if (selected) {
-        setSelectedValue(selected);
-      }
-    }
+    const selected = bins.find((e: BinProps) => e.AbsEntry === props.value);
+    setSelectedValue(selected);
   }, [props.value, bins]);
 
   // Use local state to store the selected value
@@ -57,6 +52,9 @@ const BinAllocationAutoComplete = forwardRef<
     }
   };
   const disabled = props.disabled;
+
+
+  console.log(props.value)
 
   return (
     <div className="block text-[14px] xl:text-[13px]">

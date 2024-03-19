@@ -136,7 +136,7 @@ export default function InventoryTransferList() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Stock Control / Inventory Transfer
+            Stock Control / Stock Transfer
           </h3>
         </div>
 
@@ -156,7 +156,7 @@ export default function InventoryTransferList() {
             pagination={pagination}
             paginationChange={setPagination}
             title="Inventory Transfer Lists"
-            createRoute={`/stock-control/stock-transfer/create`}
+            createRoute={`/stock-control/stock-transfer/create?type=internal`}
           >
             <Button
               size="small"
