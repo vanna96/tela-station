@@ -171,7 +171,7 @@ const ItemModal: FC<ItemModalProps> = ({
       )?.map((item: any) => item.UoMEntry);
       const unitPriceValue =
         defaultPrice / (1 + (e?.SalesVATGroup === "VO10" ? 10 : 0) / 100) ?? 0;
-
+      console.log(e);
       return {
         ItemCode: e?.ItemCode,
         LineVendor: CardCode,
@@ -202,6 +202,7 @@ const ItemModal: FC<ItemModalProps> = ({
         UomGroupAbsEntry: e?.UoMGroupEntry,
         UomGroupCode: uomGroup?.Code,
         UomAbsEntry: baseUOM?.AbsEntry,
+        InventoryUoMEntry: e.InventoryUoMEntry,
         UomCode: baseUOM?.Code,
         UomName: baseUOM?.Name,
         UomLists: uomLists,

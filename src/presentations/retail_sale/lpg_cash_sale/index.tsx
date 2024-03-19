@@ -1,101 +1,78 @@
 import request, { url } from "@/utilies/request";
-import React, { useMemo, useState } from "react";
+import React from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
 import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
-import MUISelect from "@/components/selectbox/MUISelect";
 
-export default function SaleOrderLists() {
+export default function List() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
   const salesTypes = useParams();
   const salesType = salesTypes["*"];
-  const [dataUrl, setDataUrl] = useState("");
+  const [dataUrl, setDataUrl] = React.useState("");
+
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "DocNum",
-        header: "Document No",
+        header: "Document No.",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
         visible: true,
         type: "number",
       },
+
       {
-        accessorKey: "CardCode",
+        accessorKey: "U_tl_cardcode",
         header: "Customer Code",
         enableClickToCopy: true,
         visible: true,
         type: "string",
         align: "center",
-        size: 65,
       },
       {
-        accessorKey: "CardName",
+        accessorKey: "U_tl_cardname",
         header: "Customer Name",
         visible: true,
         type: "string",
         align: "center",
-        size: 90,
       },
+
       {
-        accessorKey: "TaxDate",
+        accessorKey: "U_tl_docdate",
         header: "Posting Date",
         visible: true,
         type: "string",
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.TaxDate).format(
+          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
             "DD.MMMM.YYYY"
           );
           return <span>{formattedDate}</span>;
         },
       },
-
       {
-        accessorKey: "DocumentStatus",
-        header: " Status",
-        visible: true,
-        type: "string",
-        size: 60,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
-      },
-
-      {
-        accessorKey: "DocTotal",
-        header: " Document Total",
-        visible: true,
-        type: "string",
-        size: 70,
-        Cell: ({ cell }: any) => (
-          <>
-            {"$"} {cell.getValue().toFixed(2)}
-          </>
-        ),
-      },
-      {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "U_tl_bplid",
         header: "Branch",
         enableClickToCopy: true,
+        visible: true,
         Cell: ({ cell }: any) =>
           new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-        size: 60,
       },
 
+      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -116,7 +93,7 @@ export default function SaleOrderLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/sale-order/${salesType}/` + cell.row.original.DocEntry,
+                  `/retail-sale/lpg-cash-sale/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -130,17 +107,13 @@ export default function SaleOrderLists() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              disabled={cell.row.original.U_tl_status === "Close" ?? false}
               className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
+                cell.row.original.U_tl_status === "Close" ? "bg-gray-400" : ""
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/sale-order/${salesType}/` +
+                  `/retail-sale/lpg-cash-sale/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -153,7 +126,7 @@ export default function SaleOrderLists() {
               <DriveFileRenameOutlineIcon
                 fontSize="small"
                 className="text-gray-600 "
-              />{" "}
+              />
               <span style={{ textTransform: "none" }}> Edit</span>
             </Button>
           </div>
@@ -162,20 +135,6 @@ export default function SaleOrderLists() {
     ],
     []
   );
-  let numAtCardFilter = "";
-  switch (salesType) {
-    case "fuel-sales":
-      numAtCardFilter = "Oil";
-      break;
-    case "lube-sales":
-      numAtCardFilter = "Lube";
-      break;
-    case "lpg-sales":
-      numAtCardFilter = "LPG";
-      break;
-    default:
-    // Handle the default case or log an error if needed
-  }
 
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
@@ -184,27 +143,9 @@ export default function SaleOrderLists() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["sale-order-lob", filter !== "" ? "-f" : "", salesType, filter],
+    queryKey: ["lpg-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      let numAtCardFilter = "";
-
-      switch (salesType) {
-        case "fuel-sales":
-          numAtCardFilter = "Oil";
-          break;
-        case "lube-sales":
-          numAtCardFilter = "Lube";
-          break;
-        case "lpg-sales":
-          numAtCardFilter = "LPG";
-          break;
-        default:
-        // Handle the default case or log an error if needed
-      }
-
-      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${
-        numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-      }${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE_LP/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -217,45 +158,26 @@ export default function SaleOrderLists() {
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
-    refetchOnWindowFocus: false,
     queryKey: [
-      "sales-order-lob",
-      salesType,
+      "lpg-cash-sale",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
+
     queryFn: async () => {
-      let numAtCardFilter = "";
-
-      switch (salesType) {
-        case "fuel-sales":
-          numAtCardFilter = "Oil";
-          break;
-        case "lube-sales":
-          numAtCardFilter = "Lube";
-          break;
-        case "lpg-sales":
-          numAtCardFilter = "LPG";
-          break;
-        default:
-        // Handle the default case or log an error if needed
-      }
-
-      const Url = `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }&$filter=U_tl_salestype eq null${
-        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
 
-      const dataUrl = `${url}/Orders?$filter=U_tl_salestype eq null${
-        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
+      const dataUrl = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
 
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
@@ -265,10 +187,10 @@ export default function SaleOrderLists() {
         });
       return response;
     },
+    refetchOnWindowFocus: false,
     // staleTime: Infinity,
     retry: 1,
   });
-
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -293,39 +215,10 @@ export default function SaleOrderLists() {
       refetch();
     }, 500);
   };
-  let queryFilters = "";
+
   const handlerSearch = (value: string) => {
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? ` and (contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`
-        : `(contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`;
-    }
-
-    if (searchValues.postingDate) {
-      queryFilters += queryFilters
-        ? ` and TaxDate eq '${searchValues.postingDate}'`
-        : `TaxDate eq '${searchValues.postingDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
-    }
-
-    let query = queryFilters;
-
-    if (value) {
-      query = queryFilters + ` and ${value}`;
-    }
-    setFilter(query);
+    const qurey = value;
+    setFilter(qurey);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -337,55 +230,66 @@ export default function SaleOrderLists() {
     }, 500);
   };
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
+  const handlerSearchFilter = (queries: any) => {
+    if (queries === "") return handlerSearch("");
+    handlerSearch("" + queries);
   };
+
   const [cookies] = useCookies(["user"]);
 
   const [searchValues, setSearchValues] = React.useState({
     docnum: "",
     cardcode: "",
+    cardname: "",
     postingDate: null,
-    bplid: "",
     status: "",
+    bplid: "",
   });
 
+  const handleGoClick = () => {
+    let queryFilters = "";
+    if (searchValues.docnum) {
+      queryFilters += `DocNum eq ${searchValues.docnum}`;
+    }
+    if (searchValues.cardcode) {
+      queryFilters += queryFilters
+        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
+          ` and U_tl_cardcode eq '${searchValues.cardcode}'`
+        : `U_tl_cardcode eq '${searchValues.cardcode}'`;
+    }
+    if (searchValues.cardname) {
+      queryFilters += queryFilters
+        ? ` and startswith(U_tl_cardname, '${searchValues.cardname}')`
+        : `startswith(U_tl_cardname, '${searchValues.cardname}')`;
+    }
+    if (searchValues.postingDate) {
+      queryFilters += queryFilters
+        ? ` and U_tl_docdate ge '${searchValues.postingDate}'`
+        : `U_tl_docdate ge '${searchValues.postingDate}'`;
+    }
+    if (searchValues.status) {
+      queryFilters += queryFilters
+        ? ` and DocumentStatus eq '${searchValues.status}'`
+        : `DocumentStatus eq '${searchValues.status}'`;
+    }
+    if (searchValues.bplid) {
+      queryFilters += queryFilters
+        ? ` and U_tl_bplid eq ${searchValues.bplid}`
+        : `U_tl_bplid eq ${searchValues.bplid}`;
+    }
+
+    handlerSearchFilter(queryFilters);
+  };
   const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/sale-order/${salesType}`)}>
-        <span className=""></span> {capitalizeHyphenatedWords(salesType)}
+      <span className="" onClick={() => route(`/retail-sale/lpg-cash-sale`)}>
+        <span className=""></span> LPG Cash Sale
       </span>
     </>
   );
-  const getTitleBySalesType = (salesType: any) => {
-    switch (salesType) {
-      case "fuel-sales":
-        return "Fuel Sale Lists";
-      case "lpg-sales":
-        return "LPG Sale Lists";
-
-      case "lube-sales":
-        return "Lube Sale Lists";
-      // Add other cases as needed
-      default:
-        return "Unknown Sale Lists";
-    }
-  };
-  const indexedData = useMemo(
+  const indexedData = React.useMemo(
     () =>
       data?.map((item: any, index: any) => ({
         ...item,
@@ -416,26 +320,12 @@ export default function SaleOrderLists() {
                   }
                 />
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Customer"
-                  placeholder="Customer Code/Name"
-                  className="bg-white"
-                  autoComplete="off"
-                  type="string"
-                  value={searchValues.cardcode}
-                  onChange={(e) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: e.target.value,
-                    })
-                  }
-                />
-              </div>
+
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
                   label="Posting Date"
                   value={searchValues.postingDate}
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
                   onChange={(e) => {
                     setSearchValues({
                       ...searchValues,
@@ -463,34 +353,6 @@ export default function SaleOrderLists() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { id: "bost_Open", name: "Open" },
-                        { id: "bost_Close", name: "Closed" },
-                        { id: "bost_Paid", name: "Paid" },
-                        { id: "bost_Delivered", name: "Delivered" },
-                        { id: "", name: "None" },
-                      ]}
-                      value={searchValues.status}
-                      onChange={(e) => {
-                        setSearchValues({
-                          ...searchValues,
-                          status: e.target.value,
-                        });
-                      }}
-                      aliasvalue="id"
-                      aliaslabel="name"
-                      name="Status"
-                    />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
           <div className="col-span-2">
@@ -499,8 +361,7 @@ export default function SaleOrderLists() {
                 <Button
                   variant="contained"
                   size="small"
-                  // onClick={handleGoClick}
-                  onClick={() => handlerSearch("")}
+                  onClick={handleGoClick}
                 >
                   Go
                 </Button>
@@ -509,6 +370,7 @@ export default function SaleOrderLists() {
           </div>
         </div>
         <DataTable
+          dataUrl={dataUrl}
           columns={[
             {
               accessorKey: "index",
@@ -520,7 +382,6 @@ export default function SaleOrderLists() {
             ...columns,
           ]}
           data={indexedData}
-          dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}
@@ -528,8 +389,8 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title={getTitleBySalesType(salesType)}
-          createRoute={`/sale-order/${salesType}/create`}
+          title={"LPG Cash Sale"}
+          createRoute={`/retail-sale/lpg-cash-sale/create`}
         />
       </div>
     </>

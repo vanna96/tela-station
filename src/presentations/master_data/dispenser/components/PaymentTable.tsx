@@ -63,7 +63,7 @@ export default function PaymentTable(props: any) {
     });
     onChange("PumpData", newData);
   }
-  console.log(data?.Status);
+  
   const columns = [
     {
       accessorKey: "reset",
@@ -118,7 +118,7 @@ export default function PaymentTable(props: any) {
         <BinLocationToAsEntry
           Warehouse={data?.U_tl_whs}
           key={"binCode" + cell.getValue() + cell?.row?.id}
-          value={parseInt(cell.getValue())}
+          value={cell.getValue()}
           onChange={(e: any) => {
             handlerChangeItem(cell?.row?.id || 0, {
               binCode: e,

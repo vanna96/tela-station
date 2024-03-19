@@ -23,6 +23,7 @@ import IncomingPaymentForm from "../components/IncomingPayment";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
+import requestHeader from "@/utilies/requestheader";
 class LubeForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
     return null;
@@ -40,20 +41,26 @@ class LubeForm extends CoreFormDocument {
     this.state = {
       ...this.state,
       loading: true,
-      DocDate: new Date(),
-      TaxDate: new Date(),
-      DocDueDate: new Date(),
+      U_tl_taxdate: new Date(),
+      U_tl_docdate: new Date(),
+      U_tl_devdate: new Date(),
       Branch: 1,
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
       Currency: "USD",
       DocType: "dDocument_Items",
+      showCollapse: false,
       ExchangeRate: 1,
       JournalRemark: "",
       BPAddresses: [],
       Rounding: false,
       DocDiscount: 0,
+      U_tl_totalbefdis: 0.0,
+      U_tl_dispercent: 0.0,
+      U_tl_disperamt: 0.0,
+      U_tl_tax: 0.0,
+      U_tl_doctotal: 0.0,
       RoundingValue: 0,
       AttachmentList: [],
       VatGroup: "S1",
@@ -68,16 +75,7 @@ class LubeForm extends CoreFormDocument {
           U_tl_amtbank: "",
         },
       ],
-      checkNumberData: [
-        {
-          U_tl_acccheck: " ",
-          U_tl_checkdate: new Date(),
-          U_tl_checkbank: "",
-          U_tl_paytype: "Check",
-          U_tl_amtcheck: "",
-          U_tl_paycur: "USD",
-        },
-      ],
+      checkNumberData: [],
       couponData: [
         {
           U_tl_acccoupon: "110101",
@@ -110,24 +108,38 @@ class LubeForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("TL_RETAILSALE_LCS-series");
+    let seriesList: any = this.props?.query?.find("TL_RETAILSALE_LU-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
+        Document: "TL_RETAILSALE_LU",
       });
-      this.props?.query?.set("TL_RETAILSALE_LCS-series", seriesList);
+      this.props?.query?.set("TL_RETAILSALE_LU-series", seriesList);
     }
+    let incomingSeries: any = this.props?.query?.find("incomingSeries-series");
+    if (!incomingSeries) {
+      incomingSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "24",
+      });
+      this.props?.query?.set("dn-series", incomingSeries);
+    }
+    let invoiceSeries: any = this.props?.query?.find("invoice-series");
 
+    if (!invoiceSeries) {
+      invoiceSeries = await DocumentSerieRepository.getDocumentSeries({
+        Document: "13",
+      });
+      this.props?.query?.set("invoice-series", invoiceSeries);
+    }
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `TL_RETAILSALE_LCS(${id})`)
+      await request("GET", `TL_RETAILSALE_LU(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
           const vendor: any = await request(
             "GET",
-            `/BusinessPartners('${data?.CardCode}')`
+            `/BusinessPartners('${data?.U_tl_cardcode}')`
           )
             .then((res: any) => new BusinessPartner(res?.data, 0))
             .catch((err: any) => console.log(err));
@@ -138,120 +150,197 @@ class LubeForm extends CoreFormDocument {
           };
           state = {
             ...data,
-
+            seriesList,
             vendor,
-            warehouseCode: data.U_tl_whsdesc,
+            CardCode: data.U_tl_cardcode,
+            CardName: data.U_tl_cardname,
+            warehouseCode: data.U_tl_whs,
             lob: data.U_tl_arbusi,
-            Currency: data.DocCurrency,
+            Currency: data.U_tl_doccur,
+            cashBankData: data?.TL_RETAILSALE_LU_INCollection?.filter(
+              (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
+            )?.map((item: any) => ({
+              U_tl_acccash: item.U_tl_acccash,
+              U_tl_acccoupon: item.U_tl_acccoupon,
+              U_tl_accbank: item?.U_tl_accbank,
+              U_tl_amtcash: item?.U_tl_amtcash || 0,
+              U_tl_amtbank: item?.U_tl_amtbank || 0,
+              U_tl_paytype: item?.U_tl_paytype,
+              U_tl_paycur: item?.U_tl_paycur,
+            })),
 
+            checkNumberData: data?.TL_RETAILSALE_LU_INCollection?.filter(
+              (e: any) => e.U_tl_paytype === "Check"
+            )?.map((item: any) => ({
+              U_tl_acccheck: item.U_tl_acccheck,
+              U_tl_amtcheck: item?.U_tl_amtcheck || 0,
+              U_tl_paytype: item?.U_tl_paytype,
+              U_tl_paycur: item?.U_tl_paycur,
+              U_tl_checkdate: item?.U_tl_checkdate,
+              U_tl_checkbank: item?.U_tl_checkbank,
+            })),
+
+            couponData: data?.TL_RETAILSALE_LU_INCollection?.filter(
+              (e: any) => e.U_tl_paytype === "Coupon"
+            )?.map((item: any) => ({
+              U_tl_acccoupon: item.U_tl_acccoupon,
+              U_tl_accbank: item?.U_tl_accbank,
+              U_tl_amtcoupon: item?.U_tl_amtcoupon || 0,
+              U_tl_paytype: item?.U_tl_paytype,
+              U_tl_paycur: item?.U_tl_paycur,
+            })),
             Items: await Promise.all(
-              (data?.DocumentLines || []).map(async (item: any) => {
-                let apiResponse: any;
+              (data?.TL_RETAILSALE_LU_COCollection || []).map(
+                async (item: any) => {
+                  let apiResponse: any;
 
-                if (item.ItemCode) {
-                  try {
-                    const response = await request(
-                      "GET",
-                      `/Items('${item.ItemCode}')?$select=UoMGroupEntry, ItemPrices`
-                    );
+                  if (item.U_tl_itemCode) {
+                    try {
+                      const response = await request(
+                        "GET",
+                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry, ItemPrices`
+                      );
 
-                    apiResponse = response.data;
-                  } catch (error) {
-                    console.error("Error fetching data:", error);
-                  }
-                }
-
-                const uomGroups: any =
-                  await new UnitOfMeasurementGroupRepository().get();
-
-                const uoms = await new UnitOfMeasurementRepository().get();
-                const uomGroup: any = uomGroups.find(
-                  (row: any) => row.AbsEntry === apiResponse.UoMGroupEntry
-                );
-
-                let uomLists: any[] = [];
-                uomGroup?.UoMGroupDefinitionCollection?.forEach((row: any) => {
-                  const itemUOM = uoms.find(
-                    (record: any) => record?.AbsEntry === row?.AlternateUoM
-                  );
-                  if (itemUOM) {
-                    uomLists.push(itemUOM);
-                  }
-                });
-                item.ItemPrices === apiResponse.ItemPrices;
-
-                return {
-                  ItemCode: item.ItemCode || null,
-                  ItemName: item.ItemDescription || item.Name || null,
-                  Quantity: item.Quantity || null,
-                  UnitPrice:
-                    item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
-                  Discount: item.DiscountPercent || 0,
-                  GrossPrice: item.GrossPrice,
-                  TotalGross: item.GrossTotal,
-                  TotalUnit: item.LineTotal,
-                  LineTotal: item.GrossTotal,
-                  DiscountPercent: item.DiscountPercent || 0,
-                  VatGroup: item.VatGroup,
-                  UoMEntry: item.UomAbsEntry || null,
-                  WarehouseCode: item?.WarehouseCode || data?.U_tl_whsdesc,
-                  UomAbsEntry: item?.UoMEntry,
-                  VatRate: item.TaxPercentagePerRow,
-                  UomLists: uomLists,
-                  ItemPrices: apiResponse.ItemPrices,
-                  ExchangeRate: data?.DocRate || 1,
-                  JournalMemo: data?.JournalMemo,
-                  COGSCostingCode: item?.COGSCostingCode,
-                  COGSCostingCode2: item?.COGSCostingCode2,
-                  COGSCostingCode3: item?.COGSCostingCode3,
-                  CurrencyType: "B",
-                  DocumentLinesBinAllocations: item.DocumentLinesBinAllocations,
-                  vendor,
-                  warehouseCode: data?.U_tl_whsdesc,
-                  DocDiscount: data?.DiscountPercent,
-                  BPAddresses: vendor?.bpAddress?.map(
-                    ({ addressName, addressType }: any) => {
-                      return {
-                        addressName: addressName,
-                        addressType: addressType,
-                      };
+                      apiResponse = response.data;
+                    } catch (error) {
+                      console.error("Error fetching data:", error);
                     }
-                  ),
-                  // AttachmentList,
-                  disabledFields,
-                  isStatusClose: data?.DocumentStatus === "bost_Close",
-                  RoundingValue:
-                    data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
-                  Rounding: (data?.Rounding == "tYES").toString(),
-                  Edit: true,
-                  // PostingDate: data?.DocDate,
-                  // DueDate: data?.DocDueDate,
-                  // DocumentDate: data?.TaxDate,
-                };
-              })
+                  }
+
+                  const uomGroups: any =
+                    await new UnitOfMeasurementGroupRepository().get();
+
+                  const uoms = await new UnitOfMeasurementRepository().get();
+                  const uomGroup: any = uomGroups.find(
+                    (row: any) => row.AbsEntry === apiResponse.UoMGroupEntry
+                  );
+
+                  let uomLists: any[] = [];
+                  uomGroup?.UoMGroupDefinitionCollection?.forEach(
+                    (row: any) => {
+                      const itemUOM = uoms.find(
+                        (record: any) => record?.AbsEntry === row?.AlternateUoM
+                      );
+                      if (itemUOM) {
+                        uomLists.push(itemUOM);
+                      }
+                    }
+                  );
+                  item.ItemPrices === apiResponse.ItemPrices;
+
+                  return {
+                    ItemCode: item.U_tl_itemCode || null,
+                    ItemName: item.U_tl_itemname || null,
+                    Quantity: item.U_tl_qty || null,
+                    UnitPrice:
+                      item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
+                    Discount: item.DiscountPercent || 0,
+                    GrossPrice: item.U_tl_price,
+                    TotalGross: item.GrossTotal,
+                    TotalUnit: item.LineTotal,
+                    LineTotal: item.U_tl_amount,
+                    DiscountPercent: item.U_tl_dispercent || 0,
+                    VatGroup: item.VatGroup,
+                    UoMEntry: item.U_tl_uom || null,
+                    WarehouseCode: item?.WarehouseCode || data?.U_tl_whs,
+                    UomAbsEntry: item?.U_tl_uom,
+                    VatRate: item.TaxPercentagePerRow,
+                    UomLists: uomLists,
+                    ItemPrices: apiResponse.ItemPrices,
+                    ExchangeRate: data?.DocRate || 1,
+                    JournalMemo: data?.JournalMemo,
+                    COGSCostingCode: item?.COGSCostingCode,
+                    COGSCostingCode2: item?.COGSCostingCode2,
+                    COGSCostingCode3: item?.COGSCostingCode3,
+                    CurrencyType: "B",
+                    DocumentLinesBinAllocations:
+                      item.DocumentLinesBinAllocations,
+                    vendor,
+                    warehouseCode: data?.U_tl_whs,
+                    DocDiscount: data?.DiscountPercent,
+                    BPAddresses: vendor?.bpAddress?.map(
+                      ({ addressName, addressType }: any) => {
+                        return {
+                          addressName: addressName,
+                          addressType: addressType,
+                        };
+                      }
+                    ),
+                    // AttachmentList,
+                    disabledFields,
+                    isStatusClose: data?.DocumentStatus === "bost_Close",
+                    RoundingValue:
+                      data?.RoundingDiffAmountFC || data?.RoundingDiffAmount,
+                    Rounding: (data?.Rounding == "tYES").toString(),
+                    Edit: true,
+                    // PostingDate: data?.DocDate,
+                    // DueDate: data?.DocDueDate,
+                    // DocumentDate: data?.TaxDate,
+                  };
+                }
+              )
             ),
           };
         })
         .catch((err: any) => console.log(err))
         .finally(() => {
           state["SerieLists"] = seriesList;
-          // state["dnSeries"] = dnSeries;
-          // state["invoiceSeries"] = invoiceSeries;
           state["loading"] = false;
           state["isLoadingSerie"] = false;
+          state["incomingSeries"] = incomingSeries;
+          state["invoiceSeries"] = invoiceSeries;
           this.setState(state);
         });
     } else {
       state["SerieLists"] = seriesList;
-      // state["dnSeries"] = dnSeries;
-      // state["invoiceSeries"] = invoiceSeries;
-      // state["DocNum"] = defaultSeries.NextNumber ;
       state["loading"] = false;
       state["isLoadingSerie"] = false;
+      state["incomingSeries"] = incomingSeries;
+      state["invoiceSeries"] = invoiceSeries;
       this.setState(state);
     }
   }
+  createPayload() {
+    const data: any = { ...this.state };
+    const payload = {
+      Series: data?.Series,
+      U_tl_bplid: data?.U_tl_bplid,
+      U_tl_whs: data?.U_tl_whs,
+      U_tl_bincode: data?.U_tl_bincode,
+      U_tl_cardcode: data?.CardCode,
+      U_tl_cardname: data?.CardName,
+      U_tl_doccur: data?.Currency,
+      U_tl_rate: data?.ExchangeRate,
+      U_tl_taxdate: data?.U_tl_taxdate,
 
+      U_tl_docdate: data?.U_tl_docdate,
+      U_tl_devdate: data?.U_tl_devdate,
+      U_tl_totalbefdis: data?.U_tl_totalbefdis,
+      U_tl_dispercent: data?.U_tl_dispercent,
+      U_tl_disperamt: data?.U_tl_disperamt,
+      U_tl_tax: data?.U_tl_tax,
+      U_tl_doctotal: data?.U_tl_doctotal,
+      Remark: data?.Remark,
+      TL_RETAILSALE_LU_COCollection: data?.Items?.map((item: any) => ({
+        U_tl_itemCode: item.ItemCode,
+        U_tl_itemname: item.ItemName,
+        U_tl_qty: item.Quantity,
+        U_tl_uom: item.UomAbsEntry,
+        U_tl_dispercent: item.DiscountPercent,
+        U_tl_price: item.GrossPrice,
+        U_tl_amount: item.LineTotal,
+      })),
+      TL_RETAILSALE_LU_INCollection: [
+        ...data?.checkNumberData,
+        ...data?.cashBankData,
+        ...data?.couponData,
+      ],
+    };
+    if (this.props.edit) {
+      delete payload.Series;
+    }
+    return payload;
+  }
   handlerRemoveItem(code: string) {
     let items = [...(this.state.Items ?? [])];
     const index = items.findIndex((e: any) => e?.ItemCode === code);
@@ -275,32 +364,33 @@ class LubeForm extends CoreFormDocument {
 
       const validations = [
         {
-          field: "U_tl_whsdesc",
+          field: "U_tl_whs",
           message: "Warehouse is Required!",
           getTabIndex: () => 0,
         },
-        // {
-        //   field: "U_tl_sobincode",
-        //   message: "Bin Location is Required!",
-        //   getTabIndex: () => 0,
-        // },
+
         {
           field: "CardCode",
           message: "Customer is Required!",
           getTabIndex: () => 0,
         },
         {
-          field: "DocDueDate",
+          field: "Series",
+          message: "Series is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_devdate",
           message: "Delivery date is Required!",
           getTabIndex: () => 0,
         },
         {
-          field: "TaxDate",
+          field: "U_tl_taxdate",
           message: "Posting date is Required!",
           getTabIndex: () => 0,
         },
         {
-          field: "DocDate",
+          field: "U_tl_docdate",
           message: "Document date is Required!",
           getTabIndex: () => 0,
         },
@@ -311,24 +401,34 @@ class LubeForm extends CoreFormDocument {
           getTabIndex: () => 1,
         },
         {
-          field: "ShipToCode",
-          message: "Ship To Address is Required!",
+          field: "cashBankData",
+          message: "Please enter at least one amount of Cash Sale!",
+          isArray: true,
           getTabIndex: () => 2,
-        },
-        {
-          field: "U_tl_attn_ter",
-          message: "Attention Terminal is Required!",
-          getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.cashBankData) &&
+              data.cashBankData.some(
+                (item: any) => item.U_tl_amtcash || item.U_tl_amtbank
+              )
+            );
+          },
         },
       ];
 
-      validations.forEach(({ field, message, isArray, getTabIndex }) => {
-        const value = isArray ? data[field] : data[field];
-        if (!value || (isArray && value.length === 0)) {
-          data.error = { [field]: message };
-          throw new FormValidateException(message, getTabIndex());
+      validations.forEach(
+        ({ field, message, isArray, getTabIndex, validate }) => {
+          const value = isArray ? data[field] : data[field];
+          if (
+            !value ||
+            (isArray && value.length === 0) ||
+            (validate && !validate(data))
+          ) {
+            data.error = { [field]: message };
+            throw new FormValidateException(message, getTabIndex());
+          }
         }
-      });
+      );
 
       const warehouseCodeGet = data.U_tl_whsdesc;
       const DocumentLines = getItem(
@@ -340,84 +440,17 @@ class LubeForm extends CoreFormDocument {
         data.U_ti_revenue
       );
 
-      const payloads = {
-        U_tl_docdate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
-        U_tl_docduedate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
-        U_tl_taxdate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
-        U_tl_cardcode: data?.CardCode,
-        CardName: data?.CardName,
-        DiscountPercent: data?.DiscountPercent,
-        ContactPersonCode: data?.ContactPersonCode || null,
-        DocumentStatus: data?.DocumentStatus,
-        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
-        SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.Comments,
-        U_tl_arbusi: data?.U_tl_arbusi,
-        NumAtCard: data?.U_tl_arbusi,
-        U_tl_bincode: data?.U_tl_sobincode,
-        U_tl_sopricelist: data?.U_tl_sopricelist,
-        U_ti_revenue: data?.U_ti_revenue,
-        DocCurrency: data?.Currency || data?.DocCurrency,
-        DocumentLines,
-
-        // logistic
-        ShipToCode: data?.ShipToCode || "",
-        ShipFrom: new BranchBPLRepository().find(
-          data?.BPL_IDAssignedToInvoice || 1
-        )?.Address,
-        U_tl_whsdesc: data?.U_tl_whsdesc,
-        U_tl_attn_ter: data?.U_tl_attn_ter,
-        U_tl_dnsuppo: data?.U_tl_whsdesc,
-        // AttachmentEntry,
-      };
-
-      const edit_payloads = {
-        // general
-        SOSeries: data?.Series,
-        // DNSeries: data?.DNSeries,
-        // INSeries: data?.INSeries,
-        DocDate: `${formatDate(data?.DocDate)}"T00:00:00Z"`,
-        DocDueDate: `${formatDate(data?.DocDueDate || new Date())}"T00:00:00Z"`,
-        TaxDate: `${formatDate(data?.TaxDate)}"T00:00:00Z"`,
-        CardCode: data?.CardCode,
-        CardName: data?.CardName,
-        DiscountPercent: data?.DiscountPercent,
-        ContactPersonCode: data?.ContactPersonCode || null,
-        DocumentStatus: data?.DocumentStatus,
-        BPL_IDAssignedToInvoice: data?.BPL_IDAssignedToInvoice ?? 1,
-        SalesPersonCode: data?.SalesPersonCode,
-        Comments: data?.Comments,
-        U_ti_revenue: data?.U_ti_revenue,
-        DocCurrency: data?.Currency || data?.DocCurrency,
-        DocumentLines,
-
-        U_tl_bplid: data?.U_tl_bplid,
-        U_tl_whs: data?.U_tl_whs,
-        U_tl_bincode: data?.U_tl_bincode,
-        U_tl_cardname: data?.U_tl_cardname,
-        U_tl_cardcode: data?.U_tl_cardcode,
-        U_tl_docdate: data?.U_tl_docdate,
-        U_tl_docduedate: data?.U_tl_docduedate,
-        U_tl_taxdate: data?.U_tl_taxdate,
-        U_tl_curcode: data?.Currency || "USD",
-        U_tl_rate: data?.ExchangeRate || 0.0,
-        U_tl_remark: data?.U_tl_remark,
-        // logistic
-      };
+      const payload = this.createPayload();
 
       if (id) {
-        return await request(
-          "PATCH",
-          `/TL_RETAILSALE_LCS(${id})`,
-          edit_payloads
-        )
+        return await request("PATCH", `/TL_RETAILSALE_LU(${id})`, payload)
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/TL_RETAILSALE_LCS", payloads)
+      await request("POST", "/TL_RETAILSALE_LU", payload)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;
@@ -444,7 +477,223 @@ class LubeForm extends CoreFormDocument {
       this.dialog.current?.error(error.message, "Invalid");
     }
   }
+  async handlerSubmitPost(event: any, edit: boolean) {
+    event.preventDefault();
+    this.setState({ ...this.state, isSubmitting: true });
+    const data: any = { ...this.state };
 
+    const payload = this.createPayload();
+    console.log(data);
+    edit = this.props.edit;
+
+    try {
+      await new Promise((resolve) => setTimeout(() => resolve(""), 800));
+      const validations = [
+        {
+          field: "U_tl_whs",
+          message: "Warehouse is Required!",
+          getTabIndex: () => 0,
+        },
+
+        {
+          field: "CardCode",
+          message: "Customer is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Series",
+          message: "Series is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_devdate",
+          message: "Delivery date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_taxdate",
+          message: "Posting date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "U_tl_docdate",
+          message: "Document date is Required!",
+          getTabIndex: () => 0,
+        },
+        {
+          field: "Items",
+          message: "Items is missing and must have at least one record!",
+          isArray: true,
+          getTabIndex: () => 1,
+        },
+        {
+          field: "cashBankData",
+          message: "Please enter at least one amount of Cash Sale!",
+          isArray: true,
+          getTabIndex: () => 2,
+          validate: (data: any) => {
+            return (
+              Array.isArray(data.cashBankData) &&
+              data.cashBankData.some(
+                (item: any) => item.U_tl_amtcash || item.U_tl_amtbank
+              )
+            );
+          },
+        },
+      ];
+
+      validations.forEach(
+        ({ field, message, isArray, getTabIndex, validate }) => {
+          const value = isArray ? data[field] : data[field];
+          if (
+            !value ||
+            (isArray && value.length === 0) ||
+            (validate && !validate(data))
+          ) {
+            data.error = { [field]: message };
+            throw new FormValidateException(message, getTabIndex());
+          }
+        }
+      );
+      let docEntry;
+      if (!edit) {
+        const { isFirstAttempt } = this.state;
+
+        if (!this.state.docEntry || isFirstAttempt) {
+          const response = await request("POST", "/TL_RETAILSALE_LU", payload);
+          docEntry = response.data.DocEntry;
+          this.setState({
+            docEntry,
+            isFirstAttempt: false,
+            disableBranch: true,
+          });
+        } else {
+          docEntry = this.state.docEntry; // Assign docEntry from state
+          await request("PATCH", `/TL_RETAILSALE_LU(${docEntry})`, payload);
+        }
+      } else {
+        docEntry = data.DocEntry; // Assign docEntry from props
+        await request("PATCH", `/TL_RETAILSALE_LU(${docEntry})`, payload);
+      }
+
+      const DocumentLines = data?.Items?.map((item: any) => {
+        let quantity = item["Quantity"];
+
+        if (item.InventoryUoMEntry !== item.UomAbsEntry) {
+          const uomList = item.uomLists?.find(
+            (list: any) => list.AlternateUoM === item.UomAbsEntry
+          );
+          if (uomList) {
+            quantity *= uomList.BaseQuantity;
+          } else {
+            console.error("UoM conversion factor not found!");
+          }
+        }
+
+        return {
+          ItemCode: item.ItemCode,
+          Quantity: quantity,
+          GrossPrice: item.GrossPrice,
+          DiscountPercent: item.DiscountPercent,
+          TaxCode: "VO10",
+          UoMEntry: item.InventoryUoMEntry,
+          LineOfBussiness: "201001", // item.LineOfBussiness
+          RevenueLine: "202004", // item.RevenueLine
+          ProductLine: "203004", // item.ProductLine
+          BinAbsEntry:
+            item.BinAbsEntry === undefined || item.BinAbsEntry === null
+              ? data.U_tl_bincode
+              : item.BinAbsEntry,
+          // BranchCode: data.U_tl_bplid,
+          WarehouseCode: item.WarehouseCode,
+          DocumentLinesBinAllocations: [
+            {
+              BinAbsEntry:
+                item.BinAbsEntry === undefined || item.BinAbsEntry === null
+                  ? data.U_tl_bincode
+                  : item.BinAbsEntry,
+              Quantity: quantity,
+              AllowNegativeQuantity: "tNO",
+            },
+          ],
+        };
+      });
+
+      const PostPayload = {
+        SaleDocEntry: docEntry,
+        // data.docEntry,
+        ToWarehouse: data?.U_tl_whs,
+        // U_tl_whsdesc: "WHC",
+        U_tl_whsdesc: data?.U_tl_whs,
+        InvoiceSeries: data?.INSeries,
+        IncomingSeries: data?.DNSeries,
+        DocDate: new Date(),
+        DocCurrency: "USD",
+        DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
+        CardCode: data?.CardCode,
+        CardName: data?.CardName,
+        DiscountPercent: 0.0,
+        BPL_IDAssignedToInvoice: data?.U_tl_bplid,
+        CashAccount: "110102",
+        CashAccountFC: "110103",
+        TransferAccount: "110102",
+        TransferAccountFC: "110103",
+        CheckAccount: "110102",
+        CouponAccount: "110102",
+        Remarks: data.Remark,
+
+        IncomingPayment: [
+          ...(data?.cashBankData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              Amount: item.U_tl_amtcash || item.U_tl_amtbank,
+            }))
+            .filter((item: any) => item.Amount > 0),
+          ...(data?.checkNumberData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              DueDate: item.U_tl_checkdate || new Date(),
+              Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
+              Bank: item.U_tl_checkbank,
+              CheckNum: item.U_tl_acccheck,
+            }))
+            .filter((item: any) => item.Amount > 0),
+        ],
+        IncomingPaymentCoupon: [
+          ...(data?.couponData || [])
+            .map((item: any) => ({
+              Type: item.U_tl_paytype,
+              DocCurrency: item.U_tl_paycur,
+              DueDate: new Date(),
+              Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
+              // CounNum: item.U_tl_acccoupon,
+            }))
+            .filter((item: any) => item.Amount > 0),
+        ],
+
+        DocumentLines: DocumentLines?.length > 0 ? DocumentLines : [],
+      };
+
+      await requestHeader("POST", "/script/test/LubeCashSales", PostPayload);
+      this.dialog.current?.success("Create Successfully.", docEntry);
+    } catch (error: any) {
+      if (!this.dialog.current) {
+        console.error("Dialog component reference is not set properly.");
+        return;
+      }
+
+      if (error instanceof FormValidateException) {
+        this.dialog.current?.error(error.message, "Invalid");
+        this.setState({ ...data, isSubmitting: false, tapIndex: error.tap });
+      } else {
+        this.dialog.current?.error(error?.toString() ?? "An error occurred");
+      }
+    } finally {
+      this.setState({ isSubmitting: false });
+    }
+  }
   async handlerChangeMenu(index: number) {
     this.setState({ ...this.state, tapIndex: index });
   }
@@ -476,9 +725,9 @@ class LubeForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
+      0: ["CardCode", "Series", "U_tl_bplid", "U_tl_whs", "U_tl_bincode"],
       1: ["Items"],
-      2: ["U_tl_dnsuppo", "PayToCode"],
+      2: [],
       3: [],
     };
     return requiredFieldsMap[tabIndex] || [];
@@ -561,7 +810,8 @@ class LubeForm extends CoreFormDocument {
   FormRender = () => {
     const itemGroupCode = 101;
 
-    const priceList = parseInt(this.state.U_tl_sopricelist);
+    // const priceList = parseInt(this.state.U_tl_sopricelist);
+    const priceList = 13;
     const navigate = useNavigate();
     return (
       <>
@@ -645,36 +895,40 @@ class LubeForm extends CoreFormDocument {
                             </span>
                           </LoadingButton>
                         </div>
-                        {this.props.edit && (
-                          <div>
-                            <LoadingButton
-                              variant="outlined"
-                              size="small"
-                              sx={{ height: "30px", textTransform: "none" }}
-                              disableElevation
-                            >
-                              <span className="px-3 text-[13px] py-1 text-green-500">
-                                Copy to Invoice
-                              </span>
-                            </LoadingButton>
-                          </div>
-                        )}
-
-                        <div className="flex items-center space-x-4">
+                        <div>
                           <LoadingButton
+                            variant="outlined"
+                            size="small"
                             type="submit"
                             sx={{ height: "30px", textTransform: "none" }}
-                            className="bg-white"
-                            loading={false}
-                            size="small"
-                            variant="contained"
                             disableElevation
+                            // disabled={this.props.edit}
                           >
-                            <span className="px-6 text-[13px] py-4 text-white">
-                              {this.props.edit ? "Update" : "Post"}
+                            <span className="px-3 text-[13px] py-1 text-green-500">
+                              {this.props.edit ? "Update" : "Add"}
                             </span>
                           </LoadingButton>
                         </div>
+                        {
+                          <div className="flex items-center space-x-4">
+                            <LoadingButton
+                              onClick={(event) =>
+                                this.handlerSubmitPost(event, this.props.edit)
+                              }
+                              sx={{ height: "30px", textTransform: "none" }}
+                              className="bg-white"
+                              loading={false}
+                              // disabled={this.state.tapIndex < 4}
+                              size="small"
+                              variant="contained"
+                              disableElevation
+                            >
+                              <span className="px-6 text-[13px] py-4 text-white">
+                                Post
+                              </span>
+                            </LoadingButton>
+                          </div>
+                        }
                       </div>
                     </div>
                   </motion.div>

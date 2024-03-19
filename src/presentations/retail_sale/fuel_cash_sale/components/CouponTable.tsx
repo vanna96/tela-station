@@ -28,7 +28,7 @@ export default function CouponTable(props: any) {
 
   return (
     <>
-      {data.couponData.map((item: any, index: number) => (
+      {data.couponData?.map((item: any, index: number) => (
         <div key={index}>
           <div className="col-span-5 mb-4">
             <div className="grid grid-cols-2 gap-4 ">

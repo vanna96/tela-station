@@ -76,17 +76,18 @@ export default function StockAllocationTable({
         U_tl_bplid: data.U_tl_bplid,
         U_tl_itemnum: "",
         U_tl_itemdesc: "",
-        U_tl_qtyaloc: "",
-        U_tl_qtycon: "",
-        U_tl_qtyopen: "",
+        U_tl_alocqty: "",
+        U_tl_consqty: "",
+        U_tl_openqty: "",
         U_tl_remark: "",
         U_tl_uom: "",
-        U_tl_whs: "",
+        U_tl_whscode: "",
         U_tl_bincode: "",
       },
     ];
     onChange("stockAllocationData", firstData);
   };
+  console.log(data);
   const onCheckRow = (event: any, index: number) => {
     setRowSelection((prevSelection: any) => {
       const updatedSelection = { ...prevSelection };
@@ -101,6 +102,7 @@ export default function StockAllocationTable({
     });
   };
 
+  console.log(data.stockAllocationData);
   const itemColumns = React.useMemo(
     () => [
       {
@@ -168,7 +170,7 @@ export default function StockAllocationTable({
       },
 
       {
-        accessorKey: "U_tl_whs",
+        accessorKey: "U_tl_whscode",
         header: "Warehouse",
         visible: true,
         size: 250,
@@ -185,7 +187,7 @@ export default function StockAllocationTable({
               Branch={parseInt(cell.row.original.U_tl_bplid || 1)}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_whs: e,
+                  U_tl_whscode: e,
                 });
               }}
               value={cell.getValue()}
@@ -207,7 +209,7 @@ export default function StockAllocationTable({
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <BinLocationToAsEntry
-              Warehouse={cell.row.original.U_tl_whs}
+              Warehouse={cell.row.original.U_tl_whscode}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_bincode: e,
@@ -250,23 +252,23 @@ export default function StockAllocationTable({
                   const lastRecentRow = previousRows[previousRows.length - 1];
 
                   const newQtyCon =
-                    parseFloat(lastRecentRow.U_tl_qtycon) -
-                    parseFloat(lastRecentRow.U_tl_qtyaloc);
+                    parseFloat(lastRecentRow.U_tl_consqty) -
+                    parseFloat(lastRecentRow.U_tl_alocqty);
 
                   onChangeItemObj(cell.row.id, {
                     U_tl_itemcode: e.target.value,
                     U_tl_itemname: selectedNozzle.U_tl_itemname,
                     U_tl_uom: selectedNozzle.U_tl_uom,
-                    U_tl_qtycon: newQtyCon,
-                    // U_tl_qtyopen: newQtyCon,
+                    U_tl_consqty: newQtyCon,
+                    // U_tl_openqty: newQtyCon,
                   });
                 } else {
                   onChangeItemObj(cell.row.id, {
                     U_tl_itemcode: e.target.value,
                     U_tl_itemname: selectedNozzle.U_tl_itemname,
                     U_tl_uom: selectedNozzle.U_tl_uom,
-                    // U_tl_qtyopen: selectedNozzle.U_tl_stockallow,
-                    U_tl_qtycon: selectedNozzle.U_tl_stockallow,
+                    // U_tl_openqty: selectedNozzle.U_tl_stockallow,
+                    U_tl_consqty: selectedNozzle.U_tl_stockallow,
                   });
                 }
               }}
@@ -288,7 +290,7 @@ export default function StockAllocationTable({
       },
 
       {
-        accessorKey: "U_tl_qtycon",
+        accessorKey: "U_tl_consqty",
         header: "Cons. Qty",
         visible: true,
         Cell: ({ cell, row }: any) => {
@@ -296,7 +298,7 @@ export default function StockAllocationTable({
 
           return (
             <NumericFormat
-              key={"U_tl_qtycon" + cell.getValue()}
+              key={"U_tl_consqty" + cell.getValue()}
               thousandSeparator
               disabled
               decimalScale={2}
@@ -306,7 +308,7 @@ export default function StockAllocationTable({
               value={cell.getValue()}
               onBlur={(e: any) =>
                 onChangeItem(cell?.row?.id || 0, {
-                  U_tl_qtycon: e.target.value,
+                  U_tl_consqty: e.target.value,
                 })
               }
             />
@@ -319,7 +321,7 @@ export default function StockAllocationTable({
             Aloc. Qty <span className="text-red-500">*</span>
           </label>
         ),
-        accessorKey: "U_tl_qtyaloc",
+        accessorKey: "U_tl_alocqty",
         header: "Aloc. Qty",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -330,15 +332,17 @@ export default function StockAllocationTable({
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              return sum + commaFormatNum(r.U_tl_qtyaloc);
+              console.log(r.U_tl_alocqty);
+              return sum + commaFormatNum(r.U_tl_alocqty);
             },
             0
           );
 
           const firstQuantity = parseFloat(
-            rowsWithSameItemCode[0]?.U_tl_qtycon
+            rowsWithSameItemCode[0]?.U_tl_consqty
           );
           const isValid = totalQuantity === firstQuantity;
+          console.log(isValid);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
@@ -350,8 +354,8 @@ export default function StockAllocationTable({
               defaultValue={cell.getValue()}
               onBlur={(e: any) => {
                 onChangeItemObj(cell.row.id, {
-                  U_tl_qtyaloc: e.target.value,
-                  U_tl_qtyopen: cell.row.original.U_tl_qtycon - e.target.value,
+                  U_tl_alocqty: e.target.value,
+                  U_tl_openqty: cell.row.original.U_tl_consqty - e.target.value,
                 });
               }}
             />
@@ -380,7 +384,7 @@ export default function StockAllocationTable({
       },
 
       {
-        accessorKey: "U_tl_qtyopen",
+        accessorKey: "U_tl_openqty",
         header: "Open. Qty",
         visible: true,
         Cell: ({ cell }: any) => {
@@ -388,7 +392,7 @@ export default function StockAllocationTable({
 
           return (
             <NumericFormat
-              key={"U_tl_qtyopen" + cell.getValue()}
+              key={"U_tl_openqty" + cell.getValue()}
               thousandSeparator
               disabled
               decimalScale={2}

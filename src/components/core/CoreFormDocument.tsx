@@ -96,6 +96,10 @@ export interface CoreFormDocumentState {
   U_Destination: string | null;
   U_Distance: string | null;
   U_Duration: string | null;
+  isFirstAttempt?: any;
+  docEntry?: any;
+  disableBranch?: boolean;
+  U_tl_errormsg?: string;
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -144,6 +148,7 @@ export default abstract class CoreFormDocument extends React.Component<
       isLoadingSerie: true,
       isSubmitting: false,
       message: "",
+      U_tl_errormsg: "",
       showDialogMessage: false,
       title: "",
       showDistribution: false,

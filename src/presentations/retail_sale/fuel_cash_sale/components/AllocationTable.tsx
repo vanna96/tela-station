@@ -203,7 +203,7 @@ export default function AllocationTable({
             commaFormatNum(cell.row.original?.U_tl_pumpallow || 0) +
             commaFormatNum(cell.row.original?.U_tl_stockallow || 0);
 
-          const isValid = cell.row.original.U_tl_totalallow === total;
+          const isValid = cell.row.original.U_tl_cmeter === total;
           return (
             <NumericFormat
               thousandSeparator

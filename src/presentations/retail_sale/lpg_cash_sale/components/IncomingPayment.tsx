@@ -1,19 +1,13 @@
 import FormCard from "@/components/card/FormCard";
-import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
-import BPAddress from "@/components/selectbox/BPAddress";
-import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseSelect from "@/components/selectbox/Warehouse";
-import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
-import { getShippingAddress } from "@/models/BusinessParter";
-import { TextField } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
-import { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CashBankTable from "./CashBankTable";
 import CheckNumberTable from "./CheckNumberTable";
-import AccountCodeAutoComplete from "@/components/input/AccountCodeAutoComplete";
+import CouponTable from "../../fuel_cash_sale/components/CouponTable";
+import { NumericFormat } from "react-number-format";
+import Formular from "@/utilies/formular";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 import MUITextField from "@/components/input/MUITextField";
-import CurrencySelect from "@/components/selectbox/Currency";
+import { useExchangeRate } from "../../components/hook/useExchangeRate";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -34,48 +28,129 @@ export default function IncomingPaymentForm({
     setIsChecked(e.target.checked);
   };
 
+  const totalCashSale: number = React.useMemo(() => {
+    const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
+      const lineTotal = Formular.findLineTotal(
+        (item.U_tl_cashallow || 0)?.toString(),
+        item.ItemPrice || 0,
+        "0"
+      );
+      return prevTotal + lineTotal;
+    }, 0);
+    return total;
+  }, [data.allocationData]);
+
+  const parseAmount = (amount: any) => {
+    return (
+      Number(typeof amount === "string" ? amount.replace(/,/g, "") : amount) ||
+      0
+    );
+  };
+  const calculateTotalByCurrency = (data: any, currency: any) => {
+    let total = 0;
+
+    // Aggregate CashBankData
+    total += data.cashBankData?.reduce((acc: any, item: any) => {
+      if (item.U_tl_paycur === currency) {
+        const cashAmount = parseAmount(item.U_tl_amtcash) || 0;
+        const bankAmount = parseAmount(item.U_tl_amtbank) || 0;
+        return acc + cashAmount + bankAmount;
+      }
+      return acc;
+    }, 0);
+
+    // Aggregate CheckNumberData
+    total += data.checkNumberData?.reduce((acc: any, item: any) => {
+      if (item.U_tl_paycur === currency) {
+        const checkAmount = parseAmount(item.U_tl_amtcheck) || 0;
+        return acc + checkAmount;
+      }
+      return acc;
+    }, 0);
+
+    // Aggregate CouponData
+    total += data.couponData?.reduce((acc: any, item: any) => {
+      if (item.U_tl_paycur === currency) {
+        const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
+        return acc + couponAmount;
+      }
+      return acc;
+    }, 0);
+
+    return total;
+  };
+  useExchangeRate("KHR", handlerChange);
+  let exchangeRate = data?.ExchangeRate === 0 ? 4100 : data?.ExchangeRate;
+  const totalKHR = React.useMemo(
+    () => calculateTotalByCurrency(data, "KHR"),
+    [data]
+  );
+  const TotalKHRtoUSD: number = React.useMemo(() => {
+    const convertedKHRToUSD =
+      exchangeRate > 0 ? parseAmount(totalKHR) / exchangeRate : 0;
+    return convertedKHRToUSD;
+  }, [totalKHR, exchangeRate]);
+
+  const totalUSD = React.useMemo(
+    () => calculateTotalByCurrency(data, "USD"),
+    [data]
+  );
+
   return (
     <>
-      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 md:px-6 xl:px-8 h-screen">
-        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Cash Sale</h2>{" "}
+      <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
+        <div className="font-medium text-xl flex justify-start items-center border-b mb-4">
+          <h2>Cash Sale - </h2>
+          <div className="ml-2">
+            <NumericFormat
+              thousandSeparator
+              placeholder="0.000"
+              disabled
+              decimalScale={3}
+              // customInput={MUIRightTextField}
+              value={totalCashSale === 0 ? "" : totalCashSale}
+            />
+          </div>
         </div>
         <CashBankTable data={data} onChange={handlerChange} />
-        <div className="font-medium text-xl flex items-center border-b my-6 gap-16">
-          <h2>Check Number</h2>{" "}
-        </div>
         <CheckNumberTable data={data} onChange={handlerChange} />
-        <h1 className="mt-8"> Coupon Account Name</h1>
-        <div className="grid grid-cols-4 gap-4 mt-4">
-          <AccountCodeAutoComplete
-            onChange={(e: any) => handlerChange("GLCash", e)}
-            value={data?.GLCash}
-            disabled={data?.edit}
-          />
-          <CurrencySelect value={"USD"} />
-          <TextField size="small" label="" className="text-field w-full" />
-          <TextField
-            size="small"
-            placeholder="0.00"
-            className="text-field w-full"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4 mt-4">
+
+        <CouponTable data={data} onChange={handlerChange} />
+
+        <div className="grid grid-cols-2 gap-4 ">
           <div className="grid grid-cols-12">
-            <div className="col-span-4">
-              <h1 className="text-sm">Over / Shortage</h1>
+            <div className="col-span-4 mt-1 text-gray-700 ">
+              Over / Shortage
             </div>
-            <div className="col-span-7 col-start-5">
-              <TextField size="small" className="text-field w-full" />
+            <div className="col-span-4 ">
+              <NumericFormat
+                key={"OverShortage"}
+                thousandSeparator
+                disabled
+                placeholder="0.000"
+                decimalScale={3}
+                customInput={MUIRightTextField}
+                value={
+                  totalCashSale - totalUSD - TotalKHRtoUSD === 0 || ""
+                    ? ""
+                    : totalCashSale - totalUSD - TotalKHRtoUSD
+                }
+              />
             </div>
           </div>
-          <div className="grid grid-cols-12">
-            <div className="col-span-4 col-start-2">Total /KHR</div>
-            <div className=" col-span-7 col-start-6 ">
-              <TextField
-                size="small"
-                placeholder="0.00"
-                className="text-field w-full"
+          <div className="grid grid-cols-12 ">
+            <div className="col-span-4  col-start-5 text-gray-700 ">
+              Total /KHR
+            </div>
+            <div className=" col-span-4  ">
+              <NumericFormat
+                key={"total"}
+                thousandSeparator
+                placeholder="0.000"
+                decimalScale={3}
+                disabled
+                customInput={MUIRightTextField}
+                value={totalKHR === 0 ? "" : totalKHR}
               />
             </div>
           </div>
@@ -84,12 +159,18 @@ export default function IncomingPaymentForm({
         <div className="grid grid-cols-2 gap-4 mt-4">
           <div className="grid grid-cols-12"></div>
           <div className="grid grid-cols-12">
-            <div className="col-span-4 col-start-2">Total /USD</div>
-            <div className=" col-span-7 col-start-6 ">
-              <TextField
-                size="small"
-                placeholder="0.00"
-                className="text-field w-full"
+            <div className="col-span-4  col-start-5 text-gray-700 ">
+              Total /USD
+            </div>
+            <div className=" col-span-4 ">
+              <NumericFormat
+                key={"totalUSD"}
+                thousandSeparator
+                disabled
+                placeholder="0.000"
+                decimalScale={3}
+                customInput={MUIRightTextField}
+                value={totalUSD === 0 ? "" : totalUSD}
               />
             </div>
           </div>

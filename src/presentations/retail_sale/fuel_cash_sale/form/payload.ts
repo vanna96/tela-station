@@ -63,58 +63,14 @@ const payload = {
         },
 
     ],
-    "StockAllocation": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 2.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 138,
-            "BranchCode": 2,
-            "WarehouseCode": "ST001",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 138,
-                    "Quantity": 2.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        },
+
+    "DocumentLines": [ // change from CashSales to DocumentLines
         {
             "ItemCode": "FUE0001",
             "Quantity": 1.0,
             "GrossPrice": 100,
             "DiscountPercent": 0,
             "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 277,
-            "BranchCode": 19,
-            "WarehouseCode": "ST001",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 277,
-                    "Quantity": 1.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ],
-    "CardCount": [
-        {
-            "ItemCode": "FUE0001-01",
-            "Quantity": 10.0,
             "UoMCode": "L",
             "UoMEntry": 19,
             "LineOfBussiness": "201001", // item.LineOfBussiness
@@ -127,155 +83,10 @@ const payload = {
                     "BinAbsEntry": 101,
                     "Quantity": 1.0,
                     "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
                 }
             ]
         }
     ],
 
-    "CashSale": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 1.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 101,
-            "WarehouseCode": "WH03",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 101,
-                    "Quantity": 1.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ],
-    "Partnership": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 1.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 101,
-            "WarehouseCode": "WH03",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 101,
-                    "Quantity": 1.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ],
 
-    "StockTransfer": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 3.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 101,
-            "WarehouseCode": "WH03",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 101,
-                    "Quantity": 3.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ],
-    "OwnUsage": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 1.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 101,
-            "WarehouseCode": "WH03",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 101,
-                    "Quantity": 1.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ],
-    "TelaCard": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 1.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19,
-            "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 101,
-            "WarehouseCode": "WH03",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 101,
-                    "Quantity": 1.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ],
-
-    "PumpTest": [
-        {
-            "ItemCode": "FUE0001",
-            "Quantity": 10.0,
-            "GrossPrice": 100,
-            "DiscountPercent": 0,
-            "TaxCode": "VO10",
-            "UoMCode": "L",
-            "UoMEntry": 19, "LineOfBussiness": "201001", // item.LineOfBussiness
-            "RevenueLine": "202004", // item.RevenueLine
-            "ProductLine": "203004", // item.ProductLine
-            "BinAbsEntry": 101,
-            "WarehouseCode": "WH03",
-            "DocumentLinesBinAllocations": [
-                {
-                    "BinAbsEntry": 101,
-                    "Quantity": 1.0,
-                    "AllowNegativeQuantity": "tNO",
-                    "BaseLineNumber": 0
-                }
-            ]
-        }
-    ]
 }
