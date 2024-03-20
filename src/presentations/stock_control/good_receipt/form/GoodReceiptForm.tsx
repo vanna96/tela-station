@@ -174,7 +174,8 @@ const GoodIssueForm = (props: any) => {
           "Oop something wrong!",
         "Invalid Value"
       );
-    };
+  };
+
   return (
     <>
       {state.loading ? (

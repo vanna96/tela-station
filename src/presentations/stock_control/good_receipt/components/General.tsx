@@ -95,7 +95,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <GetBranchAutoComplete
                         disabled={id}
                         {...field}
                         value={field?.value}
