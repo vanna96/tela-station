@@ -36,13 +36,20 @@ const keyData = 'inventory-transfer-request-lists';
 const keyCount = 'inventory-transfer-request-count';
 
 
-export const useInventoryTransferRequestListHook = (pagination: any) => {
+export const useInventoryTransferRequestListHook = () => {
     const [state, dispatch] = React.useReducer(reducer, initialState);
+    const [pagination, setPagination] = React.useState({
+        pageIndex: 0,
+        pageSize: 10,
+    });
     const [exporting, setExporting] = React.useState(false);
 
     const filters = useMemo(() => {
         return { ...state, skip: Number(pagination?.pageIndex) * Number(pagination?.pageSize), top: pagination?.pageSize ?? 10 } as QueryOptionAPI;
-    }, [pagination, state])
+    }, [state, pagination])
+
+
+    console.log(pagination)
 
 
     const dataQuery = useQuery({ queryKey: [keyData + filters.skip, filters], queryFn: () => request('GET', `/InventoryTransferRequests?${queryOptionParser(filters)}`), refetchOnWindowFocus: false });
@@ -130,6 +137,8 @@ export const useInventoryTransferRequestListHook = (pagination: any) => {
         setSort,
         exportExcelTemplate,
         refetchData,
-        exporting
+        exporting,
+        pagination,
+        setPagination
     }
 }

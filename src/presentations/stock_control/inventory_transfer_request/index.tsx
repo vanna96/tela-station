@@ -16,12 +16,9 @@ import { useInventoryTransferRequestListHook } from "./hook/useInventoryTransfer
 export default function InventoryTransferRequestList() {
 
   const navigate = useNavigate();
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
-  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting } = useInventoryTransferRequestListHook(pagination)
+
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, exporting, pagination, setPagination } = useInventoryTransferRequestListHook()
 
   const columns = React.useMemo(
     () => [
@@ -198,7 +195,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   U_tl_attn_ter_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: `DocumentStatus eq '_all'`,
+  DocumentStatus_$eq: `_all`,
 }
 
 export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {

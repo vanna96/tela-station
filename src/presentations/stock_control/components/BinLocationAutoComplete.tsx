@@ -35,7 +35,7 @@ const BinAllocationAutoComplete = forwardRef<
 
 
   useEffect(() => {
-    const selected = bins.find((e: BinProps) => e.AbsEntry === props.value);
+    const selected = bins?.find((e: BinProps) => e.AbsEntry === props.value);
     setSelectedValue(selected);
   }, [props.value, bins]);
 
