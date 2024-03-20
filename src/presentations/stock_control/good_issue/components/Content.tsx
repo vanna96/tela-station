@@ -213,7 +213,9 @@ export default function Content({
                         disabled={id}
                         type="number"
                         inputProps={{
-                          ...register(`DocumentLines.${index}.Quantity`),
+                          ...register(`DocumentLines.${index}.Quantity`, {
+                            required: "Quatity is required",
+                          }),
                         }}
                       />
                     </td>

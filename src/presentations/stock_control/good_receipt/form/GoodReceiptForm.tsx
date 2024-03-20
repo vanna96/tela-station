@@ -160,14 +160,22 @@ const GoodIssueForm = (props: any) => {
       });
   }, [id]);
 
-  const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
-  };
+    const onInvalidForm = (invalids: any) => {
+      console.log(invalids);
 
+      if (invalids?.DocumentLines?.length > 0) {
+        for (const inv of invalids?.DocumentLines) {
+          console.log(inv?.Quantity?.message);
+          dialog.current?.error(inv?.Quantity?.message);
+        }
+        return;
+      }
+      dialog.current?.error(
+        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+          "Oop something wrong!",
+        "Invalid Value"
+      );
+    };
   return (
     <>
       {state.loading ? (

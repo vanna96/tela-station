@@ -355,7 +355,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Good Issue Type Date is required" }}
+                  rules={{ required: "Good Receipt Type Date is required" }}
                   name="U_tl_grtype"
                   control={control}
                   render={({ field }) => {
