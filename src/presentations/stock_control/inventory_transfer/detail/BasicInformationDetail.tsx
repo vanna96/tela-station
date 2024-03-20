@@ -74,7 +74,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Attention Terminal" className="text-gray-500 ">
                   Transfer Type
-                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -152,7 +151,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Attention Terminal" className="text-gray-500 ">
                   Attention Terminal
-                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -192,9 +190,6 @@ const BasicInformationDetail = (props: any) => {
                   className="text-gray-500 inline-block mt-1"
                 >
                   Branch
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -220,9 +215,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
                   To Warehouse Code
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -262,9 +254,6 @@ const BasicInformationDetail = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">
-                  {props.detail ? "" : "*"}
-                </span>
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
@@ -296,7 +285,7 @@ const BasicInformationDetail = (props: any) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series <span className="text-red-500">*</span>
+                  Series 
                 </label>
               </div>
               <div className="col-span-3">
@@ -336,9 +325,6 @@ const BasicInformationDetail = (props: any) => {
                   className="text-gray-500 inline-block mt-1"
                 >
                   Status
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -379,9 +365,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Document Date" className="text-gray-500 ">
                   Document Date
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -413,9 +396,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
                   From Warehouse Code
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -462,9 +442,6 @@ const BasicInformationDetail = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   From Bin Code
                 </label>
-                <span className="text-red-500 ml-1">
-                  {props.detail ? "" : "*"}
-                </span>
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
