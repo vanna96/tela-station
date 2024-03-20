@@ -33,7 +33,6 @@ export default function GetBranchAutoComplete(props: {
         return data?.sort((a: any, b: any) => a.BPLID - b.BPLID) ?? [];
     }, [data])
 
-
     return (
         <Autocomplete
             disabled={disabled}
