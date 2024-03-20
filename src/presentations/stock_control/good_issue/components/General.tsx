@@ -13,6 +13,8 @@ import GoodIssueTypeAutoComplete from "@/components/input/GoodIssueTypeAutoCompl
 import { useQuery } from "react-query";
 import request, { url } from "@/utilies/request";
 import { useGetIssueSeriesHook } from "../hook/UseGetIssueSeriesHooks";
+import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 
 const General = ({
   register,
@@ -92,7 +94,30 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
+                <Controller
+                  rules={{ required: "Warehouse is required" }}
+                  name="U_tl_whsdesc"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <GetBranchAutoComplete
+                        disabled={id}
+                        {...field}
+                        value={field?.value}
+                        onChange={(e: any) => {
+                          setValue(
+                            "BPL_IDAssignedToInvoice",
+                            e?.BPLID
+                          );
+                          // onChangeBranch(e?.BusinessPlaceID);
+
+                          // setValue("U_tl_whsdesc", e?.WarehouseCode);
+                        }}
+                      />
+                    );
+                  }}
+                />
+                {/* <MUITextField
                   disabled={true}
                   inputProps={{
                     ...register("BPLName"),
@@ -102,7 +127,7 @@ const General = ({
                       (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
                     )?.BPLName
                   }
-                />
+                /> */}
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -119,17 +144,12 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <WareHAutoComplete
+                      <WarehouseAutoComplete
+                        branchId={watch("BPL_IDAssignedToInvoice")}
                         disabled={id}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue(
-                            "BPL_IDAssignedToInvoice",
-                            e?.BusinessPlaceID
-                          );
-                          onChangeBranch(e?.BusinessPlaceID);
-
                           setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
                       />
@@ -236,8 +256,8 @@ const General = ({
                         disabled={detail}
                         {...field}
                         value={field?.value}
-                        onChange={(e: any) => {
-                          setValue("U_tl_branc", e);
+                        onChange={(e: any) => {                        
+                          setValue("U_tl_branc", e?.WarehouseCode);
                         }}
                       />
                     );
