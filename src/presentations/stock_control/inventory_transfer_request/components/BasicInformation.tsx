@@ -13,7 +13,6 @@ import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook"
 import { delay } from "@/lib/utils";
 import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
 const BasicInformation = (props: any) => {
   //
@@ -151,17 +150,16 @@ const BasicInformation = (props: any) => {
                     return (
                       <GetBranchAutoComplete
                         {...field.value}
+                        value={props.watch('BPLID')}
                         onChange={(e: any) => {
-                          props?.setValue("BPLID", e?.BPLID);
-                          onChangeBranch(e?.BPLID);
-                          const git = data?.find(
-                            (whs: any) => whs?.U_tl_git_whs === "Y" && whs.BusinessPlaceID === e?.BPLID);
-                          console.log(e);
-                          props?.setValue("FromWarehouse", git?.WarehouseCode);
-                          props?.setValue("U_tl_attn_ter", undefined);
-                          props?.setValue("ToWarehouse", undefined);
-
-                          
+                        props?.setValue("BPLID", e?.BPLID);
+                        // onChangeBranch(e?.BPLID);
+                        const git = data?.find(
+                          (whs: any) => whs?.U_tl_git_whs === "Y" && whs.BusinessPlaceID === e?.BPLID);
+                        console.log(e);
+                        props?.setValue("FromWarehouse", git?.WarehouseCode);
+                        props?.setValue("U_tl_attn_ter", e?.U_tl_attn_ter);
+                        props?.setValue("ToWarehouse",  e?.WarehouseCode);         
                         }}
                       />
                     );
