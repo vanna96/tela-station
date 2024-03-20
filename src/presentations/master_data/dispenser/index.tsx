@@ -245,7 +245,7 @@ export default function DispenserList() {
 
     if (searchValues.Code) queryFilters.push(`contains(Code , '${searchValues.Code}')`);
     if (searchValues.Name) queryFilters.push(`contains(Name , '${searchValues.Name}')` );
-    if (searchValues.status) queryFilters.push(`U_tl_status eq '${searchValues.status}'`);
+    if (searchValues.status && searchValues.status !== "All") queryFilters.push(`U_tl_status eq '${searchValues.status}'`);
 
     if (queryFilters.length > 0)
       return handlerSearch(`&$filter=${queryFilters.join(" and ")}`);
@@ -302,20 +302,18 @@ export default function DispenserList() {
                   <div className="">
                     <MUISelect
                       items={[
-                        { label: "None", value: "" },
+                        { label: "All", value: "All" },
                         { label: "New", value: "New" },
                         { label: "Active", value: "Active" },
                         { label: "Inactive", value: "Inactive"}
                       ]}
                       onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string, // Ensure e.target.value is treated as a string
-                          });
-                        }
+                        setSearchValues({
+                          ...searchValues,
+                          status: e.target.value as string, // Ensure e.target.value is treated as a string
+                        });
                       }}
-                      value={searchValues.status}
+                      value={searchValues.status || "All"}
                     />
                   </div>
                 </div>

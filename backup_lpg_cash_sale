@@ -46,35 +46,46 @@ function POST() {
     
     const fuelSale = slContext.get("TL_RETAILSALE_LP", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
-    // return StockTransferTransaction(slContext, jsonObj);
+    jsonObj['SANumber'] = fuelSale.body.DocNum;
     
     try {
         // CASH SALE
-        if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj)
     
         // PARTNERSHIP
-        if(fuelSale.body['U_tl_s_partallow'] !== 'Y' && jsonObj["Partnership"].length > 0) PartnerShipTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_partallow'] !== 'Y' && jsonObj["Partnership"].length > 0) {
+            PartnerShipTransaction(slContext, jsonObj, true);
+            PartnerShipTransaction(slContext, jsonObj);
+        }
     
         // STOCK TRANSFER
-        if(fuelSale.body['U_tl_s_stockallow'] !== 'Y' && jsonObj["StockTransfer"].length > 0) StockTransferTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_stockallow'] !== 'Y' && jsonObj["StockTransfer"].length > 0) {
+            StockTransferTransaction(slContext, jsonObj, true);
+            StockTransferTransaction(slContext, jsonObj);
+        }
+        
     
         // OWN USAGE
         if(fuelSale.body['U_tl_s_ownallow'] !== 'Y' && jsonObj["OwnUsage"].length > 0) OwnUsageTransaction(slContext, jsonObj);
     
         // TELA CARD
-        if(fuelSale.body['U_tl_s_cardallow'] !== 'Y' && jsonObj["TelaCard"].length > 0) TelaCardTransaction(slContext, jsonObj);
+        if(fuelSale.body['U_tl_s_cardallow'] !== 'Y' && jsonObj["TelaCard"].length > 0) {
+            TelaCardTransaction(slContext, jsonObj, true);
+            TelaCardTransaction(slContext, jsonObj);
+        };
     
         // PUMP TEST
         if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE_LP", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
-
+        
         // update metter in pump
         const nozzles = fuelSale.body['TL_RETAILSALE_LP_CCCollection']
         const pumpData = slContext.get("TL_Dispenser", fuelSale.body['U_tl_pump']).body;
         let TL_DISPENSER_LINESCollection = pumpData['TL_DISPENSER_LINESCollection'].map((pump) => {
             const find = nozzles.find((nozzle) => nozzle.U_tl_itemcode === pump.U_tl_itemnum);
+            if(!find) return pump;
             return {
                 ...pump,
                 U_tl_reg_meter: parseFloat(find.U_tl_ometer || 0),
@@ -294,8 +305,8 @@ function CashSaleTransaction(slContext, jsonObj){
     slContext.commitTransaction();
 }
 
-function PartnerShipTransaction(slContext, jsonObj){
-    slContext.startTransaction();
+function PartnerShipTransaction(slContext, jsonObj, testing=false){
+    if(testing) slContext.startTransaction();
     // Good Issue
     var goodIssue = {
         Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
@@ -404,11 +415,13 @@ function PartnerShipTransaction(slContext, jsonObj){
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
     }
-    slContext.commitTransaction();
+    if(testing) slContext.rollbackTransaction();
+    // slContext.commitTransaction();
 }
 
-function StockTransferTransaction(slContext, jsonObj){
-    slContext.startTransaction();
+function StockTransferTransaction(slContext, jsonObj, testing=false){
+    
+    if(testing) slContext.startTransaction();
     // Goods Issue
     var goodIssue = {
         Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
@@ -537,8 +550,8 @@ function StockTransferTransaction(slContext, jsonObj){
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
     }
-    
-    slContext.commitTransaction();
+    if(testing) slContext.rollbackTransaction();
+    // slContext.commitTransaction();
 }
 
 function OwnUsageTransaction(slContext, jsonObj){
@@ -591,8 +604,8 @@ function OwnUsageTransaction(slContext, jsonObj){
     slContext.commitTransaction();
 }
 
-function TelaCardTransaction(slContext, jsonObj){
-    slContext.startTransaction();
+function TelaCardTransaction(slContext, jsonObj, testing=false){
+    if(testing) slContext.startTransaction();
     //  Goods Issue
     var goodIssue = {
         Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
@@ -700,8 +713,8 @@ function TelaCardTransaction(slContext, jsonObj){
         slContext.rollbackTransaction();
         throw ({ ...TlRetailSaleContext.body });
     }
-
-    slContext.commitTransaction();
+    if(testing) slContext.rollbackTransaction();
+    // slContext.commitTransaction();
 }
 
 function PumpTestTransaction(slContext, jsonObj){

@@ -13,7 +13,7 @@ import { AuthorizationContext, Role } from "@/contexts/useAuthorizationContext";
 const SaleInvoicePage = () => {
   const navigate = useNavigate();
   const [count, setCount]: any = useState();
-  const goTo = (route: string) => navigate("/sale-invoice/" + route);
+  const goTo = (route: string) => navigate("/wholesale/sale-invoice/" + route);
 
   const getCount = async () => {
     const fuel = await new SalesOrderRepository().getCount({
