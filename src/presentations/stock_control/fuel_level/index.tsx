@@ -9,9 +9,13 @@ import moment from "moment";
 import { useFuelLevelListHook } from "./hook/useFuelLevelListHook";
 import FuelLevelHeaderFilter from "./components/FuelLevelHeaderFilter";
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
+import { useGetBranchesAssignHook } from "@/hook/useGetBranchesAssignHook";
 
 export default function List() {
   const route = useNavigate();
+
+  const branches = useGetBranchesAssignHook();
+
 
   const columns = React.useMemo(
     () => [
@@ -30,6 +34,16 @@ export default function List() {
         type: "number",
       },
       {
+        accessorKey: "U_tl_bplid",
+        header: "Branch", //uses the default width from defaultColumn prop
+        visible: true,
+        Cell: (cell: any) => {
+          if (branches.isLoading) return '';
+
+          return branches.data?.find((e: any) => e?.BPLID === cell?.row?.original?.U_tl_bplid)?.BPLName
+        },
+      },
+      {
         accessorKey: "U_tl_doc_date",
         header: "Document Date",
         Cell: (cell: any) => {
@@ -38,13 +52,6 @@ export default function List() {
           return moment(cell.row.original.U_tl_doc_date).format(
             "DD.MMMM.YYYY"
           )
-        },
-      },
-      {
-        accessorKey: "Status",
-        header: "Status ",
-        Cell: (cell: any) => {
-          return cell.row.original.Status == "O" ? "Open" : "Closed";
         },
       },
       {
@@ -95,7 +102,7 @@ export default function List() {
   });
 
 
-  const { data, loading, totalRecords, state, setFilter, setSort, exportExcelTemplate, refetchData } = useFuelLevelListHook(pagination);
+  const { data, loading, totalRecords, state, setFilter, setSort, exportExcelTemplate, refetchData, exporting } = useFuelLevelListHook(pagination);
 
 
   const onSubmitFilter = (queries: (string | undefined)[], query: string) => {
@@ -137,9 +144,9 @@ export default function List() {
             size="small"
             variant="text"
             onClick={exportExcelTemplate}
-            disabled={false} // Adjust based on the actual loading state
+            disabled={loading} // Adjust based on the actual loading state
           >
-            {loading ? (
+            {exporting ? (
               <>
                 <span className="text-xs mr-2">
                   <CircularProgress size={16} />

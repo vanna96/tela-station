@@ -38,6 +38,7 @@ const keyCount = 'fuel_count';
 
 export const useFuelLevelListHook = (pagination: any) => {
     const [state, dispatch] = React.useReducer(reducer, initialState);
+    const [exporting, setExporting] = React.useState(false);
 
     const filters = useMemo(() => {
         return { ...state, skip: Number(pagination?.pageIndex) * Number(pagination?.pageSize), top: pagination?.pageSize ?? 10 } as QueryOptionAPI;
@@ -73,34 +74,41 @@ export const useFuelLevelListHook = (pagination: any) => {
     }, [dataQuery.isFetching, countQuery.isFetching])
 
     const exportExcelTemplate = useCallback(async () => {
-        const query = { ...state } as QueryOptionAPI;
+        try {
+            const query = { ...state } as QueryOptionAPI;
 
-        delete query.top;
-        delete query.skip;
-        // 
-        const reponse: any = await request('GET', `/TL_FUEL_LEVEL?${queryOptionParser(query)}`);
+            delete query.top;
+            delete query.skip;
+            // 
+            setExporting(true)
+            const reponse: any = await request('GET', `/TL_FUEL_LEVEL?${queryOptionParser(query)}`);
 
-        const lists: string[][] = [];
-        const reponseData: any[] = reponse?.data?.value ?? [] as any[]
+            const lists: string[][] = [];
+            const reponseData: any[] = reponse?.data?.value ?? [] as any[]
 
-        for (const fuelLevel of reponseData) {
-            lists.push([fuelLevel.DocNum, fuelLevel.U_tl_doc_date?.split('T')[0], fuelLevel.U_tl_bplid, fuelLevel.Status === 'O' ? "OPEN" : "CLOSED"]);
-        }
-        // 
-        const headers = ['Document No', 'Document Date', 'Branch', 'Status'];
-        const sheet: Sheet = {
-            filename: 'fuel_level',
-            sheetName: 'Fuel Level',
-            header: {
-                value: headers.map((e) => ({ value: e })),
-                startCol: 1,
-                startRow: 7,
-            },
-            body: {
-                value: lists
+            for (const fuelLevel of reponseData) {
+                lists.push([fuelLevel.DocNum, fuelLevel.U_tl_doc_date?.split('T')[0], fuelLevel.U_tl_bplid, fuelLevel.Status === 'O' ? "OPEN" : "CLOSED"]);
             }
-        };
-        await exportDefaulExcelTemplate(sheet);
+            // 
+            const headers = ['Document No', 'Document Date', 'Branch', 'Status'];
+            const sheet: Sheet = {
+                filename: 'fuel_level',
+                sheetName: 'Fuel Level',
+                header: {
+                    value: headers.map((e) => ({ value: e })),
+                    startCol: 1,
+                    startRow: 7,
+                },
+                body: {
+                    value: lists
+                }
+            };
+            await exportDefaulExcelTemplate(sheet);
+            setExporting(false)
+        } catch (error) {
+            setExporting(false)
+        }
+
         // setLoadingDialog(false);
     }, [state])
 
@@ -113,6 +121,7 @@ export const useFuelLevelListHook = (pagination: any) => {
         setFilter,
         setSort,
         exportExcelTemplate,
-        refetchData
+        refetchData,
+        exporting
     }
 }
