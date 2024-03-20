@@ -6,7 +6,7 @@ import PositionAutoComplete from "@/components/input/PositionAutoComplete";
 import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
@@ -34,23 +34,23 @@ const General = ({
   transDetail,
   setFuel,
 }: UseFormProps) => {
-  const [staticSelect, setStaticSelect] = useState({
-    startDate: null,
-    status: "",
-    termination: null,
-    branchASS: null,
-  });
   const { id } = useParams();
-  useEffect(() => {
-    setValue("Series", undefined);
-   
-  }, [defaultValues]);
-  const nextNumber = serie?.find(
-    (e: any) => e?.Series === getValues("Series")
-  )?.NextNumber;
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const series = serie?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+      if (!series) return;
+
+      setValue("Series", event?.target?.value);
+      setValue("DocNum", series?.NextNumber);
+    },
+    [serie]
+  );
   const location = useLocation();
   const create = location.pathname?.split("/");
-  
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -268,7 +268,7 @@ const General = ({
               <div className="col-span-3">
                 <div className="grid grid-cols-2 gap-3">
                   <Controller
-                    // rules={{ required: "Terminal is required" }}
+                    rules={{ required: "Series is required" }}
                     name="Series"
                     control={control}
                     render={({ field }) => {
@@ -276,14 +276,11 @@ const General = ({
                         <MUISelect
                           {...field}
                           items={serie}
-                          disabled={true}
-                          value={watch("Series") || defaultValues?.serie}
+                          value={field.value}
                           aliasvalue="Series"
                           aliaslabel="Name"
                           name="Series"
-                          // onChange={(e: any) => {
-                          //   setValue("Series", e?.target?.value);
-                          // }}
+                          onChange={(e: any) => onChangeSerie(e)}
                         />
                       );
                     }}
@@ -292,10 +289,8 @@ const General = ({
                   <div className="-mt-1">
                     <MUITextField
                       disabled={true}
-                      // inputProps={{
-                      //   ...register("DocNum"),
-                      // }}
-                      value={nextNumber || defaultValues?.DocNum}
+                      key={watch("DocNum")}
+                      value={watch("DocNum")}
                     />
                   </div>
                 </div>
@@ -351,7 +346,7 @@ const General = ({
                   )}
                 </div>
                 <Controller
-                  name="Status"
+                  name="U_Status"
                   control={control}
                   render={({ field }) => {
                     return (
@@ -396,11 +391,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={(id as any) || detail}
                         {...field}
-                        defaultValue={
-                          defaultValues?.U_DispatchDate ||
-                          staticSelect.startDate
-                        }
-                        key={`DispatchDate_${staticSelect.startDate}`}
+                        value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -408,10 +399,7 @@ const General = ({
                               ? ""
                               : e;
                           setValue("U_DispatchDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            startDate: e,
-                          });
+
                           setHeader({ ...header, DispatchDate: e });
                         }}
                       />
@@ -435,11 +423,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={(id as any) || detail}
                         {...field}
-                        defaultValue={
-                          defaultValues?.U_CompletedDate ||
-                          staticSelect.startDate
-                        }
-                        key={`start_date_${staticSelect.startDate}`}
+                        value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -450,10 +434,7 @@ const General = ({
                             "U_CompletedDate",
                             `${val == "" ? "" : val}`
                           );
-                          setStaticSelect({
-                            ...staticSelect,
-                            startDate: e,
-                          });
+
                           setHeader({ ...header, CompletedDate: e });
                         }}
                       />

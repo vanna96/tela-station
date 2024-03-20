@@ -46,6 +46,9 @@ export default function Content({
             Quantity: undefined,
             WarehouseCode: watch("U_tl_whsdesc"),
             UseBaseUnits: "tNO",
+            CostingCode: item?.LineOfBusiness,
+            CostingCode2: watch("U_ti_revenue"),
+            CostingCode3: item?.ProductLine,
           });
         }
       } else {
@@ -55,6 +58,9 @@ export default function Content({
           Quantity: state[index as number]?.Quantity,
           UoMCode: undefined,
           UoMAbsEntry: undefined,
+          CostingCode: items?.LineOfBusiness,
+          CostingCode2: watch("U_ti_revenue"),
+          CostingCode3: items?.ProductLine,
           DocumentLinesBinAllocations: [],
         };
       }
@@ -194,10 +200,7 @@ export default function Content({
                         disabled
                         inputProps={{
                           ...register(
-                            `DocumentLines.${index}.ItemDescription`,
-                            {
-                              required: "Item Description. is required",
-                            }
+                            `DocumentLines.${index}.ItemDescription`
                           ),
                         }}
                       />
@@ -207,7 +210,9 @@ export default function Content({
                         disabled={id}
                         type="number"
                         inputProps={{
-                          ...register(`DocumentLines.${index}.Quantity`),
+                          ...register(`DocumentLines.${index}.Quantity`, {
+                            required: "Quantity is required",
+                          }),
                         }}
                       />
                     </td>

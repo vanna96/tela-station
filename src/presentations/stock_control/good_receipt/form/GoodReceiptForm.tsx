@@ -37,7 +37,12 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm();
+    useForm({
+      defaultValues: {
+        DocDate: new Date()?.toISOString()?.split("T")[0],
+        TaxDate: new Date()?.toISOString()?.split("T")[0],
+      } as any,
+    });
   const route = useNavigate()
   const { id }: any = useParams();
 
@@ -142,6 +147,7 @@ const GoodIssueForm = (props: any) => {
         setState({
           ...state,
           loading: false,
+          DocNum: res?.data?.DocNum,
         });
         reset({ ...res.data }, { keepValues: false });
       })
@@ -154,14 +160,21 @@ const GoodIssueForm = (props: any) => {
       });
   }, [id]);
 
-  const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
-  };
-
+    const onInvalidForm = (invalids: any) => {
+      if (invalids?.DocumentLines?.length > 0) {
+        for (const invs of invalids?.DocumentLines) {
+          for (const [key, inv] of Object.entries(invs??{}) as any){
+            dialog.current?.error(inv?.message);            
+          }
+        }
+        return;
+      }
+      dialog.current?.error(
+        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+          "Oop something wrong!",
+        "Invalid Value"
+      );
+    };
   return (
     <>
       {state.loading ? (
@@ -225,7 +238,7 @@ const GoodIssueForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() => route("/master-data/driver")}
+                    onClick={() => route("/stock-control/good-receipt")}
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel

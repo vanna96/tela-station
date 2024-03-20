@@ -12,6 +12,7 @@ import moment from "moment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseGoodIssueListHook } from "./hook/UseGoodIssueListHook";
+import GetBranchAutoComplete from "../components/GetBranchAutoComplete";
 // import {displayT}
 export default function InventoryTransferList() {
   const route = useNavigate();
@@ -28,7 +29,6 @@ export default function InventoryTransferList() {
     setSort,
     totalRecords,
     exportExcelTemplate,
-    state,
     waiting,
   } = UseGoodIssueListHook(pagination);
 
@@ -41,7 +41,7 @@ export default function InventoryTransferList() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return <span>{cell?.row?.id}</span>;
+          return <span>{cell?.row?.index + 1}</span>;
         },
       },
       {
@@ -59,7 +59,6 @@ export default function InventoryTransferList() {
         enableClickToCopy: true,
         visible: true,
         size: 88,
-
       },
       {
         accessorKey: "U_tl_whsdesc",
@@ -92,15 +91,6 @@ export default function InventoryTransferList() {
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
       },
       {
-        accessorKey: "DocTotal",
-        header: "Total Qty",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 88,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.toFixed(2)}</>,
-      },
-      {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
         enableColumnFilterModes: false,
@@ -119,13 +109,6 @@ export default function InventoryTransferList() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                // route(
-                //   `/stock-control/${salesType}/` + cell.row.original.DocEntry,
-                //   {
-                //     state: cell.row.original,
-                //     replace: true,
-                //   }
-                // );
                 route(
                   "/stock-control/good-issue/" + cell.row.original.DocEntry,
                   {
@@ -141,13 +124,7 @@ export default function InventoryTransferList() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
-              className={`${cell.row.original.DocumentStatus === "bost_Close"
-                ? "bg-gray-400"
-                : ""
-                } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+              className={` bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/stock-control/good-issue/" +
@@ -342,6 +319,7 @@ export const InventoryTransferFilter = ({
                     return (
                       <BranchAssignmentAuto
                         onChange={(e: any) => {
+                    
                           setValue(
                             "BPL_IDAssignedToInvoice_$eq_number",
                             e?.BPLID

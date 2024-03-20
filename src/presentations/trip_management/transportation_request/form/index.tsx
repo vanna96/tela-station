@@ -26,7 +26,10 @@ import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
 import { log } from "util";
 import { useParams } from "react-router-dom";
+import CustomToast from "@/components/modal/CustomToast";
 let dialog = React.createRef<FormMessageModal>();
+let toastRef = React.createRef<CustomToast>();
+
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
   setValue: UseFormSetValue<FieldValues>;
@@ -96,6 +99,7 @@ const Form = (props: any) => {
   useEffect(() => {
     fetchData();
     fethSeries()
+    
   }, []);
   const fethSeries = async() => {
    let seriesList: any = props?.query?.find("tr-series");
@@ -164,7 +168,30 @@ const Form = (props: any) => {
       setState({ ...state, isSubmitting: false });
     }
   };
+  const isNextTap = (index: number) => {
+    if (!getValues("U_Requester") || getValues("U_Requester") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_Branch") || getValues("U_Branch") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("Series") || getValues("Series") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_Terminal") || getValues("U_Terminal") === "") {
+      toastRef.current?.open();
+      return;
+    }
+    if (!getValues("U_RequestDate") || getValues("U_RequestDate") === "") {
+      toastRef.current?.open();
+      return;
+    }
 
+    handlerChangeMenu(index);
+  };
   const handlerChangeMenu = useCallback(
     (index: number) => {
       setState((prevState) => ({
@@ -216,16 +243,10 @@ const onInvalidForm = (invalids: any) => {
   const HeaderTaps = () => {
     return (
       <>
-        <MenuButton
-          active={state.tapIndex === 0}
-          onClick={() => handlerChangeMenu(0)}
-        >
+        <MenuButton active={state.tapIndex === 0} onClick={() => isNextTap(0)}>
           General
         </MenuButton>
-        <MenuButton
-          active={state.tapIndex === 1}
-          onClick={() => handlerChangeMenu(1)}
-        >
+        <MenuButton active={state.tapIndex === 1} onClick={() => isNextTap(1)}>
           Document
         </MenuButton>
         {/* ... Other menu buttons ... */}
@@ -355,6 +376,8 @@ const onInvalidForm = (invalids: any) => {
             <CircularProgress />
           </Backdrop>
           <FormMessageModal ref={dialog} />
+          <CustomToast ref={toastRef} />
+
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
