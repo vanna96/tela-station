@@ -22,8 +22,8 @@ let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
 export type UseFormProps = {
-  register?: UseFormRegister<FieldValues>;
-  setValue?: UseFormSetValue<FieldValues>;
+  register: UseFormRegister<FieldValues>;
+  setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?: any;
   setBranchAss?: any;
@@ -43,7 +43,7 @@ const GoodIssueForm = (props: any) => {
         TaxDate: new Date()?.toISOString()?.split("T")[0],
       } as any,
     });
-  const route = useNavigate()
+  const route = useNavigate();
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -62,6 +62,11 @@ const GoodIssueForm = (props: any) => {
       // DocNum: undefined,
       // Series:undefined
     };
+    if (payload?.DocumentLines) {
+      for (let index = 0; index < payload?.DocumentLines.length; index++) {
+        payload["DocumentLines"][index]["WarehouseCode"] = payload.U_tl_whsdesc;
+      }
+    }
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
@@ -160,20 +165,20 @@ const GoodIssueForm = (props: any) => {
       });
   }, [id]);
 
-    const onInvalidForm = (invalids: any) => {
-      if (invalids?.DocumentLines?.length > 0) {
-        for (const invs of invalids?.DocumentLines) {
-          for (const [key, inv] of Object.entries(invs??{}) as any){
-            dialog.current?.error(inv?.message);            
-          }
+  const onInvalidForm = (invalids: any) => {
+    if (invalids?.DocumentLines?.length > 0) {
+      for (const invs of invalids?.DocumentLines) {
+        for (const [key, inv] of Object.entries(invs ?? {}) as any) {
+          dialog.current?.error(inv?.message);
         }
-        return;
       }
-      dialog.current?.error(
-        invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-          "Oop something wrong!",
-        "Invalid Value"
-      );
+      return;
+    }
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+        "Oop something wrong!",
+      "Invalid Value"
+    );
   };
 
   return (
@@ -217,14 +222,17 @@ const GoodIssueForm = (props: any) => {
             {state.tapIndex === 1 && (
               <div className="grow">
                 <Content
+                  reset={reset}
                   register={register}
                   getValues={getValues}
                   control={control}
                   watch={watch}
                   setValue={setValue}
-                />{" "}
+                />
               </div>
-            )}
+              )}
+              
+              
 
             {/* ... Other form fields ... */}
             <div className="sticky bottom-4  mt-2 ">
