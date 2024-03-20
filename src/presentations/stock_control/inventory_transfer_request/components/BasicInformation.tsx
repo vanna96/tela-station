@@ -18,7 +18,9 @@ const BasicInformation = (props: any) => {
 
     return series.data?.filter((e: any) => e?.BPLID === props.watch('BPLID')) ?? []
   }, [series, props.watch('BPLID')])
+console.log(getSerieLists);
 
+  
   useEffect(() => {
     if (props?.edit) return;
 

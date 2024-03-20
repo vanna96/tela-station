@@ -316,7 +316,7 @@ export default function DepositList() {
 
               <div className="col-span-2 2xl:col-span-3 -mt-[2px]">
                 <MUIDatePicker
-                  label="Delivery Date"
+                  label="Deposit Date"
                   value={searchValues?.depositdate}
                   placeholder=""
                   onChange={(e: any) => {
