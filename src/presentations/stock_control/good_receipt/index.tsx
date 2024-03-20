@@ -5,7 +5,6 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString, displayTextDate } from "@/lib/utils";
 import DataTable from "../components/DataTable";
@@ -56,14 +55,12 @@ export default function InventoryTransferList() {
         size: 88,
       },
       {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "BPLName",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
         size: 88,
 
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
       },
       {
         accessorKey: "U_tl_whsdesc",
@@ -192,9 +189,9 @@ export default function InventoryTransferList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {waiting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
@@ -215,7 +212,7 @@ export default function InventoryTransferList() {
           </DataTable>
         </div>
       </div>
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
       // onClick={handleClose}
@@ -224,7 +221,7 @@ export default function InventoryTransferList() {
           <CircularProgress color="inherit" size={25} />
           <span className="text-sm -mr-2">Waiting for export to CSV ...</span>
         </div>
-      </Backdrop>
+      </Backdrop> */}
     </>
   );
 }
@@ -295,7 +292,7 @@ export const InventoryTransferFilter = ({
           <div className="col-span-2 2xl:col-span-3">
             <div className="flex flex-col gap-1 text-sm">
               <label htmlFor="Code" className="text-gray-500 -mt-1 text-[14px]">
-                Delivery Date
+                Posting Date
               </label>
               <div className="">
                 <Controller

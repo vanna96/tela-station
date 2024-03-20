@@ -87,10 +87,14 @@ export default function ContentComponent(props: ContentComponentProps) {
   const onChange = (key: string, value: any) => {
     if (props.onChange) props.onChange(key, value);
   };
-
+  // U_tl_totalbefdis: data?.U_tl_totalbefdis,
+  //       U_tl_dispercent: data?.U_tl_dispercent,
+  //       U_tl_disperamt: data?.U_tl_disperamt,
+  //       U_tl_tax: data?.U_tl_tax,
+  //       U_tl_doctotal: data?.U_tl_doctotal,
   const [docTotal, docTaxTotal, totalBefore] = useDocumentTotalHook(
     props.data.Items ?? [],
-    props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
+    props?.data?.U_tl_dispercent === "" ? 0 : props.data?.U_tl_dispercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
 
@@ -99,13 +103,13 @@ export default function ContentComponent(props: ContentComponentProps) {
       return 0;
     }
     // Calculate discountAmount
-    const dataDiscount: number = props?.data?.DiscountPercent || 0;
+    const dataDiscount: number = props?.data?.U_tl_dispercent || 0;
     if (dataDiscount <= 0) return 0;
     if (dataDiscount > 100) return 100;
     const discountedAmount = totalBefore * (dataDiscount / 100);
 
     return formatNumberWithoutRounding(discountedAmount, 3);
-  }, [props?.data?.DiscountPercent, props.data.Items, totalBefore]);
+  }, [props?.data?.U_tl_dispercent, props.data.Items, totalBefore]);
   const discountedDocTaxTotal: number = React.useMemo(() => {
     if (discountAmount === 0) {
       return docTaxTotal;
@@ -114,7 +118,7 @@ export default function ContentComponent(props: ContentComponentProps) {
     }
   }, [
     props.data.Items,
-    props.data.DiscountPercent,
+    props.data.U_tl_dispercent,
     props.data.ExchangeRate,
     discountAmount,
   ]);
@@ -129,7 +133,7 @@ export default function ContentComponent(props: ContentComponentProps) {
         formatNumberWithoutRounding(discountedDocTaxTotal, 3)
       );
     }
-  }, [props.data.Items, props.data.DiscountPercent]);
+  }, [props.data.Items, props.data.U_tl_dispercent]);
 
   const dataForTable = useMemo(() => {
     if (props.data?.Items && props.data.Items.length > 0) {
@@ -139,6 +143,12 @@ export default function ContentComponent(props: ContentComponentProps) {
     }
   }, [props.data?.Items]);
 
+  if (props.data) {
+    props.data.U_tl_totalbefdis = totalBefore;
+    props.data.U_tl_disperamt = discountAmount;
+    props.data.U_tl_tax = discountedDocTaxTotal;
+    props.data.U_tl_doctotal = discountedDocTotal;
+  }
   return (
     <FormCard
       title=""
@@ -267,7 +277,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-6  text-gray-900 mr-2">
                       <NumericFormat
                         className=" w-full"
-                        value={props?.data?.DiscountPercent}
+                        value={props?.data?.U_tl_dispercent}
                         thousandSeparator
                         startAdornment={"%"}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -283,7 +293,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                           ) {
                             event.target.value = 0;
                           }
-                          onChange("DiscountPercent", event.target.value);
+                          onChange("U_tl_dispercent", event.target.value);
                         }}
                         customInput={MUIRightTextField}
                       />

@@ -10,7 +10,7 @@ export default function GetBranchAutoComplete(props: {
     disabled?: any;
     name?: any;
 }) {
-    const { data, isLoading } = useGetBranchesAssignHook();
+    const { data, isLoading, isFetching } = useGetBranchesAssignHook();
     const { disabled } = props;
 
     const [selectedValue, setSelectedValue] = useState<any>({});
@@ -28,14 +28,20 @@ export default function GetBranchAutoComplete(props: {
     }, [props.value, data]);
 
 
+
+    const branches = React.useMemo(() => {
+        return data?.sort((a: any, b: any) => a.BPLID - b.BPLID) ?? [];
+    }, [data])
+
+
     return (
         <Autocomplete
             disabled={disabled}
-            options={data ?? []}
+            options={branches ?? []}
             autoHighlight
             value={selectedValue ?? {}}
             onChange={handleAutocompleteChange}
-            loading={isLoading}
+            loading={isFetching}
 
             getOptionLabel={(option: any) => option?.BPLName ?? ''}
             renderOption={(props, option) => (

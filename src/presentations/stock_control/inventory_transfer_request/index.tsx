@@ -21,7 +21,7 @@ export default function InventoryTransferRequestList() {
     pageSize: 10,
   });
 
-  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state } = useInventoryTransferRequestListHook(pagination)
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting } = useInventoryTransferRequestListHook(pagination)
 
   const columns = React.useMemo(
     () => [
@@ -160,9 +160,9 @@ export default function InventoryTransferRequestList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {exporting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
@@ -198,7 +198,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   U_tl_attn_ter_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: '',
+  DocumentStatus_$eq: `DocumentStatus eq '_all'`,
 }
 
 export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
@@ -215,7 +215,7 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
   function onSubmit(data: any) {
     const queryString: (string | undefined)[] = [];
     for (const [key, value] of Object.entries(data)) {
-      if (!value) continue;
+      if (!value || (value as string)?.includes('_all')) continue;
 
       queryString.push('and');
       queryString.push(conditionString(key, value as any))
@@ -224,7 +224,8 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
     queryString.splice(0, 1);
     const query = queryString.join(' ');
 
-    if (onFilter) onFilter(queryString, query);
+
+    if (onFilter) onFilter(queryString, query.replaceAll(`DocumentStatus eq '_all'`, ''));
   }
 
 
@@ -309,7 +310,7 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
                   return (
                     <MUISelect
                       items={[
-                        { id: "", name: "All" },
+                        { id: "_all", name: "All" },
                         { id: "bost_Open", name: "Open" },
                         { id: "bost_Close", name: "Closed" },
                       ]}

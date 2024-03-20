@@ -38,6 +38,14 @@ export default function Lists() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        Cell: (cell: any) => cell?.row?.index + 1,
+      },
+      {
         accessorKey: "Code",
         header: "Cash Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,

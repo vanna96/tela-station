@@ -10,8 +10,8 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
-import { InventoryItemModal } from "../../inventory_transfer_request/components/ITRModal";
 import { useParams } from "react-router-dom";
+import { InventoryItemModal } from "../../components/GetItemModal";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
@@ -110,7 +110,7 @@ export default function Content({
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Content</h2>
-          {!detail && (
+          {!id && (
             <Button
               variant="outlined"
               onClick={handlerDelete}

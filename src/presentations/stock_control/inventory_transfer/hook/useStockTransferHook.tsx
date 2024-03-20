@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { calculateUOM } from "../../components/UomSelectByItem";
 import { useGetStockTransferSeriesHook } from "./useGetStockTransferSeriesHook";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 
 export type TransferType = 'Internal' | 'External';
 
@@ -140,6 +141,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
 
 
     const { series } = useGetStockTransferSeriesHook()
+    const warehouese = useGetWhsTerminalAssignHook(false);
 
     const { id } = useParams();
 
@@ -163,9 +165,9 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
             let fromBinId = payload.U_tl_fromBinId
             const toBinId = payload.U_tl_toBinId
 
-            delete payload.U_tl_fromBinId;
-            delete payload.U_tl_toBinId;
-            delete payload.U_tl_sobincode;
+            payload.U_tl_fromBinId;
+            payload.U_tl_toBinId;
+            payload.U_tl_sobincode;
             delete payload.U_tl_uobincode;
             setLoading(true);
 
@@ -217,7 +219,10 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         const period = new Date().getFullYear();
         const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
 
-        setValue("Series", serie?.Series);
+        const git_wsh = warehouese.data?.filter((e: any) => e?.BusinessPlaceID === value?.BPLID && e.U_tl_git_whs === 'Y');
+        setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
+        setValue("ToWarehouse", undefined);
+        setValue("U_tl_attn_ter", undefined);
         setValue("DocNum", serie?.NextNumber);
         setValue('BPLID', value?.BPLID)
     }

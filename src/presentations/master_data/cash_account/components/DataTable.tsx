@@ -88,7 +88,7 @@ export default function DataTable(props: DataTableProps) {
     const mappedData = data.map((row) => ({
       "Cash Code": row.Code,
       "Description": row.Name,
-      "G/L Account": ` ${row.U_tl_expacct ?? "N/A"} - ${new GLAccountRepository().find(row.U_tl_expacct)
+      "G/L Account": ` ${row.U_tl_cashacct ?? "N/A"} - ${new GLAccountRepository().find(row.U_tl_cashacct)
         ?.Name ?? 'N/A'}`,
       "Status": row.U_tl_expactive == 'Y' ? "Active": "Inactive",
     }));
@@ -198,7 +198,7 @@ export default function DataTable(props: DataTableProps) {
           }}
           enableColumnVirtualization={false}
           onColumnVisibilityChange={setColVisibility}
-          enableRowNumbers={true}
+          enableRowNumbers={false}
         />
 
         <ColumnSearch ref={search} onOk={handlerSearch} />

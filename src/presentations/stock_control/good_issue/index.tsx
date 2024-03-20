@@ -1,14 +1,9 @@
-
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
 import { Backdrop, Button, CircularProgress } from "@mui/material";
-import MUISelect from "@/components/selectbox/MUISelect";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString, displayTextDate } from "@/lib/utils";
 import DataTable from "../components/DataTable";
@@ -34,7 +29,7 @@ export default function InventoryTransferList() {
     totalRecords,
     exportExcelTemplate,
     state,
-    waiting
+    waiting,
   } = UseGoodIssueListHook(pagination);
 
   const columns = React.useMemo(
@@ -59,14 +54,12 @@ export default function InventoryTransferList() {
         size: 88,
       },
       {
-        accessorKey: "BPL_IDAssignedToInvoice",
+        accessorKey: "BPLName",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
         size: 88,
 
-        Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
       },
       {
         accessorKey: "U_tl_whsdesc",
@@ -105,6 +98,7 @@ export default function InventoryTransferList() {
         type: "string",
         align: "center",
         size: 88,
+        Cell: ({ cell }: any) => <>{cell.getValue()?.toFixed(2)}</>,
       },
       {
         accessorKey: "DocEntry",
@@ -150,16 +144,15 @@ export default function InventoryTransferList() {
               disabled={
                 cell.row.original.DocumentStatus === "bost_Close" ?? false
               }
-              className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
-              } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+              className={`${cell.row.original.DocumentStatus === "bost_Close"
+                ? "bg-gray-400"
+                : ""
+                } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/stock-control/good-issue/" +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  cell.row.original.DocEntry +
+                  "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -198,7 +191,7 @@ export default function InventoryTransferList() {
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => {}}
+            handlerSearch={() => { }}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
@@ -211,9 +204,9 @@ export default function InventoryTransferList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {waiting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
@@ -234,16 +227,16 @@ export default function InventoryTransferList() {
           </DataTable>
         </div>
       </div>
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
         // onClick={handleClose}
       >
         <div className="flex flex-col justify-center gap-3 items-center">
-          <CircularProgress color="inherit" size={25}/>
+          <CircularProgress color="inherit" size={25} />
           <span className="text-sm -mr-2">Waiting for export to CSV ...</span>
         </div>
-      </Backdrop>
+      </Backdrop> */}
     </>
   );
 }
@@ -314,7 +307,7 @@ export const InventoryTransferFilter = ({
           <div className="col-span-2 2xl:col-span-3">
             <div className="flex flex-col gap-1 text-sm">
               <label htmlFor="Code" className="text-gray-500 -mt-1 text-[14px]">
-                Delivery Date
+                Posting Date
               </label>
               <div className="">
                 <Controller
@@ -349,9 +342,12 @@ export const InventoryTransferFilter = ({
                     return (
                       <BranchAssignmentAuto
                         onChange={(e: any) => {
-                          setValue("BPL_IDAssignedToInvoice_$eq_number", e?.BPLID);
+                          setValue(
+                            "BPL_IDAssignedToInvoice_$eq_number",
+                            e?.BPLID
+                          );
                         }}
-                        // value={searchValues.branch}
+                      // value={searchValues.branch}
                       />
                     );
                   }}

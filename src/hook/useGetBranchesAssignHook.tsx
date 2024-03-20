@@ -18,7 +18,7 @@ export const useGetBranchesAssignHook = () => {
         return authorization?.UserBranchAssignment?.map((e) => e.BPLID) ?? []
     }, [authorization?.UserBranchAssignment])
 
-    const response = useQuery({ queryKey: [`brans_assinge_${authorization?.UserBranchAssignment?.length ?? 0}`], queryFn: () => getBranches(ids) })
+    const response = useQuery({ queryKey: [`brans_assinge_${authorization?.UserBranchAssignment?.length ?? 0}`], queryFn: () => getBranches(ids), enabled: false })
 
     return response;
 }

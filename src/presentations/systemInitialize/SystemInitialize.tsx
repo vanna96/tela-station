@@ -58,7 +58,6 @@ const SystemInitializeMasterPage = () => {
         stockTransfer,
         goodIssue,
         goodReceipt,
-        pumpTest,
         fuelLevel,
       ] = await Promise.all([
         // master data
@@ -102,7 +101,6 @@ const SystemInitializeMasterPage = () => {
         fetchModuleCount("StockTransfers/$count"),
         fetchModuleCount("InventoryGenEntries/$count"),
         fetchModuleCount("InventoryGenExits/$count"),
-        fetchModuleCount("tl_PumpTest/$count"),
         fetchModuleCount("TL_FUEL_LEVEL/$count"),
       ]);
 
@@ -139,7 +137,6 @@ const SystemInitializeMasterPage = () => {
         stockTransfer,
         goodIssue,
         goodReceipt,
-        pumpTest,
         fuelLevel,
       };
     },
@@ -335,12 +332,6 @@ const SystemInitializeMasterPage = () => {
       title: "Good Receipt",
       amountKey: "goodReceipt",
       route: "/stock-control/good-receipt",
-      roles: ['UG001', 'UG004']
-    },
-    {
-      title: "Pump Test",
-      amountKey: "pumpTest",
-      route: "/stock-control/pump-test",
       roles: ['UG001', 'UG004']
     },
     {

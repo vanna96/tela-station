@@ -48,7 +48,7 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
-  const vendorPriceList = 13;
+  const vendorPriceList = 9;
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
@@ -82,19 +82,10 @@ export default function ContentForm({
             item.GrossPrice = item.UnitPrice;
             item.Quantity = itemDetails.Quantity ?? 1;
             item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-            item.FromWarehouseCode = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.WhsCode;
-            item.WarehouseCode = data.ToWarehouse;
-            item.FromBin = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.BinAbsEntry;
-            item.BinQty = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.OnHandQty;
-            item.ToBin = data.ToBinItems?.find(
-              (e: any) => e.WhsCode === item.WarehouseCode
-            )?.BinAbsEntry;
+            item.Warehouse = wh;
+            item.Bin = data.nozzleData?.find(
+              (e: any) => e.U_tl_whs === item.WarehouseCode
+            )?.U_tl_bincode;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
           }
@@ -110,6 +101,8 @@ export default function ContentForm({
         }
         return item;
       });
+
+      console.log(items);
 
       onChange("Items", items);
     }
@@ -496,7 +489,7 @@ export default function ContentForm({
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
-        bin={data.U_tl_bincode}
+        bin={data.nozzleData}
       />
     </>
   );

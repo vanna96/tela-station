@@ -53,7 +53,7 @@ class FormDetail extends Component<any, any> {
           // invoice
           const invoice = await request(
             "GET",
-            `/sml.svc/TL_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
+            `/sml.svc/BIZ_AR_INCOMING_PAYMENT?$filter = InvoiceType  eq 'it_Invoice' and BPCode eq '${data?.CardCode}' and BPLId eq ${data?.BPLID}`,
           )
             .then((res: any) => {
               return res.data?.value?.sort(

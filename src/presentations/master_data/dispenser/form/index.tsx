@@ -428,7 +428,7 @@ class DispenserForm extends CoreFormDocument {
           type="inventory"
           group={itemGroupCode}
           onOk={(items) => {
-            if (items.length) {
+            if (items?.length) {
               let pumpData: any = this.state?.PumpData?.map(
                 (item: any, index: number) => {
                   if (index.toString() === this.state?.pumpIndex.toString()) {

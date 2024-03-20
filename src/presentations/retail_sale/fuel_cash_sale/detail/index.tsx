@@ -263,7 +263,7 @@ function General({ data }: any) {
           <div className="col-span-5">
             {renderKeyValue(
               "Branch",
-              new BranchBPLRepository().find(1)?.BPLName
+              new BranchBPLRepository().find(data?.U_tl_bplid)?.BPLName
             )}
             {renderKeyValue("Pump", data?.U_tl_pump)}
             {renderKeyValue("Customer", data.U_tl_cardcode)}
@@ -559,7 +559,7 @@ function NozzleData({ data }: any) {
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
             columns={NozzleDataColumn}
-            data={data?.TL_RETAILSALE_CONHCollection || []}
+            data={data?.TL_RETAILSALE_FU_COCollection || []}
           />
         </div>
       </div>
@@ -571,7 +571,7 @@ function NozzleData({ data }: any) {
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
             columns={GenerateAllocationColumn}
-            data={data?.TL_RETAILSALE_CONHCollection || []}
+            data={data?.TL_RETAILSALE_FU_COCollection || []}
           />
         </div>
       </div>
@@ -581,7 +581,7 @@ function NozzleData({ data }: any) {
 
 function IncomingPayment({ data }: any) {
   const totalCashSale: number = React.useMemo(() => {
-    const total = data?.TL_RETAILSALE_CONHCollection?.reduce(
+    const total = data?.TL_RETAILSALE_FU_COCollection?.reduce(
       (prevTotal: any, item: any) => {
         const lineTotal = Formular.findLineTotal(
           (item.U_tl_cashallow || 0)?.toString(),
@@ -606,7 +606,7 @@ function IncomingPayment({ data }: any) {
     let total = 0;
 
     // Aggregate CashBankData
-    total += data.TL_RETAILSALE_INCCollection.reduce((acc: any, item: any) => {
+    total += data.TL_RETAILSALE_FU_INCollection.reduce((acc: any, item: any) => {
       if (item.U_tl_paycur === currency) {
         const cashAmount = parseAmount(item.U_tl_amtcash) || 0;
         const bankAmount = parseAmount(item.U_tl_amtbank) || 0;
@@ -616,7 +616,7 @@ function IncomingPayment({ data }: any) {
     }, 0);
 
     // Aggregate CheckNumberData
-    total += data.TL_RETAILSALE_INCCollection.reduce((acc: any, item: any) => {
+    total += data.TL_RETAILSALE_FU_INCollection.reduce((acc: any, item: any) => {
       if (item.U_tl_paycur === currency) {
         const checkAmount = parseAmount(item.U_tl_amtcheck) || 0;
         return acc + checkAmount;
@@ -625,7 +625,7 @@ function IncomingPayment({ data }: any) {
     }, 0);
 
     // Aggregate CouponData
-    total += data.TL_RETAILSALE_INCCollection.reduce((acc: any, item: any) => {
+    total += data.TL_RETAILSALE_FU_INCollection.reduce((acc: any, item: any) => {
       if (item.U_tl_paycur === currency) {
         const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
         return acc + couponAmount;
@@ -679,7 +679,7 @@ function IncomingPayment({ data }: any) {
           );
         },
       },
-      data?.TL_RETAILSALE_INCCollection?.some(
+      data?.TL_RETAILSALE_FU_INCollection?.some(
         (item: any) => item?.U_tl_paytype === "Cash"
       )
         ? {
@@ -794,7 +794,7 @@ function IncomingPayment({ data }: any) {
   );
 
   console.log(
-    data?.TL_RETAILSALE_INCCollection?.filter(
+    data?.TL_RETAILSALE_FU_INCollection?.filter(
       (e: any) => e.U_tl_paytype === "Coupon"
     )
   );
@@ -818,7 +818,7 @@ function IncomingPayment({ data }: any) {
         <CustomMaterialReactTable
           columns={cashBankColumn}
           data={
-            data?.TL_RETAILSALE_INCCollection?.filter(
+            data?.TL_RETAILSALE_FU_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Cash" || e.U_tl_paytype === "Bank"
             ) || []
           }
@@ -829,7 +829,7 @@ function IncomingPayment({ data }: any) {
         <CustomMaterialReactTable
           columns={checkNumberColumn}
           data={
-            data?.TL_RETAILSALE_INCCollection?.filter(
+            data?.TL_RETAILSALE_FU_INCollection?.filter(
               (e: any) => e.U_tl_paytype === "Check"
             ) || []
           }
@@ -837,7 +837,7 @@ function IncomingPayment({ data }: any) {
       </div>
 
       <div className="mt-4">
-        {data?.TL_RETAILSALE_INCCollection?.filter(
+        {data?.TL_RETAILSALE_FU_INCollection?.filter(
           (e: any) => e.U_tl_paytype === "Coupon"
         ).map((item: any, index: number) => (
           <div key={index}>
@@ -1101,7 +1101,7 @@ function Stock({ data }: any) {
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
             columns={stockColumns}
-            data={data?.TL_RETAILSALE_STACollection || []}
+            data={data?.TL_RETAILSALE_FU_SACollection || []}
           />
         </div>
       </div>
@@ -1144,7 +1144,7 @@ function CardCount({ data }: any) {
                 Cell: renderCell(key),
               })),
             ]}
-            data={data?.TL_RETAILSALE_CACCollection || []}
+            data={data?.TL_RETAILSALE_FU_CCCollection || []}
           />
         </div>
       </div>

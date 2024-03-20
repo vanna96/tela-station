@@ -41,6 +41,7 @@ const keyCount = 'inventory-transfer-count';
 
 export const useInventoryTransferListHook = (pagination: any) => {
     const [state, dispatch] = React.useReducer(reducer, initialState);
+    const [exporting, setExporting] = React.useState(false);
 
     const filters = useMemo(() => {
         return { ...state, skip: Number(pagination?.pageIndex) * Number(pagination?.pageSize), top: pagination?.pageSize ?? 10 } as QueryOptionAPI;
@@ -76,42 +77,49 @@ export const useInventoryTransferListHook = (pagination: any) => {
     }, [dataQuery.isFetching, countQuery.isFetching])
 
     const exportExcelTemplate = useCallback(async () => {
-        const query = { ...state } as QueryOptionAPI;
+        try {
+            const query = { ...state } as QueryOptionAPI;
 
-        delete query.top;
-        delete query.skip;
-        // 
-        const reponse: any = await request('GET', `/StockTransfers?${queryOptionParser(query)}`);
+            delete query.top;
+            delete query.skip;
+            // 
+            setExporting(true)
+            const reponse: any = await request('GET', `/StockTransfers?${queryOptionParser(query)}`);
 
-        const lists: string[][] = [];
-        const reponseData: any[] = reponse?.data?.value ?? [] as any[]
+            const lists: string[][] = [];
+            const reponseData: any[] = reponse?.data?.value ?? [] as any[]
 
-        for (const inventoryTransferRequest of reponseData) {
-            lists.push([
-                inventoryTransferRequest.DocNum,
-                inventoryTransferRequest.DocDate?.split('T')[0],
-                inventoryTransferRequest.BPLName,
-                inventoryTransferRequest.FromWarehouse,
-                inventoryTransferRequest.ToWarehouse,
-                inventoryTransferRequest.DocumentStatus === 'bost_Open' ? "OPEN" : "CLOSED"
-            ]);
-        }
-        // 
-        const headers = ['Document No', 'Document Date', 'Branch', 'From Warehouses', 'To Warehouses', 'Status'];
-        const sheet: Sheet = {
-            filename: 'Inventory Transfers',
-            sheetName: 'Inventory Transfers',
-            header: {
-                value: headers.map((e) => ({ value: e })),
-                startCol: 1,
-                startRow: 7,
-            },
-            body: {
-                value: lists
+            for (const inventoryTransferRequest of reponseData) {
+                lists.push([
+                    inventoryTransferRequest.DocNum,
+                    inventoryTransferRequest.DocDate?.split('T')[0],
+                    inventoryTransferRequest.BPLName,
+                    inventoryTransferRequest.FromWarehouse,
+                    inventoryTransferRequest.ToWarehouse,
+                    inventoryTransferRequest.DocumentStatus === 'bost_Open' ? "OPEN" : "CLOSED"
+                ]);
             }
-        };
-        await exportDefaulExcelTemplate(sheet);
-        // setLoadingDialog(false);
+            // 
+            const headers = ['Document No', 'Document Date', 'Branch', 'From Warehouses', 'To Warehouses', 'Status'];
+            const sheet: Sheet = {
+                filename: 'Inventory Transfers',
+                sheetName: 'Inventory Transfers',
+                header: {
+                    value: headers.map((e) => ({ value: e })),
+                    startCol: 1,
+                    startRow: 7,
+                },
+                body: {
+                    value: lists
+                }
+            };
+            await exportDefaulExcelTemplate(sheet);
+            setExporting(false)
+            // setLoadingDialog(false);
+        } catch (error) {
+            console.log(error)
+            setExporting(false)
+        }
     }, [state])
 
 
@@ -123,6 +131,7 @@ export const useInventoryTransferListHook = (pagination: any) => {
         setFilter,
         setSort,
         exportExcelTemplate,
-        refetchData
+        refetchData,
+        exporting
     }
 }

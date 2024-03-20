@@ -36,7 +36,8 @@ console.log(series);
   useEffect(() => {
     if (id) return;
     if (!defaultSerie.data) return;
-
+   setValue("DocDate", new Date().toISOString()?.split("T")[0]);
+   setValue("TaxDate", new Date().toISOString()?.split("T")[0]);
     setValue("Series", defaultSerie?.data?.Series);
     setValue("DocNum", defaultSerie.data?.NextNumber);
   }, [defaultSerie.data]);
@@ -352,7 +353,7 @@ console.log(series);
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Good Issue Type{" "}
+                  Good Receipt Type{" "}
                   <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
                 </label>
               </div>
