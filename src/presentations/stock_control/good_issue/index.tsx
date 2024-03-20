@@ -29,7 +29,6 @@ export default function InventoryTransferList() {
     setSort,
     totalRecords,
     exportExcelTemplate,
-    state,
     waiting,
   } = UseGoodIssueListHook(pagination);
 
@@ -328,7 +327,8 @@ export const InventoryTransferFilter = ({
                   render={({ field }) => {
                     return (
                       <GetBranchAutoComplete
-                        onChange={(e: any) => {                    
+                        onChange={(e: any) => {
+                    
                           setValue(
                             "BPL_IDAssignedToInvoice_$eq_number",
                             e?.BPLID

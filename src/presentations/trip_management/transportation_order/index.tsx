@@ -419,15 +419,15 @@ export default function Lists() {
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "Index",
+        accessorKey: "DocNum",
         header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        Cell: (cell: any) => {
-          return cell?.row?.index + 1;
-        },
+        // Cell: (cell: any) => {
+        //   return cell?.row?.id;
+        // },
       },
       {
         accessorKey: "DocNum",
@@ -436,10 +436,10 @@ export default function Lists() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.DocNum;
-        },
+        type: "number",
+        // Cell: (cell: any) => {
+        //   return cell.row.original.DocNum;
+        // },
       },
 
       {
@@ -503,7 +503,8 @@ export default function Lists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  "/trip-management/transportation-order/" + cell.row.original.DocEntry,
+                  "/trip-management/transportation-order/" +
+                    cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,

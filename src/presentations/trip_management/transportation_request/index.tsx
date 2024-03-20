@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -8,9 +7,6 @@ import { Backdrop, Button, CircularProgress } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString, displayTextDate } from "@/lib/utils";
 import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
-import moment from "moment";
-import MUIDatePicker from "@/components/input/MUIDatePicker";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseTransportationRequestListHook } from "./hook/UseTransportationRequestListHook";
 import DataTable from "@/presentations/stock_control/components/DataTable";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -51,9 +47,8 @@ export default function InventoryTransferList() {
     staleTime: Infinity,
   });
   // console.log(branchAss);
-
   const emp: any = useQuery({
-    queryKey: ["SalePerson"],
+    queryKey: ["sale-persons"],
     queryFn: async () => {
       const response: any = await request("GET", `/SalesPersons`)
         .then((res: any) => res?.data?.value)
@@ -63,20 +58,18 @@ export default function InventoryTransferList() {
       return response;
     },
     staleTime: Infinity,
+    cacheTime: 0,
   });
 
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "Index",
+        accessorKey: "DocNum",
         header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        Cell: (cell: any) => {
-          return cell?.row?.index + 1;
-        },
       },
       {
         accessorKey: "DocNum",
@@ -243,7 +236,7 @@ export default function InventoryTransferList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={false}
             >
               {loading ? (
                 <>
@@ -269,7 +262,6 @@ export default function InventoryTransferList() {
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
-        // onClick={handleClose}
       >
         <div className="flex flex-col justify-center gap-3 items-center">
           <CircularProgress color="inherit" size={25} />
@@ -300,22 +292,18 @@ export const InventoryTransferFilter = ({
   const { handleSubmit, setValue, control, watch } = useForm({
     defaultValues: defaultValueFilter,
   });
-
   function onSubmit(data: any) {
     const queryString: (string | undefined)[] = [];
     for (const [key, value] of Object.entries(data)) {
       if (!value) continue;
-
       queryString.push("and");
       queryString.push(conditionString(key, value as any));
     }
-
     queryString.splice(0, 1);
     const query = queryString.join(" ");
 
     if (onFilter) onFilter(queryString, query);
   }
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
