@@ -199,12 +199,7 @@ export default function Content({
                       <MUITextField
                         disabled
                         inputProps={{
-                          ...register(
-                            `DocumentLines.${index}.ItemDescription`,
-                            {
-                              required: "Item Description. is required",
-                            }
-                          ),
+                          ...register(`DocumentLines.${index}.ItemDescription`),
                         }}
                       />
                     </td>
