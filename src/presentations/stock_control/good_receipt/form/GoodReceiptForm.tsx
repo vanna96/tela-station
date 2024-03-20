@@ -161,12 +161,11 @@ const GoodIssueForm = (props: any) => {
   }, [id]);
 
     const onInvalidForm = (invalids: any) => {
-      console.log(invalids);
-
       if (invalids?.DocumentLines?.length > 0) {
-        for (const inv of invalids?.DocumentLines) {
-          console.log(inv?.Quantity?.message);
-          dialog.current?.error(inv?.Quantity?.message);
+        for (const invs of invalids?.DocumentLines) {
+          for (const [key, inv] of Object.entries(invs??{}) as any){
+            dialog.current?.error(inv?.message);            
+          }
         }
         return;
       }
