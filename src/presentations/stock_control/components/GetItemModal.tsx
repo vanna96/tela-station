@@ -25,8 +25,18 @@ const style = {
 };
 
 type ModalType = 'single' | 'multiple';
+
+interface Item {
+  ItemCode: string,
+  ItemName: string | undefined,
+  InventoryItem: any[],
+  UoMGroupEntry: number | undefined,
+  LineOfBusiness: string | undefined,
+  ProductLine: string | undefined,
+}
+
 interface InventoryItemModalProps {
-  onSelectItems: (items: any[] | any, index: number | undefined) => any,
+  onSelectItems: (items: Item[] | Item, index: number | undefined) => any,
 }
 
 interface InventoryItemModalState {
@@ -62,7 +72,7 @@ export class InventoryItemModal extends React.Component<InventoryItemModalProps,
 export default function GetItemModal(props: { open: boolean, onClose: () => void, onSelectItems: (items: any[] | any) => void, type: ModalType }) {
   const { data, isLoading } = useQuery({
     queryKey: ["item-inventory"],
-    queryFn: () => request("GET", `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry & $filter=InventoryItem eq 'tYES'`),
+    queryFn: () => request("GET", `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry,U_tl_dim1,U_tl_dim2 & $filter=InventoryItem eq 'tYES'`),
     staleTime: 0,
   });
 
@@ -117,7 +127,7 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
   const handleGetItem = (event: any) => {
     if (!props.onSelectItems) return;
 
-    props.onSelectItems(event);
+    props.onSelectItems({ ItemCode: event?.ItemCode, ItemName: event?.ItemName, InventoryItem: event?.InventoryItem, UoMGroupEntry: event?.UoMGroupEntry, LineOfBusiness: event?.U_tl_dim1, ProductLine: event?.U_tl_dim2 } as Item);
   };
 
 
@@ -132,7 +142,7 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
     const values = Object.values(selecteds)
     const items = itemsLists.filter((e) => values.includes(e?.ItemCode));
 
-    props.onSelectItems(items);
+    props.onSelectItems(items.map((e) => ({ ItemCode: e?.ItemCode, ItemName: e?.ItemName, InventoryItem: e?.InventoryItem, UoMGroupEntry: e?.UoMGroupEntry, LineOfBusiness: e?.U_tl_dim1, ProductLine: e?.U_tl_dim2 } as Item)));
   }, [selecteds])
 
 
