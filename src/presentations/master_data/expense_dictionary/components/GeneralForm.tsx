@@ -35,12 +35,11 @@ export default function GeneralForm({
 
   useExchangeRate(data?.Currency, handlerChange);
 
+  const exCode = data?.Type !== 'Revenue' ? 6:4;
   const { data:gl6, isLoading }: any = useQuery({
-    queryKey: ["gl_account_6"],
-    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+    queryKey: ["gl_account_expense_dic", exCode],
+    queryFn: async () => await request("GET", `ChartOfAccounts?$filter=startswith(Code, '${exCode}') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc`).then((res:any) => res.data?.value),
   });
-
-  console.log(data?.U_tl_expacct)
 
   return (
     <>
@@ -95,6 +94,8 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <GLAccountAutoComplete
+                  data={gl6}
+                  isLoading={isLoading}
                   onChange={(e) =>
                     handlerChange("U_tl_expacct", e)
                   }
