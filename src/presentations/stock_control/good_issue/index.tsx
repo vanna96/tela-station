@@ -317,9 +317,8 @@ export const InventoryTransferFilter = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <GetBranchAutoComplete
                         onChange={(e: any) => {
-                    
                           setValue(
                             "BPL_IDAssignedToInvoice_$eq_number",
                             e?.BPLID

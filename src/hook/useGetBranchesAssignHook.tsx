@@ -7,7 +7,7 @@ const getBranches = (ids: number[]) => {
     if (ids?.length === 0) return []
 
     const str = `${ids.reduce((p, c, index) => p + ` BPLID eq ${c} ${index === ids.length - 1 ? '' : 'or '}`, '')} `;
-    return request('GET', `BusinessPlaces?$select=BPLID,BPLName&$filter=${str}`).then((res: any) => res.data.value);
+    return request('GET', `BusinessPlaces?$select=BPLID,BPLName,Address&$filter=${str}`).then((res: any) => res.data.value);
 }
 
 
