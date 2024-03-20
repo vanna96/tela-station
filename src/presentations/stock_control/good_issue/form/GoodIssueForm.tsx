@@ -39,8 +39,13 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm();
-  const route = useNavigate()
+    useForm({
+      defaultValues: {
+        DocDate: new Date()?.toISOString()?.split("T")[0],
+        TaxDate: new Date()?.toISOString()?.split("T")[0],
+      } as any,
+    });
+  const route = useNavigate();
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -140,6 +145,7 @@ const GoodIssueForm = (props: any) => {
         setState({
           ...state,
           loading: false,
+          DocNum: res?.data?.DocNum,
         });
         reset({ ...res.data }, { keepValues: false });
       })
@@ -223,9 +229,7 @@ const GoodIssueForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() =>
-                      route("/stock-control/good-issue")
-                    }
+                    onClick={() => route("/stock-control/good-issue")}
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel

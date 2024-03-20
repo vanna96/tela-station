@@ -14,6 +14,8 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useQuery } from "react-query";
 import request, { url } from "@/utilies/request";
 import { UseGetReceiptSeriesHook } from "../hook/UseGetReceiptSeriesHooks";
+import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 
 const General = ({
   register,
@@ -31,33 +33,15 @@ const General = ({
 }: any) => {
   const { series, defaultSerie } = UseGetReceiptSeriesHook();
   const { id }: any = useParams();
-console.log(series);
-
   useEffect(() => {
     if (id) return;
     if (!defaultSerie.data) return;
-   setValue("DocDate", new Date().toISOString()?.split("T")[0]);
-   setValue("TaxDate", new Date().toISOString()?.split("T")[0]);
-    setValue("Series", defaultSerie?.data?.Series);
-    setValue("DocNum", defaultSerie.data?.NextNumber);
-  }, [defaultSerie.data]);
-// console.log(defaultSerie);
+    if (!watch("Series")) {
+      setValue("Series", defaultSerie?.data?.Series);
+      setValue("DocNum", defaultSerie.data?.NextNumber);
+    }
+  }, [watch("Series")]);
 
-  const branch: any = useQuery({
-    queryKey: ["branch"],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-  });
   const onChangeSerie = useCallback(
     (event: any) => {
       const serie = series.data?.find(
@@ -71,17 +55,23 @@ console.log(series);
     [series?.data]
   );
 
+  const seriesList = useMemo(() => {
+    return series?.data?.filter(
+      (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
+    );
+  }, [watch("BPL_IDAssignedToInvoice")]);
   const onChangeBranch = (value: any) => {
+    const period = new Date().getFullYear();
+    const serie = series?.data?.find(
+      (e: any) =>
+        e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID
+    );
 
-   const period = new Date().getFullYear();
-   const serie = series?.data?.find(
-     (e: any) =>
-       e?.PeriodIndicator === period.toString() && e?.BPLID === value
-   );
-   setValue("Series", serie?.Series);
-   setValue("DocNum", serie?.NextNumber);
-   setValue("BPLID", value?.BPLID);
- };
+    if (!serie) return;
+    setValue("BPL_IDAssignedToInvoice", value?.BPLID);
+    setValue("Series", serie?.Series);
+    setValue("DocNum", serie?.NextNumber);
+  };
 
   return (
     <>
@@ -99,16 +89,22 @@ console.log(series);
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("BPLName"),
+                <Controller
+                  rules={{ required: "Branch is required" }}
+                  name="BPL_IDAssignedToInvoice"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BranchAssignmentAuto
+                        disabled={id}
+                        {...field}
+                        value={field?.value}
+                        onChange={(e: any) => {
+                          onChangeBranch(e);
+                        }}
+                      />
+                    );
                   }}
-                  value={
-                    branch?.data?.find(
-                      (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
-                    )?.BPLName
-                  }
                 />
               </div>
             </div>
@@ -126,17 +122,13 @@ console.log(series);
                   control={control}
                   render={({ field }) => {
                     return (
-                      <WareHAutoComplete
+                      <WarehouseAutoComplete
+                        branchId={watch("BPL_IDAssignedToInvoice")}
                         disabled={id}
                         {...field}
                         value={field?.value}
+                        key={`${field?.value}_${watch("BPL_IDAssignedToInvoice")}`}
                         onChange={(e: any) => {
-                          setValue(
-                            "BPL_IDAssignedToInvoice",
-                            e?.BusinessPlaceID
-                          );
-                          // setValue("BPLName", e?.BusinessPlaceID);
-                          onChangeBranch(e?.BusinessPlaceID);
                           setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
                       />
@@ -271,7 +263,11 @@ console.log(series);
                       <MUISelect
                         value={field.value}
                         disabled={id}
-                        items={series.data ?? []}
+                        items={
+                          watch("BPL_IDAssignedToInvoice") === undefined
+                            ? series?.data
+                            : seriesList ?? []
+                        }
                         aliaslabel="Name"
                         aliasvalue="Series"
                         onChange={onChangeSerie}
@@ -422,6 +418,21 @@ console.log(series);
                   disabled={detail}
                   inputProps={{
                     ...register("Reference2"),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  SA Number
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_tl_sarn"),
                   }}
                 />
               </div>

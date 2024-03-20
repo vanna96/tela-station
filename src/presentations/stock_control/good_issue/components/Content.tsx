@@ -35,6 +35,7 @@ export default function Content({
   const handlerAddNew = useCallback(
     (items: any[] | any, index: number | undefined) => {
       const state: any = [...fields];
+      console.log(items);
 
       if (items instanceof Array) {
         for (const item of items) {
@@ -45,6 +46,9 @@ export default function Content({
             ItemDescription: item?.ItemName,
             Quantity: undefined,
             WarehouseCode: watch("U_tl_whsdesc"),
+            CostingCode: item?.LineOfBusiness,
+            CostingCode2: watch("U_ti_revenue"),
+            CostingCode3: item?.ProductLine,
           });
         }
       } else {
@@ -54,6 +58,9 @@ export default function Content({
           Quantity: state[index as number]?.Quantity,
           UoMCode: undefined,
           UoMAbsEntry: undefined,
+          CostingCode: items?.LineOfBusiness,
+          CostingCode2: watch("U_ti_revenue"),
+          CostingCode3: items?.ProductLine,
           DocumentLinesBinAllocations: [],
         };
       }
@@ -297,7 +304,7 @@ export default function Content({
               rows={3}
               name="Comments"
               className={`w-full ${detail && "bg-gray-100"}`}
-              inputProps={{ ...register("Remarks") }}
+              inputProps={{ ...register("Comments") }}
             />
           </div>
         </div>

@@ -41,7 +41,7 @@ export default function InventoryTransferList() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return <span>{cell?.row?.id}</span>;
+          return <span>{cell?.row?.index + 1}</span>;
         },
       },
       {
@@ -89,15 +89,6 @@ export default function InventoryTransferList() {
         size: 88,
 
         Cell: ({ cell }: any) => <>{cell.getValue()?.split("bost_")}</>,
-      },
-      {
-        accessorKey: "DocTotal",
-        header: "Total Qty",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 88,
-        Cell: ({ cell }: any) => <>{cell.getValue()?.toFixed(2)}</>,
       },
       {
         accessorKey: "DocEntry",
@@ -326,7 +317,7 @@ export const InventoryTransferFilter = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <GetBranchAutoComplete
+                      <BranchAssignmentAuto
                         onChange={(e: any) => {
                     
                           setValue(

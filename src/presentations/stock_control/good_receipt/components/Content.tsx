@@ -46,6 +46,9 @@ export default function Content({
             Quantity: undefined,
             WarehouseCode: watch("U_tl_whsdesc"),
             UseBaseUnits: "tNO",
+            CostingCode: item?.LineOfBusiness,
+            CostingCode2: watch("U_ti_revenue"),
+            CostingCode3: item?.ProductLine,
           });
         }
       } else {
@@ -55,6 +58,9 @@ export default function Content({
           Quantity: state[index as number]?.Quantity,
           UoMCode: undefined,
           UoMAbsEntry: undefined,
+          CostingCode: items?.LineOfBusiness,
+          CostingCode2: watch("U_ti_revenue"),
+          CostingCode3: items?.ProductLine,
           DocumentLinesBinAllocations: [],
         };
       }

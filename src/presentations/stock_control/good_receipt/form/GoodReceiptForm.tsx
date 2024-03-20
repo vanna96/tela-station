@@ -37,7 +37,12 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm();
+    useForm({
+      defaultValues: {
+        DocDate: new Date()?.toISOString()?.split("T")[0],
+        TaxDate: new Date()?.toISOString()?.split("T")[0],
+      } as any,
+    });
   const route = useNavigate()
   const { id }: any = useParams();
 
@@ -142,6 +147,7 @@ const GoodIssueForm = (props: any) => {
         setState({
           ...state,
           loading: false,
+          DocNum: res?.data?.DocNum,
         });
         reset({ ...res.data }, { keepValues: false });
       })

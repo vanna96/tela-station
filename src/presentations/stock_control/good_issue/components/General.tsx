@@ -1,7 +1,7 @@
 import MUITextField from "@/components/input/MUITextField";
 import PositionAutoComplete from "@/components/input/PositionAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -35,11 +35,11 @@ const General = ({
   useEffect(() => {
     if (id) return;
     if (!defaultSerie.data) return;
-    setValue("DocDate", new Date().toISOString()?.split("T")[0]);
-    setValue("TaxDate", new Date().toISOString()?.split("T")[0]);
-    setValue("Series", defaultSerie?.data?.Series);
-    setValue("DocNum", defaultSerie.data?.NextNumber);
-  }, [defaultSerie.data]);
+    if (!watch("Series")) {
+      setValue("Series", defaultSerie?.data?.Series);
+      setValue("DocNum", defaultSerie.data?.NextNumber);
+    }
+  }, [watch("Series")]);
 
   const onChangeSerie = useCallback(
     (event: any) => {
@@ -53,29 +53,23 @@ const General = ({
     },
     [series?.data]
   );
-  const branch: any = useQuery({
-    queryKey: ["branch"],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-  });
+
+  const seriesList = useMemo(() => {
+    return series?.data?.filter(
+      (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
+    );
+  }, [watch("BPL_IDAssignedToInvoice")]);
   const onChangeBranch = (value: any) => {
     const period = new Date().getFullYear();
     const serie = series?.data?.find(
-      (e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value
+      (e: any) =>
+        e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID
     );
+
+    if (!serie) return;
+    setValue("BPL_IDAssignedToInvoice", value?.BPLID);
     setValue("Series", serie?.Series);
     setValue("DocNum", serie?.NextNumber);
-    setValue("BPLID", value?.BPLID);
   };
 
   return (
@@ -95,39 +89,22 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "Warehouse is required" }}
-                  name="U_tl_whsdesc"
+                  rules={{ required: "Branch is required" }}
+                  name="BPL_IDAssignedToInvoice"
                   control={control}
                   render={({ field }) => {
                     return (
-                      <GetBranchAutoComplete
+                      <BranchAssignmentAuto
                         disabled={id}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue(
-                            "BPL_IDAssignedToInvoice",
-                            e?.BPLID
-                          );
-                          // onChangeBranch(e?.BusinessPlaceID);
-
-                          // setValue("U_tl_whsdesc", e?.WarehouseCode);
+                          onChangeBranch(e);
                         }}
                       />
                     );
                   }}
                 />
-                {/* <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("BPLName"),
-                  }}
-                  value={
-                    branch?.data?.find(
-                      (e: any) => e?.BPLID === watch("BPL_IDAssignedToInvoice")
-                    )?.BPLName
-                  }
-                /> */}
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
@@ -149,6 +126,7 @@ const General = ({
                         disabled={id}
                         {...field}
                         value={field?.value}
+                        key={`${field?.value}_${watch("BPL_IDAssignedToInvoice")}`}
                         onChange={(e: any) => {
                           setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
@@ -256,7 +234,7 @@ const General = ({
                         disabled={detail}
                         {...field}
                         value={field?.value}
-                        onChange={(e: any) => {                        
+                        onChange={(e: any) => {
                           setValue("U_tl_branc", e?.WarehouseCode);
                         }}
                       />
@@ -282,9 +260,14 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        value={field.value}
+                        {...field}
+                        value={watch("Series")}
                         disabled={id}
-                        items={series.data ?? []}
+                        items={
+                          watch("BPL_IDAssignedToInvoice") === undefined
+                            ? series?.data
+                            : seriesList ?? []
+                        }
                         aliaslabel="Name"
                         aliasvalue="Series"
                         onChange={onChangeSerie}
@@ -435,6 +418,21 @@ const General = ({
                   disabled={detail}
                   inputProps={{
                     ...register("Reference2"),
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2 mb-1">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  SA Number
+                </label>
+              </div>
+              <div className="col-span-3">
+                <MUITextField
+                  disabled={detail}
+                  inputProps={{
+                    ...register("U_tl_sarn"),
                   }}
                 />
               </div>

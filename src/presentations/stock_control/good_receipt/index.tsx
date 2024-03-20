@@ -43,7 +43,7 @@ export default function InventoryTransferList() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return <span>{cell?.row?.id}</span>;
+          return <span>{cell?.row?.index + 1}</span>;
         },
       },
       {
@@ -321,7 +321,7 @@ export const InventoryTransferFilter = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <GetBranchAutoComplete
+                      <BranchAssignmentAuto
                         onChange={(e: any) => {
                           setValue("BPL_IDAssignedToInvoice_$eq_number", e?.BPLID);
                         }}
