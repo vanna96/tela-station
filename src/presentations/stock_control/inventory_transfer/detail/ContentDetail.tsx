@@ -131,20 +131,18 @@ export default function ContentDetail({
               <th className="w-[4rem] "></th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Item Code
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Item Description
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Quantity
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 UoM
               </th>
-              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">From Bin Code  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span> </th>
-              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">To Bin Code <span className="text-red-500 ml-1">{detail ? "" : "*"}</span></th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">From Bin Code </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">To Bin Code</th>
             </tr>
             {fields?.length === 0 && (
               <tr>
