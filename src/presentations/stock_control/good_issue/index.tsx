@@ -137,8 +137,8 @@ export default function InventoryTransferList() {
               onClick={() => {
                 route(
                   "/stock-control/good-issue/" +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  cell.row.original.DocEntry +
+                  "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -177,7 +177,7 @@ export default function InventoryTransferList() {
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => {}}
+            handlerSearch={() => { }}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
@@ -190,9 +190,9 @@ export default function InventoryTransferList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {waiting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
@@ -213,7 +213,7 @@ export default function InventoryTransferList() {
           </DataTable>
         </div>
       </div>
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
         // onClick={handleClose}
@@ -222,7 +222,7 @@ export default function InventoryTransferList() {
           <CircularProgress color="inherit" size={25} />
           <span className="text-sm -mr-2">Waiting for export to CSV ...</span>
         </div>
-      </Backdrop>
+      </Backdrop> */}
     </>
   );
 }
@@ -334,7 +334,7 @@ export const InventoryTransferFilter = ({
                             e?.BPLID
                           );
                         }}
-                        // value={searchValues.branch}
+                      // value={searchValues.branch}
                       />
                     );
                   }}

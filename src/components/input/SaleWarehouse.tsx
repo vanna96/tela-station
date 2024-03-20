@@ -28,7 +28,7 @@ export default function SaleWarehouse(props: {
 
   // Apply additional filter unconditionally
   filteredWarehouses = filteredWarehouses?.filter(
-    (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Yes"
+    (U_tl_whsclear: any) => U_tl_whsclear.U_tl_whsclear === "Y" 
   );
 
   useEffect(() => {

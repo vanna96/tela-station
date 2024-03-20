@@ -34,6 +34,14 @@ export default function Lists() {
   const columns = React.useMemo(
     () => [
       {
+        accessorKey: "DocEntry",
+        header: "No.", //uses the default width from defaultColumn prop
+        enableClickToCopy: true,
+        enableFilterMatchHighlighting: true,
+        size: 88,
+        Cell: (cell: any) => cell?.row?.index + 1,
+      },
+      {
         accessorKey: "Code",
         header: "Expense Code", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
@@ -200,6 +208,7 @@ export default function Lists() {
   const { data:gl6 }: any = useQuery({
     queryKey: ["gl_account_6"],
     queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
+    staleTime: Infinity
   });
 
   const handlerRefresh = React.useCallback(() => {

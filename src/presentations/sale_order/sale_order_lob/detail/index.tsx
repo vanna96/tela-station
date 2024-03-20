@@ -1,5 +1,5 @@
 import { withRouter } from "@/routes/withRouter";
-import { Component } from "react";
+import { Component, useEffect, useState } from "react";
 import { useMemo } from "react";
 import { dateFormat } from "@/utilies";
 import DocumentHeader from "@/components/DocumenHeader";
@@ -23,6 +23,7 @@ import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { motion } from "framer-motion";
 import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
 import React from "react";
+import BinlocationRepository from "@/services/actions/BinlocationRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -229,7 +230,20 @@ function General(props: any) {
   const seriesNames = filteredSeries?.map((series: any) => series.Name);
 
   const seriesName = seriesNames?.join(", ");
+  const [binLocation, setBinLocation] = useState(props.data?.U_tl_sobincode);
 
+  useEffect(() => {
+    const binLocationId = props.data?.U_tl_sobincode;
+
+    new BinlocationRepository()
+      .find(binLocationId)
+      .then((binLocation) => {
+        setBinLocation(binLocation);
+      })
+      .catch((error) => {
+        console.error("Error fetching bin location:", error);
+      });
+  }, [props.data?.U_tl_sobincode]);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -246,8 +260,7 @@ function General(props: any) {
             )}
             {renderKeyValue(
               "Bin Location",
-              new WareBinLocationRepository().find(props.data?.U_tl_sobincode)
-                ?.BinCode
+              props.data?.U_tl_sobincode !== null ? binLocation.binCode : "N/A"
             )}
             {renderKeyValue("Customer", props.data.CardCode)}
             {renderKeyValue("Name", props.data.CardName)}

@@ -7,12 +7,11 @@ import ITRModal, { InventoryItemModal } from "../../components/GetItemModal";
 import UomSelectByItem, { calculateUOM } from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { QueryCache, QueryClient, useQueryClient } from "react-query";
-import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 
 
 let itemRef = React.createRef<InventoryItemModal>();
 
-export default function Contents({
+export default function ContentDetail({
   register,
   setValue,
   detail,
@@ -152,8 +151,6 @@ export default function Contents({
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 UoM
               </th>
-              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">From Bin Code  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span> </th>
-              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">To Bin Code <span className="text-red-500 ml-1">{detail ? "" : "*"}</span></th>
             </tr>
             {fields?.length === 0 && (
               <tr>
@@ -215,6 +212,7 @@ export default function Contents({
                     </td>
                     <td className="pr-4">
                       <Controller
+
                         name={`StockTransferLines.${index}.UoMEntry`}
                         rules={
                           {
@@ -228,6 +226,7 @@ export default function Contents({
                               disabled={edit}
                               {...field}
                               onChange={(e) => {
+                                console.log(e)
                                 setValue(`StockTransferLines.${index}.UoMEntry`, e?.AbsEntry);
                                 setValue(`StockTransferLines.${index}.UoMCode`, e?.Code);
                                 setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.Quantity`, e?.Quantity);
@@ -239,48 +238,6 @@ export default function Contents({
                             />
                           );
                         }}
-                      />
-                    </td>
-                    <td className="pr-4">
-                      <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
-                        rules={
-                          {
-                            required: 'From bin code is required'
-                          }
-                        }
-                        control={control}
-                        render={({ field }) => <BinAllocationAutoComplete
-                          warehouse={watch('FromWarehouse')}
-                          disabled={detail || edit}
-                          {...field}
-                          value={field.value}
-                          onChange={(value) => {
-                            console.log(field.value)
-                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
-                          }}
-                        />}
-                      />
-                    </td>
-                    <td className="pr-4">
-
-                      <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
-                        rules={
-                          {
-                            required: 'To bin code is required'
-                          }
-                        }
-                        control={control}
-                        render={({ field }) => <BinAllocationAutoComplete
-                          warehouse={watch('ToWarehouse')}
-                          disabled={detail || edit}
-                          {...field}
-                          value={field.value}
-                          onChange={(value) => {
-                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
-                          }}
-                        />}
                       />
                     </td>
                   </tr>

@@ -63,7 +63,6 @@ export default function GeneralForm({
     (series: any) =>
       series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
   );
-
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
@@ -92,18 +91,27 @@ export default function GeneralForm({
     ) || {}
   ).Series;
 
-  const seriesGI = data?.GISeries?.filter(
-    (series: any) =>
-      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
-  )?.find((series: any) => series.BPLID === BPL)?.Series;
+  const seriesGI = data?.GISeries?.reduce((acc: any, series: any) => {
+    if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
+      acc.push({ BPLID: series.BPLID, Series: series.Series });
+    }
+    return acc;
+  }, []);
+  const seriesGR = data?.GRSeries?.reduce((acc: any, series: any) => {
+    if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
+      acc.push({ BPLID: series.BPLID, Series: series.Series });
+    }
+    return acc;
+  }, []);
 
   if (data) {
     data.DNSeries = seriesIncoming;
     data.INSeries = seriesINV;
     data.Series = seriesSO;
     data.GoodIssueSeries = seriesGI;
+    data.GoodReceiptSeries = seriesGR;
   }
-
+  console.log(data);
   const [isDispenserLoading, setIsDispenserLoading] = useState(false);
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">

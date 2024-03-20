@@ -1,0 +1,246 @@
+/**
+ * Perform the CRUD operations on an Order from the request payload
+ *  
+ */
+var ServiceLayerContext = require('ServiceLayerContext.js');
+var http = require('HttpModule.js');
+http.response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
+http.response.setHeader("Access-Control-Allow-Credentials", true);
+/**
+ * Entry function for the http POST request.
+ * 
+ * POST /b1s/v1/script/{{partner name}}/{{script name}}}
+ */
+// var queryOption = ``;
+// var retCaseSensitive = slContext.BusinessPartners.query(queryOption);
+// var retCaseInsensitive = slContext.query("SeriesService_GetDocumentSeries", queryOption, true);
+// return http.response.send(200, retCaseInsensitive.toArray())
+function POST() {
+
+    var jsonObj = http.request.getJsonObj();
+
+    // validation
+    if (!jsonObj) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, "Fail to get the content of JSON format from the request payload");
+    [
+        "DocDate",
+        "InvoiceSeries",
+        "IncomingSeries",
+        "CardCode",
+        "CardName",
+        "BPL_IDAssignedToInvoice",
+        "U_tl_whsdesc",
+        "DocumentLines"
+    ].forEach((value) => {
+        if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
+    })
+    
+    // Initialize ServiceLayerContext instance
+    var slContext = new ServiceLayerContext();
+    
+    const fuelSale = slContext.get("TL_RETAILSALE_LU", jsonObj['SaleDocEntry']);
+    if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    
+    try {
+        // CASH SALE
+        if(jsonObj["DocumentLines"].length > 0) SaleTransaction(slContext, jsonObj);
+
+        // update status Fuel Cash Sale
+        slContext.update("TL_RETAILSALE_LU", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
+
+        return http.response.send(200, fuelSale.body);
+    } catch (error) {
+        slContext.update("TL_RETAILSALE_LU", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
+        return http.response.send(400, error);
+    }
+}
+
+/** 
+ * Entry function for the http GET request.
+ * 
+ * GET /b1s/v1/script/{{partner name}}/{{script name}}(139)
+ * 
+ */
+function GET() {
+    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
+}
+
+/** 
+ * Entry function for the http PATCH request.
+ * PATCH /b1s/v1/script/{{partner name}}/{{script name}}(139)
+ * 
+ * {"Comments: "updated from script"}
+ */
+function PATCH() {
+    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
+}
+
+/** 
+ * Entry function for the http DELETE request.
+ * DELETE /b1s/v1/script/{{partner name}}/{{script name}}(139)
+ * 
+ */
+function DELETE() {
+    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
+}
+
+function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount) {
+    const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
+    if (FilterPayment.length <= 0) return null;
+
+    let CashSum = 0;
+    let TransferSum = 0;
+    let CheckSum = 0;
+    
+
+    FilterPayment.forEach(item => {
+        const isCash = item.Type === 'Cash' || item.Type === 'Coupon';
+        const isTransfer = item.Type === 'Transfer';
+        const isCheck = item.Type === 'Check';
+
+        CashSum += isCash ? parseFloat(item.Amount) : 0;
+        TransferSum += isTransfer ? parseFloat(item.Amount) : 0;
+        CheckSum += isCheck ? parseFloat(item.Amount) : 0;
+    });
+
+    const isUSD = inv.DocCurrency == 'USD';
+    const total = parseFloat(CashSum + TransferSum + CheckSum);
+    
+    var PaymentInvoices = {
+        DocEntry: inv.DocEntry,
+        DocNum: inv.DocNum,
+        InvoiceType: "it_Invoice",
+        SumApplied: isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
+        AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
+        DiscountPercent: 0
+    }; 
+
+    return {
+        Series: obj['IncomingSeries'],
+        DocType: "rCustomer",
+        BPLID: obj['BPL_IDAssignedToInvoice'],
+        DocDate: obj['DocDate'],
+        CardCode: obj['CardCode'],
+        DocCurrency: obj['DocCurrency'],
+        Remarks: obj['Remarks'],
+        BankChargeAmount: 0,
+        BankChargeAmountInFC: 0,
+        BankChargeAmountInSC: 0,
+        CashAccount: cashAccount || "",
+        CashSum: CashSum,
+        TransferAccount: transferAccount || "",
+        TransferSum: TransferSum,
+        CheckAccount: checkAccount || "",
+        PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
+                                    .map((check) => {
+                                        return {
+                                            DueDate: check.DueDate || new Date(),
+                                            CheckSum: check.Amount || 0,
+                                            BankCode: check.Bank || "",
+                                            CheckNumber: check.CheckNum,
+                                        };
+                                    }) || [],
+        PaymentInvoices: [PaymentInvoices]
+    }
+}
+
+
+function SaleTransaction(slContext, jsonObj){
+    slContext.startTransaction();
+    // Create A/R Invoice
+    var invoice = {
+        Series: jsonObj['InvoiceSeries'],
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        TaxDate: jsonObj['DocDate'],
+        CardCode: jsonObj['CardCode'],
+        CardName: jsonObj['CardName'],
+        DiscountPercent: jsonObj['DiscountPercent'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        NumAtCard: "Oil",
+        U_tl_invtype:"Retail",
+        DocumentLines: jsonObj.DocumentLines.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                GrossPrice: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                COGSCostingCode: item['LineOfBussiness'],
+                COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] 
+                
+            }
+        })
+    };
+
+    var invoiceContext = slContext.add("Invoices", invoice);
+    if (invoiceContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "A/R Invoice",
+            ...invoiceContext.body
+        });
+    }
+    
+    // Create Incoming Payment
+    var inv = invoiceContext.body;
+    
+    // KHR Payment
+    var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
+    if( paymentKh != null) {
+        var incomingContext = slContext.add("IncomingPayments", paymentKh)
+        if (incomingContext.status !== 201) {
+            slContext.rollbackTransaction();
+            throw ({
+                "tab": "Incoming Payment's KHR Payment",
+                ...incomingContext.body
+            });
+        }
+    }
+
+    // Coupon KHR Payment
+    var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
+    if( paymentKh != null) {
+        var incomingContext = slContext.add("IncomingPayments", paymentKh)
+        if (incomingContext.status !== 201) {
+            slContext.rollbackTransaction();
+            throw ({
+                "tab": "Incoming Payment's Coupon KHR Payment",
+                ...incomingContext.body
+            });
+        }
+    }
+    
+    // USD Payment
+    var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
+    if( paymentUS != null) {
+        var incomingContext = slContext.add("IncomingPayments", paymentUS)
+        if (incomingContext.status !== 201) {
+            slContext.rollbackTransaction();
+            throw ({
+                "tab": "Incoming Payment's USD Payment",
+                ...incomingContext.body
+            });
+        }
+    }
+    
+    // Coupon USD Payment
+    var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
+    if( paymentUS != null) {
+        var incomingContext = slContext.add("IncomingPayments", paymentUS)
+        if (incomingContext.status !== 201) {
+            slContext.rollbackTransaction();
+            throw ({
+                "tab": "Incoming Payment's Coupon USD Payment",
+                ...incomingContext.body
+            });
+        }
+    }
+
+    slContext.commitTransaction();
+}

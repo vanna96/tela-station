@@ -122,7 +122,6 @@ export default function ContentForm({
     let value = event?.target?.value ?? event;
     handlerChangeItem({ value: value, record: row, field });
   };
-
   const updateRef = React.createRef<ItemModal>();
   const itemColumns = React.useMemo(
     () => [
@@ -389,6 +388,7 @@ export default function ContentForm({
                 disabled={cell.row.original.ItemCode === " "}
                 value={cell.getValue()}
                 thousandSeparator
+                key={"DiscountPercent" + cell.getValue()}
                 startAdornment={"%"}
                 decimalScale={data.Currency === "USD" ? 3 : 0}
                 // fixedDecimalScale

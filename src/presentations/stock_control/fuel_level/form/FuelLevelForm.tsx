@@ -300,8 +300,7 @@ const Content = (props: any) => {
   }
 
   const handlerDelete = () => {
-    if (selected.length === 0) return; // [1,2,3,5]
-
+    if (selected.length === 0) return;
     let state = [...lines];
     state = state.filter((item, index) => !selected.includes(index));
     props?.setValue('TL_FUEL_LEVEL_LINESCollection', state);
@@ -310,9 +309,7 @@ const Content = (props: any) => {
 
 
   const onChangeValue = (index: number, field: string, value: any) => {
-    const state: any[] = [...lines ?? []];
-    state[index][field] = value;
-    props?.setValue('TL_FUEL_LEVEL_LINESCollection', state);
+    props?.setValue(`TL_FUEL_LEVEL_LINESCollection.${index}.${field}`, value)
   }
 
 
@@ -340,7 +337,7 @@ const Content = (props: any) => {
                 No records.
               </td>
             </tr>}
-            {lines.map((row, index: number) => <tr key={shortid.generate()}>
+            {lines.map((row, index: number) => <tr key={`TL_FUEL_LEVEL_LINESCollection_${index}.${row?.U_tl_whscode}`}>
               <td className="p-2 flex justify-center"><Checkbox checked={selected.includes(index)} onChange={(e) => onSelectChange(e, index)} /></td>
               <td className="p-2 w-full">
                 <Controller
@@ -395,7 +392,7 @@ const Content = (props: any) => {
               </td>
               <td className="p-2"><MUITextField
                 inputProps={{
-                  defaultValue: row?.U_Remrk,
+                  defaultValue: row?.U_tl_remark,
                   onBlur: (e) => onChangeValue(index, 'U_tl_remark', e.target.value)
                 }} /></td>
             </tr>)}

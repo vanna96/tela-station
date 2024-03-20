@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { calculateUOM } from "../../components/UomSelectByItem";
+import { useGetStockTransferSeriesHook } from "./useGetStockTransferSeriesHook";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 
 export type TransferType = 'Internal' | 'External';
 
@@ -137,6 +139,10 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
 export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<FormMessageModal>) => {
     const [loading, setLoading] = useState(false);
 
+
+    const { series } = useGetStockTransferSeriesHook()
+    const warehouese = useGetWhsTerminalAssignHook(false);
+
     const { id } = useParams();
 
     const queryParams = useQueryParams();
@@ -159,9 +165,9 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
             let fromBinId = payload.U_tl_fromBinId
             const toBinId = payload.U_tl_toBinId
 
-            delete payload.U_tl_fromBinId;
-            delete payload.U_tl_toBinId;
-            delete payload.U_tl_sobincode;
+            payload.U_tl_fromBinId;
+            payload.U_tl_toBinId;
+            payload.U_tl_sobincode;
             delete payload.U_tl_uobincode;
             setLoading(true);
 
@@ -208,12 +214,26 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         }
     }
 
+    const onChangeBranch = (series: any, value: any) => {
+
+        const period = new Date().getFullYear();
+        const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
+
+        const git_wsh = warehouese.data?.filter((e: any) => e?.BusinessPlaceID === value?.BPLID && e.U_tl_git_whs === 'Y');
+        setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
+        setValue("ToWarehouse", undefined);
+        setValue("U_tl_attn_ter", undefined);
+        setValue("DocNum", serie?.NextNumber);
+        setValue('BPLID', value?.BPLID)
+    }
+
     const onCopyFrom = (id: number | undefined) => {
         try {
             setLoading(true);
             getMappingStockTransferRequestToStockTransfer(id)
                 .then((res) => {
                     reset({ ...res })
+                    onChangeBranch(series, { BPLID: res?.BPLID })
                 })
                 .catch((err) => {
                     dialog.current?.error(err?.message)
@@ -239,14 +259,14 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
             });
     }, [id, edit])
 
-
-
     useEffect(() => {
         if (queryParams.get('id') && queryParams.get('type')) {
             setLoading(true);
             getMappingStockTransferRequestToStockTransfer(queryParams.get('id'))
                 .then((res) => {
-                    reset({ ...res })
+                    reset({ ...res });
+                    onChangeBranch(series, { BPLID: res?.BPLID })
+
                 })
                 .catch((err) => {
                     dialog.current?.error(err?.message)
@@ -271,6 +291,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         loading,
         id,
         queryParams,
-        onCopyFrom
+        onCopyFrom,
+        onChangeBranch
     }
 }

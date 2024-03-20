@@ -6,105 +6,73 @@ import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import BPAutoComplete from "@/components/input/BPAutoComplete";
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-} from "@mui/material";
-import { BiFilterAlt } from "react-icons/bi";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
+import { Button } from "@mui/material";
 import moment from "moment";
-import MUISelect from "@/components/selectbox/MUISelect";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import BPLBranchSelect from "@/components/selectbox/BranchBPL";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 
-export default function PumpTestList() {
+export default function List() {
   const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
+  const salesTypes = useParams();
+  const salesType = salesTypes["*"];
+  const [dataUrl, setDataUrl] = React.useState("");
 
   const columns = React.useMemo(
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No.",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
         visible: true,
         type: "number",
       },
+
       {
-        accessorKey: "Series",
-        header: "Series",
+        accessorKey: "U_tl_cardcode",
+        header: "Customer Code",
         enableClickToCopy: true,
         visible: true,
         type: "string",
         align: "center",
-        size: 65,
       },
       {
-        accessorKey: "Status",
-        header: "Status ",
+        accessorKey: "U_tl_cardname",
+        header: "Customer Name",
         visible: true,
         type: "string",
         align: "center",
-        size: 90,
-        Cell: (cell: any) => {
-          return  cell.row.original.Status ==  "O" ? "Open" : "Closed";
-        },
-      },
-      {
-        accessorKey: "Creator",
-        header: "Test By ",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 90,
-      
-      },
-      {
-        accessorKey: "CreateDate",
-        header: "Create Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
-      },
-      {
-        accessorKey: "UpdateDate",
-        header: "Update Date",
-        visible: true,
-        type: "string",
-        align: "center",
-        size: 60,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YY.MM.DD");
-          return <span>{formattedDate}</span>;
-        },
       },
 
+      {
+        accessorKey: "U_tl_docdate",
+        header: "Posting Date",
+        visible: true,
+        type: "string",
+        align: "center",
+        size: 60,
+        Cell: (cell: any) => {
+          const formattedDate = moment(cell.row.original.U_tl_docdate).format(
+            "DD.MMMM.YYYY"
+          );
+          return <span>{formattedDate}</span>;
+        },
+      },
       {
         accessorKey: "U_tl_bplid",
         header: "Branch",
         enableClickToCopy: true,
         visible: true,
         Cell: ({ cell }: any) =>
-          new BranchBPLRepository().find(cell.getValue())?.BPLName,
-        size: 60,
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
       },
-     
 
+      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -125,7 +93,7 @@ export default function PumpTestList() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/stock-control/pump-test/` + cell.row.original.DocEntry,
+                  `/retail-sale/lpg-cash-sale/` + cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -139,17 +107,13 @@ export default function PumpTestList() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              disabled={cell.row.original.U_tl_status === "Close" ?? false}
               className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
+                cell.row.original.U_tl_status === "Close" ? "bg-gray-400" : ""
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/stock-control/pump-test/` +
+                  `/retail-sale/lpg-cash-sale/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -162,7 +126,7 @@ export default function PumpTestList() {
               <DriveFileRenameOutlineIcon
                 fontSize="small"
                 className="text-gray-600 "
-              />{" "}
+              />
               <span style={{ textTransform: "none" }}> Edit</span>
             </Button>
           </div>
@@ -178,46 +142,55 @@ export default function PumpTestList() {
     pageIndex: 0,
     pageSize: 10,
   });
-
   const Count: any = useQuery({
-    queryKey: ["pump-count" + filter !== "" ? "-f" : ""],
+    queryKey: ["lpg-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/tl_PumpTest/$count?$select=DocNum${filter}`
-      )
+      const apiUrl = `${url}/TL_RETAILSALE_LP/$count?${filter ? ` and ${filter}` : ""}`;
+      const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
+
       return response;
     },
-    staleTime: Infinity,
+    // staleTime: Infinity,
   });
-
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "pump-test",
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      "lpg-cash-sale",
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
+
     queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/tl_PumpTest?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }${filter}${sortBy !== "" ? "&$orderby=" + sortBy : ""}`
-      )
+      const Url = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
+
+      const dataUrl = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
+        pagination.pageIndex * pagination.pageSize
+      }${filter ? ` and ${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
+
+      setDataUrl(dataUrl);
+      const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
         });
       return response;
     },
-    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    // staleTime: Infinity,
     retry: 1,
   });
-
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -259,19 +232,16 @@ export default function PumpTestList() {
 
   const handlerSearchFilter = (queries: any) => {
     if (queries === "") return handlerSearch("");
-    handlerSearch("&$filter=" + queries);
+    handlerSearch("" + queries);
   };
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
   const [cookies] = useCookies(["user"]);
 
   const [searchValues, setSearchValues] = React.useState({
     docnum: "",
     cardcode: "",
     cardname: "",
-    deliveryDate: null,
+    postingDate: null,
     status: "",
     bplid: "",
   });
@@ -283,18 +253,19 @@ export default function PumpTestList() {
     }
     if (searchValues.cardcode) {
       queryFilters += queryFilters
-        ? ` and startswith(CardCode, '${searchValues.cardcode}')`
-        : `startswith(CardCode, '${searchValues.cardcode}')`;
+        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
+          ` and U_tl_cardcode eq '${searchValues.cardcode}'`
+        : `U_tl_cardcode eq '${searchValues.cardcode}'`;
     }
     if (searchValues.cardname) {
       queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
+        ? ` and startswith(U_tl_cardname, '${searchValues.cardname}')`
+        : `startswith(U_tl_cardname, '${searchValues.cardname}')`;
     }
-    if (searchValues.deliveryDate) {
+    if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and CreateDate ge '${searchValues.deliveryDate}'`
-        : `CreateDate ge '${searchValues.deliveryDate}'`;
+        ? ` and U_tl_docdate ge '${searchValues.postingDate}'`
+        : `U_tl_docdate ge '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -310,27 +281,22 @@ export default function PumpTestList() {
     handlerSearchFilter(queryFilters);
   };
   const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/stock-control/pump-test`)}>
-        <span className=""></span> Pump Test
+      <span className="" onClick={() => route(`/retail-sale/lpg-cash-sale`)}>
+        <span className=""></span> LPG Cash Sale
       </span>
     </>
   );
-
+  const indexedData = React.useMemo(
+    () =>
+      data?.map((item: any, index: any) => ({
+        ...item,
+        index: pagination.pageIndex * pagination.pageSize + index + 1,
+      })),
+    [data, pagination.pageIndex, pagination.pageSize]
+  );
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -354,7 +320,20 @@ export default function PumpTestList() {
                   }
                 />
               </div>
-             
+
+              <div className="col-span-2 2xl:col-span-3">
+                <MUIDatePicker
+                  label="Posting Date"
+                  value={searchValues.postingDate}
+                  // onChange={(e: any) => handlerChange("PostingDate", e)}
+                  onChange={(e) => {
+                    setSearchValues({
+                      ...searchValues,
+                      postingDate: e,
+                    });
+                  }}
+                />
+              </div>
               <div className="col-span-2 2xl:col-span-3">
                 <div className="flex flex-col gap-1 text-sm">
                   <label htmlFor="Code" className="text-gray-500 text-[14px]">
@@ -374,44 +353,6 @@ export default function PumpTestList() {
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <MUIDatePicker
-                  label="Create Date"
-                  value={searchValues.deliveryDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
-                  onChange={(e) => {
-                    setSearchValues({
-                      ...searchValues,
-                      deliveryDate: e,
-                    });
-                  }}
-                />
-              </div>
-              {/* <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { label: "None", value: "" },
-                        { label: "Open", value: "bost_Open" },
-                        { label: "Close", value: "bost_Close" },
-                      ]}
-                      onChange={(e) => {
-                        if (e) {
-                          setSearchValues({
-                            ...searchValues,
-                            status: e.target.value as string,
-                          });
-                        }
-                      }}
-                      value={searchValues.status}
-                    />
-                  </div>
-                </div>
-              </div> */}
             </div>
           </div>
           <div className="col-span-2">
@@ -425,39 +366,22 @@ export default function PumpTestList() {
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "DocDueDate" &&
-                      // e?.accessorKey !== "DocumentStatus" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
             </div>
           </div>
         </div>
         <DataTable
-          columns={columns}
-          data={data}
+          dataUrl={dataUrl}
+          columns={[
+            {
+              accessorKey: "index",
+              header: "No.",
+              size: 20,
+              visible: true,
+              type: "number",
+            },
+            ...columns,
+          ]}
+          data={indexedData}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}
@@ -465,8 +389,8 @@ export default function PumpTestList() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title="Pump Test Lists"
-          createRoute={`/stock-control/pump-test/create`}
+          title={"LPG Cash Sale"}
+          createRoute={`/retail-sale/lpg-cash-sale/create`}
         />
       </div>
     </>

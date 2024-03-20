@@ -145,7 +145,7 @@ export default function List() {
   const Count: any = useQuery({
     queryKey: ["lube-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RETAILSALE_LCS/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE_LU/$count?${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -167,13 +167,13 @@ export default function List() {
     ],
 
     queryFn: async () => {
-      const Url = `${url}/TL_RETAILSALE_LCS?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname, U_tl_taxdate,U_tl_bplid"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE_LCS?$top=${pagination.pageSize}&$skip=${
+      const dataUrl = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }${filter ? ` and ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
@@ -289,7 +289,14 @@ export default function List() {
       </span>
     </>
   );
-
+  const indexedData = React.useMemo(
+    () =>
+      data?.map((item: any, index: any) => ({
+        ...item,
+        index: pagination.pageIndex * pagination.pageSize + index + 1,
+      })),
+    [data, pagination.pageIndex, pagination.pageSize]
+  );
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -374,10 +381,7 @@ export default function List() {
             },
             ...columns,
           ]}
-          data={data?.map((item: any, index: any) => ({
-            ...item,
-            index: index + 1,
-          }))}
+          data={indexedData}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}

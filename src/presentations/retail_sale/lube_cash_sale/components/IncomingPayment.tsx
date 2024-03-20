@@ -28,18 +28,7 @@ export default function IncomingPaymentForm({
     setIsChecked(e.target.checked);
   };
 
-  const totalCashSale: number = React.useMemo(() => {
-    const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
-      const lineTotal = Formular.findLineTotal(
-        (item.U_tl_cashallow || 0)?.toString(),
-        item.ItemPrice || 0,
-        "0"
-      );
-      return prevTotal + lineTotal;
-    }, 0);
-    return total;
-  }, [data.allocationData]);
-
+  const totalCashSale: number = data.U_tl_doctotal;
   const parseAmount = (amount: any) => {
     return (
       Number(typeof amount === "string" ? amount.replace(/,/g, "") : amount) ||
@@ -50,7 +39,7 @@ export default function IncomingPaymentForm({
     let total = 0;
 
     // Aggregate CashBankData
-    total += data.cashBankData.reduce((acc: any, item: any) => {
+    total += data.cashBankData?.reduce((acc: any, item: any) => {
       if (item.U_tl_paycur === currency) {
         const cashAmount = parseAmount(item.U_tl_amtcash) || 0;
         const bankAmount = parseAmount(item.U_tl_amtbank) || 0;
@@ -60,7 +49,7 @@ export default function IncomingPaymentForm({
     }, 0);
 
     // Aggregate CheckNumberData
-    total += data.checkNumberData.reduce((acc: any, item: any) => {
+    total += data.checkNumberData?.reduce((acc: any, item: any) => {
       if (item.U_tl_paycur === currency) {
         const checkAmount = parseAmount(item.U_tl_amtcheck) || 0;
         return acc + checkAmount;
@@ -69,7 +58,7 @@ export default function IncomingPaymentForm({
     }, 0);
 
     // Aggregate CouponData
-    total += data.couponData.reduce((acc: any, item: any) => {
+    total += data.couponData?.reduce((acc: any, item: any) => {
       if (item.U_tl_paycur === currency) {
         const couponAmount = parseAmount(item.U_tl_amtcoupon) || 0;
         return acc + couponAmount;

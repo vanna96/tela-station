@@ -15,11 +15,22 @@ import UOMSelect from "@/components/selectbox/UnitofMeasurment";
 import { TextField } from "@mui/material";
 import FormattedInputs from "@/components/input/NumberFormatField";
 import { NumericFormat } from "react-number-format";
+import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
+import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
+import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
+import SaleVatSelect from "@/components/input/VatGroupSelect";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
   onSave?: (value: any) => void;
   columns: any[];
+  wh: any;
+  lineofbusiness: any;
+  priceList: any;
+  bin: any;
+  branch: any;
 }
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
@@ -28,6 +39,11 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.state = {
       open: false,
+      priceList: props.priceList,
+      lineofbusiness: props.lineofbusiness,
+      Warehouse: this.props.wh,
+      Bin: props.bin?.find((e: any) => e.U_tl_whs)?.U_tl_bincode,
+      branch: props.branch,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -53,25 +69,21 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ open: false });
   }
-
+  handlerChange(event: any, field: string) {
+    const temps = { ...this.state };
+    temps[field] = event;
+    this.setState({ ...temps });
+  }
   handChange(event: any, field: string) {
     const temps = { ...this.state };
     temps[field] = event.target.value;
 
-    if (field === "GrossPrice") {
-      const value = event.target.value;
-      temps["GrossPrice"] = value;
-      const vatRate = temps["VatRate"] ?? 0.1; // Default to 10% if vatRate is not defined
-      const unitPrice = parseFloat(value) / (1 + vatRate / 100);
-      temps["GrossPrice"] = value;
-      // console.log(value);
-      temps["UnitPrice"] = unitPrice;
-    }
     if (
       field.includes("Quantity") ||
       field.includes("UnitPrice") ||
       field.includes("GrossPrice") ||
-      field.includes("DiscountPercent")
+      field.includes("DiscountPercent") ||
+      field.includes("VatGroup")
     ) {
       let total =
         parseFloat(temps["Quantity"] ?? 1) *
@@ -86,13 +98,9 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
         totalGross -
         (totalGross * parseFloat(temps["DiscountPercent"] ?? 0)) / 100;
 
-      temps["TotalGross"] = totalGross;
+      temps["LineTotal"] = totalGross;
     }
 
-    if (field === "VatGroup") {
-      temps["VatGroup"] = event.target.value.code;
-      temps["VatRate"] = event.target.value.vatRate ?? 10;
-    }
     if (field === "Quantity" || "UomAbsEntry") {
       const qty = temps["Quantity"];
       const Entry = temps["UomAbsEntry"];
@@ -120,15 +128,15 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
 
     this.setState({ ...temps });
   }
-
   render() {
+    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
         titleClass="pt-3 px-4 font-bold w-full"
         open={this.state.open}
         widthClass="w-[70vw] sm:w-[90vw]"
-        heightClass="h-[90vh]"
+        // heightClass="h-[90vh]"
         onClose={this.onClose}
         onOk={this.onSave}
         okLabel="Save"
@@ -139,14 +147,23 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
             key={this.state.key}
           >
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
-              <MUITextField label="Item Code" value={this.state?.ItemCode} />
-              <MUITextField label="Description" value={this.state?.ItemName} />
+              <MUITextField
+                label="Item Code"
+                value={this.state?.ItemCode}
+                disabled
+              />
+              <MUITextField
+                label="Description"
+                value={this.state?.ItemName}
+                disabled
+              />
             </div>
             <div className=" border-b pb-2 mt-3 uppercase font-medium text-gray-600">
               Item Pricing
             </div>
             <div className="grid grid-cols-4 lg:grid-cols-2 sm:grid-cols-1 gap-3">
               <NumericFormat
+                disabled
                 onChange={(event) => {
                   const newValue = parseFloat(
                     event.target.value.replace(/,/g, "")
@@ -156,45 +173,62 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                     "GrossPrice"
                   );
                 }}
-                label="Gross Price"
+                label="Unit Price"
                 value={this.state?.GrossPrice}
                 startAdornment={this.state.Currency}
-                type="text"
-                decimalScale={2}
-                fixedDecimalScale
+                decimalScale={this.state.Currency === "USD" ? 4 : 0}
                 thousandSeparator
-                customInput={MUITextField}
+                customInput={MUIRightTextField}
               />
 
-              <MUITextField
+              <NumericFormat
                 label="Quantity"
-                defaultValue={this.state?.Quantity}
+                placeholder={this.state.Currency === "USD" ? "0.0000" : "0"}
+                thousandSeparator
+                decimalScale={this.state.Currency === "USD" ? 4 : 0}
+                startAdornment={this.state.Currency}
                 onChange={(event) => this.handChange(event, "Quantity")}
+                defaultValue={this.state?.Quantity}
+                customInput={MUIRightTextField}
               />
-              <MUITextField
+              <NumericFormat
+                value={this.state?.DiscountPercent}
+                thousandSeparator
                 label="Discount"
                 startAdornment={"%"}
-                value={this.state?.DiscountPercent}
-                onChange={(event) => this.handChange(event, "DiscountPercent")}
+                decimalScale={this.state.Currency === "USD" ? 3 : 0}
+                placeholder={this.state.Currency === "USD" ? "0.000" : "0"}
+                onChange={(event: any) => {
+                  if (!(event.target.value <= 100 && event.target.value >= 0)) {
+                    event.target.value = 0;
+                  }
+                  this.handChange(event, "DiscountPercent");
+                }}
+                customInput={MUIRightTextField}
               />
-              <VatGroupTextField
-                label="Tax Code"
-                status={"tNO"}
-                value={this.state?.VatGroup}
-                onChange={(event) => this.handChange(event, "VatGroup")}
-                type={"OutputTax"}
-              />
+
+              <div className="flex flex-col">
+                <div className="text-sm">Tax Code</div>
+                <div className="mb-1"></div>
+                <SaleVatSelect
+                  disabled
+                  value={this.state?.VatGroup}
+                  onChange={(event) => {
+                    this.handChange(event, "VatGroup");
+                  }}
+                />
+              </div>
 
               {/* <input hidden value={this.state?.UnitPrice} /> */}
               <NumericFormat
                 label="Total"
-                placeholder="0.00"
+                placeholder={this.state.Currency === "USD" ? "0.000" : "0"}
                 thousandSeparator
-                decimalScale={2}
-                fixedDecimalScale
-                customInput={MUITextField}
+                disabled
+                decimalScale={this.state.Currency === "USD" ? 3 : 0}
+                customInput={MUIRightTextField}
                 startAdornment={this.state.Currency}
-                value={this.state?.TotalGross}
+                value={this.state?.LineTotal}
               />
             </div>
 
@@ -205,48 +239,106 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <MUITextField
                 label="UOM Code"
                 disabled
-                value={this.state?.UomGroupCode}
+                value={
+                  new UnitOfMeasurementRepository().find(
+                    this.state?.UomAbsEntry
+                  )?.Code
+                }
               />
-              <UOMSelect
-                label="UOM Code"
+              <MUISelect
+                label="UOM Name"
                 value={this.state?.UomAbsEntry}
-                filterAbsEntry={this.state.SaleUOMLists}
-                onChange={(event) => this.handChange(event, "UomAbsEntry")}
+                items={this.state.UomLists?.map((e: any) => ({
+                  label: e.Name,
+                  value: e.AbsEntry,
+                }))}
+                onChange={(event) => {
+                  this.handChange(event, "UomAbsEntry");
+
+                  const selectedUomAbsEntry = event.target.value;
+                  const priceList = this.props.priceList;
+                  let itemPrices = this.state.ItemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(priceList)
+                  )?.UoMPrices;
+
+                  let uomPrice = itemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(priceList)
+                  );
+
+                  if (uomPrice && selectedUomAbsEntry === uomPrice.UoMEntry) {
+                    const grossPrice = uomPrice.Price;
+                    const quantity = this.state.Quantity ?? 1;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (this.state.DiscountPercent / 100);
+
+                    this.setState({
+                      GrossPrice: grossPrice,
+                      LineTotal: totalGross,
+                    });
+                  } else {
+                    const grossPrice = this.state.UnitPrice ?? 0;
+                    const quantity = this.state.Quantity ?? 1;
+                    const totalGross =
+                      grossPrice * quantity -
+                      grossPrice *
+                        quantity *
+                        (this.state.DiscountPercent / 100);
+
+                    this.setState({
+                      GrossPrice: grossPrice,
+                      LineTotal: totalGross,
+                    });
+                  }
+                }}
               />
-              <WarehouseSelect
-                label="Warehouse Code"
-                value={this.state?.WarehouseCode}
-                onChange={(event) => this.handChange(event, "WarehouseCode")}
-              />
-              <WareBinLocation
-                itemCode={this.state.ItemCode}
-                Whse={this.state.WarehouseCode}
-                value={this.state.BinAbsEntry}
-                label="Bin Location"
-                onChange={(event) => this.handChange(event, "BinAbsEntry")}
-              />
+
+              <div className="flex flex-col">
+                <div className="text-sm">Warehouse</div>
+                <div className="mb-1"></div>
+                <WarehouseAutoComplete
+                  // disabled
+                  Branch={parseInt(this.props.branch)}
+                  value={this.state.Warehouse}
+                  onChange={(event) => this.handlerChange(event, "Warehouse")}
+                />
+              </div>
+              <div className="flex flex-col">
+                <div className="text-sm">Bin Location</div>
+                <div className="mb-1"></div>
+                <BinLocationToAsEntry
+                  value={parseInt(this.state.Bin)}
+                  onChange={(event) => this.handlerChange(event, "Bin")}
+                  Warehouse={this.state?.Warehouse ?? "WH01"}
+                />
+              </div>
 
               <DistributionRuleText
                 label="Line Of Business"
+                disabled
                 inWhichNum={1}
                 aliasvalue="FactorCode"
-                value={this.state.LineOfBussiness}
-                onChange={(event) => this.handChange(event, "LineOfBussiness")}
+                value={this.state.COGSCostingCode}
+                onChange={(event) => this.handChange(event, "COGSCostingCode")}
               />
 
               <DistributionRuleText
                 label="Revenue Line"
                 inWhichNum={2}
+                disabled
                 aliasvalue="FactorCode"
-                value={this.state?.revenueLine ?? "202001"}
-                onChange={(event) => this.handChange(event, "revenueLine")}
+                value={this.state?.COGSCostingCode2}
+                onChange={(event) => this.handChange(event, "COGSCostingCode2")}
               />
               <DistributionRuleText
                 label="Product Line"
                 inWhichNum={3}
                 aliasvalue="FactorCode"
-                value={this.state?.REV}
-                onChange={(event) => this.handChange(event, "REV")}
+                disabled
+                value={this.state?.COGSCostingCode3}
+                onChange={(event) => this.handChange(event, "COGSCostingCode3")}
               />
             </div>
           </div>

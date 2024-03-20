@@ -6,14 +6,14 @@ import CustomToast from "@/components/modal/CustomToast"
 import { MdEdit } from 'react-icons/md';
 import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
-import BasicInformation from "../components/BasicInformation"
-import Contents from "../components/Contents"
 import { useStockTransferFormHook } from "../hook/useStockTransferHook";
+import BasicInformationDetail from "./BasicInformationDetail";
+import ContentDetail from "../../inventory_transfer_request/detail/ContentDetail";
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
-export const InventoryTransferRequestDetails = () => {
+export const InventoryTransferDetails = () => {
   const [tap, setTap] = useState<number>(0)
   const hook = useStockTransferFormHook(false, dialog);
 
@@ -33,12 +33,12 @@ export const InventoryTransferRequestDetails = () => {
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Inventory Transfer Request</h1>
+      <h1>Stock Transfer</h1>
 
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/inventory-transfer-request/${id}/edit`)}
+        onClick={() => navigate(`/stock-control/stock-transfer/${id}/edit`)}
         endIcon={<MdEdit />}
       >
         Edit
@@ -46,7 +46,7 @@ export const InventoryTransferRequestDetails = () => {
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/inventory-transfer-request/create`)}
+        onClick={() => navigate(`/stock-control/stock-transfer/create`)}
         endIcon={<IoCreate />}
       >
         Create
@@ -75,8 +75,8 @@ export const InventoryTransferRequestDetails = () => {
           <CircularProgress />
         </Backdrop>
 
-        {tap === 0 && <BasicInformation {...hook} />}
-        {tap === 1 && <Contents {...hook} />}
+        {tap === 0 && <BasicInformationDetail {...hook} />}
+        {tap === 1 && <ContentDetail {...hook} />}
       </div>
 
 

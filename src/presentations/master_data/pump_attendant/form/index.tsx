@@ -123,7 +123,7 @@ class Form extends CoreFormDocument {
         // U_tl_sdate: data?.U_tl_sdate ,
         // U_tl_edate: data?.U_tl_edate,
         U_tl_sdate: data?.U_tl_sdate ? `${formatDate(data?.U_tl_sdate)}"T00:00:00Z"`:null,
-        U_tl_edate: data?.U_tl_sdate ? `${formatDate(data?.U_tl_edate)}"T00:00:00Z"`:null,
+        U_tl_edate: data?.U_tl_edate ? `${formatDate(data?.U_tl_edate)}"T00:00:00Z"`:null,
         U_tl_address: data?.U_tl_address,
         U_tl_status: data?.U_tl_status,
         U_tl_numid: data?.U_tl_numid,

@@ -185,6 +185,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   value={data?.U_tl_tel1}
                   name="U_tl_tel1"
                   onChange={(e) => handlerChange("U_tl_tel1", e.target.value)}
@@ -199,6 +200,7 @@ export default function GeneralForm({
               </div>
               <div className="col-span-3">
                 <MUITextField
+                  type="number"
                   value={data?.U_tl_tel2}
                   name="U_tl_tel2"
                   onChange={(e) => handlerChange("U_tl_tel2", e.target.value)}

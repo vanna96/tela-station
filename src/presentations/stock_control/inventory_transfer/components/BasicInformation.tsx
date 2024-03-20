@@ -30,7 +30,7 @@ const BasicInformation = (props: any) => {
 
   const onChangeSerie = useCallback(
     (event: any) => {
-      
+
       const serie = series.data?.find(
         (e: any) => e?.Series === event?.target?.value
       );
@@ -52,15 +52,6 @@ const BasicInformation = (props: any) => {
   const { data } = useGetWhsTerminalAssignHook(false);
 
 
-  const onChangeBranch = (value: any) => {
-
-    const period = new Date().getFullYear();
-    const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
-    
-    props?.setValue("Series", serie?.Series);
-    props?.setValue("DocNum", serie?.NextNumber);
-    props?.setValue('BPLID', value?.BPLID)
-  }
 
   return (
     <>
@@ -124,7 +115,7 @@ const BasicInformation = (props: any) => {
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("FromWarehouse", e?.WarehouseCode);
-                          onChangeBranch({ BPLID: e?.BusinessPlaceID })
+                          props?.onChangeBranch(series, { BPLID: e?.BusinessPlaceID })
 
                           if (!e?.DefaultBin) return;
 
@@ -150,15 +141,16 @@ const BasicInformation = (props: any) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
+                {props?.watch('U_tl_transType') as TransferType === 'External' ? <Controller
                   rules={{ required: "Attention Terminal is required" }}
                   name="U_tl_attn_ter"
-                  disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'internal'}
+                  disabled={props.detail || props.detail}
                   control={props.control}
                   render={({ field }) => {
                     return (
                       <AttentionTerminalAutoComplete
-                        disabled={props.detail}
+                        branchId={props?.watch('BPLID')}
+                        disabled={props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -170,7 +162,8 @@ const BasicInformation = (props: any) => {
                       />
                     );
                   }}
-                />
+                /> : <MUITextField disabled />}
+
               </div>
             </div>
 
@@ -195,7 +188,7 @@ const BasicInformation = (props: any) => {
                         disabled={props?.edit}
                         {...field}
                         value={field.value}
-                        onChange={(e: any) => onChangeBranch(e)}
+                        onChange={(e: any) => props?.onChangeBranch(series, e)}
                       />
                     );
                   }}
@@ -218,6 +211,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <WarehouseAutoComplete
+                        key={`${props.watch('BPLID')}_to_whs`}
                         branchId={props.watch('BPLID')}
                         disabled={props?.edit}
                         {...field}
@@ -234,7 +228,7 @@ const BasicInformation = (props: any) => {
                           );
                           props?.setLoading(false);
                           props.setValue("U_tl_sobincode", res.data.BinCode);
-                          props.setValue("U_tl_toBinId", undefined);
+                          props.setValue("U_tl_toBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -252,6 +246,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 {/* {isLoading} */}
                 <Controller
+                  key={`${props.watch('BPLID')}_to_whs_${props.watch('ToWarehouse')}`}
                   rules={{ required: "To Bin Code is required" }}
                   name="U_tl_sobincode"
                   control={props.control}
@@ -407,6 +402,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <WarehouseAutoComplete
+                        key={`${props.watch('BPLID')}_from_whs`}
                         branchId={props.watch('BPLID')}
                         disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
@@ -450,6 +446,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <BinAllocationAutoComplete
+                        key={`${props.watch('BPLID')}_from_whs_${props.watch('FromWarehouse')}`}
                         warehouse={props?.watch('FromWarehouse')}
                         disabled={props.detail}
                         {...field}
