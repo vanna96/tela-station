@@ -13,6 +13,7 @@ import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook"
 import { delay } from "@/lib/utils";
 import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
+import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
 const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
@@ -37,42 +38,46 @@ const BasicInformation = (props: any) => {
 
       props?.setValue("Series", event?.target?.value);
       props?.setValue("DocNum", serie?.NextNumber);
+
     },
     [series?.data]
+    
   );
 
-  const branch: any = useQuery({
-    queryKey: ["branchid"],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-  })
-  console.log(branch);
+  // const branch: any = useQuery({
+  //   queryKey: ["branchid"],
+  //   queryFn: async () => {
+  //     const response: any = await request(
+  //       "GET",
+  //       `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+  //     )
+  //       .then((res: any) => res?.data?.value)
+  //       .catch((e: Error) => {
+  //         throw new Error(e.message);
+  //       });
+  //     return response;
+  //   },
+  //   staleTime: Infinity,
+  // });
 
   const { data } = useGetWhsTerminalAssignHook(false);
 
-
   const onChangeBranch = (value: any) => {
     const period = new Date().getFullYear();
-    const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
-
+    const serie = series?.data?.find(
+      (e: any) =>
+        e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID
+    );
+      console.log(value);
+      
     props?.setValue("Series", serie?.Series);
     props?.setValue("DocNum", serie?.NextNumber);
-    props?.setValue('BPLID', value?.BPLID)
-  }
+    props?.setValue("BPLID", value?.BPLID);
+  };
 
   const onChangeToWarehouse = async (e: any) => {
     props.setValue("ToWarehouse", e.WarehouseCode);
-  }
+  };
 
   return (
     <>
@@ -91,7 +96,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <MUITextField
                   disabled={props.detail || true}
-                  value={props?.watch('FromWarehouse')}
+                  value={props?.watch("FromWarehouse")}
                 />
               </div>
             </div>
@@ -99,7 +104,9 @@ const BasicInformation = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Attention Terminal" className="text-gray-500 ">
                   Attention Terminal
-                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">
+                    {props.detail ? "" : "*"}
+                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -114,10 +121,7 @@ const BasicInformation = (props: any) => {
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          onChangeBranch({ BPLID: e.BusinessPlaceID })
                           props.setValue("U_tl_attn_ter", e.WarehouseCode);
-                          const git = data?.find((whs: any) => whs?.U_tl_git_whs === 'Y' && whs?.BusinessPlaceID === e.BusinessPlaceID)
-                          props.setValue("FromWarehouse", git?.WarehouseCode);
                         }}
                       />
                     );
@@ -132,14 +136,34 @@ const BasicInformation = (props: any) => {
                   className="text-gray-500 inline-block mt-1"
                 >
                   Branch
-                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">
+                    {props.detail ? "" : "*"}
+                  </span>
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  value={branch?.data?.find((e: any) => e?.BPLID === props?.watch("BPLID"))?.BPLName}
-                  inputProps={{ ...props.register("BPLName") }}
+                <Controller
+                  rules={{ required: "Branch is required" }}
+                  name="BPLID"
+                  control={props.control}
+                  render={({ field }) => {
+                    return (
+                      <GetBranchAutoComplete
+                        {...field.value}
+                        value={props.watch('BPLID')}
+                        onChange={(e: any) => {
+                        props?.setValue("BPLID", e?.BPLID);
+                        // onChangeBranch(e?.BPLID);
+                        const git = data?.find(
+                          (whs: any) => whs?.U_tl_git_whs === "Y" && whs.BusinessPlaceID === e?.BPLID);
+                        console.log(e);
+                        props?.setValue("FromWarehouse", git?.WarehouseCode);
+                        props?.setValue("U_tl_attn_ter", e?.U_tl_attn_ter);
+                        props?.setValue("ToWarehouse",  e?.WarehouseCode);         
+                        }}
+                      />
+                    );
+                  }}
                 />
               </div>
             </div>
@@ -148,7 +172,9 @@ const BasicInformation = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
                   To Warehouse Code
-                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">
+                    {props.detail ? "" : "*"}
+                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -159,7 +185,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <WarehouseAutoComplete
-                        branchId={props?.watch('BPLID')}
+                        branchId={props?.watch("BPLID")}
                         disabled={props.detail}
                         {...field}
                         value={field.value}
@@ -175,7 +201,9 @@ const BasicInformation = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
+                <span className="text-red-500 ml-1">
+                  {props.detail ? "" : "*"}
+                </span>
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
@@ -187,11 +215,13 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <BinAllocationAutoComplete
-                        warehouse={props?.watch('ToWarehouse')}
+                        warehouse={props?.watch("ToWarehouse")}
                         disabled={props.detail}
                         {...field}
                         value={field.value}
-                        onChange={(value) => props?.setValue('U_tl_sobincode', value?.BinCode)}
+                        onChange={(value) =>
+                          props?.setValue("U_tl_sobincode", value?.BinCode)
+                        }
                       />
                     );
                   }}
@@ -254,7 +284,7 @@ const BasicInformation = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                              "invalid date".toLocaleLowerCase()
+                            "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("DocDate", val);
@@ -269,7 +299,9 @@ const BasicInformation = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Document Date" className="text-gray-500 ">
                   Document Date
-                  <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
+                  <span className="text-red-500 ml-1">
+                    {props.detail ? "" : "*"}
+                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -284,7 +316,7 @@ const BasicInformation = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                              "invalid date".toLocaleLowerCase()
+                            "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("TaxDate", val);
@@ -319,7 +351,9 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        disabled={props.detail || props.defaultValues?.U_Status === "C"}
+                        disabled={
+                          props.detail || props.defaultValues?.U_Status === "C"
+                        }
                         items={[
                           { value: "bost_Open", label: "Open" },
                           { value: "bost_Closed", label: "Closed" },

@@ -67,11 +67,11 @@ export default function ContentDetail({
 
   return (
     <>
-      <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
+      <div className="rounded-lg shadow-sm  border p-6 mt-2 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Content</h2>
         </div>
-        <div className="w-full  overflow-x-auto">
+        <div className="w-full">
           <table className="table table-auto border min-w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
               <th className="w-[4rem] "></th>
@@ -105,18 +105,11 @@ export default function ContentDetail({
                 <>
                   <tr key={index}>
                     <td className="py-2 flex justify-center gap-5 items-center">
-                      {!detail && (
-                        <Checkbox
-                          disabled
-                          onChange={(event) => handleCheck(event, index)}
-                          checked={selecteds[index] === undefined ? false : true}
-                        />
-                      )}
+                     
                     </td>
                     <td className="pr-4">
                       <MUITextField
                         onClick={() => itemRef.current?.onOpen('single', index)}
-                        endAdornment
                         disabled
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemCode`, {

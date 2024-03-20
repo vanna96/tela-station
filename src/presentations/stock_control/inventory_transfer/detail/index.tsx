@@ -8,7 +8,7 @@ import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
 import { useStockTransferFormHook } from "../hook/useStockTransferHook";
 import BasicInformationDetail from "./BasicInformationDetail";
-import ContentDetail from "../../inventory_transfer_request/detail/ContentDetail";
+import ContentDetail from './ContentDetail';
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
