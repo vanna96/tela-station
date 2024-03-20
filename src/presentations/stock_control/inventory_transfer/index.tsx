@@ -5,7 +5,6 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import MUITextField from "@/components/input/MUITextField";
 import { Button, CircularProgress } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString } from "@/lib/utils";
@@ -16,12 +15,8 @@ import { useInventoryTransferListHook } from "./hook/useInventoryTransferListHoo
 export default function InventoryTransferList() {
 
   const navigate = useNavigate();
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
-  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting } = useInventoryTransferListHook(pagination)
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting, pagination, setPagination } = useInventoryTransferListHook()
 
   const columns = React.useMemo(
     () => [

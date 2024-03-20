@@ -13,6 +13,7 @@ import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 import { TransferType } from "../hook/useStockTransferHook";
 import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
+import GITWarehouseAutoComplete from "../../components/GITWarehouseAutoComplete";
 
 const BasicInformation = (props: any) => {
   //
@@ -43,14 +44,7 @@ const BasicInformation = (props: any) => {
     [series?.data]
   );
 
-  const branch: any = useInfiniteQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
-
   const { data } = useGetWhsTerminalAssignHook(false);
-
 
 
   return (
@@ -107,16 +101,13 @@ const BasicInformation = (props: any) => {
                   control={props.control}
                   render={({ field }) => {
                     return (
-                      <WarehouseAutoComplete
+                      <GITWarehouseAutoComplete
                         branchId={props.watch('BPLID')}
                         disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
-
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("FromWarehouse", e?.WarehouseCode);
-                          props?.onChangeBranch(series, { BPLID: e?.BusinessPlaceID })
-
                           if (!e?.DefaultBin) return;
 
                           props?.setLoading(true);
@@ -154,10 +145,8 @@ const BasicInformation = (props: any) => {
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          // props.setValue("BPLID", e.BusinessPlaceID);
                           props.setValue("U_tl_attn_ter", e?.WarehouseCode);
-                          const git = data?.find((whs: any) => whs?.U_tl_git_whs === 'Y' && whs?.BusinessPlaceID === e.BusinessPlaceID)
-                          // props.setValue("FromWarehouse", git?.WarehouseCode);
+
                         }}
                       />
                     );
@@ -248,7 +237,7 @@ const BasicInformation = (props: any) => {
                 <Controller
                   key={`${props.watch('BPLID')}_to_whs_${props.watch('ToWarehouse')}`}
                   rules={{ required: "To Bin Code is required" }}
-                  name="U_tl_sobincode"
+                  name="U_tl_toBinId"
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -422,7 +411,7 @@ const BasicInformation = (props: any) => {
                           props?.setLoading(false);
                           props.setValue("U_tl_uobincode", res.data.BinCode);
                           // props.setValue("U_tl_fromBinId", e?.DefaultBin);
-                          props.setValue("U_tl_fromBinId", undefined);
+                          props.setValue("U_tl_fromBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -441,7 +430,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 {props?.watch('U_tl_transType') as TransferType === 'Internal' ? <Controller
                   rules={{ required: "From Bin Code is required" }}
-                  name="U_tl_uobincode"
+                  name="U_tl_fromBinId"
                   control={props.control}
                   render={({ field }) => {
                     return (

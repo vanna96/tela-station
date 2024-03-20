@@ -110,7 +110,7 @@ const BasicInformationDetail = (props: any) => {
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
-                "External" ? (
+                  "External" ? (
                   <Controller
                     rules={{ required: "From Warehouse Code is required" }}
                     name="FromWarehouse"
@@ -165,6 +165,7 @@ const BasicInformationDetail = (props: any) => {
                     return (
                       <AttentionTerminalAutoComplete
                         disabled
+                        branchId={props.watch('BPLID')}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -269,9 +270,10 @@ const BasicInformationDetail = (props: any) => {
                 {/* {isLoading} */}
                 <Controller
                   rules={{ required: "To Bin Code is required" }}
-                  name="U_tl_sobincode"
+                  name="U_tl_toBinId"
                   control={props.control}
                   render={({ field }) => {
+
                     return (
                       <BinAllocationAutoComplete
                         warehouse={props?.watch("ToWarehouse")}
@@ -362,7 +364,7 @@ const BasicInformationDetail = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("DocDate", val);
@@ -395,7 +397,7 @@ const BasicInformationDetail = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("TaxDate", val);
@@ -418,7 +420,7 @@ const BasicInformationDetail = (props: any) => {
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
-                "Internal" ? (
+                  "Internal" ? (
                   <Controller
                     rules={{ required: "From Warehouse Code is required" }}
                     name="FromWarehouse"
@@ -466,10 +468,10 @@ const BasicInformationDetail = (props: any) => {
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
-                "Internal" ? (
+                  "Internal" ? (
                   <Controller
                     rules={{ required: "From Bin Code is required" }}
-                    name="U_tl_uobincode"
+                    name="U_tl_fromBinId"
                     control={props.control}
                     render={({ field }) => {
                       return (

@@ -61,7 +61,7 @@ const BasicInformation = (props: any) => {
 
   const onChangeToWarehouse = async (e: any) => {
     props.setValue("ToWarehouse", e.WarehouseCode);
-    props?.setValue("tl_toBinId", undefined)
+    props?.setValue("U_tl_toBinId", undefined)
   };
 
   return (
@@ -186,7 +186,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "To Bin Code is required" }}
-                  name="tl_toBinId"
+                  name="U_tl_toBinId"
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -197,7 +197,7 @@ const BasicInformation = (props: any) => {
                         {...field}
                         value={field.value}
                         onChange={(value) =>
-                          props?.setValue("tl_toBinId", value?.AbsEntry)
+                          props?.setValue("U_tl_toBinId", value?.AbsEntry)
                         }
                       />
                     );

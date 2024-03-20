@@ -98,9 +98,12 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                     if (!uom)
                         reject(new Error('Internal Errro (1).'))
 
-                    const bins: any = await request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode&$filter=BinCode eq '${res?.data?.U_tl_sobincode}'`);
-                    if (!bins)
-                        reject(new Error('Internal Errro (1).'))
+                    let bins: any = {};
+                    if (res?.data?.U_tl_toBinId) {
+                        bins = await request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode&$filter=BinCode eq '${res?.data?.U_tl_sobincode}'`);
+                        if (!bins)
+                            reject(new Error('Internal Errro (1).'))
+                    }
 
                     payload['StockTransferLines'].push({
                         ItemCode: item?.ItemCode,
@@ -118,7 +121,7 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                                 BinActionType: "batFromWarehouse"
                             },
                             {
-                                BinAbsEntry: bins?.data?.value?.at(0)?.AbsEntry,
+                                BinAbsEntry: res?.data?.U_tl_toBinId ?? bins?.data?.value?.at(0)?.AbsEntry,
                                 Quantity: calculateUOM(uom?.BaseQuantity, uom?.AlternateQuantity, item?.Quantity),
                                 AllowNegativeQuantity: "tNO",
                                 SerialAndBatchNumbersBaseLine: -1,
@@ -207,6 +210,8 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
     };
 
     const onInvalidForm = (e: any) => {
+        console.log(e)
+
         if (e.StockTransferLines) {
             if (e.StockTransferLines?.length === 0) return;
             const key = Object.keys(e.StockTransferLines[0])[0]
@@ -251,6 +256,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         request('GET', `StockTransfers(${id})`)
             .then((res: any) => {
                 setLoading(false)
+                console.log(res.data)
                 reset({ ...res.data }, { keepValues: false })
             })
             .catch((e: any) => {

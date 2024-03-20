@@ -7,6 +7,7 @@ import ITRModal, { InventoryItemModal } from "../../components/GetItemModal";
 import UomSelectByItem, { calculateUOM } from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { QueryCache, QueryClient, useQueryClient } from "react-query";
+import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 
 
 let itemRef = React.createRef<InventoryItemModal>();
@@ -142,6 +143,8 @@ export default function ContentDetail({
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 UoM
               </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">From Bin Code  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span> </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">To Bin Code <span className="text-red-500 ml-1">{detail ? "" : "*"}</span></th>
             </tr>
             {fields?.length === 0 && (
               <tr>
@@ -224,6 +227,48 @@ export default function ContentDetail({
                         }}
                       />
                     </td>
+                    <td className="pr-4">
+                      <Controller
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
+                        rules={
+                          {
+                            required: 'From bin code is required'
+                          }
+                        }
+                        control={control}
+                        render={({ field }) => <BinAllocationAutoComplete
+                          warehouse={watch('FromWarehouse')}
+                          disabled={true}
+                          {...field}
+                          value={field.value}
+                          onChange={(value) => {
+                            console.log(field.value)
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
+                          }}
+                        />}
+                      />
+                    </td>
+                    <td className="pr-4">
+
+                      <Controller
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
+                        rules={
+                          {
+                            required: 'To bin code is required'
+                          }
+                        }
+                        control={control}
+                        render={({ field }) => <BinAllocationAutoComplete
+                          warehouse={watch('ToWarehouse')}
+                          disabled={true}
+                          {...field}
+                          value={field.value}
+                          onChange={(value) => {
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
+                          }}
+                        />}
+                      />
+                    </td>
                   </tr>
                 </>
               );
@@ -244,7 +289,7 @@ export default function ContentDetail({
               multiline
               rows={3}
               name="Comments"
-              className="bg-gray-100"         
+              className="bg-gray-100"
               inputProps={{ ...register("Comments") }}
             />
           </div>
