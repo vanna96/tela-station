@@ -7,11 +7,12 @@ import { DatePicker } from "@mui/x-date-pickers";
 import React, { useCallback, useMemo } from "react";
 import { useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
-import UomSelectByItem from "../../components/UomSelectByItem";
+import UomSelectByItem, { calculateUOM } from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
 import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
 import { useParams } from "react-router-dom";
 import { InventoryItemModal } from "../../components/GetItemModal";
+import { useQueryClient } from "react-query";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
@@ -110,6 +111,22 @@ export default function Content({
       -1
     );
   };
+
+
+
+  const queryClient = useQueryClient()
+  const onChangeQuantity = (event: any, code: string | undefined, uomId: number | undefined, index: number) => {
+    if (event?.target?.value === '' || !event?.target?.value) return;
+
+    const query: any = queryClient.getQueryData([`uom_group_lists_${code}`]);
+    if (!query) return;
+
+    const selectedUoM = query?.UoMGroupDefinitionCollection?.find((e: any) => e.AlternateUoM === uomId);
+    if (!selectedUoM) return;
+
+    const qty = calculateUOM(selectedUoM.BaseQuantity, selectedUoM.AlternateQuantity, Number(event?.target?.value) ?? 0)
+    setValue(`DocumentLines.${index}.DocumentLinesBinAllocations.0.Quantity`, qty);
+  }
 
   return (
     <>
@@ -211,6 +228,7 @@ export default function Content({
                           ...register(`DocumentLines.${index}.Quantity`, {
                             required: "Quatity is required",
                           }),
+                          onBlur: (event) => onChangeQuantity(event, e?.ItemCode, e?.UoMEntry, index)
                         }}
                       />
                     </td>
