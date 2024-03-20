@@ -89,6 +89,7 @@ export default function GeneralForm({
                 <CashACAutoComplete
                   onChange={(e) => handlerChange("U_tl_cashacct", e)}
                   value={data?.U_tl_cashacct}
+                  dataFilter={ data?.U_tl_cashtype === 'Deposit' ? ['110497', '110498']:[]}
                 />
               </div>
             </div>

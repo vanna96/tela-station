@@ -13,24 +13,28 @@ export default function CashACAutoComplete(props: {
   BPdata?: any;
   disabled?: any;
   name?: any;
+  dataFilter?: any;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["gl_account"],
     queryFn: () => new GLAccountRepository().get(),
     // staleTime: Infinity,
   });
-
+  
+  var newData = data;
+  if(props?.dataFilter?.length > 0) newData = newData?.filter((gl:any) => props?.dataFilter?.includes(gl.Code))
+  
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selectedBranch = data?.find(
+      const selectedBranch = newData?.find(
         (branch: any) => branch?.Code === props.value
       );
       if (selectedBranch) {
         setSelectedValue(selectedBranch);
       }
     }
-  }, [props.value, data]);
+  }, [props.value, newData]);
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);
@@ -58,7 +62,7 @@ export default function CashACAutoComplete(props: {
 
       <Autocomplete
         disabled={disabled}
-        options={data}
+        options={newData}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
