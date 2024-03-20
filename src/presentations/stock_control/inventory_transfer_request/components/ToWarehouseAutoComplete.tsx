@@ -17,6 +17,7 @@ const ToWarehouseAutoComplete = forwardRef<
     onChange?: (value: any) => void;
     name?: any;
     disabled?: any;
+    attentionTerminal?: boolean,
   }
 >((props, ref) => {
   const { data, isLoading } = useQuery({
@@ -31,8 +32,7 @@ const ToWarehouseAutoComplete = forwardRef<
           throw new Error(e.message);
         });
       return response;
-    },
-    enabled: false,
+    }
   });
 
   useEffect(() => {
@@ -44,6 +44,9 @@ const ToWarehouseAutoComplete = forwardRef<
       }
     }
   }, [props.value, data]);
+
+
+  
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);

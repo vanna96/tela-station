@@ -54,8 +54,6 @@ const BinAllocationAutoComplete = forwardRef<
   const disabled = props.disabled;
 
 
-  console.log(props.value)
-
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label

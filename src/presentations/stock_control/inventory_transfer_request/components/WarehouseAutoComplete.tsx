@@ -35,7 +35,7 @@ const WarehouseAutoComplete = forwardRef<
     staleTime: 0,
     cacheTime: 0,
   });
-console.log(data);
+  console.log(data);
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
@@ -89,9 +89,8 @@ console.log(data);
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -111,4 +110,4 @@ console.log(data);
   );
 });
 
-export default AttenAutoComplete;
+export default WarehouseAutoComplete;

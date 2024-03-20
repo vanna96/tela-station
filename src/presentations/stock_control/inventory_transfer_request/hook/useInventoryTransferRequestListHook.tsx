@@ -35,7 +35,6 @@ function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
 const keyData = 'inventory-transfer-request-lists';
 const keyCount = 'inventory-transfer-request-count';
 
-
 export const useInventoryTransferRequestListHook = () => {
     const [state, dispatch] = React.useReducer(reducer, initialState);
     const [pagination, setPagination] = React.useState({
@@ -47,10 +46,6 @@ export const useInventoryTransferRequestListHook = () => {
     const filters = useMemo(() => {
         return { ...state, skip: Number(pagination?.pageIndex) * Number(pagination?.pageSize), top: pagination?.pageSize ?? 10 } as QueryOptionAPI;
     }, [state, pagination])
-
-
-    console.log(pagination)
-
 
     const dataQuery = useQuery({ queryKey: [keyData + filters.skip, filters], queryFn: () => request('GET', `/InventoryTransferRequests?${queryOptionParser(filters)}`), refetchOnWindowFocus: false });
     const countQuery = useQuery({

@@ -73,7 +73,6 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
   const { data, isLoading } = useQuery({
     queryKey: ["item-inventory"],
     queryFn: () => request("GET", `${url}/Items?$select=ItemCode,ItemName,InventoryItem,UoMGroupEntry,U_tl_dim1,U_tl_dim2 & $filter=InventoryItem eq 'tYES'`),
-    staleTime: 0,
   });
 
   const [selecteds, setSelects] = useState<{ [key: string]: string | undefined }>({});
