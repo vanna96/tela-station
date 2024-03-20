@@ -200,10 +200,7 @@ export default function Content({
                         disabled
                         inputProps={{
                           ...register(
-                            `DocumentLines.${index}.ItemDescription`,
-                            {
-                              required: "Item Description. is required",
-                            }
+                            `DocumentLines.${index}.ItemDescription`
                           ),
                         }}
                       />
