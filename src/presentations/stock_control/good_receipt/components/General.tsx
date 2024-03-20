@@ -16,21 +16,15 @@ import request, { url } from "@/utilies/request";
 import { UseGetReceiptSeriesHook } from "../hook/UseGetReceiptSeriesHooks";
 import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
+import { UseFormProps } from "../form/GoodReceiptForm";
 
 const General = ({
   register,
   control,
-  defaultValues,
   setValue,
-  setBranchAss,
-  branchAss,
-  header,
-  setHeader,
   detail,
   watch,
-  reset,
-  getValues,
-}: any) => {
+}: UseFormProps) => {
   const { series, defaultSerie } = UseGetReceiptSeriesHook();
   const { id }: any = useParams();
   useEffect(() => {
@@ -95,7 +89,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <GetBranchAutoComplete
                         disabled={id}
                         {...field}
                         value={field?.value}
