@@ -1,5 +1,5 @@
 import MUITextField from "@/components/input/MUITextField";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -13,6 +13,12 @@ const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
 
+  const getSerieLists: any[] = useMemo(() => {
+    if (!props.watch('BPLID')) return series.data ?? [];
+
+    return series.data?.filter((e: any) => e?.BPLID === props.watch('BPLID')) ?? []
+  }, [series, props.watch('BPLID')])
+
   useEffect(() => {
     if (props?.edit) return;
 
@@ -25,7 +31,7 @@ const BasicInformation = (props: any) => {
 
   const onChangeSerie = useCallback(
     (event: any) => {
-      const serie = series.data?.find(
+      const serie = getSerieLists?.find(
         (e: any) => e?.Series === event?.target?.value
       );
 
@@ -43,7 +49,7 @@ const BasicInformation = (props: any) => {
 
   const onChangeBranch = (value: any) => {
     const period = new Date().getFullYear();
-    const serie = series?.data?.find(
+    const serie = getSerieLists?.find(
       (e: any) =>
         e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID
     );
@@ -224,7 +230,7 @@ const BasicInformation = (props: any) => {
                         <MUISelect
                           value={field.value}
                           disabled={props?.edit}
-                          items={series.data ?? []}
+                          items={getSerieLists ?? []}
                           aliaslabel="Name"
                           aliasvalue="Series"
                           onChange={onChangeSerie}
