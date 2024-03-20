@@ -5,23 +5,19 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import MUITextField from "@/components/input/MUITextField";
 import { Button, CircularProgress } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString } from "@/lib/utils";
 import DataTable from "../components/DataTable";
 import InsertDriveFileOutlinedIcon from '@mui/icons-material/InsertDriveFileOutlined';
 import { useInventoryTransferRequestListHook } from "./hook/useInventoryTransferRequestListHook";
+import AttentionTerminalAutoComplete from "./components/AttentionTerminalAutoComplete";
 
 export default function InventoryTransferRequestList() {
 
   const navigate = useNavigate();
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
-  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting } = useInventoryTransferRequestListHook(pagination)
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, exporting, pagination, setPagination } = useInventoryTransferRequestListHook()
 
   const columns = React.useMemo(
     () => [
@@ -198,7 +194,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   U_tl_attn_ter_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: `DocumentStatus eq '_all'`,
+  DocumentStatus_$eq: `_all`,
 }
 
 export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
@@ -257,16 +253,16 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
         <div className="col-span-2 2xl:col-span-3">
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              From Warehouses
+              To Warehouses
             </label>
             <div className="">
               <Controller
-                name="U_tl_attn_ter_$eq"
+                name="ToWarehouse_$eq"
                 control={control}
                 render={({ field }) => {
                   return (
-                    <ToWarehouseAutoComplete onChange={(e: any) => {
-                      setValue('U_tl_attn_ter_$eq', e?.WarehouseCode)
+                    <ToWarehouseAutoComplete {...field} onChange={(e: any) => {
+                      setValue('ToWarehouse_$eq', e?.WarehouseCode)
                     }} />
                   );
                 }}
@@ -278,18 +274,23 @@ export const InventoryTransferRequestFilter = ({ onFilter }: { onFilter?: (value
         <div className="col-span-2 2xl:col-span-3">
           <div className="flex flex-col gap-1 text-sm">
             <label htmlFor="Code" className="text-gray-500 text-[14px]">
-              To Warehouse
+              Attention Warehouse
             </label>
             <div className="">
               <Controller
-                name="ToWarehouse_$eq"
+                name="U_tl_attn_ter_$eq"
                 control={control}
                 render={({ field }) => {
-                  return (
-                    <ToWarehouseAutoComplete onChange={(e: any) => {
-                      setValue('ToWarehouse_$eq', e?.WarehouseCode)
-                    }} />
-                  );
+
+                  return <AttentionTerminalAutoComplete
+                    {...field}
+                    value={field.value}
+                    onChange={(e: any) => {
+
+                      setValue("U_tl_attn_ter_$eq", e?.WarehouseCode);
+                    }}
+                  />
+
                 }}
               />
             </div>

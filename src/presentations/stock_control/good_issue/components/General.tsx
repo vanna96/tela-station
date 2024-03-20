@@ -94,7 +94,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <GetBranchAutoComplete
                         disabled={id}
                         {...field}
                         value={field?.value}
@@ -303,7 +303,7 @@ const General = ({
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
+                              "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
                           setValue("DocDate", `${val == "" ? "" : val}`);
@@ -335,7 +335,7 @@ const General = ({
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
+                              "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
                           setValue("TaxDate", `${val == "" ? "" : val}`);

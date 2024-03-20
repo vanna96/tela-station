@@ -21,7 +21,8 @@ export default function FuelLevelWarehouseBinAutoComplete(props: {
     disabled?: any;
     name?: any;
     whsCode: string | undefined;
-    disable?: boolean
+    disable?: boolean,
+    excludes: number[]
 }) {
     const { data, isLoading } = useQuery({ queryKey: [`whs_bins_${props.whsCode}`], queryFn: () => getData(props.whsCode) })
     const { disabled } = props;
@@ -41,10 +42,19 @@ export default function FuelLevelWarehouseBinAutoComplete(props: {
             if (selectedBranch) setSelectedValue(selectedBranch);
         }
     }, [props.value, data]);
+
+    const bins = useMemo(() => {
+        if (props.excludes)
+            return data?.filter((e: any) => !props.excludes.includes(e?.AbsEntry));
+
+        return data ?? [];
+    }, [data, props.excludes])
+
+
     return (
         <Autocomplete
             disabled={disabled}
-            options={data ?? []}
+            options={bins ?? []}
             autoHighlight
             value={selectedValue ?? {}}
             onChange={handleAutocompleteChange}

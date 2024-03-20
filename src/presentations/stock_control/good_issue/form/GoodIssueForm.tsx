@@ -61,6 +61,13 @@ const GoodIssueForm = (props: any) => {
   const onSubmit = async (payload: any) => {
     try {
       setState({ ...state, isSubmitting: true });
+
+      if (payload?.DocumentLines) {
+        for (let index = 0; index < payload?.DocumentLines.length; index++) {
+          payload['DocumentLines'][index]['WarehouseCode'] = payload.U_tl_whsdesc;
+        }
+      }
+
       if (props.edit) {
         await request("PATCH", `/InventoryGenExits(${id})`, payload)
           .then((res: any) =>
@@ -158,21 +165,21 @@ const GoodIssueForm = (props: any) => {
       });
   }, [id]);
 
-   const onInvalidForm = (invalids: any) => {
-     if (invalids?.DocumentLines?.length > 0) {
-       for (const invs of invalids?.DocumentLines) {
-         for (const [key, inv] of Object.entries(invs ?? {}) as any) {
-           dialog.current?.error(inv?.message);
-         }
-       }
-       return;
-     }
-     dialog.current?.error(
-       invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-         "Oop something wrong!",
-       "Invalid Value"
-     );
-   };
+  const onInvalidForm = (invalids: any) => {
+    if (invalids?.DocumentLines?.length > 0) {
+      for (const invs of invalids?.DocumentLines) {
+        for (const [key, inv] of Object.entries(invs ?? {}) as any) {
+          dialog.current?.error(inv?.message);
+        }
+      }
+      return;
+    }
+    dialog.current?.error(
+      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
+      "Oop something wrong!",
+      "Invalid Value"
+    );
+  };
 
   return (
     <>
