@@ -127,7 +127,6 @@ const General = ({
                             e?.BusinessPlaceID
                           );
                           onChangeBranch(e?.BusinessPlaceID);
-
                           setValue("U_tl_whsdesc", e?.WarehouseCode);
                         }}
                       />
