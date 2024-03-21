@@ -610,7 +610,7 @@ function NozzleData({ data }: any) {
       <div className="mt-8" />
       <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Generate Allocation </h2>
+          <h2> Allocation Data</h2>
         </div>
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
@@ -625,18 +625,15 @@ function NozzleData({ data }: any) {
 
 function IncomingPayment({ data }: any) {
   const totalCashSale: number = React.useMemo(() => {
-    const total = data?.allocationData?.reduce(
-      (prevTotal: any, item: any) => {
-        const lineTotal = Formular.findLineTotal(
-          (item.U_tl_cashallow || 0)?.toString(),
-          item.ItemPrice || 0,
-          // "1",
-          "0"
-        );
-        return prevTotal + lineTotal;
-      },
-      0
-    );
+    const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
+      const lineTotal = Formular.findLineTotal(
+        (item.U_tl_cashallow || 0)?.toString(),
+        item.ItemPrice || 0,
+        // "1",
+        "0"
+      );
+      return prevTotal + lineTotal;
+    }, 0);
     return total;
   }, []);
 
@@ -944,7 +941,7 @@ function IncomingPayment({ data }: any) {
               placeholder="0.000"
               decimalScale={3}
               customInput={MUIRightTextField}
-              value={totalCashSale - totalUSD - TotalKHRtoUSD}
+              value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
             />
           </div>
         </div>

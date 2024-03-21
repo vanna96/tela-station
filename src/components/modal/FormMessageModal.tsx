@@ -13,7 +13,19 @@ interface FormMessageModalProps {
 
 class FormMessageModal extends React.Component<FormMessageModalProps> {
   state = { open: false, message: "", title: "", isError: false, id: null };
+  componentDidMount() {
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
 
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleKeyDown);
+  }
+
+  handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      this.onClose();
+    }
+  };
   success(message: string, id: number) {
     this.setState({
       open: true,
@@ -113,7 +125,9 @@ class FormMessageModal extends React.Component<FormMessageModalProps> {
                             isError={this.state.isError}
                             flag={1}
                             id={this.state.id}
-                            onClick={() => this.setState({...this.state, open: false})}
+                            onClick={() =>
+                              this.setState({ ...this.state, open: false })
+                            }
                           >
                             View Detail
                           </ReplaceRouteButton>
@@ -158,7 +172,7 @@ const ReplaceRouteButton = (props: any) => {
     }
     if (!isEdit) route(history.pathname.replace("create", "") + id);
 
-    if (props?.onClick) props?.onClick()
+    if (props?.onClick) props?.onClick();
   };
 
   return (
