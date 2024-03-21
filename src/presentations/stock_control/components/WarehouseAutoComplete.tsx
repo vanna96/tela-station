@@ -21,7 +21,7 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
 
 
   const warehoueses = useMemo(() => {
-    return data?.filter((e: any) => e?.BusinessPlaceID === props?.branchId && e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N')
+    return data?.filter((e: any) => e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N')
   }, [props.branchId, data])
 
 
