@@ -273,6 +273,8 @@ const onInvalidForm = (invalids: any) => {
       queryFn: () => new ManagerRepository().get(),
       staleTime: Infinity,
     });
+
+    
     return (
       <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
