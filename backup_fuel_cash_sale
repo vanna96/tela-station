@@ -4,21 +4,12 @@
  */
 var ServiceLayerContext = require('ServiceLayerContext.js');
 var http = require('HttpModule.js');
-http.response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
+// http.response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
 http.response.setHeader("Access-Control-Allow-Credentials", true);
-/**
- * Entry function for the http POST request.
- * 
- * POST /b1s/v1/script/{{partner name}}/{{script name}}}
- */
-// var queryOption = ``;
-// var retCaseSensitive = slContext.BusinessPartners.query(queryOption);
-// var retCaseInsensitive = slContext.query("SeriesService_GetDocumentSeries", queryOption, true);
-// return http.response.send(200, retCaseInsensitive.toArray())
-function POST() {
 
+function POST(req) {
     var jsonObj = http.request.getJsonObj();
-
+    http.response.setHeader("Access-Control-Allow-Origin", jsonObj['app_url']);
     // validation
     if (!jsonObj) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, "Fail to get the content of JSON format from the request payload");
     [
@@ -47,7 +38,7 @@ function POST() {
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
     jsonObj['SANumber'] = fuelSale.body.DocNum;
-    
+    return CashSaleTransaction(slContext, jsonObj);
     try {
         // CASH SALE
         if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj)
@@ -74,7 +65,7 @@ function POST() {
             TelaCardTransaction(slContext, jsonObj);
         };
     
-        // PUMP TEST
+        // PUMP TEST​
         if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
@@ -135,11 +126,11 @@ function DELETE() {
     http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
 }
 
-function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount) {
+function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount, adjustAmount=0) {
     const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
     if (FilterPayment.length <= 0) return null;
 
-    let CashSum = 0;
+    let CashSum = adjustAmount;
     let TransferSum = 0;
     let CheckSum = 0;
     
@@ -182,6 +173,9 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
+        U_tl_dim1: null, // Line of bussiness
+        U_tl_dim2: null, // Revenue Line
+        U_tl_dim3: null, // Product Line
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
                                         return {
@@ -197,9 +191,11 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
 
 
 function CashSaleTransaction(slContext, jsonObj){
+    
     slContext.startTransaction();
     // Create A/R Invoice
     var invoice = {
+        DocCurrency: 'USD',
         Series: jsonObj['InvoiceSeries'],
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -211,6 +207,8 @@ function CashSaleTransaction(slContext, jsonObj){
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         NumAtCard: "Oil",
         U_tl_invtype:"Retail",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.CashSale.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -221,7 +219,8 @@ function CashSaleTransaction(slContext, jsonObj){
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
                 COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode2: '202001',
+                // COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] 
@@ -231,7 +230,6 @@ function CashSaleTransaction(slContext, jsonObj){
     };
 
     var invoiceContext = slContext.add("Invoices", invoice);
-    
     if (invoiceContext.status !== 201) {
         slContext.rollbackTransaction();
         throw ({
@@ -242,59 +240,190 @@ function CashSaleTransaction(slContext, jsonObj){
     
     // Create Incoming Payment
     var inv = invoiceContext.body;
+    var invoiceTotal  = inv.DocTotal || 0;
+    var totalC = jsonObj['IncomingPaymentCoupon'].reduce((total, payment) => total + payment.Amount, 0);
+    var totalP = jsonObj['IncomingPayment'].reduce((totals, payment) => {
+        const currency = payment.DocCurrency;
+        totals[currency] = (totals[currency] || 0) + payment.Amount;
+        return totals;
+    }, {});
+
+    var totalPayment = 0;
+    if(totalC) totalPayment += totalC;
+    if(totalP['USD']) totalPayment += totalP['USD'];
+    if(totalP['KHR'] && jsonObj['DocRate']) totalPayment += totalP['KHR'] / (jsonObj['DocRate']);
     
-    // KHR Payment
-    var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
-    if( paymentKh != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentKh)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's KHR Payment",
-                ...incomingContext.body
-            });
+    if(totalPayment >= invoiceTotal){
+        // Coupon USD Payment
+        var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
+        if( paymentUS != null) {
+            var incomingContext = slContext.add("IncomingPayments", paymentUS)
+            if (incomingContext.status !== 201) {
+                slContext.rollbackTransaction();
+                throw ({
+                    "tab": "Incoming Payment's Coupon USD Payment",
+                    ...incomingContext.body
+                });
+            }
         }
-    }
 
-    // Coupon KHR Payment
-    var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
-    if( paymentKh != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentKh)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's Coupon KHR Payment",
-                ...incomingContext.body
-            });
+        // KHR Payment
+        var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
+        if( paymentKh != null) {
+            var incomingContext = slContext.add("IncomingPayments", paymentKh)
+            if (incomingContext.status !== 201) {
+                slContext.rollbackTransaction();
+                throw ({
+                    "tab": "Incoming Payment's KHR Payment",
+                    ...incomingContext.body
+                });
+            }
+        }
+        
+        // USD Payment
+        var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
+        if( paymentUS != null) {
+            var incomingContext = slContext.add("IncomingPayments", paymentUS)
+            if (incomingContext.status !== 201) {
+                slContext.rollbackTransaction();
+                throw ({
+                    "tab": "Incoming Payment's USD Payment",
+                    ...incomingContext.body
+                });
+            }
+        }
+    }else{
+        if(totalC) {
+            if(!totalP['USD'] && !totalP['KHR']){
+                // USD Coupon Payment
+                const adjustAmount = invoiceTotal - totalC;
+                var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentUS != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentUS)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's Coupon USD Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }else if(totalP['KHR'] && !totalP['USD']){
+                // KHR Payment
+                const adjustAmount = (invoiceTotal - (totalP['KHR']/jsonObj['DocRate'])) * jsonObj['DocRate'];
+                var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentKh != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentKh)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's KHR Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }else if(!totalP['KHR'] && totalP['USD']){
+                // USD Payment
+                const adjustAmount = invoiceTotal - totalP['USD'];
+                var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentUS != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentUS)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's USD Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }else{
+                // KHR Payment
+                var adjustAmount = 0;
+                var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
+                if( paymentKh != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentKh)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's KHR Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                    adjustAmount = invoiceTotal - (incomingContext.body.PaymentInvoices[0]['AppliedFC'] || incomingContext.body.PaymentInvoices[0]['SumApplied']);
+                }
+                // USD Payment
+                var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentUS != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentUS)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's USD Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }
+        }else{
+            if(!totalP['USD'] && !totalP['KHR']){
+            }else if(totalP['KHR'] && !totalP['USD']){
+                // KHR Payment
+                const adjustAmount = (invoiceTotal - (totalP['KHR']/jsonObj['DocRate'])) * jsonObj['DocRate'];
+                var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentKh != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentKh)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's KHR Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }else if(!totalP['KHR'] && totalP['USD']){
+                // USD Payment
+                const adjustAmount = invoiceTotal - totalP['USD'];
+                var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentUS != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentUS)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's USD Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }else{
+                // KHR Payment
+                var adjustAmount = 0;
+                var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
+                if( paymentKh != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentKh)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's KHR Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                    adjustAmount = invoiceTotal - (incomingContext.body.PaymentInvoices[0]['AppliedFC'] || incomingContext.body.PaymentInvoices[0]['SumApplied']);
+                }
+                // USD Payment
+                var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"], adjustAmount);
+                if( paymentUS != null) {
+                    var incomingContext = slContext.add("IncomingPayments", paymentUS)
+                    if (incomingContext.status !== 201) {
+                        slContext.rollbackTransaction();
+                        throw ({
+                            "tab": "Incoming Payment's USD Payment",
+                            ...incomingContext.body
+                        });
+                    }
+                }
+            }
         }
     }
-    
-    // USD Payment
-    var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
-    if( paymentUS != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentUS)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's USD Payment",
-                ...incomingContext.body
-            });
-        }
-    }
-
-    // Coupon USD Payment
-    var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
-    if( paymentUS != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentUS)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's Coupon USD Payment",
-                ...incomingContext.body
-            });
-        }
-    }
-
     // update status Fuel Cash Sale
     var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_cashallow: 'Y' }, jsonObj['SaleDocEntry'])
     if (TlRetailSaleContext.status !== 204) {
@@ -320,6 +449,7 @@ function PartnerShipTransaction(slContext, jsonObj, testing=false){
         U_tl_branc: "WHC", // issue to warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.Partnership.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -330,7 +460,8 @@ function PartnerShipTransaction(slContext, jsonObj, testing=false){
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
                 COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode2: '202001',
                 COGSCostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
@@ -360,10 +491,12 @@ function PartnerShipTransaction(slContext, jsonObj, testing=false){
         U_tl_grsuppo: jsonObj['U_tl_whsdesc'],// receipt from warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number
         Reference2: goodIssueContext.body.DocNum, // Doc number
+        U_ti_revenue:'202001',
         DocumentLines: goodIssueContext.body.DocumentLines.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
                 Price: undefined,
+                Quantity: item['Quantity'],
                 U_tl_itmcost: item["U_tl_itmcost"],
                 U_tl_ltotal: item["U_tl_ltotal"],
                 LineTotal: item["U_tl_ltotal"]
@@ -434,6 +567,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
         U_tl_branc: jsonObj['StockAllocation'][0].WarehouseCode || 0,// to warehouse take from pump warehouse
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.StockTransfer.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -444,7 +578,8 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
                 COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode2: '202001',
+                // COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
@@ -501,6 +636,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                 U_tl_grsuppo: jsonObj['U_tl_whsdesc'],
                 Reference2: goodIssueContext.body.DocNum, // Doc number
                 DocumentLines: items,
+                U_ti_revenue:'202001',
                 DocumentReferences: [
                     {
                         "RefDocEntr": goodIssueContext.body.DocEntry,
@@ -567,6 +703,7 @@ function OwnUsageTransaction(slContext, jsonObj){
         U_tl_gitype: "002",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.OwnUsage.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -577,7 +714,8 @@ function OwnUsageTransaction(slContext, jsonObj){
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
                 COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode2: '202001',
                 COGSCostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
@@ -618,6 +756,7 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
         U_tl_gitype: "003",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.TelaCard.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -628,7 +767,8 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
                 COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode2: '202001',
+                // COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
@@ -657,6 +797,7 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
         U_tl_stype: "T02",
         U_tl_sarn: jsonObj['SANumber'], //SA Number
         Reference2: goodIssueContext.body.DocNum, // Doc number
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj['CardCount'].map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -730,6 +871,7 @@ function PumpTestTransaction(slContext, jsonObj){
         U_tl_gitype: "002",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         Reference2: null,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.PumpTest.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
