@@ -1,6 +1,6 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -10,6 +10,9 @@ import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
 import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 import React from "react";
+import DepositCashAccountAutoComplete from "../components/DepositCashAccountAutoComplete";
+import { useGetDepositSeriesHook } from "../hook/useGetDepositSeriesHook";
+import GetBranchAutoComplete from "@/presentations/stock_control/components/GetBranchAutoComplete";
 
 const BasicInformationDetail = ({
   register,
@@ -25,7 +28,6 @@ const BasicInformationDetail = ({
   edit,
 }: UseFormProps) => {
   const [staticSelect, setStaticSelect] = useState({
-    depositDate: null,
     branchASS: null,
     serie: 7855,
   });
@@ -41,11 +43,65 @@ const BasicInformationDetail = ({
     (e: any) => e?.Series === staticSelect?.serie
   )?.NextNumber;
 
-  const dataSeries = React.useMemo(() => {
-    return serie?.filter(
-      (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
+  const depositDate = watch("DepositDate");
+
+  useEffect(() => {
+    const currentDate = new Date();
+
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so we add 1
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const formattedDate = `${year}-${month}-${day}`;
+    setValue("DepositDate", formattedDate);
+  }, [setValue]);
+
+  const { series, defaultSerie } = useGetDepositSeriesHook();
+
+  const getSerieLists: any[] = useMemo(() => {
+    if (!watch("BPLID")) return series?.data ?? [];
+
+    return series?.data?.filter((e: any) => e?.BPLID === watch("BPLID")) ?? [];
+  }, [series, watch("BPLID")]);
+
+  console.log(watch("BPLID"));
+
+  useEffect(() => {
+    if (edit) return;
+
+    defaultSerie.refetch();
+    if (!defaultSerie.data) return;
+
+    setValue("Series", defaultSerie?.data?.Series);
+    // setValue("DocNum", defaultSerie?.data?.NextNumber);
+  }, [defaultSerie.data]);
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const serie = getSerieLists?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+
+      if (!serie) return;
+
+      setValue("Series", event?.target?.value);
+      // setValue("DocNum", serie?.NextNumber);
+    },
+    [series?.data]
+  );
+
+  const onChangeBranch = (value: any) => {
+    const period = new Date().getFullYear();
+    const serie = getSerieLists?.find(
+      (e: any) =>
+        e?.PeriodIndicator === period?.toString() && e?.BPLID === value?.BPLID
     );
-  }, [serie]);
+
+    setValue("Series", serie?.Series);
+    // setValue("DocNum", serie?.NextNumber);
+    setValue("BPLID", value?.BPLID);
+    // setValue("BPLID", e?.BPLID);
+    setValue("CheckLines", []);
+  };
 
   return (
     <>
@@ -57,6 +113,31 @@ const BasicInformationDetail = ({
           <div className="">
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
+                <label htmlFor="Branch" className="text-gray-500 ">
+                  Branch
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  rules={{ required: "Branch is required" }}
+                  name="BPLID"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <GetBranchAutoComplete
+                        disabled={true}
+                        {...field.value}
+                        value={watch("BPLID")}
+                        onChange={onChangeBranch}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
                 <label htmlFor="Deposit No." className="text-gray-500 ">
                   Deposit No.
                 </label>
@@ -64,7 +145,7 @@ const BasicInformationDetail = ({
               <div className="col-span-3">
                 <MUITextField
                   disabled={detail || true}
-                  value={watch('DepositNumber')}
+                  value={nextNumber || defaultValues?.nextNumber}
                 />
               </div>
             </div>
@@ -82,20 +163,12 @@ const BasicInformationDetail = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        {...field}
-                        items={dataSeries}
+                        value={field.value}
                         disabled={true}
-                        value={staticSelect?.serie || defaultValues?.Series}
-                        aliasvalue="Series"
+                        items={getSerieLists ?? []}
                         aliaslabel="Name"
-                        name="Series"
-                        onChange={(e: any) => {
-                          setValue("Series", e?.target?.value);
-                          setStaticSelect({
-                            ...staticSelect,
-                            serie: e?.target?.value,
-                          });
-                        }}
+                        aliasvalue="Series"
+                        onChange={onChangeSerie}
                       />
                     );
                   }}
@@ -121,34 +194,8 @@ const BasicInformationDetail = ({
                         value={field?.value}
                         onChange={(e: any) => {
                           setValue("DepositCurrency", e?.Code);
+                          setValue("CheckLines", []);
                         }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Branch" className="text-gray-500 ">
-                  Branch
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPLID"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BranchAssignmentAuto
-                        {...field}
-                        disabled={true}
-                        onChange={(e: any) => {
-                          setValue("BPLID", e?.BPLID);
-                        }}
-                        value={field?.value}
                       />
                     );
                   }}
@@ -165,17 +212,18 @@ const BasicInformationDetail = ({
               <div className="col-span-3">
                 <Controller
                   rules={{ required: "G/L Account Code is required" }}
-                  name="DepositAccount"
+                  name="U_tl_cash_acc"
                   control={control}
-                  disabled={detail}
                   render={({ field }) => {
                     return (
-                      <CashACAutoComplete
+                      <DepositCashAccountAutoComplete
                         disabled={true}
-                        {...field}
-                        value={field?.value}
+                        value={field.value}
                         onChange={(e: any) => {
-                          setValue("DepositAccount", e);
+                          setValue("U_tl_cash_acc", e?.Code);
+                          setValue("U_tl_cash_des", e?.Name);
+
+                          setValue("DepositAccount", e?.U_tl_cashacct);
                         }}
                       />
                     );
@@ -190,13 +238,7 @@ const BasicInformationDetail = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  value={
-                    new GLAccountRepository().find(watch("DepositAccount"))
-                      ?.Name
-                  }
-                />
+                <MUITextField disabled={true} value={watch("U_tl_cash_acc")} />
               </div>
             </div>
           </div>
@@ -217,21 +259,16 @@ const BasicInformationDetail = ({
                       <MUIDatePicker
                         disabled={true}
                         {...field}
-                        defaultValue={
-                          defaultValues?.DepositDate || staticSelect.depositDate
-                        }
-                        key={`deposit_date_${staticSelect.depositDate}`}
-                        onChange={(e: any) => {
+                        defaultValue={depositDate} // Use the watch value as the defaultValue
+                        onChange={(e) => {
                           const val =
-                            e.toLowerCase() ===
-                              "Invalid Date".toLocaleLowerCase()
+                            e?.toLowerCase() ===
+                            "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
-                          setValue("DepositDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            depositDate: e,
-                          });
+                          console.log(val);
+
+                          setValue("DepositDate", val);
                         }}
                       />
                     );
@@ -248,7 +285,7 @@ const BasicInformationDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={true}
+                  disabled={detail || edit}
                   inputProps={{
                     ...register("Bank"),
                   }}
@@ -278,7 +315,7 @@ const BasicInformationDetail = ({
               </div>
               <div className="col-span-3">
                 <MUITextField
-                  disabled={detail}
+                  // disabled={detail}
                   inputProps={{
                     ...register("BankReference"),
                   }}
@@ -314,7 +351,7 @@ const BasicInformationDetail = ({
                   render={({ field }) => {
                     return (
                       <LineofBusinessAutoComplete
-                        disabled={true}
+                        disabled={detail}
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
