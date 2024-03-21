@@ -13,6 +13,7 @@ import moment from "moment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { UseGoodReceiptListHook } from "./hook/UseGoodReceiptListsHook";
+import GetBranchAutoComplete from "../components/GetBranchAutoComplete";
 
 export default function InventoryTransferList() {
   const route = useNavigate();
@@ -42,7 +43,7 @@ export default function InventoryTransferList() {
         visible: true,
         type: "number",
         Cell: (cell: any) => {
-          return <span>{cell?.row?.id}</span>;
+          return <span>{cell?.row?.index + 1}</span>;
         },
       },
       {
@@ -126,13 +127,8 @@ export default function InventoryTransferList() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
-              className={`${cell.row.original.DocumentStatus === "bost_Close"
-                ? "bg-gray-400"
-                : ""
-                } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
+             
+              className={` bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
                   "/stock-control/good-receipt/" +
@@ -189,9 +185,9 @@ export default function InventoryTransferList() {
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {waiting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
@@ -212,7 +208,7 @@ export default function InventoryTransferList() {
           </DataTable>
         </div>
       </div>
-      <Backdrop
+      {/* <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
       // onClick={handleClose}
@@ -221,7 +217,7 @@ export default function InventoryTransferList() {
           <CircularProgress color="inherit" size={25} />
           <span className="text-sm -mr-2">Waiting for export to CSV ...</span>
         </div>
-      </Backdrop>
+      </Backdrop> */}
     </>
   );
 }
@@ -325,11 +321,10 @@ export const InventoryTransferFilter = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <BranchAssignmentAuto
+                      <GetBranchAutoComplete
                         onChange={(e: any) => {
                           setValue("BPL_IDAssignedToInvoice_$eq_number", e?.BPLID);
                         }}
-                      // value={searchValues.branch}
                       />
                     );
                   }}

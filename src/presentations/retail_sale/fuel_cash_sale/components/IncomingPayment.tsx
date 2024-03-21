@@ -1,5 +1,5 @@
 import FormCard from "@/components/card/FormCard";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CashBankTable from "./CashBankTable";
 import CheckNumberTable from "./CheckNumberTable";
 import CouponTable from "./CouponTable";
@@ -8,6 +8,10 @@ import Formular from "@/utilies/formular";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import MUITextField from "@/components/input/MUITextField";
 import { useExchangeRate } from "../../components/hook/useExchangeRate";
+import { formatDate } from "@/helper/helper";
+import { request } from "http";
+import { FormValidateException } from "@/utilies/error";
+import FormMessageModal from "@/components/modal/FormMessageModal";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -22,6 +26,9 @@ export default function IncomingPaymentForm({
   edit,
   ref,
 }: IncomingPaymentProps) {
+  useExchangeRate("KHR", handlerChange);
+
+  const formMessageModalRef = React.useRef<FormMessageModal>(null);
   const [isChecked, setIsChecked] = useState(false);
 
   const handleCheckboxChange = (e: any) => {
@@ -79,8 +86,16 @@ export default function IncomingPaymentForm({
 
     return total;
   };
-  useExchangeRate("KHR", handlerChange);
-  let exchangeRate = data?.ExchangeRate === 0 ? 4100 : data?.ExchangeRate;
+  let exchangeRate = data?.ExchangeRate;
+  const isAnyKHR =
+    data?.cashBankData?.some((item: any) => item.U_tl_paycur === "KHR") ||
+    data?.checkNumberData?.some((item: any) => item.U_tl_paycur === "KHR");
+  if (isAnyKHR && data?.ExchangeRate === 0) {
+    formMessageModalRef.current?.error(
+      "Please update exchange rate for currency KHR"
+    );
+  }
+
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -99,9 +114,10 @@ export default function IncomingPaymentForm({
   if (data) {
     data.DocRate = data.ExchangeRate;
   }
-  console.log(data.DocRate)
+
   return (
     <>
+      <FormMessageModal ref={formMessageModalRef} />
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
         <div className="font-medium text-xl flex justify-start items-center border-b mb-4">
           <h2>Cash Sale - </h2>

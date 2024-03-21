@@ -115,15 +115,7 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("retail-series", seriesList);
     }
-    const date = formatDate(new Date(), "");
-    let exchangeRate: any = await request(
-      "POST",
-      "/SBOBobService_GetCurrencyRate",
-      {
-        Currency: "KHR",
-        Date: `${date}`,
-      }
-    );
+
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -180,7 +172,6 @@ class Form extends NonCoreDcument {
             ...data,
             vendor,
             dispenser,
-            ExchangeRate: exchangeRate.data,
             U_tl_whs: dispenser.U_tl_whs,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
@@ -698,7 +689,7 @@ class Form extends NonCoreDcument {
             TaxCode: "VO10",
             UoMEntry: item.InventoryUoMEntry,
             LineOfBussiness: "201001",
-            RevenueLine: "202004",
+            RevenueLine: "202001",
             ProductLine: "203004",
             BinAbsEntry: item.U_tl_bincode,
             // BranchCode: data.U_tl_bplid,
@@ -725,7 +716,7 @@ class Form extends NonCoreDcument {
         TaxCode: "VO10",
         UoMEntry: item.U_tl_uom,
         LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202004", // item.RevenueLine
+        RevenueLine: "202001", // item.RevenueLine
         ProductLine: "203004", // item.ProductLine
         BinAbsEntry: item.U_tl_bincode,
         // BranchCode: data.U_tl_bplid,
@@ -751,17 +742,17 @@ class Form extends NonCoreDcument {
         GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: data.ExchangeRate ?? 0,
+        DocRate: data.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        CashAccount: "110102",
-        CashAccountFC: "110103",
-        TransferAccount: "110102",
-        TransferAccountFC: "110103",
-        CheckAccount: "110102",
-        CouponAccount: "110102",
+        CashAccount: "111102",
+        CashAccountFC: "111103",
+        TransferAccount: "111102",
+        TransferAccountFC: "111103",
+        CheckAccount: "110499",
+        CouponAccount: "111102",
         Remarks: data.Remark,
 
         IncomingPayment: [
@@ -833,7 +824,7 @@ class Form extends NonCoreDcument {
                   DiscountPercent: 0,
                   TaxCode: "VO10",
                   LineOfBussiness: "201001",
-                  RevenueLine: "202004",
+                  RevenueLine: "202001",
                   ProductLine: "203004",
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
                   BranchCode: data.stockAllocationData[0].U_tl_bplid,
@@ -877,7 +868,7 @@ class Form extends NonCoreDcument {
                       (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
                     )?.U_tl_uom,
                     LineOfBussiness: "201001", // item.LineOfBussiness
-                    RevenueLine: "202004", // item.RevenueLine
+                    RevenueLine: "202001", // item.RevenueLine
                     ProductLine: "203004", // item.ProductLine
                     // BinAbsEntry: data.U_tl_bincode,
                     U_tl_bincode: edit
@@ -916,6 +907,17 @@ class Form extends NonCoreDcument {
         TelaCard: generateAllocationPayload(data, "U_tl_cardallow"),
         PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
+      const isAnyKHR =
+        data?.cashBankData?.some(
+          (item: any) => item.U_tl_paycur === "KHR"
+        ) ||
+        data?.checkNumberData?.some((item: any) => item.U_tl_paycur === "KHR");
+      if (isAnyKHR && data?.DocRate === 0) {
+        this.dialog.current?.error(
+          "Exchange rate of KHR is 0. Please update the exchange rate."
+        );
+        return;
+      }
 
       await requestHeader("POST", "/script/test/FuelCashSales", PostPayload);
       this.dialog.current?.success("Create Successfully.", docEntry);

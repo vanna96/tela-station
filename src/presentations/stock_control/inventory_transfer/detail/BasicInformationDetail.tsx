@@ -74,7 +74,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Attention Terminal" className="text-gray-500 ">
                   Transfer Type
-                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -110,7 +109,7 @@ const BasicInformationDetail = (props: any) => {
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
-                "External" ? (
+                  "External" ? (
                   <Controller
                     rules={{ required: "From Warehouse Code is required" }}
                     name="FromWarehouse"
@@ -152,7 +151,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Attention Terminal" className="text-gray-500 ">
                   Attention Terminal
-                  <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -165,6 +163,7 @@ const BasicInformationDetail = (props: any) => {
                     return (
                       <AttentionTerminalAutoComplete
                         disabled
+                        branchId={props.watch('BPLID')}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -191,9 +190,6 @@ const BasicInformationDetail = (props: any) => {
                   className="text-gray-500 inline-block mt-1"
                 >
                   Branch
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -219,9 +215,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
                   To Warehouse Code
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -261,17 +254,15 @@ const BasicInformationDetail = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">
-                  {props.detail ? "" : "*"}
-                </span>
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
                 <Controller
                   rules={{ required: "To Bin Code is required" }}
-                  name="U_tl_sobincode"
+                  name="U_tl_toBinId"
                   control={props.control}
                   render={({ field }) => {
+
                     return (
                       <BinAllocationAutoComplete
                         warehouse={props?.watch("ToWarehouse")}
@@ -294,7 +285,7 @@ const BasicInformationDetail = (props: any) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series <span className="text-red-500">*</span>
+                  Series 
                 </label>
               </div>
               <div className="col-span-3">
@@ -334,9 +325,6 @@ const BasicInformationDetail = (props: any) => {
                   className="text-gray-500 inline-block mt-1"
                 >
                   Status
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -362,7 +350,7 @@ const BasicInformationDetail = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("DocDate", val);
@@ -377,9 +365,6 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="Document Date" className="text-gray-500 ">
                   Document Date
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -395,7 +380,7 @@ const BasicInformationDetail = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("TaxDate", val);
@@ -411,14 +396,11 @@ const BasicInformationDetail = (props: any) => {
               <div className="col-span-2">
                 <label htmlFor="To Warehouse Code" className="text-gray-500 ">
                   From Warehouse Code
-                  <span className="text-red-500 ml-1">
-                    {props.detail ? "" : "*"}
-                  </span>
                 </label>
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
-                "Internal" ? (
+                  "Internal" ? (
                   <Controller
                     rules={{ required: "From Warehouse Code is required" }}
                     name="FromWarehouse"
@@ -460,16 +442,13 @@ const BasicInformationDetail = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   From Bin Code
                 </label>
-                <span className="text-red-500 ml-1">
-                  {props.detail ? "" : "*"}
-                </span>
               </div>
               <div className="col-span-3">
                 {(props?.watch("U_tl_transType") as TransferType) ===
-                "Internal" ? (
+                  "Internal" ? (
                   <Controller
                     rules={{ required: "From Bin Code is required" }}
-                    name="U_tl_uobincode"
+                    name="U_tl_fromBinId"
                     control={props.control}
                     render={({ field }) => {
                       return (

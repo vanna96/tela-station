@@ -1,16 +1,11 @@
-import React from "react"
+import React, { useMemo } from "react"
 import { Button } from "@mui/material"
 import { HiRefresh } from "react-icons/hi"
-import { BiFilterAlt } from "react-icons/bi"
 import { useNavigate } from "react-router-dom"
-import { AiOutlineSetting } from "react-icons/ai"
 import MaterialReactTable from "material-react-table"
 import { BsPencilSquare, BsSortDown } from "react-icons/bs"
 import MenuCompoment from "@/components/data_table/MenuComponent"
-import { ThemeContext } from "@/contexts"
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter"
 import ColumnSearch from "@/components/data_table/ColumnSearch"
-import DataTableColumnVisibility from "@/components/data_table/DataTableColumnVisibility"
 
 interface DataTableProps {
   columns: any[]
@@ -42,11 +37,6 @@ export default function DataTable(props: DataTableProps) {
     setColVisibility(cols)
   }, [])
 
-  const handlerSearch = (queries: any) => {
-    if (queries === "") return
-    props.handlerSearch("&$filter=" + queries)
-  }
-
   return (
     <div
       className={` rounded-lg shadow-sm  p-4 flex flex-col gap-3 bg-white border`}
@@ -54,28 +44,9 @@ export default function DataTable(props: DataTableProps) {
       <div className="flex justify-between">
         <div className="flex gap-4 items-center justify-center">
           <h3 className="text-base">{props.title}</h3>
-          {/* <DataTableColumnFilter
-            handlerClearFilter={props.handlerRefresh}
-            title={
-              <div className="flex gap-2">
-                <span className="text-lg">
-                  <BiFilterAlt />
-                </span>{" "}
-                <span className="text-[13px] capitalize">Filter</span>
-              </div>
-            }
-            items={props.columns?.filter((e) => e?.accessorKey !== "DocEntry")}
-            onClick={handlerSearch}
-          /> */}
+
         </div>
         <div className="flex justify-end gap-2 items-center text-[13px]">
-          {/* <Button size="small" variant="text" onClick={props.handlerRefresh}>
-            <span className="text-lg mr-2">
-              <HiRefresh />
-            </span>
-            <span className="capitalize text-sm">Refresh</span>
-          </Button>*/}
-
           <Button
             size="small"
             variant="text"
@@ -145,7 +116,7 @@ export default function DataTable(props: DataTableProps) {
           onColumnVisibilityChange={setColVisibility}
         />
 
-        <ColumnSearch ref={search} onOk={handlerSearch} />
+
       </div>
     </div>
   )

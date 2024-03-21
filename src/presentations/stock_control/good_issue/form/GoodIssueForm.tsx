@@ -39,8 +39,13 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm();
-  const route = useNavigate()
+    useForm({
+      defaultValues: {
+        DocDate: new Date()?.toISOString()?.split("T")[0],
+        TaxDate: new Date()?.toISOString()?.split("T")[0],
+      } as any,
+    });
+  const route = useNavigate();
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -56,6 +61,13 @@ const GoodIssueForm = (props: any) => {
   const onSubmit = async (payload: any) => {
     try {
       setState({ ...state, isSubmitting: true });
+
+      if (payload?.DocumentLines) {
+        for (let index = 0; index < payload?.DocumentLines.length; index++) {
+          payload['DocumentLines'][index]['WarehouseCode'] = payload.U_tl_whsdesc;
+        }
+      }
+
       if (props.edit) {
         await request("PATCH", `/InventoryGenExits(${id})`, payload)
           .then((res: any) =>
@@ -140,6 +152,7 @@ const GoodIssueForm = (props: any) => {
         setState({
           ...state,
           loading: false,
+          DocNum: res?.data?.DocNum,
         });
         reset({ ...res.data }, { keepValues: false });
       })
@@ -153,9 +166,17 @@ const GoodIssueForm = (props: any) => {
   }, [id]);
 
   const onInvalidForm = (invalids: any) => {
+    if (invalids?.DocumentLines?.length > 0) {
+      for (const invs of invalids?.DocumentLines) {
+        for (const [key, inv] of Object.entries(invs ?? {}) as any) {
+          dialog.current?.error(inv?.message);
+        }
+      }
+      return;
+    }
     dialog.current?.error(
       invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
+      "Oop something wrong!",
       "Invalid Value"
     );
   };
@@ -223,9 +244,7 @@ const GoodIssueForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() =>
-                      route("/master-data/driver")
-                    }
+                    onClick={() => route("/stock-control/good-issue")}
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel

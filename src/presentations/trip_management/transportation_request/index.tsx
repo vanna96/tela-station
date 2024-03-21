@@ -1,62 +1,75 @@
-import request, { url } from "@/utilies/request";
-import React, { useState } from "react";
-import { useQuery } from "react-query";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import DataTable from "@/presentations/master_data/components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import { Button } from "@mui/material";
-import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
-import { useCookies } from "react-cookie";
-// import { APIContext } from "../context/APIContext";
-import { APIContext } from "@/presentations/master_data/context/APIContext";
+import { Backdrop, Button, CircularProgress } from "@mui/material";
+import { Controller, useForm } from "react-hook-form";
+import { conditionString, displayTextDate } from "@/lib/utils";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import { UseTransportationRequestListHook } from "./hook/UseTransportationRequestListHook";
+import DataTable from "@/presentations/stock_control/components/DataTable";
 import MUISelect from "@/components/selectbox/MUISelect";
-import moment from "moment";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import EmployeeRepository from "@/services/actions/employeeRepository";
-import ExpdicRepository from "@/services/actions/ExpDicRepository";
-import ManagerRepository from "@/services/actions/ManagerRepository";
+import request, { url } from "@/utilies/request";
+import { useQuery } from "react-query";
+// import {displayT}
+export default function InventoryTransferList() {
+  const route = useNavigate();
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-export default function TransportationRequestList() {
-  const [open, setOpen] = React.useState<boolean>(false);
-  // const { branchBPL }: any = React.useContext(APIContext);
-  const [cookies] = useCookies(["user"]);
-
-const branchAss: any = useQuery({
-     queryKey: ["branchAss"],
-     queryFn: () => new BranchBPLRepository().get(),
-     staleTime: Infinity,
-   });
-  // console.log(branchAss);
-
-  const emp: any = useQuery({
-    queryKey: ["manager"],
-    queryFn: () => new ManagerRepository().get(),
+  const {
+    data,
+    loading,
+    refetchData,
+    setFilter,
+    setSort,
+    totalRecords,
+    exportExcelTemplate,
+    state,
+    waiting,
+  } = UseTransportationRequestListHook(pagination);
+  const branchAss: any = useQuery({
+    queryKey: ["branchAss"],
+    queryFn: async () => {
+      const response: any = await request(
+        "GET",
+        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
+      )
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
     staleTime: Infinity,
   });
-
-//  console.log(emp);
-  
-
-  const [searchValues, setSearchValues] = React.useState<any>({
-    active: "",
-    code: "",
+  // console.log(branchAss);
+  const emp: any = useQuery({
+    queryKey: ["sale-persons"],
+    queryFn: async () => {
+      const response: any = await request("GET", `/SalesPersons`)
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+    staleTime: Infinity,
+    cacheTime: 0,
   });
 
-  const route = useNavigate();
   const columns = React.useMemo(
     () => [
       {
-        accessorKey: "Index",
+        accessorKey: "DocNum",
         header: "No.", //uses the default width from defaultColumn prop
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
-        Cell: (cell: any) => {
-          return cell?.row?.index + 1;
-        },
       },
       {
         accessorKey: "DocNum",
@@ -106,11 +119,10 @@ const branchAss: any = useQuery({
         type: "string",
         Cell: (cell: any) => {
           const requester = emp?.data?.find(
-            (e: any) => e?.EmployeeID === cell.row.original.U_Requester
+            (e: any) =>
+              e?.SalesEmployeeCode === cell?.row?.original?.U_Requester
           );
-
-          const fullName = requester ? `${requester.U_tl_name}` : "-";
-
+          const fullName = requester ? `${requester?.SalesEmployeeName}` : "-";
           return fullName;
         },
       },
@@ -120,11 +132,8 @@ const branchAss: any = useQuery({
         header: "Request Date",
         size: 40,
         visible: true,
-        Cell: (cell: any) => {
-          const formattedDate = moment(cell.row.original.U_RequestDate).format(
-            "YYYY-MM-DD"
-          );
-          return <span>{formattedDate}</span>;
+        Cell: ({ cell }: any) => {
+          return <span>{displayTextDate(cell?.getValue())}</span>;
         },
       },
       {
@@ -143,13 +152,15 @@ const branchAss: any = useQuery({
         enableColumnFilters: false,
         enableColumnOrdering: false,
         enableSorting: false,
+        header: "Action",
         minSize: 100,
         maxSize: 100,
-        header: "Action",
         visible: true,
         Cell: (cell: any) => (
           <div className="flex space-x-2">
-            <button
+            <Button
+              variant="outlined"
+              size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
@@ -162,14 +173,18 @@ const branchAss: any = useQuery({
                 );
               }}
             >
-              <VisibilityIcon fontSize="small" className="text-gray-600 " />
-              View
-            </button>
-            <button
-              className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
+              <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
+              <span style={{ textTransform: "none" }}>View</span>
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              className={` bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/trip-management/transportation-request/${cell.row.original.DocEntry}/edit`,
+                  "/trip-management/transportation-request/" +
+                    cell.row.original.DocEntry +
+                    "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -181,210 +196,190 @@ const branchAss: any = useQuery({
                 fontSize="small"
                 className="text-gray-600 "
               />{" "}
-              Edit
-            </button>
+              <span style={{ textTransform: "none" }}> Edit</span>
+            </Button>
           </div>
         ),
       },
     ],
     []
   );
-  
-
-  const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const Count: any = useQuery({
-    queryKey: [`TL_TR`, `${filter !== "" ? "f" : ""}`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/TL_TR/$count?${filter}`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
-
-  const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: [
-      "TL_TR",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
-      }`,
-      pagination.pageSize,
-    ],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/TL_TR?$top=${pagination.pageSize}&$skip=${
-          pagination.pageIndex * pagination.pageSize
-        }&$orderby= DocNum desc &${filter}`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-    refetchOnWindowFocus: false,
-  });
-
-  const handlerRefresh = React.useCallback(() => {
-    setFilter("");
-    setSortBy("");
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  }, []);
-
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
-  const handlerSearch = (value: string) => {
-    const str = value.slice(0, 4);
-    const query = str.includes("and") ? value.substring(4) : value;
-
-    setFilter(`$filter=${query}`);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
-
-  const handleGoClick = () => {
-    console.log(searchValues);
-    let queryFilters: any = [];
-    if (searchValues.active)
-      queryFilters.push(`startswith(U_active, '${searchValues.active}')`);
-    if (searchValues.code)
-      queryFilters.push(`contains(Code, '${searchValues.code}')`);
-    if (queryFilters.length > 0)
-      return handlerSearch(`${queryFilters.join(" and ")}`);
-      if (searchValues.U_active) {
-        searchValues.U_active === "All"
-          ? (queryFilters += queryFilters)
-          : (queryFilters += queryFilters ? ` and Active eq '${searchValues.U_active}'` : `Active eq '${searchValues.U_active}'`);
-      }
-    return handlerSearch("");
-  };
 
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Trip Management / Transportation Request{" "}
+            Trip Management / Transportation Request
           </h3>
         </div>
-        <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-          <div className="col-span-10">
-            <div className="grid grid-cols-12  space-x-4">
-              <div className="col-span-2 2xl:col-span-3">
-                <MUITextField
-                  label="Document Number"
-                  placeholder="Document Number"
-                  className="bg-white"
-                  autoComplete="off"
-                  value={searchValues.code}
-                  onChange={(e) =>
-                    setSearchValues({ ...searchValues, vv   : e.target.value })
-                  }
-                />
-              </div>
-              <div className="col-span-2 2xl:col-span-3">
-                <div className="flex flex-col gap-1 text-sm">
-                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
-                    Status
-                  </label>
-                  <div className="">
-                    <MUISelect
-                      items={[
-                        { id: "Y", name: "Active" },
-                        { id: "N", name: "Inactive" },
-                        { id: "All", name: "All" },
-                      ]}
-                      onChange={(e) =>
-                        setSearchValues({
-                          ...searchValues,
-                          active: e?.target?.value,
-                        })
-                      }
-                      value={searchValues.active}
-                      aliasvalue="id"
-                      aliaslabel="name"
-                      name="U_active"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/*  */}
 
-              <div className="col-span-2 2xl:col-span-3"></div>
-            </div>
-          </div>
-          <div className="col-span-2">
-            <div className="flex justify-end items-center align-center space-x-2 mt-4">
-              <div className="">
-                <Button
-                  variant="contained"
-                  size="small"
-                  onClick={handleGoClick}
-                >
-                  Go
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <DataTable
-          columns={columns}
-          data={data}
-          handlerRefresh={handlerRefresh}
-          handlerSearch={handlerSearch}
-          handlerSortby={handlerSortby}
-          count={Count?.data || 0}
-          loading={isLoading || isFetching}
-          pagination={pagination}
-          paginationChange={setPagination}
-          title="Transportation Request"
-          createRoute="/trip-management/transportation-request/create"
+        <InventoryTransferFilter
+          onFilter={(queries, queryString) => setFilter(queryString)}
         />
+
+        <div className="grow">
+          <DataTable
+            columns={columns}
+            data={data}
+            handlerRefresh={refetchData}
+            handlerSearch={() => {}}
+            handlerSortby={setSort}
+            count={totalRecords}
+            loading={loading}
+            pagination={pagination}
+            paginationChange={setPagination}
+            title="Transportation Request Lists"
+            createRoute={`create`}
+          >
+            <Button
+              size="small"
+              variant="text"
+              onClick={exportExcelTemplate}
+              disabled={false}
+            >
+              {loading ? (
+                <>
+                  <span className="text-xs mr-2">
+                    <CircularProgress size={16} />
+                  </span>
+                  <span className="capitalize text-[13px]">Exporting...</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs mr-1 text-gray-700">
+                    <InsertDriveFileOutlinedIcon
+                      style={{ fontSize: "18px", marginBottom: "2px" }}
+                    />
+                  </span>
+                  <span className="capitalize text-xs">Export to CSV</span>
+                </>
+              )}
+            </Button>
+          </DataTable>
+        </div>
       </div>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={waiting}
+      >
+        <div className="flex flex-col justify-center gap-3 items-center">
+          <CircularProgress color="inherit" size={25} />
+          <span className="text-sm -mr-2">Waiting for export to CSV ...</span>
+        </div>
+      </Backdrop>
     </>
   );
 }
+
+export interface FilterProps {
+  DocNum_$eq_number: undefined | string;
+  U_Status_$eq: undefined | string;
+  BPL_IDAssignedToInvoice_$eq_number: undefined | number;
+}
+
+const defaultValueFilter: FilterProps = {
+  DocNum_$eq_number: undefined,
+  U_Status_$eq: undefined,
+  BPL_IDAssignedToInvoice_$eq_number: undefined,
+};
+
+export const InventoryTransferFilter = ({
+  onFilter,
+}: {
+  onFilter?: (values: (string | undefined)[], query: string) => any;
+}) => {
+  const { handleSubmit, setValue, control, watch } = useForm({
+    defaultValues: defaultValueFilter,
+  });
+  function onSubmit(data: any) {
+    const queryString: (string | undefined)[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (!value) continue;
+      queryString.push("and");
+      queryString.push(conditionString(key, value as any));
+    }
+    queryString.splice(0, 1);
+    const query = queryString.join(" ");
+
+    if (onFilter) onFilter(queryString, query);
+  }
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white "
+    >
+      <div className="col-span-10">
+        <div className="grid grid-cols-12  space-x-4">
+          <div className="col-span-2 2xl:col-span-3">
+            <Controller
+              name="DocNum_$eq_number"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <MUITextField
+                    label="Document Number"
+                    placeholder="Document Number"
+                    className="bg-white"
+                    onBlur={(e) =>
+                      setValue("DocNum_$eq_number", e.target.value)
+                    }
+                  />
+                );
+              }}
+            />
+          </div>
+
+          <div className="col-span-2 2xl:col-span-3">
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 mt-0 text-[14px]">
+                Status
+              </label>
+              <div className="">
+                <Controller
+                  name="U_Status_$eq"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        items={[
+                          { value: "O", name: "Open" },
+                          { value: "C", name: "Close" },
+                          { value: null, name: "All" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("U_Status_$eq", e?.target?.value);
+                        }}
+                        value={field?.value || null}
+                        aliasvalue="value"
+                        aliaslabel="name"
+                      />
+                      // <MUIDatePicker
+                      //   {...field}
+                      //   onChange={(e: any) => {
+                      //     setValue("DocDate_$eq", e);
+                      //   }}
+                      //   value={field.value}
+                      // />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-span-2 2xl:col-span-3"></div>
+        </div>
+      </div>
+      <div className="col-span-2">
+        <div className="flex justify-end items-center align-center space-x-2 mt-4">
+          <div className="">
+            <Button variant="contained" size="small" type="submit">
+              {" "}
+              Go{" "}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+};

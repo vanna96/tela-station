@@ -77,7 +77,6 @@ export default function InventoryTransferRequestModal(props: {
         "GET",
         `${url}/InventoryTransferRequests?$select=DocNum,DocDate,FromWarehouse,DocEntry&$filter=FromWarehouse eq '${props.whs}' and DocumentStatus eq 'bost_Open'`
       ),
-    staleTime: 0,
   });
 
   const [selecteds, setSelects] = useState<{

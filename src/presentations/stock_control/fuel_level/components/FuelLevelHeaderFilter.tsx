@@ -8,9 +8,23 @@ import FuelLevelBranchAutoComplete from './FuelLevelBranchAutoComplete'
 import { Controller, useForm } from 'react-hook-form'
 import { QueryOptionAPI } from '@/lib/filter_type'
 import { conditionString } from '@/lib/utils'
+import GetBranchAutoComplete from '../../components/GetBranchAutoComplete'
 
 
 export type FuelLevelHeaderFilterProps = { queryParams: QueryOptionAPI, onFilter?: (values: (string | undefined)[], query: string) => void }
+
+export type FuelLevelHeaderFilterFormField = {
+    DocNum_$eq_number: string | undefined,
+    U_tl_doc_date_$eq: string | undefined,
+    U_tl_bplid_$eq_number: string | undefined,
+}
+
+const initValue: FuelLevelHeaderFilterFormField = {
+    U_tl_doc_date_$eq: undefined,
+    U_tl_bplid_$eq_number: undefined,
+    DocNum_$eq_number: undefined
+}
+
 
 export default function FuelLevelHeaderFilter(
     { queryParams, onFilter }: FuelLevelHeaderFilterProps
@@ -21,11 +35,7 @@ export default function FuelLevelHeaderFilter(
         setValue,
         control,
     } = useForm({
-        defaultValues: {
-            U_tl_doc_date_$eq: undefined,
-            U_tl_bplid_$eq: undefined,
-            DocNum_$eq_number: undefined
-        }
+        defaultValues: initValue
     });
 
 
@@ -107,12 +117,13 @@ export default function FuelLevelHeaderFilter(
                                 Branch
                             </label>
                             <Controller
-                                name="U_tl_bplid_$eq"
+                                name="U_tl_bplid_$eq_number"
                                 control={control}
                                 render={({ field }) => {
                                     return (
-                                        <FuelLevelBranchAutoComplete
-                                            onChange={(e) => setValue('U_tl_bplid_$eq', e?.BPLID ?? null)}
+                                        <GetBranchAutoComplete
+                                            value={field.value}
+                                            onChange={(e) => setValue('U_tl_bplid_$eq_number', e?.BPLID)}
                                         />
                                     );
                                 }}

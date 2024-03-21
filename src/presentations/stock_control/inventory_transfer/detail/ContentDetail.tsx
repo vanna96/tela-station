@@ -7,6 +7,7 @@ import ITRModal, { InventoryItemModal } from "../../components/GetItemModal";
 import UomSelectByItem, { calculateUOM } from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { QueryCache, QueryClient, useQueryClient } from "react-query";
+import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 
 
 let itemRef = React.createRef<InventoryItemModal>();
@@ -123,34 +124,25 @@ export default function ContentDetail({
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between items-center border-b mb-5 pb-1">
           <h2>Content</h2>
-          {!edit && (
-            <Button
-              variant="outlined"
-              onClick={handleDeleteChecked}
-              className="px-4 border-gray-400"
-            >
-              <span className="px-2 text-xs">Remove</span>
-            </Button>
-          )}
         </div>
-        <div className="w-full  overflow-x-auto">
+        <div className="w-full">
           <table className="table table-auto border min-w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
               <th className="w-[4rem] "></th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Item Code
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Item Description
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Quantity
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 UoM
               </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">From Bin Code </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">To Bin Code</th>
             </tr>
             {fields?.length === 0 && (
               <tr>
@@ -167,18 +159,11 @@ export default function ContentDetail({
                 <>
                   <tr key={index}>
                     <td className="py-2 flex justify-center gap-5 items-center">
-                      {!edit && (
-                        <Checkbox
-                          onChange={(event) => handleCheck(event, index)}
-                          checked={selecteds[index] === undefined ? false : true}
-                        />
-                      )}
                     </td>
                     <td className="pr-4">
                       <MUITextField
                         onClick={() => itemRef.current?.onOpen('single', index)}
-                        endAdornment
-                        disabled={edit}
+                        disabled
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemCode`, {
                             required: "Item No. is required",
@@ -189,7 +174,7 @@ export default function ContentDetail({
                     </td>
                     <td className="pr-4">
                       <MUITextField
-                        disabled={edit}
+                        disabled
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemDescription`,
                             {
@@ -202,7 +187,7 @@ export default function ContentDetail({
                     <td className="pr-4">
                       <MUITextField
                         type="number"
-                        disabled={edit}
+                        disabled
                         inputProps={{
                           ...register(`StockTransferLines.${index}.Quantity`, { required: `Quantity is required at ${index}`, }),
                           onBlur: (event) => onChangeQuantity(event, e?.ItemCode, e?.UoMEntry, index)
@@ -223,7 +208,7 @@ export default function ContentDetail({
                         render={({ field }) => {
                           return (
                             <UomSelectByItem
-                              disabled={edit}
+                              disabled
                               {...field}
                               onChange={(e) => {
                                 console.log(e)
@@ -240,19 +225,53 @@ export default function ContentDetail({
                         }}
                       />
                     </td>
+                    <td className="pr-4">
+                      <Controller
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
+                        rules={
+                          {
+                            required: 'From bin code is required'
+                          }
+                        }
+                        control={control}
+                        render={({ field }) => <BinAllocationAutoComplete
+                          warehouse={watch('FromWarehouse')}
+                          disabled={true}
+                          {...field}
+                          value={field.value}
+                          onChange={(value) => {
+                            console.log(field.value)
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
+                          }}
+                        />}
+                      />
+                    </td>
+                    <td className="pr-4">
+
+                      <Controller
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
+                        rules={
+                          {
+                            required: 'To bin code is required'
+                          }
+                        }
+                        control={control}
+                        render={({ field }) => <BinAllocationAutoComplete
+                          warehouse={watch('ToWarehouse')}
+                          disabled={true}
+                          {...field}
+                          value={field.value}
+                          onChange={(value) => {
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
+                          }}
+                        />}
+                      />
+                    </td>
                   </tr>
                 </>
               );
             })}
           </table>
-          {edit ? null : (
-            <span
-              onClick={() => itemRef.current?.onOpen('multiple')}
-              className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
-            >
-              Add
-            </span>
-          )}
         </div>
         <div className="grid grid-cols-5 w-[50%] py-2 float-right mt-10">
           <div className="col-span-1">
@@ -262,13 +281,13 @@ export default function ContentDetail({
           </div>
           <div className="col-span-4">
             <TextField
-              disabled={detail}
+              disabled
               size="small"
               fullWidth
               multiline
               rows={3}
               name="Comments"
-              className="w-full "
+              className="bg-gray-100"
               inputProps={{ ...register("Comments") }}
             />
           </div>

@@ -5,7 +5,6 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 import MUITextField from "@/components/input/MUITextField";
 import { Button, CircularProgress } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import ToWarehouseAutoComplete from "../inventory_transfer_request/components/ToWarehouseAutoComplete";
 import { Controller, useForm } from "react-hook-form";
 import { conditionString } from "@/lib/utils";
@@ -16,12 +15,8 @@ import { useInventoryTransferListHook } from "./hook/useInventoryTransferListHoo
 export default function InventoryTransferList() {
 
   const navigate = useNavigate();
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
-  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state } = useInventoryTransferListHook(pagination)
+  const { data, loading, refetchData, setFilter, setSort, totalRecords, exportExcelTemplate, state, exporting, pagination, setPagination } = useInventoryTransferListHook()
 
   const columns = React.useMemo(
     () => [
@@ -136,7 +131,7 @@ export default function InventoryTransferList() {
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2">
           <h3 className="text-base 2xl:text-base xl:text-base ">
-            Stock Control / Inventory Transfer
+            Stock Control / Stock Transfer
           </h3>
         </div>
 
@@ -156,15 +151,15 @@ export default function InventoryTransferList() {
             pagination={pagination}
             paginationChange={setPagination}
             title="Inventory Transfer Lists"
-            createRoute={`/stock-control/stock-transfer/create`}
+            createRoute={`/stock-control/stock-transfer/create?type=internal`}
           >
             <Button
               size="small"
               variant="text"
               onClick={exportExcelTemplate}
-              disabled={false} // Adjust based on the actual loading state
+              disabled={loading} // Adjust based on the actual loading state
             >
-              {loading ? (
+              {exporting ? (
                 <>
                   <span className="text-xs mr-2">
                     <CircularProgress size={16} />
@@ -200,7 +195,7 @@ const defaultValueFilter: FilterProps = {
   DocNum_$eq_number: undefined,
   FromWarehouse_$eq: undefined,
   ToWarehouse_$eq: undefined,
-  DocumentStatus_$eq: '_all',
+  DocumentStatus_$eq: `DocumentStatus eq '_all'`,
 }
 
 export const InventoryTransferFilter = ({ onFilter }: { onFilter?: (values: (string | undefined)[], query: string) => any }) => {
@@ -217,7 +212,7 @@ export const InventoryTransferFilter = ({ onFilter }: { onFilter?: (values: (str
   function onSubmit(data: any) {
     const queryString: (string | undefined)[] = [];
     for (const [key, value] of Object.entries(data)) {
-      if (!value) continue;
+      if (!value || (value as string)?.includes('_all')) continue;
 
       queryString.push('and');
       queryString.push(conditionString(key, value as any))
@@ -226,8 +221,8 @@ export const InventoryTransferFilter = ({ onFilter }: { onFilter?: (values: (str
     queryString.splice(0, 1);
     const query = queryString.join(' ');
 
-    if (onFilter) onFilter(queryString, query.replaceAll('_all', ''));
-  }
+    if (onFilter) onFilter(queryString, query);
+  } //`DocumentStatus eq `DocumentStatus eq '_all'``
 
 
   return <form

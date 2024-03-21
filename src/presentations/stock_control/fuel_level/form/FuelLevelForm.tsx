@@ -16,6 +16,8 @@ import FuelLevelWarehouseBinAutoComplete from "../components/FuelLevelWarehouseB
 import { IoCreate } from "react-icons/io5"
 import { useNavigate } from "react-router-dom"
 import UomSelectByItem from "../../components/UomSelectByItem"
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete"
+import GetBranchAutoComplete from "../../components/GetBranchAutoComplete"
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -194,7 +196,7 @@ const General = (props: any) => {
             control={props?.control}
             render={({ field }) => {
               return (
-                <FuelLevelBranchAutoComplete
+                <GetBranchAutoComplete
                   value={props.watch('U_tl_bplid')}
                   onChange={onChangeBranch}
                 />
@@ -309,8 +311,18 @@ const Content = (props: any) => {
 
 
   const onChangeValue = (index: number, field: string, value: any) => {
-    props?.setValue(`TL_FUEL_LEVEL_LINESCollection.${index}.${field}`, value)
+    if (field === 'U_tl_bincode') {
+      const state = [...lines];
+      state[index][field] = value;
+      props?.setValue('TL_FUEL_LEVEL_LINESCollection', state)
+    } else {
+      props?.setValue(`TL_FUEL_LEVEL_LINESCollection.${index}.${field}`, value)
+    }
   }
+
+  const excludesBins = useMemo(() => {
+    return props?.watch('TL_FUEL_LEVEL_LINESCollection')?.map((e: any) => typeof e?.U_tl_bincode === 'number' ? e?.U_tl_bincode : Number(e?.U_tl_bincode))
+  }, [props?.watch('TL_FUEL_LEVEL_LINESCollection')])
 
 
   return <div className="grow w-full h-full mt-8">
@@ -326,7 +338,7 @@ const Content = (props: any) => {
               <th className="w-[4rem]"></th>
               <th className="p-2 font-thin text-left w-[16rem]">Warehouse Code <span className="text-red-500">*</span></th>
               <th className="p-2 font-thin text-left w-[16rem]">Bin Code <span className="text-red-500">*</span></th>
-              <th className="w-[12rem] p-2 font-thin text-left">Volumn <span className="text-red-500">*</span></th>
+              <th className="w-[12rem] p-2 font-thin text-left">Height-mm <span className="text-red-500">*</span></th>
               <th className="w-[12rem] p-2 font-thin text-left">Qty <span className="text-red-500">*</span></th>
               <th className="p-2 font-thin text-left">Remark</th>
             </tr>
@@ -345,7 +357,7 @@ const Content = (props: any) => {
                   rules={{ required: `Warehouse on row ${index} is required.` }}
                   control={props?.control}
                   render={({ field }) => {
-                    return <FuelLevelWhsAutoComplete value={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_whscode', e?.WarehouseCode)} />
+                    return <WarehouseAutoComplete branchId={props?.watch('U_tl_bplid')} value={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_whscode', e?.WarehouseCode)} />
                   }}
                 />
               </td>
@@ -355,7 +367,7 @@ const Content = (props: any) => {
                   rules={{ required: `Bin Code on row ${index} is required.` }}
                   control={props?.control}
                   render={({ field }) => {
-                    return <FuelLevelWarehouseBinAutoComplete value={row?.U_tl_bincode} whsCode={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_bincode', e?.AbsEntry)} />
+                    return <FuelLevelWarehouseBinAutoComplete value={row?.U_tl_bincode} excludes={excludesBins} whsCode={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_bincode', e?.AbsEntry)} />
                   }}
                 />
               </td>

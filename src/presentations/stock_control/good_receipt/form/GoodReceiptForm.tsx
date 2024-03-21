@@ -22,8 +22,8 @@ let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
 export type UseFormProps = {
-  register?: UseFormRegister<FieldValues>;
-  setValue?: UseFormSetValue<FieldValues>;
+  register: UseFormRegister<FieldValues>;
+  setValue: UseFormSetValue<FieldValues>;
   control?: any;
   defaultValues?: any;
   setBranchAss?: any;
@@ -37,8 +37,13 @@ export type UseFormProps = {
 };
 const GoodIssueForm = (props: any) => {
   const { handleSubmit, register, setValue, control, reset, getValues, watch } =
-    useForm();
-  const route = useNavigate()
+    useForm({
+      defaultValues: {
+        DocDate: new Date()?.toISOString()?.split("T")[0],
+        TaxDate: new Date()?.toISOString()?.split("T")[0],
+      } as any,
+    });
+  const route = useNavigate();
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -57,6 +62,11 @@ const GoodIssueForm = (props: any) => {
       // DocNum: undefined,
       // Series:undefined
     };
+    if (payload?.DocumentLines) {
+      for (let index = 0; index < payload?.DocumentLines.length; index++) {
+        payload["DocumentLines"][index]["WarehouseCode"] = payload.U_tl_whsdesc;
+      }
+    }
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
@@ -142,6 +152,7 @@ const GoodIssueForm = (props: any) => {
         setState({
           ...state,
           loading: false,
+          DocNum: res?.data?.DocNum,
         });
         reset({ ...res.data }, { keepValues: false });
       })
@@ -155,6 +166,14 @@ const GoodIssueForm = (props: any) => {
   }, [id]);
 
   const onInvalidForm = (invalids: any) => {
+    if (invalids?.DocumentLines?.length > 0) {
+      for (const invs of invalids?.DocumentLines) {
+        for (const [key, inv] of Object.entries(invs ?? {}) as any) {
+          dialog.current?.error(inv?.message);
+        }
+      }
+      return;
+    }
     dialog.current?.error(
       invalids[Object.keys(invalids)[0]]?.message?.toString() ??
         "Oop something wrong!",
@@ -203,14 +222,17 @@ const GoodIssueForm = (props: any) => {
             {state.tapIndex === 1 && (
               <div className="grow">
                 <Content
+                  reset={reset}
                   register={register}
                   getValues={getValues}
                   control={control}
                   watch={watch}
                   setValue={setValue}
-                />{" "}
+                />
               </div>
-            )}
+              )}
+              
+              
 
             {/* ... Other form fields ... */}
             <div className="sticky bottom-4  mt-2 ">
@@ -225,7 +247,7 @@ const GoodIssueForm = (props: any) => {
                       border: "1px solid red",
                     }}
                     disableElevation
-                    onClick={() => route("/master-data/driver")}
+                    onClick={() => route("/stock-control/good-receipt")}
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">
                       Cancel
