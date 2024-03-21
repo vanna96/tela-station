@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { calculateUOM } from "../../components/UomSelectByItem";
 import { useGetStockTransferSeriesHook } from "./useGetStockTransferSeriesHook";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 
 export type TransferType = 'Internal' | 'External';
 
@@ -97,9 +98,12 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                     if (!uom)
                         reject(new Error('Internal Errro (1).'))
 
-                    const bins: any = await request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode&$filter=BinCode eq '${res?.data?.U_tl_sobincode}'`);
-                    if (!bins)
-                        reject(new Error('Internal Errro (1).'))
+                    let bins: any = {};
+                    if (res?.data?.U_tl_toBinId) {
+                        bins = await request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode&$filter=BinCode eq '${res?.data?.U_tl_sobincode}'`);
+                        if (!bins)
+                            reject(new Error('Internal Errro (1).'))
+                    }
 
                     payload['StockTransferLines'].push({
                         ItemCode: item?.ItemCode,
@@ -117,7 +121,7 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                                 BinActionType: "batFromWarehouse"
                             },
                             {
-                                BinAbsEntry: bins?.data?.value?.at(0)?.AbsEntry,
+                                BinAbsEntry: res?.data?.U_tl_toBinId ?? bins?.data?.value?.at(0)?.AbsEntry,
                                 Quantity: calculateUOM(uom?.BaseQuantity, uom?.AlternateQuantity, item?.Quantity),
                                 AllowNegativeQuantity: "tNO",
                                 SerialAndBatchNumbersBaseLine: -1,
@@ -140,6 +144,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
 
 
     const { series } = useGetStockTransferSeriesHook()
+    const warehouese = useGetWhsTerminalAssignHook(false);
 
     const { id } = useParams();
 
@@ -163,9 +168,9 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
             let fromBinId = payload.U_tl_fromBinId
             const toBinId = payload.U_tl_toBinId
 
-            delete payload.U_tl_fromBinId;
-            delete payload.U_tl_toBinId;
-            delete payload.U_tl_sobincode;
+            payload.U_tl_fromBinId;
+            payload.U_tl_toBinId;
+            payload.U_tl_sobincode;
             delete payload.U_tl_uobincode;
             setLoading(true);
 
@@ -205,6 +210,8 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
     };
 
     const onInvalidForm = (e: any) => {
+        console.log(e)
+
         if (e.StockTransferLines) {
             if (e.StockTransferLines?.length === 0) return;
             const key = Object.keys(e.StockTransferLines[0])[0]
@@ -217,7 +224,10 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         const period = new Date().getFullYear();
         const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
 
-        setValue("Series", serie?.Series);
+        const git_wsh = warehouese.data?.filter((e: any) => e?.BusinessPlaceID === value?.BPLID && e.U_tl_git_whs === 'Y');
+        setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
+        setValue("ToWarehouse", undefined);
+        setValue("U_tl_attn_ter", undefined);
         setValue("DocNum", serie?.NextNumber);
         setValue('BPLID', value?.BPLID)
     }
@@ -246,6 +256,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         request('GET', `StockTransfers(${id})`)
             .then((res: any) => {
                 setLoading(false)
+                console.log(res.data)
                 reset({ ...res.data }, { keepValues: false })
             })
             .catch((e: any) => {

@@ -30,7 +30,7 @@ export default function BranchAssignmentAuto(props: {
      )
        .then((res: any) => res?.data?.value)
        .catch((e: Error) => {
-         throw new Error(e.message);
+         throw new Error(e?.message);
        });
       return response;
     },
@@ -40,13 +40,13 @@ export default function BranchAssignmentAuto(props: {
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
-    if (props.value) {
-      const selected = data?.find((e: Type) => e.BPLID === props.value);
+    if (props?.value) {
+      const selected = data?.find((e: Type) => e?.BPLID === props?.value);
       if (selected) {
         setSelectedValue(selected);
       }
     }
-  }, [props.value, data]);
+  }, [props?.value, data]);
 
   // Use local state to store the selected value
   const [selectedValue, setSelectedValue] = useState(null);

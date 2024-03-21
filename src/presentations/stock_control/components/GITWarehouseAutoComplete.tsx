@@ -1,46 +1,43 @@
 import React, { useState, useEffect, forwardRef, useMemo } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { useQuery } from "react-query";
-import request from "@/utilies/request";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 
-interface BinProps {
-  AbsEntry: number,
-  BinCode: string;
-  Warehouse: string;
+interface WarehouseProps {
+  WarehouseCode: string;
+  WarehouseName: string;
 }
 
-type BinAllocationAutoCompleteProps = {
+export type GITGITWarehouseAutoCompleteProp = {
   label?: any;
   value?: any;
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
-  warehouse: string | undefined
+  branchId: number | undefined
 }
 
-const getBinLists = async (warehouse: string | undefined) => {
-  if (warehouse === '' || !warehouse) return []
+const GITWarehouseAutoComplete = (props: GITGITWarehouseAutoCompleteProp) => {
+  const { data, isLoading } = useGetWhsTerminalAssignHook(false)
 
-  return request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode`).then((res: any) => res?.data?.value)
-}
 
-const BinAllocationAutoComplete = forwardRef<
-  HTMLInputElement, BinAllocationAutoCompleteProps
->((props, ref) => {
-  const { data, isLoading } = useQuery({ queryKey: ['bin-allocation-list-' + props.warehouse], queryFn: () => getBinLists(props.warehouse) });
-
-  const bins = useMemo(() => {
-    return data?.filter((e: any) => e?.Warehouse === props.warehouse)
-  }, [data, props.warehouse])
+  const warehoueses = useMemo(() => {
+    // if (props.branchId)
+    return data?.filter((e: any) => e?.BusinessPlaceID === props?.branchId && e?.U_tl_git_whs === 'Y')
+    return data;
+  }, [props.branchId, data])
 
 
   useEffect(() => {
-    const selected = bins?.find((e: BinProps) => e.AbsEntry === props.value);
-    setSelectedValue(selected);
-  }, [props.value, bins]);
+    if (props.value && warehoueses) {
+      const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+      if (selected) {
+        setSelectedValue(selected);
+      }
+    }
+  }, [props.value, warehoueses]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState<BinProps | null>(null);
+  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -53,7 +50,6 @@ const BinAllocationAutoComplete = forwardRef<
   };
   const disabled = props.disabled;
 
-
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -64,15 +60,17 @@ const BinAllocationAutoComplete = forwardRef<
       </label>
       <Autocomplete
         disabled={disabled}
-        options={bins ?? []}
+        options={warehoueses ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: BinProps) => option.BinCode}
-        renderOption={(props, option: BinProps) => (
+        getOptionLabel={(option: WarehouseProps) =>
+          option.WarehouseCode + " - " + option.WarehouseName
+        }
+        renderOption={(props, option: WarehouseProps) => (
           <Box component="li" {...props}>
-            {option.BinCode}
+            {option.WarehouseCode + " - " + option.WarehouseName}
           </Box>
         )}
         renderInput={(params) => (
@@ -92,12 +90,11 @@ const BinAllocationAutoComplete = forwardRef<
                 </React.Fragment>
               ),
             }}
-            inputRef={ref}
           />
         )}
       />
     </div>
   );
-});
+}
 
-export default BinAllocationAutoComplete;
+export default GITWarehouseAutoComplete;

@@ -1,31 +1,26 @@
-import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
-import UOMSelect from "@/components/selectbox/UnitofMeasurment";
-import ItemModal from "@/presentations/trip_management/transportation_order/ItemModal";
-import { Button, Checkbox, TextField, easing } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
+import { Button, Checkbox, TextField } from "@mui/material";
 import React, { useCallback, useMemo } from "react";
 import { useState } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import UomSelectByItem from "../../components/UomSelectByItem";
+import { Controller } from "react-hook-form";
+import UomSelectByItem, {
+  calculateUOM,
+} from "../../components/UomSelectByItem";
 import FuelLevelWarehouseBinAutoComplete from "../../fuel_level/components/FuelLevelWarehouseBinAutoComplete";
-import GoodIssueBinAutoComplete from "../../components/GoodIssueBinAutoComplete";
 import { useParams } from "react-router-dom";
 import { InventoryItemModal } from "../../components/GetItemModal";
+import { useQueryClient } from "react-query";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
 export default function Content({
   register,
-  defaultValue,
   setValue,
-  compart,
-  setCompart,
   detail,
   watch,
   control,
 }: any) {
- const {id}:any = useParams()
+  const { id }: any = useParams();
   const [selected, setSelected] = useState<number[]>([]);
   const fields: any[] = useMemo(() => {
     if (!watch("DocumentLines")) return [];
@@ -46,6 +41,9 @@ export default function Content({
             Quantity: undefined,
             WarehouseCode: watch("U_tl_whsdesc"),
             UseBaseUnits: "tNO",
+            CostingCode: item?.LineOfBusiness,
+            CostingCode2: watch("U_ti_revenue"),
+            CostingCode3: item?.ProductLine,
           });
         }
       } else {
@@ -55,6 +53,9 @@ export default function Content({
           Quantity: state[index as number]?.Quantity,
           UoMCode: undefined,
           UoMAbsEntry: undefined,
+          CostingCode: items?.LineOfBusiness,
+          CostingCode2: watch("U_ti_revenue"),
+          CostingCode3: items?.ProductLine,
           DocumentLinesBinAllocations: [],
         };
       }
@@ -102,6 +103,34 @@ export default function Content({
     setValue(
       `DocumentLines[${index}].DocumentLinesBinAllocations[${0}].SerialAndBatchNumbersBaseLine`,
       -1
+    );
+  };
+
+  const queryClient = useQueryClient();
+  const onChangeQuantity = (
+    event: any,
+    code: string | undefined,
+    uomId: number | undefined,
+    index: number
+  ) => {
+    if (event?.target?.value === "" || !event?.target?.value) return;
+
+    const query: any = queryClient.getQueryData([`uom_group_lists_${code}`]);
+    if (!query) return;
+
+    const selectedUoM = query?.UoMGroupDefinitionCollection?.find(
+      (e: any) => e.AlternateUoM === uomId
+    );
+    if (!selectedUoM) return;
+
+    const qty = calculateUOM(
+      selectedUoM.BaseQuantity,
+      selectedUoM.AlternateQuantity,
+      Number(event?.target?.value) ?? 0
+    );
+    setValue(
+      `DocumentLines.${index}.DocumentLinesBinAllocations.0.Quantity`,
+      qty
     );
   };
 
@@ -193,12 +222,7 @@ export default function Content({
                       <MUITextField
                         disabled
                         inputProps={{
-                          ...register(
-                            `DocumentLines.${index}.ItemDescription`,
-                            {
-                              required: "Item Description. is required",
-                            }
-                          ),
+                          ...register(`DocumentLines.${index}.ItemDescription`),
                         }}
                       />
                     </td>
@@ -207,7 +231,16 @@ export default function Content({
                         disabled={id}
                         type="number"
                         inputProps={{
-                          ...register(`DocumentLines.${index}.Quantity`),
+                          ...register(`DocumentLines.${index}.Quantity`, {
+                            required: "Quantity is required",
+                          }),
+                          onBlur: (event) =>
+                            onChangeQuantity(
+                              event,
+                              e?.ItemCode,
+                              e?.UoMEntry,
+                              index
+                            ),
                         }}
                       />
                     </td>
@@ -263,6 +296,7 @@ export default function Content({
                               onChange={(e: any) => {
                                 handlerchangeBin(e, index);
                               }}
+                              excludes={[]}
                             />
                           );
                         }}

@@ -1,5 +1,5 @@
 import MUITextField from "@/components/input/MUITextField";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -13,10 +13,17 @@ import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 import { TransferType } from "../hook/useStockTransferHook";
 import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
+import GITWarehouseAutoComplete from "../../components/GITWarehouseAutoComplete";
 
 const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetStockTransferSeriesHook();
+
+  const getSerieLists: any[] = useMemo(() => {
+    if (!props.watch('BPLID')) return series?.data ?? [];
+
+    return series?.data?.filter((e: any) => e?.BPLID === props.watch('BPLID')) ?? []
+  }, [series, props.watch('BPLID')])
 
   useEffect(() => {
     if (props?.edit) return;
@@ -31,7 +38,7 @@ const BasicInformation = (props: any) => {
   const onChangeSerie = useCallback(
     (event: any) => {
 
-      const serie = series.data?.find(
+      const serie = getSerieLists?.find(
         (e: any) => e?.Series === event?.target?.value
       );
 
@@ -43,14 +50,7 @@ const BasicInformation = (props: any) => {
     [series?.data]
   );
 
-  const branch: any = useInfiniteQuery({
-    queryKey: ["branchAss"],
-    queryFn: () => new BranchBPLRepository().get(),
-    staleTime: Infinity,
-  });
-
   const { data } = useGetWhsTerminalAssignHook(false);
-
 
 
   return (
@@ -107,16 +107,13 @@ const BasicInformation = (props: any) => {
                   control={props.control}
                   render={({ field }) => {
                     return (
-                      <WarehouseAutoComplete
+                      <GITWarehouseAutoComplete
                         branchId={props.watch('BPLID')}
                         disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
-
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("FromWarehouse", e?.WarehouseCode);
-                          props?.onChangeBranch(series, { BPLID: e?.BusinessPlaceID })
-
                           if (!e?.DefaultBin) return;
 
                           props?.setLoading(true);
@@ -141,27 +138,27 @@ const BasicInformation = (props: any) => {
                 </label>
               </div>
               <div className="col-span-3">
-                <Controller
+                {props?.watch('U_tl_transType') as TransferType === 'External' ? <Controller
                   rules={{ required: "Attention Terminal is required" }}
                   name="U_tl_attn_ter"
-                  disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'internal'}
+                  disabled={props.detail || props.detail}
                   control={props.control}
                   render={({ field }) => {
                     return (
                       <AttentionTerminalAutoComplete
-                        disabled={props.detail}
+                        branchId={props?.watch('BPLID')}
+                        disabled={props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          // props.setValue("BPLID", e.BusinessPlaceID);
                           props.setValue("U_tl_attn_ter", e?.WarehouseCode);
-                          const git = data?.find((whs: any) => whs?.U_tl_git_whs === 'Y' && whs?.BusinessPlaceID === e.BusinessPlaceID)
-                          // props.setValue("FromWarehouse", git?.WarehouseCode);
+
                         }}
                       />
                     );
                   }}
-                />
+                /> : <MUITextField disabled />}
+
               </div>
             </div>
 
@@ -186,7 +183,7 @@ const BasicInformation = (props: any) => {
                         disabled={props?.edit}
                         {...field}
                         value={field.value}
-                        onChange={(e: any) => props?.onChangeBranch(series, e)}
+                        onChange={(e: any) => props?.onChangeBranch(getSerieLists, e)}
                       />
                     );
                   }}
@@ -209,6 +206,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <WarehouseAutoComplete
+                        key={`${props.watch('BPLID')}_to_whs`}
                         branchId={props.watch('BPLID')}
                         disabled={props?.edit}
                         {...field}
@@ -225,7 +223,7 @@ const BasicInformation = (props: any) => {
                           );
                           props?.setLoading(false);
                           props.setValue("U_tl_sobincode", res.data.BinCode);
-                          props.setValue("U_tl_toBinId", undefined);
+                          props.setValue("U_tl_toBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -243,8 +241,9 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 {/* {isLoading} */}
                 <Controller
+                  key={`${props.watch('BPLID')}_to_whs_${props.watch('ToWarehouse')}`}
                   rules={{ required: "To Bin Code is required" }}
-                  name="U_tl_sobincode"
+                  name="U_tl_toBinId"
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -282,7 +281,7 @@ const BasicInformation = (props: any) => {
                         <MUISelect
                           value={field.value}
                           disabled={props?.edit}
-                          items={series.data ?? []}
+                          items={getSerieLists ?? []}
                           aliaslabel="Name"
                           aliasvalue="Series"
                           onChange={onChangeSerie}
@@ -398,6 +397,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <WarehouseAutoComplete
+                        key={`${props.watch('BPLID')}_from_whs`}
                         branchId={props.watch('BPLID')}
                         disabled={props.detail || props.detail || props?.queryParams?.get('type') === 'external'}
                         {...field}
@@ -417,7 +417,7 @@ const BasicInformation = (props: any) => {
                           props?.setLoading(false);
                           props.setValue("U_tl_uobincode", res.data.BinCode);
                           // props.setValue("U_tl_fromBinId", e?.DefaultBin);
-                          props.setValue("U_tl_fromBinId", undefined);
+                          props.setValue("U_tl_fromBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -436,11 +436,12 @@ const BasicInformation = (props: any) => {
               <div className="col-span-3">
                 {props?.watch('U_tl_transType') as TransferType === 'Internal' ? <Controller
                   rules={{ required: "From Bin Code is required" }}
-                  name="U_tl_uobincode"
+                  name="U_tl_fromBinId"
                   control={props.control}
                   render={({ field }) => {
                     return (
                       <BinAllocationAutoComplete
+                        key={`${props.watch('BPLID')}_from_whs_${props.watch('FromWarehouse')}`}
                         warehouse={props?.watch('FromWarehouse')}
                         disabled={props.detail}
                         {...field}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, forwardRef } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
 import request, { url } from "@/utilies/request";
+import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 
 interface WarehouseProps {
   WarehouseCode: string;
@@ -15,24 +16,11 @@ const AttentionTerminalAutoComplete = forwardRef<
     value?: any;
     onChange?: (value: any) => void;
     name?: any;
-    disabled?: any;
+    disabled?: boolean;
+    branchId: number | undefined,
   }
 >((props, ref) => {
-  const { data, isLoading } = useQuery({
-    queryKey: ["ATT_WHS"],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `/Warehouses?$select=BusinessPlaceID,WarehouseName,WarehouseCode & $filter=U_tl_attn_ter eq 'Y'`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: 0,
-  });
+  const { data, isLoading } = useGetWhsTerminalAssignHook();
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
@@ -56,7 +44,14 @@ const AttentionTerminalAutoComplete = forwardRef<
       props.onChange(newValue);
     }
   };
+
+
   const disabled = props.disabled;
+
+
+  const warehouses = React.useMemo(() => {
+    return data?.filter((e: any) => e?.BusinessPlaceID === props.branchId) ?? [];
+  }, [data, props.branchId])
 
   return (
     <div className="block text-[14px] xl:text-[13px]">
@@ -68,7 +63,7 @@ const AttentionTerminalAutoComplete = forwardRef<
       </label>
       <Autocomplete
         disabled={disabled}
-        options={data ?? []}
+        options={warehouses ?? []}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
@@ -85,9 +80,8 @@ const AttentionTerminalAutoComplete = forwardRef<
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

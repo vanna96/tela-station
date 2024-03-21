@@ -1,6 +1,6 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -11,6 +11,8 @@ import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoCom
 import MUISelect from "@/components/selectbox/MUISelect";
 import React from "react";
 import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
+import { useGetDepositSeriesHook } from "../hook/useGetDepositSeriesHook";
+import GetBranchAutoComplete from "@/presentations/stock_control/components/GetBranchAutoComplete";
 
 const BasicInformation = ({
   register,
@@ -41,12 +43,6 @@ const BasicInformation = ({
     (e: any) => e?.Series === staticSelect?.serie
   )?.NextNumber;
 
-  const dataSeries = React.useMemo(() => {
-    return serie?.filter(
-      (e: any) => e.PeriodIndicator === new Date().getFullYear().toString()
-    );
-  }, [serie]);
-
   const depositDate = watch("DepositDate");
 
   useEffect(() => {
@@ -59,6 +55,64 @@ const BasicInformation = ({
     setValue("DepositDate", formattedDate);
   }, [setValue]);
 
+
+  const { series, defaultSerie } = useGetDepositSeriesHook();
+
+
+  const getSerieLists: any[] = useMemo(() => {
+    if (!watch('BPLID')) return series?.data ?? [];
+
+    return series?.data?.filter((e: any) => e?.BPLID === watch('BPLID')) ?? []
+  }, [series, watch('BPLID')])
+
+  console.log(watch('BPLID'));
+  
+
+  useEffect(() => {
+    if (edit) return;
+
+    defaultSerie.refetch();
+    if (!defaultSerie.data) return;
+
+    setValue("Series", defaultSerie?.data?.Series);
+    setValue("DocNum", defaultSerie?.data?.NextNumber);
+
+  }, [defaultSerie.data]);
+
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const serie = getSerieLists?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+
+      if (!serie) return;
+
+      setValue("Series", event?.target?.value);
+      setValue("DocNum", serie?.NextNumber);
+
+    },
+    [series?.data]
+
+  );
+
+
+
+  const onChangeBranch = (value: any) => {
+    const period = new Date().getFullYear();
+    const serie = getSerieLists?.find(
+      (e: any) =>
+        e?.PeriodIndicator === period?.toString() && e?.BPLID === value?.BPLID
+    );
+
+    setValue("Series", serie?.Series);
+    setValue("DocNum", serie?.NextNumber);
+    setValue("BPLID", value?.BPLID);
+    // setValue("BPLID", e?.BPLID);
+    setValue("CheckLines", []);
+
+  };
+
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -67,6 +121,30 @@ const BasicInformation = ({
         </div>
         <div className="grid grid-cols-2 md:grid-cols-1 gap-[6rem] md:gap-0 ">
           <div className="">
+          <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Branch" className="text-gray-500 ">
+                  Branch
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  rules={{ required: "Branch is required" }}
+                  name="BPLID"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <GetBranchAutoComplete
+                        {...field.value}
+                        value={watch('BPLID')}
+                        onChange={onChangeBranch}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Deposit No." className="text-gray-500 ">
@@ -94,20 +172,13 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        {...field}
-                        items={dataSeries}
-                        value={staticSelect?.serie || defaultValues?.serie}
-                        aliasvalue="Series"
-                        aliaslabel="Name"
-                        name="Series"
-                        onChange={(e: any) => {
-                          setValue("Series", e?.target?.value);
-                          setStaticSelect({
-                            ...staticSelect,
-                            serie: e?.target?.value,
-                          });
-                        }}
-                      />
+                      value={field.value}
+                      disabled={edit}
+                      items={getSerieLists ?? []}
+                      aliaslabel="Name"
+                      aliasvalue="Series"
+                      onChange={onChangeSerie}
+                    />
                     );
                   }}
                 />
@@ -133,34 +204,6 @@ const BasicInformation = ({
                           setValue("DepositCurrency", e?.Code);
                           setValue("CheckLines", []);
                         }}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Branch" className="text-gray-500 ">
-                  Branch
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Branch is required" }}
-                  name="BPLID"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BranchAssignmentAuto
-                        {...field}
-                        // disabled={detail || defaultValues?.U_Status === "C"}
-                        onChange={(e: any) => {
-                          setValue("BPLID", e?.BPLID);
-                          setValue("CheckLines", []);
-                        }}
-                        value={field?.value}
                       />
                     );
                   }}

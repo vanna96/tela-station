@@ -255,6 +255,13 @@ const Content = (props: any) => {
   }
 
 
+  const excludesBins = useMemo(() => {
+    return props?.watch('TL_FUEL_LEVEL_LINESCollection')?.map((e: any) => e?.U_tl_bincode)
+  }, [props?.watch('TL_FUEL_LEVEL_LINESCollection')])
+
+  console.log(excludesBins)
+
+
   return <div className="grow w-full h-full mt-8">
     <div className=" p-2 text-[15px] flex flex-col gap-4  w-full">
       <div className="w-full   overflow-auto">
@@ -291,7 +298,7 @@ const Content = (props: any) => {
                   rules={{ required: `Bin Code on row ${index} is required.` }}
                   control={props?.control}
                   render={({ field }) => {
-                    return <FuelLevelWarehouseBinAutoComplete disabled={true} value={row?.U_tl_bincode} whsCode={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_bincode', e?.AbsEntry)} />
+                    return <FuelLevelWarehouseBinAutoComplete excludes={excludesBins} disabled={true} value={row?.U_tl_bincode} whsCode={row?.U_tl_whscode} onChange={(e) => onChangeValue(index, 'U_tl_bincode', e?.AbsEntry)} />
                   }}
                 />
               </td>

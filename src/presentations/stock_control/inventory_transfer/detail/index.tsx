@@ -8,7 +8,7 @@ import { IoCreate } from "react-icons/io5"
 import { useNavigate, useParams } from "react-router-dom"
 import { useStockTransferFormHook } from "../hook/useStockTransferHook";
 import BasicInformationDetail from "./BasicInformationDetail";
-import ContentDetail from "../../inventory_transfer_request/detail/ContentDetail";
+import ContentDetail from './ContentDetail';
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -33,7 +33,7 @@ export const InventoryTransferDetails = () => {
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Inventory Transfer</h1>
+      <h1>Stock Transfer</h1>
 
       <Button
         variant="outlined"

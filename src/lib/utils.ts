@@ -74,7 +74,6 @@ export function getCookie(name: string) {
 
 export function useQueryParams() {
   const { search } = useLocation();
-  console.log(search);
   return React.useMemo(() => new URLSearchParams(search), [search]);
 }
 

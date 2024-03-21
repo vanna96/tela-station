@@ -7,7 +7,7 @@ import PositionAutoComplete from "@/components/input/PositionAutoComplete";
 import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller, useWatch } from "react-hook-form";
 import { formatDate } from "@/helper/helper";
@@ -21,6 +21,7 @@ import SeriesSelect from "./Series";
 import { TextField } from "@mui/material";
 import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
 import SaleEmployeeAutoComplete from "@/components/input/SaleEmployeeAutoComplete";
+import { useParams } from "react-router-dom";
 
 const General = ({
   register,
@@ -33,31 +34,24 @@ const General = ({
   detail,
   data,
   serie,
-  watch,
   getValues,
+  watch,
 }: UseFormProps) => {
-  const [staticSelect, setStaticSelect] = useState({
-    requestDate: null,
-    status: null,
-    expiredDate: null,
-    branchASS: null,
-    emp: null,
-    serie: 7916,
-  });
-  const [number, setNumber] = useState(null);
-  useEffect(() => {
-    if (defaultValues) {
-      defaultValues?.EmployeeBranchAssignment?.forEach((e: any) =>
-        setStaticSelect({ ...staticSelect, branchASS: e?.BPLID })
-      );
-    }
-  }, [defaultValues]);
-  const [cookies] = useCookies(["user"]);
-  const [selectedSeries, setSelectedSeries] = useState("");
-  const nextNumber = serie?.find(
-    (e: any) => e?.Series === staticSelect?.serie
-  )?.NextNumber;
 
+  const { id }: any = useParams();
+
+  const onChangeSerie = useCallback(
+    (event: any) => {
+      const series = serie?.find(
+        (e: any) => e?.Series === event?.target?.value
+      );
+      if (!series) return;
+
+      setValue("Series", event?.target?.value);
+      setValue("DocNum", series?.NextNumber);
+    },
+    [serie]
+  );
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
@@ -85,7 +79,7 @@ const General = ({
                       <SaleEmployeeAutoComplete
                         disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
-                        value={defaultValues?.U_Requester}
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_Requester", e?.SalesEmployeeCode);
                           setHeader({
@@ -121,9 +115,7 @@ const General = ({
                           setBranchAss([e]);
                           setHeader({ ...header, U_Branch: e?.BPLName });
                         }}
-                        value={
-                          staticSelect?.branchASS || defaultValues?.U_Branch
-                        }
+                        value={field.value}
                       />
                     );
                   }}
@@ -148,7 +140,7 @@ const General = ({
                         U_tl_attn_ter={true}
                         disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
-                        value={defaultValues?.U_Terminal}
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_Terminal", e);
                           setHeader({ ...header, base: e });
@@ -167,6 +159,7 @@ const General = ({
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-600 ">
                     Series <span className="text-red-500">*</span>
+                    
                   </label>
                 </div>
                 <div className="col-span-3">
@@ -181,18 +174,11 @@ const General = ({
                             {...field}
                             items={serie}
                             disabled={detail || defaultValues?.U_Status === "C"}
-                            value={staticSelect.serie || defaultValues?.serie}
+                            value={field?.value}
                             aliasvalue="Series"
                             aliaslabel="Name"
                             name="Series"
-                            onChange={(e: any) => {
-                              console.log(e);
-                              setValue("Series", e?.target?.value);
-                              setStaticSelect({
-                                ...staticSelect,
-                                serie: e?.target?.value,
-                              });
-                            }}
+                            onChange={(e: any) => onChangeSerie(e)}
                           />
                         );
                       }}
@@ -202,7 +188,8 @@ const General = ({
                       <MUITextField
                         size="small"
                         name="DocNum"
-                        value={nextNumber || defaultValues?.nextNumber}
+                        key={watch("DocNum")}
+                        value={watch("DocNum")}
                         disabled
                         placeholder="Document No"
                       />
@@ -228,11 +215,9 @@ const General = ({
                       <MUIDatePicker
                         disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
-                        defaultValue={
-                          defaultValues?.U_RequestDate ||
-                          staticSelect.requestDate
+                        value={
+                         field.value
                         }
-                        key={`request_date_${staticSelect.requestDate}`}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -240,10 +225,7 @@ const General = ({
                               ? ""
                               : e;
                           setValue("U_RequestDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            requestDate: e,
-                          });
+                         
                         }}
                       />
                     );
@@ -266,11 +248,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={detail || defaultValues?.U_Status === "C"}
                         {...field}
-                        defaultValue={
-                          defaultValues?.U_ExpiredDate ||
-                          staticSelect.expiredDate
-                        }
-                        key={`termination_date_${staticSelect.expiredDate}`}
+                       value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -278,10 +256,7 @@ const General = ({
                               ? ""
                               : e;
                           setValue("U_ExpiredDate", `${val == "" ? "" : val}`);
-                          setStaticSelect({
-                            ...staticSelect,
-                            expiredDate: e,
-                          });
+                         
                         }}
                       />
                     );
