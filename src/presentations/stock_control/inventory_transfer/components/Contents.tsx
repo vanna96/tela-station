@@ -242,6 +242,28 @@ export default function Contents({
                       />
                     </td>
                     <td className="pr-4">
+                    <Controller
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
+                        rules={
+                          {
+                            required: 'To bin code is required'
+                          }
+                        }
+                        control={control}
+                        render={({ field }) => <BinAllocationAutoComplete
+                          warehouse={watch('ToWarehouse')}
+                          disabled={detail || edit}
+                          {...field}
+                          value={field.value}
+                          onChange={(value) => {
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
+                          }}
+                        />}
+                      />
+                    </td>
+                    <td className="pr-4">
+
+                     
                       <Controller
                         name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
                         rules={
@@ -258,27 +280,6 @@ export default function Contents({
                           onChange={(value) => {
                             console.log(field.value)
                             setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
-                          }}
-                        />}
-                      />
-                    </td>
-                    <td className="pr-4">
-
-                      <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
-                        rules={
-                          {
-                            required: 'To bin code is required'
-                          }
-                        }
-                        control={control}
-                        render={({ field }) => <BinAllocationAutoComplete
-                          warehouse={watch('ToWarehouse')}
-                          disabled={detail || edit}
-                          {...field}
-                          value={field.value}
-                          onChange={(value) => {
-                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
                           }}
                         />}
                       />

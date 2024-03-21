@@ -236,7 +236,6 @@ const BasicInformation = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
@@ -431,7 +430,6 @@ const BasicInformation = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   From Bin Code
                 </label>
-                <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
                 {props?.watch('U_tl_transType') as TransferType === 'Internal' ? <Controller
