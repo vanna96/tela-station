@@ -20,6 +20,7 @@ import CircularProgress, {
   CircularProgressProps,
 } from "@mui/material/CircularProgress";
 import OnlyDiaLog from "../transportation_order/OnlyDiaLog";
+import BackDrop from "../component/BackDrop";
 
 let dialog = React.createRef<OnlyDiaLog>();
 export default function BulkSealAllocationList(props: CircularProgressProps) {
@@ -84,7 +85,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
   };
   
   const getData = () => {
-    if (data?.length === 0) return;
+    // if (data?.length === 0) return;
     setOpenItem(true);
     let ids: any[] = [];
     for (const [key, value] of Object.entries(keys)) {
@@ -439,51 +440,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
         setOpen={setOpenItem}
         open={openItem}
       />
-      <Backdrop
-        sx={{
-          color: "#fff",
-          backgroundColor: "rgb(251 251 251 / 60%)",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-        }}
-        open={submiting}
-      >
-        <div className="flex gap-2 flex-col justify-center items-center">
-          <Box sx={{ position: "relative" }}>
-            <CircularProgress
-              variant="determinate"
-              sx={{
-                color: (theme) =>
-                  theme.palette.grey[
-                    theme.palette.mode === "light" ? 200 : 800
-                  ],
-              }}
-              size={40}
-              thickness={5}
-              {...props}
-              value={100}
-            />
-            <CircularProgress
-              color="success"
-              variant="indeterminate"
-              disableShrink
-              sx={{
-                animationDuration: "650ms",
-                position: "absolute",
-                left: 0,
-                [`& .${circularProgressClasses.circle}`]: {
-                  strokeLinecap: "round",
-                },
-              }}
-              size={40}
-              thickness={5}
-              {...props}
-            />
-          </Box>
-          <span className="text-[14px] ml-3 text-gray-500 font-bold">
-            POSTING ...
-          </span>
-        </div>
-      </Backdrop>
+    <BackDrop open={submiting} />
     </>
   );
 }

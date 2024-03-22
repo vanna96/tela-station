@@ -27,6 +27,7 @@ import Expense from "../component/Expense";
 import Compartment from "../component/Compartment";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import TransDetail from "../component/TransDetail";
+import BackDrop from "../../component/BackDrop";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -161,7 +162,7 @@ const TransportationOrderForm = (props: any) => {
         );
     }
   };
-  const onSubmit = async (e: any) => {
+  const onSubmit = async (e: any) => {    
     const order = Object.values(
       trans.reduce((acc: any, obj: any, index: number) => {
         if (obj.U_DocNum !== null) {
@@ -255,9 +256,9 @@ const TransportationOrderForm = (props: any) => {
       ...e,
       U_Cancelled: getValues("U_Status") === "C" ? "Y" : "N",
       TL_TO_ORDERCollection: order.length === 0 ? allDoc : order,
-      U_Fuel: fuel[0]["U_Fuel"] || null,
-      U_FuelAmount: fuel[0]["U_FuelAmount"] || null,
-      U_FuelRemark: fuel[0]["U_FuelRemark"] || null,
+      U_Fuel: fuel?.at(0)?.U_Fuel || null,
+      U_FuelAmount:fuel?.at(0)?.U_FuelAmount || null,
+      U_FuelRemark:fuel?.at(0)?.U_FuelRemark || null,
     };
 
     try {
@@ -467,16 +468,7 @@ const TransportationOrderForm = (props: any) => {
             leftSideField={undefined}
             rightSideField={undefined}
           />
-          <Backdrop
-            sx={{
-              color: "#fff",
-              backgroundColor: "rgb(251 251 251 / 60%)",
-              zIndex: (theme) => theme.zIndex.drawer + 1,
-            }}
-            open={state.isSubmitting}
-          >
-            <CircularProgress />
-          </Backdrop>
+         <BackDrop open={state.isSubmitting} />
           <FormMessageModal ref={dialog} />
           <form
             id="formData"
