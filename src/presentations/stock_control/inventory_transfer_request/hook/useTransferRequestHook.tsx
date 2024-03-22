@@ -42,6 +42,13 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
             }
 
             setLoading(true);
+
+            for (let index = 0; index < payload.StockTransferLines.length; index++) {
+                if (payload.StockTransferLines[index]['U_tl_toBinId']) continue;
+                // 
+                payload.StockTransferLines[index]['U_tl_toBinId'] = payload.U_tl_toBinId
+            }
+
             const url = edit ? `InventoryTransferRequests(${id})` : 'InventoryTransferRequests';
             const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
             setLoading(false)
