@@ -97,6 +97,8 @@ export default function ContentForm({
             )?.BinAbsEntry;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
+            item.COGSCostingCode = itemDetails.U_tl_dim1;
+            item.COGSCostingCode3 = itemDetails.U_tl_dim2;
           }
           return item;
         }
