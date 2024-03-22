@@ -82,7 +82,6 @@ export default function GeneralForm({
     data.U_tl_arbusi = "Lube";
     data.lineofBusiness = "Lube";
   }
-  console.log(data);
 
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
@@ -196,6 +195,7 @@ export default function GeneralForm({
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
+                passedCardCode={data.CardCode}
                 endAdornment={!edit}
               />
             </div>
