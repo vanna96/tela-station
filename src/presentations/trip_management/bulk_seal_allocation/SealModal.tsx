@@ -1,17 +1,9 @@
-import request, { url } from "@/utilies/request";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import MUITextField from "@/components/input/MUITextField";
-import { Box, Button, CircularProgress, Modal } from "@mui/material";
+import { Box, Modal } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { log } from "console";
-import { useQuery } from "react-query";
-import itemRepository from "@/services/actions/itemRepostory";
-import FirstPageIcon from "@mui/icons-material/FirstPage";
-import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
-import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
-import LastPageIcon from "@mui/icons-material/LastPage";
-import SelectPage from "../bulk_seal_allocation/SelectPage";
 import { useForm } from "react-hook-form";
+import { useScroll } from "framer-motion";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -23,55 +15,33 @@ const style = {
 };
 
 export default function SealModal(props: any) {
-  const {
-    handleSubmit,
-    register,
-    reset,
-    watch,
-    getValues,
-    setValue,
-    formState: { errors, defaultValues },
-  } = useForm();
-  const [openLoading, setOpenLoading] = React.useState(false);
+  const { handleSubmit, register, watch, setValue } =
+    useForm();
 
   const onSubmit = async (e: any) => {
-
-    setOpenLoading(true);
-    const data = {
-      ...e,
-      End_Seal_Number: `${getValues("Start_Seal_Number")}${getValues("Total_Seal_Number")}`,
-    };
-    let lastChar = parseInt(data?.End_Seal_Number?.slice(-1));
-
-    //get seal
-    let result: any[] = [];
-    for (let i = 0; i < lastChar; i++) {
-      result.push(data?.End_Seal_Number.slice(0, -1) + (lastChar - i));
-    }
-
-    //complete data
-    let loadData: any = [];
-    for (const [index, item] of props?.data?.entries()) {
-      let emp = { ...item };
-      emp["TL_TO_COMPARTMENTCollection"] = emp["TL_TO_COMPARTMENTCollection"]
+    let emp: any[] = [];
+    for (const item of props?.data) {
+      let imp = {
+        DocEntry: item?.DocEntry,
+        TL_TO_COMPARTMENTCollection: item?.TL_TO_COMPARTMENTCollection,
+      } as any;
+      imp["TL_TO_COMPARTMENTCollection"] = imp["TL_TO_COMPARTMENTCollection"]
         ?.filter((e: any) => e?.U_SealReference === null)
         ?.map((e: any) => ({
-          ...e,
-          U_SealReference: result[index],
-        }));  
-      loadData.push(emp);
+          DocEntry: e?.DocEntry,
+          LineId: e?.LineId,
+        }));
+      emp.push(imp);
     }
+    let loadData: any = {
+      StartSealText: e?.Start_Seal_Number,
+      AllocationsLines: emp,
+    };
+    props?.setLoadData(loadData);
     console.log(loadData);
-    
-    // await request("POST", `/script/test/get-tr-documents`, data)
-    //   .then((res: any) => {
-    //     setOpenLoading(false);
-    //   })
-    //   .catch((e: any) => {
-    //     setOpenLoading(false);
-    //   });
-  };
 
+    props?.setOpen(false);
+  };
   const handleClose = () => {
     props?.setOpen(false);
   };

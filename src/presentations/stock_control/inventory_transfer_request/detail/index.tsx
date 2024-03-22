@@ -20,16 +20,10 @@ export const InventoryTransferRequestDetails = () => {
   const hook = useTransferRequestFormHook(false, dialog);
 
   const onChangeTap = (index: number) => {
-    if (index === 1 && !hook.watch("BPLID")) {
-      toastRef.current?.open();
-      return;
-    }
-
     setTap(index);
   };
 
   const navigate = useNavigate();
-  const { id } = useParams();
 
   return (
     <div className="w-full h-full p-6 flex flex-col gap-2">
@@ -40,7 +34,7 @@ export const InventoryTransferRequestDetails = () => {
           variant="outlined"
           size="small"
           onClick={() =>
-            navigate(`/stock-control/inventory-transfer-request/${id}/edit`)
+            navigate(`/stock-control/inventory-transfer-request/${hook.id}/edit`)
           }
           endIcon={<MdEdit />}
         >
@@ -113,7 +107,7 @@ export const InventoryTransferRequestDetails = () => {
                   backgroundColor: '#2D31AB',
                 }}
                 disableElevation
-                onClick={() => navigate(`/stock-control/stock-transfer/create?type=external&id=${hook.id}`)}
+                onClick={() => navigate(`/stock-control/inventory-transfer/create?type=external&id=${hook.id}`)}
               >
                 <span className="px-3 text-[11px] py-1 text-white">
                   Copy To

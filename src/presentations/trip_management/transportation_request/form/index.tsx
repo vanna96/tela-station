@@ -52,16 +52,12 @@ export type UseFormProps = {
 };
 // const { id } = useParams();
 const Form = (props: any) => {
-  const {
-    handleSubmit,
-    register,
-    setValue,
-    control,
-    reset,
-    watch,
-    getValues,
-    formState: { errors, defaultValues },
-  } = useForm();
+  const { handleSubmit, register, setValue, control, reset, watch, getValues } =
+    useForm({
+      defaultValues: {
+        U_RequestDate: new Date()?.toISOString()?.split("T")[0],
+      } as any,
+    });
 
   const { id } = useParams();
   const [state, setState] = useState({
@@ -80,7 +76,13 @@ const Form = (props: any) => {
     branch: null,
     status: "O",
   });
-
+  const [searchValues, setSearchValues] = React.useState({
+    DocumentNumber: "",
+    Type: "",
+    Branch: "",
+    From: "",
+    To: "",
+  });
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
   const [emp, setEmp] = useState([]);
@@ -98,26 +100,25 @@ const Form = (props: any) => {
 
   useEffect(() => {
     fetchData();
-    fethSeries()
-    
+    fethSeries();
   }, []);
-  const fethSeries = async() => {
-   let seriesList: any = props?.query?.find("tr-series");
-   if (!seriesList) {
-     seriesList = await DocumentSerieRepository.getDocumentSeries({
-       Document: "TL_TR",
-     });
-     props?.query?.set("tr-series", seriesList);
-   }
-   setSerie(seriesList);
-}
+  const fethSeries = async () => {
+    let seriesList: any = props?.query?.find("tr-series");
+    if (!seriesList) {
+      seriesList = await DocumentSerieRepository.getDocumentSeries({
+        Document: "TL_TR",
+      });
+      props?.query?.set("tr-series", seriesList);
+    }
+    setSerie(seriesList);
+  };
   const fetchData = async () => {
     if (id) {
       setState({
         ...state,
         loading: true,
       });
-     
+
       await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
@@ -126,7 +127,6 @@ const Form = (props: any) => {
             ...state,
             loading: false,
           });
-          
         })
         .catch((err: any) =>
           setState({ ...state, isError: true, message: err.message })
@@ -135,13 +135,12 @@ const Form = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-     const payload: any = Object.fromEntries(
-       Object.entries(e).filter(
-         ([key, value]): any => value !== null && value !== undefined
-       )
-     );
+    const payload: any = Object.fromEntries(
+      Object.entries(e).filter(
+        ([key, value]): any => value !== null && value !== undefined
+      )
+    );
     try {
-
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
         await request(
@@ -194,6 +193,9 @@ const Form = (props: any) => {
   };
   const handlerChangeMenu = useCallback(
     (index: number) => {
+      if (index === 1) {
+        setSearchValues({ ...searchValues, Branch: watch("U_Branch") });
+      }
       setState((prevState) => ({
         ...prevState,
         tapIndex: index,
@@ -201,44 +203,44 @@ const Form = (props: any) => {
     },
     [state]
   );
-const onInvalidForm = (invalids: any) => {
-  console.log(invalids);
-  let message = invalids[Object.keys(invalids)[0]]?.message?.toString();
+  const onInvalidForm = (invalids: any) => {
+    console.log(invalids);
+    let message = invalids[Object.keys(invalids)[0]]?.message?.toString();
 
-  // Iterate over all invalid entries
-  for (const invalidKey of Object.keys(invalids)) {
-    const invalidEntry = invalids[invalidKey];
-    if (!invalidEntry || !Array.isArray(invalidEntry)) continue;
+    // Iterate over all invalid entries
+    for (const invalidKey of Object.keys(invalids)) {
+      const invalidEntry = invalids[invalidKey];
+      if (!invalidEntry || !Array.isArray(invalidEntry)) continue;
 
-    for (const err of invalidEntry) {
-      if (!err) continue;
+      for (const err of invalidEntry) {
+        if (!err) continue;
 
-      if (!err?.U_Children) {
-        message = err?.message?.toString();
-      } else {
-        console.log(err);
-        if (Array.isArray(err.U_Children) && err.U_Children.length > 0) {
-          for (const child of err.U_Children) {
-            if (child && typeof child === "object") {
-              const keys = Object.keys(child);
-              if (keys.length > 0) {
-                message = child[keys[0]]?.message?.toString();
-                // Assuming you only want the first message found, you might want to adjust this behavior if needed
-                if (message) break;
+        if (!err?.U_Children) {
+          message = err?.message?.toString();
+        } else {
+          console.log(err);
+          if (Array.isArray(err.U_Children) && err.U_Children.length > 0) {
+            for (const child of err.U_Children) {
+              if (child && typeof child === "object") {
+                const keys = Object.keys(child);
+                if (keys.length > 0) {
+                  message = child[keys[0]]?.message?.toString();
+                  // Assuming you only want the first message found, you might want to adjust this behavior if needed
+                  if (message) break;
+                }
               }
             }
           }
         }
+        // If message is found, break the loop
+        if (message) break;
       }
       // If message is found, break the loop
       if (message) break;
     }
-    // If message is found, break the loop
-    if (message) break;
-  }
 
-  dialog.current?.error(message ?? "Oops something wrong!", "Invalid Value");
-};
+    dialog.current?.error(message ?? "Oops something wrong!", "Invalid Value");
+  };
 
   const HeaderTaps = () => {
     return (
@@ -257,7 +259,7 @@ const onInvalidForm = (invalids: any) => {
   React.useEffect(() => {
     if (requestS) {
       console.log(requestS);
-      
+
       reset({ ...requestS });
     }
   }, [requestS]);
@@ -273,6 +275,7 @@ const onInvalidForm = (invalids: any) => {
       queryFn: () => new ManagerRepository().get(),
       staleTime: Infinity,
     });
+
     return (
       <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
@@ -390,7 +393,6 @@ const onInvalidForm = (invalids: any) => {
                   register={register}
                   setValue={setValue}
                   control={control}
-                  defaultValues={defaultValues}
                   setBranchAss={setBranchAss}
                   branchAss={branchAss}
                   emp={emp}
@@ -411,12 +413,13 @@ const onInvalidForm = (invalids: any) => {
                   setCollection={setCollection}
                   data={requestS}
                   document={document}
-                  defaultValues={defaultValues}
                   setValue={setValue}
                   appendDocument={appendDocument}
                   removeDocument={removeDocument}
                   getValues={getValues}
                   watch={watch}
+                  searchValues={searchValues}
+                  setSearchValues={setSearchValues}
                 />
               </div>
             )}

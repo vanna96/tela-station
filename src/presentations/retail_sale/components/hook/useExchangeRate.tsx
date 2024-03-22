@@ -1,15 +1,17 @@
-import { formatDate } from "@/helper/helper";
+import { formatDate, sysInfo } from "@/helper/helper";
 import request from "@/utilies/request";
+import React from "react";
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 
-export const useExchangeRate = (handleChange: any) => {
+export const useExchangeRate = (Currency: any, handleChange: any) => {
   const date = useMemo(() => formatDate(new Date(), ""), [new Date()]);
+
   const { data } = useQuery({
-    queryKey: [`date_${date}`],
+    queryKey: [`date_${date}`, Currency],
     queryFn: async () => {
       const res: any = await request("POST", "/SBOBobService_GetCurrencyRate", {
-        Currency: "KHR",
+        Currency: Currency,
         Date: `${date}`,
       })
         .then((res: any) => {
@@ -23,8 +25,6 @@ export const useExchangeRate = (handleChange: any) => {
       return res || 0;
     },
     retry: 1,
-    cacheTime: 720 * (60 * 1000),
-    staleTime: 720 * (60 * 1000), // 720 mins
   });
   return data;
 };

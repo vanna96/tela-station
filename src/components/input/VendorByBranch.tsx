@@ -8,6 +8,7 @@ import VendorModalBranch from "../modal/VendorModalforBranch";
 interface VendorByBranchProps extends MUITextFieldProps {
   vtype: VendorModalType;
   branch: string;
+  passedCardCode?: string;
 }
 
 const VendorByBranch: FC<VendorByBranchProps> = (
@@ -30,6 +31,7 @@ const VendorByBranch: FC<VendorByBranchProps> = (
         open={open}
         onClose={onClose}
         onOk={handlerConfirm}
+        passedCardCode={props.passedCardCode}
       />
       <MUITextField
         {...props}

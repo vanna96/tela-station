@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -13,6 +13,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import DataTableS from "./DataTableS";
 import { TRSourceDocument } from "./Document";
 import shortid from "shortid";
+import FormMessageModal from "@/components/modal/FormMessageModal";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -22,16 +23,9 @@ const style = {
   bgcolor: "background.paper",
   p: 4,
 };
+let dialog = React.createRef<FormMessageModal>();
 
 export default function TRModal(props: any) {
-  const [searchValues, setSearchValues] = React.useState({
-    DocumentNumber: "",
-    Type: "",
-    Status: "",
-    Branch: "",
-    From: "",
-    To: "",
-  });
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
@@ -61,13 +55,19 @@ export default function TRModal(props: any) {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_TR_DOCS",
+      "TL_TR_DOCS" + "_" + props?.watch("U_Branch"),
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
     queryFn: async () => {
+      if (props?.searchValues.Branch !== "") {
+        queryFilters += queryFilters
+          ? ` and BPLId eq ${props?.searchValues.Branch}`
+          : `BPLId eq ${props?.searchValues.Branch}`;
+        setFilter(queryFilters);
+      }
       const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
@@ -83,7 +83,8 @@ export default function TRModal(props: any) {
     },
     cacheTime: 0,
     staleTime: 0,
-    retry: 1,
+    retry: 0.5,
+    refetchOnWindowFocus: false,
   });
 
   const columns = React.useMemo(
@@ -191,6 +192,7 @@ export default function TRModal(props: any) {
     ],
     [data]
   );
+
   const handlerRefresh = React.useCallback(() => {
     setRowSelection({});
     setFilter("");
@@ -221,33 +223,33 @@ export default function TRModal(props: any) {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.DocumentNumber) {
+    if (props?.searchValues.DocumentNumber) {
       queryFilters += queryFilters
-        ? ` and (contains(DocNum, ${searchValues.DocumentNumber}))`
-        : `(contains(DocNum, ${searchValues.DocumentNumber}))`;
+        ? ` and (contains(DocNum, ${props?.searchValues.DocumentNumber}))`
+        : `(contains(DocNum, ${props?.searchValues.DocumentNumber}))`;
     }
-    if (searchValues.Type) {
-      searchValues.Type === "All"
+    if (props?.searchValues.Type) {
+      props?.searchValues.Type === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and U_Type eq '${searchValues.Type}'`
-            : `U_Type eq '${searchValues.Type}'`);
+            ? ` and U_Type eq '${props?.searchValues.Type}'`
+            : `U_Type eq '${props?.searchValues.Type}'`);
     }
-    if (searchValues.Branch) {
+    if (props?.searchValues.Branch) {
       queryFilters += queryFilters
-        ? ` and (contains(BPLId, ${searchValues.Branch}))`
-        : `(contains(BPLId, ${searchValues.Branch}))`;
+        ? ` and (contains(BPLId, ${props?.searchValues.Branch}))`
+        : `(contains(BPLId, ${props?.searchValues.Branch}))`;
     }
-    if (searchValues.From) {
+    if (props?.searchValues.From) {
       queryFilters += queryFilters
-        ? ` and DocDate ge '${searchValues.From}'`
-        : `DocDate ge '${searchValues.From}'`;
+        ? ` and DocDate ge '${props?.searchValues.From}'`
+        : `DocDate ge '${props?.searchValues.From}'`;
     }
 
-    if (searchValues.To) {
+    if (props?.searchValues.To) {
       queryFilters += queryFilters
-        ? ` and DocDueDate le '${searchValues.To}'`
-        : `DocDueDate le '${searchValues.To}'`;
+        ? ` and DocDueDate le '${props?.searchValues.To}'`
+        : `DocDueDate le '${props?.searchValues.To}'`;
     }
     let query = queryFilters;
 
@@ -267,55 +269,65 @@ export default function TRModal(props: any) {
   };
   const handleClose = () => {
     setRowSelection({});
- setOpenLoading(false);
+    setOpenLoading(false);
     props?.setOpen(false);
   };
   const onSelectData = React.useCallback(async () => {
     setOpenLoading(true);
-    let ids = [];
+    const payload: any[] = [];
     for (const [key, value] of Object.entries(rowSelection)) {
       if (!value) continue;
-      const docNum = key.split("_")?.at(-1);
-      ids.push(`U_DocNum eq ${docNum}`);
+      payload.push({
+        Type: key.split("_")?.at(1),
+        DocEntry: key.split("_")?.at(-1),
+      });
     }
-    await request(
-      "get",
-      "/sml.svc/TLTR_LINEDOCS?" + `$filter=${ids.join(" or ")}`
-    ).then((res: any) => {
-      const selected: TRSourceDocument[] = res?.data?.value?.map(
-        (e: TRSourceDocument) => {
-          return {
-            U_SourceDocEntry: e.U_SourceDocEntry,
-            // SourceId: e,
-            U_DocNum: e.U_DocNum,
-            U_Type: e.U_Type,
-            U_CardCode: e.U_CardCode,
-            U_CardName: e.U_CardName,
-            U_DeliveryDate: e.U_DeliveryDate,
-            U_ShipToCode: e.U_ShipToCode,
-            U_ItemCode: e.U_ItemCode,
-            U_ShipToAddress: e.U_ShipToAddress,
-            U_Quantity: e.U_Quantity,
-            U_UomCode: e.U_UomCode,
-            U_UomAbsEntry: e.U_UomAbsEntry,
-          };
-        }
-      );
-      const document = props?.document?.map((e: any) => ({
-        ...e,
-        id:undefined
-      }))
-      props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
-      setRowSelection({});
-      setOpenLoading(false);
-      props?.setOpen(false);
-    });
+
+    await request("POST", "/script/test/get_trans_request_source", {
+      Documents: payload,
+    })
+      .then((res: any) => {
+        const selected: TRSourceDocument[] = res?.data?.value?.map(
+          (e: TRSourceDocument) => {
+            return {
+              U_SourceDocEntry: e.U_SourceDocEntry,
+              // SourceId: e,
+              U_DocNum: e.U_DocNum,
+              U_Type: e.U_Type,
+              U_CardCode: e.U_CardCode,
+              U_CardName: e.U_CardName,
+              U_DeliveryDate: e.U_DeliveryDate,
+              U_ShipToCode: e.U_ShipToCode,
+              U_ItemCode: e.U_ItemCode,
+              U_ShipToAddress: e.U_ShipToAddress,
+              U_Quantity: e.U_Quantity,
+              U_UomCode: e.U_UomCode,
+              U_UomAbsEntry: e.U_UomAbsEntry,
+            };
+          }
+        );
+        const document = props?.document?.map((e: any) => ({
+          ...e,
+          id: undefined,
+        }));
+        props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
+        setRowSelection({});
+        setOpenLoading(false);
+        props?.setOpen(false);
+      })
+      ?.catch((err) => {
+        setOpenLoading(false);
+        setRowSelection({});
+        props?.setOpen(false);
+        dialog.current?.error(err.message);
+      });
   }, [rowSelection]);
 
   const lists = React.useMemo(() => data, [data]);
 
   return (
     <>
+      <FormMessageModal ref={dialog} />
       <Modal
         open={props?.open}
         onClose={handleClose}
@@ -340,16 +352,16 @@ export default function TRModal(props: any) {
                     label="Document Number"
                     className="bg-white"
                     autoComplete="off"
-                    value={searchValues.DocumentNumber}
+                    value={props?.searchValues.DocumentNumber}
                     onChange={(e) =>
-                      setSearchValues({
-                        ...searchValues,
+                      props?.setSearchValues({
+                        ...props?.searchValues,
                         DocumentNumber: e.target.value,
                       })
                     }
                   />
                 </div>
-                <div className="col-span-2 2xl:col-span-3">
+                <div className="col-span-3 2xl:col-span-3">
                   <div className="">
                     <label
                       htmlFor="Code"
@@ -366,20 +378,20 @@ export default function TRModal(props: any) {
                       { value: "ITR", label: "Inventory Transfer Request" },
                     ]}
                     onChange={(e: any) => {
-                      setSearchValues({
-                        ...searchValues,
+                      props?.setSearchValues({
+                        ...props?.searchValues,
                         Type: e.target.value,
                       });
                     }}
                     value={
                       // searchValues.active === null ? "tYES" : searchValues.active
-                      searchValues.Type
+                      props?.searchValues.Type
                     }
                     aliasvalue="value"
                     aliaslabel="label"
                   />
                 </div>
-                <div className="col-span-2 2xl:col-span-3">
+                <div className="col-span-3 2xl:col-span-3">
                   <div className="">
                     <label
                       htmlFor="Code"
@@ -390,20 +402,19 @@ export default function TRModal(props: any) {
                   </div>
                   <BranchAssignmentAuto
                     onChange={(e) => {
-                      console.log(e);
                       if (e !== null) {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           Branch: e.BPLID,
                         });
                       } else {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           Branch: "",
                         });
                       }
                     }}
-                    value={searchValues.Branch}
+                    value={props?.searchValues.Branch}
                   />
                 </div>
 
@@ -423,18 +434,18 @@ export default function TRModal(props: any) {
                           e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
                             ? ""
                             : e;
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           From: val,
                         });
                       } else {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           From: "",
                         });
                       }
                     }}
-                    value={searchValues.From}
+                    value={props?.searchValues.From}
                   />
                 </div>
 
@@ -454,18 +465,18 @@ export default function TRModal(props: any) {
                           e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
                             ? ""
                             : e;
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           To: val,
                         });
                       } else {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           To: "",
                         });
                       }
                     }}
-                    value={searchValues.To}
+                    value={props?.searchValues.To}
                   />
                 </div>
 

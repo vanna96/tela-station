@@ -35,6 +35,10 @@ class Form extends NonCoreDcument {
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
+      CardName: "General Customer",
+      CardCode: 20000001,
+      U_tl_cardname: "General Customer",
+      U_tl_cardcode: 20000001,
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -133,7 +137,7 @@ class Form extends NonCoreDcument {
             try {
               const res = await request(
                 "GET",
-                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
               );
               return res.data;
             } catch (error) {
@@ -164,6 +168,8 @@ class Form extends NonCoreDcument {
                   (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
                 )?.U_tl_bincode,
                 U_tl_whs: dispenser.U_tl_whs,
+                LineOfBussiness: itemDetails.U_tl_dim1,
+                ProductLine: itemDetails.U_tl_dim2,
               };
             })
           );
@@ -271,6 +277,7 @@ class Form extends NonCoreDcument {
       U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
+      U_tl_ownremark: data?.U_tl_ownremark,
       // U_tl_status: data?.U_tl_status || "",
       //Consumption
       TL_RETAILSALE_FU_COCollection: data?.allocationData
@@ -688,9 +695,9 @@ class Form extends NonCoreDcument {
             DiscountPercent: 0,
             TaxCode: "VO10",
             UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
+            LineOfBussiness: item.LineOfBussiness,
             RevenueLine: "202001",
-            ProductLine: "203004",
+            ProductLine: item.ProductLine,
             BinAbsEntry: item.U_tl_bincode,
             // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
@@ -715,9 +722,9 @@ class Form extends NonCoreDcument {
         DiscountPercent: 0,
         TaxCode: "VO10",
         UoMEntry: item.U_tl_uom,
-        LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202001", // item.RevenueLine
-        ProductLine: "203004", // item.ProductLine
+        LineOfBussiness: item.LineOfBussiness,
+        RevenueLine: "202001",
+        ProductLine: item.ProductLine,
         BinAbsEntry: item.U_tl_bincode,
         // BranchCode: data.U_tl_bplid,
         WarehouseCode: item.U_tl_whs,
@@ -823,9 +830,13 @@ class Form extends NonCoreDcument {
                   Quantity: quantity.toString(),
                   DiscountPercent: 0,
                   TaxCode: "VO10",
-                  LineOfBussiness: "201001",
+                  LineOfBussiness: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.LineOfBussiness,
                   RevenueLine: "202001",
-                  ProductLine: "203004",
+                  ProductLine: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.ProductLine,
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
                   BranchCode: data.stockAllocationData[0].U_tl_bplid,
                   WarehouseCode: data.stockAllocationData[0].U_tl_whs,
@@ -867,9 +878,9 @@ class Form extends NonCoreDcument {
                     UoMEntry: data.nozzleData?.find(
                       (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
                     )?.U_tl_uom,
-                    LineOfBussiness: "201001", // item.LineOfBussiness
-                    RevenueLine: "202001", // item.RevenueLine
-                    ProductLine: "203004", // item.ProductLine
+                    LineOfBussiness: item.LineOfBussiness,
+                    RevenueLine: "202001",
+                    ProductLine: item.ProductLine,
                     // BinAbsEntry: data.U_tl_bincode,
                     U_tl_bincode: edit
                       ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
@@ -908,9 +919,7 @@ class Form extends NonCoreDcument {
         PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
       const isAnyKHR =
-        data?.cashBankData?.some(
-          (item: any) => item.U_tl_paycur === "KHR"
-        ) ||
+        data?.cashBankData?.some((item: any) => item.U_tl_paycur === "KHR") ||
         data?.checkNumberData?.some((item: any) => item.U_tl_paycur === "KHR");
       if (isAnyKHR && data?.DocRate === 0) {
         this.dialog.current?.error(

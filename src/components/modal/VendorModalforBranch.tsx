@@ -29,6 +29,7 @@ interface VendorModalProps {
   onOk: (vendor: BusinessPartner) => void;
   type: VendorModalType;
   branch: string;
+  passedCardCode?: string;
 }
 
 const VendorModalBranch: FC<VendorModalProps> = ({
@@ -37,6 +38,7 @@ const VendorModalBranch: FC<VendorModalProps> = ({
   onOk,
   type,
   branch,
+  passedCardCode,
 }) => {
   const { theme } = React.useContext(ThemeContext);
   const [globalFilter, setGlobalFilter] = React.useState("");
@@ -45,7 +47,9 @@ const VendorModalBranch: FC<VendorModalProps> = ({
     pageIndex: 0,
     pageSize: 10,
   });
-  const [selectedCardCode, setSelectedCardCode] = useState<string>("");
+  const [selectedCardCode, setSelectedCardCode] = useState<string>(
+    () => passedCardCode ?? ""
+  );
   const { data, isLoading }: any = useQuery({
     queryKey: ["venders_branch", branch],
     queryFn: () =>

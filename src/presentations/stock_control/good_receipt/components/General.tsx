@@ -359,9 +359,9 @@ const General = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
-                          setValue("U_tl_grtype", e);
-
-                          // setHeader({ ...header, data5: e?.Name })
+                          console.log(e);
+                          setValue("AccountCode", e?.U_ActCode);
+                          setValue("U_tl_grtype", e?.Code);
                         }}
                       />
                     );
