@@ -85,7 +85,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
   };
   
   const getData = () => {
-    // if (data?.length === 0) return;
+    if (data?.length === 0) return;
     setOpenItem(true);
     let ids: any[] = [];
     for (const [key, value] of Object.entries(keys)) {
