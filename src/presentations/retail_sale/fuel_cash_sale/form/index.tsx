@@ -59,7 +59,7 @@ class Form extends NonCoreDcument {
       ],
       couponData: [
         {
-          U_tl_acccoupon: "110101",
+          U_tl_acccoupon: "111102",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
