@@ -76,7 +76,13 @@ const Form = (props: any) => {
     branch: null,
     status: "O",
   });
-
+  const [searchValues, setSearchValues] = React.useState({
+    DocumentNumber: "",
+    Type: "",
+    Branch: "",
+    From: "",
+    To: "",
+  });
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
   const [emp, setEmp] = useState([]);
@@ -187,6 +193,9 @@ const Form = (props: any) => {
   };
   const handlerChangeMenu = useCallback(
     (index: number) => {
+      if (index === 1) {
+        setSearchValues({ ...searchValues, Branch: watch("U_Branch") });
+      }
       setState((prevState) => ({
         ...prevState,
         tapIndex: index,
@@ -267,7 +276,6 @@ const Form = (props: any) => {
       staleTime: Infinity,
     });
 
-    
     return (
       <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
         <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
@@ -410,6 +418,8 @@ const Form = (props: any) => {
                   removeDocument={removeDocument}
                   getValues={getValues}
                   watch={watch}
+                  searchValues={searchValues}
+                  setSearchValues={setSearchValues}
                 />
               </div>
             )}

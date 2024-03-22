@@ -36,7 +36,7 @@ export type TRSourceDocument = {
 
 export default function Document({
   register,
-  defaultValues,
+  searchValues,
   setValue,
   document,
   control,
@@ -45,6 +45,7 @@ export default function Document({
   appendDocument,
   watch,
   removeDocument,
+  setSearchValues,
 }: any) {
   const [open, setOpen] = useState(false);
 
@@ -103,16 +104,13 @@ export default function Document({
 
   const handleDelete = (parentIndex: number, childIndex: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
-    if (
-      parents[parentIndex]["U_Children"]
-    ) {
+    if (parents[parentIndex]["U_Children"]) {
       parents[parentIndex]["U_Children"] = parents[parentIndex][
         "U_Children"
       ]?.filter((_: any, index: any) => index !== childIndex);
       setValue("TL_TR_ROWCollection", parents);
     }
   };
-
 
   return (
     <>
@@ -503,7 +501,9 @@ export default function Document({
         setValue={setValue}
         document={document}
         open={open}
+        searchValues={searchValues}
         setOpen={setOpen}
+        setSearchValues={setSearchValues}
       />
     </>
   );

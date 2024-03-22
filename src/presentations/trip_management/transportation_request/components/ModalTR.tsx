@@ -24,14 +24,7 @@ const style = {
 };
 
 export default function TRModal(props: any) {
-  const [searchValues, setSearchValues] = React.useState({
-    DocumentNumber: "",
-    Type: "",
-    Status: "",
-    Branch: "",
-    From: "",
-    To: "",
-  });
+
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
@@ -68,10 +61,10 @@ export default function TRModal(props: any) {
       pagination.pageSize,
     ],
     queryFn: async () => {
-       if (props?.watch("U_Branch") !== undefined) {
+       if (props?.searchValues.Branch !== "") {
          queryFilters += queryFilters
-           ? ` and BPLId eq ${props?.watch("U_Branch")}`
-           : `BPLId eq ${props?.watch("U_Branch")}`;
+           ? ` and BPLId eq ${props?.searchValues.Branch}`
+           : `BPLId eq ${props?.searchValues.Branch}`;
          setFilter(queryFilters);
        }
       const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
@@ -229,33 +222,33 @@ export default function TRModal(props: any) {
 
   let queryFilters = "";
   const handlerSearch = (value: string) => {
-    if (searchValues.DocumentNumber) {
+    if (props?.searchValues.DocumentNumber) {
       queryFilters += queryFilters
-        ? ` and (contains(DocNum, ${searchValues.DocumentNumber}))`
-        : `(contains(DocNum, ${searchValues.DocumentNumber}))`;
+        ? ` and (contains(DocNum, ${props?.searchValues.DocumentNumber}))`
+        : `(contains(DocNum, ${props?.searchValues.DocumentNumber}))`;
     }
-    if (searchValues.Type) {
-      searchValues.Type === "All"
+    if (props?.searchValues.Type) {
+      props?.searchValues.Type === "All"
         ? (queryFilters += queryFilters ? "" : "")
         : (queryFilters += queryFilters
-            ? ` and U_Type eq '${searchValues.Type}'`
-            : `U_Type eq '${searchValues.Type}'`);
+            ? ` and U_Type eq '${props?.searchValues.Type}'`
+            : `U_Type eq '${props?.searchValues.Type}'`);
     }
-    if (searchValues.Branch) {
+    if (props?.searchValues.Branch) {
       queryFilters += queryFilters
-        ? ` and (contains(BPLId, ${searchValues.Branch}))`
-        : `(contains(BPLId, ${searchValues.Branch}))`;
+        ? ` and (contains(BPLId, ${props?.searchValues.Branch}))`
+        : `(contains(BPLId, ${props?.searchValues.Branch}))`;
     }
-    if (searchValues.From) {
+    if (props?.searchValues.From) {
       queryFilters += queryFilters
-        ? ` and DocDate ge '${searchValues.From}'`
-        : `DocDate ge '${searchValues.From}'`;
+        ? ` and DocDate ge '${props?.searchValues.From}'`
+        : `DocDate ge '${props?.searchValues.From}'`;
     }
 
-    if (searchValues.To) {
+    if (props?.searchValues.To) {
       queryFilters += queryFilters
-        ? ` and DocDueDate le '${searchValues.To}'`
-        : `DocDueDate le '${searchValues.To}'`;
+        ? ` and DocDueDate le '${props?.searchValues.To}'`
+        : `DocDueDate le '${props?.searchValues.To}'`;
     }
     let query = queryFilters;
 
@@ -324,12 +317,6 @@ export default function TRModal(props: any) {
 
   const lists = React.useMemo(() => data, [data]);
   
-  useEffect(() => {
-    setSearchValues({
-      ...searchValues,
-      Branch: props?.watch("U_Branch"),
-    });
-  }, [props?.watch("U_Branch")]);
   return (
     <>
       <Modal
@@ -356,10 +343,10 @@ export default function TRModal(props: any) {
                     label="Document Number"
                     className="bg-white"
                     autoComplete="off"
-                    value={searchValues.DocumentNumber}
+                    value={props?.searchValues.DocumentNumber}
                     onChange={(e) =>
-                      setSearchValues({
-                        ...searchValues,
+                      props?.setSearchValues({
+                        ...props?.searchValues,
                         DocumentNumber: e.target.value,
                       })
                     }
@@ -382,14 +369,14 @@ export default function TRModal(props: any) {
                       { value: "ITR", label: "Inventory Transfer Request" },
                     ]}
                     onChange={(e: any) => {
-                      setSearchValues({
-                        ...searchValues,
+                      props?.setSearchValues({
+                        ...props?.searchValues,
                         Type: e.target.value,
                       });
                     }}
                     value={
                       // searchValues.active === null ? "tYES" : searchValues.active
-                      searchValues.Type
+                      props?.searchValues.Type
                     }
                     aliasvalue="value"
                     aliaslabel="label"
@@ -407,18 +394,18 @@ export default function TRModal(props: any) {
                   <BranchAssignmentAuto
                     onChange={(e) => {
                       if (e !== null) {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           Branch: e.BPLID,
                         });
                       } else {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           Branch: "",
                         });
                       }
                     }}
-                    value={searchValues.Branch}
+                    value={props?.searchValues.Branch}
                   />
                 </div>
 
@@ -438,18 +425,18 @@ export default function TRModal(props: any) {
                           e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
                             ? ""
                             : e;
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           From: val,
                         });
                       } else {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           From: "",
                         });
                       }
                     }}
-                    value={searchValues.From}
+                    value={props?.searchValues.From}
                   />
                 </div>
 
@@ -469,18 +456,18 @@ export default function TRModal(props: any) {
                           e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
                             ? ""
                             : e;
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           To: val,
                         });
                       } else {
-                        setSearchValues({
-                          ...searchValues,
+                        props?.setSearchValues({
+                          ...props?.searchValues,
                           To: "",
                         });
                       }
                     }}
-                    value={searchValues.To}
+                    value={props?.searchValues.To}
                   />
                 </div>
 
