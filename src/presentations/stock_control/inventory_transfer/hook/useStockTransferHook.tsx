@@ -224,10 +224,13 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         const period = new Date().getFullYear();
         const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
 
+        console.log(serie);
+
         const git_wsh = warehouese.data?.filter((e: any) => e?.BusinessPlaceID === value?.BPLID && e.U_tl_git_whs === 'Y');
         setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
         setValue("ToWarehouse", undefined);
         setValue("U_tl_attn_ter", undefined);
+        setValue("Series", serie?.Series);
         setValue("DocNum", serie?.NextNumber);
         setValue('BPLID', value?.BPLID)
     }

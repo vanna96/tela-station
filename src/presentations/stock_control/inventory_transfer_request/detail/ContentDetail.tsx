@@ -17,61 +17,10 @@ export default function ContentDetail({
   control,
   watch,
 }: any) {
-  const [selecteds, setSelects] = useState<{
-    [key: number]: number | undefined;
-  }>({});
-
   const fields = useMemo(() => {
     return watch("StockTransferLines") ?? [];
   }, [watch("StockTransferLines")]);
 
-  const handleCheck = (
-    event: React.ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const items = { ...selecteds };
-    items[index] = event.target.checked ? index : undefined;
-    setSelects(items);
-  };
-
-  const handleDeleteChecked = () => {
-    const state = [...watch("StockTransferLines")];
-
-    const newValues = state.filter(
-      (e, index) => !Object.values(selecteds).includes(index)
-    );
-    setValue("StockTransferLines", newValues);
-    setSelects({});
-  };
-
-  const handlerAddNew = useCallback(
-    (items: any[] | any, index: number | undefined) => {
-      const state: any = [...watch("StockTransferLines")];
-
-      if (items instanceof Array) {
-        for (const item of items) {
-          if (state.find((e: any) => e?.ItemCode === item?.ItemCode)) continue;
-
-          state.push({
-            ItemCode: item?.ItemCode,
-            ItemDescription: item?.ItemName,
-            Quantity: undefined,
-          });
-        }
-      } else {
-        state[index as number] = {
-          ItemCode: items?.ItemCode,
-          ItemDescription: items?.ItemName,
-          Quantity: state[index as number]?.Quantity,
-          UoMCode: undefined,
-          UoMAbsEntry: undefined,
-        };
-      }
-
-      setValue("StockTransferLines", state);
-    },
-    [watch("StockTransferLines")]
-  );
 
   return (
     <>
@@ -116,11 +65,9 @@ export default function ContentDetail({
                     <td className="py-2 flex justify-center gap-5 items-center"></td>
                     <td className="pr-4">
                       <MUITextField
-                        onClick={() => itemRef.current?.onOpen("single", index)}
                         disabled
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemCode`, {
-                            required: "Item No. is required",
                           }),
                         }}
                       />
@@ -131,9 +78,6 @@ export default function ContentDetail({
                         inputProps={{
                           ...register(
                             `StockTransferLines.${index}.ItemDescription`,
-                            {
-                              required: false,
-                            }
                           ),
                         }}
                       />
@@ -144,7 +88,6 @@ export default function ContentDetail({
                         type="number"
                         inputProps={{
                           ...register(`StockTransferLines.${index}.Quantity`, {
-                            required: `Quantity is required at ${index}`,
                           }),
                         }}
                       />
@@ -161,16 +104,6 @@ export default function ContentDetail({
                           return (
                             <UomSelectByItem
                               {...field}
-                              onChange={(e) => {
-                                setValue(
-                                  `StockTransferLines.${index}.UoMEntry`,
-                                  e?.AbsEntry
-                                );
-                                setValue(
-                                  `StockTransferLines.${index}.UoMCode`,
-                                  e?.Code
-                                );
-                              }}
                               item={e.ItemCode}
                               quantity={e?.Quantity}
                               value={field.value}
@@ -180,22 +113,14 @@ export default function ContentDetail({
                       />
                     </td>
                     <td className="pr-4">
-                    <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
-                        rules={
-                          {
-                            required: 'To bin code is required'
-                          }
-                        }
+                      <Controller
+                        name={`StockTransferLines.${index}.U_tl_toBinId`}
                         control={control}
                         render={({ field }) => <BinAllocationAutoComplete
                           warehouse={watch('ToWarehouse')}
-                          // disabled={true}
+                          disabled={true}
                           {...field}
-                          value={field.value}
-                          onChange={(value) => {
-                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
-                          }}
+                          value={field.value ?? watch('U_tl_toBinId')}
                         />}
                       />
                     </td>
@@ -225,8 +150,6 @@ export default function ContentDetail({
           </div>
         </div>
       </div>
-
-      <InventoryItemModal ref={itemRef} onSelectItems={handlerAddNew} />
     </>
   );
 }

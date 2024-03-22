@@ -126,7 +126,7 @@ export const InventoryTransferRequestForm = ({ edit = false }: { edit?: boolean 
                 backgroundColor: '#2D31AB',
               }}
               disableElevation
-              onClick={() => navigate(`/stock-control/inventory-transfer/create?type=external&id=${hook.id}`)}
+              onClick={() => navigate(`/stock-control/stock-transfer/create?type=external&id=${hook.id}`)}
             >
               <span className="px-3 text-[11px] py-1 text-white">
                 Copy To
