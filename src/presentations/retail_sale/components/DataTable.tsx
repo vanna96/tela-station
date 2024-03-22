@@ -10,6 +10,7 @@ import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutl
 import Papa from "papaparse";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 
 interface DataTableProps {
   columns: any[];
@@ -45,7 +46,6 @@ export default function DataTable(props: DataTableProps) {
     if (queries === "") return;
     props.handlerSearch("&$filter=" + queries);
   };
-
   const [exportButtonClicked, setExportButtonClicked] = useState(false);
 
   const fetchDataForExport = async () => {
@@ -85,22 +85,22 @@ export default function DataTable(props: DataTableProps) {
       "Document Number",
       "Card Code",
       "Card Name",
-      "Document Total",
-      "Posting Date",
+      "Branch",
+      // "Pump Code",
       "Document Status",
+      "Document Date",
     ];
 
     // Map the data to the desired field names
     const mappedData = data?.map((row) => ({
       "Document Number": row.DocNum,
-      "Card Code": row.CardCode,
-      "Card Name": row.CardName,
-      "Document Total": row.DocTotal,
-      "Posting Date": row.TaxDate.slice(0, 10), // Extract the date part
-      "Document Status": row.DocumentStatus.replace("bost_", ""),
+      "Card Code": row.U_tl_cardcode,
+      "Card Name": row.U_tl_cardname,
+      Branch: new BranchBPLRepository().find(row.U_tl_bplid)?.BPLName,
+      // "Pump Code": row.U_tl_pump, //TaxDate.slice(0, 10), // Extract the date part
+      "Document Status": row?.U_tl_status?.replace("bost_", ""),
+      "Document Date": row?.U_tl_docdate?.slice(0, 10),
     }));
-
-    // Create CSV content with the specified fields
     const csvContent = Papa.unparse(
       {
         fields,

@@ -18,11 +18,7 @@ import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import DispenserRepository from "@/services/actions/dispenserRepository";
 
 export default function SaleOrderLists() {
-  const [open, setOpen] = React.useState<boolean>(false);
   const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
-  let numAtCardFilter = "";
   const [dataUrl, setDataUrl] = React.useState("");
 
   const columns = React.useMemo(
@@ -154,9 +150,9 @@ export default function SaleOrderLists() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", salesType, filter],
+    queryKey: ["retail-sale-lob", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RETAILSALE/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE/$count?${filter ? `$filter=${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -171,7 +167,6 @@ export default function SaleOrderLists() {
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
       "retail-sale-lob",
-      salesType,
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -181,17 +176,16 @@ export default function SaleOrderLists() {
     queryFn: async () => {
       const Url = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }${filter ? ` and ${filter}` : filter}${
+      }${filter ? ` &$filter= ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE?$top=${pagination.pageSize}&$skip=${
-        pagination.pageIndex * pagination.pageSize
-      }${filter ? ` and ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status"}`;
-
+      const dataUrl = `${url}/TL_RETAILSALE?${filter ? `$filter=${filter}` : filter}${
+        sortBy !== "" ? "&$orderby=" + sortBy : "$orderby= DocNum desc"
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate"}`;
+      console.log(filter);
       setDataUrl(dataUrl);
+      console.log(dataUrl);
       const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -227,10 +221,44 @@ export default function SaleOrderLists() {
       refetch();
     }, 500);
   };
-
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
+    if (searchValues.docnum) {
+      queryFilters += `DocNum eq ${searchValues.docnum}`;
+    }
+    if (searchValues.cardcode) {
+      queryFilters += queryFilters
+        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
+          ` and U_tl_cardcode eq '${searchValues.cardcode}'`
+        : `U_tl_cardcode eq '${searchValues.cardcode}'`;
+    }
+    if (searchValues.cardname) {
+      queryFilters += queryFilters
+        ? ` and startswith(U_tl_cardname, '${searchValues.cardname}')`
+        : `startswith(U_tl_cardname, '${searchValues.cardname}')`;
+    }
+    if (searchValues.postingDate) {
+      queryFilters += queryFilters
+        ? ` and U_tl_docdate eq '${searchValues.postingDate}'`
+        : `U_tl_docdate eq '${searchValues.postingDate}'`;
+    }
+    if (searchValues.status) {
+      queryFilters += queryFilters
+        ? ` and U_tl_status eq '${searchValues.status}'`
+        : `U_tl_status eq '${searchValues.status}'`;
+    }
+    if (searchValues.bplid) {
+      queryFilters += queryFilters
+        ? ` and U_tl_bplid eq '${searchValues.bplid}'`
+        : `U_tl_bplid eq '${searchValues.bplid}'`;
+    }
+
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + ` and ${value}`;
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -242,14 +270,6 @@ export default function SaleOrderLists() {
     }, 500);
   };
 
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("" + queries);
-  };
-
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
   const [cookies] = useCookies(["user"]);
 
   const [searchValues, setSearchValues] = React.useState({
@@ -260,54 +280,6 @@ export default function SaleOrderLists() {
     status: "",
     bplid: "",
   });
-
-  const handleGoClick = () => {
-    let queryFilters = "";
-    if (searchValues.docnum) {
-      queryFilters += `DocNum eq ${searchValues.docnum}`;
-    }
-    if (searchValues.cardcode) {
-      queryFilters += queryFilters
-        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
-          ` and CardCode eq '${searchValues.cardcode}'`
-        : `CardCode eq '${searchValues.cardcode}'`;
-    }
-    if (searchValues.cardname) {
-      queryFilters += queryFilters
-        ? ` and startswith(CardName, '${searchValues.cardname}')`
-        : `startswith(CardName, '${searchValues.cardname}')`;
-    }
-    if (searchValues.postingDate) {
-      queryFilters += queryFilters
-        ? ` and U_tl_docdate ge '${searchValues.postingDate}'`
-        : `U_tl_docdate ge '${searchValues.postingDate}'`;
-    }
-    if (searchValues.status) {
-      queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
-    }
-    if (searchValues.bplid) {
-      queryFilters += queryFilters
-        ? ` and BPL_IDAssignedToInvoice eq ${searchValues.bplid}`
-        : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
-    }
-
-    handlerSearchFilter(queryFilters);
-  };
-  const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
 
   const childBreadcrum = (
     <>
@@ -324,6 +296,7 @@ export default function SaleOrderLists() {
       })),
     [data, pagination.pageIndex, pagination.pageSize]
   );
+  console.log(dataUrl)
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -388,7 +361,7 @@ export default function SaleOrderLists() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>

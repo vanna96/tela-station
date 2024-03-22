@@ -66,7 +66,7 @@ export default function GeneralForm({
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
+  if (!edit && filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 

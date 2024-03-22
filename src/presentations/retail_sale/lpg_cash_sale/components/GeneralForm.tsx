@@ -66,10 +66,9 @@ export default function GeneralForm({
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
+  if (!edit && filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-
   const month = currentDate.getMonth() + 1;
   const formattedMonth = month.toString().padStart(2, "0");
   const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
@@ -175,8 +174,7 @@ export default function GeneralForm({
                         line.U_tl_itemnum
                       );
                       const price = itemDetails?.ItemPrices?.find(
-                        (priceDetail: any) =>
-                          priceDetail.PriceList === 9
+                        (priceDetail: any) => priceDetail.PriceList === 9
                       )?.Price;
                       const uomGroup: any = uomGroups.find(
                         (row: any) =>

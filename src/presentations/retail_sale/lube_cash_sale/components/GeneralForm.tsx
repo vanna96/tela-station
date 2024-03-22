@@ -34,7 +34,6 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
-
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
@@ -51,11 +50,7 @@ export default function GeneralForm({
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0].NextNumber;
-  }
-
-  if (filteredSeries[0]?.NextNumber && data) {
+  if (!edit && filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
@@ -370,3 +365,4 @@ export default function GeneralForm({
     </div>
   );
 }
+    
