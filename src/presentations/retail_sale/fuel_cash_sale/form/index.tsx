@@ -271,6 +271,7 @@ class Form extends NonCoreDcument {
       U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
+      U_tl_ownremark: data?.U_tl_ownremark,
       // U_tl_status: data?.U_tl_status || "",
       //Consumption
       TL_RETAILSALE_FU_COCollection: data?.allocationData

@@ -418,8 +418,8 @@ export default function GeneralForm({
                 multiline
                 className="w-full"
                 rows={2}
-                value={data.Remark}
-                onChange={(e: any) => handlerChange("Remark", e.target.value)}
+                value={data.U_tl_ownremark}
+                onChange={(e: any) => handlerChange("U_tl_ownremark", e.target.value)}
               />
             </div>
           </div>
