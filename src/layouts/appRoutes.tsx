@@ -405,7 +405,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG004"],
         path: "/stock-control/inventory-transfer",
         state: "/inventory-transfer",
         sidebarProps: {
@@ -457,7 +457,7 @@ export const appRoutes: RouteType[] = [
     },
     child: [
       {
-        roles: ['UG001', 'UG002'],
+        roles: ["UG001", "UG002"],
         path: "/trip-management/transportation-request",
         state: "transportation-request",
         sidebarProps: {
@@ -465,7 +465,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG003'],
+        roles: ["UG001", "UG003"],
         path: "/trip-management/transportation-order",
         state: "transportation-order",
         sidebarProps: {
@@ -474,7 +474,7 @@ export const appRoutes: RouteType[] = [
       },
       {
         roles: ["UG001", "UG003"],
-        path: "/bulk/seal/allocation",
+        path: "/trip-management/bulk-seal-allocation",
         state: "allocation",
         sidebarProps: {
           displayText: "Bulk Seal Allocation",

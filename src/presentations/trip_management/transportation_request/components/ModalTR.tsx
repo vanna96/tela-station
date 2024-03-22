@@ -68,6 +68,12 @@ export default function TRModal(props: any) {
       pagination.pageSize,
     ],
     queryFn: async () => {
+       if (props?.watch("U_Branch") !== undefined) {
+         queryFilters += queryFilters
+           ? ` and BPLId eq ${props?.watch("U_Branch")}`
+           : `BPLId eq ${props?.watch("U_Branch")}`;
+         setFilter(queryFilters);
+       }
       const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
@@ -83,7 +89,7 @@ export default function TRModal(props: any) {
     },
     cacheTime: 0,
     staleTime: 0,
-    retry: 1,
+    retry: 0.5,
     refetchOnWindowFocus: false,
   });
 
@@ -323,12 +329,6 @@ export default function TRModal(props: any) {
       ...searchValues,
       Branch: props?.watch("U_Branch"),
     });
-    if (props?.watch("U_Branch") !== undefined) {
-      queryFilters += queryFilters
-        ? ` and BPLId eq ${props?.watch("U_Branch")}`
-        : `BPLId eq ${props?.watch("U_Branch")}`;
-      setFilter(queryFilters);
-    }
   }, [props?.watch("U_Branch")]);
   return (
     <>
@@ -365,7 +365,7 @@ export default function TRModal(props: any) {
                     }
                   />
                 </div>
-                <div className="col-span-2 2xl:col-span-3">
+                <div className="col-span-3 2xl:col-span-3">
                   <div className="">
                     <label
                       htmlFor="Code"
@@ -395,7 +395,7 @@ export default function TRModal(props: any) {
                     aliaslabel="label"
                   />
                 </div>
-                <div className="col-span-2 2xl:col-span-3">
+                <div className="col-span-3 2xl:col-span-3">
                   <div className="">
                     <label
                       htmlFor="Code"
