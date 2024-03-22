@@ -213,17 +213,6 @@ const BasicInformation = (props: any) => {
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("ToWarehouse", e?.WarehouseCode);
-
-                          if (!e?.DefaultBin) return;
-
-                          props?.setLoading(true);
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e?.DefaultBin})`
-                          );
-                          props?.setLoading(false);
-                          props.setValue("U_tl_sobincode", res.data.BinCode);
-                          props.setValue("U_tl_toBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -404,19 +393,6 @@ const BasicInformation = (props: any) => {
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("FromWarehouse", e?.WarehouseCode);
-
-                          if (!e?.DefaultBin) return;
-
-                          props?.setLoading(true);
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e?.DefaultBin})`
-                          );
-
-                          props?.setLoading(false);
-                          props.setValue("U_tl_uobincode", res.data.BinCode);
-                          // props.setValue("U_tl_fromBinId", e?.DefaultBin);
-                          props.setValue("U_tl_fromBinId", e?.DefaultBin);
                         }}
                       />
                     );

@@ -210,12 +210,17 @@ class DeliveryDetail extends Component<any, any> {
       </>
     );
   };
-
   render() {
+    const headerText = (() => {
+      const pathSegments = location.pathname.split("/");
+      const segment = pathSegments[3].replace("-", " ");
+      return segment.toLowerCase() === "lpg invoice" ? "LPG Invoice" : segment;
+    })();
     return (
       <>
         <DocumentHeader
           data={this.state}
+          headerText={headerText}
           menuTabs={this.HeaderTabs}
           handlerChangeMenu={this.handlerChangeMenu}
         />

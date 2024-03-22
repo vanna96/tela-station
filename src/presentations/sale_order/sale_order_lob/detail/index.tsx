@@ -131,7 +131,7 @@ class DeliveryDetail extends Component<any, any> {
 
   navigateToSalesOrder = () => {
     const { history } = this.props;
-    history.push("/sale/sales-order");
+    history.push("/wholesale/sales-order");
   };
 
   onTap(index: number) {
@@ -170,10 +170,16 @@ class DeliveryDetail extends Component<any, any> {
   };
 
   render() {
+    const headerText = (() => {
+      const pathSegments = location.pathname.split("/");
+      const segment = pathSegments[3].replace("-", " ");
+      return segment.toLowerCase() === "lpg sales" ? "LPG Sales" : segment;
+    })();
     return (
       <>
         <DocumentHeader
           data={this.state}
+          headerText={headerText}
           menuTabs={this.HeaderTabs}
           handlerChangeMenu={this.handlerChangeMenu}
         />

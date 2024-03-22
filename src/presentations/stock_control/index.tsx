@@ -30,15 +30,15 @@ const StockControlPage = () => {
     queryFn: () => request("GET", "/InventoryTransferRequests/$count"),
   });
   const getGRCount = useQuery({
-    queryKey: ["transfer_count"],
+    queryKey: ["gr_count"],
     queryFn: () => request("GET", "/InventoryGenEntries/$count"),
   });
   const getGICount = useQuery({
-    queryKey: ["transfer_count"],
+    queryKey: ["gi_count"],
     queryFn: () => request("GET", "/InventoryGenExits/$count"),
   });
   const getFuelLevelCount = useQuery({
-    queryKey: ["transfer_count"],
+    queryKey: ["fuel_level_count"],
     queryFn: () => request("GET", "/TL_FUEL_LEVEL/$count"),
   });
 

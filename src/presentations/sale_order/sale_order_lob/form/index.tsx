@@ -54,6 +54,11 @@ class SalesOrderForm extends CoreFormDocument {
       Rounding: false,
       DocDiscount: 0,
       RoundingValue: 0,
+      headerText: (() => {
+        const pathSegments = location.pathname.split("/");
+        const segment = pathSegments[3].replace("-", " ");
+        return segment.toLowerCase() === "lpg sales" ? "LPG Sales" : segment;
+      })(),
       AttachmentList: [],
       VatGroup: "S1",
       type: "sale", // Initialize type with a default value
@@ -98,6 +103,7 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("orders-series", seriesList);
     }
+    
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;

@@ -259,7 +259,7 @@ export default function Lists() {
       queryFilters.push(`contains(Code, '${searchValues.search}') or contains(Name, '${searchValues.search}') or contains(U_tl_expacct, '${searchValues.search}')`);
     if (searchValues.docnum)
       queryFilters.push(`startswith(DocNum, '${searchValues.docnum}')`);
-    if (searchValues.status)
+    if (searchValues.status && searchValues.status !== 'All')
       queryFilters.push(`U_tl_expactive eq '${searchValues.status}'`);
     if (searchValues.code)
       queryFilters.push(`startswith(Code, '${searchValues.code}')`);
@@ -312,7 +312,7 @@ export default function Lists() {
                   <div className="">
                     <MUISelect
                       items={[
-                        { label: "None", value: "" },
+                        { label: "All", value: "All" },
                         { label: "Active", value: "Y" },
                         { label: "Inactive", value: "N"}
                       ]}
@@ -324,7 +324,7 @@ export default function Lists() {
                           });
                         }
                       }}
-                      value={searchValues.status}
+                      value={searchValues.status || "All"}
                     />
                   </div>
                 </div>

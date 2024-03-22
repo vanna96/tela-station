@@ -620,6 +620,7 @@ class LubeForm extends CoreFormDocument {
       });
 
       const PostPayload = {
+        app_url: import.meta.env.VITE_APP_URL,
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,

@@ -44,7 +44,7 @@ export default function AllocationTable({
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "U_tl_itemname",
+        accessorKey: "U_tl_itemcode",
         header: "Item Code",
         visible: true,
         Cell: ({ cell }: any) => {

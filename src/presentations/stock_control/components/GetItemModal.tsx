@@ -3,15 +3,12 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import MUITextField from "@/components/input/MUITextField";
 import { Box, Button, Checkbox, CircularProgress, Modal } from "@mui/material";
 import { useQuery } from "react-query";
-import itemRepository from "@/services/actions/itemRepostory";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import SelectPage from "../inventory_transfer/components/SelectPage";
-import { SearchIcon } from "lucide-react";
 import { debounce } from "@/lib/utils";
-import { AiOutlineConsoleSql } from "react-icons/ai";
 
 const style = {
   position: "absolute" as "absolute",
@@ -106,8 +103,6 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
     ? 0
     : Math.ceil(itemsLists.length / itemsPerPage);
 
-
-
   const handleChangeItemsPerPage = (e: any) => {
     const newItemsPerPage = parseInt(e.target.value);
     setCurrentPage(1);
@@ -129,13 +124,11 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
     props.onSelectItems({ ItemCode: event?.ItemCode, ItemName: event?.ItemName, InventoryItem: event?.InventoryItem, UoMGroupEntry: event?.UoMGroupEntry, LineOfBusiness: event?.U_tl_dim1, ProductLine: event?.U_tl_dim2 } as Item);
   };
 
-
   const onSelectChange = (event: React.ChangeEvent<HTMLInputElement>, code: string) => {
     const items = { ...selecteds };
     items[code] = event.target.checked ? code : undefined;
     setSelects(items)
   }
-
 
   const onSubmit = useCallback(() => {
     const values = Object.values(selecteds)
@@ -160,8 +153,6 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
     return true
   }, [itemsLists, page, itemsPerPage]);
 
-
-
   const handleFirstPage = () => setCurrentPage(1);
   const handlePrevPage = () => setCurrentPage(currentPage - 1);
   const handleNextPage = () => {
@@ -170,6 +161,11 @@ export default function GetItemModal(props: { open: boolean, onClose: () => void
     setCurrentPage(currentPage + 1)
   }
   const handleLastPage = () => setCurrentPage(totalPages);
+
+
+  useEffect(() => {
+    if (props.open && searchText !== '') setSearchText('')
+  }, [props.open])
 
   return (
     <>
