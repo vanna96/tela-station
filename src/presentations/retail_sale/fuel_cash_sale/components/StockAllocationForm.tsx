@@ -425,8 +425,37 @@ export default function StockAllocationTable({
     [data.stockAllocationData]
   );
 
+  const itemStockMap = new Map();
+  data.allocationData.forEach((item: any) => {
+    const { U_tl_itemcode, U_tl_stockallow } = item;
+    if (U_tl_stockallow > 0) {
+      itemStockMap.set(U_tl_itemcode, U_tl_stockallow);
+    }
+  });
   return (
     <>
+      {itemStockMap.size > 0 && (
+        <div>
+          <fieldset className="border border-solid border-gray-200 p-2 mb-4">
+            <legend className="text-md px-2 font-bold text-red-500">
+              Note *
+            </legend>
+            <div className="grid grid-cols-1 gap-4 my-2 pl-6">
+              {Array.from(itemStockMap.entries()).map(
+                ([itemCode, quantity]) => (
+                  <div key={itemCode} className="flex items-center">
+                    <div className="text-gray-700">Item Code:</div>
+                    <div className="ml-2 text-gray-800">{itemCode}</div>
+                    <div className="ml-4 text-gray-700">Quantity:</div>
+                    <div className="ml-6 text-gray-800"> {quantity} </div>
+                  </div>
+                )
+              )}
+            </div>
+          </fieldset>
+        </div>
+      )}
+
       <FormCard title="Stock Allocation ">
         <>
           <div className="col-span-2 data-table">
