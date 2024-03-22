@@ -13,6 +13,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import DataTableS from "./DataTableS";
 import { TRSourceDocument } from "./Document";
 import shortid from "shortid";
+import FormMessageModal from "@/components/modal/FormMessageModal";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
@@ -22,9 +23,9 @@ const style = {
   bgcolor: "background.paper",
   p: 4,
 };
+let dialog = React.createRef<FormMessageModal>();
 
 export default function TRModal(props: any) {
-
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
@@ -61,12 +62,12 @@ export default function TRModal(props: any) {
       pagination.pageSize,
     ],
     queryFn: async () => {
-       if (props?.searchValues.Branch !== "") {
-         queryFilters += queryFilters
-           ? ` and BPLId eq ${props?.searchValues.Branch}`
-           : `BPLId eq ${props?.searchValues.Branch}`;
-         setFilter(queryFilters);
-       }
+      if (props?.searchValues.Branch !== "") {
+        queryFilters += queryFilters
+          ? ` and BPLId eq ${props?.searchValues.Branch}`
+          : `BPLId eq ${props?.searchValues.Branch}`;
+        setFilter(queryFilters);
+      }
       const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
         pagination.pageSize
       }&$skip=${pagination.pageIndex * pagination.pageSize}${
@@ -284,41 +285,48 @@ export default function TRModal(props: any) {
 
     await request("POST", "/script/test/get_trans_request_source", {
       Documents: payload,
-    }).then((res: any) => {
-      const selected: TRSourceDocument[] = res?.data?.value?.map(
-        (e: TRSourceDocument) => {
-          return {
-            U_SourceDocEntry: e.U_SourceDocEntry,
-            // SourceId: e,
-            U_DocNum: e.U_DocNum,
-            U_Type: e.U_Type,
-            U_CardCode: e.U_CardCode,
-            U_CardName: e.U_CardName,
-            U_DeliveryDate: e.U_DeliveryDate,
-            U_ShipToCode: e.U_ShipToCode,
-            U_ItemCode: e.U_ItemCode,
-            U_ShipToAddress: e.U_ShipToAddress,
-            U_Quantity: e.U_Quantity,
-            U_UomCode: e.U_UomCode,
-            U_UomAbsEntry: e.U_UomAbsEntry,
-          };
-        }
-      );
-      const document = props?.document?.map((e: any) => ({
-        ...e,
-        id: undefined,
-      }));
-      props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
-      setRowSelection({});
-      setOpenLoading(false);
-      props?.setOpen(false);
-    });
+    })
+      .then((res: any) => {
+        const selected: TRSourceDocument[] = res?.data?.value?.map(
+          (e: TRSourceDocument) => {
+            return {
+              U_SourceDocEntry: e.U_SourceDocEntry,
+              // SourceId: e,
+              U_DocNum: e.U_DocNum,
+              U_Type: e.U_Type,
+              U_CardCode: e.U_CardCode,
+              U_CardName: e.U_CardName,
+              U_DeliveryDate: e.U_DeliveryDate,
+              U_ShipToCode: e.U_ShipToCode,
+              U_ItemCode: e.U_ItemCode,
+              U_ShipToAddress: e.U_ShipToAddress,
+              U_Quantity: e.U_Quantity,
+              U_UomCode: e.U_UomCode,
+              U_UomAbsEntry: e.U_UomAbsEntry,
+            };
+          }
+        );
+        const document = props?.document?.map((e: any) => ({
+          ...e,
+          id: undefined,
+        }));
+        props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
+        setRowSelection({});
+        setOpenLoading(false);
+        props?.setOpen(false);
+      })
+      ?.catch((err) => {
+        setOpenLoading(false);
+        props?.setOpen(false);
+        dialog.current?.error(err.message);
+      });
   }, [rowSelection]);
 
   const lists = React.useMemo(() => data, [data]);
-  
+
   return (
     <>
+      <FormMessageModal ref={dialog} />
       <Modal
         open={props?.open}
         onClose={handleClose}
