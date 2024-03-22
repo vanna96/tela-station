@@ -38,7 +38,7 @@ function POST(req) {
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
     jsonObj['SANumber'] = fuelSale.body.DocNum;
-    return CashSaleTransaction(slContext, jsonObj);
+    
     try {
         // CASH SALE
         if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj)
@@ -156,7 +156,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
         DiscountPercent: 0
     }; 
-    return http.response.send(200, obj['CardCount'][0].LineOfBussiness);
+    
     return {
         Series: obj['IncomingSeries'],
         DocType: "rCustomer",
