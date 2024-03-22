@@ -55,7 +55,7 @@ export const InventoryTransferForm = ({ edit = false, detail = false }: { edit?:
             keepTouched: false,
             keepValues: false
           })
-          navigate(`/stock-control/stock-transfer/create`)
+          navigate(`/stock-control/inventory-transfer/create`)
         }}
         endIcon={<IoCreate />}
       >
@@ -81,7 +81,7 @@ export const InventoryTransferForm = ({ edit = false, detail = false }: { edit?:
             keepTouched: false,
             keepValues: false
           })
-          navigate(`/stock-control/stock-transfer/${hook.id}/edit`)
+          navigate(`/stock-control/inventory-transfer/${hook.id}/edit`)
         }}
         endIcon={<IoCreate />}
       >

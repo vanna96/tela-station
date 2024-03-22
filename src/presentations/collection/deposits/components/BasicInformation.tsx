@@ -75,7 +75,7 @@ const BasicInformation = ({
     if (!defaultSerie.data) return;
 
     setValue("Series", defaultSerie?.data?.Series);
-    setValue("DocNum", defaultSerie?.data?.NextNumber);
+    // setValue("DocNum", defaultSerie?.data?.NextNumber);
 
   }, [defaultSerie.data]);
 
@@ -89,7 +89,7 @@ const BasicInformation = ({
       if (!serie) return;
 
       setValue("Series", event?.target?.value);
-      setValue("DocNum", serie?.NextNumber);
+      // setValue("DocNum", serie?.NextNumber);
 
     },
     [series?.data]
@@ -106,7 +106,7 @@ const BasicInformation = ({
     );
 
     setValue("Series", serie?.Series);
-    setValue("DocNum", serie?.NextNumber);
+    // setValue("DocNum", serie?.NextNumber);
     setValue("BPLID", value?.BPLID);
     // setValue("BPLID", e?.BPLID);
     setValue("CheckLines", []);

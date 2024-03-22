@@ -22,7 +22,6 @@ import { useLocation, useParams } from "react-router-dom";
 const General = ({
   register,
   control,
-  defaultValues,
   setValue,
   header,
   setHeader,
@@ -74,7 +73,7 @@ const General = ({
                       <RoutAutoComplete
                         disabled={create?.at(-1) === "create" ? false : true}
                         {...field}
-                        value={watch("U_Route") || defaultValues?.U_Route}
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_Route", e?.Code);
                           setValue("TL_TO_EXPENSECollection", [
@@ -120,9 +119,7 @@ const General = ({
                       <BaseStationAutoComplete
                         disabled={id || detail}
                         {...field}
-                        value={
-                          watch("U_BaseStation") || defaultValues?.U_BaseStation
-                        }
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_BaseStation", e);
 
@@ -150,12 +147,12 @@ const General = ({
                         disabled={
                           create?.at(-1) === "create"
                             ? false
-                            : id && defaultValues?.U_Status === "P"
+                            : id && watch("U_Status") === "P"
                               ? false
                               : detail || true
                         }
                         {...field}
-                        value={defaultValues?.U_Vehicle || watch("U_Vehicle")}
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_Vehicle", e?.Code);
                           setFuel([{ U_Fuel: e?.U_FuelType }]);
@@ -206,7 +203,6 @@ const General = ({
                   inputProps={{
                     ...register("U_VehicleName"),
                   }}
-                  defaultValue={defaultValues?.U_VehicleName}
                 />
               </div>
             </div>
@@ -225,7 +221,7 @@ const General = ({
                       <ManagerAutoComplete
                         disabled={(id as any) || detail}
                         {...field}
-                        value={watch("U_Driver") || defaultValues?.U_Driver}
+                        value={field.value}
                         onChange={(e: any) => {
                           setValue("U_CheckList", e?.U_CheckList);
                           setValue("U_Driver", e?.EmployeeID);
@@ -252,7 +248,6 @@ const General = ({
                   inputProps={{
                     ...register("U_CheckList"),
                   }}
-                  defaultValue={defaultValues?.U_CheckList}
                 />
               </div>
             </div>
@@ -262,7 +257,10 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series <span className="text-red-500">*</span>
+                  Series{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -311,9 +309,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={(id as any) || detail}
                         {...field}
-                        defaultValue={
-                          watch("U_DocDate") || defaultValues?.U_DocDate
-                        }
+                        value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -365,9 +361,7 @@ const General = ({
                         onChange={(e: any) => {
                           setValue("U_Status", e.target.value);
                         }}
-                        value={
-                          watch("U_Status") || defaultValues?.U_Status || "I"
-                        }
+                        value={field.value || "I"}
                         aliasvalue="value"
                         aliaslabel="label"
                       />

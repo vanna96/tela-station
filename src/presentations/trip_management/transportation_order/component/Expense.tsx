@@ -5,7 +5,6 @@ import { Controller, useFieldArray } from "react-hook-form";
 import { useParams } from "react-router-dom";
 export default function Expense({
   register,
-  defaultValue,
   setValue,
   control,
   detail,

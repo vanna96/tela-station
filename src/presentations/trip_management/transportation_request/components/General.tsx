@@ -26,7 +26,6 @@ import { useParams } from "react-router-dom";
 const General = ({
   register,
   control,
-  defaultValues,
   setValue,
   setBranchAss,
   header,
@@ -77,7 +76,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <SaleEmployeeAutoComplete
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={detail || watch("U_Status") === "C"}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -109,7 +108,7 @@ const General = ({
                     return (
                       <BranchAssignmentAuto
                         {...field}
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={detail || watch("U_Status") === "C"}
                         onChange={(e: any) => {
                           setValue("U_Branch", e?.BPLID);
                           setBranchAss([e]);
@@ -136,9 +135,8 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <WarehouseAttendTo
-                        U_tl_attn_ter={true}
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                      <BaseStationAutoComplete
+                        disabled={detail || watch("U_Status") === "C"}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -158,7 +156,7 @@ const General = ({
               <div className="grid grid-cols-5 py-2">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-600 ">
-                    Series <span className="text-red-500">*</span>
+                    Series <span className={`${detail && "hidden"} text-red-500`}>*</span>
                     
                   </label>
                 </div>
@@ -173,7 +171,7 @@ const General = ({
                           <MUISelect
                             {...field}
                             items={serie}
-                            disabled={detail || defaultValues?.U_Status === "C"}
+                            disabled={detail || watch("U_Status") === "C"}
                             value={field?.value}
                             aliasvalue="Series"
                             aliaslabel="Name"
@@ -213,11 +211,9 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={detail || watch("U_Status") === "C"}
                         {...field}
-                        value={
-                         field.value
-                        }
+                        value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -225,7 +221,6 @@ const General = ({
                               ? ""
                               : e;
                           setValue("U_RequestDate", `${val == "" ? "" : val}`);
-                         
                         }}
                       />
                     );
@@ -246,9 +241,9 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={detail || watch("U_Status") === "C"}
                         {...field}
-                       value={field.value}
+                        value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -256,7 +251,6 @@ const General = ({
                               ? ""
                               : e;
                           setValue("U_ExpiredDate", `${val == "" ? "" : val}`);
-                         
                         }}
                       />
                     );
@@ -288,7 +282,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        disabled={detail || defaultValues?.U_Status === "C"}
+                        disabled={detail || watch("U_Status") === "C"}
                         items={[
                           { value: "O", label: "Open" },
                           { value: "C", label: "Closed" },

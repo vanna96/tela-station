@@ -51,7 +51,7 @@ const GoodReceiptTypeAutoComplete = forwardRef<
 
     if (props.onChange) {
       // Notify the parent component with the selected value
-      const selected = newValue ? newValue.Code : null;
+      const selected = newValue ? newValue : null;
       props.onChange(selected);
     }
   };

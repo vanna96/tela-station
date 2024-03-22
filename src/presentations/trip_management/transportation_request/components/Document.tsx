@@ -36,7 +36,7 @@ export type TRSourceDocument = {
 
 export default function Document({
   register,
-  defaultValues,
+  searchValues,
   setValue,
   document,
   control,
@@ -45,6 +45,7 @@ export default function Document({
   appendDocument,
   watch,
   removeDocument,
+  setSearchValues,
 }: any) {
   const [open, setOpen] = useState(false);
 
@@ -52,37 +53,6 @@ export default function Document({
     setOpen(true);
   };
 
-  // const addNewChild = (index: any) => {
-  //   const parents: any[] = [...getValues("TL_TR_ROWCollection")];
-  //   console.log(parents);
-
-  //   const child = {
-  //     ...parents[index],
-  //     U_Quantity: null,
-  //     U_ShipToCoe: null,
-  //     U_DeliveryDate: null,
-  //     U_SourceDocEntry: getValues(
-  //       `TL_TR_ROWCollection.${index}.U_SourceDocEntry`
-  //     ),
-  //   };
-
-  //   if (!parents[index]?.U_Children) {
-  //     parents[index] = {
-  //       ...parents[index],
-  //       U_Children: [{ ...parents[index] }, child],
-  //     };
-  //   } else {
-  //     parents[index]["U_Children"] = [...parents[index]["U_Children"], child];
-  //   }
-  //   // const children = [
-  //   //   ...olds,
-  //   //   olds?.length === 0 ? {},{}, : {
-  //   //     value: "This is child",
-  //   //   }
-  //   // ];
-  //   // parents[index] = { ...parents[index], U_Children: children };
-  //   setValue("TL_TR_ROWCollection", parents);
-  // };
   const addNewChilds = (index: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
     if (!parents[index]["U_Children"]) {
@@ -134,9 +104,7 @@ export default function Document({
 
   const handleDelete = (parentIndex: number, childIndex: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
-    if (
-      parents[parentIndex]["U_Children"]
-    ) {
+    if (parents[parentIndex]["U_Children"]) {
       parents[parentIndex]["U_Children"] = parents[parentIndex][
         "U_Children"
       ]?.filter((_: any, index: any) => index !== childIndex);
@@ -144,11 +112,10 @@ export default function Document({
     }
   };
 
-
   return (
     <>
       <div className="ml-3"></div>
-      <div className="rounded-lg shadow-sm border pt-6 ml-3 px-8 h-full">
+      <div className="rounded-lg shadow-sm border pt-6 pb-6 ml-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
           <h2 className="mr-3">Source Document</h2>
           <div className={`${detail && "hidden"}`}>
@@ -172,7 +139,10 @@ export default function Document({
               <tr className="border-[1px] border-[#dadde0]">
                 <th className="w-[100px] "></th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Source Document <span className="text-red-500 ml-1">*</span>
+                  Source Document{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Document Number{" "}
@@ -181,13 +151,22 @@ export default function Document({
                   Item{" "}
                 </th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Ship To <span className="text-red-500 ml-1">*</span>
+                  Ship To{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th className="w-180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Delivery Date <span className="text-red-500 ml-1">*</span>
+                  Delivery Date{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Quantity <span className="text-red-500 ml-1">*</span>
+                  Quantity{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th
                   className={`w-[90px] text-center font-normal py-2 text-[14px] text-gray-500 ${detail && "hidden"}`}
@@ -530,10 +509,13 @@ export default function Document({
         </div>
       </div>
       <TRModal
+        watch={watch}
         setValue={setValue}
         document={document}
         open={open}
+        searchValues={searchValues}
         setOpen={setOpen}
+        setSearchValues={setSearchValues}
       />
     </>
   );

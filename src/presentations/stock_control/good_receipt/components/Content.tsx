@@ -44,6 +44,7 @@ export default function Content({
             CostingCode: item?.LineOfBusiness,
             CostingCode2: watch("U_ti_revenue"),
             CostingCode3: item?.ProductLine,
+            AccountCode:watch("AccountCode")
           });
         }
       } else {
@@ -56,6 +57,7 @@ export default function Content({
           CostingCode: items?.LineOfBusiness,
           CostingCode2: watch("U_ti_revenue"),
           CostingCode3: items?.ProductLine,
+          AccountCode:watch("AccountCode"),
           DocumentLinesBinAllocations: [],
         };
       }
@@ -107,6 +109,8 @@ export default function Content({
   };
 
   const queryClient = useQueryClient();
+  console.log(queryClient.getQueryData([`uom_group_lists`]));
+
   const onChangeQuantity = (
     event: any,
     code: string | undefined,
@@ -116,6 +120,7 @@ export default function Content({
     if (event?.target?.value === "" || !event?.target?.value) return;
 
     const query: any = queryClient.getQueryData([`uom_group_lists_${code}`]);
+
     if (!query) return;
 
     const selectedUoM = query?.UoMGroupDefinitionCollection?.find(
@@ -163,6 +168,9 @@ export default function Content({
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Quantity{" "}
                 <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+              </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                Unit Price{" "}
               </th>
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 UoM{" "}
@@ -241,6 +249,14 @@ export default function Content({
                               e?.UoMEntry,
                               index
                             ),
+                        }}
+                      />
+                    </td>
+                    <td className="pr-4">
+                      <MUITextField
+                        disabled={id}
+                        inputProps={{
+                          ...register(`DocumentLines.${index}.UnitPrice`),
                         }}
                       />
                     </td>

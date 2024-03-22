@@ -59,6 +59,7 @@ const GoodIssueForm = (props: any) => {
   const onSubmit = async (e: any) => {
     const payload = {
       ...e,
+      AccountCode:undefined
       // DocNum: undefined,
       // Series:undefined
     };

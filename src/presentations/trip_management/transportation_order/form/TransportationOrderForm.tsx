@@ -61,7 +61,11 @@ const TransportationOrderForm = (props: any) => {
     getValues,
     watch,
     formState: { errors, defaultValues },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      U_DocDate: new Date()?.toISOString()?.split("T")[0],
+    } as any,
+  });
   const { id }: any = useParams();
 
   const [state, setState] = useState({
@@ -495,7 +499,6 @@ const TransportationOrderForm = (props: any) => {
                   setTransDetail={setTransDetail}
                   setFuel={setFuel}
                   detail={props?.detail}
-                  defaultValues={defaultValues}
                 />
               </div>
             )}
@@ -514,7 +517,6 @@ const TransportationOrderForm = (props: any) => {
                   detail={props?.detail}
                   compartment={compartment}
                   getValues={getValues}
-                  defaultValues={defaultValues}
                 />
               </div>
             )}
@@ -545,7 +547,6 @@ const TransportationOrderForm = (props: any) => {
                   detail={props?.detail}
                   document={document}
                   itemCodes={itemCodes}
-                  defaultValues={defaultValues}
                 />
               </div>
             )}
@@ -559,7 +560,6 @@ const TransportationOrderForm = (props: any) => {
                   setTransDetail={setTransDetail}
                   setTrans={setTrans}
                   detail={props?.detail}
-                    defaultValue={defaultValues}
                     watch={watch}
                 />
               </div>

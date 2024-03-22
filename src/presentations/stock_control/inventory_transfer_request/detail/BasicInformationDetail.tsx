@@ -1,58 +1,21 @@
 import MUITextField from "@/components/input/MUITextField";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import { Controller } from "react-hook-form";
+import { Controller, useWatch } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
 import AttentionTerminalAutoComplete from "../components/AttentionTerminalAutoComplete";
-import request, { url } from "@/utilies/request";
 import ToWarehouseAutoComplete from "../components/ToWarehouseAutoComplete";
 import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
-import { useInfiniteQuery, useQuery } from "react-query";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
+import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
+import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 const BasicInformationDetail = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
 
   useEffect(() => {
-    if (props?.edit) return;
 
-    if (!defaultSerie.data) return;
+  }, []);
 
-    props?.setValue("Series", defaultSerie?.data?.Series);
-    props?.setValue("DocNum", defaultSerie?.data?.NextNumber);
-  }, [defaultSerie.data]);
-
-  const onChangeSerie = useCallback(
-    (event: any) => {
-      const serie = series.data?.find(
-        (e: any) => e?.Series === event?.target?.value
-      );
-      if (!serie) return;
-
-      props?.setValue("Series", event?.target?.value);
-      props?.setValue("DocNum", serie?.NextNumber);
-    },
-    [series?.data]
-  );
-
-  const branch: any = useQuery({
-    queryKey: ["branchid"],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/BusinessPlaces?$select=BPLID, BPLName, Address`
-      )
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    staleTime: Infinity,
-  })
-
-  const { data } = useGetWhsTerminalAssignHook(false);
 
   return (
     <>
@@ -92,16 +55,6 @@ const BasicInformationDetail = (props: any) => {
                         disabled={true}
                         {...field}
                         value={field.value}
-                        onChange={(e: any) => {
-                          props.setValue("BPLID", e.BusinessPlaceID);
-                          props.setValue("U_tl_attn_ter", e.WarehouseCode);
-                          const git = data?.find(
-                            (whs: any) =>
-                              whs?.U_tl_git_whs === "Y" &&
-                              whs?.BusinessPlaceID === e.BusinessPlaceID
-                          );
-                          props.setValue("FromWarehouse", git?.WarehouseCode);
-                        }}
                       />
                     );
                   }}
@@ -133,28 +86,15 @@ const BasicInformationDetail = (props: any) => {
               </div>
               <div className="col-span-3">
                 <Controller
-                  rules={{ required: "To Warehouse Code is required" }}
                   name="ToWarehouse"
                   control={props.control}
-                  disabled
                   render={({ field }) => {
                     return (
-                      <ToWarehouseAutoComplete
-                        disabled={props.detail}
-                        {...field}
+                      <WarehouseAutoComplete
+                        branchId={0}
+                        disabled={true}
                         value={field.value}
-                        onChange={async (e: any) => {
-                          // console.log(e.DefaultBin);
-                          props.setValue("ToWarehouse", e.WarehouseCode);
-
-                          if (!e.DefaultBin) return;
-
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e.DefaultBin})`
-                          );
-                          props.setValue("U_tl_sobincode", res.data.BinCode);
-                        }}
+                        onChange={(e) => props.setValue('ToWarehouse', e.WarehouseCode)}
                       />
                     );
                   }}
@@ -164,12 +104,24 @@ const BasicInformationDetail = (props: any) => {
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="To Bin Code" className="text-gray-500">
-                  To Bin Code
+                  To Bin Code {props?.watch("ToWarehouse")}
                 </label>
               </div>
               <div className="col-span-3">
-                {/* {isLoading} */}
-                <MUITextField value={props.watch("U_tl_sobincode")} disabled />
+                <Controller
+                  name="U_tl_toBinId"
+                  control={props.control}
+                  render={({ field }) => {
+                    return (
+                      <BinAllocationAutoComplete
+                        warehouse={props?.watch("ToWarehouse")}
+                        disabled={true}
+                        {...field}
+                        value={field.value}
+                      />
+                    );
+                  }}
+                />
               </div>
             </div>
           </div>
@@ -178,7 +130,7 @@ const BasicInformationDetail = (props: any) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series 
+                  Series
                 </label>
               </div>
               <div className="col-span-3">
@@ -189,13 +141,13 @@ const BasicInformationDetail = (props: any) => {
                     render={({ field }) => {
                       return (
                         <MUISelect
-                        
+
                           value={field.value}
                           disabled
                           items={series.data ?? []}
                           aliaslabel="Name"
                           aliasvalue="Series"
-                          onChange={onChangeSerie}
+
                         />
                       );
                     }}
@@ -299,11 +251,9 @@ const BasicInformationDetail = (props: any) => {
                         disabled
                         items={[
                           { value: "bost_Open", label: "Open" },
-                          { value: "bost_Closed", label: "Closed" },
+                          { value: "bost_Close", label: "Closed" },
                         ]}
-                        onChange={(e: any) => {
-                          props.setValue("DocumentStatus", e.target.value);
-                        }}
+
                         value={props.watch("DocumentStatus") ?? "bost_Open"}
                         aliasvalue="value"
                         aliaslabel="label"

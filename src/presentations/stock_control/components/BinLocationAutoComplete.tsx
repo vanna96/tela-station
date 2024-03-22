@@ -18,21 +18,21 @@ type BinAllocationAutoCompleteProps = {
   warehouse: string | undefined
 }
 
-const getBinLists = async (warehouse: string | undefined) => {
-  if (warehouse === '' || !warehouse) return []
-
+const getBinLists = async () => {
   return request('GET', `BinLocations?$select=AbsEntry,Warehouse,BinCode`).then((res: any) => res?.data?.value)
 }
 
 const BinAllocationAutoComplete = forwardRef<
   HTMLInputElement, BinAllocationAutoCompleteProps
 >((props, ref) => {
-  const { data, isLoading } = useQuery({ queryKey: ['bin-allocation-list-' + props.warehouse], queryFn: () => getBinLists(props.warehouse) });
+  const { data, isLoading } = useQuery({ queryKey: ['bin-allocation-list'], queryFn: () => getBinLists() });
+
 
   const bins = useMemo(() => {
+    if (props.disabled) return data;
+
     return data?.filter((e: any) => e?.Warehouse === props.warehouse)
   }, [data, props.warehouse])
-
 
   useEffect(() => {
     const selected = bins?.find((e: BinProps) => e.AbsEntry === props.value);

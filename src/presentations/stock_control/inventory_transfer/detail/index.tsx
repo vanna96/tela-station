@@ -38,7 +38,7 @@ export const InventoryTransferDetails = () => {
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/stock-transfer/${id}/edit`)}
+        onClick={() => navigate(`/stock-control/inventory-transfer/${id}/edit`)}
         endIcon={<MdEdit />}
       >
         Edit
@@ -46,7 +46,7 @@ export const InventoryTransferDetails = () => {
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/stock-transfer/create`)}
+        onClick={() => navigate(`/stock-control/inventory-transfer/create`)}
         endIcon={<IoCreate />}
       >
         Create
