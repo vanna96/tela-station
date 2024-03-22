@@ -115,7 +115,7 @@ export default function Document({
   return (
     <>
       <div className="ml-3"></div>
-      <div className="rounded-lg shadow-sm border pt-6 ml-3 px-8 h-full">
+      <div className="rounded-lg shadow-sm border pt-6 pb-6 ml-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
           <h2 className="mr-3">Source Document</h2>
           <div className={`${detail && "hidden"}`}>

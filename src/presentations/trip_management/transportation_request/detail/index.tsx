@@ -43,7 +43,7 @@ export type UseFormProps = {
   detail?: boolean;
   data?: any;
   serie?: any;
-  watch:UseFormWatch<FieldValues>
+  watch: UseFormWatch<FieldValues>;
 };
 // const { id } = useParams();
 const TransportationRequestDetail = (props: any) => {
@@ -75,7 +75,13 @@ const TransportationRequestDetail = (props: any) => {
     branch: null,
     status: "O",
   });
-
+  const [searchValues, setSearchValues] = React.useState({
+    DocumentNumber: "",
+    Type: "",
+    Branch: "",
+    From: "",
+    To: "",
+  });
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
   const [emp, setEmp] = useState([]);
@@ -101,14 +107,14 @@ const TransportationRequestDetail = (props: any) => {
         ...state,
         loading: true,
       });
-          let seriesList: any = props?.query?.find("tr-series");
-          if (!seriesList) {
-            seriesList = await DocumentSerieRepository.getDocumentSeries({
-              Document: "TL_TR",
-            });
-            props?.query?.set("tr-series", seriesList);
-          }
-          setSerie(seriesList);
+      let seriesList: any = props?.query?.find("tr-series");
+      if (!seriesList) {
+        seriesList = await DocumentSerieRepository.getDocumentSeries({
+          Document: "TL_TR",
+        });
+        props?.query?.set("tr-series", seriesList);
+      }
+      setSerie(seriesList);
       await request("GET", `script/test/transportation_request(${id})`)
         .then((res: any) => {
           setBranchAss(res?.data);
@@ -319,21 +325,22 @@ const TransportationRequestDetail = (props: any) => {
           >
             {state.tapIndex === 0 && (
               <h1>
-                  <General
-                    getValues={getValues}
-                    data={state}
-                    register={register}
-                    setValue={setValue}
-                    control={control}
-                    defaultValues={defaultValues}
-                    setBranchAss={setBranchAss}
-                    branchAss={branchAss}
-                    emp={emp}
-                    header={header}
-                    setHeader={setHeader}
-                    serie={serie}
-                    detail={props?.detail}
-                    watch={watch}                />
+                <General
+                  getValues={getValues}
+                  data={state}
+                  register={register}
+                  setValue={setValue}
+                  control={control}
+                  defaultValues={defaultValues}
+                  setBranchAss={setBranchAss}
+                  branchAss={branchAss}
+                  emp={emp}
+                  header={header}
+                  setHeader={setHeader}
+                  serie={serie}
+                  detail={props?.detail}
+                  watch={watch}
+                />
               </h1>
             )}
             {state.tapIndex === 1 && (
@@ -348,9 +355,11 @@ const TransportationRequestDetail = (props: any) => {
                   setValue={setValue}
                   appendDocument={appendDocument}
                   removeDocument={removeDocument}
-                    getValues={getValues}
-                    detail={props?.detail}
-                    watch={watch}
+                  getValues={getValues}
+                  detail={props?.detail}
+                  watch={watch}
+                  searchValues={searchValues}
+                  setSearchValues={setSearchValues}
                 />
               </div>
             )}
