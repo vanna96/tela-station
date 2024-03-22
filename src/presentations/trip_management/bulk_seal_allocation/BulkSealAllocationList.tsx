@@ -171,7 +171,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
               </div>
             </div>
           </div>
-          <div className="p-5 border shadow-sm h-[68vh] rounded">
+          <div className="p-5 border shadow-sm ">
             {" "}
             <div className="">
               <span className="mb-6 text-[1rem] inline-block mr-5">
@@ -188,7 +188,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
                 </span>
               </Button>
             </div>
-            <div className="border-t mt-3">
+            <div className="border-t mt-3 ">
               <div className="grow">
                 <div className="max-h-[58.5vh] w-full overflow-y-auto">
                   <table className="w-full bg-white">
@@ -362,59 +362,59 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
               </div>
             </div>
           </div>
-        </div>
-        <div className="h-[70px] bg-white border items-center pr-7 flex gap-5 justify-end text-sm sticky bottom-5">
-          <div>Row Per page</div>
-          <SelectPage
-            value={itemsPerPage}
-            setValue={(newValue) =>
-              handleChangeItemsPerPage({ target: { value: newValue } })
-            }
-          />
-          <div>{currentPage + "-" + currentPage + " of " + totalPages}</div>
-          <div className="flex gap-1">
-            <button
-              disabled={currentPage === 1}
-              onClick={handleFirstPage}
-              className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
-            >
-              {" "}
-              <span className={`${currentPage === 1 && "text-gray-400"}`}>
+          <div className="p-4 pb-8 bg-white border items-center pr-7 flex gap-4 border-t-0 justify-end text-sm rounded-md">
+            <div>Row Per page</div>
+            <SelectPage
+              value={itemsPerPage}
+              setValue={(newValue) =>
+                handleChangeItemsPerPage({ target: { value: newValue } })
+              }
+            />
+            <div>{currentPage + "-" + currentPage + " of " + totalPages}</div>
+            <div className="flex gap-0">
+              <button
+                disabled={currentPage === 1}
+                onClick={handleFirstPage}
+                className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
+              >
                 {" "}
-                <FirstPageIcon sx={{ width: "22px" }} />
-              </span>
-            </button>
-            <button
-              disabled={currentPage === 1}
-              onClick={handlePrevPage}
-              className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
-            >
-              <span className={`${currentPage === 1 && "text-gray-400"}`}>
-                <KeyboardArrowLeftIcon sx={{ width: "22px" }} />
-              </span>
-            </button>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={handleNextPage}
-              className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
-            >
-              <span
-                className={`${currentPage === totalPages && "text-gray-400"}`}
+                <span className={`${currentPage === 1 && "text-gray-400"}`}>
+                  {" "}
+                  <FirstPageIcon sx={{ width: "22px" }} />
+                </span>
+              </button>
+              <button
+                disabled={currentPage === 1}
+                onClick={handlePrevPage}
+                className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
               >
-                <KeyboardArrowRightIcon sx={{ width: "22px" }} />
-              </span>
-            </button>
-            <button
-              disabled={currentPage === totalPages}
-              onClick={handleLastPage}
-              className="text-gray-600 cursor-pointer transition hover:bg-zinc-200 duration-300 p-1 rounded-full"
-            >
-              <span
-                className={`${currentPage === totalPages && "text-gray-400"}`}
+                <span className={`${currentPage === 1 && "text-gray-400"}`}>
+                  <KeyboardArrowLeftIcon sx={{ width: "22px" }} />
+                </span>
+              </button>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={handleNextPage}
+                className="text-gray-600 cursor-pointer transition hover:bg-zinc-100 duration-300 p-1 rounded-full"
               >
-                <LastPageIcon sx={{ width: "22px" }} />
-              </span>
-            </button>
+                <span
+                  className={`${currentPage === totalPages && "text-gray-400"}`}
+                >
+                  <KeyboardArrowRightIcon sx={{ width: "22px" }} />
+                </span>
+              </button>
+              <button
+                disabled={currentPage === totalPages}
+                onClick={handleLastPage}
+                className="text-gray-600 cursor-pointer transition hover:bg-zinc-200 duration-300 p-1 rounded-full"
+              >
+                <span
+                  className={`${currentPage === totalPages && "text-gray-400"}`}
+                >
+                  <LastPageIcon sx={{ width: "22px" }} />
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
