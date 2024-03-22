@@ -405,11 +405,11 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ["UG001", "UG003", "UG004"],
-        path: "/stock-control/stock-transfer",
-        state: "/stock-transfer",
+        roles: ['UG001', 'UG004'],
+        path: "/stock-control/inventory-transfer",
+        state: "/inventory-transfer",
         sidebarProps: {
-          displayText: "Stock Transfer",
+          displayText: "Inventory Transfer",
         },
       },
       {

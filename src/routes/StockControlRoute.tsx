@@ -27,7 +27,7 @@ export default function StockControlRoute() {
         <Route path=":id/edit" element={<InventoryTransferRequestForm edit={true} />} />
         <Route path=":id" element={<InventoryTransferRequestDetails />} />
       </Route>
-      <Route path="/stock-transfer">
+      <Route path="/inventory-transfer">
         <Route index element={<InventoryTransferList />} />
         <Route path="create" element={<InventoryTransferForm />} />
         <Route path=":id/edit" element={<InventoryTransferForm edit={true} />} />
