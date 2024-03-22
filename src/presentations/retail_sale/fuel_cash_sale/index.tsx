@@ -180,12 +180,14 @@ export default function SaleOrderLists() {
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE?${filter ? `$filter=${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : "$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate"}`;
-      console.log(filter);
+      const dataUrl = `${url}/TL_RETAILSALE${
+        filter
+          ? `?$filter=${filter}${sortBy !== "" ? `&$orderby=${sortBy}` : ""}`
+          : sortBy !== ""
+            ? `?$orderby=${sortBy}`
+            : "?$orderby=DocNum%20desc"
+      }&$select=DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate`;
       setDataUrl(dataUrl);
-      console.log(dataUrl);
       const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
@@ -296,7 +298,7 @@ export default function SaleOrderLists() {
       })),
     [data, pagination.pageIndex, pagination.pageSize]
   );
-  console.log(dataUrl)
+  console.log(dataUrl);
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -384,6 +386,7 @@ export default function SaleOrderLists() {
           data={indexedData}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
+          havePump={true}
           handlerSortby={handlerSortby}
           count={Count?.data || 0}
           loading={isLoading || isFetching}

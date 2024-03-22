@@ -25,6 +25,7 @@ interface DataTableProps {
   title?: string;
   createRoute?: string;
   dataUrl: string;
+  havePump?: boolean;
 }
 
 export default function DataTable(props: DataTableProps) {
@@ -86,7 +87,7 @@ export default function DataTable(props: DataTableProps) {
       "Card Code",
       "Card Name",
       "Branch",
-      // "Pump Code",
+      ...(props.havePump ? ["Pump Code"] : []),
       "Document Status",
       "Document Date",
     ];
@@ -97,8 +98,8 @@ export default function DataTable(props: DataTableProps) {
       "Card Code": row.U_tl_cardcode,
       "Card Name": row.U_tl_cardname,
       Branch: new BranchBPLRepository().find(row.U_tl_bplid)?.BPLName,
-      // "Pump Code": row.U_tl_pump, //TaxDate.slice(0, 10), // Extract the date part
-      "Document Status": row?.U_tl_status?.replace("bost_", ""),
+      ...(props.havePump ? { "Pump Code": row.U_tl_pump } : {}),
+      "Document Status": row?.U_tl_status,
       "Document Date": row?.U_tl_docdate?.slice(0, 10),
     }));
     const csvContent = Papa.unparse(

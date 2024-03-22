@@ -180,11 +180,13 @@ export default function SaleOrderLists() {
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_status,U_tl_docdate"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE_LU?$top=${pagination.pageSize}&$skip=${
-        pagination.pageIndex * pagination.pageSize
-      }${filter ? ` &$filter= ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_status,U_tl_docdate"}`;
+      const dataUrl = `${url}/TL_RETAILSALE_LU${
+        filter
+          ? `?$filter=${filter}${sortBy !== "" ? `&$orderby=${sortBy}` : ""}`
+          : sortBy !== ""
+            ? `?$orderby=${sortBy}`
+            : "?$orderby=DocNum%20desc"
+      }&$select=DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_status,U_tl_docdate`;
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
@@ -197,6 +199,7 @@ export default function SaleOrderLists() {
     // staleTime: Infinity,
     retry: 1,
   });
+  console.log(data)
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -388,7 +391,7 @@ export default function SaleOrderLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title={"Lube Cash Sale"}
+          title={"Lube Cash Sale List"}
           createRoute={`/retail-sale/lube-cash-sale/create`}
         />
       </div>
