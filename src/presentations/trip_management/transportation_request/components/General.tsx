@@ -156,7 +156,7 @@ const General = ({
               <div className="grid grid-cols-5 py-2">
                 <div className="col-span-2">
                   <label htmlFor="Code" className="text-gray-600 ">
-                    Series <span className="text-red-500">*</span>
+                    Series <span className={`${detail && "hidden"} text-red-500`}>*</span>
                     
                   </label>
                 </div>

@@ -247,7 +247,7 @@ const General = ({
                   disabled={true}
                   inputProps={{
                     ...register("U_CheckList"),
-                  }}                 
+                  }}
                 />
               </div>
             </div>
@@ -257,7 +257,10 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series <span className="text-red-500">*</span>
+                  Series{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </label>
               </div>
               <div className="col-span-3">
@@ -306,9 +309,7 @@ const General = ({
                       <MUIDatePicker
                         disabled={(id as any) || detail}
                         {...field}
-                        value={
-                          field.value
-                        }
+                        value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
@@ -360,9 +361,7 @@ const General = ({
                         onChange={(e: any) => {
                           setValue("U_Status", e.target.value);
                         }}
-                        value={
-                         field.value || "I"
-                        }
+                        value={field.value || "I"}
                         aliasvalue="value"
                         aliaslabel="label"
                       />

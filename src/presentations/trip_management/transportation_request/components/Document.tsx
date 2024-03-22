@@ -139,7 +139,10 @@ export default function Document({
               <tr className="border-[1px] border-[#dadde0]">
                 <th className="w-[100px] "></th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Source Document <span className="text-red-500 ml-1">*</span>
+                  Source Document{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Document Number{" "}
@@ -148,13 +151,22 @@ export default function Document({
                   Item{" "}
                 </th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Ship To <span className="text-red-500 ml-1">*</span>
+                  Ship To{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th className="w-180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Delivery Date <span className="text-red-500 ml-1">*</span>
+                  Delivery Date{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
-                  Quantity <span className="text-red-500 ml-1">*</span>
+                  Quantity{" "}
+                  <span className={`${detail && "hidden"} text-red-500`}>
+                    *
+                  </span>
                 </th>
                 <th
                   className={`w-[90px] text-center font-normal py-2 text-[14px] text-gray-500 ${detail && "hidden"}`}
