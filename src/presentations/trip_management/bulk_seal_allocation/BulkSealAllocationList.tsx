@@ -220,7 +220,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
                     </thead>
                     {isLoading ? (
                       <tbody>
-                        <tr className="border-b">
+                        <tr className="">
                           {/* <td
                             colSpan={8}
                             className="text-center p-10 py-[4.8rem] text-[16px] text-gray-400"
@@ -233,7 +233,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
                             </div>
                           </td> */}
                           <td colSpan={8}>
-                            <div className="w-full flex items-center h-[20rem] flex-col justify-center gap-5">
+                            <div className="w-full flex pt-[8rem] items-center py-[7rem] flex-col justify-center gap-5">
                               <Box sx={{ position: "relative" }}>
                                 <CircularProgress
                                   variant="determinate"
@@ -283,7 +283,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
                         <tr>
                           <td
                             colSpan={8}
-                            className="text-center p-10 py-[5rem] text-[16px] text-gray-600"
+                            className="text-center pt-[8rem] py-[7rem] text-[16px] text-gray-600"
                           >
                             No Record
                           </td>
