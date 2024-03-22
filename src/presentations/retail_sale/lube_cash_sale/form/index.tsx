@@ -45,6 +45,10 @@ class LubeForm extends CoreFormDocument {
       U_tl_docdate: new Date(),
       U_tl_devdate: new Date(),
       Branch: 1,
+      CardName: "General Customer",
+      CardCode: 20000001,
+      U_tl_cardname: "General Customer",
+      U_tl_cardcode: 20000001,
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
@@ -198,7 +202,7 @@ class LubeForm extends CoreFormDocument {
                     try {
                       const response = await request(
                         "GET",
-                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry, ItemPrices`
+                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry, ItemPrices,U_tl_dim1,U_tl_dim2`
                       );
 
                       apiResponse = response.data;
@@ -249,9 +253,9 @@ class LubeForm extends CoreFormDocument {
                     ItemPrices: apiResponse.ItemPrices,
                     ExchangeRate: data?.DocRate || 1,
                     JournalMemo: data?.JournalMemo,
-                    COGSCostingCode: item?.COGSCostingCode,
+                    COGSCostingCode: apiResponse?.U_tl_dim1,
                     COGSCostingCode2: item?.COGSCostingCode2,
-                    COGSCostingCode3: item?.COGSCostingCode3,
+                    COGSCostingCode3: apiResponse?.U_tl_dim2,
                     CurrencyType: "B",
                     DocumentLinesBinAllocations:
                       item.DocumentLinesBinAllocations,
@@ -483,7 +487,6 @@ class LubeForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     const payload = this.createPayload();
-    console.log(data);
     edit = this.props.edit;
 
     try {
@@ -597,9 +600,9 @@ class LubeForm extends CoreFormDocument {
           DiscountPercent: item.DiscountPercent,
           TaxCode: "VO10",
           UoMEntry: item.InventoryUoMEntry,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
+          LineOfBussiness:item.COGSCostingCode, // item.LineOfBussiness
+          RevenueLine: "202001", // item.RevenueLine Station
+          ProductLine: item.COGSCostingCode3, // item.ProductLine
           BinAbsEntry:
             item.BinAbsEntry === undefined || item.BinAbsEntry === null
               ? data.U_tl_bincode
@@ -755,7 +758,6 @@ class LubeForm extends CoreFormDocument {
     }
   };
   HeaderTaps = () => {
-    console.log(this.state);
     return (
       <>
         <div className="w-full flex justify-start">

@@ -97,6 +97,8 @@ export default function ContentForm({
             )?.BinAbsEntry;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
+            item.COGSCostingCode = itemDetails.U_tl_dim1;
+            item.COGSCostingCode3 = itemDetails.U_tl_dim2;
           }
           return item;
         }
@@ -115,7 +117,7 @@ export default function ContentForm({
     }
   };
 
-  // console.log(data.Items);
+  console.log(data.Items);
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;

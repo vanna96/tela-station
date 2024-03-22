@@ -35,7 +35,7 @@ const fetchItemPrice = async (itemCode: string) => {
   try {
     const res = await request(
       "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim1`
     );
     return res.data;
   } catch (error) {
@@ -66,10 +66,9 @@ export default function GeneralForm({
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
+  if (!edit && filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-
   const month = currentDate.getMonth() + 1;
   const formattedMonth = month.toString().padStart(2, "0");
   const formattedDateA = `${yearLastTwoDigits}A${formattedMonth}`;
@@ -175,8 +174,7 @@ export default function GeneralForm({
                         line.U_tl_itemnum
                       );
                       const price = itemDetails?.ItemPrices?.find(
-                        (priceDetail: any) =>
-                          priceDetail.PriceList === 9
+                        (priceDetail: any) => priceDetail.PriceList === 9
                       )?.Price;
                       const uomGroup: any = uomGroups.find(
                         (row: any) =>
@@ -203,6 +201,8 @@ export default function GeneralForm({
                         UoMGroupEntry: itemDetails?.UoMGroupEntry,
                         InventoryUoMEntry: itemDetails?.InventoryUoMEntry,
                         uomLists: uomLists,
+                        LineOfBussiness: itemDetails.U_tl_dim1,
+                        ProductLine: itemDetails.U_tl_dim2,
                       };
                     });
 
@@ -230,6 +230,8 @@ export default function GeneralForm({
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice,
+                      LineOfBussiness: item.LineOfBussiness,
+                      ProductLine: item.ProductLine,
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
                       U_tl_bincode: item.U_tl_bincode,
@@ -274,13 +276,13 @@ export default function GeneralForm({
               <VendorByBranch
                 branch={data?.U_tl_bplid}
                 vtype="customer"
+                disabled
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-                disabled={edit}
                 endAdornment={!edit}
               />
             </div>

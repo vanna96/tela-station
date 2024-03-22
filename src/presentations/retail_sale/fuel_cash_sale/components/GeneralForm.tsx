@@ -35,7 +35,7 @@ const fetchItemPrice = async (itemCode: string) => {
   try {
     const res = await request(
       "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
     );
     return res.data;
   } catch (error) {
@@ -66,7 +66,7 @@ export default function GeneralForm({
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
+  if (!edit && filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
@@ -206,6 +206,8 @@ export default function GeneralForm({
                         UoMGroupEntry: itemDetails?.UoMGroupEntry,
                         InventoryUoMEntry: itemDetails?.InventoryUoMEntry,
                         uomLists: uomLists,
+                        LineOfBussiness: itemDetails.U_tl_dim1,
+                        ProductLine: itemDetails.U_tl_dim2,
                       };
                     });
 
@@ -233,6 +235,8 @@ export default function GeneralForm({
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice,
+                      LineOfBussiness: item.LineOfBussiness,
+                      ProductLine: item.ProductLine,
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
                       U_tl_bincode: item.U_tl_bincode,
@@ -278,13 +282,13 @@ export default function GeneralForm({
               <VendorByBranch
                 branch={data?.U_tl_bplid}
                 vtype="customer"
+                disabled
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-                disabled={edit}
                 endAdornment={!edit}
               />
             </div>
@@ -418,8 +422,10 @@ export default function GeneralForm({
                 multiline
                 className="w-full"
                 rows={2}
-                value={data.Remark}
-                onChange={(e: any) => handlerChange("Remark", e.target.value)}
+                value={data.U_tl_ownremark}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_ownremark", e.target.value)
+                }
               />
             </div>
           </div>
