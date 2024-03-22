@@ -13,6 +13,7 @@ export type TransferType = 'Internal' | 'External';
 
 export interface PostInventoryTransfer {
     DocDate: string | undefined;
+    TaxDate: string | undefined;
     BPLID: number | undefined,
     DocumentStatus: string | undefined,
     U_tl_attn_ter: string | undefined,
@@ -32,6 +33,7 @@ export interface PostInventoryTransfer {
 const defaultValues: PostInventoryTransfer = {
     U_tl_transType: 'Internal',
     DocDate: new Date().toISOString()?.split('T')[0],
+    TaxDate: new Date().toISOString()?.split('T')[0],
     BPLID: undefined,
     DocumentStatus: 'bost_Open',
     U_tl_attn_ter: undefined,
@@ -60,6 +62,7 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                 var payload: PostInventoryTransfer = {
                     U_tl_transType: 'External',
                     DocDate: new Date().toISOString()?.split('T')[0],
+                    TaxDate: new Date().toISOString()?.split('T')[0],
                     BPLID: res?.data?.BPLID,
                     DocumentStatus: 'bost_Open',
                     U_tl_attn_ter: res?.data?.U_tl_attn_ter,
@@ -69,7 +72,7 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                     DocNum: undefined,
                     Comments: `Based On Inventory Transfer Request ${res?.data?.DocNum}.`,
                     U_tl_fromBinId: undefined,
-                    U_tl_toBinId: undefined,
+                    U_tl_toBinId: res.data.U_tl_toBinId,
                     U_tl_sobincode: res?.data?.U_tl_sobincode,
                     StockTransferLines: [],
                     DocumentReferences: [
@@ -112,6 +115,11 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                         UoMCode: item?.UoMCode,
                         UoMEntry: item?.UoMEntry,
                         UseBaseUnits: "tNO",
+                        U_tl_fromBinId: defaultBin,
+                        BaseType: "InventoryTransferRequest",
+                        BaseLine: item.LineNum,
+                        BaseEntry: res?.data?.DocEntry ?? id,
+                        U_tl_toBinId: item.U_tl_toBinId ?? res.data.U_tl_toBinId,
                         StockTransferLinesBinAllocations: [
                             {
                                 BinAbsEntry: defaultBin,
@@ -179,17 +187,15 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
                 return;
             }
 
-
             for (let index = 0; index < payload?.StockTransferLines?.length; index++) {
-                if (!fromBinId) {
+                if (!fromBinId || payload?.StockTransferLines[index].U_tl_fromBinId) {
                     const response: any = await request('GET', `Items('${payload?.StockTransferLines[index]?.ItemCode}')?$select=ItemWarehouseInfoCollection,UoMGroupEntry`);
                     const defaultBin = response?.data?.ItemWarehouseInfoCollection?.find((e: any) => e?.WarehouseCode === payload?.FromWarehouse);
                     fromBinId = defaultBin?.DefaultBin;
                 }
 
-
-                if (fromBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'] = fromBinId
-                if (toBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'] = toBinId
+                if (fromBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'] = payload?.StockTransferLines[index].U_tl_fromBinId ?? fromBinId
+                if (toBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'] = payload?.StockTransferLines[index].U_tl_toBinId ?? toBinId
             }
 
             const url = edit ? `StockTransfers(${id})` : 'StockTransfers';
@@ -220,11 +226,10 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
     }
 
     const onChangeBranch = (series: any, value: any) => {
-
         const period = new Date().getFullYear();
         const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
 
-        console.log(serie);
+        console.log(serie)
 
         const git_wsh = warehouese.data?.filter((e: any) => e?.BusinessPlaceID === value?.BPLID && e.U_tl_git_whs === 'Y');
         setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
@@ -275,7 +280,6 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
                 .then((res) => {
                     reset({ ...res });
                     onChangeBranch(series, { BPLID: res?.BPLID })
-
                 })
                 .catch((err) => {
                     dialog.current?.error(err?.message)

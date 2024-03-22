@@ -340,7 +340,7 @@ const BasicInformation = (props: any) => {
                         }
                         items={[
                           { value: "bost_Open", label: "Open" },
-                          { value: "bost_Closed", label: "Closed" },
+                          { value: "bost_Close", label: "Closed" },
                         ]}
                         onChange={(e: any) => {
                           props.setValue("DocumentStatus", e.target.value);

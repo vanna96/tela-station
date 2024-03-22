@@ -25,15 +25,16 @@ const BasicInformation = (props: any) => {
     return series?.data?.filter((e: any) => e?.BPLID === props.watch('BPLID')) ?? []
   }, [series, props.watch('BPLID')])
 
+  console.log(props?.loading)
   useEffect(() => {
-    if (props?.edit) return;
+    if (props?.edit || props.watch('Series')) return;
 
     defaultSerie.refetch();
     if (!defaultSerie.data) return;
 
     props?.setValue("Series", defaultSerie?.data?.Series);
     props?.setValue("DocNum", defaultSerie?.data?.NextNumber);
-  }, [defaultSerie.data]);
+  }, [defaultSerie.data, props.watch('Series')]);
 
   const onChangeSerie = useCallback(
     (event: any) => {
@@ -209,8 +210,7 @@ const BasicInformation = (props: any) => {
                         key={`${props.watch('BPLID')}_to_whs`}
                         branchId={props.watch('BPLID')}
                         disabled={props?.edit}
-                        {...field}
-                        value={field.value}
+                        value={props.watch('ToWarehouse')}
                         onChange={async (e: any) => {
                           props.setValue("ToWarehouse", e?.WarehouseCode);
                         }}

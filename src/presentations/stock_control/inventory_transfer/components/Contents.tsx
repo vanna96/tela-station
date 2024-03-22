@@ -242,8 +242,8 @@ export default function Contents({
                       />
                     </td>
                     <td className="pr-4">
-                    <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
+                      <Controller
+                        name={`StockTransferLines.${index}.U_tl_fromBinId`}
                         rules={
                           {
                             required: 'From bin code is required'
@@ -256,6 +256,7 @@ export default function Contents({
                           {...field}
                           value={field.value}
                           onChange={(value) => {
+                            setValue(`StockTransferLines.${index}.U_tl_fromBinId`, value?.AbsEntry);
                             setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
                           }}
                         />}
@@ -263,7 +264,7 @@ export default function Contents({
                     </td>
                     <td className="pr-4">
                       <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
+                        name={`StockTransferLines.${index}.U_tl_toBinId`}
                         rules={
                           {
                             required: 'To bin code is required'
@@ -276,7 +277,7 @@ export default function Contents({
                           {...field}
                           value={field.value}
                           onChange={(value) => {
-                            console.log(field.value)
+                            setValue(`StockTransferLines.${index}.U_tl_toBinId`, value?.AbsEntry);
                             setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
                           }}
                         />}

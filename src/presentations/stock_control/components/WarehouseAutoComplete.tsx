@@ -21,17 +21,15 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
 
 
   const warehoueses = useMemo(() => {
+    if (props.disabled) return data;
+
     return data?.filter((e: any) => e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N')
   }, [props.branchId, data])
 
 
   useEffect(() => {
-    if (props.value && warehoueses) {
-      const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
-      if (selected) {
-        setSelectedValue(selected);
-      }
-    }
+    const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+    setSelectedValue(selected);
   }, [props.value, warehoueses]);
 
   // Use local state to store the selected value

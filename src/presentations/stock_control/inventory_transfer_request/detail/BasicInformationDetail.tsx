@@ -251,7 +251,7 @@ const BasicInformationDetail = (props: any) => {
                         disabled
                         items={[
                           { value: "bost_Open", label: "Open" },
-                          { value: "bost_Closed", label: "Closed" },
+                          { value: "bost_Close", label: "Closed" },
                         ]}
 
                         value={props.watch("DocumentStatus") ?? "bost_Open"}
