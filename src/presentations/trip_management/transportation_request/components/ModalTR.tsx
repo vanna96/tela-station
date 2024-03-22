@@ -317,6 +317,7 @@ export default function TRModal(props: any) {
       })
       ?.catch((err) => {
         setOpenLoading(false);
+        setRowSelection({});
         props?.setOpen(false);
         dialog.current?.error(err.message);
       });
