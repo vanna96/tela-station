@@ -137,7 +137,7 @@ class Form extends NonCoreDcument {
             try {
               const res = await request(
                 "GET",
-                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
               );
               return res.data;
             } catch (error) {
@@ -168,6 +168,8 @@ class Form extends NonCoreDcument {
                   (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
                 )?.U_tl_bincode,
                 U_tl_whs: dispenser.U_tl_whs,
+                LineOfBussiness: itemDetails.U_tl_dim1,
+                ProductLine: itemDetails.U_tl_dim2,
               };
             })
           );
@@ -693,9 +695,9 @@ class Form extends NonCoreDcument {
             DiscountPercent: 0,
             TaxCode: "VO10",
             UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
+            LineOfBussiness: item.LineOfBussiness,
             RevenueLine: "202001",
-            ProductLine: "203004",
+            ProductLine: item.ProductLine,
             BinAbsEntry: item.U_tl_bincode,
             // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
@@ -720,9 +722,9 @@ class Form extends NonCoreDcument {
         DiscountPercent: 0,
         TaxCode: "VO10",
         UoMEntry: item.U_tl_uom,
-        LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202001", // item.RevenueLine
-        ProductLine: "203004", // item.ProductLine
+        LineOfBussiness: item.LineOfBussiness,
+        RevenueLine: "202001",
+        ProductLine: item.ProductLine,
         BinAbsEntry: item.U_tl_bincode,
         // BranchCode: data.U_tl_bplid,
         WarehouseCode: item.U_tl_whs,
@@ -828,9 +830,13 @@ class Form extends NonCoreDcument {
                   Quantity: quantity.toString(),
                   DiscountPercent: 0,
                   TaxCode: "VO10",
-                  LineOfBussiness: "201001",
+                  LineOfBussiness: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.LineOfBussiness,
                   RevenueLine: "202001",
-                  ProductLine: "203004",
+                  ProductLine: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.ProductLine,
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
                   BranchCode: data.stockAllocationData[0].U_tl_bplid,
                   WarehouseCode: data.stockAllocationData[0].U_tl_whs,
@@ -872,9 +878,9 @@ class Form extends NonCoreDcument {
                     UoMEntry: data.nozzleData?.find(
                       (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
                     )?.U_tl_uom,
-                    LineOfBussiness: "201001", // item.LineOfBussiness
-                    RevenueLine: "202001", // item.RevenueLine
-                    ProductLine: "203004", // item.ProductLine
+                    LineOfBussiness: item.LineOfBussiness,
+                    RevenueLine: "202001",
+                    ProductLine: item.ProductLine,
                     // BinAbsEntry: data.U_tl_bincode,
                     U_tl_bincode: edit
                       ? data.dispenser.TL_DISPENSER_LINESCollection?.find(

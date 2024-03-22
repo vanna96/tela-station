@@ -170,7 +170,7 @@ class SalesOrderForm extends CoreFormDocument {
             try {
               const res = await request(
                 "GET",
-                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
               );
               return res.data;
             } catch (error) {
@@ -201,6 +201,8 @@ class SalesOrderForm extends CoreFormDocument {
                   (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
                 )?.U_tl_bincode,
                 U_tl_whs: dispenser.U_tl_whs,
+                LineOfBussiness: itemDetails.U_tl_dim1,
+                ProductLine: itemDetails.U_tl_dim2,
               };
             })
           );
@@ -887,9 +889,9 @@ class SalesOrderForm extends CoreFormDocument {
             DiscountPercent: 0,
             TaxCode: "VO10",
             UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
-            RevenueLine: "202004",
-            ProductLine: "203004",
+            LineOfBussiness: item.LineOfBussiness,
+            RevenueLine: "202001",
+            ProductLine: item.ProductLine,
             BinAbsEntry: item.U_tl_bincode,
             // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
@@ -925,9 +927,9 @@ class SalesOrderForm extends CoreFormDocument {
           DiscountPercent: item.DiscountPercent ?? 0,
           TaxCode: "VO10",
           UoMEntry: item.InventoryUoMEntry,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
+          LineOfBussiness: item.LineOfBussiness,
+          RevenueLine: "202001",
+          ProductLine: item.ProductLine,
           BinAbsEntry:
             item.Bin ??
             data.nozzleData?.find((e: any) => e.U_tl_itemcode === item.ItemCode)
@@ -961,9 +963,9 @@ class SalesOrderForm extends CoreFormDocument {
         DiscountPercent: 0,
         TaxCode: "VO10",
         UoMEntry: item.U_tl_uom,
-        LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202004", // item.RevenueLine
-        ProductLine: "203004", // item.ProductLine
+        LineOfBussiness: item.LineOfBussiness,
+        RevenueLine: "202001",
+        ProductLine: item.ProductLine,
         BinAbsEntry: item.U_tl_bincode,
         // BranchCode: data.U_tl_bplid,
         WarehouseCode: item.U_tl_whs,
@@ -1072,9 +1074,13 @@ class SalesOrderForm extends CoreFormDocument {
                   Quantity: quantity.toString(),
                   DiscountPercent: 0,
                   TaxCode: "VO10",
-                  LineOfBussiness: "201001",
-                  RevenueLine: "202004",
-                  ProductLine: "203004",
+                  LineOfBussiness: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.LineOfBussiness,
+                  RevenueLine: "202001",
+                  ProductLine: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.ProductLine,
                   BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
                   BranchCode: data.stockAllocationData[0].U_tl_bplid,
                   WarehouseCode: data.stockAllocationData[0].U_tl_whscode,
@@ -1115,9 +1121,13 @@ class SalesOrderForm extends CoreFormDocument {
                     UoMEntry: data.nozzleData?.find(
                       (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
                     )?.U_tl_uom,
-                    LineOfBussiness: "201001", // item.LineOfBussiness
-                    RevenueLine: "202004", // item.RevenueLine
-                    ProductLine: "203004", // item.ProductLine
+                    LineOfBussiness: data.allocationData?.find(
+                      (e: any) => e.U_tl_itemcode === itemCode
+                    )?.LineOfBussiness,
+                    RevenueLine: "202001",
+                    ProductLine: data.allocationData?.find(
+                      (e: any) => e.U_tl_itemcode === itemCode
+                    )?.ProductLine,
                     // BinAbsEntry: data.U_tl_bincode,
                     U_tl_bincode: edit
                       ? data.dispenser.TL_DISPENSER_LINESCollection?.find(

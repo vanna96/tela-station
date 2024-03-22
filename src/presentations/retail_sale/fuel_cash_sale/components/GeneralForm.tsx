@@ -35,7 +35,7 @@ const fetchItemPrice = async (itemCode: string) => {
   try {
     const res = await request(
       "GET",
-      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+      `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
     );
     return res.data;
   } catch (error) {
@@ -206,6 +206,8 @@ export default function GeneralForm({
                         UoMGroupEntry: itemDetails?.UoMGroupEntry,
                         InventoryUoMEntry: itemDetails?.InventoryUoMEntry,
                         uomLists: uomLists,
+                        LineOfBussiness: itemDetails.U_tl_dim1,
+                        ProductLine: itemDetails.U_tl_dim2,
                       };
                     });
 
@@ -233,6 +235,8 @@ export default function GeneralForm({
                       U_tl_stockallow: item.U_tl_stockallow,
                       U_tl_totalallow: item.U_tl_totalallow,
                       ItemPrice: item.ItemPrice,
+                      LineOfBussiness: item.LineOfBussiness,
+                      ProductLine: item.ProductLine,
                       U_tl_bplid: data.U_tl_bplid,
                       U_tl_whs: warehouseCode,
                       U_tl_bincode: item.U_tl_bincode,
