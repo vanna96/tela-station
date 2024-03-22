@@ -9,19 +9,19 @@ export default function SaleInvoiceRoute() {
     <Routes>
       <Route index element={<SaleInvoicePage />} />
 
-      <Route path="/fuel-sales">
+      <Route path="/fuel-invoice">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/lube-sales">
+      <Route path="/lube-invoice">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />
         <Route path=":id" element={<SaleOrderDetail edit={true} />} />
       </Route>
-      <Route path="/lpg-sales">
+      <Route path="/lpg-invoice">
         <Route index element={<SaleOrderLists />} />
         <Route path="create" element={<SalesOrderForm />} />
         <Route path=":id/edit" element={<SalesOrderForm edit={true} />} />

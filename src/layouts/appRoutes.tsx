@@ -8,22 +8,20 @@ import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import AdsClickIcon from "@mui/icons-material/AdsClick";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import SwitchAccountIcon from "@mui/icons-material/SwitchAccount";
-import DescriptionIcon from '@mui/icons-material/Description';
+import DescriptionIcon from "@mui/icons-material/Description";
 import { Role } from "@/contexts/useAuthorizationContext";
-
 
 type RouteType = {
   state: string;
   index?: boolean;
   path?: string;
-  child?: RouteType[];
-  roles?: Role[],
+  child?: any[];
+  roles?: Role[];
   sidebarProps?: {
     displayText: string;
     icon?: ReactNode;
   };
 };
-
 
 export const appRoutes: RouteType[] = [
   {
@@ -41,7 +39,7 @@ export const appRoutes: RouteType[] = [
   {
     path: "/master-data",
     state: "master-data",
-    roles: ['UG001'],
+    roles: ["UG001", "UG002", "UG003", "UG004"],
     sidebarProps: {
       displayText: "Master Data",
       icon: <DatasetLinkedIcon />,
@@ -50,7 +48,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/pump",
         state: "pump",
-        roles: ['UG001'],
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "Pump",
         },
@@ -58,7 +56,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/pump-attendant",
         state: "pump-attendant",
-        roles: ['UG001'],
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "Pump Attendant",
         },
@@ -66,7 +64,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/expense-dictionary",
         state: "expense-dictionary",
-        roles: ['UG001'],
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "Expense Dictionary",
         },
@@ -74,7 +72,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/cash-account",
         state: "cash-account",
-        roles: ['UG001'],
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "Cash Account",
         },
@@ -83,7 +81,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/driver",
         state: "driver",
-        roles: ['UG001'],
+        roles: ["UG001", "UG002"],
         sidebarProps: {
           displayText: "Driver",
         },
@@ -91,7 +89,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/vehicle",
         state: "vehicle",
-        roles: ['UG001'],
+        roles: ["UG001", "UG002"],
         sidebarProps: {
           displayText: "Vehicle",
         },
@@ -99,7 +97,7 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/stops",
         state: "stops",
-        roles: ['UG001'],
+        roles: ["UG001", "UG002"],
         sidebarProps: {
           displayText: "Stops",
         },
@@ -107,112 +105,166 @@ export const appRoutes: RouteType[] = [
       {
         path: "/master-data/route",
         state: "route",
-        roles: ['UG001'],
+        roles: ["UG001", "UG002"],
         sidebarProps: {
           displayText: "Route",
         },
       },
     ],
   },
-  {
-    path: "/sale-target",
-    state: "sale-target",
-    roles: ['UG001', 'UG004'],
-    sidebarProps: {
-      displayText: "Sale Target",
-      icon: <AdsClickIcon />,
-    },
-    child: [
-      {
-        path: "/sale-target/sale-scenario",
-        state: "sale-target/sale-scenario",
-        roles: ['UG001', 'UG004'],
-        sidebarProps: {
-          displayText: "Sale Scenario",
-        },
-      },
-      {
-        path: "/sale-target/sale-target",
-        state: "sale-target/sale-target",
-        roles: ['UG001', 'UG004'],
-        sidebarProps: {
-          displayText: "Sale Target",
-        },
-      },
-    ],
-  },
 
   {
-    path: "/sale-order",
-    state: "sale-order",
-    roles: ['UG001', 'UG004'],
+    path: "/wholesale",
+    state: "wholesale",
+    roles: ["UG001", "UG004"],
     sidebarProps: {
-      displayText: "Sale Order",
-      icon: <DescriptionIcon />,
-    },
-    child: [
-      {
-        path: "/sale-order/fuel-sales",
-        state: "fuel-sales",
-        roles: ['UG001', 'UG004'],
-        sidebarProps: {
-          displayText: "Fuel Sales",
-        },
-      },
-      {
-        path: "/sale-order/lube-sales",
-        state: "lube-sales",
-        roles: ['UG001', 'UG004'],
-        sidebarProps: {
-          displayText: "Lube Sales",
-        },
-      },
-      {
-        path: "/sale-order/lpg-sales",
-        state: "lpg-sales",
-        roles: ['UG001', 'UG004'],
-        sidebarProps: {
-          displayText: "LPG Sales",
-        },
-      },
-    ],
-  },
-
-  {
-    path: "/sale-invoice",
-    state: "sale-invoice",
-    roles: ['UG001', 'UG004'],
-    sidebarProps: {
-      displayText: "Sale Invoice",
+      displayText: "Wholesale",
       icon: <SwitchAccountIcon />,
     },
     child: [
       {
-        path: "/sale-invoice/fuel-sales",
-        state: "fuel-sales",
-        roles: ['UG001', 'UG004'],
+        path: "/wholesale/sale-order",
+        state: "sale-order",
+        roles: ["UG001", "UG004"],
         sidebarProps: {
-          displayText: "Fuel Sales",
+          displayText: "Sale Order",
         },
+        child: [
+          {
+            path: "/wholesale/sale-order/fuel-sales",
+            state: "fuel-sales",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "Fuel Sales",
+            },
+          },
+          {
+            path: "/wholesale/sale-order/lube-sales",
+            state: "lube-sales",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "Lube Sales",
+            },
+          },
+          {
+            path: "/wholesale/sale-order/lpg-sales",
+            state: "lpg-sales",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "LPG Sales",
+            },
+          },
+        ],
       },
+
       {
-        path: "/sale-invoice/lube-sales",
-        state: "lube-sales",
-        roles: ['UG001', 'UG004'],
+        path: "/wholesale/sale-invoice",
+        state: "sale-invoice",
+        roles: ["UG001", "UG004"],
         sidebarProps: {
-          displayText: "Lube Sales",
+          displayText: "Sale Invoice",
         },
-      },
-      {
-        path: "/sale-invoice/lpg-sales",
-        state: "lpg-sales",
-        roles: ['UG001', 'UG004'],
-        sidebarProps: {
-          displayText: "LPG Sales",
-        },
+        child: [
+          {
+            path: "/wholesale/sale-invoice/fuel-invoice",
+            state: "fuel-invoice",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "Fuel Invoice",
+            },
+          },
+          {
+            path: "/wholesale/sale-invoice/lube-invoice",
+            state: "lube-invoice",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "Lube Invoice",
+            },
+          },
+          {
+            path: "/wholesale/sale-invoice/lpg-invoice",
+            state: "lpg-invoice",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "LPG Invoice",
+            },
+          },
+        ],
       },
     ],
   },
+
+  // {
+  //   path: "/sale-order",
+  //   state: "sale-order",
+  //   roles: ["UG001", "UG004"],
+  //   sidebarProps: {
+  //     displayText: "Sale Order",
+  //     icon: <DescriptionIcon />,
+  //   },
+  //   child: [
+  //     {
+  //       path: "/sale-order/fuel-sales",
+  //       state: "sale-order-fuel-sales",
+  //       roles: ["UG001", "UG004"],
+  //       sidebarProps: {
+  //         displayText: "Fuel Sales",
+  //       },
+  //     },
+  //     {
+  //       path: "/sale-order/lube-sales",
+  //       state: "sale-order-lube-sales",
+  //       roles: ["UG001", "UG004"],
+  //       sidebarProps: {
+  //         displayText: "Lube Sales",
+  //       },
+  //     },
+  //     {
+  //       path: "/sale-order/lpg-sales",
+  //       state: "sale-order-lpg-sales",
+  //       roles: ["UG001", "UG004"],
+  //       sidebarProps: {
+  //         displayText: "LPG Sales",
+  //       },
+  //     },
+  //   ],
+  // },
+
+  // {
+  //   path: "/sale-invoice",
+  //   state: "sale-invoice",
+  //   roles: ["UG001", "UG004"],
+  //   sidebarProps: {
+  //     displayText: "Sale Invoice",
+  //     icon: <SwitchAccountIcon />,
+  //   },
+  //   child: [
+  //     {
+  //       path: "/sale-invoice/fuel-sales",
+  //       state: "sale-invoice-fuel-sales",
+  //       roles: ["UG001", "UG004"],
+  //       sidebarProps: {
+  //         displayText: "Fuel Sales",
+  //       },
+  //     },
+  //     {
+  //       path: "/sale-invoice/lube-sales",
+  //       state: "sale-invoice-lube-sales",
+  //       roles: ["UG001", "UG004"],
+  //       sidebarProps: {
+  //         displayText: "Lube Sales",
+  //       },
+  //     },
+  //     {
+  //       path: "/sale-invoice/lpg-sales",
+  //       state: "sale-invoice-lpg-sales",
+  //       roles: ["UG001", "UG004"],
+  //       sidebarProps: {
+  //         displayText: "LPG Sales",
+  //       },
+  //     },
+  //   ],
+  // },
   {
     path: "/retail-sale",
     state: "retail-sale",
@@ -220,28 +272,28 @@ export const appRoutes: RouteType[] = [
       displayText: "Retail Sale",
       icon: <PointOfSaleIcon />,
     },
-    roles: ['UG001', 'UG004'],
+    roles: ["UG001", "UG004"],
     child: [
       {
         path: "/retail-sale/fuel-cash-sale",
-        state: "fuel-sales",
-        roles: ['UG001', 'UG004'],
+        state: "fuel-cash-sale",
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "Fuel Cash Sale",
         },
       },
       {
         path: "/retail-sale/lube-cash-sale",
-        state: "lube-sales",
-        roles: ['UG001', 'UG004'],
+        state: "lube-cash-sale",
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "Lube Cash Sale",
         },
       },
       {
         path: "/retail-sale/lpg-cash-sale",
-        state: "lpg-sales",
-        roles: ['UG001', 'UG004'],
+        state: "lpg-cash-sale",
+        roles: ["UG001", "UG004"],
         sidebarProps: {
           displayText: "LPG Cash Sale ",
         },
@@ -267,14 +319,14 @@ export const appRoutes: RouteType[] = [
   {
     path: "/banking",
     state: "banking",
-    roles: ['UG001', 'UG004'],
+    roles: ["UG001", "UG004"],
     sidebarProps: {
       displayText: "Banking",
       icon: <AccountBalanceIcon />,
     },
     child: [
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG004"],
         path: "/banking/settle-receipt",
         state: "settle-receipt",
         sidebarProps: {
@@ -282,7 +334,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG004"],
         path: "/banking/payment-account",
         state: "payment-account",
         sidebarProps: {
@@ -290,7 +342,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG004"],
         path: "/banking/direct-account",
         state: "direct-account",
         sidebarProps: {
@@ -298,7 +350,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG004"],
         path: "/banking/deposit",
         state: "deposits",
         sidebarProps: {
@@ -314,21 +366,21 @@ export const appRoutes: RouteType[] = [
       displayText: "Expense",
       icon: <PaymentIcon />,
     },
-    roles: ['UG001', 'UG004'],
+    roles: ["UG001", "UG004"],
     child: [
       {
         path: "/expense/log",
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG004"],
         // element: <ExpenseLogLists />,
-        state: "expense/log",
+        state: "log",
         sidebarProps: {
           displayText: "Expense Log",
         },
       },
       {
         path: "/expense/clearance",
-        roles: ['UG001', 'UG004'],
-        state: "expense/clearance",
+        roles: ["UG001", "UG004"],
+        state: "clearance",
         sidebarProps: {
           displayText: "Expense Posting",
         },
@@ -338,14 +390,14 @@ export const appRoutes: RouteType[] = [
   {
     path: "/stock-control",
     state: "stock-control",
-    roles: ['UG001', 'UG004'],
+    roles: ["UG001", "UG003", "UG004"],
     sidebarProps: {
       displayText: "Stock Control",
       icon: <TrendingUpIcon />,
     },
     child: [
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG003", "UG004"],
         path: "/stock-control/inventory-transfer-request",
         state: "/inventory-transfer-request",
         sidebarProps: {
@@ -354,14 +406,14 @@ export const appRoutes: RouteType[] = [
       },
       {
         roles: ['UG001', 'UG004'],
-        path: "/stock-control/stock-transfer",
-        state: "/stock-transfer",
+        path: "/stock-control/inventory-transfer",
+        state: "/inventory-transfer",
         sidebarProps: {
-          displayText: "Stock Transfer",
+          displayText: "Inventory Transfer",
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG003", "UG004"],
         path: "/stock-control/good-issue",
         state: "/good-issue",
         sidebarProps: {
@@ -369,7 +421,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG003", "UG004"],
         path: "/stock-control/good-receipt",
         state: "/good-receipt",
         sidebarProps: {
@@ -378,7 +430,7 @@ export const appRoutes: RouteType[] = [
       },
 
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG003", "UG004"],
         path: "/stock-control/pump-test",
         state: "/pump-test",
         sidebarProps: {
@@ -386,7 +438,7 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG004'],
+        roles: ["UG001", "UG003", "UG004"],
         path: "/stock-control/fuel-level",
         state: "/fuel-level",
         sidebarProps: {
@@ -398,7 +450,7 @@ export const appRoutes: RouteType[] = [
   {
     path: "/trip-management",
     state: "trip-management",
-    roles: ['UG001', 'UG002', 'UG003'],
+    roles: ["UG001", "UG002", "UG003"],
     sidebarProps: {
       displayText: "Trip Management",
       icon: <LocalShippingIcon />,
@@ -421,9 +473,9 @@ export const appRoutes: RouteType[] = [
         },
       },
       {
-        roles: ['UG001', 'UG003'],
-        path: "/trip-management/bulk-seal-allocation",
-        state: "bulk-seal-allocation",
+        roles: ["UG001", "UG003"],
+        path: "/bulk/seal/allocation",
+        state: "allocation",
         sidebarProps: {
           displayText: "Bulk Seal Allocation",
         },

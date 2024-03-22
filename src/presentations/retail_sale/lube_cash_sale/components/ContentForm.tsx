@@ -281,14 +281,14 @@ export default function ContentForm({
                     "UomAbsEntry"
                   );
                   let defaultPrice = cell.row.original.ItemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                    (e: any) => e.PriceList === 13
                   )?.Price;
                   let itemPrices = cell.row.original.ItemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                    (e: any) => e.PriceList === 13
                   )?.UoMPrices;
 
                   let uomPrice = itemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+                    (e: any) => e.PriceList === 13
                   );
 
                   if (uomPrice && event.target.value === uomPrice.UoMEntry) {

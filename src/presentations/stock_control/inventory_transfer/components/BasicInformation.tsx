@@ -1,5 +1,5 @@
 import MUITextField from "@/components/input/MUITextField";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -19,6 +19,12 @@ const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetStockTransferSeriesHook();
 
+  const getSerieLists: any[] = useMemo(() => {
+    if (!props.watch('BPLID')) return series?.data ?? [];
+
+    return series?.data?.filter((e: any) => e?.BPLID === props.watch('BPLID')) ?? []
+  }, [series, props.watch('BPLID')])
+
   useEffect(() => {
     if (props?.edit) return;
 
@@ -32,7 +38,7 @@ const BasicInformation = (props: any) => {
   const onChangeSerie = useCallback(
     (event: any) => {
 
-      const serie = series.data?.find(
+      const serie = getSerieLists?.find(
         (e: any) => e?.Series === event?.target?.value
       );
 
@@ -177,7 +183,7 @@ const BasicInformation = (props: any) => {
                         disabled={props?.edit}
                         {...field}
                         value={field.value}
-                        onChange={(e: any) => props?.onChangeBranch(series, e)}
+                        onChange={(e: any) => props?.onChangeBranch(getSerieLists, e)}
                       />
                     );
                   }}
@@ -207,17 +213,6 @@ const BasicInformation = (props: any) => {
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("ToWarehouse", e?.WarehouseCode);
-
-                          if (!e?.DefaultBin) return;
-
-                          props?.setLoading(true);
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e?.DefaultBin})`
-                          );
-                          props?.setLoading(false);
-                          props.setValue("U_tl_sobincode", res.data.BinCode);
-                          props.setValue("U_tl_toBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -230,7 +225,6 @@ const BasicInformation = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
                 {/* {isLoading} */}
@@ -275,7 +269,7 @@ const BasicInformation = (props: any) => {
                         <MUISelect
                           value={field.value}
                           disabled={props?.edit}
-                          items={series.data ?? []}
+                          items={getSerieLists ?? []}
                           aliaslabel="Name"
                           aliasvalue="Series"
                           onChange={onChangeSerie}
@@ -399,19 +393,6 @@ const BasicInformation = (props: any) => {
                         value={field.value}
                         onChange={async (e: any) => {
                           props.setValue("FromWarehouse", e?.WarehouseCode);
-
-                          if (!e?.DefaultBin) return;
-
-                          props?.setLoading(true);
-                          const res: any = await request(
-                            "GET",
-                            `BinLocations(${e?.DefaultBin})`
-                          );
-
-                          props?.setLoading(false);
-                          props.setValue("U_tl_uobincode", res.data.BinCode);
-                          // props.setValue("U_tl_fromBinId", e?.DefaultBin);
-                          props.setValue("U_tl_fromBinId", e?.DefaultBin);
                         }}
                       />
                     );
@@ -425,7 +406,6 @@ const BasicInformation = (props: any) => {
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   From Bin Code
                 </label>
-                <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
               </div>
               <div className="col-span-3">
                 {props?.watch('U_tl_transType') as TransferType === 'Internal' ? <Controller

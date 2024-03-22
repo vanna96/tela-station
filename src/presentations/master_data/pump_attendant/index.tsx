@@ -240,7 +240,7 @@ export default function Lists() {
       // queryFilters.push(`startswith(Code, '${searchValues.code}')`);
       queryFilters.push(`Code eq '${searchValues.code}'`);
 
-    if (searchValues.status)
+    if (searchValues.status && searchValues.status !== "All")
       queryFilters.push(`U_tl_status eq '${searchValues.status}'`);
    
 
@@ -320,7 +320,7 @@ export default function Lists() {
                   <div className="">
                     <MUISelect
                       items={[
-                        { label: "None", value: "" },
+                        { label: "All", value: "All" },
                         { label: "Active", value: "y" },
                         { label: "Inactive", value: "n"}
                       ]}
@@ -332,7 +332,7 @@ export default function Lists() {
                           });
                         }
                       }}
-                      value={searchValues.status}
+                      value={searchValues.status || "All"}
                     />
                   </div>
                 </div>

@@ -35,15 +35,14 @@ const Router = () => {
   useEffect(() => {
     if (!cookies.sessionId) return;
 
-    request('GET', '/UsersService_GetCurrentUser').then((res: any) => {
-      if (onSetAutorization) onSetAutorization({ ...res?.data })
-    }).catch((e) => {
-      console.log(e)
-    })
-
-
-
-  }, [cookies.sessionId])
+    request("GET", "/UsersService_GetCurrentUser")
+      .then((res: any) => {
+        if (onSetAutorization) onSetAutorization({ ...res?.data });
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }, [cookies.sessionId]);
 
   return (
     <AnimatePresence>
@@ -92,13 +91,18 @@ const Router = () => {
             />
 
             <Route
-              path="/sale-order/*"
+              path="/wholesale/*"
+              element={<SaleOrderRoute />}
+              errorElement={<span>Error</span>}
+            />
+            <Route
+              path="wholesale/sale-order/*"
               element={<SaleOrderRoute />}
               errorElement={<span>Error</span>}
             />
 
             <Route
-              path="/sale-invoice/*"
+              path="wholesale/sale-invoice/*"
               element={<SaleInvoiceRoute />}
               errorElement={<span>Error</span>}
             />

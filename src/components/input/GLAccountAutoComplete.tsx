@@ -13,12 +13,11 @@ export default function GLAccountAutoComplete(props: {
   BPdata?: any;
   disabled?: any;
   name?: any;
+  data?: [];
+  isLoading: boolean;
 }) {
-  const { data, isLoading }: any = useQuery({
-    queryKey: ["gl_account_6"],
-    queryFn: async () => await request("GET", "ChartOfAccounts?$filter=startswith(Code, '6') and ActiveAccount eq 'tYES' &$select=Code,Name,ActiveAccount,CashAccount&$orderby=Code asc").then((res:any) => res.data?.value),
-  });
 
+  const data = props.data || [];
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
@@ -61,7 +60,7 @@ export default function GLAccountAutoComplete(props: {
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}
-        loading={isLoading}
+        loading={props?.isLoading}
         getOptionLabel={(option: any) => option.Code}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
@@ -79,7 +78,7 @@ export default function GLAccountAutoComplete(props: {
               ...params.InputProps,
               endAdornment: (
                 <React.Fragment>
-                  {isLoading ? (
+                  {props?.isLoading ? (
                     <CircularProgress color="inherit" size={20} />
                   ) : null}
                   {params.InputProps.endAdornment}

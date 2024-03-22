@@ -242,8 +242,8 @@ export default function Contents({
                       />
                     </td>
                     <td className="pr-4">
-                      <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
+                    <Controller
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
                         rules={
                           {
                             required: 'From bin code is required'
@@ -256,16 +256,14 @@ export default function Contents({
                           {...field}
                           value={field.value}
                           onChange={(value) => {
-                            console.log(field.value)
-                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
                           }}
                         />}
                       />
                     </td>
                     <td className="pr-4">
-
                       <Controller
-                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
+                        name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
                         rules={
                           {
                             required: 'To bin code is required'
@@ -278,7 +276,8 @@ export default function Contents({
                           {...field}
                           value={field.value}
                           onChange={(value) => {
-                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`, value?.AbsEntry);
+                            console.log(field.value)
+                            setValue(`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`, value?.AbsEntry);
                           }}
                         />}
                       />
