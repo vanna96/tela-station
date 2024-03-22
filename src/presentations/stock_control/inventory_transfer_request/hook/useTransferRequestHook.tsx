@@ -74,7 +74,6 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
             request('GET', `InventoryTransferRequests(${id})`)
                 .then((res: any) => {
                     setLoading(false)
-                    console.log(res.data)
                     reset({ ...res.data }, {
                         keepDirtyValues: false,
                         keepErrors: false,

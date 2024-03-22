@@ -88,7 +88,6 @@ const BasicInformationDetail = (props: any) => {
                 <Controller
                   name="ToWarehouse"
                   control={props.control}
-                  disabled
                   render={({ field }) => {
                     return (
                       <WarehouseAutoComplete
@@ -105,7 +104,7 @@ const BasicInformationDetail = (props: any) => {
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="To Bin Code" className="text-gray-500">
-                  To Bin Code
+                  To Bin Code {props?.watch("ToWarehouse")}
                 </label>
               </div>
               <div className="col-span-3">
