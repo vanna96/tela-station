@@ -189,12 +189,12 @@ export default function GeneralForm({
               <VendorByBranch
                 branch={data?.U_tl_bplid}
                 vtype="customer"
+                disabled
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
-                error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
-                defaultValue={data?.CardCode}
+                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
                 endAdornment={!edit}
               />
@@ -207,7 +207,11 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField value={data?.CardName} disabled name="BPName" />
+              <MUITextField
+                value={edit ? data.U_tl_cardname : data?.CardName}
+                disabled
+                name="BPName"
+              />
             </div>
           </div>
 
@@ -365,4 +369,3 @@ export default function GeneralForm({
     </div>
   );
 }
-    

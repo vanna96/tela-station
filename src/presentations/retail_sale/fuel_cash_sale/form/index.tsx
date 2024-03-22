@@ -35,6 +35,10 @@ class Form extends NonCoreDcument {
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
+      CardName: "General Customer",
+      CardCode: 20000001,
+      U_tl_cardname: "General Customer",
+      U_tl_cardcode: 20000001,
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -909,9 +913,7 @@ class Form extends NonCoreDcument {
         PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
       const isAnyKHR =
-        data?.cashBankData?.some(
-          (item: any) => item.U_tl_paycur === "KHR"
-        ) ||
+        data?.cashBankData?.some((item: any) => item.U_tl_paycur === "KHR") ||
         data?.checkNumberData?.some((item: any) => item.U_tl_paycur === "KHR");
       if (isAnyKHR && data?.DocRate === 0) {
         this.dialog.current?.error(

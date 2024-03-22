@@ -278,13 +278,13 @@ export default function GeneralForm({
               <VendorByBranch
                 branch={data?.U_tl_bplid}
                 vtype="customer"
+                disabled
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-                disabled={edit}
                 endAdornment={!edit}
               />
             </div>
@@ -419,7 +419,9 @@ export default function GeneralForm({
                 className="w-full"
                 rows={2}
                 value={data.U_tl_ownremark}
-                onChange={(e: any) => handlerChange("U_tl_ownremark", e.target.value)}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_ownremark", e.target.value)
+                }
               />
             </div>
           </div>

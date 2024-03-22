@@ -272,13 +272,13 @@ export default function GeneralForm({
               <VendorByBranch
                 branch={data?.U_tl_bplid}
                 vtype="customer"
+                disabled
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-                disabled={edit}
                 endAdornment={!edit}
               />
             </div>
