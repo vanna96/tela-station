@@ -1,9 +1,9 @@
 import request, { url } from "@/utilies/request";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import MUITextField from "@/components/input/MUITextField";
-import { Button, Checkbox } from "@mui/material";
-import { CircularProgress } from "@mui/material";
+import { Backdrop, Button, Checkbox, Skeleton } from "@mui/material";
+// import { CircularProgress } from "@mui/material";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
@@ -13,8 +13,16 @@ import { IoSearchSharp } from "react-icons/io5";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import SelectPage from "./SelectPage";
 import SealModal from "./SealModal";
-let dialog = React.createRef<FormMessageModal>();
-export default function BulkSealAllocationList() {
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import CircularProgress, {
+  circularProgressClasses,
+  CircularProgressProps,
+} from "@mui/material/CircularProgress";
+import OnlyDiaLog from "../transportation_order/OnlyDiaLog";
+
+let dialog = React.createRef<OnlyDiaLog>();
+export default function BulkSealAllocationList(props: CircularProgressProps) {
   const [searchValues, setSearchValues] = React.useState({
     tripNumberFrom: "",
     tripNumberTo: "",
@@ -22,17 +30,21 @@ export default function BulkSealAllocationList() {
 
   const [openItem, setOpenItem] = useState(false);
   const [openLoading, setOpenLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [submiting, setSubmiting] = useState(false);
   const [currentPage, setCurrentPage] = useState<any>(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentData, setCurrenData] = useState<any[]>([]);
   const [newDataA, setNewdataA] = useState([]);
   const [keys, setKeys] = useState<any>({});
+  const [loadData, setLoadData] = useState({});
 
   const { data, isLoading }: any = useQuery({
-    queryKey: ["tl-to"],
+    queryKey: ["tl_bulk_seal"],
     queryFn: async () => {
-      const response: any = await request("GET", `/TL_TO`)
+      const response: any = await request(
+        "GET",
+        `/script/test/bulk_seal_allocation`
+      )
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
           throw new Error(e.message);
@@ -42,7 +54,6 @@ export default function BulkSealAllocationList() {
     staleTime: Infinity,
     retry: 1,
   });
-
   const totalPages = isNaN(data?.length)
     ? 0
     : Math.ceil(data.length / itemsPerPage);
@@ -70,9 +81,10 @@ export default function BulkSealAllocationList() {
     selectedKeys[updatedList[index]?.DocNum] = isChecked;
     setKeys(selectedKeys);
     setCurrenData(updatedList);
-    console.log(keys);
   };
+  
   const getData = () => {
+    if (data?.length === 0) return;
     setOpenItem(true);
     let ids: any[] = [];
     for (const [key, value] of Object.entries(keys)) {
@@ -83,8 +95,21 @@ export default function BulkSealAllocationList() {
     );
     setNewdataA(filteredObjects);
   };
-  console.log(currentData);
+  console.log(loadData);
 
+  const submitData = async () => {
+    if (Object.keys(loadData).length === 0) return;
+    setSubmiting(true);
+    await request("POST", `/script/test/bulk_seal_allocation`, loadData)
+      .then((res: any) => dialog.current?.success("Created Successfully.", 0))
+      .catch((err: any) => dialog.current?.error(err.message))
+      .finally(() => setSubmiting(false));
+  };
+  console.log(loadData);
+
+  useEffect(() => {
+    submitData();
+  }, [loadData]);
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-red-40">
@@ -195,8 +220,8 @@ export default function BulkSealAllocationList() {
                     </thead>
                     {isLoading ? (
                       <tbody>
-                        <tr>
-                          <td
+                        <tr className="border-b">
+                          {/* <td
                             colSpan={8}
                             className="text-center p-10 py-[4.8rem] text-[16px] text-gray-400"
                           >
@@ -205,6 +230,50 @@ export default function BulkSealAllocationList() {
                                 <CircularProgress size={22} color="success" />
                               </span>
                               <span className="text-sm">Loading...</span>
+                            </div>
+                          </td> */}
+                          <td colSpan={8}>
+                            <div className="w-full flex items-center h-[20rem] flex-col justify-center gap-5">
+                              <Box sx={{ position: "relative" }}>
+                                <CircularProgress
+                                  variant="determinate"
+                                  sx={{
+                                    color: (theme) =>
+                                      theme.palette.grey[
+                                        theme.palette.mode === "light"
+                                          ? 200
+                                          : 800
+                                      ],
+                                  }}
+                                  size={40}
+                                  thickness={5}
+                                  {...props}
+                                  value={100}
+                                />
+                                <CircularProgress
+                                  color="success"
+                                  variant="indeterminate"
+                                  disableShrink
+                                  sx={{
+                                    // color: (theme) =>
+                                    //   theme.palette.mode === "light"
+                                    //     ? "#1a90ff"
+                                    //     : "#308fe8",
+                                    animationDuration: "650ms",
+                                    position: "absolute",
+                                    left: 0,
+                                    [`& .${circularProgressClasses.circle}`]: {
+                                      strokeLinecap: "round",
+                                    },
+                                  }}
+                                  size={40}
+                                  thickness={5}
+                                  {...props}
+                                />
+                              </Box>
+                              <span className="text-[15px] ml-3 text-gray-500 font-bold">
+                                Loading...
+                              </span>
                             </div>
                           </td>
                         </tr>
@@ -229,7 +298,7 @@ export default function BulkSealAllocationList() {
                                 key={index}
                                 className="text-sm cursor-default border-b "
                               >
-                                <td className="py-[0.27rem] text-left pl-4 ">
+                                <td className="py-[0.25rem] text-left pl-4 ">
                                   <span className="text-gray-500">
                                     <Checkbox
                                       onChange={(e) =>
@@ -274,21 +343,10 @@ export default function BulkSealAllocationList() {
                                   </span>
                                 </td>
                                 <td className="text-left pl-4 ">
-                                  <div className="bg-red-400 w-[55px] flex items-center justify-center text-white rounded h-[29px]">
-                                    <span className="">
+                                  <div className="bg-red-400 w-[55px] flex items-center justify-center text-white rounded h-[27px]">
+                                    <span className="text-[13px]">
                                       {`
-                                        ${
-                                          t?.TL_TO_COMPARTMENTCollection?.filter(
-                                            (e: any) => {
-                                              return (
-                                                (e?.U_SealNumber ||
-                                                  e?.U_SealReference) !== null
-                                              );
-                                            }
-                                          )?.length
-                                        }/ ${
-                                          t?.TL_TO_COMPARTMENTCollection?.length
-                                        }
+                                        ${t?.Remain} / ${t?.Total}
                                       `}
                                     </span>
                                   </div>
@@ -367,7 +425,7 @@ export default function BulkSealAllocationList() {
       >
         <CircularProgress color="success" />{" "}
       </div>
-      <FormMessageModal ref={dialog} />
+      <OnlyDiaLog ref={dialog} />{" "}
       <div
         className={`w-full h-full ${
           openLoading ? "block" : "hidden"
@@ -375,14 +433,57 @@ export default function BulkSealAllocationList() {
       >
         <CircularProgress color="success" />{" "}
       </div>
-      <SealModal data={newDataA} setOpen={setOpenItem} open={openItem} />
-      {/* <GenerateToModal
-        branch={branchAss}
-        document={document}
-        stockStatus={stockStatus}
-        open={open}
-        setOpen={setOpen}
-      /> */}
+      <SealModal
+        setLoadData={setLoadData}
+        data={newDataA}
+        setOpen={setOpenItem}
+        open={openItem}
+      />
+      <Backdrop
+        sx={{
+          color: "#fff",
+          backgroundColor: "rgb(251 251 251 / 60%)",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+        open={submiting}
+      >
+        <div className="flex gap-2 flex-col justify-center items-center">
+          <Box sx={{ position: "relative" }}>
+            <CircularProgress
+              variant="determinate"
+              sx={{
+                color: (theme) =>
+                  theme.palette.grey[
+                    theme.palette.mode === "light" ? 200 : 800
+                  ],
+              }}
+              size={40}
+              thickness={5}
+              {...props}
+              value={100}
+            />
+            <CircularProgress
+              color="success"
+              variant="indeterminate"
+              disableShrink
+              sx={{
+                animationDuration: "650ms",
+                position: "absolute",
+                left: 0,
+                [`& .${circularProgressClasses.circle}`]: {
+                  strokeLinecap: "round",
+                },
+              }}
+              size={40}
+              thickness={5}
+              {...props}
+            />
+          </Box>
+          <span className="text-[14px] ml-3 text-gray-500 font-bold">
+            POSTING ...
+          </span>
+        </div>
+      </Backdrop>
     </>
   );
 }

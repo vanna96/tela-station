@@ -106,7 +106,7 @@ export default function DataTableS(props: DataTableSProps) {
           rowCount={props.count ?? 0}
           getRowId={(row: any) => {
             // return `${shortid.generate()}_${row?.DocNum}_${row?.Type}`;
-            return `${shortid.generate()+'_'+row?.DocNum}`;
+            return `${shortid.generate() + "_" + row.U_Type + "_" + row?.U_SourceDocEntry}`;
           }}
           onPaginationChange={props.paginationChange}
           state={{

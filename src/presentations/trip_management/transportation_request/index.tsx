@@ -31,6 +31,7 @@ export default function InventoryTransferList() {
     state,
     waiting,
   } = UseTransportationRequestListHook(pagination);
+
   const branchAss: any = useQuery({
     queryKey: ["branchAss"],
     queryFn: async () => {
@@ -46,19 +47,17 @@ export default function InventoryTransferList() {
     },
     staleTime: Infinity,
   });
-  // console.log(branchAss);
   const emp: any = useQuery({
-    queryKey: ["sale-persons"],
+    queryKey: ["S_P"],
     queryFn: async () => {
-      const response: any = await request("GET", `/SalesPersons`)
+      const response: any = await request("GET", `${url}/SalesPersons`)
         .then((res: any) => res?.data?.value)
         .catch((e: Error) => {
-          throw new Error(e.message);
+          throw new Error(e?.message);
         });
       return response;
     },
     staleTime: Infinity,
-    cacheTime: 0,
   });
 
   const columns = React.useMemo(
@@ -70,6 +69,9 @@ export default function InventoryTransferList() {
         enableFilterMatchHighlighting: true,
         size: 88,
         visible: true,
+        Cell: (cell: any) => {
+          return cell.row.index + 1;
+        },
       },
       {
         accessorKey: "DocNum",
@@ -79,9 +81,6 @@ export default function InventoryTransferList() {
         size: 88,
         visible: true,
         type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.DocNum;
-        },
       },
 
       {

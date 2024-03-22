@@ -52,37 +52,6 @@ export default function Document({
     setOpen(true);
   };
 
-  // const addNewChild = (index: any) => {
-  //   const parents: any[] = [...getValues("TL_TR_ROWCollection")];
-  //   console.log(parents);
-
-  //   const child = {
-  //     ...parents[index],
-  //     U_Quantity: null,
-  //     U_ShipToCoe: null,
-  //     U_DeliveryDate: null,
-  //     U_SourceDocEntry: getValues(
-  //       `TL_TR_ROWCollection.${index}.U_SourceDocEntry`
-  //     ),
-  //   };
-
-  //   if (!parents[index]?.U_Children) {
-  //     parents[index] = {
-  //       ...parents[index],
-  //       U_Children: [{ ...parents[index] }, child],
-  //     };
-  //   } else {
-  //     parents[index]["U_Children"] = [...parents[index]["U_Children"], child];
-  //   }
-  //   // const children = [
-  //   //   ...olds,
-  //   //   olds?.length === 0 ? {},{}, : {
-  //   //     value: "This is child",
-  //   //   }
-  //   // ];
-  //   // parents[index] = { ...parents[index], U_Children: children };
-  //   setValue("TL_TR_ROWCollection", parents);
-  // };
   const addNewChilds = (index: number) => {
     const parents = [...getValues("TL_TR_ROWCollection")];
     if (!parents[index]["U_Children"]) {
@@ -530,6 +499,7 @@ export default function Document({
         </div>
       </div>
       <TRModal
+        watch={watch}
         setValue={setValue}
         document={document}
         open={open}

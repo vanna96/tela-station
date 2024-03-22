@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -61,7 +61,7 @@ export default function TRModal(props: any) {
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
     queryKey: [
-      "TL_TR_DOCS",
+      "TL_TR_DOCS" + "_" + props?.watch("U_Branch"),
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
@@ -84,6 +84,7 @@ export default function TRModal(props: any) {
     cacheTime: 0,
     staleTime: 0,
     retry: 1,
+    refetchOnWindowFocus: false,
   });
 
   const columns = React.useMemo(
@@ -191,6 +192,7 @@ export default function TRModal(props: any) {
     ],
     [data]
   );
+
   const handlerRefresh = React.useCallback(() => {
     setRowSelection({});
     setFilter("");
@@ -267,21 +269,23 @@ export default function TRModal(props: any) {
   };
   const handleClose = () => {
     setRowSelection({});
- setOpenLoading(false);
+    setOpenLoading(false);
     props?.setOpen(false);
   };
   const onSelectData = React.useCallback(async () => {
     setOpenLoading(true);
-    let ids = [];
+    const payload: any[] = [];
     for (const [key, value] of Object.entries(rowSelection)) {
       if (!value) continue;
-      const docNum = key.split("_")?.at(-1);
-      ids.push(`U_DocNum eq ${docNum}`);
+      payload.push({
+        Type: key.split("_")?.at(1),
+        DocEntry: key.split("_")?.at(-1),
+      });
     }
-    await request(
-      "get",
-      "/sml.svc/TLTR_LINEDOCS?" + `$filter=${ids.join(" or ")}`
-    ).then((res: any) => {
+
+    await request("POST", "/script/test/get_trans_request_source", {
+      Documents: payload,
+    }).then((res: any) => {
       const selected: TRSourceDocument[] = res?.data?.value?.map(
         (e: TRSourceDocument) => {
           return {
@@ -303,8 +307,8 @@ export default function TRModal(props: any) {
       );
       const document = props?.document?.map((e: any) => ({
         ...e,
-        id:undefined
-      }))
+        id: undefined,
+      }));
       props?.setValue("TL_TR_ROWCollection", [...document, ...selected]);
       setRowSelection({});
       setOpenLoading(false);
@@ -313,7 +317,19 @@ export default function TRModal(props: any) {
   }, [rowSelection]);
 
   const lists = React.useMemo(() => data, [data]);
-
+  
+  useEffect(() => {
+    setSearchValues({
+      ...searchValues,
+      Branch: props?.watch("U_Branch"),
+    });
+    if (props?.watch("U_Branch") !== undefined) {
+      queryFilters += queryFilters
+        ? ` and BPLId eq ${props?.watch("U_Branch")}`
+        : `BPLId eq ${props?.watch("U_Branch")}`;
+      setFilter(queryFilters);
+    }
+  }, [props?.watch("U_Branch")]);
   return (
     <>
       <Modal
@@ -390,7 +406,6 @@ export default function TRModal(props: any) {
                   </div>
                   <BranchAssignmentAuto
                     onChange={(e) => {
-                      console.log(e);
                       if (e !== null) {
                         setSearchValues({
                           ...searchValues,
