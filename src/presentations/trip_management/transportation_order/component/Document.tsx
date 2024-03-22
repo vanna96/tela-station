@@ -11,10 +11,7 @@ import { dateFormat } from "@/utilies";
 import { useLocation, useParams } from "react-router-dom";
 
 export default function Document({
-  register,
-  defaultValue,
   setValue,
-  control,
   detail,
   transDetail,
   setTransDetail,
@@ -22,8 +19,6 @@ export default function Document({
   document,
   setHeadTrans,
   compartment,
-  getValues,
-  defaultValues
 }: any) {
   const [staticSelect, setStaticSelect] = useState({
     u_IssueDate: undefined,
