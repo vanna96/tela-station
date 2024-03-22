@@ -33,12 +33,12 @@ export const InventoryTransferDetails = () => {
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Stock Transfer</h1>
+      <h1>Inventory Transfer</h1>
 
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/stock-transfer/${id}/edit`)}
+        onClick={() => navigate(`/stock-control/inventory-transfer/${id}/edit`)}
         endIcon={<MdEdit />}
       >
         Edit
@@ -46,7 +46,7 @@ export const InventoryTransferDetails = () => {
       <Button
         variant="outlined"
         size="small"
-        onClick={() => navigate(`/stock-control/stock-transfer/create`)}
+        onClick={() => navigate(`/stock-control/inventory-transfer/create`)}
         endIcon={<IoCreate />}
       >
         Create
