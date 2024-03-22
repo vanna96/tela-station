@@ -54,8 +54,8 @@ const StockControlPage = () => {
       },
       {
         roles: ["UG001", "UG004"],
-        title: "Stock Transfer",
-        route: "stock-transfer",
+        title: "Inventory Transfer",
+        route: "inventory-transfer",
         icon: <AiOutlineFileAdd />,
         totalRecords: (getTFCount?.data as any)?.data ?? 0,
         loading: getTFCount.isLoading

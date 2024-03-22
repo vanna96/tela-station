@@ -6,6 +6,7 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import UomSelectByItem from "../../components/UomSelectByItem";
 import { AiOutlineConsoleSql } from "react-icons/ai";
 import { InventoryItemModal } from "../../components/GetItemModal";
+import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 
 let itemRef = React.createRef<InventoryItemModal>();
 
@@ -16,54 +17,61 @@ export default function Contents({
   control,
   watch,
 }: any) {
-
-  const [selecteds, setSelects] = useState<{ [key: number]: number | undefined }>({});
+  const [selecteds, setSelects] = useState<{
+    [key: number]: number | undefined;
+  }>({});
 
   const fields = useMemo(() => {
     return watch("StockTransferLines") ?? [];
   }, [watch("StockTransferLines")]);
 
-  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleCheck = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const items = { ...selecteds };
     items[index] = event.target.checked ? index : undefined;
-    setSelects(items)
-  }
-
-  const handleDeleteChecked = () => {
-    const state = [...watch('StockTransferLines')];
-
-    const newValues = state.filter((e, index) => !(Object.values(selecteds).includes(index)));
-    setValue('StockTransferLines', newValues)
-    setSelects({})
+    setSelects(items);
   };
 
-  const handlerAddNew = useCallback((items: any[] | any, index: number | undefined) => {
-    const state: any = [...watch('StockTransferLines')];
+  const handleDeleteChecked = () => {
+    const state = [...watch("StockTransferLines")];
 
+    const newValues = state.filter(
+      (e, index) => !Object.values(selecteds).includes(index)
+    );
+    setValue("StockTransferLines", newValues);
+    setSelects({});
+  };
 
-    if (items instanceof Array) {
-      for (const item of items) {
-        if (state.find((e: any) => e?.ItemCode === item?.ItemCode)) continue;
+  const handlerAddNew = useCallback(
+    (items: any[] | any, index: number | undefined) => {
+      const state: any = [...watch("StockTransferLines")];
 
-        state.push({
-          ItemCode: item?.ItemCode,
-          ItemDescription: item?.ItemName,
-          Quantity: undefined,
-        })
+      if (items instanceof Array) {
+        for (const item of items) {
+          if (state.find((e: any) => e?.ItemCode === item?.ItemCode)) continue;
+
+          state.push({
+            ItemCode: item?.ItemCode,
+            ItemDescription: item?.ItemName,
+            Quantity: undefined,
+          });
+        }
+      } else {
+        state[index as number] = {
+          ItemCode: items?.ItemCode,
+          ItemDescription: items?.ItemName,
+          Quantity: state[index as number]?.Quantity,
+          UoMCode: undefined,
+          UoMAbsEntry: undefined,
+        };
       }
-    } else {
-      state[index as number] = {
-        ItemCode: items?.ItemCode,
-        ItemDescription: items?.ItemName,
-        Quantity: state[index as number]?.Quantity,
-        UoMCode: undefined,
-        UoMAbsEntry: undefined,
-      }
-    }
 
-    setValue('StockTransferLines', state)
-  }, [watch('StockTransferLines')])
-
+      setValue("StockTransferLines", state);
+    },
+    [watch("StockTransferLines")]
+  );
 
   return (
     <>
@@ -98,6 +106,9 @@ export default function Contents({
               <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 UoM
               </th>
+              <th className="w-[200px] text-left font-normal  py-2 text-[14px] text-gray-500">
+                To Bin Code
+              </th>
             </tr>
             {fields?.length === 0 && (
               <tr>
@@ -117,13 +128,15 @@ export default function Contents({
                       {!detail && (
                         <Checkbox
                           onChange={(event) => handleCheck(event, index)}
-                          checked={selecteds[index] === undefined ? false : true}
+                          checked={
+                            selecteds[index] === undefined ? false : true
+                          }
                         />
                       )}
                     </td>
                     <td className="pr-4">
                       <MUITextField
-                        onClick={() => itemRef.current?.onOpen('single', index)}
+                        onClick={() => itemRef.current?.onOpen("single", index)}
                         endAdornment
                         inputProps={{
                           ...register(`StockTransferLines.${index}.ItemCode`, {
@@ -131,13 +144,13 @@ export default function Contents({
                           }),
                         }}
                       />
-
                     </td>
                     <td className="pr-4">
                       <MUITextField
                         disabled
                         inputProps={{
-                          ...register(`StockTransferLines.${index}.ItemDescription`,
+                          ...register(
+                            `StockTransferLines.${index}.ItemDescription`,
                             {
                               required: false,
                             }
@@ -149,19 +162,18 @@ export default function Contents({
                       <MUITextField
                         type="number"
                         inputProps={{
-                          ...register(`StockTransferLines.${index}.Quantity`, { required: `Quantity is required at ${index}`, }),
-
+                          ...register(`StockTransferLines.${index}.Quantity`, {
+                            required: `Quantity is required at ${index}`,
+                          }),
                         }}
                       />
                     </td>
                     <td className="pr-4">
                       <Controller
                         name={`StockTransferLines.${index}.UoMEntry`}
-                        rules={
-                          {
-                            required: 'UoM is required'
-                          }
-                        }
+                        rules={{
+                          required: "UoM is required",
+                        }}
                         control={control}
                         render={({ field }) => {
                           return (
@@ -169,8 +181,14 @@ export default function Contents({
                               disabled={detail}
                               {...field}
                               onChange={(e) => {
-                                setValue(`StockTransferLines.${index}.UoMEntry`, e?.AbsEntry);
-                                setValue(`StockTransferLines.${index}.UoMCode`, e?.Code);
+                                setValue(
+                                  `StockTransferLines.${index}.UoMEntry`,
+                                  e?.AbsEntry
+                                );
+                                setValue(
+                                  `StockTransferLines.${index}.UoMCode`,
+                                  e?.Code
+                                );
                               }}
                               item={e.ItemCode}
                               quantity={e?.Quantity}
@@ -180,6 +198,29 @@ export default function Contents({
                         }}
                       />
                     </td>
+                    <td className="pr-4">
+                      <Controller
+                        name={`StockTransferLines.${index}`}
+                        rules={{
+                          required: "To bin code is required",
+                        }}
+                        control={control}
+                        render={({ field }) => (
+                          <BinAllocationAutoComplete
+                            warehouse={watch("ToWarehouse")}
+                            // disabled={true}
+                            {...field}
+                            value={field.value}
+                            onChange={(value) => {
+                              setValue(
+                                `StockTransferLines.${index}`,
+                                value?.AbsEntry
+                              );
+                            }}
+                          />
+                        )}
+                      />
+                    </td>
                   </tr>
                 </>
               );
@@ -187,7 +228,7 @@ export default function Contents({
           </table>
           {detail ? null : (
             <span
-              onClick={() => itemRef.current?.onOpen('multiple')}
+              onClick={() => itemRef.current?.onOpen("multiple")}
               className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
             >
               Add

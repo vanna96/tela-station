@@ -14,13 +14,14 @@ const BasicInformation = (props: any) => {
   const { series, defaultSerie } = useGetITRSeriesHook();
 
   const getSerieLists: any[] = useMemo(() => {
-    if (!props.watch('BPLID')) return series.data ?? [];
+    if (!props.watch("BPLID")) return series.data ?? [];
 
-    return series.data?.filter((e: any) => e?.BPLID === props.watch('BPLID')) ?? []
-  }, [series, props.watch('BPLID')])
-console.log(getSerieLists);
+    return (
+      series.data?.filter((e: any) => e?.BPLID === props.watch("BPLID")) ?? []
+    );
+  }, [series, props.watch("BPLID")]);
+  console.log(getSerieLists);
 
-  
   useEffect(() => {
     if (props?.edit) return;
 
@@ -41,10 +42,8 @@ console.log(getSerieLists);
 
       props?.setValue("Series", event?.target?.value);
       props?.setValue("DocNum", serie?.NextNumber);
-
     },
     [series?.data]
-
   );
 
   const warehouses = useGetWhsTerminalAssignHook(false);
@@ -61,7 +60,10 @@ console.log(getSerieLists);
     props?.setValue("BPLID", value?.BPLID);
 
     // onChangeBranch(e?.BPLID);
-    const git = warehouses.data?.find((whs: any) => whs?.U_tl_git_whs === "Y" && whs.BusinessPlaceID === value?.BPLID);
+    const git = warehouses.data?.find(
+      (whs: any) =>
+        whs?.U_tl_git_whs === "Y" && whs.BusinessPlaceID === value?.BPLID
+    );
     props?.setValue("FromWarehouse", git?.WarehouseCode);
     props?.setValue("U_tl_attn_ter", undefined);
     props?.setValue("ToWarehouse", undefined);
@@ -69,7 +71,7 @@ console.log(getSerieLists);
 
   const onChangeToWarehouse = async (e: any) => {
     props.setValue("ToWarehouse", e.WarehouseCode);
-    props?.setValue("U_tl_toBinId", undefined)
+    props?.setValue("U_tl_toBinId", undefined);
   };
 
   return (
@@ -144,7 +146,7 @@ console.log(getSerieLists);
                     return (
                       <GetBranchAutoComplete
                         {...field.value}
-                        value={props.watch('BPLID')}
+                        value={props.watch("BPLID")}
                         onChange={onChangeBranch}
                       />
                     );
@@ -166,7 +168,7 @@ console.log(getSerieLists);
                 <Controller
                   rules={{ required: "To Warehouse Code is required" }}
                   name="ToWarehouse"
-                  key={`to_whs_${props?.watch('BPLID')}`}
+                  key={`to_whs_${props?.watch("BPLID")}`}
                   control={props.control}
                   render={({ field }) => {
                     return (
@@ -187,9 +189,6 @@ console.log(getSerieLists);
                 <label htmlFor="To Bin Code" className="text-gray-500">
                   To Bin Code
                 </label>
-                <span className="text-red-500 ml-1">
-                  {props.detail ? "" : "*"}
-                </span>
               </div>
               <div className="col-span-3">
                 <Controller
@@ -199,14 +198,15 @@ console.log(getSerieLists);
                   render={({ field }) => {
                     return (
                       <BinAllocationAutoComplete
-                        key={`to_bin_${props?.watch('BPLID')}`}
+                        key={`to_bin_${props?.watch("ToWarehouse")}`}
                         warehouse={props?.watch("ToWarehouse")}
                         disabled={props.detail}
                         {...field}
                         value={field.value}
-                        onChange={(value) =>
-                          props?.setValue("U_tl_toBinId", value?.AbsEntry)
-                        }
+                        onChange={(value) => {
+                          props?.setValue("U_tl_toBinId", value?.AbsEntry);
+                          props?.setValue("U_tl_sobincode", value?.BinCode);
+                        }}
                       />
                     );
                   }}
@@ -269,7 +269,7 @@ console.log(getSerieLists);
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                              "invalid date".toLocaleLowerCase()
+                            "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("DocDate", val);
@@ -301,7 +301,7 @@ console.log(getSerieLists);
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                              "invalid date".toLocaleLowerCase()
+                            "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("TaxDate", val);

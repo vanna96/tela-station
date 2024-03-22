@@ -246,12 +246,12 @@ export default function Contents({
                         name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.1.BinAbsEntry`}
                         rules={
                           {
-                            required: 'To bin code is required'
+                            required: 'From bin code is required'
                           }
                         }
                         control={control}
                         render={({ field }) => <BinAllocationAutoComplete
-                          warehouse={watch('ToWarehouse')}
+                          warehouse={watch('FromWarehouse')}
                           disabled={detail || edit}
                           {...field}
                           value={field.value}
@@ -262,18 +262,16 @@ export default function Contents({
                       />
                     </td>
                     <td className="pr-4">
-
-                     
                       <Controller
                         name={`StockTransferLines.${index}.StockTransferLinesBinAllocations.0.BinAbsEntry`}
                         rules={
                           {
-                            required: 'From bin code is required'
+                            required: 'To bin code is required'
                           }
                         }
                         control={control}
                         render={({ field }) => <BinAllocationAutoComplete
-                          warehouse={watch('FromWarehouse')}
+                          warehouse={watch('ToWarehouse')}
                           disabled={detail || edit}
                           {...field}
                           value={field.value}
