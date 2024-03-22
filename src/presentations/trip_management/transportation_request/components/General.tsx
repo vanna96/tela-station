@@ -135,8 +135,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <WarehouseAttendTo
-                        U_tl_attn_ter={true}
+                      <BaseStationAutoComplete
                         disabled={detail || watch("U_Status") === "C"}
                         {...field}
                         value={field.value}
