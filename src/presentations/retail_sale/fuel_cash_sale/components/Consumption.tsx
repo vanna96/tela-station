@@ -16,7 +16,6 @@ export default function Consumption({
   edit,
   handlerChangeObject,
 }: ConsumptionProps) {
- 
   return (
     <>
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
@@ -24,7 +23,9 @@ export default function Consumption({
           <h2>Nozzle Data</h2>
         </div>
         <NozzleData data={data} onChange={handlerChange} edit={edit} />
-
+        <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
+          <h2>Allocation Data</h2>
+        </div>
         <AllocationTable
           data={data}
           onChange={handlerChange}

@@ -1,5 +1,5 @@
 import FormCard from "@/components/card/FormCard";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CashBankTable from "./CashBankTable";
 import CheckNumberTable from "./CheckNumberTable";
 import CouponTable from "./CouponTable";
@@ -8,6 +8,11 @@ import Formular from "@/utilies/formular";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import MUITextField from "@/components/input/MUITextField";
 import { useExchangeRate } from "../../components/hook/useExchangeRate";
+import { formatDate } from "@/helper/helper";
+import { FormValidateException } from "@/utilies/error";
+import FormMessageModal from "@/components/modal/FormMessageModal";
+import { useQuery } from "react-query";
+import request from "@/utilies/request";
 
 export interface IncomingPaymentProps {
   data: any;
@@ -22,11 +27,48 @@ export default function IncomingPaymentForm({
   edit,
   ref,
 }: IncomingPaymentProps) {
+  const formMessageModalRef = React.useRef<FormMessageModal>(null);
   const [isChecked, setIsChecked] = useState(false);
 
   const handleCheckboxChange = (e: any) => {
     setIsChecked(e.target.checked);
   };
+
+  const date = useMemo(() => formatDate(new Date(), ""), []);
+
+  const isAnyKHR =
+    data?.cashBankData?.some((item: any) => item.U_tl_paycur === "KHR") ||
+    data?.checkNumberData?.some((item: any) => item.U_tl_paycur === "KHR");
+
+  useEffect(() => {
+    const fetchExchangeRate = async () => {
+      if (isAnyKHR) {
+        try {
+          const res: any = await request(
+            "POST",
+            "/SBOBobService_GetCurrencyRate",
+            {
+              Currency: "KHR",
+              Date: `${date}`,
+            }
+          );
+
+          if (res?.data) {
+            handlerChange("ExchangeRate", res.data);
+          } else {
+            handlerChange("ExchangeRate", 0);
+          }
+        } catch (err) {
+          handlerChange("ExchangeRate", 0);
+          formMessageModalRef.current?.error(
+            "Please update exchange rate for currency KHR "
+          );
+        }
+      }
+    };
+
+    fetchExchangeRate();
+  }, [isAnyKHR]);
 
   const totalCashSale: number = React.useMemo(() => {
     const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
@@ -79,8 +121,8 @@ export default function IncomingPaymentForm({
 
     return total;
   };
-  useExchangeRate("KHR", handlerChange);
-  let exchangeRate = data?.ExchangeRate === 0 ? 4100 : data?.ExchangeRate;
+  let exchangeRate = data?.ExchangeRate;
+
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -99,9 +141,10 @@ export default function IncomingPaymentForm({
   if (data) {
     data.DocRate = data.ExchangeRate;
   }
-  console.log(data.DocRate)
+
   return (
     <>
+      <FormMessageModal ref={formMessageModalRef} />
       <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
         <div className="font-medium text-xl flex justify-start items-center border-b mb-4">
           <h2>Cash Sale - </h2>
@@ -134,16 +177,7 @@ export default function IncomingPaymentForm({
                 placeholder="0.000"
                 decimalScale={3}
                 customInput={MUIRightTextField}
-                // value={
-                //   totalUSD + TotalKHRtoUSD - totalCashSale === 0 || ""
-                //     ? ""
-                //     : totalUSD + TotalKHRtoUSD - totalCashSale
-                // }
-                value={
-                  Math.abs(totalUSD + TotalKHRtoUSD - totalCashSale) < 0.001 // Adjust the tolerance level as needed
-                    ? ""
-                    : totalUSD + TotalKHRtoUSD - totalCashSale
-                }
+                value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
               />
             </div>
           </div>

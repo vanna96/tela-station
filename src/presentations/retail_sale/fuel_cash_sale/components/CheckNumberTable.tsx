@@ -169,6 +169,7 @@ export default function CheckNumberTable(props: any) {
         if (cell.row.original?.U_tl_acccheck === "") return null;
         return (
           <NumericFormat
+            thousandSeparator
             key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
             placeholder="0.000"
             disabled={data?.edit}
