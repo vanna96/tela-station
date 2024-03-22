@@ -137,7 +137,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
 
     FilterPayment.forEach(item => {
         const isCash = item.Type === 'Cash' || item.Type === 'Coupon';
-        const isTransfer = item.Type === 'Transfer';
+        const isTransfer = item.Type === 'Bank';
         const isCheck = item.Type === 'Check';
 
         CashSum += isCash ? parseFloat(item.Amount) : 0;
@@ -156,7 +156,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
         DiscountPercent: 0
     }; 
-
+    return http.response.send(200, obj['CardCount'][0].LineOfBussiness);
     return {
         Series: obj['IncomingSeries'],
         DocType: "rCustomer",
@@ -173,9 +173,10 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
-        U_tl_dim1: null, // Line of bussiness
-        U_tl_dim2: null, // Revenue Line
-        U_tl_dim3: null, // Product Line
+        U_tl_dim1: obj['CardCount'][0].LineOfBussiness, // Line of bussiness
+        U_tl_dim2: '202001', // Revenue Line
+        // U_tl_dim2: obj['CardCount'][0].ProductLine, // Revenue Line
+        U_tl_dim3: obj['CardCount'][0].ProductLine, // Product Line
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
                                         return {
@@ -252,7 +253,7 @@ function CashSaleTransaction(slContext, jsonObj){
     if(totalC) totalPayment += totalC;
     if(totalP['USD']) totalPayment += totalP['USD'];
     if(totalP['KHR'] && jsonObj['DocRate']) totalPayment += totalP['KHR'] / (jsonObj['DocRate']);
-    
+
     if(totalPayment >= invoiceTotal){
         // Coupon USD Payment
         var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
@@ -370,6 +371,7 @@ function CashSaleTransaction(slContext, jsonObj){
                 // KHR Payment
                 const adjustAmount = (invoiceTotal - (totalP['KHR']/jsonObj['DocRate'])) * jsonObj['DocRate'];
                 var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"], adjustAmount);
+                
                 if( paymentKh != null) {
                     var incomingContext = slContext.add("IncomingPayments", paymentKh)
                     if (incomingContext.status !== 201) {
