@@ -3,12 +3,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
 import MUISelect from "@/components/selectbox/MUISelect";
-import AttentionTerminalAutoComplete from "./AttentionTerminalAutoComplete";
+// import AttentionTerminalAutoComplete from "./AttentionTerminalAutoComplete";
 import { useGetITRSeriesHook } from "../hook/useGetITRSeriesHook";
 import { useGetWhsTerminalAssignHook } from "@/hook/useGetWhsTerminalAssignHook";
 import BinAllocationAutoComplete from "../../components/BinLocationAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
+import AttentionTerminalAutoComplete from "../../inventory_transfer/components/AttentionTerminalAutoComplete";
 const BasicInformation = (props: any) => {
   //
   const { series, defaultSerie } = useGetITRSeriesHook();
@@ -112,6 +113,7 @@ const BasicInformation = (props: any) => {
                   render={({ field }) => {
                     return (
                       <AttentionTerminalAutoComplete
+                        branchId={props?.watch('BPLID')}
                         key={`attn_ter_${props?.watch("BPLID")}`}
                         disabled={props.detail}
                         {...field}
