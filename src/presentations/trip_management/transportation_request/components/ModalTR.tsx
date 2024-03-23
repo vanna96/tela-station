@@ -163,10 +163,11 @@ export default function TRModal(props: any) {
     setOpenLoading(true);
     const payload: any[] = [];
     for (const [key, value] of Object.entries(rowSelection)) {
-      if (!value) continue;
+      console.log(key);
+      
       payload.push({
-        Type: key.split("_")?.at(1),
-        DocEntry: key.split("_")?.at(-1),
+        Type: key.split("/").at(1),
+        DocEntry: key.split("/").at(-1),
       });
     }
 

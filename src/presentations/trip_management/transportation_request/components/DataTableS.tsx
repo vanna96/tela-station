@@ -199,7 +199,7 @@ export default function DataTableS(props: any) {
           enableMultiRowSelection={true}
           onRowSelectionChange={props?.setRowSelection}
           getRowId={(row: any) => {
-            return `${shortid.generate() + "_" + row.U_Type + "_" + row?.U_SourceDocEntry}`;
+            return `${shortid.generate()}/${row?.U_Type}/${row?.U_SourceDocEntry}`;
           }}
           onPaginationChange={props.paginationChange}
           state={{

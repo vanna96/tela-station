@@ -374,7 +374,10 @@ const Form = (props: any) => {
             leftSideField={undefined}
             rightSideField={undefined}
           />
-          <BackDrop open={state?.isSubmitting} />
+            <BackDrop
+              open={state.isSubmitting}
+              // open={true}
+            />
           <FormMessageModal ref={dialog} />
           <CustomToast ref={toastRef} />
 
@@ -452,7 +455,7 @@ const Form = (props: any) => {
                     disableElevation
                   >
                     <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Save"}
+                      {props.edit ? "Update" : "Add"}
                     </span>
                   </LoadingButton>
                 </div>
