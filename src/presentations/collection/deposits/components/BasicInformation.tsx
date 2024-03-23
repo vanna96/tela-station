@@ -3,13 +3,9 @@ import { UseFormProps } from "../form";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
 import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import React from "react";
 import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
 import { useGetDepositSeriesHook } from "../hook/useGetDepositSeriesHook";
 import GetBranchAutoComplete from "@/presentations/stock_control/components/GetBranchAutoComplete";
@@ -65,7 +61,6 @@ const BasicInformation = ({
     return series?.data?.filter((e: any) => e?.BPLID === watch('BPLID')) ?? []
   }, [series, watch('BPLID')])
 
-  console.log(watch('BPLID'));
   
 
   useEffect(() => {
@@ -201,6 +196,8 @@ const BasicInformation = ({
                         {...field}
                         value={field?.value}
                         onChange={(e: any) => {
+                         setValue("curr",e?.Code === "KHR" ? 110498 : 110497)
+                          
                           setValue("DepositCurrency", e?.Code);
                           setValue("CheckLines", []);
                         }}
@@ -225,12 +222,17 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <DepositCashAccountAutoComplete
+                      curr={watch("curr")}
                         disabled={detail}
                         value={field.value}
-                        onChange={(e: any) => {
+                        onChange={(e: any) => {    
                           setValue(
                             "U_tl_cash_acc",
                             e?.Code,
+                          );
+                          setValue(
+                            "U_tl_cash_name",
+                            e?.Name,
                           );
                           setValue(
                             "U_tl_cash_des",
@@ -257,7 +259,7 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <MUITextField
                   // disabled={detail || true}
-                  value={watch('U_tl_cash_acc')}
+                  value={watch('U_tl_cash_name')}
                 />
               </div>
             </div>

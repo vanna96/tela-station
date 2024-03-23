@@ -28,6 +28,8 @@ export const useDepositHook = ({
   const onSubmit = async (e: any) => {
     const payload: any = {
       ...e,
+      U_tl_cash_name:undefined,
+      curr: undefined
     };
     
     try {

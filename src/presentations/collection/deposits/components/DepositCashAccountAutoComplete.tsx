@@ -1,6 +1,6 @@
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
@@ -13,13 +13,20 @@ export default function DepositCashAccountAutoComplete(props: {
   BPdata?: any;
   disabled?: any;
   name?: any;
+  curr?: string
 }) {
   const { data, isLoading }: any = useQuery({
-    queryKey: ["deposit_cash"],
-    queryFn: () => request('GET', `/TL_CashAcct?$filter=U_tl_cashtype eq 'Deposit'&$select=Code, Name,U_tl_cashacct`).then((res:any) => res.data.value),
+    queryKey: ["deposit_cash_"+props?.curr],
+    queryFn: () => request('GET', `/TL_CashAcct?$filter=U_tl_cashtype eq 'Deposit'${props?.curr ? `&$filter=U_tl_cashacct eq '${props?.curr}'`:""}&$select=Code, Name,U_tl_cashacct`).then((res:any) => res.data.value),
     staleTime: Infinity,
     refetchOnWindowFocus : false,
   });
+
+  console.log(data);
+  
+// const list = useMemo(()=>{
+//   return data?.filter((e:any)=> e?.U_tl_cashacct === props?.curr)
+// },[props?.curr,data])
 
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
@@ -63,7 +70,7 @@ export default function DepositCashAccountAutoComplete(props: {
         value={selectedValue}
         onChange={handleAutocompleteChange}
         loading={isLoading}
-        getOptionLabel={(option: any) => option?.Name}
+        getOptionLabel={(option: any) => option?.Code + " - " + option.Name}
         renderOption={(props, option) => (
           <Box component="li" {...props}>
             <BsDot />

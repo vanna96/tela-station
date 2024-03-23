@@ -3,6 +3,7 @@ import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { useQuery } from "react-query";
 import DepartmentRepository from "@/services/actions/departmentRepository";
 import CurrencyRepository from "@/services/actions/currencyRepository";
+import request, { url } from "@/utilies/request";
 
 interface Type {
   Code: number;
@@ -18,8 +19,15 @@ export default function CurrencyAutoComplete(props: {
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["currency"],
-    queryFn: () => new CurrencyRepository().get(),
-    staleTime: Infinity,
+    queryFn: async () => {
+      const response: any = await request("GET", `${url}/Currencies?$filter=Code eq 'KHR' or Code eq 'USD'`)
+        .then((res: any) => res?.data?.value)
+        .catch((e: Error) => {
+          throw new Error(e.message);
+        });
+      return response;
+    },
+   
   });
 
   useEffect(() => {

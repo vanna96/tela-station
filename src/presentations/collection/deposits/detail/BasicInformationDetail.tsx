@@ -221,8 +221,11 @@ const BasicInformationDetail = ({
                         value={field.value}
                         onChange={(e: any) => {
                           setValue("U_tl_cash_acc", e?.Code);
+                          setValue(
+                            "U_tl_cash_name",
+                            e?.Name,
+                          );
                           setValue("U_tl_cash_des", e?.Name);
-
                           setValue("DepositAccount", e?.U_tl_cashacct);
                         }}
                       />
@@ -238,7 +241,7 @@ const BasicInformationDetail = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField disabled={true} value={watch("U_tl_cash_acc")} />
+                <MUITextField disabled={true} value={watch("U_tl_cash_des")} />
               </div>
             </div>
           </div>
