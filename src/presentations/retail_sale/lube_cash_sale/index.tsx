@@ -199,7 +199,6 @@ export default function SaleOrderLists() {
     // staleTime: Infinity,
     retry: 1,
   });
-  console.log(data)
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");

@@ -195,7 +195,7 @@ export default function GeneralForm({
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-                passedCardCode={data.CardCode}
+                passedcardcode={data.CardCode}
                 endAdornment={!edit}
               />
             </div>

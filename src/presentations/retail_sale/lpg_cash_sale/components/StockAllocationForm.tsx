@@ -18,6 +18,7 @@ import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { commaFormatNum } from "@/utilies/formatNumber";
+import BinLocationsAutoComplete from "@/components/input/BinLocationsAutoComplete";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -102,7 +103,7 @@ export default function StockAllocationTable({
     });
   };
 
-  console.log(data.stockAllocationData);
+
   const itemColumns = React.useMemo(
     () => [
       {
@@ -208,8 +209,8 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
-            <BinLocationToAsEntry
-              Warehouse={cell.row.original.U_tl_whscode}
+            <BinLocationsAutoComplete
+              Warehouse={cell.row.original.U_tl_whs}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_bincode: e,

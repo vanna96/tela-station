@@ -251,6 +251,120 @@ export default function ContentForm({
             );
         },
       },
+      // {
+      //   Header: (header: any) => (
+      //     <label>
+      //       UoM <span className="text-red-500">*</span>
+      //     </label>
+      //   ),
+      //   accessorKey: "UomAbsEntry",
+      //   header: "UoM",
+      //   visible: true,
+      //   Cell: ({ cell }: any) => {
+      //     if (cell.row.original?.ItemCode)
+      //       return (
+      //         <MUISelect
+      //           disabled={cell.row.original.ItemCode === " "}
+      //           value={cell.getValue()}
+      //           items={cell.row.original.UomLists?.map((e: any) => ({
+      //             label: e.Name,
+      //             value: e.AbsEntry,
+      //           }))}
+      //           aliaslabel="label"
+      //           aliasvalue="value"
+      //           onChange={(event: any) => {
+      //             handlerUpdateRow(
+      //               cell.row.id,
+      //               ["UomAbsEntry", event.target.value],
+      //               "UomAbsEntry"
+      //             );
+      //             let defaultPrice = cell.row.original.ItemPrices?.find(
+      //               (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+      //             )?.Price;
+      //             let itemPrices = cell.row.original.ItemPrices?.find(
+      //               (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+      //             )?.UoMPrices;
+
+      //             let uomPrice = itemPrices?.find(
+      //               (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+      //             );
+      //             console.log(
+      //               cell.row.original.ItemPrices?.find(
+      //                 (e: any) =>
+      //                   e.PriceList === parseInt(data.U_tl_sopricelist)
+      //               )
+      //             );
+      //             console.log(data.U_tl_sopricelist);
+      //             console.log(cell.row.original.ItemPrices);
+      //             console.log(itemPrices);
+      //             console.log(uomPrice);
+      //             console.log(cell.row.original)
+
+      //             if (uomPrice && event.target.value === uomPrice.UoMEntry) {
+      //               const grossPrice = uomPrice.Price;
+      //               console.log(grossPrice);
+      //               const quantity = cell.row.original.Quantity;
+      //               const totalGross =
+      //                 grossPrice * quantity -
+      //                 grossPrice *
+      //                   quantity *
+      //                   (cell.row.original.DiscountPercent / 100);
+
+      //               handlerUpdateRow(
+      //                 cell.row.id,
+      //                 ["GrossPrice", grossPrice],
+      //                 "GrossPrice"
+      //               );
+      //               handlerUpdateRow(
+      //                 cell.row.id,
+      //                 ["LineTotal", totalGross],
+      //                 "LineTotal"
+      //               );
+      //             } else if (
+      //               defaultPrice &&
+      //               event.target.value === cell.row.original.InventoryUoMEntry
+      //             ) {
+      //               // If uomPrice is not available and selected UoM matches the default UoM, use defaultPrice
+      //               const grossPrice = defaultPrice;
+      //               const quantity = cell.row.original.Quantity;
+      //               // Calculate total gross price
+      //               const totalGross =
+      //                 grossPrice * quantity -
+      //                 grossPrice *
+      //                   quantity *
+      //                   (cell.row.original.DiscountPercent / 100);
+      //               // Update row with the gross price and total gross
+      //               handlerUpdateRow(
+      //                 cell.row.id,
+      //                 ["GrossPrice", grossPrice],
+      //                 "GrossPrice"
+      //               );
+      //               handlerUpdateRow(
+      //                 cell.row.id,
+      //                 ["LineTotal", totalGross],
+      //                 "LineTotal"
+      //               );
+      //             } else {
+      //               // If uomPrice is not available or selected UoM doesn't match the default UoM
+      //               // Set gross price to 0
+      //               const grossPrice = 0;
+      //               const totalGross = 0; // Total gross should be 0 as well
+      //               handlerUpdateRow(
+      //                 cell.row.id,
+      //                 ["GrossPrice", grossPrice],
+      //                 "GrossPrice"
+      //               );
+      //               handlerUpdateRow(
+      //                 cell.row.id,
+      //                 ["LineTotal", totalGross],
+      //                 "LineTotal"
+      //               );
+      //             }
+      //           }}
+      //         />
+      //       );
+      //   },
+      // },
       {
         Header: (header: any) => (
           <label>
@@ -261,76 +375,65 @@ export default function ContentForm({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
-          if (cell.row.original?.ItemCode)
-            return (
-              <MUISelect
-                disabled={cell.row.original.ItemCode === " "}
-                value={cell.getValue()}
-                items={cell.row.original.UomLists?.map((e: any) => ({
-                  label: e.Name,
-                  value: e.AbsEntry,
-                }))}
-                aliaslabel="label"
-                aliasvalue="value"
-                onChange={(event: any) => {
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["UomAbsEntry", event.target.value],
-                    "UomAbsEntry"
-                  );
-                  let defaultPrice = cell.row.original.ItemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-                  )?.Price;
-                  let itemPrices = cell.row.original.ItemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-                  )?.UoMPrices;
+          if (!cell.row.original?.ItemCode) return null;
 
-                  let uomPrice = itemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
-                  );
-
-                  if (uomPrice && event.target.value === uomPrice.UoMEntry) {
-                    const grossPrice = uomPrice.Price;
-                    const quantity = cell.row.original.Quantity;
-                    const totalGross =
-                      grossPrice * quantity -
-                      grossPrice *
-                        quantity *
-                        (cell.row.original.DiscountPercent / 100);
-
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["GrossPrice", grossPrice],
-                      "GrossPrice"
-                    );
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["LineTotal", totalGross],
-                      "LineTotal"
-                    );
-                  } else {
-                    const grossPrice = defaultPrice;
-                    const quantity = cell.row.original.Quantity;
-                    const totalGross =
-                      grossPrice * quantity -
-                      grossPrice *
-                        quantity *
-                        (cell.row.original.DiscountPercent / 100);
-
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["GrossPrice", grossPrice],
-                      "GrossPrice"
-                    );
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["LineTotal", totalGross],
-                      "LineTotal"
-                    );
-                  }
-                }}
-              />
+          const handleUomChange = (event: any) => {
+            const selectedUomValue = event.target.value;
+            handlerUpdateRow(
+              cell.row.id,
+              ["UomAbsEntry", selectedUomValue],
+              "UomAbsEntry"
             );
+
+            const defaultPrice = cell.row.original.ItemPrices?.find(
+              (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+            )?.Price;
+            const itemPrices = cell.row.original.ItemPrices?.find(
+              (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+            )?.UoMPrices;
+
+            const uomPrice = itemPrices?.find(
+              (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+            );
+
+            const grossPrice =
+              uomPrice && selectedUomValue === uomPrice.UoMEntry
+                ? uomPrice.Price
+                : defaultPrice &&
+                    selectedUomValue === cell.row.original.InventoryUoMEntry
+                  ? defaultPrice
+                  : 0;
+
+            const quantity = cell.row.original.Quantity;
+            const totalGross =
+              grossPrice * quantity -
+              grossPrice * quantity * (cell.row.original.DiscountPercent / 100);
+
+            handlerUpdateRow(
+              cell.row.id,
+              ["GrossPrice", grossPrice],
+              "GrossPrice"
+            );
+            handlerUpdateRow(
+              cell.row.id,
+              ["LineTotal", totalGross],
+              "LineTotal"
+            );
+          };
+
+          return (
+            <MUISelect
+              disabled={cell.row.original.ItemCode === " "}
+              value={cell.getValue()}
+              items={cell.row.original.UomLists?.map((e: any) => ({
+                label: e.Name,
+                value: e.AbsEntry,
+              }))}
+              aliaslabel="label"
+              aliasvalue="value"
+              onChange={handleUomChange}
+            />
+          );
         },
       },
       {
