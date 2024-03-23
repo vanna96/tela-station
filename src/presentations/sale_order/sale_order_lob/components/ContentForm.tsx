@@ -386,28 +386,34 @@ export default function ContentForm({
             return (
               <NumericFormat
                 disabled={cell.row.original.ItemCode === " "}
-                value={cell.getValue()}
+                value={
+                  cell.row.original.DiscountPercent === 0 ? "" : cell.getValue()
+                }
                 thousandSeparator
-                key={"DiscountPercent" + cell.getValue()}
+                key={
+                  "DiscountPercent" +
+                  cell.row.original.DiscountPercent +
+                  shortid.generate()
+                }
                 startAdornment={"%"}
                 decimalScale={data.Currency === "USD" ? 3 : 0}
-                // fixedDecimalScale
                 placeholder={data.Currency === "USD" ? "0.000" : "0"}
-                onChange={(event: any) => {
-                  if (!(event.target.value <= 100 && event.target.value >= 0)) {
-                    event.target.value = 0;
+                onBlur={(event) => {
+                  let newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  if (!(newValue <= 100 && newValue >= 0)) {
+                    newValue = 0;
                   }
                   handlerUpdateRow(
                     cell.row.id,
-                    ["DiscountPercent", event.target.value],
+                    ["DiscountPercent", newValue],
                     "DiscountPercent"
                   );
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
                     cell.row.original.GrossPrice * quantity -
-                    cell.row.original.GrossPrice *
-                      quantity *
-                      (cell.row.original.DiscountPercent / 100);
+                    cell.row.original.GrossPrice * quantity * (newValue / 100);
                   handlerUpdateRow(
                     cell.row.id,
                     ["LineTotal", totalGross],
@@ -419,7 +425,6 @@ export default function ContentForm({
             );
         },
       },
-
       {
         accessorKey: "LineTotal",
         header: "Amount",

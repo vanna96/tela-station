@@ -52,7 +52,7 @@ class SalesOrderForm extends CoreFormDocument {
       JournalRemark: "",
       BPAddresses: [],
       Rounding: false,
-      DocDiscount: 0,
+      DiscountPercent: 0,
       RoundingValue: 0,
       headerText: (() => {
         const pathSegments = location.pathname.split("/");
