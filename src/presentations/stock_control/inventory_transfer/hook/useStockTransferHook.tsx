@@ -13,6 +13,7 @@ export type TransferType = 'Internal' | 'External';
 
 export interface PostInventoryTransfer {
     DocDate: string | undefined;
+    TaxDate: string | undefined;
     BPLID: number | undefined,
     DocumentStatus: string | undefined,
     U_tl_attn_ter: string | undefined,
@@ -32,6 +33,7 @@ export interface PostInventoryTransfer {
 const defaultValues: PostInventoryTransfer = {
     U_tl_transType: 'Internal',
     DocDate: new Date().toISOString()?.split('T')[0],
+    TaxDate: new Date().toISOString()?.split('T')[0],
     BPLID: undefined,
     DocumentStatus: 'bost_Open',
     U_tl_attn_ter: undefined,
@@ -60,6 +62,7 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                 var payload: PostInventoryTransfer = {
                     U_tl_transType: 'External',
                     DocDate: new Date().toISOString()?.split('T')[0],
+                    TaxDate: new Date().toISOString()?.split('T')[0],
                     BPLID: res?.data?.BPLID,
                     DocumentStatus: 'bost_Open',
                     U_tl_attn_ter: res?.data?.U_tl_attn_ter,
