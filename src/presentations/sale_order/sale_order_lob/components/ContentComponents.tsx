@@ -6,6 +6,7 @@ import { NumericFormat } from "react-number-format";
 import { useDocumentTotalHook } from "@/hook";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
+import shortid from "shortid";
 
 interface ContentComponentProps {
   items: any[];
@@ -168,14 +169,18 @@ export default function ContentComponent(props: ContentComponentProps) {
                 minSize: 0,
                 maxSize: 0,
                 Cell: ({ cell }: any) => {
-                  if (!cell.row.original?.ItemCode || cell.row.original?.ItemCode === " ") return null
-                    return (
-                      <Checkbox
-                        checked={cell.row.index in rowSelection}
-                        size="small"
-                        onChange={(event) => onCheckRow(event, cell.row.index)}
-                      />
-                    );
+                  if (
+                    !cell.row.original?.ItemCode ||
+                    cell.row.original?.ItemCode === " "
+                  )
+                    return null;
+                  return (
+                    <Checkbox
+                      checked={cell.row.index in rowSelection}
+                      size="small"
+                      onChange={(event) => onCheckRow(event, cell.row.index)}
+                    />
+                  );
                 },
               },
               ...columns,
@@ -262,15 +267,20 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-6 text-gray-700">Discount</div>
                     <div className="col-span-6  text-gray-900 mr-2">
                       <NumericFormat
+                        key={props.data.DiscountPercent + shortid.generate()}
                         className=" w-full"
-                        value={props?.data?.DiscountPercent}
+                        value={
+                          props.data.DiscountPercent == 0
+                            ? ""
+                            : props.data.DiscountPercent
+                        }
                         thousandSeparator
                         startAdornment={"%"}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         placeholder={
                           props.data.Currency === "USD" ? "0.000" : "0"
                         }
-                        onChange={(event: any) => {
+                        onBlur={(event: any) => {
                           if (
                             !(
                               event.target.value <= 100 &&
