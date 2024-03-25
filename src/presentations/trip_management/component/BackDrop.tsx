@@ -26,7 +26,7 @@ const BackDrop = (props: any) => {
               color: (theme) =>
                 theme.palette.grey[theme.palette.mode === "light" ? 300 : 800],
             }}
-            size={50}
+            size={40}
             thickness={10}
             value={100}
           />
@@ -35,15 +35,15 @@ const BackDrop = (props: any) => {
             variant="indeterminate"
             disableShrink
             sx={{
-              animationDuration: "900ms",
+              animationDuration: "800ms",
               position: "absolute",
               left: 0,
               [`& .${circularProgressClasses.circle}`]: {
                 strokeLinecap: "round",
-                color: green[200],
+                color: green[300],
               },
             }}
-            size={50}
+            size={40}
             thickness={10}
           />
         </Box>

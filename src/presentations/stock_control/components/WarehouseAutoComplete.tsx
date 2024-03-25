@@ -13,21 +13,26 @@ export type WarehouseAutoCompleteProp = {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
-  branchId: number | undefined
-}
+  branchId: number | undefined;
+};
 
 const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
-  const { data, isLoading } = useGetWhsTerminalAssignHook(false)
-
+  const { data, isLoading } = useGetWhsTerminalAssignHook(false);
 
   const warehoueses = useMemo(() => {
-    return data?.filter((e: any) => e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N')
-  }, [props.branchId, data])
-
+    return data?.filter(
+      (e: any) =>
+        e.U_tl_whsclear === "N" &&
+        e.U_tl_git_whs === "N" &&
+        e?.BusinessPlaceID === props.branchId
+    );
+  }, [props.branchId, data]);
 
   useEffect(() => {
     if (props.value && warehoueses) {
-      const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+      const selected = warehoueses.find(
+        (e: WarehouseProps) => e.WarehouseCode === props.value
+      );
       if (selected) {
         setSelectedValue(selected);
       }
@@ -35,7 +40,9 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
   }, [props.value, warehoueses]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);
+  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(
+    null
+  );
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -47,6 +54,7 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
     }
   };
   const disabled = props.disabled;
+  console.log(warehoueses);
 
   return (
     <div className="block text-[14px] xl:text-[13px]">
@@ -75,8 +83,9 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
-              }`}
+            className={`w-full text-field text-xs ${
+              disabled ? "bg-gray-100" : ""
+            }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -93,6 +102,6 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
       />
     </div>
   );
-}
+};
 
 export default WarehouseAutoComplete;

@@ -468,7 +468,16 @@ const TransportationOrderForm = (props: any) => {
             leftSideField={undefined}
             rightSideField={undefined}
           />
-         <BackDrop open={state.isSubmitting} />
+          <Backdrop
+            sx={{
+              color: "#fff",
+              backgroundColor: "rgb(251 251 251 / 60%)",
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
+            open={state.isSubmitting}
+          >
+            <CircularProgress />
+          </Backdrop>{" "}
           <FormMessageModal ref={dialog} />
           <form
             id="formData"
@@ -552,7 +561,7 @@ const TransportationOrderForm = (props: any) => {
                   setTransDetail={setTransDetail}
                   setTrans={setTrans}
                   detail={props?.detail}
-                    watch={watch}
+                  watch={watch}
                 />
               </div>
             )}

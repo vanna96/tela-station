@@ -83,7 +83,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     setKeys(selectedKeys);
     setCurrenData(updatedList);
   };
-  
+
   const getData = () => {
     if (data?.length === 0) return;
     setOpenItem(true);
@@ -440,7 +440,16 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
         setOpen={setOpenItem}
         open={openItem}
       />
-    <BackDrop open={submiting} />
+      <Backdrop
+        sx={{
+          color: "#fff",
+          backgroundColor: "rgb(251 251 251 / 60%)",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+        open={submiting}
+      >
+        <CircularProgress />
+      </Backdrop>{" "}
     </>
   );
 }

@@ -374,10 +374,16 @@ const Form = (props: any) => {
             leftSideField={undefined}
             rightSideField={undefined}
           />
-            <BackDrop
-              open={state.isSubmitting}
-              // open={true}
-            />
+          <Backdrop
+            sx={{
+              color: "#fff",
+              backgroundColor: "rgb(251 251 251 / 60%)",
+              zIndex: (theme) => theme.zIndex.drawer + 1,
+            }}
+            open={state.isSubmitting}
+          >
+            <CircularProgress />
+          </Backdrop>
           <FormMessageModal ref={dialog} />
           <CustomToast ref={toastRef} />
 
