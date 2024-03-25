@@ -229,7 +229,7 @@ export default function ContentForm({
                 key={"Quantity_" + cell.getValue()}
                 disabled={cell.row.original.ItemCode === " "}
                 thousandSeparator
-                decimalScale={data.Currency === "USD" ? 4 : 0}
+                decimalScale={4}
                 placeholder={data.Currency === "USD" ? "0.0000" : "0"}
                 customInput={MUIRightTextField}
                 defaultValue={cell.getValue()}
@@ -424,8 +424,8 @@ export default function ContentForm({
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={data.Currency === "USD" ? 3 : 0}
-                // fixedDecimalScale
+                decimalScale={3}
+                placeholder={data.Currency === "USD" ? "0.000" : "0"}
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
                 onChange={(event) => {

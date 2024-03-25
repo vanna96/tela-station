@@ -262,7 +262,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={totalBefore === 0 ? "" : totalBefore}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    decimalScale={3}
                     placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
                     customInput={MUIRightTextField}
@@ -280,7 +280,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         value={props?.data?.U_tl_dispercent}
                         thousandSeparator
                         startAdornment={"%"}
-                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        decimalScale={3}
                         placeholder={
                           props.data.Currency === "USD" ? "0.000" : "0"
                         }
@@ -309,7 +309,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         value={discountAmount === 0 || "" ? "" : discountAmount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
-                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                        decimalScale={3}
                         placeholder={
                           props.data.Currency === "USD" ? "0.000" : "0"
                         }
@@ -332,7 +332,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    decimalScale={3}
                     placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
                     customInput={MUIRightTextField}
@@ -348,7 +348,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={discountedDocTotal === 0 ? "" : discountedDocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
+                    decimalScale={3}
                     placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
                     customInput={MUIRightTextField}
