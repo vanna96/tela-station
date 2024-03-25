@@ -41,32 +41,50 @@ function POST(req) {
     
     try {
         // CASH SALE
-        if(fuelSale.body['U_tl_s_cashallow'] !== 'Y' && jsonObj["CashSale"].length > 0) CashSaleTransaction(slContext, jsonObj)
+        if(
+            fuelSale.body['U_tl_s_cashallow'] !== 'Y' && 
+            jsonObj["CashSale"].length > 0
+        ) CashSaleTransaction(slContext, jsonObj)
     
         // PARTNERSHIP
-        if(fuelSale.body['U_tl_s_partallow'] !== 'Y' && jsonObj["Partnership"].length > 0) {
+        if(
+            fuelSale.body['U_tl_s_partallow'] !== 'Y' && 
+            jsonObj["Partnership"].length > 0
+        ) {
             PartnerShipTransaction(slContext, jsonObj, true);
             PartnerShipTransaction(slContext, jsonObj);
         }
     
         // STOCK TRANSFER
-        if(fuelSale.body['U_tl_s_stockallow'] !== 'Y' && jsonObj["StockTransfer"].length > 0) {
+        if(
+            fuelSale.body['U_tl_s_stockallow'] !== 'Y' && 
+            jsonObj["StockTransfer"].length > 0
+        ) {
             StockTransferTransaction(slContext, jsonObj, true);
             StockTransferTransaction(slContext, jsonObj);
         }
         
     
         // OWN USAGE
-        if(fuelSale.body['U_tl_s_ownallow'] !== 'Y' && jsonObj["OwnUsage"].length > 0) OwnUsageTransaction(slContext, jsonObj);
+        if(
+            fuelSale.body['U_tl_s_ownallow'] !== 'Y' && 
+            jsonObj["OwnUsage"].length > 0
+        ) OwnUsageTransaction(slContext, jsonObj);
     
         // TELA CARD
-        if(fuelSale.body['U_tl_s_cardallow'] !== 'Y' && jsonObj["TelaCard"].length > 0) {
+        if(
+            fuelSale.body['U_tl_s_cardallow'] !== 'Y' && 
+            jsonObj["TelaCard"].length > 0
+        ) {
             TelaCardTransaction(slContext, jsonObj, true);
             TelaCardTransaction(slContext, jsonObj);
         };
     
         // PUMP TEST​
-        if(fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && jsonObj["PumpTest"].length > 0) PumpTestTransaction(slContext, jsonObj);
+        if(
+            fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
+            jsonObj["PumpTest"].length > 0
+        ) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
@@ -154,9 +172,12 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         InvoiceType: "it_Invoice",
         SumApplied: isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
         AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
-        DiscountPercent: 0
+        DiscountPercent: 0,
+        DistributionRule: inv['DocumentLines'][0]['COGSCostingCode'],
+        DistributionRule2: inv['DocumentLines'][0]['COGSCostingCode2'],
+        DistributionRule3: inv['DocumentLines'][0]['COGSCostingCode3']
     }; 
-    
+   
     return {
         Series: obj['IncomingSeries'],
         DocType: "rCustomer",
@@ -173,10 +194,9 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
-        U_tl_dim1: obj['CardCount'][0].LineOfBussiness, // Line of bussiness
-        U_tl_dim2: '202001', // Revenue Line
-        // U_tl_dim2: obj['CardCount'][0].ProductLine, // Revenue Line
-        U_tl_dim3: obj['CardCount'][0].ProductLine, // Product Line
+        U_tl_dim1: inv['DocumentLines'][0]['COGSCostingCode'], // Line of bussiness
+        U_tl_dim2: inv['DocumentLines'][0]['COGSCostingCode2'], // Revenue Line
+        U_tl_dim3: inv['DocumentLines'][0]['COGSCostingCode3'], // Product Line
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
                                         return {
@@ -207,6 +227,7 @@ function CashSaleTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         NumAtCard: "Oil",
+        U_tl_arbusi: "201001",
         U_tl_invtype:"Retail",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         U_ti_revenue:'202001',
@@ -283,6 +304,7 @@ function CashSaleTransaction(slContext, jsonObj){
         
         // USD Payment
         var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
+        // return http.response.send(200, paymentUS)
         if( paymentUS != null) {
             var incomingContext = slContext.add("IncomingPayments", paymentUS)
             if (incomingContext.status !== 201) {
@@ -461,10 +483,13 @@ function PartnerShipTransaction(slContext, jsonObj, testing=false){
                 TaxCode: item['TaxCode'],
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode: item['LineOfBussiness'],
                 // COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode2: '202001',
-                COGSCostingCode3: item['ProductLine'],
+                // COGSCostingCode2: '202001',
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: "202001",//RevenueLine
+                CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
@@ -501,7 +526,10 @@ function PartnerShipTransaction(slContext, jsonObj, testing=false){
                 Quantity: item['Quantity'],
                 U_tl_itmcost: item["U_tl_itmcost"],
                 U_tl_ltotal: item["U_tl_ltotal"],
-                LineTotal: item["U_tl_ltotal"]
+                LineTotal: item["U_tl_itmcost"] * item["Quantity"],
+                CostingCode: item['CostingCode'],
+                CostingCode2: item['CostingCode2'],
+                CostingCode3: item['CostingCode3'],
             }
         }),
         DocumentReferences: [
@@ -579,10 +607,13 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                 TaxCode: item['TaxCode'],
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: '202001',
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: '202001',
                 // COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
@@ -620,9 +651,12 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                     Price: undefined,
                     Quantity: item["Quantity"],
                     U_tl_itmcost: price["U_tl_itmcost"],
-                    U_tl_ltotal: price["U_tl_itmcost"] * item["Quantity"],
+                    U_tl_ltotal: price["U_tl_ltotal"],
                     LineTotal: price["U_tl_itmcost"] * item["Quantity"],
-                    DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+                    DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'],
+                    CostingCode: item['LineOfBussiness'],
+                    CostingCode2: '202001',
+                    CostingCode3: item['ProductLine']
                 }
             });
             
@@ -715,10 +749,13 @@ function OwnUsageTransaction(slContext, jsonObj){
                 TaxCode: item['TaxCode'],
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode: item['LineOfBussiness'],
                 // COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode2: '202001',
-                COGSCostingCode3: item['ProductLine'],
+                // COGSCostingCode2: '202001',
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
@@ -768,10 +805,13 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
                 TaxCode: item['TaxCode'],
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: '202001',
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: '202001',
                 // COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
@@ -806,7 +846,10 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
                 Quantity: item['Quantity'],
                 WarehouseCode: item['WarehouseCode'],
                 ItemCode: item['ItemCode'],
-                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',
+                CostingCode3: item['ProductLine']
             }
         }),
         DocumentReferences: [
@@ -883,9 +926,12 @@ function PumpTestTransaction(slContext, jsonObj){
                 TaxCode: item['TaxCode'],
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
-                COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
-                COGSCostingCode3: item['ProductLine'],
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
