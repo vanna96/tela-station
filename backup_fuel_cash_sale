@@ -148,7 +148,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
     const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
     if (FilterPayment.length <= 0) return null;
 
-    let CashSum = adjustAmount;
+    let CashSum = 0;
     let TransferSum = 0;
     let CheckSum = 0;
     
@@ -164,14 +164,17 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
     });
 
     const isUSD = inv.DocCurrency == 'USD';
-    const total = parseFloat(CashSum + TransferSum + CheckSum);
+    let total = parseFloat(CashSum + TransferSum + CheckSum);
+
+    if(obj.DocCurrency != "USD") total = total/parseFloat(obj.DocRate);
+    total += adjustAmount;
     
     var PaymentInvoices = {
         DocEntry: inv.DocEntry,
         DocNum: inv.DocNum,
         InvoiceType: "it_Invoice",
-        SumApplied: isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
-        AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
+        SumApplied: isUSD ? total : 0,
+        AppliedFC: !isUSD ? total : 0,
         DiscountPercent: 0,
         DistributionRule: inv['DocumentLines'][0]['COGSCostingCode'],
         DistributionRule2: inv['DocumentLines'][0]['COGSCostingCode2'],
@@ -197,6 +200,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         U_tl_dim1: inv['DocumentLines'][0]['COGSCostingCode'], // Line of bussiness
         U_tl_dim2: inv['DocumentLines'][0]['COGSCostingCode2'], // Revenue Line
         U_tl_dim3: inv['DocumentLines'][0]['COGSCostingCode3'], // Product Line
+        CounterReference: obj['SANumber'],
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
                                         return {
@@ -250,7 +254,7 @@ function CashSaleTransaction(slContext, jsonObj){
             }
         })
     };
-
+    
     var invoiceContext = slContext.add("Invoices", invoice);
     if (invoiceContext.status !== 201) {
         slContext.rollbackTransaction();
@@ -274,7 +278,7 @@ function CashSaleTransaction(slContext, jsonObj){
     if(totalC) totalPayment += totalC;
     if(totalP['USD']) totalPayment += totalP['USD'];
     if(totalP['KHR'] && jsonObj['DocRate']) totalPayment += totalP['KHR'] / (jsonObj['DocRate']);
-
+    
     if(totalPayment >= invoiceTotal){
         // Coupon USD Payment
         var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
@@ -304,7 +308,6 @@ function CashSaleTransaction(slContext, jsonObj){
         
         // USD Payment
         var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
-        // return http.response.send(200, paymentUS)
         if( paymentUS != null) {
             var incomingContext = slContext.add("IncomingPayments", paymentUS)
             if (incomingContext.status !== 201) {
