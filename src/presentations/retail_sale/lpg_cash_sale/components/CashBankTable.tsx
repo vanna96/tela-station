@@ -144,7 +144,7 @@ export default function CashBankTable(props: any) {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
               <NumericFormat
-              thousandSeparator
+                thousandSeparator
                 placeholder="0.000"
                 key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
@@ -169,7 +169,7 @@ export default function CashBankTable(props: any) {
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
-              <FormattedInputs
+              <NumericFormat
                 placeholder="0.000"
                 key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
@@ -179,6 +179,8 @@ export default function CashBankTable(props: any) {
                     U_tl_amtbank: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
+                thousandSeparator
+                customInput={MUIRightTextField}
                 name={"U_tl_amtbank"}
                 value={cell.row.original?.U_tl_amtbank || ""}
                 startAdornment={cell.row.original?.U_tl_paycur}

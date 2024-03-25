@@ -88,7 +88,6 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
-  console.log(data);
   const onCheckRow = (event: any, index: number) => {
     setRowSelection((prevSelection: any) => {
       const updatedSelection = { ...prevSelection };
@@ -334,7 +333,6 @@ export default function StockAllocationTable({
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              console.log(r.U_tl_alocqty);
               return sum + commaFormatNum(r.U_tl_alocqty);
             },
             0
@@ -344,7 +342,6 @@ export default function StockAllocationTable({
             rowsWithSameItemCode[0]?.U_tl_consqty
           );
           const isValid = totalQuantity === firstQuantity;
-          console.log(isValid);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}
