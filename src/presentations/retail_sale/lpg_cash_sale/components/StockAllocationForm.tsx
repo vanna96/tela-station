@@ -235,10 +235,12 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.allocationData?.map((e: any) => ({
-                value: e.U_tl_itemcode,
-                label: e.U_tl_itemcode,
-              }))}
+              items={data.allocationData
+                ?.filter((e: any) => e.U_tl_stockallow > 0)
+                ?.map((e: any) => ({
+                  value: e.U_tl_itemcode,
+                  label: e.U_tl_itemcode,
+                }))}
               value={cell.getValue()}
               onChange={(e: any) => {
                 const selectedNozzle = data.allocationData?.find(
