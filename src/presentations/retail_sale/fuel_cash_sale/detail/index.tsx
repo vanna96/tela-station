@@ -742,6 +742,7 @@ function IncomingPayment({ data }: any) {
                   key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                   disabled
                   name={"U_tl_amtcash"}
+                  thousandSeparator
                   customInput={MUIRightTextField}
                   value={cell.row.original?.U_tl_amtcash || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
@@ -760,6 +761,7 @@ function IncomingPayment({ data }: any) {
                   customInput={MUIRightTextField}
                   disabled
                   name={"U_tl_amtbank"}
+                  thousandSeparator
                   value={cell.row.original?.U_tl_amtbank || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
                 />
