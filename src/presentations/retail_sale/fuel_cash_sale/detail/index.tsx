@@ -319,7 +319,7 @@ function General({ data }: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", data.DocNum)}
+            {renderKeyValue("Document Numbering", data.DocNum)}
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
 
             <div className="grid grid-cols-2 py-2">
@@ -406,7 +406,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -422,7 +422,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -842,7 +842,6 @@ function IncomingPayment({ data }: any) {
     ],
     []
   );
-
 
   return (
     <div className="rounded-lg shadow-sm  border p-8 px-14 h-screen">

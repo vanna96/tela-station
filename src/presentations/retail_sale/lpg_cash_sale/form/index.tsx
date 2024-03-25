@@ -1080,12 +1080,20 @@ class SalesOrderForm extends CoreFormDocument {
                   ProductLine: data.allocationData?.find(
                     (e: any) => e.U_tl_itemcode === itemCode
                   )?.ProductLine,
-                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
-                  BranchCode: data.stockAllocationData[0].U_tl_bplid,
-                  WarehouseCode: data.stockAllocationData[0].U_tl_whscode,
+                  BinAbsEntry: data.stockAllocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_bincode,
+                  BranchCode: data.stockAllocationData.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_bplid,
+                  WarehouseCode: data.stockAllocationData.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_whscode,
                   DocumentLinesBinAllocations: [
                     {
-                      BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                      BinAbsEntry: data.stockAllocationData?.find(
+                        (e: any) => e.U_tl_itemcode === itemCode
+                      )?.U_tl_bincode,
                       Quantity: quantity.toString(),
                       AllowNegativeQuantity: "tNO",
                     },
@@ -1093,7 +1101,7 @@ class SalesOrderForm extends CoreFormDocument {
                 };
               }
             })
-            .filter(Boolean); // Filter out undefined items
+            .filter(Boolean);
 
           return stockAllocation;
         })(),
@@ -1453,40 +1461,44 @@ class SalesOrderForm extends CoreFormDocument {
                             </span>
                           </LoadingButton>
                         </div>
-                        <div>
-                          <LoadingButton
-                            variant="outlined"
-                            size="small"
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            disableElevation
-                            // disabled={this.props.edit}
-                          >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              {this.props.edit ? "Update" : "Add"}
-                            </span>
-                          </LoadingButton>
-                        </div>
-                        {
-                          <div className="flex items-center space-x-4">
+
+                        {this.state.U_tl_status !== "Close" && (
+                          <div>
                             <LoadingButton
-                              onClick={(event) =>
-                                this.handlerSubmitPost(event, this.props.edit)
-                              }
-                              sx={{ height: "30px", textTransform: "none" }}
-                              className="bg-white"
-                              loading={false}
-                              // disabled={this.state.tapIndex < 4}
+                              variant="outlined"
                               size="small"
-                              variant="contained"
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
                               disableElevation
+                              // disabled={this.props.edit}
                             >
-                              <span className="px-6 text-[13px] py-4 text-white">
-                                Post
+                              <span className="px-3 text-[13px] py-1 text-green-500">
+                                {this.props.edit ? "Update" : "Add"}
                               </span>
                             </LoadingButton>
                           </div>
-                        }
+                        )}
+                        {this.state.U_tl_status !== "Close" && (
+                          <>
+                            <div className="flex items-center space-x-4">
+                              <LoadingButton
+                                onClick={(event) =>
+                                  this.handlerSubmitPost(event, this.props.edit)
+                                }
+                                sx={{ height: "30px", textTransform: "none" }}
+                                className="bg-white"
+                                loading={false}
+                                size="small"
+                                variant="contained"
+                                disableElevation
+                              >
+                                <span className="px-6 text-[13px] py-4 text-white">
+                                  Post
+                                </span>
+                              </LoadingButton>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -1695,7 +1707,6 @@ function validateCardCountData(
 
     return true;
   });
-
 
   const message = isValid
     ? "Card Count Data is valid."

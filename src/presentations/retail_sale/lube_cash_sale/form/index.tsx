@@ -601,7 +601,7 @@ class LubeForm extends CoreFormDocument {
           DiscountPercent: item.DiscountPercent,
           TaxCode: "VO10",
           UoMEntry: item.InventoryUoMEntry,
-          LineOfBussiness:item.COGSCostingCode, // item.LineOfBussiness
+          LineOfBussiness: item.COGSCostingCode, // item.LineOfBussiness
           RevenueLine: "202001", // item.RevenueLine Station
           ProductLine: item.COGSCostingCode3, // item.ProductLine
           BinAbsEntry:
@@ -899,40 +899,44 @@ class LubeForm extends CoreFormDocument {
                             </span>
                           </LoadingButton>
                         </div>
-                        <div>
-                          <LoadingButton
-                            variant="outlined"
-                            size="small"
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            disableElevation
-                            // disabled={this.props.edit}
-                          >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              {this.props.edit ? "Update" : "Add"}
-                            </span>
-                          </LoadingButton>
-                        </div>
-                        {
-                          <div className="flex items-center space-x-4">
+
+                        {this.state.U_tl_status !== "Close" && (
+                          <div>
                             <LoadingButton
-                              onClick={(event) =>
-                                this.handlerSubmitPost(event, this.props.edit)
-                              }
-                              sx={{ height: "30px", textTransform: "none" }}
-                              className="bg-white"
-                              loading={false}
-                              // disabled={this.state.tapIndex < 4}
+                              variant="outlined"
                               size="small"
-                              variant="contained"
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
                               disableElevation
+                              // disabled={this.props.edit}
                             >
-                              <span className="px-6 text-[13px] py-4 text-white">
-                                Post
+                              <span className="px-3 text-[13px] py-1 text-green-500">
+                                {this.props.edit ? "Update" : "Add"}
                               </span>
                             </LoadingButton>
                           </div>
-                        }
+                        )}
+                        {this.state.U_tl_status !== "Close" && (
+                          <>
+                            <div className="flex items-center space-x-4">
+                              <LoadingButton
+                                onClick={(event) =>
+                                  this.handlerSubmitPost(event, this.props.edit)
+                                }
+                                sx={{ height: "30px", textTransform: "none" }}
+                                className="bg-white"
+                                loading={false}
+                                size="small"
+                                variant="contained"
+                                disableElevation
+                              >
+                                <span className="px-6 text-[13px] py-4 text-white">
+                                  Post
+                                </span>
+                              </LoadingButton>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>

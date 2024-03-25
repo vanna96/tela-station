@@ -317,7 +317,7 @@ function General({ data }: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", data.DocNum)}
+            {renderKeyValue("Document Numbering", data.DocNum)}
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
 
             <div className="grid grid-cols-2 py-2">
@@ -404,7 +404,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -420,11 +420,12 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
       },
+
       {
         accessorKey: "U_tl_cmeter",
         header: "Consumption",
