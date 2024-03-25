@@ -29,11 +29,11 @@ export default function BinLocationsAutoComplete(props: {
 
   useEffect(() => {
     if (props.value) {
-      const selectedWarehouse = filteredWarehouses?.find(
-        (warebin: any) => warebin?.Warehouse === props?.value
+      const Bin = filteredWarehouses?.find(
+        (warebin: any) => warebin?.AbsEntry === parseInt(props?.value)
       );
-      if (selectedWarehouse) {
-        setSelectedValue(selectedWarehouse);
+      if (Bin) {
+        setSelectedValue(Bin);
       }
     }
   }, [props.value, filteredWarehouses]);

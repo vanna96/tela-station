@@ -103,7 +103,6 @@ export default function StockAllocationTable({
     });
   };
 
-
   const itemColumns = React.useMemo(
     () => [
       {
@@ -209,15 +208,17 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
-            <BinLocationsAutoComplete
-              Warehouse={cell.row.original.U_tl_whs}
-              onChange={(e: any) => {
-                onChangeItem(cell?.row?.id || 0, {
-                  U_tl_bincode: e,
-                });
-              }}
-              value={cell.getValue()}
-            />
+            <>
+              <BinLocationsAutoComplete
+                Warehouse={cell.row.original.U_tl_whscode}
+                onChange={(e: any) => {
+                  onChangeItem(cell?.row?.id || 0, {
+                    U_tl_bincode: e,
+                  });
+                }}
+                value={cell.getValue()}
+              />
+            </>
           );
         },
       },
