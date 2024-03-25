@@ -276,7 +276,7 @@ function General({ data }: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", data.DocNum)}
+            {renderKeyValue("Document Numbering", data.DocNum)}
             {renderKeyValue("Posting Date", dateFormat(data.U_tl_taxdate))}
             {renderKeyValue("Delivery Date", dateFormat(data.U_tl_devdate))}
             {renderKeyValue("Document Date", dateFormat(data.U_tl_docdate))}
