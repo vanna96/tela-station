@@ -46,8 +46,6 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
     }
   };
   const disabled = props.disabled;
-  console.log(warehoueses);
-
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -75,9 +73,8 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
