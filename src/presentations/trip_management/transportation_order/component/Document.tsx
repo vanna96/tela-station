@@ -1,60 +1,39 @@
-import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
-import MUISelect from "@/components/selectbox/MUISelect";
 import { Button, Checkbox } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
-import { Fragment, useState } from "react";
-import { Controller, useFieldArray } from "react-hook-form";
+import { Fragment, useMemo, useState } from "react";
 import TRModal from "./TRModal";
 import { FaAngleDown } from "react-icons/fa6";
 import { dateFormat } from "@/utilies";
-import { useLocation, useParams } from "react-router-dom";
+import { TOCollections } from "../../type";
 
-export default function Document({
-  setValue,
-  detail,
-  transDetail,
-  setTransDetail,
-  setDocument,
-  document,
-  setHeadTrans,
-  compartment,
-}: any) {
-  const [staticSelect, setStaticSelect] = useState({
-    u_IssueDate: undefined,
-    u_ExpiredDate: undefined,
-    u_Type: "",
-  });
-  const {id}=useParams()
-  const [open, setOpen] = useState(false);
-  const location = useLocation()
-    const create = location.pathname?.split("/");
-  const handleOpen = () => {
-    if (create.at(-1)==="create") {
-      setOpen(true);
-    } else {
-      setOpen(false);
-    };
-  };
-const removeDocument = (index:number) => {
-  const updatedDocuments = [...document];
-  updatedDocuments.splice(index, 1);
-  setDocument(updatedDocuments);
-};
-  
+export default function Document(props: any) {
+
+  const documents: TOCollections[] = useMemo(() => {
+    if (!props?.watch('TL_TO_ORDERCollection')) return []
+
+    return props?.watch('TL_TO_ORDERCollection')?.filter((e: any) => e?.U_Type !== 'S') ?? [];
+  }, [props?.watch('TL_TO_ORDERCollection')])
+
+
+  const onRemoveLine = (index: number) => {
+    const state = [...documents];
+    state.splice(index, 1);
+    props?.setValue('TL_TO_ORDERCollection', state)
+  }
+
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
           <h2 className="mr-3">Source Document</h2>
-          
           <Button
             sx={{ height: "25px" }}
             className="bg-white"
             size="small"
             variant="contained"
             disableElevation
-            onClick={handleOpen}
+            onClick={() => props?.dialog.current?.onOpen()}
           >
             <span className="px-4 text-[11px] py-4 text-white">
               Load Document
@@ -85,10 +64,10 @@ const removeDocument = (index:number) => {
                 Quantity{" "}
               </th>
               <th className="w-[100px] text-center font-normal py-2 text-[14px] text-gray-500">
-                <span className={`${detail?"hidden":""}`}>Action</span>{" "}
+                <span className={`${false ? "hidden" : ""}`}>Action</span>{" "}
               </th>
             </tr>
-            {document?.length === 0 && (
+            {documents.length === 0 && (
               <tr>
                 <td
                   colSpan={8}
@@ -98,7 +77,7 @@ const removeDocument = (index:number) => {
                 </td>
               </tr>
             )}
-            {document?.map((e: any, index: number) => {
+            {documents?.map((e: any, index: number) => {
               return (
                 <Fragment key={e?.id}>
                   <tr key={e?.id} className="border-t border-[#dadde0]">
@@ -143,7 +122,7 @@ const removeDocument = (index:number) => {
                         value={e?.U_TotalItem}
                       />
                     </td>
-                    <td colSpan={detail || id?2:undefined} className="">
+                    <td colSpan={false ? 2 : undefined} className="">
                       <MUITextField
                         disabled={true}
                         placeholder="Quantity"
@@ -152,8 +131,8 @@ const removeDocument = (index:number) => {
                     </td>
                     <td className="text-center">
                       <div
-                        onClick={() => removeDocument(index)}
-                        className={`w-[17px] ${detail || id &&"hidden"} cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
+                        onClick={() => onRemoveLine(index)}
+                        className={`w-[17px]  cursor-pointer mx-auto transition-all duration-300 shadow-md shadow-[#878484] h-[17px] bg-red-500 text-white rounded-sm flex justify-center items-center hover:shadow-lg hover:shadow-slate-600`}
                       >
                         -
                       </div>
@@ -251,17 +230,6 @@ const removeDocument = (index:number) => {
           </table>
         </div>
       </div>
-      <TRModal
-        document={document}
-        setValue={setValue}
-        setDocument={setDocument}
-        open={open}
-        setOpen={setOpen}
-        transDetail={transDetail}
-        setTransDetail={setTransDetail}
-        setHeadTrans={setHeadTrans}
-        compartment={compartment}
-      />
     </>
   );
 }

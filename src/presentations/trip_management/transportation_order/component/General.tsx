@@ -1,23 +1,12 @@
 import MUITextField from "@/components/input/MUITextField";
-import PositionSelect from "@/components/selectbox/Position";
-import DepartmentSelect from "@/components/selectbox/Department";
-import ManagerSelect from "@/components/selectbox/Manager";
-import PositionAutoComplete from "@/components/input/PositionAutoComplete";
-import DepartmentAutoComplete from "@/components/input/DepartmentAutoComplete";
 import ManagerAutoComplete from "@/components/input/ManagerAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import { formatDate } from "@/helper/helper";
-import VendorModal from "@/components/modal/VendorModal";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import ReasonAutoComplete from "@/components/input/ReasonAutoComplete";
 import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete";
-import { UseFormProps } from "../form/TransportationOrderForm";
 import RoutAutoComplete from "@/components/input/RouteAutoComplete";
-import VehicleAutoComplete from "@/components/input/VehicleAutoComplete";
-import { useLocation, useParams } from "react-router-dom";
+import VehicleAutoComplete from "@/presentations/trip_management/component/VehicleAutoComplete";
 
 const General = ({
   register,
@@ -28,12 +17,10 @@ const General = ({
   detail,
   watch,
   serie,
-  getValues,
-  setTransDetail,
-  transDetail,
-  setFuel,
-}: UseFormProps) => {
-  const { id } = useParams();
+  id,
+  edit,
+  allStatus
+}: any) => {
 
   const onChangeSerie = useCallback(
     (event: any) => {
@@ -47,8 +34,63 @@ const General = ({
     },
     [serie]
   );
-  const location = useLocation();
-  const create = location.pathname?.split("/");
+
+
+  const onChangeRoute = useCallback((event: any) => {
+    setValue("U_Route", event?.Code);
+    const expense = event?.TL_RM_EXPENSCollection?.map((e: any) => ({
+      U_Amount: e?.U_Amount,
+      U_Code: e?.U_Code,
+      U_Description: e?.U_Description
+    }))
+
+    const stops = event?.TL_RM_EXPENSCollection?.map((e: any) => ({
+      U_StopCode: e?.U_Code,
+      U_Type: "S",
+      U_Description: e?.U_Code,
+      TL_TO_DETAIL_ROWCollection: [
+        {
+          U_DocType: "S",
+          U_ShipToCode: e?.U_Code,
+          U_ShipToAddress: e?.U_Code,
+          U_Order: 0,
+        }
+      ]
+    }))
+
+    const collections = [...watch('TL_TO_ORDERCollection')];
+    collections.push(...stops)
+
+    setValue("TL_TO_EXPENSECollection", expense);
+    setValue("TL_TO_ORDERCollection", collections);
+  }, [watch('TL_TO_ORDERCollection'), watch('U_Route')])
+
+  const onChangeVehicle = useCallback((event: any) => {
+    setValue("U_Vehicle", event?.Code);
+    setValue("U_VehicleName", event?.Name);
+
+    const compartments = event?.TL_VH_COMPARTMENTCollection?.map(
+      (e: any, rowIndex: number) => {
+        const length = (e?.U_TOP_HATCH ?? 0) + (e?.U_BOTTOM_HATCH ?? 0);
+        const children = [];
+        for (let index = 0; index < length; index++) {
+          children.push({
+            U_SealNumber: null,
+            U_SealReference: null,
+            U_ParentEntry: rowIndex
+          })
+        }
+        return {
+          U_Volume: e?.U_VOLUME,
+          U_BottomHatch: e?.U_BOTTOM_HATCH,
+          U_TopHatch: e?.U_TOP_HATCH,
+          U_Children: children,
+        };
+      }
+    )
+
+    setValue("TL_TO_COMPARTMENTCollection", compartments);
+  }, [watch('U_Vehicle'), watch('TL_TO_COMPARTMENTCollection')])
 
   return (
     <>
@@ -68,66 +110,21 @@ const General = ({
                 <Controller
                   name="U_Route"
                   control={control}
-                  render={({ field }) => {
-                    return (
-                      <RoutAutoComplete
-                        disabled={create?.at(-1) === "create" ? false : true}
-                        {...field}
-                        value={field.value}
-                        onChange={(e: any) => {
-                          setValue("U_Route", e?.Code);
-                          setValue("TL_TO_EXPENSECollection", [
-                            ...e?.TL_RM_EXPENSCollection?.map((e: any) => ({
-                              ...e,
-                              Code: undefined,
-                            })),
-                          ]);
-                          setTransDetail([
-                            ...transDetail,
-                            ...e?.TL_RM_SEQUENCECollection?.map((row: any) => ({
-                              U_DocNum: null,
-                              U_Type: "S",
-                              U_Order: 0,
-                              U_StopCode: row.U_Code,
-                              U_Description: row.U_Description,
-                            })),
-                          ]);
-
-                          setHeader({
-                            ...header,
-                            Route: e?.Code,
-                          });
-                        }}
-                      />
-                    );
-                  }}
+                  render={({ field }) => <RoutAutoComplete {...field} value={field.value} onChange={onChangeRoute} />}
                 />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Base Station{" "}
+                  Base Station
                 </label>
               </div>
               <div className="col-span-3">
                 <Controller
                   name="U_BaseStation"
                   control={control}
-                  render={({ field }) => {
-                    return (
-                      <BaseStationAutoComplete
-                        disabled={id || detail}
-                        {...field}
-                        value={field.value}
-                        onChange={(e: any) => {
-                          setValue("U_BaseStation", e);
-
-                          setHeader({ ...header, BaseStation: e });
-                        }}
-                      />
-                    );
-                  }}
+                  render={({ field }) => <BaseStationAutoComplete disabled={id} value={field.value} onChange={(e: any) => setValue("U_BaseStation", e)} />}
                 />
               </div>
             </div>
@@ -143,51 +140,7 @@ const General = ({
                   control={control}
                   render={({ field }) => {
                     return (
-                      <VehicleAutoComplete
-                        disabled={
-                          create?.at(-1) === "create"
-                            ? false
-                            : id && watch("U_Status") === "P"
-                              ? false
-                              : detail || true
-                        }
-                        {...field}
-                        value={field.value}
-                        onChange={(e: any) => {
-                          console.log(e);
-                          
-                          setValue("U_Vehicle", e?.Code);
-                          setFuel([{ U_Fuel: e?.U_FuelType }]);
-                          setValue("U_VehicleName", e?.Name);
-                          setValue("TL_TO_COMPARTMENTCollection", [
-                            ...(e?.TL_VH_COMPARTMENTCollection?.map(
-                              (e: any) => {
-                                const length =
-                                  (e?.U_TOP_HATCH || 0) +
-                                  (e?.U_BOTTOM_HATCH || 0);
-                                const childrenArray = Array.from(
-                                  { length },
-                                  () => ({
-                                    U_Volume: e?.U_VOLUME,
-                                    U_BottomHatch: e?.U_BOTTOM_HATCH,
-                                    U_TopHatch: e?.U_TOP_HATCH,
-                                    U_SealNumber: null,
-                                    U_SealReference: null,
-                                  })
-                                );
-                                return {
-                                  U_Volume: e?.U_VOLUME,
-                                  U_BottomHatch: e?.U_BOTTOM_HATCH,
-                                  U_TopHatch: e?.U_TOP_HATCH,
-                                  U_Children: childrenArray,
-                                };
-                              }
-                            ) || []),
-                          ]);
-
-                          setHeader({ ...header, Vehicle: e?.Code });
-                        }}
-                      />
+                      <VehicleAutoComplete value={field.value} onChange={onChangeVehicle} />
                     );
                   }}
                 />
@@ -200,18 +153,13 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("U_VehicleName"),
-                  }}
-                />
+                <MUITextField disabled={true} inputProps={{ ...register("U_VehicleName"), }} />
               </div>
             </div>
             <div className="grid grid-cols-5 py-2 mb-1">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Driver{" "}
+                  Driver
                 </label>
               </div>
               <div className="col-span-3">
@@ -221,16 +169,10 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <ManagerAutoComplete
-                        disabled={(id as any) || detail}
-                        {...field}
                         value={field.value}
                         onChange={(e: any) => {
                           setValue("U_CheckList", e?.U_CheckList);
                           setValue("U_Driver", e?.EmployeeID);
-                          setHeader({
-                            ...header,
-                            Driver: e?.FirstName + " " + e?.LastName,
-                          });
                         }}
                       />
                     );
@@ -245,12 +187,7 @@ const General = ({
                 </label>
               </div>
               <div className="col-span-3">
-                <MUITextField
-                  disabled={true}
-                  inputProps={{
-                    ...register("U_CheckList"),
-                  }}
-                />
+                <MUITextField disabled={true} inputProps={{ ...register("U_CheckList"), }} />
               </div>
             </div>
           </div>
@@ -259,7 +196,7 @@ const General = ({
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series{" "}
+                  Series
                   <span className={`${detail && "hidden"} text-red-500`}>
                     *
                   </span>
@@ -280,7 +217,7 @@ const General = ({
                           aliasvalue="Series"
                           aliaslabel="Name"
                           name="Series"
-                          onChange={(e: any) => onChangeSerie(e)}
+                        // onChange={(e: any) => onChangeSerie(e)}
                         />
                       );
                     }}
@@ -309,13 +246,12 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={(id as any) || detail}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
                           const val =
                             e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
+                              "Invalid Date".toLocaleLowerCase()
                               ? ""
                               : e;
                           setValue("U_DocDate", `${val == "" ? "" : val}`);
@@ -334,14 +270,14 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <div className="hidden">
-                  {getValues("U_Status") === undefined && (
+                  {/* {getValues("U_Status") === undefined && (
                     <MUITextField
                       inputProps={{
                         ...register("U_Status"),
                       }}
                       value={"I"}
                     />
-                  )}
+                  )} */}
                 </div>
                 <Controller
                   name="U_Status"
@@ -351,17 +287,9 @@ const General = ({
                       <MUISelect
                         {...field}
                         disabled={detail}
-                        items={[
-                          { label: "Initiated", value: "I" },
-                          { label: "Planned", value: "P" },
-                          { label: "Seal Number", value: "S" },
-                          { label: "Dispatched", value: "D" },
-                          { label: "Released", value: "R" },
-                          { label: "Completed", value: "CP" },
-                          { label: "Cancelled", value: "C" },
-                        ]}
+                        items={allStatus}
                         onChange={(e: any) => {
-                          setValue("U_Status", e.target.value);
+                          // setValue("U_Status", e.target.value);
                         }}
                         value={field.value || "I"}
                         aliasvalue="value"
@@ -385,18 +313,12 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={(id as any) || detail}
+                        // disabled={(id as any) || detail}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          const val =
-                            e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
-                              ? ""
-                              : e;
+                          const val = e.toLowerCase() === "Invalid Date".toLocaleLowerCase() ? "" : e;
                           setValue("U_DispatchDate", `${val == "" ? "" : val}`);
-
-                          setHeader({ ...header, DispatchDate: e });
                         }}
                       />
                     );
@@ -417,21 +339,12 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={(id as any) || detail}
+                        // disabled={(id as any) || detail}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
-                          const val =
-                            e.toLowerCase() ===
-                            "Invalid Date".toLocaleLowerCase()
-                              ? ""
-                              : e;
-                          setValue(
-                            "U_CompletedDate",
-                            `${val == "" ? "" : val}`
-                          );
-
-                          setHeader({ ...header, CompletedDate: e });
+                          const val = e.toLowerCase() === "Invalid Date".toLocaleLowerCase() ? "" : e;
+                          setValue("U_CompletedDate", `${val == "" ? "" : val}`);
                         }}
                       />
                     );
@@ -443,7 +356,6 @@ const General = ({
           </div>
         </div>
       </div>
-      {/* <VendorModal open={true} /> */}
     </>
   );
 };
