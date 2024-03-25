@@ -14,79 +14,40 @@ import DataTableS from "./DataTableS";
 import { TRSourceDocument } from "./Document";
 import shortid from "shortid";
 import FormMessageModal from "@/components/modal/FormMessageModal";
+import { UseTRModalListHook } from "../hook/UseTRModalListHook";
+import { Controller, useForm } from "react-hook-form";
+import { conditionString } from "@/lib/utils";
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "80vw",
+  width: "60vw",
   bgcolor: "background.paper",
   p: 4,
+  paddingBottom: 1,
+  paddingtop: 1,
 };
 let dialog = React.createRef<FormMessageModal>();
 
 export default function TRModal(props: any) {
-  const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
-
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
-  const Count: any = useQuery({
-    queryKey: [`TL_TR_DOCS`, `${filter !== "" ? "f" : ""}`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/sml.svc/TLTR_MDOCS/$count?${filter ? `$filter=${filter}` : ""}`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
-
-  const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: [
-      "TL_TR_DOCS" + "_" + props?.watch("U_Branch"),
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
-      }`,
-      pagination.pageSize,
-    ],
-    queryFn: async () => {
-      if (props?.searchValues.Branch !== "") {
-        queryFilters += queryFilters
-          ? ` and BPLId eq ${props?.searchValues.Branch}`
-          : `BPLId eq ${props?.searchValues.Branch}`;
-        setFilter(queryFilters);
-      }
-      const Url = `${url}/sml.svc/TLTR_MDOCS?$top=${
-        pagination.pageSize
-      }&$skip=${pagination.pageIndex * pagination.pageSize}${
-        filter ? `&$filter=${filter}` : filter
-      }${sortBy !== "" ? "&$orderby=" + sortBy : ""}`;
-
-      const response: any = await request("GET", `${Url}`)
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-    retry: 0.5,
-    refetchOnWindowFocus: false,
-  });
-
+  const {
+    data,
+    loading,
+    refetchData,
+    setFilter,
+    setSort,
+    totalRecords,
+    state,
+  } = UseTRModalListHook(pagination);
   const columns = React.useMemo(
     () => [
       {
@@ -193,80 +154,6 @@ export default function TRModal(props: any) {
     [data]
   );
 
-  const handlerRefresh = React.useCallback(() => {
-    setRowSelection({});
-    setFilter("");
-    setSortBy("");
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  }, []);
-
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    console.log(value);
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
-  let queryFilters = "";
-  const handlerSearch = (value: string) => {
-    if (props?.searchValues.DocumentNumber) {
-      queryFilters += queryFilters
-        ? ` and (contains(DocNum, ${props?.searchValues.DocumentNumber}))`
-        : `(contains(DocNum, ${props?.searchValues.DocumentNumber}))`;
-    }
-    if (props?.searchValues.Type) {
-      props?.searchValues.Type === "All"
-        ? (queryFilters += queryFilters ? "" : "")
-        : (queryFilters += queryFilters
-            ? ` and U_Type eq '${props?.searchValues.Type}'`
-            : `U_Type eq '${props?.searchValues.Type}'`);
-    }
-    if (props?.searchValues.Branch) {
-      queryFilters += queryFilters
-        ? ` and (contains(BPLId, ${props?.searchValues.Branch}))`
-        : `(contains(BPLId, ${props?.searchValues.Branch}))`;
-    }
-    if (props?.searchValues.From) {
-      queryFilters += queryFilters
-        ? ` and DocDate ge '${props?.searchValues.From}'`
-        : `DocDate ge '${props?.searchValues.From}'`;
-    }
-
-    if (props?.searchValues.To) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate le '${props?.searchValues.To}'`
-        : `DocDueDate le '${props?.searchValues.To}'`;
-    }
-    let query = queryFilters;
-
-    if (value) {
-      query = queryFilters + `and ${value}`;
-    }
-    setFilter(query);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
   const handleClose = () => {
     setRowSelection({});
     setOpenLoading(false);
@@ -276,10 +163,11 @@ export default function TRModal(props: any) {
     setOpenLoading(true);
     const payload: any[] = [];
     for (const [key, value] of Object.entries(rowSelection)) {
-      if (!value) continue;
+      console.log(key);
+      
       payload.push({
-        Type: key.split("_")?.at(1),
-        DocEntry: key.split("_")?.at(-1),
+        Type: key.split("/").at(1),
+        DocEntry: key.split("/").at(-1),
       });
     }
 
@@ -291,7 +179,6 @@ export default function TRModal(props: any) {
           (e: TRSourceDocument) => {
             return {
               U_SourceDocEntry: e.U_SourceDocEntry,
-              // SourceId: e,
               U_DocNum: e.U_DocNum,
               U_Type: e.U_Type,
               U_CardCode: e.U_CardCode,
@@ -323,8 +210,6 @@ export default function TRModal(props: any) {
       });
   }, [rowSelection]);
 
-  const lists = React.useMemo(() => data, [data]);
-
   return (
     <>
       <FormMessageModal ref={dialog} />
@@ -342,178 +227,19 @@ export default function TRModal(props: any) {
           >
             <CircularProgress color="success" />{" "}
           </div>
-          {/* <div className="w-[80vw] h-[80vh] px-6 py-2 flex flex-col gap-1 relative bg-white"> */}
-          <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-            <div className="col-span-10">
-              <div className="grid grid-cols-12  space-x-4">
-                <div className="col-span-2 2xl:col-span-3">
-                  <MUITextField
-                    type="string"
-                    label="Document Number"
-                    className="bg-white"
-                    autoComplete="off"
-                    value={props?.searchValues.DocumentNumber}
-                    onChange={(e) =>
-                      props?.setSearchValues({
-                        ...props?.searchValues,
-                        DocumentNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-span-3 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
-                    >
-                      Document Type
-                    </label>
-                  </div>
-
-                  <MUISelect
-                    items={[
-                      { value: "All", label: "All" },
-                      { value: "SO", label: "Sale Order" },
-                      { value: "ITR", label: "Inventory Transfer Request" },
-                    ]}
-                    onChange={(e: any) => {
-                      props?.setSearchValues({
-                        ...props?.searchValues,
-                        Type: e.target.value,
-                      });
-                    }}
-                    value={
-                      // searchValues.active === null ? "tYES" : searchValues.active
-                      props?.searchValues.Type
-                    }
-                    aliasvalue="value"
-                    aliaslabel="label"
-                  />
-                </div>
-                <div className="col-span-3 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
-                    >
-                      Branch
-                    </label>
-                  </div>
-                  <BranchAssignmentAuto
-                    onChange={(e) => {
-                      if (e !== null) {
-                        props?.setSearchValues({
-                          ...props?.searchValues,
-                          Branch: e.BPLID,
-                        });
-                      } else {
-                        props?.setSearchValues({
-                          ...props?.searchValues,
-                          Branch: "",
-                        });
-                      }
-                    }}
-                    value={props?.searchValues.Branch}
-                  />
-                </div>
-
-                <div className="col-span-2 -mt-1 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] inline-block"
-                    >
-                      From Date
-                    </label>
-                  </div>
-                  <MUIDatePicker
-                    onChange={(e) => {
-                      if (e !== null) {
-                        const val =
-                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
-                            ? ""
-                            : e;
-                        props?.setSearchValues({
-                          ...props?.searchValues,
-                          From: val,
-                        });
-                      } else {
-                        props?.setSearchValues({
-                          ...props?.searchValues,
-                          From: "",
-                        });
-                      }
-                    }}
-                    value={props?.searchValues.From}
-                  />
-                </div>
-
-                <div className="col-span-2 -mt-1 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] inline-block"
-                    >
-                      To Date
-                    </label>
-                  </div>
-                  <MUIDatePicker
-                    onChange={(e) => {
-                      if (e !== null) {
-                        const val =
-                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
-                            ? ""
-                            : e;
-                        props?.setSearchValues({
-                          ...props?.searchValues,
-                          To: val,
-                        });
-                      } else {
-                        props?.setSearchValues({
-                          ...props?.searchValues,
-                          To: "",
-                        });
-                      }
-                    }}
-                    value={props?.searchValues.To}
-                  />
-                </div>
-
-                <div className="col-span-2 2xl:col-span-3"></div>
-                {/*  */}
-
-                <div className="col-span-2 2xl:col-span-3"></div>
-              </div>
-            </div>
-            <div className="col-span-2 mt-[0.3rem]">
-              <div className="flex justify-end items-center align-center space-x-2 mt-4">
-                <div className="">
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => handlerSearch("")}
-                  >
-                    <span className="text-xs p-1">Search</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <InventoryTransferFilter />
           <DataTableS
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
             columns={columns}
-            data={lists ?? []}
-            handlerRefresh={handlerRefresh}
-            handlerSearch={handlerSearch}
-            handlerSortby={handlerSortby}
-            count={Count?.data || 0}
-            loading={isLoading || isFetching}
+            data={data}
+            handlerRefresh={refetchData}
+            handlerSearch={() => {}}
+            handlerSortby={setSort}
+            count={totalRecords}
+            loading={loading}
             pagination={pagination}
             paginationChange={setPagination}
-            title="Document"
-            filter={filter}
           />
           {/* </div> */}
           <div className="w-full flex justify-end items-center gap-4 h-[50px] mt-3">
@@ -547,3 +273,181 @@ export default function TRModal(props: any) {
     </>
   );
 }
+export interface FilterProps {
+  DocNum_$eq_number: undefined | string;
+  U_Type_$eq: undefined | string;
+  BPLId_$eq_number: undefined | number;
+  DocDate_$eq: undefined | string;
+  DocDueDate_$eq: undefined | string
+}
+
+const defaultValueFilter: FilterProps = {
+  DocNum_$eq_number: undefined,
+  U_Type_$eq: undefined,
+  BPLId_$eq_number: undefined,
+  DocDate_$eq: undefined,
+  DocDueDate_$eq: undefined
+};
+
+export const InventoryTransferFilter = ({
+  onFilter,
+}: {
+  onFilter?: (values: (string | undefined)[], query: string) => any;
+}) => {
+  const { handleSubmit, setValue, control, watch } = useForm({
+    defaultValues: defaultValueFilter,
+  });
+  function onSubmitModal(data: any) {
+    const queryString: (string | undefined)[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (!value) continue;
+      queryString.push("and");
+      queryString.push(conditionString(key, value as any));
+    }
+    queryString.splice(0, 1);
+    const query = queryString.join(" ");
+
+    if (onFilter) onFilter(queryString, query);
+  }
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmitModal)}
+      className="grid grid-cols-12 gap-3 mb-4 mx-1 rounded-md bg-white"
+    >
+      <div className="col-span-10">
+        <div className="grid grid-cols-12  space-x-4">
+          <div className="col-span-2 2xl:col-span-3">
+            <Controller
+              name="DocNum_$eq_number"
+              control={control}
+              render={({ field }) => {
+                return (
+                  <MUITextField
+                    label="Document Number"
+                    placeholder="Document Number"
+                    className="bg-white"
+                    onBlur={(e) =>
+                      setValue("DocNum_$eq_number", e.target.value)
+                    }
+                  />
+                );
+              }}
+            />
+          </div>
+
+          <div className="col-span-3 2xl:col-span-3">
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 mt-0 text-[14px]">
+                Document Type
+              </label>
+              <div className="">
+                <Controller
+                  name="U_Type_$eq"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUISelect
+                        items={[
+                          { value: "All", label: "All" },
+                          { value: "SO", label: "Sale Order" },
+                          { value: "ITR", label: "Inventory Transfer Request" },
+                        ]}
+                        onChange={(e: any) => {
+                          setValue("U_Type_$eq", e?.target?.value);
+                        }}
+                        value={field?.value || null}
+                        aliasvalue="value"
+                        aliaslabel="label"
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-span-3 2xl:col-span-3">
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 mt-0 text-[14px]">
+                Branch
+              </label>
+              <div className="">
+                <Controller
+                  name="BPLId_$eq_number"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BranchAssignmentAuto
+                        onChange={(e: any) => {
+                          setValue("BPLId_$eq_number", e?.target?.value);
+                        }}
+                        value={field.value}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-span-2 2xl:col-span-3 -mt-1">
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 mt-0 text-[14px]">
+                From Date
+              </label>
+              <div className="">
+                <Controller
+                  name="DocDate_$eq"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        onChange={(e: any) => {
+                          setValue("DocDate_$eq", e);
+                        }}
+                        value={field.value}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="col-span-2 2xl:col-span-3 -mt-1">
+            <div className="flex flex-col gap-1 text-sm">
+              <label htmlFor="Code" className="text-gray-500 mt-0 text-[14px]">
+                To Date
+              </label>
+              <div className="">
+                <Controller
+                  name="DocDueDate_$eq"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <MUIDatePicker
+                        onChange={(e: any) => {
+                          setValue("DocDueDate_$eq", e);
+                        }}
+                        value={field.value}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="col-span-2 2xl:col-span-3"></div>
+        </div>
+      </div>
+      <div className="col-span-2 mt-2">
+        <div className="flex justify-end items-center align-center space-x-2 mt-4">
+          <div className="">
+            <Button variant="contained" size="small" type="submit">
+              {" "}
+              Go{" "}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+};

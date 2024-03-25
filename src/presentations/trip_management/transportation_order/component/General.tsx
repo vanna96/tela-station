@@ -154,6 +154,8 @@ const General = ({
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
+                          console.log(e);
+                          
                           setValue("U_Vehicle", e?.Code);
                           setFuel([{ U_Fuel: e?.U_FuelType }]);
                           setValue("U_VehicleName", e?.Name);

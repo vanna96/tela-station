@@ -44,7 +44,7 @@ export default function Content({
             CostingCode: item?.LineOfBusiness,
             CostingCode2: watch("U_ti_revenue"),
             CostingCode3: item?.ProductLine,
-            AccountCode:watch("AccountCode")
+            AccountCode: watch("AccountCode"),
           });
         }
       } else {
@@ -57,7 +57,7 @@ export default function Content({
           CostingCode: items?.LineOfBusiness,
           CostingCode2: watch("U_ti_revenue"),
           CostingCode3: items?.ProductLine,
-          AccountCode:watch("AccountCode"),
+          AccountCode: watch("AccountCode"),
           DocumentLinesBinAllocations: [],
         };
       }
@@ -255,6 +255,7 @@ export default function Content({
                     <td className="pr-4">
                       <MUITextField
                         disabled={id}
+                        type="number"
                         inputProps={{
                           ...register(`DocumentLines.${index}.UnitPrice`),
                         }}

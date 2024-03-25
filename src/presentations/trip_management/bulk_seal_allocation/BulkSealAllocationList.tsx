@@ -20,6 +20,7 @@ import CircularProgress, {
   CircularProgressProps,
 } from "@mui/material/CircularProgress";
 import OnlyDiaLog from "../transportation_order/OnlyDiaLog";
+import BackDrop from "../component/BackDrop";
 
 let dialog = React.createRef<OnlyDiaLog>();
 export default function BulkSealAllocationList(props: CircularProgressProps) {
@@ -82,7 +83,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     setKeys(selectedKeys);
     setCurrenData(updatedList);
   };
-  
+
   const getData = () => {
     if (data?.length === 0) return;
     setOpenItem(true);
@@ -447,43 +448,8 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
         }}
         open={submiting}
       >
-        <div className="flex gap-2 flex-col justify-center items-center">
-          <Box sx={{ position: "relative" }}>
-            <CircularProgress
-              variant="determinate"
-              sx={{
-                color: (theme) =>
-                  theme.palette.grey[
-                    theme.palette.mode === "light" ? 200 : 800
-                  ],
-              }}
-              size={40}
-              thickness={5}
-              {...props}
-              value={100}
-            />
-            <CircularProgress
-              color="success"
-              variant="indeterminate"
-              disableShrink
-              sx={{
-                animationDuration: "650ms",
-                position: "absolute",
-                left: 0,
-                [`& .${circularProgressClasses.circle}`]: {
-                  strokeLinecap: "round",
-                },
-              }}
-              size={40}
-              thickness={5}
-              {...props}
-            />
-          </Box>
-          <span className="text-[14px] ml-3 text-gray-500 font-bold">
-            POSTING ...
-          </span>
-        </div>
-      </Backdrop>
+        <CircularProgress />
+      </Backdrop>{" "}
     </>
   );
 }

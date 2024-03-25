@@ -13,7 +13,6 @@ import MenuButton from "@/components/button/MenuButton";
 import { withRouter } from "@/routes/withRouter";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import General from "../components/General";
-import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
 import DepartmentRepository from "@/services/actions/departmentRepository";
@@ -24,9 +23,16 @@ import EmployeeRepository from "@/services/actions/employeeRepository";
 import Document, { TRSourceDocument } from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
-import { log } from "util";
+import CircularProgress, {
+  circularProgressClasses,
+  CircularProgressProps,
+} from "@mui/material/CircularProgress";
 import { useParams } from "react-router-dom";
 import CustomToast from "@/components/modal/CustomToast";
+import { Backdrop, Box } from "@mui/material";
+import { green } from "@mui/material/colors";
+import BackDrop from "../../component/BackDrop";
+
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
 
@@ -455,7 +461,7 @@ const Form = (props: any) => {
                     disableElevation
                   >
                     <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Save"}
+                      {props.edit ? "Update" : "Add"}
                     </span>
                   </LoadingButton>
                 </div>

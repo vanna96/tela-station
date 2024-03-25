@@ -28,7 +28,7 @@ const VehicleAutoComplete = forwardRef<
         });
       return response;
     },
-    staleTime: 0,
+    staleTime: Infinity,
     cacheTime:0
   });
 
