@@ -19,16 +19,15 @@ export type WarehouseAutoCompleteProp = {
 const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
   const { data, isLoading } = useGetWhsTerminalAssignHook(false)
 
-
   const warehoueses = useMemo(() => {
-    if (props.disabled) return data;
+    if (props.disabled) return data ?? [];
 
-    return data?.filter((e: any) => e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N')
+    return data?.filter((e: any) => e?.BusinessPlaceID === props.branchId && e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N') ?? []
   }, [props.branchId, data])
 
 
   useEffect(() => {
-    const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+    const selected = warehoueses?.find((e: WarehouseProps) => e.WarehouseCode === props.value);
     setSelectedValue(selected);
   }, [props.value, warehoueses]);
 

@@ -46,7 +46,10 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
             for (let index = 0; index < payload.StockTransferLines.length; index++) {
                 if (payload.StockTransferLines[index]['U_tl_toBinId']) continue;
                 // 
-                payload.StockTransferLines[index]['U_tl_toBinId'] = payload.U_tl_toBinId
+                payload.StockTransferLines[index]['U_tl_toBinId'] = payload.U_tl_toBinId;
+
+                if (!payload.StockTransferLines[index]['U_tl_toBinId'])
+                    throw new Error('To Bin Code is required');
             }
 
             const url = edit ? `InventoryTransferRequests(${id})` : 'InventoryTransferRequests';

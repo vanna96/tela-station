@@ -196,6 +196,12 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
 
                 if (fromBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'] = payload?.StockTransferLines[index].U_tl_fromBinId ?? fromBinId
                 if (toBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'] = payload?.StockTransferLines[index].U_tl_toBinId ?? toBinId
+
+                if (!payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'])
+                    throw new Error('From Bin Code is required')
+
+                if (!payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'])
+                    throw new Error('To Bin Code is required')
             }
 
             const url = edit ? `StockTransfers(${id})` : 'StockTransfers';
@@ -228,8 +234,6 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
     const onChangeBranch = (series: any, value: any) => {
         const period = new Date().getFullYear();
         const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
-
-        console.log(serie)
 
         const git_wsh = warehouese.data?.filter((e: any) => e?.BusinessPlaceID === value?.BPLID && e.U_tl_git_whs === 'Y');
         setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
@@ -264,7 +268,6 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         request('GET', `StockTransfers(${id})`)
             .then((res: any) => {
                 setLoading(false)
-                console.log(res.data)
                 reset({ ...res.data }, { keepValues: false })
             })
             .catch((e: any) => {
