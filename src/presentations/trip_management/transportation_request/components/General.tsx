@@ -1,7 +1,7 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCallback} from "react";
+import { useCallback } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller, useWatch } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -73,6 +73,34 @@ const General = ({
                 />
               </div>
             </div>
+
+            <div className="grid grid-cols-5 py-2">
+              <div className="col-span-2">
+                <label htmlFor="Code" className="text-gray-500 ">
+                  To Terminal
+                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                </label>
+              </div>
+              <div className="col-span-3">
+                <Controller
+                  rules={{ required: "Terminal is required" }}
+                  name="U_Terminal"
+                  control={control}
+                  render={({ field }) => {
+                    return (
+                      <BaseStationAutoComplete
+                        disabled={detail || (id && watch("U_Status") === "C")}
+                        {...field}
+                        value={field.value}
+                        onChange={(e: any) => {
+                          setValue("U_Terminal", e);
+                        }}
+                      />
+                    );
+                  }}
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
@@ -95,33 +123,6 @@ const General = ({
                           setValue("BranchName", `${e?.BPLName}`);
                         }}
                         value={field.value}
-                      />
-                    );
-                  }}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="Code" className="text-gray-500 ">
-                  Terminal
-                  <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
-                </label>
-              </div>
-              <div className="col-span-3">
-                <Controller
-                  rules={{ required: "Terminal is required" }}
-                  name="U_Terminal"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <BaseStationAutoComplete
-                        disabled={detail || (id && watch("U_Status") === "C")}
-                        {...field}
-                        value={field.value}
-                        onChange={(e: any) => {
-                          setValue("U_Terminal", e);
-                        }}
                       />
                     );
                   }}
@@ -291,6 +292,7 @@ const General = ({
               <div className="col-span-3">
                 <TextField
                   disabled={detail}
+                  placeholder="Remarks"
                   size="small"
                   fullWidth
                   multiline
@@ -305,7 +307,6 @@ const General = ({
           </div>
         </div>
       </div>
-     
     </>
   );
 };

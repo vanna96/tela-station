@@ -243,53 +243,39 @@ const Form = (props: any) => {
   const Left = () =>
     useMemo(() => {
       return (
-        <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
-          <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
+        <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4 text-sm">
+          <div className="w-[25%] gap-[10px] text-[15px] text-gray-500 flex flex-col justify-between h-full">
             <div>
               <span className="">Requester</span>
             </div>
             <div>
-              <span className="mt-10">Branch</span>
+              <span className="">Branch</span>
+            </div>
+            <div>
+              <span className="">Terminal</span>
+            </div>
+            <div>
+              <span className="">Status</span>
             </div>
           </div>
-          <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
+          <div className="w-[70%] gap-[10px] text-[15px] flex flex-col justify-between h-full">
             <div>
-              <span className="mb-[27px] inline-block">
-                {watch("RequesterName") || "_"}
-              </span>
+              <span className="">{watch("RequesterName") || "_"}</span>
             </div>
             <div>
               <span>{watch("BranchName") || "_"}</span>
             </div>
-          </div>
-        </div>
-      );
-    }, [requestS]);
-  const Right = () =>
-    useMemo(() => {
-      return (
-        <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
-          <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
-            <div>
-              <span className="mr-10 mb-[27px] inline-block">Terminal</span>
-            </div>
-            <div>
-              <span className="mr-10">Status</span>
-            </div>
-          </div>
-          <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
             <div>
               <span>{watch("U_Terminal") || "_"}</span>
             </div>
-            <div className="mt-7">
-              <span>
-                {watch("U_Status") === "O" ? "Active" : "Inactive" || "_"}
-              </span>
+            <div className="">
+              <span>{watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}</span>
             </div>
           </div>
         </div>
       );
     }, [requestS]);
+
 
   return (
     <>
@@ -305,7 +291,6 @@ const Form = (props: any) => {
             HeaderCollapeMenu={
               <>
                 <Left />
-                <Right />
               </>
             }
             leftSideField={undefined}
