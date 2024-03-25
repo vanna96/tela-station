@@ -406,7 +406,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -422,7 +422,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
