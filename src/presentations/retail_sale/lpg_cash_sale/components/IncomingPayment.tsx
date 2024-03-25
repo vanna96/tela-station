@@ -137,7 +137,6 @@ export default function IncomingPaymentForm({
     () => calculateTotalByCurrency(data, "USD"),
     [data]
   );
-  // console.log(data);
   if (data) {
     data.DocRate = data.ExchangeRate;
   }

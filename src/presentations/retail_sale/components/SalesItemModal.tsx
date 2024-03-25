@@ -41,7 +41,6 @@ const ItemModal: FC<ItemModalProps> = ({
     queryFn: () => new itemRepository().get(),
     staleTime: Infinity,
   });
-  console.log(data);
 
   const vendors: any = useQuery({
     queryKey: ["venders_supplier"],

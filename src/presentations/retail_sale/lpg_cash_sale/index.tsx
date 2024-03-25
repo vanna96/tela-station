@@ -298,7 +298,6 @@ export default function SaleOrderLists() {
       })),
     [data, pagination.pageIndex, pagination.pageSize]
   );
-  console.log(dataUrl);
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">

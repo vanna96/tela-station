@@ -172,7 +172,6 @@ class DeliveryDetail extends Component<any, any> {
     );
   };
   render() {
-    console.log(this.state);
     return (
       <>
         <DocumentHeader
@@ -686,7 +685,6 @@ function IncomingPayment({ data }: any) {
     return total;
   };
   let exchangeRate = data?.ExchangeRate || 4100;
-  console.log(exchangeRate);
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -845,11 +843,6 @@ function IncomingPayment({ data }: any) {
     []
   );
 
-  console.log(
-    data?.TL_RETAILSALE_FU_INCollection?.filter(
-      (e: any) => e.U_tl_paytype === "Coupon"
-    )
-  );
 
   return (
     <div className="rounded-lg shadow-sm  border p-8 px-14 h-screen">

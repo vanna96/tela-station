@@ -696,7 +696,6 @@ class SalesOrderForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     const payload = this.createPayload();
-    console.log(data);
     edit = this.props.edit;
 
     try {
@@ -1601,7 +1600,6 @@ function validateData(
 
       if (rowsWithSameItemCode.length === 0) {
         const message = `No entries found in stock Allocation Data for Item Code: ${itemcode}`;
-        console.log(message);
         throw new FormValidateException(message, 4);
       }
 
@@ -1617,7 +1615,6 @@ function validateData(
 
       if (!isValid) {
         const message = `Stock Allocation does not match the totals in Allocation Data for Item Code: ${itemcode}`;
-        console.log(message);
         throw new FormValidateException(message, 4);
       }
 
@@ -1699,7 +1696,6 @@ function validateCardCountData(
     return true;
   });
 
-  console.log(isValid);
 
   const message = isValid
     ? "Card Count Data is valid."

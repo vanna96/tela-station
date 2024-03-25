@@ -102,13 +102,10 @@ export default function ContentForm({
         return item;
       });
 
-      console.log(items);
-
       onChange("Items", items);
     }
   };
 
-  // console.log(data.Items);
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
