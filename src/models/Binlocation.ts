@@ -14,25 +14,6 @@ export interface BinlocationProps {
   absEntry?: any;
   warehouse?: number;
   binCode?: boolean;
-  inactive?: string;
-  sublevel1?: string;
-  sublevel2?: string;
-  sublevel3?: string;
-  description?: string;
-  alternativeSortCode?: string;
-  barCode?: string;
-  minimumQty?: number;
-  maximumQty?: number;
-  MaximumWeight?: number;
-  restrictedItemType?: string;
-  RestrictedUoMType?: string;
-  ratchRestrictions?: string;
-  restrictedTransType?: string;
-  specificItemGroup?: string;
-  batchRestrictions?: string;
-  specificItem?: string;
-  specificUoMGroup?: string;
-  restrictionReason?:string
 }
 
 export default class Binlocation extends Model {
@@ -40,50 +21,14 @@ export default class Binlocation extends Model {
   absEntry?: any;
   warehouse?: number;
   binCode?: boolean;
-  inactive?: string;
-  sublevel1?: string;
-  sublevel2?: string;
-  sublevel3?: string;
-  description?: string;
-  alternativeSortCode?: string;
-  barCode?: string;
-  minimumQty?: number;
-  maximumQty?: number;
-  MaximumWeight?: number;
-  restrictedItemType?: string;
-  restrictedUoMType?: string;
-  ratchRestrictions?: string;
-  restrictedTransType?: string;
-  specificItemGroup?: string;
-  batchRestrictions?: string;
-  specificItem?: string;
-  specificUoMGroup?: string;
-  restrictionReason?: string
+ 
   constructor(json: any) {
     super();
     this.id = json['AbsEntry'];
-    this.specificItem = json['SpecificItem'];
-    this.batchRestrictions = json['BatchRestrictions']
     this.absEntry = json['AbsEntry'];
     this.warehouse = json['Warehouse'];
     this.binCode = json['BinCode'];
-    this.restrictionReason = json['RestrictionReason']
-    this.inactive = json['Inactive'];
-    this.sublevel1 = json['Sublevel1'];
-    this.sublevel2 = json['Sublevel2'];
-    this.sublevel3 = json['Sublevel3'];
-    this.description = json['Description'];
-    this.alternativeSortCode = json['AlternativeSortCode'];
-    this.barCode = json['BarCode'];
-    this.minimumQty = json['MinimumQty'];
-    this.maximumQty = json['MaximumQty'];
-    this.MaximumWeight = json['MaximumWeight'];
-    this.restrictedItemType = json['RestrictedItemType'];
-    this.restrictedUoMType = json['RestrictedUoMType'];
-    this.ratchRestrictions = json['RatchRestrictions'];
-    this.restrictedTransType = json['RestrictedTransType'];
-    this.specificItemGroup = json['SpecificItemGroup'];
-    this.specificUoMGroup = json['SpecificUoMGroup']
+  
   }
 
   toJson(update: boolean) {

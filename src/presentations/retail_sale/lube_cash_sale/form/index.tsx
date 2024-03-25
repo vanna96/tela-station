@@ -202,7 +202,7 @@ class LubeForm extends CoreFormDocument {
                     try {
                       const response = await request(
                         "GET",
-                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry, ItemPrices,U_tl_dim1,U_tl_dim2`
+                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry,InventoryUoMEntry,ItemPrices,U_tl_dim1,U_tl_dim2`
                       );
 
                       apiResponse = response.data;
@@ -235,6 +235,7 @@ class LubeForm extends CoreFormDocument {
                   return {
                     ItemCode: item.U_tl_itemCode || null,
                     ItemName: item.U_tl_itemname || null,
+                    InventoryUoMEntry: apiResponse.InventoryUoMEntry,
                     Quantity: item.U_tl_qty || null,
                     UnitPrice:
                       item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
