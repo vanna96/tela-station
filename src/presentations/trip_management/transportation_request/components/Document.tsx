@@ -1,13 +1,10 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
-import MUISelect from "@/components/selectbox/MUISelect";
 import { Button } from "@mui/material";
-import { DatePicker } from "@mui/x-date-pickers";
 import { useState } from "react";
-import { Controller, useWatch } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { FaAngleDown } from "react-icons/fa6";
 import TRModal from "./ModalTR";
-import React from "react";
 import { dateFormat } from "@/utilies";
 import { FaAngleRight } from "react-icons/fa6";
 import ShipToAutoComplete from "@/components/input/ShipToAutoComplete";
@@ -42,12 +39,12 @@ export default function Document({
   control,
   detail,
   getValues,
-  appendDocument,
+  open,
+  setOpen,
   watch,
   removeDocument,
   setSearchValues,
 }: any) {
-  const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
     setOpen(true);

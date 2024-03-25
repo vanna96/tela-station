@@ -1,18 +1,13 @@
-import request, { url } from "@/utilies/request";
+import request from "@/utilies/request";
 import React, { useEffect, useState } from "react";
-import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import { Backdrop, Box, Button, CircularProgress, Modal } from "@mui/material";
+import { Box, Button, CircularProgress, Modal } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { MRT_RowSelectionState } from "material-react-table";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import DataTableS from "./DataTableS";
 import { TRSourceDocument } from "./Document";
-import shortid from "shortid";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import { UseTRModalListHook } from "../hook/UseTRModalListHook";
 import { Controller, useForm } from "react-hook-form";
@@ -31,7 +26,6 @@ const style = {
 let dialog = React.createRef<FormMessageModal>();
 
 export default function TRModal(props: any) {
-  const [sortBy, setSortBy] = React.useState("");
   const [openLoading, setOpenLoading] = React.useState(false);
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [pagination, setPagination] = React.useState({
@@ -47,7 +41,9 @@ export default function TRModal(props: any) {
     setSort,
     totalRecords,
     state,
+    filters,
   } = UseTRModalListHook(pagination);
+
   const columns = React.useMemo(
     () => [
       {
@@ -164,7 +160,7 @@ export default function TRModal(props: any) {
     const payload: any[] = [];
     for (const [key, value] of Object.entries(rowSelection)) {
       console.log(key);
-      
+
       payload.push({
         Type: key.split("/").at(1),
         DocEntry: key.split("/").at(-1),
@@ -210,6 +206,10 @@ export default function TRModal(props: any) {
       });
   }, [rowSelection]);
 
+  useEffect(() => {
+    setFilter(`BPLId eq ${props?.watch("U_Branch")}`);
+  }, [props?.watch("U_Branch")]);
+
   return (
     <>
       <FormMessageModal ref={dialog} />
@@ -227,7 +227,10 @@ export default function TRModal(props: any) {
           >
             <CircularProgress color="success" />{" "}
           </div>
-          <InventoryTransferFilter />
+          <InventoryTransferFilter
+            watch={props?.watch}
+            onFilter={(queries, queryString) => setFilter(queryString)}
+          />
           <DataTableS
             rowSelection={rowSelection}
             setRowSelection={setRowSelection}
@@ -274,27 +277,29 @@ export default function TRModal(props: any) {
   );
 }
 export interface FilterProps {
-  DocNum_$eq_number: undefined | string;
+  DocNum_$eq_number: undefined | string | null;
   U_Type_$eq: undefined | string;
   BPLId_$eq_number: undefined | number;
   DocDate_$eq: undefined | string;
-  DocDueDate_$eq: undefined | string
+  DocDueDate_$eq: undefined | string;
 }
 
 const defaultValueFilter: FilterProps = {
-  DocNum_$eq_number: undefined,
+  DocNum_$eq_number: null,
   U_Type_$eq: undefined,
   BPLId_$eq_number: undefined,
   DocDate_$eq: undefined,
-  DocDueDate_$eq: undefined
+  DocDueDate_$eq: undefined,
 };
 
 export const InventoryTransferFilter = ({
   onFilter,
+  watch,
 }: {
-  onFilter?: (values: (string | undefined)[], query: string) => any;
+    onFilter?: (values: (string | undefined)[], query: string) => any;
+  watch:any
 }) => {
-  const { handleSubmit, setValue, control, watch } = useForm({
+  const { handleSubmit, setValue, control } = useForm({
     defaultValues: defaultValueFilter,
   });
   function onSubmitModal(data: any) {
@@ -309,6 +314,10 @@ export const InventoryTransferFilter = ({
 
     if (onFilter) onFilter(queryString, query);
   }
+  useEffect(() => {
+    setValue("BPLId_$eq_number", watch("U_Branch"));
+  }, [watch("U_Branch")]);
+  
   return (
     <form
       onSubmit={handleSubmit(onSubmitModal)}
@@ -348,7 +357,7 @@ export const InventoryTransferFilter = ({
                     return (
                       <MUISelect
                         items={[
-                          { value: "All", label: "All" },
+                          { value: "", label: "All" },
                           { value: "SO", label: "Sale Order" },
                           { value: "ITR", label: "Inventory Transfer Request" },
                         ]}
@@ -378,7 +387,7 @@ export const InventoryTransferFilter = ({
                     return (
                       <BranchAssignmentAuto
                         onChange={(e: any) => {
-                          setValue("BPLId_$eq_number", e?.target?.value);
+                          setValue("BPLId_$eq_number", e?.BPLID);
                         }}
                         value={field.value}
                       />

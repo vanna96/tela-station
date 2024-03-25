@@ -81,10 +81,9 @@ export const UseTRModalListHook = (pagination: any) => {
   };
 
   const setFilter = (value: string) => {
-    console.log(value);
     dispatch({ type: "filter", value });
   };
-
+  
   const setSort = (value: string) => {
     dispatch({ type: "orderby", value });
   };
@@ -92,7 +91,6 @@ export const UseTRModalListHook = (pagination: any) => {
   const loading: boolean = React.useMemo(() => {
     return dataQuery.isFetching || countQuery.isFetching;
   }, [dataQuery.isFetching, countQuery.isFetching]);
-
 
   return {
     data,
@@ -103,5 +101,6 @@ export const UseTRModalListHook = (pagination: any) => {
     setSort,
     refetchData,
     countQuery,
+    filters
   };
 };
