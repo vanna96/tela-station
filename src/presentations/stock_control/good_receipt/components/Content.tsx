@@ -256,8 +256,11 @@ export default function Content({
                       <MUITextField
                         disabled={id}
                         type="number"
+
                         inputProps={{
                           ...register(`DocumentLines.${index}.UnitPrice`),
+                          step:"0.01",
+                          min:"0"
                         }}
                       />
                     </td>
