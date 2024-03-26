@@ -792,6 +792,7 @@ class Form extends NonCoreDcument {
             }))
             .filter((item: any) => item.Amount > 0),
         ],
+
         StockAllocation: (() => {
           const uniqueItemsMap = new Map();
 
@@ -803,6 +804,7 @@ class Form extends NonCoreDcument {
                 const uomList = item.uomLists?.find(
                   (list: any) => list.AlternateUoM === item.U_tl_uom
                 );
+
                 if (uomList) {
                   quantity *= uomList.BaseQuantity;
                 } else {
@@ -810,59 +812,50 @@ class Form extends NonCoreDcument {
                 }
               }
 
-              if (uniqueItemsMap.has(item.U_tl_itemcode)) {
-                const existingQuantity = uniqueItemsMap.get(item.U_tl_itemcode);
-                uniqueItemsMap.set(
-                  item.U_tl_itemcode,
-                  existingQuantity + quantity
-                );
+              const itemKey = `${item.U_tl_itemcode}-${item.U_tl_bincode}-${item.U_tl_whs}-${item.U_tl_bplid}`;
+
+              if (uniqueItemsMap.has(itemKey)) {
+                const existingQuantity = uniqueItemsMap.get(itemKey);
+                uniqueItemsMap.set(itemKey, existingQuantity + quantity);
               } else {
-                uniqueItemsMap.set(item.U_tl_itemcode, quantity);
+                uniqueItemsMap.set(itemKey, quantity);
               }
             }
           });
 
           const stockAllocation = Array.from(uniqueItemsMap)
-            .map(([itemCode, quantity]) => {
-              if (quantity >= 0) {
-                return {
-                  ItemCode: itemCode,
-                  Quantity: quantity.toString(),
-                  DiscountPercent: 0,
-                  TaxCode: "VO10",
-                  LineOfBussiness: data.allocationData?.find(
-                    (e: any) => e.U_tl_itemcode === itemCode
-                  )?.LineOfBussiness,
-                  RevenueLine: "202001",
-                  ProductLine: data.allocationData?.find(
-                    (e: any) => e.U_tl_itemcode === itemCode
-                  )?.ProductLine,
-                  BinAbsEntry: data.stockAllocationData?.find(
-                    (e: any) => e.U_tl_itemcode === itemCode
-                  )?.U_tl_bincode,
-                  BranchCode: data.stockAllocationData.find(
-                    (e: any) => e.U_tl_itemcode === itemCode
-                  )?.U_tl_bplid,
-                  WarehouseCode: data.stockAllocationData.find(
-                    (e: any) => e.U_tl_itemcode === itemCode
-                  )?.U_tl_whs,
-                  DocumentLinesBinAllocations: [
-                    {
-                      BinAbsEntry: data.stockAllocationData?.find(
-                        (e: any) => e.U_tl_itemcode === itemCode
-                      )?.U_tl_bincode,
-                      Quantity: quantity.toString(),
-                      AllowNegativeQuantity: "tNO",
-                    },
-                  ],
-                };
-              }
+            .map(([itemKey, quantity]) => {
+              const [itemCode, bincode, warehousecode, branchcode] =
+                itemKey.split("-");
+
+              return {
+                ItemCode: itemCode,
+                Quantity: quantity.toString(),
+                DiscountPercent: 0,
+                TaxCode: "VO10",
+                LineOfBussiness: data.allocationData?.find(
+                  (e: any) => e.U_tl_itemcode === itemCode
+                )?.LineOfBussiness,
+                RevenueLine: "202001",
+                ProductLine: data.allocationData?.find(
+                  (e: any) => e.U_tl_itemcode === itemCode
+                )?.ProductLine,
+                BinAbsEntry: bincode,
+                BranchCode: branchcode,
+                WarehouseCode: warehousecode,
+                DocumentLinesBinAllocations: [
+                  {
+                    BinAbsEntry: bincode,
+                    Quantity: quantity.toString(),
+                    AllowNegativeQuantity: "tNO",
+                  },
+                ],
+              };
             })
             .filter(Boolean); // Filter out undefined items
 
           return stockAllocation;
         })(),
-
         CardCount: [].concat(
           ...data?.cardCountData?.map((item: any) => {
             const mappedData = [];
