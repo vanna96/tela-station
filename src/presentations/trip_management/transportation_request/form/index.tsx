@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   FieldValues,
   UseFormGetValues,
@@ -10,28 +10,17 @@ import {
 } from "react-hook-form";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import { withRouter } from "@/routes/withRouter";
 import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import General from "../components/General";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { useQuery } from "react-query";
-import ManagerRepository from "@/services/actions/ManagerRepository";
-import EmployeeRepository from "@/services/actions/employeeRepository";
-import Document, { TRSourceDocument } from "../components/Document";
+import Document from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
-import CircularProgress, {
-  circularProgressClasses,
-  CircularProgressProps,
-} from "@mui/material/CircularProgress";
-import { useParams } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useNavigate, useParams } from "react-router-dom";
 import CustomToast from "@/components/modal/CustomToast";
-import { Backdrop, Box } from "@mui/material";
-import { green } from "@mui/material/colors";
-import BackDrop from "../../component/BackDrop";
+import { Backdrop } from "@mui/material";
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -49,7 +38,6 @@ export type UseFormProps = {
   branchAss?: any;
   emp?: any;
   header?: any;
-  setHeader?: any;
   detail?: boolean;
   data?: any;
   serie?: any;
@@ -64,8 +52,8 @@ const Form = (props: any) => {
         U_RequestDate: new Date()?.toISOString()?.split("T")[0],
       } as any,
     });
-
   const { id } = useParams();
+  const route = useNavigate();
   const [state, setState] = useState({
     loading: false,
     isSubmitting: false,
@@ -75,25 +63,11 @@ const Form = (props: any) => {
     showCollapse: true,
     DocNum: id,
   });
-  const [header, setHeader] = useState({
-    firstName: null,
-    lastName: null,
-    gender: null,
-    branch: null,
-    status: "O",
-  });
-  const [searchValues, setSearchValues] = React.useState({
-    DocumentNumber: "",
-    Type: "",
-    Branch: "",
-    From: "",
-    To: "",
-  });
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
-  const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
   const [collection, setCollection] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
 
   const {
     fields: document,
@@ -141,11 +115,12 @@ const Form = (props: any) => {
   };
 
   const onSubmit = async (e: any) => {
-    const payload: any = Object.fromEntries(
-      Object.entries(e).filter(
-        ([key, value]): any => value !== null && value !== undefined
-      )
-    );
+    if (open) return;
+    const payload: any = {
+      ...e,
+      RequesterName: undefined,
+      BranchName: undefined,
+    };
     try {
       setState({ ...state, isSubmitting: true });
       if (props.edit) {
@@ -199,9 +174,6 @@ const Form = (props: any) => {
   };
   const handlerChangeMenu = useCallback(
     (index: number) => {
-      if (index === 1) {
-        setSearchValues({ ...searchValues, Branch: watch("U_Branch") });
-      }
       setState((prevState) => ({
         ...prevState,
         tapIndex: index,
@@ -264,94 +236,46 @@ const Form = (props: any) => {
 
   React.useEffect(() => {
     if (requestS) {
-      console.log(requestS);
-
       reset({ ...requestS });
     }
   }, [requestS]);
 
-  const Left = ({ header, data }: any) => {
-    const branchAss: any = useQuery({
-      queryKey: ["branchAss"],
-      queryFn: () => new BranchBPLRepository().get(),
-      staleTime: Infinity,
-    });
-    const emp: any = useQuery({
-      queryKey: ["manager"],
-      queryFn: () => new ManagerRepository().get(),
-      staleTime: Infinity,
-    });
+  const Left = () =>
+    useMemo(() => {
+      return (
+        <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4 text-sm">
+          <div className="w-[25%] gap-[10px] text-[15px] text-gray-500 flex flex-col justify-between h-full">
+            <div>
+              <span className="">Requester</span>
+            </div>
+            <div>
+              <span className="">Branch</span>
+            </div>
+            <div>
+              <span className="">Terminal</span>
+            </div>
+            <div>
+              <span className="">Status</span>
+            </div>
+          </div>
+          <div className="w-[70%] gap-[10px] text-[15px] flex flex-col justify-between h-full">
+            <div>
+              <span className="">{watch("RequesterName") || "_"}</span>
+            </div>
+            <div>
+              <span>{watch("BranchName") || "_"}</span>
+            </div>
+            <div>
+              <span>{watch("U_Terminal") || "_"}</span>
+            </div>
+            <div className="">
+              <span>{watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }, [requestS]);
 
-    return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
-        <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
-          <div>
-            <span className="">Requester</span>
-          </div>
-          <div>
-            <span className="mt-10">Branch</span>
-          </div>
-        </div>
-        <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
-          <div>
-            <span className="mb-[27px] inline-block">
-              {`${
-                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
-                  ?.FirstName ||
-                emp?.data?.find(
-                  (e: any) => e?.EmployeeID === header?.U_Requester
-                )?.FirstName ||
-                "_"
-              } ${
-                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
-                  ?.LastName ||
-                emp?.data?.find(
-                  (e: any) => e?.EmployeeID === header?.U_Requester
-                )?.LastName ||
-                "_"
-              }`}
-            </span>
-          </div>
-          <div>
-            <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.U_Branch)
-                ?.BPLName ||
-                header?.U_Branch ||
-                branchAss?.data?.find((e: any) => e?.BPLID === header?.U_Branch)
-                  ?.BPLName ||
-                "_"}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-  const Right = ({ header, data }: any) => {
-    return (
-      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
-        <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
-          <div>
-            <span className="mr-10 mb-[27px] inline-block">Terminal</span>
-          </div>
-          <div>
-            <span className="mr-10">Status</span>
-          </div>
-        </div>
-        <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
-          <div>
-            <span>{data?.U_Terminal || header?.base || "_"}</span>
-          </div>
-          <div className="mt-7">
-            <span>
-              {data?.Status || header?.status == "O"
-                ? "Active"
-                : "Inactive" || "_"}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <>
@@ -366,9 +290,7 @@ const Form = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={requestS} />
-                <Right header={header} data={requestS} />
-                {/* <TotalSummaryRightSide data={this.state} /> */}
+                <Left />
               </>
             }
             leftSideField={undefined}
@@ -401,9 +323,6 @@ const Form = (props: any) => {
                   control={control}
                   setBranchAss={setBranchAss}
                   branchAss={branchAss}
-                  emp={emp}
-                  header={header}
-                  setHeader={setHeader}
                   serie={serie}
                   watch={watch}
                   getValues={getValues}
@@ -413,6 +332,8 @@ const Form = (props: any) => {
             {state.tapIndex === 1 && (
               <div className="grow pt-3">
                 <Document
+                  open={open}
+                  setOpen={setOpen}
                   register={register}
                   collection={collection}
                   control={control}
@@ -424,8 +345,6 @@ const Form = (props: any) => {
                   removeDocument={removeDocument}
                   getValues={getValues}
                   watch={watch}
-                  searchValues={searchValues}
-                  setSearchValues={setSearchValues}
                 />
               </div>
             )}
@@ -442,7 +361,7 @@ const Form = (props: any) => {
                     }}
                     disableElevation
                     onClick={() =>
-                      (window.location.href = "/master-data/pump-attendant")
+                      route("/trip-management/transportation-request")
                     }
                   >
                     <span className="px-3 text-[11px] py-1 text-red-500">

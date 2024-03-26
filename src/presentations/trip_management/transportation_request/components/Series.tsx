@@ -68,14 +68,6 @@ const SeriesSelect: React.FC<MUISelectProps> = ({ error, items, disabled, loadin
           name={name}
           onChange={onChange}
           disabled={disabled}
-          // MenuProps={{
-          //   MenuListProps: {
-          //     style: {
-          //       backgroundColor: theme === 'light' ? '' : '#475569',
-          //       color: theme === 'light' ? '' : '#fff',
-          //     }
-          //   }
-          // }}
         >
           {items?.length > 0 ? (
             items?.map((e) => {
