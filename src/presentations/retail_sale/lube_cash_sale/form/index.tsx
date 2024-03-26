@@ -45,6 +45,10 @@ class LubeForm extends CoreFormDocument {
       U_tl_docdate: new Date(),
       U_tl_devdate: new Date(),
       Branch: 1,
+      CardName: "General Customer",
+      CardCode: 20000001,
+      U_tl_cardname: "General Customer",
+      U_tl_cardcode: 20000001,
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
@@ -78,7 +82,7 @@ class LubeForm extends CoreFormDocument {
       checkNumberData: [],
       couponData: [
         {
-          U_tl_acccoupon: "110101",
+          U_tl_acccoupon: "111102",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -198,7 +202,7 @@ class LubeForm extends CoreFormDocument {
                     try {
                       const response = await request(
                         "GET",
-                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry, ItemPrices`
+                        `/Items('${item.U_tl_itemCode}')?$select=UoMGroupEntry,InventoryUoMEntry,ItemPrices,U_tl_dim1,U_tl_dim2`
                       );
 
                       apiResponse = response.data;
@@ -231,6 +235,7 @@ class LubeForm extends CoreFormDocument {
                   return {
                     ItemCode: item.U_tl_itemCode || null,
                     ItemName: item.U_tl_itemname || null,
+                    InventoryUoMEntry: apiResponse.InventoryUoMEntry,
                     Quantity: item.U_tl_qty || null,
                     UnitPrice:
                       item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
@@ -249,9 +254,9 @@ class LubeForm extends CoreFormDocument {
                     ItemPrices: apiResponse.ItemPrices,
                     ExchangeRate: data?.DocRate || 1,
                     JournalMemo: data?.JournalMemo,
-                    COGSCostingCode: item?.COGSCostingCode,
+                    COGSCostingCode: apiResponse?.U_tl_dim1,
                     COGSCostingCode2: item?.COGSCostingCode2,
-                    COGSCostingCode3: item?.COGSCostingCode3,
+                    COGSCostingCode3: apiResponse?.U_tl_dim2,
                     CurrencyType: "B",
                     DocumentLinesBinAllocations:
                       item.DocumentLinesBinAllocations,
@@ -483,7 +488,6 @@ class LubeForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     const payload = this.createPayload();
-    console.log(data);
     edit = this.props.edit;
 
     try {
@@ -597,9 +601,9 @@ class LubeForm extends CoreFormDocument {
           DiscountPercent: item.DiscountPercent,
           TaxCode: "VO10",
           UoMEntry: item.InventoryUoMEntry,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
+          LineOfBussiness: item.COGSCostingCode, // item.LineOfBussiness
+          RevenueLine: "202001", // item.RevenueLine Station
+          ProductLine: item.COGSCostingCode3, // item.ProductLine
           BinAbsEntry:
             item.BinAbsEntry === undefined || item.BinAbsEntry === null
               ? data.U_tl_bincode
@@ -755,7 +759,6 @@ class LubeForm extends CoreFormDocument {
     }
   };
   HeaderTaps = () => {
-    console.log(this.state);
     return (
       <>
         <div className="w-full flex justify-start">
@@ -896,40 +899,44 @@ class LubeForm extends CoreFormDocument {
                             </span>
                           </LoadingButton>
                         </div>
-                        <div>
-                          <LoadingButton
-                            variant="outlined"
-                            size="small"
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            disableElevation
-                            // disabled={this.props.edit}
-                          >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              {this.props.edit ? "Update" : "Add"}
-                            </span>
-                          </LoadingButton>
-                        </div>
-                        {
-                          <div className="flex items-center space-x-4">
+
+                        {this.state.U_tl_status !== "Close" && (
+                          <div>
                             <LoadingButton
-                              onClick={(event) =>
-                                this.handlerSubmitPost(event, this.props.edit)
-                              }
-                              sx={{ height: "30px", textTransform: "none" }}
-                              className="bg-white"
-                              loading={false}
-                              // disabled={this.state.tapIndex < 4}
+                              variant="outlined"
                               size="small"
-                              variant="contained"
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
                               disableElevation
+                              // disabled={this.props.edit}
                             >
-                              <span className="px-6 text-[13px] py-4 text-white">
-                                Post
+                              <span className="px-3 text-[13px] py-1 text-green-500">
+                                {this.props.edit ? "Update" : "Add"}
                               </span>
                             </LoadingButton>
                           </div>
-                        }
+                        )}
+                        {this.state.U_tl_status !== "Close" && (
+                          <>
+                            <div className="flex items-center space-x-4">
+                              <LoadingButton
+                                onClick={(event) =>
+                                  this.handlerSubmitPost(event, this.props.edit)
+                                }
+                                sx={{ height: "30px", textTransform: "none" }}
+                                className="bg-white"
+                                loading={false}
+                                size="small"
+                                variant="contained"
+                                disableElevation
+                              >
+                                <span className="px-6 text-[13px] py-4 text-white">
+                                  Post
+                                </span>
+                              </LoadingButton>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>

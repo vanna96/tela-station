@@ -26,14 +26,14 @@ const BasicInformation = (props: any) => {
   }, [series, props.watch('BPLID')])
 
   useEffect(() => {
-    if (props?.edit) return;
+    if (props?.edit || props.watch('Series')) return;
 
     defaultSerie.refetch();
     if (!defaultSerie.data) return;
 
     props?.setValue("Series", defaultSerie?.data?.Series);
     props?.setValue("DocNum", defaultSerie?.data?.NextNumber);
-  }, [defaultSerie.data]);
+  }, [defaultSerie.data, props.watch('Series')]);
 
   const onChangeSerie = useCallback(
     (event: any) => {
@@ -95,8 +95,8 @@ const BasicInformation = (props: any) => {
             </div>
 
             <div className="grid grid-cols-5 py-2">
-              <div className="col-span-2">
-                <label htmlFor="GIT Warehouse" className="text-gray-500 ">
+              <div className="col-span-2 mt-1">
+                <label htmlFor="GIT Warehouse" className="text-gray-500">
                   GIT Warehouse
                 </label>
               </div>
@@ -166,7 +166,7 @@ const BasicInformation = (props: any) => {
               <div className="col-span-2">
                 <label
                   htmlFor="Branch"
-                  className="text-gray-500 inline-block mt-1"
+                  className="text-gray-500 inline-block"
                 >
                   Branch
                   <span className="text-red-500 ml-1">{props.detail ? "" : "*"}</span>
@@ -209,8 +209,7 @@ const BasicInformation = (props: any) => {
                         key={`${props.watch('BPLID')}_to_whs`}
                         branchId={props.watch('BPLID')}
                         disabled={props?.edit}
-                        {...field}
-                        value={field.value}
+                        value={props.watch('ToWarehouse')}
                         onChange={async (e: any) => {
                           props.setValue("ToWarehouse", e?.WarehouseCode);
                         }}

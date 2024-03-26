@@ -290,7 +290,7 @@ function General(props: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", props.data.DocNum)}
+            {renderKeyValue("Document Numbering", props.data.DocNum)}
             {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
             {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
             {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}

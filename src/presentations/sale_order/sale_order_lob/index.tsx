@@ -472,10 +472,10 @@ export default function SaleOrderLists() {
                     <MUISelect
                       items={[
                         { id: "bost_Open", name: "Open" },
-                        { id: "bost_Close", name: "Closed" },
+                        { id: "bost_Close", name: "Close" },
                         { id: "bost_Paid", name: "Paid" },
                         { id: "bost_Delivered", name: "Delivered" },
-                        { id: "", name: "None" },
+                        { id: "", name: "All" },
                       ]}
                       value={searchValues.status}
                       onChange={(e) => {

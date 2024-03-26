@@ -18,6 +18,7 @@ type ActionQueryParam = {
   type: keyof QueryOptionAPI | "all";
   value?: string | number | QueryOptionAPI;
 };
+
 export const status = (e: string) => {
   switch (e) {
     case "I":
@@ -38,6 +39,8 @@ export const status = (e: string) => {
       return;
   }
 };
+
+
 function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
   switch (action.type) {
     case "skip":
@@ -98,7 +101,6 @@ export const UseTransportationOrderListHook = (pagination: any) => {
   };
 
   const setFilter = (value: string) => {
-    console.log(value);
     dispatch({ type: "filter", value });
   };
 

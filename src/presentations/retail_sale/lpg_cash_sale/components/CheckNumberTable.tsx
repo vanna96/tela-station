@@ -171,6 +171,7 @@ export default function CheckNumberTable(props: any) {
           <NumericFormat
             key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
             placeholder="0.000"
+            thousandSeparator
             disabled={data?.edit}
             defaultValue={cell.row.original?.U_tl_amtcheck || 0}
             onBlur={(e: any) => {

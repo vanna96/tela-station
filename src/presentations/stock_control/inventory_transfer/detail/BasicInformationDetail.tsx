@@ -119,24 +119,8 @@ const BasicInformationDetail = (props: any) => {
                         <WarehouseAutoComplete
                           branchId={props.watch("BPLID")}
                           disabled
-                          {...field}
-                          value={field.value}
-                          onChange={async (e: any) => {
-                            props.setValue("FromWarehouse", e?.WarehouseCode);
-                            onChangeBranch({ BPLID: e?.BusinessPlaceID });
 
-                            if (!e?.DefaultBin) return;
-
-                            props?.setLoading(true);
-                            const res: any = await request(
-                              "GET",
-                              `BinLocations(${e?.DefaultBin})`
-                            );
-
-                            props?.setLoading(false);
-                            props.setValue("U_tl_uobincode", res.data.BinCode);
-                            props.setValue("U_tl_fromBinId", undefined);
-                          }}
+                          value={props.watch('FromWarehouse')}
                         />
                       );
                     }}
@@ -166,16 +150,6 @@ const BasicInformationDetail = (props: any) => {
                         branchId={props.watch('BPLID')}
                         {...field}
                         value={field.value}
-                        onChange={(e: any) => {
-                          // props.setValue("BPLID", e.BusinessPlaceID);
-                          props.setValue("U_tl_attn_ter", e?.WarehouseCode);
-                          const git = data?.find(
-                            (whs: any) =>
-                              whs?.U_tl_git_whs === "Y" &&
-                              whs?.BusinessPlaceID === e.BusinessPlaceID
-                          );
-                          // props.setValue("FromWarehouse", git?.WarehouseCode);
-                        }}
                       />
                     );
                   }}
@@ -285,7 +259,7 @@ const BasicInformationDetail = (props: any) => {
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-600 ">
-                  Series 
+                  Series
                 </label>
               </div>
               <div className="col-span-3">

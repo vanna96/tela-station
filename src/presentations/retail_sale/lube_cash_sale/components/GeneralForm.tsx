@@ -34,7 +34,6 @@ export default function GeneralForm({
   handlerChange,
   edit,
 }: IGeneralFormProps) {
-
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
@@ -51,11 +50,7 @@ export default function GeneralForm({
   const seriesSO =
     data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
 
-  if (filteredSeries[0]?.NextNumber && data) {
-    data.DocNum = filteredSeries[0].NextNumber;
-  }
-
-  if (filteredSeries[0]?.NextNumber && data) {
+  if (!edit && filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
@@ -87,7 +82,6 @@ export default function GeneralForm({
     data.U_tl_arbusi = "Lube";
     data.lineofBusiness = "Lube";
   }
-  console.log(data);
 
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
@@ -194,13 +188,14 @@ export default function GeneralForm({
               <VendorByBranch
                 branch={data?.U_tl_bplid}
                 vtype="customer"
+                disabled
                 onChange={(vendor) => handlerChange("vendor", vendor)}
                 key={data?.CardCode}
-                error={"CardCode" in data?.error}
                 helpertext={data?.error?.CardCode}
                 autoComplete="off"
-                defaultValue={data?.CardCode}
+                defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
+                passedcardcode={data.CardCode}
                 endAdornment={!edit}
               />
             </div>
@@ -212,7 +207,11 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <MUITextField value={data?.CardName} disabled name="BPName" />
+              <MUITextField
+                value={edit ? data.U_tl_cardname : data?.CardName}
+                disabled
+                name="BPName"
+              />
             </div>
           </div>
 

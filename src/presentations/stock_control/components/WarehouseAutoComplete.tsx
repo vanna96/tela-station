@@ -17,26 +17,18 @@ export type WarehouseAutoCompleteProp = {
 };
 
 const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
-  const { data, isLoading } = useGetWhsTerminalAssignHook(false);
+  const { data, isLoading } = useGetWhsTerminalAssignHook(false)
 
   const warehoueses = useMemo(() => {
-    return data?.filter(
-      (e: any) =>
-        e.U_tl_whsclear === "N" &&
-        e.U_tl_git_whs === "N" &&
-        e?.BusinessPlaceID === props.branchId
-    );
-  }, [props.branchId, data]);
+    if (props.disabled) return data ?? [];
+
+    return data?.filter((e: any) => e?.BusinessPlaceID === props.branchId && e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N') ?? []
+  }, [props.branchId, data])
+
 
   useEffect(() => {
-    if (props.value && warehoueses) {
-      const selected = warehoueses.find(
-        (e: WarehouseProps) => e.WarehouseCode === props.value
-      );
-      if (selected) {
-        setSelectedValue(selected);
-      }
-    }
+    const selected = warehoueses?.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+    setSelectedValue(selected);
   }, [props.value, warehoueses]);
 
   // Use local state to store the selected value
@@ -54,8 +46,6 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
     }
   };
   const disabled = props.disabled;
-  console.log(warehoueses);
-
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -83,9 +73,8 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

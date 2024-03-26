@@ -1,93 +1,296 @@
 import request, { url } from "@/utilies/request";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
-import { Backdrop, Box, Button, CircularProgress, Modal } from "@mui/material";
+import { Box, Button, CircularProgress, Modal } from "@mui/material";
 import MUISelect from "@/components/selectbox/MUISelect";
 import { MRT_RowSelectionState } from "material-react-table";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
-import shortid from "shortid";
 import DataTable from "./DataTabaleO";
+import { Controller, useForm } from "react-hook-form";
+import { conditionString, queryOptionParser, displayTextDate } from '@/lib/utils';
+import { QueryOptionAPI } from "@/lib/filter_type";
+
 const style = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "80vw",
+  height: "90vh",
   bgcolor: "background.paper",
   p: 4,
 };
-type selectData = {
-  U_Type: string;
-  U_SourceDocEntry: number;
-};
-export default function TRModal(props: any) {
-  const [searchValues, setSearchValues] = React.useState({
-    DocumentNumber: "",
-    Type: "",
-    Status: "",
-    Branch: "",
-    From: "",
-    To: "",
-  });
-  const [filter, setFilter] = React.useState("");
-  const [sortBy, setSortBy] = React.useState("");
-  const [openLoading, setOpenLoading] = React.useState(false);
-  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
-  const [docSelect, setDocselect] = useState<any[]>([]);
 
+
+interface TransportationOrderModalProps {
+  onSelectItems: (items: any[]) => any,
+}
+
+interface TransportationOrderState {
+  open: boolean,
+};
+
+export class TransportationOrderModal extends React.Component<TransportationOrderModalProps, TransportationOrderState> {
+  state = { open: false } as TransportationOrderState;
+
+  onClose() {
+    this.setState({ open: false });
+  }
+
+  onOpen() {
+    this.setState({ open: true });
+  }
+
+  onSelectChangeItems(items: any[]) {
+    this.props.onSelectItems(items)
+    this.setState({ open: false })
+
+  }
+
+  render() {
+    return <TRModal open={this.state.open} onClose={() => this.onClose()} onSelectItems={(items: any) => this.onSelectChangeItems(items)} />
+  }
+}
+
+
+interface FilterProps {
+  DocNum_$eq_number: undefined | string;
+  U_Type_$eq: undefined | string;
+  BPLId_$eq_number: undefined | string;
+  DocDate_$ge: undefined | string;
+  DocDate_$le: undefined | string;
+}
+
+const defaultValueFilter: FilterProps = {
+  DocNum_$eq_number: undefined,
+  U_Type_$eq: undefined,
+  BPLId_$eq_number: undefined,
+  DocDate_$ge: undefined,
+  DocDate_$le: undefined,
+};
+
+export const TransportionOrderFilterModal = ({ onFilter }: { onFilter?: (query: string) => any }) => {
+  const { handleSubmit, setValue, control, watch } = useForm({
+    defaultValues: defaultValueFilter,
+  });
+
+  function onSubmit(data: any) {
+    const queryString: (string | undefined)[] = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (!value) continue;
+
+      queryString.push("and");
+      queryString.push(conditionString(key, value as any));
+    }
+
+    queryString.splice(0, 1);
+    const query = queryString.join(" ");
+
+    if (onFilter) onFilter(query);
+  }
+
+  return <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
+    <div className="col-span-10">
+      <div className="grid grid-cols-12  space-x-4">
+        <div className="col-span-2 2xl:col-span-3">
+          <Controller
+            name="DocNum_$eq_number"
+            control={control}
+            render={({ field }) => <MUITextField type="string" label="Document Number" className="bg-white" autoComplete="off" onBlur={(e) => setValue('DocNum_$eq_number', e.target.value)} />}
+          />
+        </div>
+        <div className="col-span-2 2xl:col-span-3">
+          <div className="">
+            <label htmlFor="Code" className="text-gray-500 text-[14.1px] mb-[2px] inline-block">Document Type </label>
+          </div>
+          <Controller
+            name="U_Type_$eq"
+            control={control}
+            render={({ field }) =>
+              <MUISelect
+                value={field.value}
+                items={[
+                  { value: "All", label: "All" },
+                  { value: "TR", label: "Transportation Request" },
+                  { value: "ITR", label: "Inventory Transfer Request" },
+                ]}
+                aliasvalue="value"
+                aliaslabel="label"
+                onChange={(e) => setValue('U_Type_$eq', (e?.target?.value) as string)}
+              />}
+          />
+
+        </div>
+        <div className="col-span-2 2xl:col-span-3">
+          <div className="">
+            <label
+              htmlFor="Code"
+              className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
+            >
+              Branch
+            </label>
+          </div>
+          <Controller
+            name="BPLId_$eq_number"
+            control={control}
+            render={({ field }) => <BranchAssignmentAuto value={field.value} onChange={(e) => setValue('BPLId_$eq_number', e?.BPLID)} />}
+          />
+        </div>
+
+        <div className="col-span-2 -mt-1 2xl:col-span-3">
+          <div className="">
+            <label
+              htmlFor="Code"
+              className="text-gray-500 text-[14.1px] inline-block"
+            >
+              From Date
+            </label>
+          </div>
+          <Controller
+            name="DocDate_$ge"
+            control={control}
+            render={({ field }) =>
+              <MUIDatePicker
+                value={field.value}
+                onChange={(e) => {
+                  if (e !== null) {
+                    const val =
+                      e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
+                        ? ""
+                        : e;
+                    setValue('DocDate_$ge', val)
+                  }
+                }}
+              />}
+          />
+        </div>
+
+        <div className="col-span-2 -mt-1 2xl:col-span-3">
+          <div className="">
+            <label
+              htmlFor="Code"
+              className="text-gray-500 text-[14.1px] inline-block"
+            >
+              To Date
+            </label>
+          </div>
+          <Controller
+            name="DocDate_$le"
+            control={control}
+            render={({ field }) =>
+              <MUIDatePicker
+                value={field.value}
+                onChange={(e) => {
+                  if (e !== null) {
+                    const val =
+                      e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
+                        ? ""
+                        : e;
+                    setValue('DocDate_$le', val)
+                  }
+                }}
+              />}
+          />
+        </div>
+
+        <div className="col-span-2 2xl:col-span-3"></div>
+        {/*  */}
+
+        <div className="col-span-2 2xl:col-span-3"></div>
+      </div>
+    </div>
+    <div className="col-span-2 mt-[0.3rem]">
+      <div className="flex justify-end items-center align-center space-x-2 mt-4">
+        <div className="">
+          <Button
+            variant="contained"
+            size="small"
+            type="submit"
+          >
+            <span className="text-xs p-1">Search</span>
+          </Button>
+        </div>
+      </div>
+    </div>
+  </form>;
+}
+
+
+const defaultQuery: QueryOptionAPI = {
+  skip: 0,
+  top: 10,
+  orderby: "U_SourceDocEntry desc",
+} as const;
+
+const initialState = { ...defaultQuery };
+
+function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
+  switch (action.type) {
+    case "skip":
+      return { ...state, skip: action.value } as QueryOptionAPI;
+    case "orderby":
+      return { ...state, orderby: action.value } as QueryOptionAPI;
+    case "filter":
+      return { ...state, filter: action.value } as QueryOptionAPI;
+    case "top":
+      return { ...state, top: action.value } as QueryOptionAPI;
+    case "all":
+      return { ...(action.value as QueryOptionAPI) } as QueryOptionAPI;
+    default:
+      return state;
+  }
+}
+
+type ActionQueryParam = {
+  type: keyof QueryOptionAPI | "all";
+  value?: string | number | QueryOptionAPI;
+};
+
+export default function TRModal(props: { open: boolean, onClose: () => void, onSelectItems: (items: any) => void }) {
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [state, dispatch] = React.useReducer(reducer, initialState);
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 8,
   });
 
-  const Count: any = useQuery({
-    queryKey: [`TL_TO_DOCS`, `${filter !== "" ? "f" : ""}`],
-    queryFn: async () => {
-      const response: any = await request(
-        "GET",
-        `${url}/sml.svc/TLTO_MDOCS/$count?${filter ? `$filter=${filter}` : ""}`
-      )
-        .then(async (res: any) => res?.data)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
-  });
+  const filters = useMemo(() => {
+    return {
+      ...state,
+      skip: Number(pagination?.pageIndex) * Number(pagination?.pageSize),
+      top: pagination?.pageSize ?? 10,
+    } as QueryOptionAPI;
+  }, [pagination, state]);
 
-  const { data, isLoading, refetch, isFetching }: any = useQuery({
-    queryKey: [
-      "TL_TR_DOCS",
-      `${pagination.pageIndex * pagination.pageSize}_${
-        filter !== "" ? "f" : ""
-      }`,
-      pagination.pageSize,
-    ],
-    queryFn: async () => {
-      const Url = `${url}/sml.svc/TLTO_MDOCS?$top=${
-        pagination.pageSize
-      }&$skip=${pagination.pageIndex * pagination.pageSize}${
-        filter ? `&$filter=${filter}` : filter
-      }${sortBy !== "" ? "&$orderby=" + sortBy : ""}`;
-
-      const response: any = await request("GET", `${Url}`)
-        .then((res: any) => res?.data?.value)
-        .catch((e: Error) => {
-          throw new Error(e.message);
-        });
-      return response;
-    },
-    cacheTime: 0,
-    staleTime: 0,
+  const dataQuery = useQuery({
+    queryKey: ['mdoc_' + filters.skip, filters],
+    queryFn: () => request("GET", `/sml.svc/TLTO_MDOCS?${queryOptionParser(filters)}`),
     refetchOnWindowFocus: false,
   });
+  const countQuery = useQuery({
+    queryKey: ['mdoc_count_' + filters.skip, filters],
+    queryFn: () =>
+      request("GET", `/sml.svc/TLTO_MDOCS/$count?${queryOptionParser(filters)}`),
+    refetchOnWindowFocus: false,
+  });
+
+  const data: any[] = React.useMemo(
+    () => (dataQuery?.data as any)?.data?.value ?? [],
+    [dataQuery]
+  );
+  const totalRecords: number = React.useMemo(
+    () => (countQuery?.data as any)?.data ?? 0,
+    [countQuery]
+  );
+
+  const refetchData = async () => {
+    dispatch({ type: "all", value: defaultQuery });
+    dataQuery.refetch();
+    countQuery.refetch();
+  };
 
   const columns = React.useMemo(
     () => [
@@ -139,35 +342,33 @@ export default function TRModal(props: any) {
           return cell.row.original.BPLName;
         },
       },
-      {
-        accessorKey: "CardCode",
-        header: "Customer Code",
-        size: 60,
-        visible: true,
-        type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.CardCode ?? "N/A";
-        },
-      },
-      {
-        accessorKey: "CardName",
-        header: "Customer Name",
-        size: 60,
-        visible: true,
-        type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.CardName ?? "N/A";
-        },
-      },
+      // {
+      //   accessorKey: "CardCode",
+      //   header: "Customer Code",
+      //   size: 60,
+      //   visible: true,
+      //   type: "string",
+      //   Cell: (cell: any) => {
+      //     return cell.row.original.CardCode ?? "N/A";
+      //   },
+      // },
+      // {
+      //   accessorKey: "CardName",
+      //   header: "Customer Name",
+      //   size: 60,
+      //   visible: true,
+      //   type: "string",
+      //   Cell: (cell: any) => {
+      //     return cell.row.original.CardName ?? "N/A";
+      //   },
+      // },
       {
         accessorKey: "DocDate",
         header: "Document Date",
         size: 60,
         visible: true,
         type: "string",
-        Cell: (cell: any) => {
-          return cell.row.original.DocDate ?? "N/A";
-        },
+        Cell: (cell: any) => displayTextDate(cell.row.original.DocDate),
       },
       {
         accessorKey: "id__",
@@ -194,369 +395,104 @@ export default function TRModal(props: any) {
     ],
     [data]
   );
-  const handlerRefresh = React.useCallback(() => {
-    setRowSelection({});
-    setFilter("");
-    setSortBy("");
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  }, []);
 
-  const handlerSortby = (value: any) => {
-    setSortBy(value);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      refetch();
-    }, 500);
-  };
-
-  let queryFilters = "";
-  const handlerSearch = (value: string) => {
-    if (searchValues.DocumentNumber) {
-      queryFilters += queryFilters
-        ? ` and (contains(DocNum, ${searchValues.DocumentNumber}))`
-        : `(contains(DocNum, ${searchValues.DocumentNumber}))`;
-    }
-    if (searchValues.Type) {
-      searchValues.Type === "All"
-        ? (queryFilters += queryFilters ? "" : "")
-        : (queryFilters += queryFilters
-            ? ` and U_Type eq '${searchValues.Type}'`
-            : `U_Type eq '${searchValues.Type}'`);
-    }
-    if (searchValues.Branch) {
-      queryFilters += queryFilters
-        ? ` and (contains(BPLId, ${searchValues.Branch}))`
-        : `(contains(BPLId, ${searchValues.Branch}))`;
-    }
-    if (searchValues.From) {
-      queryFilters += queryFilters
-        ? ` and DocDate ge '${searchValues.From}'`
-        : `DocDate ge '${searchValues.From}'`;
-    }
-
-    if (searchValues.To) {
-      queryFilters += queryFilters
-        ? ` and DocDueDate le '${searchValues.To}'`
-        : `DocDueDate le '${searchValues.To}'`;
-    }
-    let query = queryFilters;
-
-    if (value) {
-      query = queryFilters + `and ${value}`;
-    }
-    setFilter(query);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
-  const handleClose = () => {
-    setRowSelection({});
-    setOpenLoading(false);
-    props?.setOpen(false);
-  };
   const onSelectData = React.useCallback(async () => {
-    setOpenLoading(true);
-    let ids = [];
-    if (rowSelection) {
-      for (const [key, value] of Object.entries(rowSelection)) {
-        if (!value) continue;
-
-        const docNum = key.split("_")?.at(-1);
-        ids.push(`DocNum eq ${docNum}`);
-      }
+    const keys = Object.keys(rowSelection);
+    if (keys.length === 0) {
+      props.onClose();
+      return;
     }
-    const selectRow = await request(
-      "GET",
-      "/sml.svc/TLTO_MDOCS?" + `$filter=${ids.join(" or ")}`
-    ).then((res: any) => {
-      return res?.data?.value;
-    });
-    if (selectRow) {
-      const data = {
-        Documents: selectRow?.map((e: any) => {
-          return {
-            U_Type: e?.U_Type,
-            U_SourceDocEntry: e?.U_SourceDocEntry,
-          };
-        }),
-      };
-      const document = props?.document?.map((e: any) => ({
-        ...e,
-        id: undefined,
-      }));
-      await request("POST", "/script/test/get_trans_order_source", data).then(
-        (res: any) => {
-          props?.setDocument([...document, ...res?.data?.value]);
-          props?.setTransDetail([
-            ...props?.transDetail,
-            ...res?.data?.value?.map((e: any) => ({ ...e, U_Order: 0 })),
-          ]);
-          // props?.setValue("TL_TO_COMPARTMENTCollection", [
-          // ...props?.compartment?.map((e: any) => ({
-          //   ...e,
-          //   ...res?.data?.value?.map((e: any) => {
-          //     return {
-          //       U_DocNum: e?.U_DocNum,
-          //       U_SourceDocEntry: e?.U_SourceDocEntry,
-          //       U_ItemCode: e?.U_ItemCode,
-          //     };
-          //   }
-          //   )
-          // })),
-          // ...res?.data?.value?.map((e: any) => {
-          //   return {
-          //     ...props?.compartment,
-          //     U_DocNum: e?.U_DocNum,
-          //     U_SourceDocEntry: e?.U_SourceDocEntry,
-          //     U_ItemCode: e?.U_ItemCode,
-          //   };
-          // }
 
-          // ),
-          // ]);
-          props?.setHeadTrans(res?.data?.value);
-          setRowSelection({});
-          setOpenLoading(false);
-          props?.setOpen(false);
-        }
-      );
+    var documents: { U_Type: string, U_SourceDocEntry: number | string }[] = [];
+    for (const value of keys) {
+      const row = value.split('_');
+      documents.push({ U_Type: row?.at(1) ?? '', U_SourceDocEntry: Number(row?.at(2)) ?? '' })
+    }
+
+    setIsLoading(true)
+    try {
+      const response: any = await request("POST", "/script/test/get_trans_order_source", { Documents: documents });
+      props.onSelectItems(response?.data?.value ?? [])
+      setIsLoading(false)
+    } catch (error) {
+      setIsLoading(false)
+      throw error;
     }
   }, [rowSelection]);
 
-  const lists = React.useMemo(() => data, [data]);
+  useEffect(() => {
+    dispatch({ type: "all", value: defaultQuery });
+    dataQuery.refetch();
+    countQuery.refetch();
+  }, [props.open])
+
   return (
     <>
       <Modal
-        open={props?.open}
-        onClose={handleClose}
+        open={props.open}
+        onClose={props.onClose}
         aria-labelledby="parent-modal-title"
         aria-describedby="parent-modal-description"
       >
+
+
         <Box sx={style} borderRadius={3}>
           <div
-            className={`w-full h-full ${
-              openLoading ? "block" : "hidden"
-            } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
+            className={`w-full h-full ${isLoading ? "block" : "hidden"
+              } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
           >
             <CircularProgress color="success" />{" "}
           </div>
-          {/* <div className="w-[80vw] h-[80vh] px-6 py-2 flex flex-col gap-1 relative bg-white"> */}
-          <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
-            <div className="col-span-10">
-              <div className="grid grid-cols-12  space-x-4">
-                <div className="col-span-2 2xl:col-span-3">
-                  <MUITextField
-                    type="string"
-                    label="Document Number"
-                    className="bg-white"
-                    autoComplete="off"
-                    value={searchValues.DocumentNumber}
-                    onChange={(e) =>
-                      setSearchValues({
-                        ...searchValues,
-                        DocumentNumber: e.target.value,
-                      })
-                    }
-                  />
-                </div>
-                <div className="col-span-2 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
-                    >
-                      Document Type
-                    </label>
-                  </div>
-
-                  <MUISelect
-                    items={[
-                      { value: "All", label: "All" },
-                      { value: "TR", label: "Transportation Request" },
-                      { value: "ITR", label: "Inventory Transfer Request" },
-                    ]}
-                    onChange={(e: any) => {
-                      setSearchValues({
-                        ...searchValues,
-                        Type: e.target.value,
-                      });
-                    }}
-                    value={
-                      // searchValues.active === null ? "tYES" : searchValues.active
-                      searchValues.Type
-                    }
-                    aliasvalue="value"
-                    aliaslabel="label"
-                  />
-                </div>
-                <div className="col-span-2 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] mb-[2px] inline-block"
-                    >
-                      Branch
-                    </label>
-                  </div>
-                  <BranchAssignmentAuto
-                    onChange={(e) => {
-                      console.log(e);
-                      if (e !== null) {
-                        setSearchValues({
-                          ...searchValues,
-                          Branch: e.BPLID,
-                        });
-                      } else {
-                        setSearchValues({
-                          ...searchValues,
-                          Branch: "",
-                        });
-                      }
-                    }}
-                    value={searchValues.Branch}
-                  />
-                </div>
-
-                <div className="col-span-2 -mt-1 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] inline-block"
-                    >
-                      From Date
-                    </label>
-                  </div>
-                  <MUIDatePicker
-                    onChange={(e) => {
-                      if (e !== null) {
-                        const val =
-                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
-                            ? ""
-                            : e;
-                        setSearchValues({
-                          ...searchValues,
-                          From: val,
-                        });
-                      } else {
-                        setSearchValues({
-                          ...searchValues,
-                          From: "",
-                        });
-                      }
-                    }}
-                    value={searchValues.From}
-                  />
-                </div>
-
-                <div className="col-span-2 -mt-1 2xl:col-span-3">
-                  <div className="">
-                    <label
-                      htmlFor="Code"
-                      className="text-gray-500 text-[14.1px] inline-block"
-                    >
-                      To Date
-                    </label>
-                  </div>
-                  <MUIDatePicker
-                    onChange={(e) => {
-                      if (e !== null) {
-                        const val =
-                          e.toLowerCase() === "Invalid Date".toLocaleLowerCase()
-                            ? ""
-                            : e;
-                        setSearchValues({
-                          ...searchValues,
-                          To: val,
-                        });
-                      } else {
-                        setSearchValues({
-                          ...searchValues,
-                          To: "",
-                        });
-                      }
-                    }}
-                    value={searchValues.To}
-                  />
-                </div>
-
-                <div className="col-span-2 2xl:col-span-3"></div>
-                {/*  */}
-
-                <div className="col-span-2 2xl:col-span-3"></div>
-              </div>
-            </div>
-            <div className="col-span-2 mt-[0.3rem]">
-              <div className="flex justify-end items-center align-center space-x-2 mt-4">
-                <div className="">
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={() => handlerSearch("")}
-                  >
-                    <span className="text-xs p-1">Search</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <DataTable
-            rowSelection={rowSelection}
-            setRowSelection={setRowSelection}
-            columns={columns}
-            data={lists ?? []}
-            handlerRefresh={handlerRefresh}
-            handlerSearch={handlerSearch}
-            handlerSortby={handlerSortby}
-            count={Count?.data || 0}
-            loading={isLoading || isFetching}
-            pagination={pagination}
-            paginationChange={setPagination}
-            title="Document"
-            filter={filter}
-          />
-          {/* </div> */}
-          <div className="w-full flex justify-end items-center gap-4 h-[50px] mt-3">
-            {" "}
-            <Button
-              size="small"
-              sx={{ height: "25px" }}
-              // variant="outlined"
-              style={{
-                background: "white",
-                // border: "1px solid red",
-              }}
-              disableElevation
-              onClick={() => props?.setOpen(false)}
+          <div className="h-full w-full flex flex-col ">
+            <div
+              className={`w-full h-full  ${false ? "block" : "hidden"
+                } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
             >
-              <span className="px-3 text-[11px] py-1 text-red-500">Cancel</span>
-            </Button>
-            <Button
-              onClick={onSelectData}
-              sx={{ height: "25px" }}
-              className="bg-white"
-              size="small"
-              variant="contained"
-              disableElevation
-            >
-              <span className="px-4 text-[11px] py-4 text-white ">+ Add</span>
-            </Button>
+              <CircularProgress color="success" />{" "}
+            </div>
+            <TransportionOrderFilterModal onFilter={(value) => dispatch({ type: "filter", value })} />
+
+            <div className="grow whitespace-nowrap overflow-auto">
+              <DataTable
+                handlerRefresh={refetchData}
+                rowSelection={rowSelection}
+                setRowSelection={setRowSelection}
+                columns={columns}
+                data={data ?? []}
+                count={totalRecords}
+                loading={dataQuery.isLoading || countQuery.isLoading}
+                pagination={pagination}
+                paginationChange={setPagination}
+                title="Document"
+              />
+            </div>
+            {/* </div> */}
+            <div className="w-full flex justify-end items-center gap-4 h-[50px] mt-3">
+              {" "}
+              <Button
+                size="small"
+                sx={{ height: "25px" }}
+                // variant="outlined"
+                style={{
+                  background: "white",
+                  // border: "1px solid red",
+                }}
+                disableElevation
+                onClick={() => props.onClose()}
+              >
+                <span className="px-3 text-[11px] py-1 text-red-500">Cancel</span>
+              </Button>
+              <Button
+                onClick={onSelectData}
+                sx={{ height: "25px" }}
+                className="bg-white"
+                size="small"
+                variant="contained"
+                disableElevation
+              >
+                <span className="px-4 text-[11px] py-4 text-white ">Add</span>
+              </Button>
+            </div>
           </div>
         </Box>
       </Modal>

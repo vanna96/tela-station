@@ -35,6 +35,10 @@ class Form extends NonCoreDcument {
       U_tl_docdate: new Date(),
       allocationData: [],
       stockAllocationData: [],
+      CardName: "General Customer",
+      CardCode: 20000001,
+      U_tl_cardname: "General Customer",
+      U_tl_cardcode: 20000001,
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -55,7 +59,7 @@ class Form extends NonCoreDcument {
       ],
       couponData: [
         {
-          U_tl_acccoupon: "110101",
+          U_tl_acccoupon: "111102",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -115,15 +119,7 @@ class Form extends NonCoreDcument {
       });
       this.props?.query?.set("retail-series", seriesList);
     }
-    const date = formatDate(new Date(), "");
-    let exchangeRate: any = await request(
-      "POST",
-      "/SBOBobService_GetCurrencyRate",
-      {
-        Currency: "KHR",
-        Date: `${date}`,
-      }
-    );
+
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
       await request("GET", `TL_RETAILSALE(${id})`)
@@ -141,7 +137,7 @@ class Form extends NonCoreDcument {
             try {
               const res = await request(
                 "GET",
-                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
               );
               return res.data;
             } catch (error) {
@@ -172,6 +168,8 @@ class Form extends NonCoreDcument {
                   (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
                 )?.U_tl_bincode,
                 U_tl_whs: dispenser.U_tl_whs,
+                LineOfBussiness: itemDetails.U_tl_dim1,
+                ProductLine: itemDetails.U_tl_dim2,
               };
             })
           );
@@ -180,7 +178,6 @@ class Form extends NonCoreDcument {
             ...data,
             vendor,
             dispenser,
-            ExchangeRate: exchangeRate.data,
             U_tl_whs: dispenser.U_tl_whs,
             CardCode: data.U_tl_cardcode,
             CardName: data.U_tl_cardname,
@@ -280,6 +277,7 @@ class Form extends NonCoreDcument {
       U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
+      U_tl_ownremark: data?.U_tl_ownremark,
       // U_tl_status: data?.U_tl_status || "",
       //Consumption
       TL_RETAILSALE_FU_COCollection: data?.allocationData
@@ -697,9 +695,9 @@ class Form extends NonCoreDcument {
             DiscountPercent: 0,
             TaxCode: "VO10",
             UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
-            RevenueLine: "202004",
-            ProductLine: "203004",
+            LineOfBussiness: item.LineOfBussiness,
+            RevenueLine: "202001",
+            ProductLine: item.ProductLine,
             BinAbsEntry: item.U_tl_bincode,
             // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
@@ -724,9 +722,9 @@ class Form extends NonCoreDcument {
         DiscountPercent: 0,
         TaxCode: "VO10",
         UoMEntry: item.U_tl_uom,
-        LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202004", // item.RevenueLine
-        ProductLine: "203004", // item.ProductLine
+        LineOfBussiness: item.LineOfBussiness,
+        RevenueLine: "202001",
+        ProductLine: item.ProductLine,
         BinAbsEntry: item.U_tl_bincode,
         // BranchCode: data.U_tl_bplid,
         WarehouseCode: item.U_tl_whs,
@@ -751,17 +749,17 @@ class Form extends NonCoreDcument {
         GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: data.ExchangeRate ?? 0,
+        DocRate: data.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
-        CashAccount: "110102",
-        CashAccountFC: "110103",
-        TransferAccount: "110102",
-        TransferAccountFC: "110103",
-        CheckAccount: "110102",
-        CouponAccount: "110102",
+        CashAccount: "111102",
+        CashAccountFC: "111103",
+        TransferAccount: "111102",
+        TransferAccountFC: "111103",
+        CheckAccount: "110499",
+        CouponAccount: "111102",
         Remarks: data.Remark,
 
         IncomingPayment: [
@@ -832,15 +830,27 @@ class Form extends NonCoreDcument {
                   Quantity: quantity.toString(),
                   DiscountPercent: 0,
                   TaxCode: "VO10",
-                  LineOfBussiness: "201001",
-                  RevenueLine: "202004",
-                  ProductLine: "203004",
-                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
-                  BranchCode: data.stockAllocationData[0].U_tl_bplid,
-                  WarehouseCode: data.stockAllocationData[0].U_tl_whs,
+                  LineOfBussiness: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.LineOfBussiness,
+                  RevenueLine: "202001",
+                  ProductLine: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.ProductLine,
+                  BinAbsEntry: data.stockAllocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_bincode,
+                  BranchCode: data.stockAllocationData.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_bplid,
+                  WarehouseCode: data.stockAllocationData.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_whs,
                   DocumentLinesBinAllocations: [
                     {
-                      BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                      BinAbsEntry: data.stockAllocationData?.find(
+                        (e: any) => e.U_tl_itemcode === itemCode
+                      )?.U_tl_bincode,
                       Quantity: quantity.toString(),
                       AllowNegativeQuantity: "tNO",
                     },
@@ -876,9 +886,9 @@ class Form extends NonCoreDcument {
                     UoMEntry: data.nozzleData?.find(
                       (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
                     )?.U_tl_uom,
-                    LineOfBussiness: "201001", // item.LineOfBussiness
-                    RevenueLine: "202004", // item.RevenueLine
-                    ProductLine: "203004", // item.ProductLine
+                    LineOfBussiness: item.LineOfBussiness,
+                    RevenueLine: "202001",
+                    ProductLine: item.ProductLine,
                     // BinAbsEntry: data.U_tl_bincode,
                     U_tl_bincode: edit
                       ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
@@ -916,6 +926,15 @@ class Form extends NonCoreDcument {
         TelaCard: generateAllocationPayload(data, "U_tl_cardallow"),
         PumpTest: generateAllocationPayload(data, "U_tl_pumpallow"),
       };
+      const isAnyKHR =
+        data?.cashBankData?.some((item: any) => item.U_tl_paycur === "KHR") ||
+        data?.checkNumberData?.some((item: any) => item.U_tl_paycur === "KHR");
+      if (isAnyKHR && data?.DocRate === 0) {
+        this.dialog.current?.error(
+          "Exchange rate of KHR is 0. Please update the exchange rate."
+        );
+        return;
+      }
 
       await requestHeader("POST", "/script/test/FuelCashSales", PostPayload);
       this.dialog.current?.success("Create Successfully.", docEntry);
@@ -1182,40 +1201,44 @@ class Form extends NonCoreDcument {
                             </span>
                           </LoadingButton>
                         </div>
-                        <div>
-                          <LoadingButton
-                            variant="outlined"
-                            size="small"
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            disableElevation
-                            // disabled={this.props.edit}
-                          >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              {this.props.edit ? "Update" : "Add"}
-                            </span>
-                          </LoadingButton>
-                        </div>
-                        {
-                          <div className="flex items-center space-x-4">
+
+                        {this.state.U_tl_status !== "Close" && (
+                          <div>
                             <LoadingButton
-                              onClick={(event) =>
-                                this.handlerSubmitPost(event, this.props.edit)
-                              }
-                              sx={{ height: "30px", textTransform: "none" }}
-                              className="bg-white"
-                              loading={false}
-                              // disabled={this.state.tapIndex < 4}
+                              variant="outlined"
                               size="small"
-                              variant="contained"
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
                               disableElevation
+                              // disabled={this.props.edit}
                             >
-                              <span className="px-6 text-[13px] py-4 text-white">
-                                Post
+                              <span className="px-3 text-[13px] py-1 text-green-500">
+                                {this.props.edit ? "Update" : "Add"}
                               </span>
                             </LoadingButton>
                           </div>
-                        }
+                        )}
+                        {this.state.U_tl_status !== "Close" && (
+                          <>
+                            <div className="flex items-center space-x-4">
+                              <LoadingButton
+                                onClick={(event) =>
+                                  this.handlerSubmitPost(event, this.props.edit)
+                                }
+                                sx={{ height: "30px", textTransform: "none" }}
+                                className="bg-white"
+                                loading={false}
+                                size="small"
+                                variant="contained"
+                                disableElevation
+                              >
+                                <span className="px-6 text-[13px] py-4 text-white">
+                                  Post
+                                </span>
+                              </LoadingButton>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>

@@ -225,28 +225,8 @@ export default function AllocationTable({
     ],
     [data.allocationData]
   );
-  console.log(data.allocationData);
   return (
     <>
-      <div className="flex items-center mb-4 gap-16 ">
-        <Button
-          // onClick={generateAllocation}
-          variant="outlined"
-          size="medium"
-          sx={{
-            textTransform: "none",
-            width: "20%",
-            borderColor: "black",
-            color: "black",
-          }}
-          disableElevation
-        >
-          <span className="px-3 text-base font-medium ">
-            Generate Allocation{" "}
-          </span>
-        </Button>
-      </div>
-
       <div
         className={`grid grid-cols-1 md:grid-cols-1 gap-x-10 gap-y-10  
        overflow-hidden transition-height duration-300 `}

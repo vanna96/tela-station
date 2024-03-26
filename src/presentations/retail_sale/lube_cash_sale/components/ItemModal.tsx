@@ -114,23 +114,10 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       const result = calculateUOM(baseQty, alternativeQty, qty);
       temps["UnitsOfMeasurement"] = result;
     }
-    if (field === "Quantity" || "UomAbsEntry") {
-      const qty = temps["Quantity"];
-      const Entry = temps["UomAbsEntry"];
-      const CurrentUOM =
-        this.state.UnitsOfMeasurements?.UoMGroupDefinitionCollection?.find(
-          (e: any) => e.AlternateUoM === Entry
-        );
-      const baseQty = CurrentUOM?.BaseQuantity;
-      const alternativeQty = CurrentUOM?.AlternateQuantity;
-      const result = calculateUOM(baseQty, alternativeQty, qty);
-      temps["UnitsOfMeasurement"] = result;
-    }
 
     this.setState({ ...temps });
   }
   render() {
-    console.log(this.state);
     return (
       <Modal
         title={`Item - ${this.state?.ItemCode ?? ""}`}
@@ -255,44 +242,34 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 }))}
                 onChange={(event) => {
                   this.handChange(event, "UomAbsEntry");
-
-                  const selectedUomAbsEntry = event.target.value;
-                  const priceList = this.props.priceList;
-                  let itemPrices = this.state.ItemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(priceList)
+                  const selectedUomValue = event.target.value;
+                  const defaultPrice = this.props.priceList
+                    ? this.state.ItemPrices?.find(
+                        (e: any) =>
+                          e.PriceList === parseInt(this.props.priceList)
+                      )?.Price
+                    : 0;
+                  const itemPrices = this.state.ItemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(this.props.priceList)
                   )?.UoMPrices;
-
-                  let uomPrice = itemPrices?.find(
-                    (e: any) => e.PriceList === parseInt(priceList)
+                  const uomPrice = itemPrices?.find(
+                    (e: any) => e.PriceList === parseInt(this.props.priceList)
                   );
-
-                  if (uomPrice && selectedUomAbsEntry === uomPrice.UoMEntry) {
-                    const grossPrice = uomPrice.Price;
-                    const quantity = this.state.Quantity ?? 1;
-                    const totalGross =
-                      grossPrice * quantity -
-                      grossPrice *
-                        quantity *
-                        (this.state.DiscountPercent / 100);
-
-                    this.setState({
-                      GrossPrice: grossPrice,
-                      LineTotal: totalGross,
-                    });
-                  } else {
-                    const grossPrice = this.state.UnitPrice ?? 0;
-                    const quantity = this.state.Quantity ?? 1;
-                    const totalGross =
-                      grossPrice * quantity -
-                      grossPrice *
-                        quantity *
-                        (this.state.DiscountPercent / 100);
-
-                    this.setState({
-                      GrossPrice: grossPrice,
-                      LineTotal: totalGross,
-                    });
-                  }
+                  const grossPrice =
+                    uomPrice && selectedUomValue === uomPrice.UoMEntry
+                      ? uomPrice.Price
+                      : defaultPrice &&
+                          selectedUomValue === this.state.InventoryUoMEntry
+                        ? defaultPrice
+                        : 0;
+                  const quantity = this.state.Quantity ?? 1;
+                  const totalGross =
+                    grossPrice * quantity -
+                    grossPrice * quantity * (this.state.DiscountPercent / 100);
+                  this.setState({
+                    GrossPrice: grossPrice,
+                    LineTotal: totalGross,
+                  });
                 }}
               />
 
@@ -313,9 +290,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="mb-1"></div>
                 <BinLocationToAsEntry
                   value={this.state.BinAbsEntry}
-                  onChange={(event) =>
-                    this.handlerChange(event, "BinAbsEntry")
-                  }
+                  onChange={(event) => this.handlerChange(event, "BinAbsEntry")}
                   Warehouse={this.state?.WarehouseCode ?? "WH01"}
                 />
               </div>

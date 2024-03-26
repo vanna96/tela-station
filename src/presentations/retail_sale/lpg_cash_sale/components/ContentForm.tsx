@@ -102,13 +102,10 @@ export default function ContentForm({
         return item;
       });
 
-      console.log(items);
-
       onChange("Items", items);
     }
   };
 
-  // console.log(data.Items);
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
@@ -220,7 +217,7 @@ export default function ContentForm({
                 key={"Quantity_" + cell.getValue()}
                 disabled={cell.row.original.ItemCode === " "}
                 thousandSeparator
-                decimalScale={data.Currency === "USD" ? 4 : 0}
+                decimalScale={4}
                 placeholder={data.Currency === "USD" ? "0.0000" : "0"}
                 customInput={MUIRightTextField}
                 defaultValue={cell.getValue()}
@@ -426,7 +423,7 @@ export default function ContentForm({
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={data.Currency === "USD" ? 3 : 0}
+                decimalScale={3}
                 // fixedDecimalScale
                 customInput={MUIRightTextField}
                 value={cell.getValue()}

@@ -172,7 +172,6 @@ class DeliveryDetail extends Component<any, any> {
     );
   };
   render() {
-    console.log(this.state);
     return (
       <>
         <DocumentHeader
@@ -320,7 +319,7 @@ function General({ data }: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", data.DocNum)}
+            {renderKeyValue("Document Numbering", data.DocNum)}
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
 
             <div className="grid grid-cols-2 py-2">
@@ -332,7 +331,7 @@ function General({ data }: any) {
                   multiline
                   disabled
                   className="bg-gray-100"
-                  value={data?.Remark || "N/A"}
+                  value={data?.U_tl_ownremark || "N/A"}
                   InputProps={{ readOnly: true }}
                 />
               </div>
@@ -407,7 +406,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -423,7 +422,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -610,7 +609,7 @@ function NozzleData({ data }: any) {
       <div className="mt-8" />
       <div className="rounded-lg shadow-sm  border p-8 px-14 h-full">
         <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
-          <h2>Generate Allocation </h2>
+          <h2> Allocation Data</h2>
         </div>
         <div className="col-span-2 data-table">
           <CustomMaterialReactTable
@@ -625,18 +624,15 @@ function NozzleData({ data }: any) {
 
 function IncomingPayment({ data }: any) {
   const totalCashSale: number = React.useMemo(() => {
-    const total = data?.allocationData?.reduce(
-      (prevTotal: any, item: any) => {
-        const lineTotal = Formular.findLineTotal(
-          (item.U_tl_cashallow || 0)?.toString(),
-          item.ItemPrice || 0,
-          // "1",
-          "0"
-        );
-        return prevTotal + lineTotal;
-      },
-      0
-    );
+    const total = data?.allocationData?.reduce((prevTotal: any, item: any) => {
+      const lineTotal = Formular.findLineTotal(
+        (item.U_tl_cashallow || 0)?.toString(),
+        item.ItemPrice || 0,
+        // "1",
+        "0"
+      );
+      return prevTotal + lineTotal;
+    }, 0);
     return total;
   }, []);
 
@@ -689,7 +685,6 @@ function IncomingPayment({ data }: any) {
     return total;
   };
   let exchangeRate = data?.ExchangeRate || 4100;
-  console.log(exchangeRate);
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -745,6 +740,7 @@ function IncomingPayment({ data }: any) {
                   key={"U_tl_amtcash" + cell.getValue() + cell?.row?.id}
                   disabled
                   name={"U_tl_amtcash"}
+                  thousandSeparator
                   customInput={MUIRightTextField}
                   value={cell.row.original?.U_tl_amtcash || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
@@ -763,6 +759,7 @@ function IncomingPayment({ data }: any) {
                   customInput={MUIRightTextField}
                   disabled
                   name={"U_tl_amtbank"}
+                  thousandSeparator
                   value={cell.row.original?.U_tl_amtbank || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
                 />
@@ -844,12 +841,6 @@ function IncomingPayment({ data }: any) {
       },
     ],
     []
-  );
-
-  console.log(
-    data?.TL_RETAILSALE_FU_INCollection?.filter(
-      (e: any) => e.U_tl_paytype === "Coupon"
-    )
   );
 
   return (
@@ -944,7 +935,7 @@ function IncomingPayment({ data }: any) {
               placeholder="0.000"
               decimalScale={3}
               customInput={MUIRightTextField}
-              value={totalCashSale - totalUSD - TotalKHRtoUSD}
+              value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
             />
           </div>
         </div>
