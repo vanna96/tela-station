@@ -68,17 +68,10 @@ const TransportationRequestDetail = (props: any) => {
     showCollapse: true,
     DocNum: id,
   });
-  const [header, setHeader] = useState({
-    firstName: null,
-    lastName: null,
-    gender: null,
-    branch: null,
-    status: "O",
-  });
+ 
 
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
-  const [emp, setEmp] = useState([]);
   const [serie, setSerie] = useState([]);
   const [collection, setCollection] = useState<any[]>([]);
 
@@ -124,37 +117,7 @@ const TransportationRequestDetail = (props: any) => {
     }
   };
 
-  const onSubmit = async (e: any) => {
-    const payload = {
-      ...e,
-    };
-    try {
-      setState({ ...state, isSubmitting: true });
-      if (props.edit) {
-        await request(
-          "PATCH",
-          `/script/test/transportation_request(${id})`,
-          payload
-        )
-          .then((res: any) =>
-            dialog.current?.success("Update Successfully.", res?.data?.DocEntry)
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      } else {
-        await request("POST", "/script/test/transportation_request", payload)
-          .then((res: any) =>
-            dialog.current?.success("Create Successfully.", res?.data?.DocEntry)
-          )
-          .catch((err: any) => dialog.current?.error(err.message))
-          .finally(() => setState({ ...state, isSubmitting: false }));
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setState({ ...state, isSubmitting: false });
-    }
-  };
+
 
   const handlerChangeMenu = useCallback(
     (index: number) => {
@@ -267,7 +230,6 @@ const TransportationRequestDetail = (props: any) => {
           <form
             id="formData"
             className="h-full w-full flex flex-col gap-4 relative"
-            onSubmit={handleSubmit(onSubmit, onInvalidForm)}
           >
             {state.tapIndex === 0 && (
               <h1>
@@ -280,8 +242,6 @@ const TransportationRequestDetail = (props: any) => {
                   defaultValues={defaultValues}
                   setBranchAss={setBranchAss}
                   branchAss={branchAss}
-                  emp={emp}
-                  header={header}
                   serie={serie}
                   detail={props?.detail}
                   watch={watch}
