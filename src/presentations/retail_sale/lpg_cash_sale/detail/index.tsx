@@ -330,7 +330,7 @@ function General({ data }: any) {
               </div>
             </div>
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
-            {renderKeyValue("Status", dateFormat(data.U_tl_status))}
+            {renderKeyValue("Status", data.U_tl_status)}
           </div>
         </div>
       </div>

@@ -332,7 +332,7 @@ function General({ data }: any) {
               </div>
             </div>
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
-
+            {renderKeyValue("Status", data.U_tl_status)}
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700"> Own Usage Remark </div>
               <div className="col-span-1 text-gray-900">
