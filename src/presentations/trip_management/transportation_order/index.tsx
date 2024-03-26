@@ -140,7 +140,7 @@ export default function Lists() {
               onClick={() => {
                 route(
                   "/trip-management/transportation-order/" +
-                    cell.row.original.DocEntry,
+                  cell.row.original.DocEntry,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -158,8 +158,8 @@ export default function Lists() {
               onClick={() => {
                 route(
                   "/trip-management/transportation-order/" +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  cell.row.original.DocEntry +
+                  `/edit?status=${cell.row.original?.U_Status}`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -198,7 +198,7 @@ export default function Lists() {
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => {}}
+            handlerSearch={() => { }}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
@@ -237,7 +237,7 @@ export default function Lists() {
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={waiting}
-        // onClick={handleClose}
+      // onClick={handleClose}
       >
         <div className="flex flex-col justify-center gap-3 items-center">
           <CircularProgress color="inherit" size={25} />

@@ -11,6 +11,8 @@ import { TOStatus } from "../../type";
 import TRModal, { TransportationOrderModal } from "../component/TRModal";
 import General from "../component/General";
 import ReviewingOrderingTransportationOrder from "../component/ReviewingOrderingTransportationOrder";
+import Expense from "../component/Expense";
+import Compartment from "../component/Compartment";
 
 let dialog = React.createRef<FormMessageModal>();
 let loadDocumentRef = React.createRef<TransportationOrderModal>();
@@ -36,13 +38,13 @@ const TransportationOrderForm = (props: any) => {
         </MenuButton>
         <MenuButton
           active={tapIndex === 2}
-          onClick={() => { }}
+          onClick={() => setTapIndex(2)}
         >
           Expense
         </MenuButton>
         <MenuButton
           active={tapIndex === 3}
-          onClick={() => { }}
+          onClick={() => setTapIndex(3)}
         >
           Compartments
         </MenuButton>
@@ -127,6 +129,9 @@ const TransportationOrderForm = (props: any) => {
       </div></>
   }
 
+
+
+
   return (
     <>
       {hook.loading ? (
@@ -171,6 +176,8 @@ const TransportationOrderForm = (props: any) => {
             <div className="grow">
               {tapIndex === 0 && <General {...hook} />}
               {tapIndex === 1 && <Document {...hook} dialog={loadDocumentRef} />}
+              {tapIndex === 2 && <Expense {...hook} />}
+              {tapIndex === 3 && <Compartment {...hook} />}
               {tapIndex === 4 && <ReviewingOrderingTransportationOrder {...hook} />}
             </div>
 

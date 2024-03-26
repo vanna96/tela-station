@@ -405,7 +405,7 @@ export default function TRModal(props: { open: boolean, onClose: () => void, onS
 
     var documents: { U_Type: string, U_SourceDocEntry: number | string }[] = [];
     for (const value of keys) {
-      const row = value.split('_');
+      const row = value.split('/');
       documents.push({ U_Type: row?.at(1) ?? '', U_SourceDocEntry: Number(row?.at(2)) ?? '' })
     }
 
@@ -422,6 +422,7 @@ export default function TRModal(props: { open: boolean, onClose: () => void, onS
 
   useEffect(() => {
     dispatch({ type: "all", value: defaultQuery });
+    setRowSelection({});
     dataQuery.refetch();
     countQuery.refetch();
   }, [props.open])

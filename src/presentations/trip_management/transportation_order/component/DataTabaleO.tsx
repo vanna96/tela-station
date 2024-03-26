@@ -61,7 +61,7 @@ export default function DataTable(props: DataTableSProps) {
           enableFilters={false}
           enableGlobalFilter={false}
           rowCount={props.count ?? 0}
-          getRowId={(row: any) => `_${row?.U_Type}_${row?.U_SourceDocEntry}`}
+          getRowId={(row: any) => `${shortid.generate()}/${row?.U_Type}/${row?.U_SourceDocEntry}`}
           onPaginationChange={props.paginationChange}
           state={{
             isLoading: props.loading,

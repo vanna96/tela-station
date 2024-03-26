@@ -13,7 +13,7 @@ const USD = () => {
   );
 };
 
-export default function Expense(props: any) {
+export default function ExpenseDetail(props: any) {
   const expense: any[] = useMemo(() => {
     if (!props?.watch('TL_TO_EXPENSECollection')) return [];
 
@@ -70,28 +70,18 @@ export default function Expense(props: any) {
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-3 pb-1 justify-between">
           <h2 className="mr-3 text-base">Expense</h2>
-
-          <Button
-            variant="outlined"
-            className="px-4 border-gray-400"
-            onClick={handlerDelete}
-          >
-            <span className="px-2 text-xs">Remove</span>
-          </Button>
         </div>
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
               <th className="w-[50px] "></th>
-              <th className="w-[50px] "></th>
-
               <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Expense Code
-                <span className="text-red-500 ml-1">*</span>
+
               </th>
               <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
                 Amount
-                <span className="text-red-500 ml-1">*</span>
+
               </th>
               <th className=" text-left font-normal  py-2 text-[14px] text-gray-500">
                 Desciption
@@ -105,7 +95,6 @@ export default function Expense(props: any) {
                 : expense?.map((e: any, index: number) => {
                   return (
                     <tr key={shortid.generate()}>
-                      <td><Checkbox onChange={(event) => onSelectChange(event, index)} checked={selected.includes(index)} /></td>
                       <td className={` py-4 flex justify-center gap-8 items-center`}> <span className="text-black">{index + 1}</span> </td>
                       <td className="pr-4">
                         <Controller
@@ -115,7 +104,7 @@ export default function Expense(props: any) {
                             return (
                               <ExpenseCodeAutoComplete
                                 excludes={excludes}
-                                disabled={props?.id}
+                                disabled={true}
                                 onChange={(event) => onChangeExpense(event, index)}
                                 // onChange={(e) => props?.setValue(`TL_TO_EXPENSECollection.${index}.U_Code`, e)}
                                 value={field?.value}
@@ -130,7 +119,7 @@ export default function Expense(props: any) {
                           control={props?.control}
                           render={({ field }) => <MUITextField
                             startAdornment={USD()}
-                            disabled={props?.id}
+                            disabled={true}
                             defaultValue={field.value}
                             onBlur={(event) => props?.setValue(`TL_TO_EXPENSECollection.${index}.U_Amount`, event.target.value)}
                             placeholder="Amount"
@@ -147,7 +136,7 @@ export default function Expense(props: any) {
                           name={`TL_TO_EXPENSECollection.${index}.U_Description`}
                           control={props?.control}
                           render={({ field }) => <MUITextField
-                            disabled={props?.id}
+                            disabled={true}
                             placeholder="Description"
                             defaultValue={field.value}
                             onBlur={(event) => props?.setValue(`TL_TO_EXPENSECollection.${index}.U_Description`, event.target.value)}
@@ -158,33 +147,22 @@ export default function Expense(props: any) {
                     </tr>
                   );
                 })}
-              <tr className={""}>
-                <td colSpan={4} className="p-4">
-                  <div
-                    role="button"
-                    onClick={onAddNewRow}
-                    className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
-                  >
-                    Add
-                  </div>
-                </td>
-              </tr>
             </tbody>
           </table>
         </div>
         <div className="font-medium text-lg mt-[50px] flex gap-x-3 items-center mb-3 pb-1">
-          <h2 className="mr-3">Fuel Expense</h2>
+          <h2 className="mr-3 text-[15px]">Fuel Expense</h2>
         </div>
         <table className="border w-full shadow-sm bg-white border-[#dadde0]">
           <tr className="border-[1px] border-[#dadde0]">
             <th className="w-[50px] "></th>
             <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
               Fuel
-              <span className="text-red-500 ml-1">{"*"}</span>
+
             </th>
             <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
               Amount
-              <span className="text-red-500 ml-1">{"*"}</span>
+
             </th>
             <th className="text-left font-normal  py-2 text-[14px] text-gray-500">
               Description
@@ -206,9 +184,9 @@ export default function Expense(props: any) {
 
               <td className="pr-4">
                 <MUITextField
-                  disabled={props?.id}
                   placeholder="Amount"
                   type="number"
+                  disabled={true}
                   inputProps={{
                     ...props?.register("U_FuelAmount"),
                     step: '0.1',
@@ -217,7 +195,7 @@ export default function Expense(props: any) {
               </td>
               <td className="pr-4">
                 <MUITextField
-                  disabled={props?.id}
+                  disabled={true}
                   placeholder="Description"
                   inputProps={{ ...props?.register("U_FuelRemark") }}
                 />

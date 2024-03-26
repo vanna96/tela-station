@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { Controller } from "react-hook-form";
 
 
-export default function Compartment(props: any) {
+export default function CompartmentDetail(props: any) {
 
   const compartment = useMemo(() => {
     if (!props?.watch('TL_TO_COMPARTMENTCollection')) return [];
@@ -22,7 +22,7 @@ export default function Compartment(props: any) {
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1">
-          <h2 className="mr-3">Compartments</h2>
+          <h2 className="mr-3 text-[15px]">Compartments</h2>
         </div>
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
@@ -30,7 +30,7 @@ export default function Compartment(props: any) {
             <thead>
               <tr className="border-[1px] border-[#dadde0]">
                 <th className="w-[50px] "></th>
-                <th className="w-[30rem] text-left font-normal  py-2 text-[14px] text-gray-500">
+                <th className="w-[20rem] text-left font-normal  py-2 text-[14px] text-gray-500">
                   Document Number
                 </th>
                 <th className=" text-left font-normal  py-2 text-[14px] text-gray-500">
@@ -74,7 +74,7 @@ export default function Compartment(props: any) {
                           render={({ field }) => {
                             return (
                               <DocumentNumberAutoComplete
-                                disabled={props?.id}
+                                disabled={true}
                                 document={sources}
                                 {...field}
                                 onChange={(e) => {
@@ -190,8 +190,7 @@ export default function Compartment(props: any) {
                                 render={({ field }) => {
                                   return (
                                     <MUITextField
-                                      disabled={false}
-                                      className="bg-white"
+                                      disabled={true}
                                       placeholder="Seal Number"
                                       onBlur={(event) => props?.setValue(`TL_TO_COMPARTMENTCollection.${index}.U_Children.${indexC}.U_SealNumber`, event.target.value)}
                                       inputProps={{
@@ -209,8 +208,7 @@ export default function Compartment(props: any) {
                                 render={({ field }) => {
                                   return (
                                     <MUITextField
-                                      disabled={false}
-                                      className="bg-white"
+                                      disabled={true}
                                       placeholder="Seal Reference"
                                       onBlur={(event) => props?.setValue(`TL_TO_COMPARTMENTCollection.${index}.U_Children.${indexC}.U_SealReference`, event.target.value)}
                                       inputProps={{

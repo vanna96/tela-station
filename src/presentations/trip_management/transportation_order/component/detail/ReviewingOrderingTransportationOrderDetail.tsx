@@ -1,53 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useMemo } from "react";
-import { FaAngleRight, FaAngleLeft } from "react-icons/fa6";
 import shortid from "shortid";
 
-export default function ReviewingOrderingTransportationOrder(props: any) {
+export default function ReviewingOrderingTransportationOrderDetail(props: any) {
   const [reordering, setReordering] = useState(false);
-
-
-
-  const undOrdering: any[] = useMemo(() => {
-    return props?.documents.filter((e: any) => e?.U_Order <= 0).sort((a: any, b: any) => a?.U_Order - b?.U_Order);
-  }, [props?.documents])
 
   const orderings: any[] = useMemo(() => {
     return props?.documents.filter((e: any) => e?.U_Order > 0).sort((a: any, b: any) => a?.U_Order - b?.U_Order);
   }, [props?.documents])
 
-  const onChangeOrdering = (item: any) => {
-    let state = [...props?.watch('TL_TO_ORDERCollection')]
-    let order = item?.U_Order === 0 ? orderings.length + 1 : 0;
-
-    state[item?.ParentIndex]['TL_TO_DETAIL_ROWCollection'][item?.Index]['U_Order'] = order;
-
-    if (order === 0 && orderings.length > 0) {
-      const sorting = orderings.sort((a: any, b: any) => a?.U_Order - b?.U_Order);
-      for (let index = 0; index < sorting.length; index++) {
-        const element: any = sorting[index];
-        state[element?.ParentIndex]['TL_TO_DETAIL_ROWCollection'][element?.Index]['U_Order'] = index;
-      }
-    }
-
-    props?.setValue('TL_TO_ORDERCollection', state);
-  }
-
-  useEffect(() => {
-    if (props?.documents.length === orderings.length) {
-      setReordering(true)
-    }
-  }, [props?.documents, orderings])
-
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex gap-x-3 items-center mb-5 pb-1 gap2">
-          <h2 className="mr-3">Transportation Detail</h2>
-          {reordering && <div role="button" onClick={() => setReordering(false)} className="text-[12px] border px-2 rounded hover:bg-gray-100">Change Ordering</div>}
+          <h2 className="mr-3 text-[14px]">Transportation Detail</h2>
         </div>
 
-        {reordering && <div className="w-full min-w-[30rem] whitespace-nowrap overflow-auto">
+        <div className="w-full min-w-[30rem] whitespace-nowrap overflow-auto">
           <table className="table w-full">
             <thead>
               <tr className="bg-gray-100">
@@ -103,21 +72,7 @@ export default function ReviewingOrderingTransportationOrder(props: any) {
               })}
             </tbody>
           </table>
-        </div>}
-
-        {!reordering && <div className="flex gap-5">
-          <OrderingCollection data={undOrdering} onClick={onChangeOrdering} />
-          <div className="flex items-center justify-center flex-col gap-3">
-            <span className="text-gray-400 inline-block border p-[2px]">
-              {" "}
-              <FaAngleRight />
-            </span>
-            <span className="text-gray-400 inline-block border p-[2px]">
-              <FaAngleLeft />
-            </span>
-          </div>
-          <OrderingCollection data={orderings} onClick={onChangeOrdering} />
-        </div>}
+        </div>
       </div>
     </>
   );

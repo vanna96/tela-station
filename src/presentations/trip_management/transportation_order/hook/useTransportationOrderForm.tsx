@@ -1,9 +1,10 @@
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import request from "@/utilies/request";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { POSTTransporationOrder, TOStatus } from "../../type";
+import { useGetTOSeriesHook } from "./useGetTOSeriesHook";
 
 const allStatus = [
     { label: "Initiated", value: "I" },
@@ -57,24 +58,40 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
     });
 
 
+    const documents: any[] = useMemo(() => {
+        if (!watch('TL_TO_ORDERCollection')) return []
+
+        const data: any[] = [];
+        for (let index = 0; index < (watch('TL_TO_ORDERCollection') ?? []).length; index++) {
+            const value: any = watch('TL_TO_ORDERCollection')[index];
+            const mapped = value?.TL_TO_DETAIL_ROWCollection?.map((e: any, rowIndex: number) => ({ ...e, ParentIndex: index, Index: rowIndex, Type: value?.U_DocType }))
+            data.push(...mapped);
+        }
+
+        return data;
+    }, [watch('TL_TO_ORDERCollection')])
+
     const onSubmit = async (payload: any) => {
-        if (!payload.TL_FUEL_LEVEL_LINESCollection || payload.TL_FUEL_LEVEL_LINESCollection.length === 0) {
-            dialog.current?.error("Fuel Level Collection must have at least one row.")
-            return;
+        try {
+            if (!payload.TL_TO_ORDERCollection || payload.TL_TO_ORDERCollection.length === 0) {
+                dialog.current?.error("DocumentsLines must have at least one row.")
+                return;
+            }
+
+            setLoading(true);
+            const url = edit ? `/script/test/transportation_order(${id})` : 'script/test/transportation_order';
+            const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
+            setLoading(false)
+
+            if (!response.data && typeof response !== 'string') {
+                dialog.current?.error("Error")
+                return;
+            }
+
+            dialog.current?.success(`${edit ? 'Update' : 'Create'} Successfully.`, response?.data?.DocEntry)
+        } catch (error: any) {
+            dialog.current?.error(error?.message ?? '')
         }
-
-        setLoading(true);
-        const url = edit ? `TL_FUEL_LEVEL(${id})` : 'TL_FUEL_LEVEL';
-        const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
-        setLoading(false)
-
-
-        if (!response.data && typeof response !== 'string') {
-            dialog.current?.error("Error")
-            return;
-        }
-
-        dialog.current?.success(`${edit ? 'Update' : 'Create'} Successfully.`, response?.data?.DocEntry)
     };
 
     const onInvalidForm = (e: any) => {
@@ -96,19 +113,33 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
         setValue('TL_TO_ORDERCollection', state)
     }
 
+    const series = useGetTOSeriesHook(id === undefined)
+
     useEffect(() => {
-        if (!id) return;
-        setLoading(true)
-        request('GET', `TL_FUEL_LEVEL(${id})`)
-            .then((res: any) => {
-                setLoading(false)
-                reset({ ...res.data }, { keepValues: false })
-            })
-            .catch((e: any) => {
-                setLoading(false)
-                dialog.current?.error(e?.message)
-            });
-    }, [id, edit])
+        if (id) {
+            setLoading(true)
+            request('GET', `/script/test/transportation_order(${id})`)
+                .then((res: any) => {
+                    setLoading(false)
+                    reset({ ...res.data }, { keepValues: false })
+                })
+                .catch((e: any) => {
+                    setLoading(false)
+                    dialog.current?.error(e?.message)
+                });
+        } else {
+
+        }
+    }, [id, edit]);
+
+    useEffect(() => {
+        if (!id && !watch('DocNum')) {
+            setValue('Series', series?.defaultSerie?.data?.Series)
+            setValue('DocNum', series?.defaultSerie?.data?.NextNum)
+        }
+
+    }, [series.defaultSerie, watch('DocNum')])
+
 
     return {
         handleSubmit,
@@ -122,6 +153,10 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
         onSubmit,
         loading,
         allStatus,
-        onSelectChangeDocuments
+        onSelectChangeDocuments,
+        documents,
+        series: series?.series,
+        defaultSerie: series?.defaultSerie,
+        edit,
     }
 }
