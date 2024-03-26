@@ -37,7 +37,10 @@ function POST(req) {
     
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    const distributionRules = slContext.query("DistributionRules", "DistributionRules?$select=FactorCode,FactorDescription,InWhichDimension&$filter=Active eq 'tYES'", true).toArray();
+
     jsonObj['SANumber'] = fuelSale.body.DocNum;
+    jsonObj['distributionRules'] = distributionRules;
     
     try {
         // CASH SALE
@@ -147,7 +150,7 @@ function DELETE() {
 function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount, adjustAmount=0) {
     const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
     if (FilterPayment.length <= 0) return null;
-
+    
     let CashSum = 0;
     let TransferSum = 0;
     let CheckSum = 0;
@@ -197,9 +200,9 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
-        U_tl_dim1: inv['DocumentLines'][0]['COGSCostingCode'], // Line of bussiness
-        U_tl_dim2: inv['DocumentLines'][0]['COGSCostingCode2'], // Revenue Line
-        U_tl_dim3: inv['DocumentLines'][0]['COGSCostingCode3'], // Product Line
+        U_tl_dim1: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode']).FactorDescription || "", // Line of bussiness
+        U_tl_dim2: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode2']).FactorDescription || "", // Revenue Line
+        U_tl_dim3: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode3']).FactorDescription || "", // Product Line
         CounterReference: obj['SANumber'],
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
@@ -231,7 +234,7 @@ function CashSaleTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         NumAtCard: "Oil",
-        U_tl_arbusi: "201001",
+        U_tl_arbusi: "Oil",
         U_tl_invtype:"Retail",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         U_ti_revenue:'202001',
