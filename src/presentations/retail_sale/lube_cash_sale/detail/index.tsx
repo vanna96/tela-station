@@ -276,7 +276,7 @@ function General({ data }: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", data.DocNum)}
+            {renderKeyValue("Document Numbering", data.DocNum)}
             {renderKeyValue("Posting Date", dateFormat(data.U_tl_taxdate))}
             {renderKeyValue("Delivery Date", dateFormat(data.U_tl_devdate))}
             {renderKeyValue("Document Date", dateFormat(data.U_tl_docdate))}
@@ -425,6 +425,7 @@ function IncomingPayment({ data }: any) {
                   disabled
                   name={"U_tl_amtcash"}
                   customInput={MUIRightTextField}
+                  thousandSeparator
                   value={cell.row.original?.U_tl_amtcash || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
                 />
@@ -440,6 +441,7 @@ function IncomingPayment({ data }: any) {
                   placeholder="0.000"
                   key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
                   customInput={MUIRightTextField}
+                  thousandSeparator
                   disabled
                   name={"U_tl_amtbank"}
                   value={cell.row.original?.U_tl_amtbank || ""}

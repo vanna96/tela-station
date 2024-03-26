@@ -97,6 +97,9 @@ export default function ContentForm({
             )?.BinAbsEntry;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
+            item.COGSCostingCode = itemDetails.U_tl_dim1;
+            item.COGSCostingCode3 = itemDetails.U_tl_dim2;
+            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry
           }
           return item;
         }
@@ -115,7 +118,6 @@ export default function ContentForm({
     }
   };
 
-  // console.log(data.Items);
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
@@ -227,7 +229,7 @@ export default function ContentForm({
                 key={"Quantity_" + cell.getValue()}
                 disabled={cell.row.original.ItemCode === " "}
                 thousandSeparator
-                decimalScale={data.Currency === "USD" ? 4 : 0}
+                decimalScale={4}
                 placeholder={data.Currency === "USD" ? "0.0000" : "0"}
                 customInput={MUIRightTextField}
                 defaultValue={cell.getValue()}
@@ -263,76 +265,65 @@ export default function ContentForm({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
-          if (cell.row.original?.ItemCode)
-            return (
-              <MUISelect
-                disabled={cell.row.original.ItemCode === " "}
-                value={cell.getValue()}
-                items={cell.row.original.UomLists?.map((e: any) => ({
-                  label: e.Name,
-                  value: e.AbsEntry,
-                }))}
-                aliaslabel="label"
-                aliasvalue="value"
-                onChange={(event: any) => {
-                  handlerUpdateRow(
-                    cell.row.id,
-                    ["UomAbsEntry", event.target.value],
-                    "UomAbsEntry"
-                  );
-                  let defaultPrice = cell.row.original.ItemPrices?.find(
-                    (e: any) => e.PriceList === 13
-                  )?.Price;
-                  let itemPrices = cell.row.original.ItemPrices?.find(
-                    (e: any) => e.PriceList === 13
-                  )?.UoMPrices;
+          if (!cell.row.original?.ItemCode) return null;
 
-                  let uomPrice = itemPrices?.find(
-                    (e: any) => e.PriceList === 13
-                  );
-
-                  if (uomPrice && event.target.value === uomPrice.UoMEntry) {
-                    const grossPrice = uomPrice.Price;
-                    const quantity = cell.row.original.Quantity;
-                    const totalGross =
-                      grossPrice * quantity -
-                      grossPrice *
-                        quantity *
-                        (cell.row.original.DiscountPercent / 100);
-
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["GrossPrice", grossPrice],
-                      "GrossPrice"
-                    );
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["LineTotal", totalGross],
-                      "LineTotal"
-                    );
-                  } else {
-                    const grossPrice = defaultPrice;
-                    const quantity = cell.row.original.Quantity;
-                    const totalGross =
-                      grossPrice * quantity -
-                      grossPrice *
-                        quantity *
-                        (cell.row.original.DiscountPercent / 100);
-
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["GrossPrice", grossPrice],
-                      "GrossPrice"
-                    );
-                    handlerUpdateRow(
-                      cell.row.id,
-                      ["LineTotal", totalGross],
-                      "LineTotal"
-                    );
-                  }
-                }}
-              />
+          const handleUomChange = (event: any) => {
+            const selectedUomValue = event.target.value;
+            handlerUpdateRow(
+              cell.row.id,
+              ["UomAbsEntry", selectedUomValue],
+              "UomAbsEntry"
             );
+
+            const defaultPrice = cell.row.original.ItemPrices?.find(
+              (e: any) => e.PriceList === 13
+            )?.Price;
+            const itemPrices = cell.row.original.ItemPrices?.find(
+              (e: any) => e.PriceList === 13
+            )?.UoMPrices;
+
+            const uomPrice = itemPrices?.find(
+              (e: any) => e.PriceList === 13
+            );
+
+            const grossPrice =
+              uomPrice && selectedUomValue === uomPrice.UoMEntry
+                ? uomPrice.Price
+                : defaultPrice &&
+                    selectedUomValue === cell.row.original.InventoryUoMEntry
+                  ? defaultPrice
+                  : 0;
+
+            const quantity = cell.row.original.Quantity;
+            const totalGross =
+              grossPrice * quantity -
+              grossPrice * quantity * (cell.row.original.DiscountPercent / 100);
+
+            handlerUpdateRow(
+              cell.row.id,
+              ["GrossPrice", grossPrice],
+              "GrossPrice"
+            );
+            handlerUpdateRow(
+              cell.row.id,
+              ["LineTotal", totalGross],
+              "LineTotal"
+            );
+          };
+
+          return (
+            <MUISelect
+              disabled={cell.row.original.ItemCode === " "}
+              value={cell.getValue()}
+              items={cell.row.original.UomLists?.map((e: any) => ({
+                label: e.Name,
+                value: e.AbsEntry,
+              }))}
+              aliaslabel="label"
+              aliasvalue="value"
+              onChange={handleUomChange}
+            />
+          );
         },
       },
       {
@@ -433,8 +424,8 @@ export default function ContentForm({
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={data.Currency === "USD" ? 3 : 0}
-                // fixedDecimalScale
+                decimalScale={3}
+                placeholder={data.Currency === "USD" ? "0.000" : "0"}
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
                 onChange={(event) => {

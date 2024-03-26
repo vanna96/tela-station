@@ -317,7 +317,7 @@ function General({ data }: any) {
           <div className="col-span-2"></div>
           <div className="col-span-5">
             {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("DocNum", data.DocNum)}
+            {renderKeyValue("Document Numbering", data.DocNum)}
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
 
             <div className="grid grid-cols-2 py-2">
@@ -404,7 +404,7 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
@@ -420,11 +420,12 @@ function NozzleData({ data }: any) {
               value={cell.getValue()}
               thousandSeparator
               customInput={MUIRightTextField}
-              decimalScale={data.Currency === "USD" ? 3 : 0}
+              decimalScale={2}
             />
           );
         },
       },
+
       {
         accessorKey: "U_tl_cmeter",
         header: "Consumption",
@@ -682,7 +683,6 @@ function IncomingPayment({ data }: any) {
     return total;
   };
   let exchangeRate = data?.ExchangeRate || 4100;
-  console.log(exchangeRate);
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -739,6 +739,7 @@ function IncomingPayment({ data }: any) {
                   disabled
                   name={"U_tl_amtcash"}
                   customInput={MUIRightTextField}
+                  thousandSeparator
                   value={cell.row.original?.U_tl_amtcash || ""}
                   startAdornment={cell.row.original?.U_tl_paycur}
                 />
@@ -754,6 +755,7 @@ function IncomingPayment({ data }: any) {
                   placeholder="0.000"
                   key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
                   customInput={MUIRightTextField}
+                  thousandSeparator
                   disabled
                   name={"U_tl_amtbank"}
                   value={cell.row.original?.U_tl_amtbank || ""}
@@ -837,12 +839,6 @@ function IncomingPayment({ data }: any) {
       },
     ],
     []
-  );
-
-  console.log(
-    data?.TL_RETAILSALE_LP_INCollection?.filter(
-      (e: any) => e.U_tl_paytype === "Coupon"
-    )
   );
 
   return (
@@ -1223,7 +1219,6 @@ function Content(props: any) {
     props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
-  console.log(props.data.Items);
   const discountAmount = useMemo(() => {
     if (totalBefore == null) {
       return 0;

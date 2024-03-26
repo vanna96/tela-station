@@ -1,24 +1,24 @@
 import request, { url } from "@/utilies/request";
-import React from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline";
 import MUITextField from "@/components/input/MUITextField";
+import BPAutoComplete from "@/components/input/BPAutoComplete";
 import { Button } from "@mui/material";
+import DataTableColumnFilter from "@/components/data_table/DataTableColumnFilter";
 import moment from "moment";
 import { Breadcrumb } from "../components/Breadcrumn";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import DispenserRepository from "@/services/actions/dispenserRepository";
 
-export default function List() {
-  const [open, setOpen] = React.useState<boolean>(false);
+export default function SaleOrderLists() {
   const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
   const [dataUrl, setDataUrl] = React.useState("");
 
   const columns = React.useMemo(
@@ -32,7 +32,14 @@ export default function List() {
         visible: true,
         type: "number",
       },
-
+      {
+        accessorKey: "U_tl_pump",
+        header: "Pump Code",
+        enableClickToCopy: true,
+        visible: true,
+        type: "string",
+        align: "center",
+      },
       {
         accessorKey: "U_tl_cardcode",
         header: "Customer Code",
@@ -145,7 +152,7 @@ export default function List() {
   const Count: any = useQuery({
     queryKey: ["lpg-cash-sale", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      const apiUrl = `${url}/TL_RETAILSALE_LP/$count?${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/TL_RETAILSALE_LP/$count?${filter ? `$filter=${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -169,16 +176,17 @@ export default function List() {
     queryFn: async () => {
       const Url = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }${filter ? ` and ${filter}` : filter}${
+      }${filter ? ` &$filter= ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
+      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate"}`;
 
-      const dataUrl = `${url}/TL_RETAILSALE_LP?$top=${pagination.pageSize}&$skip=${
-        pagination.pageIndex * pagination.pageSize
-      }${filter ? ` and ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_docdate,U_tl_bplid"}`;
-
+      const dataUrl = `${url}/TL_RETAILSALE_LP${
+        filter
+          ? `?$filter=${filter}${sortBy !== "" ? `&$orderby=${sortBy}` : ""}`
+          : sortBy !== ""
+            ? `?$orderby=${sortBy}`
+            : "?$orderby=DocNum%20desc"
+      }&$select=DocNum,DocEntry,U_tl_cardcode,U_tl_cardname,U_tl_bplid,U_tl_pump,U_tl_status,U_tl_docdate`;
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
@@ -215,39 +223,8 @@ export default function List() {
       refetch();
     }, 500);
   };
-
+  let queryFilters = "";
   const handlerSearch = (value: string) => {
-    const qurey = value;
-    setFilter(qurey);
-    setPagination({
-      pageIndex: 0,
-      pageSize: 10,
-    });
-
-    setTimeout(() => {
-      Count.refetch();
-      refetch();
-    }, 500);
-  };
-
-  const handlerSearchFilter = (queries: any) => {
-    if (queries === "") return handlerSearch("");
-    handlerSearch("" + queries);
-  };
-
-  const [cookies] = useCookies(["user"]);
-
-  const [searchValues, setSearchValues] = React.useState({
-    docnum: "",
-    cardcode: "",
-    cardname: "",
-    postingDate: null,
-    status: "",
-    bplid: "",
-  });
-
-  const handleGoClick = () => {
-    let queryFilters = "";
     if (searchValues.docnum) {
       queryFilters += `DocNum eq ${searchValues.docnum}`;
     }
@@ -264,32 +241,56 @@ export default function List() {
     }
     if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and U_tl_docdate ge '${searchValues.postingDate}'`
-        : `U_tl_docdate ge '${searchValues.postingDate}'`;
+        ? ` and U_tl_docdate eq '${searchValues.postingDate}'`
+        : `U_tl_docdate eq '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
-        ? ` and DocumentStatus eq '${searchValues.status}'`
-        : `DocumentStatus eq '${searchValues.status}'`;
+        ? ` and U_tl_status eq '${searchValues.status}'`
+        : `U_tl_status eq '${searchValues.status}'`;
     }
     if (searchValues.bplid) {
       queryFilters += queryFilters
-        ? ` and U_tl_bplid eq ${searchValues.bplid}`
-        : `U_tl_bplid eq ${searchValues.bplid}`;
+        ? ` and U_tl_bplid eq '${searchValues.bplid}'`
+        : `U_tl_bplid eq '${searchValues.bplid}'`;
     }
 
-    handlerSearchFilter(queryFilters);
+    let query = queryFilters;
+
+    if (value) {
+      query = queryFilters + ` and ${value}`;
+    }
+    setFilter(query);
+    setPagination({
+      pageIndex: 0,
+      pageSize: 10,
+    });
+
+    setTimeout(() => {
+      Count.refetch();
+      refetch();
+    }, 500);
   };
-  const { id }: any = useParams();
+
+  const [cookies] = useCookies(["user"]);
+
+  const [searchValues, setSearchValues] = React.useState({
+    docnum: "",
+    cardcode: "",
+    cardname: "",
+    postingDate: null,
+    status: "",
+    bplid: "",
+  });
 
   const childBreadcrum = (
     <>
       <span className="" onClick={() => route(`/retail-sale/lpg-cash-sale`)}>
-        <span className=""></span> LPG Cash Sale
+        <span className=""></span> {"LPG Cash Sale"}
       </span>
     </>
   );
-  const indexedData = React.useMemo(
+  const indexedData = useMemo(
     () =>
       data?.map((item: any, index: any) => ({
         ...item,
@@ -361,7 +362,7 @@ export default function List() {
                 <Button
                   variant="contained"
                   size="small"
-                  onClick={handleGoClick}
+                  onClick={() => handlerSearch("")}
                 >
                   Go
                 </Button>
@@ -387,9 +388,10 @@ export default function List() {
           handlerSortby={handlerSortby}
           count={Count?.data || 0}
           loading={isLoading || isFetching}
+          havePump={true}
           pagination={pagination}
           paginationChange={setPagination}
-          title={"LPG Cash Sale"}
+          title={"LPG Cash Sale List"}
           createRoute={`/retail-sale/lpg-cash-sale/create`}
         />
       </div>

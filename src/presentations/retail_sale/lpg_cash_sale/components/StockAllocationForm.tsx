@@ -18,6 +18,7 @@ import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { commaFormatNum } from "@/utilies/formatNumber";
+import BinLocationsAutoComplete from "@/components/input/BinLocationsAutoComplete";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -87,7 +88,6 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
-  console.log(data);
   const onCheckRow = (event: any, index: number) => {
     setRowSelection((prevSelection: any) => {
       const updatedSelection = { ...prevSelection };
@@ -102,7 +102,6 @@ export default function StockAllocationTable({
     });
   };
 
-  console.log(data.stockAllocationData);
   const itemColumns = React.useMemo(
     () => [
       {
@@ -208,15 +207,17 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
-            <BinLocationToAsEntry
-              Warehouse={cell.row.original.U_tl_whscode}
-              onChange={(e: any) => {
-                onChangeItem(cell?.row?.id || 0, {
-                  U_tl_bincode: e,
-                });
-              }}
-              value={cell.getValue()}
-            />
+            <>
+              <BinLocationsAutoComplete
+                Warehouse={cell.row.original.U_tl_whscode}
+                onChange={(e: any) => {
+                  onChangeItem(cell?.row?.id || 0, {
+                    U_tl_bincode: e,
+                  });
+                }}
+                value={cell.getValue()}
+              />
+            </>
           );
         },
       },
@@ -234,10 +235,12 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.allocationData?.map((e: any) => ({
-                value: e.U_tl_itemcode,
-                label: e.U_tl_itemcode,
-              }))}
+              items={data.allocationData
+                ?.filter((e: any) => e.U_tl_stockallow > 0)
+                ?.map((e: any) => ({
+                  value: e.U_tl_itemcode,
+                  label: e.U_tl_itemcode,
+                }))}
               value={cell.getValue()}
               onChange={(e: any) => {
                 const selectedNozzle = data.allocationData?.find(
@@ -332,7 +335,6 @@ export default function StockAllocationTable({
           );
           const totalQuantity = rowsWithSameItemCode.reduce(
             (sum: number, r: any) => {
-              console.log(r.U_tl_alocqty);
               return sum + commaFormatNum(r.U_tl_alocqty);
             },
             0
@@ -342,7 +344,6 @@ export default function StockAllocationTable({
             rowsWithSameItemCode[0]?.U_tl_consqty
           );
           const isValid = totalQuantity === firstQuantity;
-          console.log(isValid);
           return (
             <NumericFormat
               key={"amount_" + cell.getValue()}

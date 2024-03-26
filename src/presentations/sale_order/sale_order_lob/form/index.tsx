@@ -52,7 +52,7 @@ class SalesOrderForm extends CoreFormDocument {
       JournalRemark: "",
       BPAddresses: [],
       Rounding: false,
-      DocDiscount: 0,
+      DiscountPercent: 0,
       RoundingValue: 0,
       headerText: (() => {
         const pathSegments = location.pathname.split("/");
@@ -138,7 +138,7 @@ class SalesOrderForm extends CoreFormDocument {
                   try {
                     const response = await request(
                       "GET",
-                      `/Items('${item.ItemCode}')?$select=UoMGroupEntry, ItemPrices`
+                      `/Items('${item.ItemCode}')?$select=UoMGroupEntry,InventoryUoMEntry,ItemPrices`
                     );
 
                     apiResponse = response.data;
@@ -170,6 +170,7 @@ class SalesOrderForm extends CoreFormDocument {
                   ItemCode: item.ItemCode || null,
                   ItemName: item.ItemDescription || item.Name || null,
                   Quantity: item.Quantity || null,
+                  InventoryUoMEntry: apiResponse.InventoryUoMEntry,
                   UnitPrice:
                     item.GrossPrice / (1 + item.TaxPercentagePerRow / 100),
                   Discount: item.DiscountPercent || 0,

@@ -1,4 +1,5 @@
 
+import Encryption from '@/utilies/encryption';
 import Repository from '../../astractions/repository';
 import request from '../../utilies/request';
 import Binlocation from '@/models/Binlocation';
@@ -8,16 +9,19 @@ export default class BinlocationRepository extends Repository<Binlocation> {
   url: string = '/BinLocations';
   static get: any;
 
+  key = 'BinLocation';
+  async get<Binlocation>(query?: string | undefined): Promise<Binlocation[]> {
+    const data = localStorage.getItem(this.key);
+    if (data) {
+      const bin = JSON.parse(Encryption.decrypt(this.key, data));
+      return JSON.parse(bin);
+    }
 
-  async get<T>(query?: string): Promise<T[]> {
-    const response: any = await request('GET', this.url+query).then((res: any) => {
-      const data = res?.data?.value?.map((e: any) => new Binlocation(e));
-      return data;
-    }).catch((e: Error) => {
-      throw new Error(e.message);
-    });
-
-    return response;
+    const bin = await request('GET', this.url).then((res: any) => res?.data?.value);
+    const enc = Encryption.encrypt(this.key, JSON.stringify(bin));
+    localStorage.setItem(this.key, enc);
+    console.log(bin)
+    return bin;
   }
   async documentTotal<T>(query?: string): Promise<number> {
     const response: any = await request('GET', this.url + '/$count' + query).then(async (res: any) => {

@@ -137,7 +137,6 @@ export default function IncomingPaymentForm({
     () => calculateTotalByCurrency(data, "USD"),
     [data]
   );
-  // console.log(data);
   if (data) {
     data.DocRate = data.ExchangeRate;
   }
@@ -177,7 +176,8 @@ export default function IncomingPaymentForm({
                 placeholder="0.000"
                 decimalScale={3}
                 customInput={MUIRightTextField}
-                value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+                // value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+                value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale)}
               />
             </div>
           </div>
