@@ -15,7 +15,6 @@ const General = ({
   control,
   setValue,
   detail,
-  data,
   serie,
   getValues,
   watch,
@@ -305,7 +304,6 @@ const General = ({
                     ...register("U_Remark"),
                   }}
                   rows={2}
-                  value={data?.U_Remark}
                 />
               </div>
             </div>

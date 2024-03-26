@@ -317,7 +317,6 @@ const Form = (props: any) => {
             {state.tapIndex === 0 && (
               <div className="grow">
                 <General
-                  data={state}
                   register={register}
                   setValue={setValue}
                   control={control}

@@ -27,7 +27,9 @@ export default function Expense({
       </div>
     );
   };
+
   const { id } = useParams();
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
