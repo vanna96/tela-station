@@ -12,7 +12,6 @@ import DataTable from "@/presentations/stock_control/components/DataTable";
 import MUISelect from "@/components/selectbox/MUISelect";
 import request, { url } from "@/utilies/request";
 import { useQuery } from "react-query";
-// import {displayT}
 export default function InventoryTransferList() {
   const route = useNavigate();
   const [pagination, setPagination] = React.useState({
@@ -201,7 +200,7 @@ export default function InventoryTransferList() {
         ),
       },
     ],
-    [branchAss,emp]
+    [branchAss, emp, data]
   );
 
   return (
