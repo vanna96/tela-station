@@ -201,7 +201,7 @@ export default function InventoryTransferList() {
         ),
       },
     ],
-    []
+    [branchAss,emp]
   );
 
   return (
