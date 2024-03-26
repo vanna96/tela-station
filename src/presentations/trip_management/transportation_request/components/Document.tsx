@@ -33,7 +33,6 @@ export type TRSourceDocument = {
 
 export default function Document({
   register,
-  searchValues,
   setValue,
   document,
   control,
@@ -43,7 +42,6 @@ export default function Document({
   setOpen,
   watch,
   removeDocument,
-  setSearchValues,
 }: any) {
 
   const handleOpen = () => {
@@ -510,9 +508,7 @@ export default function Document({
         setValue={setValue}
         document={document}
         open={open}
-        searchValues={searchValues}
         setOpen={setOpen}
-        setSearchValues={setSearchValues}
       />
     </>
   );
