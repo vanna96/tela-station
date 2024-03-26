@@ -21,6 +21,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomToast from "@/components/modal/CustomToast";
 import { Backdrop } from "@mui/material";
+import DocumentHeaderComponentTR from "../components/DocumentHeaderComponentTR";
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -297,17 +298,15 @@ const Form = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent
-            data={state}
-            menuTabs={<HeaderTaps />}
-            HeaderCollapeMenu={
-              <>
+          <DocumentHeaderComponentTR
+              data={state}
+              menuTabs={<HeaderTaps />}
+              HeaderCollapeMenu={<>
                 <Left />
-              </>
-            }
-            leftSideField={undefined}
-            rightSideField={undefined}
-          />
+              </>}
+              leftSideField={undefined}
+              rightSideField={undefined}
+              collapse={false} />
           <Backdrop
             sx={{
               color: "#fff",

@@ -135,7 +135,7 @@ export default function InventoryTransferList() {
         },
       },
       {
-        accessorKey: "Status",
+        accessorKey: "U_Status",
         header: "Status",
         size: 60,
         visible: true,
@@ -182,7 +182,7 @@ export default function InventoryTransferList() {
                 route(
                   "/trip-management/transportation-request/" +
                     cell.row.original.DocEntry +
-                    "/edit",
+                    `/edit?status=${cell.row.original?.U_Status}`,
                   {
                     state: cell.row.original,
                     replace: true,

@@ -7,24 +7,16 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import { withRouter } from "@/routes/withRouter";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import General from "../components/General";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
-import DepartmentRepository from "@/services/actions/departmentRepository";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
-import { useQuery } from "react-query";
-import ManagerRepository from "@/services/actions/ManagerRepository";
-import EmployeeRepository from "@/services/actions/employeeRepository";
 import Document from "../components/Document";
 import DocumentSerieRepository from "@/services/actions/documentSerie";
 import request from "@/utilies/request";
-import { log } from "util";
 import { useParams } from "react-router-dom";
+import DocumentHeaderComponentTR from "../components/DocumentHeaderComponentTR";
 let dialog = React.createRef<FormMessageModal>();
 export type UseFormProps = {
   register: UseFormRegister<FieldValues>;
@@ -128,13 +120,6 @@ const TransportationRequestDetail = (props: any) => {
     },
     [state]
   );
-  const onInvalidForm = (invalids: any) => {
-    dialog.current?.error(
-      invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        "Oop something wrong!",
-      "Invalid Value"
-    );
-  };
   const HeaderTaps = () => {
     return (
       <>
@@ -205,17 +190,15 @@ const TransportationRequestDetail = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent
-            data={state}
-            menuTabs={<HeaderTaps />}
-            HeaderCollapeMenu={
-              <>
+            <DocumentHeaderComponentTR
+              status={watch("U_Status")}
+              data={state}
+              menuTabs={<HeaderTaps />}
+              HeaderCollapeMenu={<>
                 <Left />
-              </>
-            }
-            leftSideField={undefined}
-            rightSideField={undefined}
-          />
+              </>}
+              leftSideField={undefined}
+              rightSideField={undefined} collapse={false}          />
           <Backdrop
             sx={{
               color: "#fff",

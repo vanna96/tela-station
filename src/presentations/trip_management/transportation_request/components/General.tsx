@@ -9,6 +9,7 @@ import BaseStationAutoComplete from "@/components/input/BaseStationAutoComplete"
 import { TextField } from "@mui/material";
 import SaleEmployeeAutoComplete from "@/components/input/SaleEmployeeAutoComplete";
 import { useParams } from "react-router-dom";
+import { useQueryURL } from "@/lib/utils";
 
 const General = ({
   register,
@@ -21,7 +22,10 @@ const General = ({
   defaultSerie,
 }: UseFormProps) => {
   const { id }: any = useParams();
+  const queryUrl = useQueryURL()
+  const status = queryUrl.get("status")
 
+  
   const onChangeSerie = useCallback(
     (event: any) => {
       if (!serie) return;
@@ -67,7 +71,7 @@ const General = ({
                       <SaleEmployeeAutoComplete
                         setValue={setValue}
                         id={id}
-                        disabled={detail || (id && watch("U_Status") === "C")}
+                        disabled={detail || status === "C"}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -96,7 +100,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <BaseStationAutoComplete
-                        disabled={detail || (id && watch("U_Status") === "C")}
+                        disabled={detail || status === "C"}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -126,7 +130,7 @@ const General = ({
                         {...field}
                         setValue={setValue}
                         id={id}
-                        disabled={detail || (id && watch("U_Status") === "C")}
+                        disabled={detail || status === "C"}
                         onChange={(e: any) => {
                           setValue("U_Branch", e?.BPLID);
                           setValue("BranchName", `${e?.BPLName}`);
@@ -162,9 +166,7 @@ const General = ({
                           <MUISelect
                             {...field}
                             items={serie}
-                            disabled={
-                              detail || (id && watch("U_Status") === "C")
-                            }
+                            disabled={detail || status === "C"}
                             value={field?.value}
                             aliasvalue="Series"
                             aliaslabel="Name"
@@ -204,7 +206,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail || (id && watch("U_Status") === "C")}
+                        disabled={detail || status === "C"}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -234,7 +236,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUIDatePicker
-                        disabled={detail || (id && watch("U_Status") === "C")}
+                        disabled={detail || status === "C"}
                         {...field}
                         value={field.value}
                         onChange={(e: any) => {
@@ -275,7 +277,7 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                        disabled={detail || (id && field.value === "C")}
+                        disabled={detail || status === "C"}
                         items={[
                           { value: "O", label: "Open" },
                           { value: "C", label: "Closed" },
