@@ -4,14 +4,11 @@ import MUISelect from "@/components/selectbox/MUISelect";
 import { useCallback, useEffect, useMemo } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
 import { useParams } from "react-router-dom";
 import DistributionRulesAutoComplete from "@/components/input/DistributionRulesAutoComplete";
 import EmployeeAutoComplete from "@/components/input/EmployeeAutoComplete";
 import WareHAutoComplete from "@/components/input/WareHAutoComplete";
 import GoodIssueTypeAutoComplete from "@/components/input/GoodIssueTypeAutoComplete";
-import { useQuery } from "react-query";
-import request, { url } from "@/utilies/request";
 import { useGetIssueSeriesHook } from "../hook/UseGetIssueSeriesHooks";
 import GetBranchAutoComplete from "../../components/GetBranchAutoComplete";
 import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
@@ -19,16 +16,9 @@ import WarehouseAutoComplete from "../../components/WarehouseAutoComplete";
 const General = ({
   register,
   control,
-  defaultValues,
   setValue,
-  setBranchAss,
-  branchAss,
-  header,
-  setHeader,
   detail,
   watch,
-  reset,
-  getValues,
 }: any) => {
   const { series, defaultSerie } = useGetIssueSeriesHook();
   const { id }: any = useParams();

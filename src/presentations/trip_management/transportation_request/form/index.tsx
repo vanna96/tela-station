@@ -43,6 +43,7 @@ export type UseFormProps = {
   serie?: any;
   watch: UseFormWatch<FieldValues>;
   getValues: UseFormGetValues<FieldValues>;
+  defaultSerie?:any
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -66,6 +67,7 @@ const Form = (props: any) => {
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
   const [serie, setSerie] = useState([]);
+  const [defaultSerie, setDefaultSerie] = useState({});
   const [collection, setCollection] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -79,9 +81,11 @@ const Form = (props: any) => {
   });
 
   useEffect(() => {
+    getDefaultSerie();
     fetchData();
     fethSeries();
   }, []);
+
   const fethSeries = async () => {
     let seriesList: any = props?.query?.find("tr-series");
     if (!seriesList) {
@@ -92,6 +96,15 @@ const Form = (props: any) => {
     }
     setSerie(seriesList);
   };
+  const getDefaultSerie = async () => {
+
+    await request("POST", "/SeriesService_GetDefaultSeries", {
+      DocumentTypeParams: {
+        Document: "TL_TR",
+      },
+    }).then((res: any) => setDefaultSerie(res));
+  };
+
   const fetchData = async () => {
     if (id) {
       setState({
@@ -275,8 +288,7 @@ const Form = (props: any) => {
         </div>
       );
     }, [requestS]);
-
-
+  
   return (
     <>
       {state.loading ? (
@@ -324,7 +336,8 @@ const Form = (props: any) => {
                   branchAss={branchAss}
                   serie={serie}
                   watch={watch}
-                  getValues={getValues}
+                    getValues={getValues}
+                    defaultSerie={defaultSerie}
                 />
               </div>
             )}

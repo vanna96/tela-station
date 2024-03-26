@@ -1,7 +1,7 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
 import MUISelect from "@/components/selectbox/MUISelect";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller, useWatch } from "react-hook-form";
 import BranchAssignmentAuto from "@/components/input/BranchAssignment";
@@ -18,21 +18,27 @@ const General = ({
   serie,
   getValues,
   watch,
+  defaultSerie,
 }: UseFormProps) => {
   const { id }: any = useParams();
 
   const onChangeSerie = useCallback(
     (event: any) => {
+      if (!serie) return;
       const series = serie?.find(
         (e: any) => e?.Series === event?.target?.value
       );
-      if (!series) return;
-
       setValue("Series", event?.target?.value);
       setValue("DocNum", series?.NextNumber);
     },
     [serie]
   );
+
+  useEffect(() => {
+    if (!defaultSerie?.data) return;
+    setValue("Series", defaultSerie?.data?.Series);
+    setValue("DocNum", defaultSerie?.data?.NextNumber);
+  }, [defaultSerie?.data]);
 
   return (
     <>
