@@ -278,7 +278,7 @@ class Form extends NonCoreDcument {
       U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
       U_tl_ownremark: data?.U_tl_ownremark,
-      // U_tl_status: data?.U_tl_status || "",
+      U_tl_status: data?.U_tl_status ?? "Open",
       //Consumption
       TL_RETAILSALE_FU_COCollection: data?.allocationData
         ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
