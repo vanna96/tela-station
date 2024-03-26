@@ -291,13 +291,13 @@ export default function Document({
                               return (
                                 <MUIDatePicker
                                   {...field}
-                                  onChange={(e) => {
-                                    if (e !== null) {
+                                  onChange={(d) => {
+                                    if (d !== null) {
                                       const val =
-                                        e.toLowerCase() ===
+                                        d.toLowerCase() ===
                                         "Invalid Date".toLocaleLowerCase()
                                           ? ""
-                                          : e;
+                                          : d;
                                       setValue(
                                         `TL_TR_ROWCollection.${index}.U_DeliveryDate`,
                                         `${val == "" ? "" : val}`
@@ -370,7 +370,7 @@ export default function Document({
                                     }}
                                     name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`}
                                     control={control}
-                                    render={({ field }) => {
+                                      render={({ field }) => {                                      
                                       return (
                                         <ShipToAutoComplete
                                           cardCode={e?.U_CardCode}
