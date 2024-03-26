@@ -295,6 +295,7 @@ const General = ({
               </div>
               <div className="col-span-3">
                 <TextField
+                  className={`${detail && "bg-gray-100"}`}
                   disabled={detail}
                   placeholder="Remarks"
                   size="small"
