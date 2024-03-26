@@ -60,6 +60,8 @@ const General = ({
                   render={({ field }) => {
                     return (
                       <SaleEmployeeAutoComplete
+                        setValue={setValue}
+                        id={id}
                         disabled={detail || (id && watch("U_Status") === "C")}
                         {...field}
                         value={field.value}
@@ -117,6 +119,8 @@ const General = ({
                     return (
                       <BranchAssignmentAuto
                         {...field}
+                        setValue={setValue}
+                        id={id}
                         disabled={detail || (id && watch("U_Status") === "C")}
                         onChange={(e: any) => {
                           setValue("U_Branch", e?.BPLID);

@@ -15,6 +15,8 @@ export default function SaleEmployeeAutoComplete(props: {
   name?: any;
   disabled?: any;
   cardCode?: any;
+  setValue?: any;
+  id?: number;
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["SalesPersons"],
@@ -38,6 +40,12 @@ export default function SaleEmployeeAutoComplete(props: {
       if (selected) {
         setSelectedValue(selected);
       }
+    }
+    if (props?.id) {
+      const requesterName = data?.find(
+        (e: Type) => e.SalesEmployeeCode === props.value
+      )?.SalesEmployeeName;
+      props?.setValue("RequesterName", requesterName);
     }
   }, [props.value, data]);
 

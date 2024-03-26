@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   FieldValues,
   UseFormRegister,
@@ -75,13 +75,7 @@ const TransportationRequestDetail = (props: any) => {
     branch: null,
     status: "O",
   });
-  const [searchValues, setSearchValues] = React.useState({
-    DocumentNumber: "",
-    Type: "",
-    Branch: "",
-    From: "",
-    To: "",
-  });
+
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
   const [emp, setEmp] = useState([]);
@@ -204,87 +198,41 @@ const TransportationRequestDetail = (props: any) => {
     }
   }, [requestS]);
 
-  const Left = ({ header, data }: any) => {
-    const branchAss: any = useQuery({
-      queryKey: ["branchAss"],
-      queryFn: () => new BranchBPLRepository().get(),
-      staleTime: Infinity,
-    });
-    const emp: any = useQuery({
-      queryKey: ["manager"],
-      queryFn: () => new ManagerRepository().get(),
-      staleTime: Infinity,
-    });
-    return (
-      <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4">
-        <div className="w-[25%] text-[15px] text-gray-500 flex flex-col justify-between h-full">
-          <div>
-            <span className="">Requester</span>
+  const Left = () =>
+    useMemo(() => {
+      return (
+        <div className="w-[100%] mt-2 pl-[25px] h-[125px] flex py-5 px-4 text-sm">
+          <div className="w-[25%] gap-[10px] text-[15px] text-gray-500 flex flex-col justify-between h-full">
+            <div>
+              <span className="">Requester</span>
+            </div>
+            <div>
+              <span className="">Branch</span>
+            </div>
+            <div>
+              <span className="">Terminal</span>
+            </div>
+            <div>
+              <span className="">Status</span>
+            </div>
           </div>
-          <div>
-            <span className="mt-10">Branch</span>
-          </div>
-        </div>
-        <div className="w-[70%] text-[15px] flex flex-col justify-between h-full">
-          <div>
-            <span className="mb-[27px] inline-block">
-              {`${
-                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
-                  ?.FirstName ||
-                emp?.data?.find(
-                  (e: any) => e?.EmployeeID === header?.U_Requester
-                )?.FirstName ||
-                "_"
-              } ${
-                emp?.data?.find((e: any) => e?.EmployeeID === data?.U_Requester)
-                  ?.LastName ||
-                emp?.data?.find(
-                  (e: any) => e?.EmployeeID === header?.U_Requester
-                )?.LastName ||
-                "_"
-              }`}
-            </span>
-          </div>
-          <div>
-            <span>
-              {branchAss?.data?.find((e: any) => e?.BPLID === data?.U_Branch)
-                ?.BPLName ||
-                header?.U_Branch ||
-                branchAss?.data?.find((e: any) => e?.BPLID === header?.U_Branch)
-                  ?.BPLName ||
-                "_"}
-            </span>
+          <div className="w-[70%] gap-[10px] text-[15px] flex flex-col justify-between h-full">
+            <div>
+              <span className="">{watch("RequesterName") || "_"}</span>
+            </div>
+            <div>
+              <span>{watch("BranchName") || "_"}</span>
+            </div>
+            <div>
+              <span>{watch("U_Terminal") || "_"}</span>
+            </div>
+            <div className="">
+              <span>{watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}</span>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  };
-  const Right = ({ header, data }: any) => {
-    return (
-      <div className="w-[100%] h-[150px] mt-2 flex py-5 px-4">
-        <div className="w-[55%] text-[15px] text-gray-500 flex items-end flex-col h-full">
-          <div>
-            <span className="mr-10 mb-[27px] inline-block">Terminal</span>
-          </div>
-          <div>
-            <span className="mr-10">Status</span>
-          </div>
-        </div>
-        <div className="w-[35%] text-[15px] items-end flex flex-col h-full">
-          <div>
-            <span>{data?.U_Terminal || header?.base || "_"}</span>
-          </div>
-          <div className="mt-7">
-            <span>
-              {data?.Status || header?.status == "O"
-                ? "Active"
-                : "Inactive" || "_"}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
+      );
+    }, [requestS]);
 
   return (
     <>
@@ -299,9 +247,7 @@ const TransportationRequestDetail = (props: any) => {
             menuTabs={<HeaderTaps />}
             HeaderCollapeMenu={
               <>
-                <Left header={header} data={requestS} />
-                <Right header={header} data={requestS} />
-                {/* <TotalSummaryRightSide data={this.state} /> */}
+                <Left />
               </>
             }
             leftSideField={undefined}
@@ -336,7 +282,6 @@ const TransportationRequestDetail = (props: any) => {
                   branchAss={branchAss}
                   emp={emp}
                   header={header}
-                  setHeader={setHeader}
                   serie={serie}
                   detail={props?.detail}
                   watch={watch}
@@ -358,49 +303,9 @@ const TransportationRequestDetail = (props: any) => {
                   getValues={getValues}
                   detail={props?.detail}
                   watch={watch}
-                  searchValues={searchValues}
-                  setSearchValues={setSearchValues}
                 />
               </div>
             )}
-            <div className="absolute w-full bottom-4  mt-2 ">
-              <div className="backdrop-blur-sm bg-white p-2 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                <div className="flex ">
-                  <LoadingButton
-                    size="small"
-                    sx={{ height: "25px" }}
-                    variant="outlined"
-                    style={{
-                      background: "white",
-                      border: "1px solid red",
-                    }}
-                    disableElevation
-                    onClick={() =>
-                      (window.location.href = "/master-data/pump-attendant")
-                    }
-                  >
-                    <span className="px-3 text-[11px] py-1 text-red-500">
-                      Cancel
-                    </span>
-                  </LoadingButton>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <LoadingButton
-                    type="submit"
-                    sx={{ height: "25px" }}
-                    className="bg-white"
-                    loading={state.isSubmitting}
-                    size="small"
-                    variant="contained"
-                    disableElevation
-                  >
-                    <span className="px-6 text-[11px] py-4 text-white">
-                      {props.edit ? "Update" : "Save"}
-                    </span>
-                  </LoadingButton>
-                </div>
-              </div>
-            </div>
           </form>
         </>
       )}

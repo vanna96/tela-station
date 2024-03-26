@@ -12,6 +12,7 @@ import request, { url } from "@/utilies/request";
 interface Type {
   BPLID: number;
   BPLName: string;
+
 }
 
 export default function BranchAssignmentAuto(props: {
@@ -20,6 +21,8 @@ export default function BranchAssignmentAuto(props: {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
+  id?: number;
+  setValue?:any
 }) {
   const { data, isLoading }: any = useQuery({
     queryKey: ["branchAss"],
@@ -46,6 +49,12 @@ export default function BranchAssignmentAuto(props: {
         setSelectedValue(selected);
       }
     }
+     if (props?.id) {
+       const branchName = data?.find(
+         (e: Type) => e.BPLID === props.value
+       )?.BPLName;
+       props?.setValue("BranchName", branchName);
+     }
   }, [props?.value, data]);
 
   // Use local state to store the selected value

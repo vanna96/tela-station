@@ -83,7 +83,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     setKeys(selectedKeys);
     setCurrenData(updatedList);
   };
-
+  
   const getData = () => {
     if (data?.length === 0) return;
     setOpenItem(true);
@@ -96,7 +96,6 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     );
     setNewdataA(filteredObjects);
   };
-  console.log(loadData);
 
   const submitData = async () => {
     if (Object.keys(loadData).length === 0) return;
@@ -106,11 +105,10 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
       .catch((err: any) => dialog.current?.error(err.message))
       .finally(() => setSubmiting(false));
   };
-  console.log(loadData);
-
   useEffect(() => {
     submitData();
   }, [loadData]);
+  
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-red-40">
@@ -440,16 +438,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
         setOpen={setOpenItem}
         open={openItem}
       />
-      <Backdrop
-        sx={{
-          color: "#fff",
-          backgroundColor: "rgb(251 251 251 / 60%)",
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-        }}
-        open={submiting}
-      >
-        <CircularProgress />
-      </Backdrop>{" "}
+    <BackDrop open={submiting} />
     </>
   );
 }
