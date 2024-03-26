@@ -50,7 +50,7 @@ export default function CheckNumberTable(props: any) {
       ...data.checkNumberData,
       {
         U_tl_acccheck: null,
-        U_tl_checkdate: new Date(),
+        U_tl_checkdate: new Date().toISOString(),
         U_tl_checkbank: "",
         U_tl_amtcheck: null,
         U_tl_paycur: "USD",
@@ -107,7 +107,6 @@ export default function CheckNumberTable(props: any) {
         return (
           <NumericFormat
             key={"U_tl_acccheck" + cell.getValue() + cell?.row?.id}
-            placeholder="0.000"
             disabled={data?.edit}
             defaultValue={cell.row.original?.U_tl_acccheck || 0}
             onBlur={(e: any) => {
@@ -131,7 +130,7 @@ export default function CheckNumberTable(props: any) {
         return (
           <MUIDatePicker
             key={"U_tl_checkdate" + cell.getValue() + cell?.row?.id}
-            value={cell.row.original?.U_tl_checkdate || new Date()}
+            value={cell.row.original?.U_tl_checkdate ?? new Date().toISOString()}
             disabled={data?.edit}
             onChange={(e: any) =>
               handlerChangeItem(cell?.row?.id || 0, {
@@ -169,6 +168,7 @@ export default function CheckNumberTable(props: any) {
         if (cell.row.original?.U_tl_acccheck === "") return null;
         return (
           <NumericFormat
+            thousandSeparator
             key={"U_tl_amtcheck" + cell.getValue() + cell?.row?.id}
             placeholder="0.000"
             disabled={data?.edit}

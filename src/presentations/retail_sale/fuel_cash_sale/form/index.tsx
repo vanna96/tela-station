@@ -774,7 +774,7 @@ class Form extends NonCoreDcument {
             .map((item: any) => ({
               Type: item.U_tl_paytype,
               DocCurrency: item.U_tl_paycur,
-              DueDate: item.U_tl_checkdate || new Date(),
+              DueDate: item.U_tl_checkdate,
               Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
               Bank: item.U_tl_checkbank,
               CheckNum: item.U_tl_acccheck,
@@ -786,7 +786,7 @@ class Form extends NonCoreDcument {
             .map((item: any) => ({
               Type: item.U_tl_paytype,
               DocCurrency: item.U_tl_paycur,
-              DueDate: new Date(),
+              DueDate: new Date().toISOString(),
               Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
               // CounNum: item.U_tl_acccoupon,
             }))
