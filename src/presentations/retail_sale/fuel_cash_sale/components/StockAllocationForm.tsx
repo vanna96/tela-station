@@ -181,7 +181,7 @@ export default function StockAllocationTable({
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <WarehouseAutoComplete
-              Branch={parseInt(cell.row.original.U_tl_bplid || 1)}
+              Branch={parseInt(cell.row.original?.U_tl_bplid)}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_whs: e,
@@ -206,7 +206,7 @@ export default function StockAllocationTable({
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <BinLocationsAutoComplete
-              Warehouse={cell.row.original.U_tl_whs}
+              Warehouse={cell.row.original?.U_tl_whs}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_bincode: e,
@@ -231,10 +231,12 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.allocationData?.filter((e: any) => e.U_tl_stockallow > 0)?.map((e: any) => ({
-                value: e.U_tl_itemcode,
-                label: e.U_tl_itemcode,
-              }))}
+              items={data.allocationData
+                ?.filter((e: any) => e.U_tl_stockallow > 0)
+                ?.map((e: any) => ({
+                  value: e.U_tl_itemcode,
+                  label: e.U_tl_itemcode,
+                }))}
               value={cell.getValue()}
               onChange={(e: any) => {
                 const selectedNozzle = data.allocationData?.find(

@@ -317,6 +317,7 @@ class LubeForm extends CoreFormDocument {
       U_tl_doccur: data?.Currency,
       U_tl_rate: data?.ExchangeRate,
       U_tl_taxdate: data?.U_tl_taxdate,
+      U_tl_status: data?.U_tl_status ?? "Open",
 
       U_tl_docdate: data?.U_tl_docdate,
       U_tl_devdate: data?.U_tl_devdate,
