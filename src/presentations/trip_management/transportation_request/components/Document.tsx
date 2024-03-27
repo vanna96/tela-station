@@ -1,7 +1,6 @@
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import { Button } from "@mui/material";
-import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { FaAngleDown } from "react-icons/fa6";
 import TRModal from "./ModalTR";
@@ -33,7 +32,6 @@ export type TRSourceDocument = {
 
 export default function Document({
   register,
-  searchValues,
   setValue,
   document,
   control,
@@ -43,7 +41,6 @@ export default function Document({
   setOpen,
   watch,
   removeDocument,
-  setSearchValues,
 }: any) {
 
   const handleOpen = () => {
@@ -294,13 +291,13 @@ export default function Document({
                               return (
                                 <MUIDatePicker
                                   {...field}
-                                  onChange={(e) => {
-                                    if (e !== null) {
+                                  onChange={(d) => {
+                                    if (d !== null) {
                                       const val =
-                                        e.toLowerCase() ===
+                                        d.toLowerCase() ===
                                         "Invalid Date".toLocaleLowerCase()
                                           ? ""
-                                          : e;
+                                          : d;
                                       setValue(
                                         `TL_TR_ROWCollection.${index}.U_DeliveryDate`,
                                         `${val == "" ? "" : val}`
@@ -373,7 +370,7 @@ export default function Document({
                                     }}
                                     name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`}
                                     control={control}
-                                    render={({ field }) => {
+                                      render={({ field }) => {                                      
                                       return (
                                         <ShipToAutoComplete
                                           cardCode={e?.U_CardCode}
@@ -510,9 +507,7 @@ export default function Document({
         setValue={setValue}
         document={document}
         open={open}
-        searchValues={searchValues}
         setOpen={setOpen}
-        setSearchValues={setSearchValues}
       />
     </>
   );

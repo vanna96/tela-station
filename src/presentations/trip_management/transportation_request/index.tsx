@@ -12,7 +12,6 @@ import DataTable from "@/presentations/stock_control/components/DataTable";
 import MUISelect from "@/components/selectbox/MUISelect";
 import request, { url } from "@/utilies/request";
 import { useQuery } from "react-query";
-// import {displayT}
 export default function InventoryTransferList() {
   const route = useNavigate();
   const [pagination, setPagination] = React.useState({
@@ -136,7 +135,7 @@ export default function InventoryTransferList() {
         },
       },
       {
-        accessorKey: "Status",
+        accessorKey: "U_Status",
         header: "Status",
         size: 60,
         visible: true,
@@ -183,7 +182,7 @@ export default function InventoryTransferList() {
                 route(
                   "/trip-management/transportation-request/" +
                     cell.row.original.DocEntry +
-                    "/edit",
+                    `/edit?status=${cell.row.original?.U_Status}`,
                   {
                     state: cell.row.original,
                     replace: true,
@@ -201,7 +200,7 @@ export default function InventoryTransferList() {
         ),
       },
     ],
-    []
+    [branchAss, emp, data]
   );
 
   return (

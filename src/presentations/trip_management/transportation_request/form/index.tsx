@@ -21,6 +21,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate, useParams } from "react-router-dom";
 import CustomToast from "@/components/modal/CustomToast";
 import { Backdrop } from "@mui/material";
+import DocumentHeaderComponentTR from "../components/DocumentHeaderComponentTR";
 
 let dialog = React.createRef<FormMessageModal>();
 let toastRef = React.createRef<CustomToast>();
@@ -43,6 +44,7 @@ export type UseFormProps = {
   serie?: any;
   watch: UseFormWatch<FieldValues>;
   getValues: UseFormGetValues<FieldValues>;
+  defaultSerie?:any
 };
 // const { id } = useParams();
 const Form = (props: any) => {
@@ -66,6 +68,7 @@ const Form = (props: any) => {
   const [branchAss, setBranchAss] = useState([]);
   const [requestS, setRequest] = React.useState<any>();
   const [serie, setSerie] = useState([]);
+  const [defaultSerie, setDefaultSerie] = useState({});
   const [collection, setCollection] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
 
@@ -79,9 +82,11 @@ const Form = (props: any) => {
   });
 
   useEffect(() => {
+    getDefaultSerie();
     fetchData();
     fethSeries();
   }, []);
+
   const fethSeries = async () => {
     let seriesList: any = props?.query?.find("tr-series");
     if (!seriesList) {
@@ -92,6 +97,15 @@ const Form = (props: any) => {
     }
     setSerie(seriesList);
   };
+  const getDefaultSerie = async () => {
+
+    await request("POST", "/SeriesService_GetDefaultSeries", {
+      DocumentTypeParams: {
+        Document: "TL_TR",
+      },
+    }).then((res: any) => setDefaultSerie(res));
+  };
+
   const fetchData = async () => {
     if (id) {
       setState({
@@ -275,8 +289,7 @@ const Form = (props: any) => {
         </div>
       );
     }, [requestS]);
-
-
+  
   return (
     <>
       {state.loading ? (
@@ -285,17 +298,15 @@ const Form = (props: any) => {
         </div>
       ) : (
         <>
-          <DocumentHeaderComponent
-            data={state}
-            menuTabs={<HeaderTaps />}
-            HeaderCollapeMenu={
-              <>
+          <DocumentHeaderComponentTR
+              data={state}
+              menuTabs={<HeaderTaps />}
+              HeaderCollapeMenu={<>
                 <Left />
-              </>
-            }
-            leftSideField={undefined}
-            rightSideField={undefined}
-          />
+              </>}
+              leftSideField={undefined}
+              rightSideField={undefined}
+              collapse={false} />
           <Backdrop
             sx={{
               color: "#fff",
@@ -317,7 +328,6 @@ const Form = (props: any) => {
             {state.tapIndex === 0 && (
               <div className="grow">
                 <General
-                  data={state}
                   register={register}
                   setValue={setValue}
                   control={control}
@@ -325,7 +335,8 @@ const Form = (props: any) => {
                   branchAss={branchAss}
                   serie={serie}
                   watch={watch}
-                  getValues={getValues}
+                    getValues={getValues}
+                    defaultSerie={defaultSerie}
                 />
               </div>
             )}
