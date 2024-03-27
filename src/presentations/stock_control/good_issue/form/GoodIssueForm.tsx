@@ -58,7 +58,11 @@ const GoodIssueForm = (props: any) => {
     DocNum: 0,
   });
 
-  const onSubmit = async (payload: any) => {
+  const onSubmit = async (e: any) => {
+    const payload = {
+      ...e,
+      AccountCode: undefined,
+    };
     try {
       setState({ ...state, isSubmitting: true });
 

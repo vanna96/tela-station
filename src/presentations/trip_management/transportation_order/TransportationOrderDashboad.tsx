@@ -16,10 +16,7 @@ const TransportationOrderDashboad = () => {
     queryKey: ["count"],
     queryFn: () => request("GET", `/TL_TO`),
     refetchOnWindowFocus: false,
-    staleTime: Infinity,
-    cacheTime:0
   });
-  console.log(countQuery?.data?.data?.value);
 
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");

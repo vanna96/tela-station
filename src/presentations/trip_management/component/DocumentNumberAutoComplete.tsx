@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
-import { BsDot } from "react-icons/bs";
-import { useQuery } from "react-query";
-import SalePersonRepository from "@/services/actions/salePersonRepository";
-import PositionRepository from "@/services/actions/positionRepository";
 
 interface Type {
-  U_DocNum: number;
-  U_Terminal:string;
+  U_DocNum: number | undefined;
+  U_Terminal: string | undefined;
+  U_DocType: string | undefined;
 }
 
 export default function DocumentNumberAutoComplete(props: {
@@ -16,9 +13,9 @@ export default function DocumentNumberAutoComplete(props: {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
-  document:any
+  document: any
 }) {
-const [data, setData]=useState<any>([])
+  const [data, setData] = useState<any>([])
 
   useEffect(() => {
     setData(props?.document);
@@ -34,11 +31,11 @@ const [data, setData]=useState<any>([])
   }, [props.value, data, props?.document]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState(null);
+  const [selectedValue, setSelectedValue] = useState<string>('');
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
-    setSelectedValue(newValue);
+    setSelectedValue(newValue + ",");
 
     if (props.onChange) {
       // Notify the parent component with the selected value
@@ -47,7 +44,7 @@ const [data, setData]=useState<any>([])
     }
   };
   const disabled = props.disabled;
-  
+
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -61,20 +58,22 @@ const [data, setData]=useState<any>([])
         disabled={props?.disabled}
         options={data ?? []}
         autoHighlight
-        value={selectedValue}
+        multiple
+        size="small"
+        defaultValue={selectedValue?.split(',')?.filter((e) => e !== '') ?? []}
         onChange={handleAutocompleteChange}
-        getOptionLabel={(option: Type) => option.U_DocNum.toString()}
+        getOptionLabel={(option: Type) => option?.U_DocNum?.toString() ?? ''}
         renderOption={(props, option: Type) => (
-          <Box component="li" {...props}>
-            {option.U_DocNum}
+          <Box component="li" {...props}  >
+            {option?.U_DocType} - {option?.U_DocNum}
           </Box>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
+            
             InputProps={{
               ...params.InputProps,
               endAdornment: (

@@ -21,7 +21,6 @@ const BasicInformation = (props: any) => {
       series.data?.filter((e: any) => e?.BPLID === props.watch("BPLID")) ?? []
     );
   }, [series, props.watch("BPLID")]);
-  console.log(getSerieLists);
 
   useEffect(() => {
     if (props?.edit) return;
@@ -271,7 +270,7 @@ const BasicInformation = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("DocDate", val);
@@ -303,7 +302,7 @@ const BasicInformation = (props: any) => {
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                            "invalid date".toLocaleLowerCase()
+                              "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           props.setValue("TaxDate", val);
@@ -343,7 +342,7 @@ const BasicInformation = (props: any) => {
                         }
                         items={[
                           { value: "bost_Open", label: "Open" },
-                          { value: "bost_Closed", label: "Closed" },
+                          { value: "bost_Close", label: "Closed" },
                         ]}
                         onChange={(e: any) => {
                           props.setValue("DocumentStatus", e.target.value);

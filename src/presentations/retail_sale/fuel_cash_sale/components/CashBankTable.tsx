@@ -10,7 +10,6 @@ import { Button, Checkbox, IconButton } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import CurrencySelect from "@/components/selectbox/Currency";
-import { useExchangeRate } from "../../components/hook/useExchangeRate";
 import { NumericFormat } from "react-number-format";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 export default function CashBankTable(props: any) {
@@ -48,7 +47,6 @@ export default function CashBankTable(props: any) {
     onChange("cashBankData", firstData);
   };
 
-  useExchangeRate(data?.Currency, onChange);
   const onCheckRow = (event: any, index: number) => {
     const rowSelects: any = { ...rowSelection };
     rowSelects[index] = true;
@@ -155,6 +153,7 @@ export default function CashBankTable(props: any) {
                     U_tl_amtcash: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
+                thousandSeparator
                 customInput={MUIRightTextField}
                 name={"U_tl_amtcash"}
                 value={cell.row.original?.U_tl_amtcash || ""}
@@ -170,7 +169,7 @@ export default function CashBankTable(props: any) {
           Cell: ({ cell }: any) => {
             if (!cell.row.original?.U_tl_paytype) return null;
             return (
-              <FormattedInputs
+              <NumericFormat
                 placeholder="0.000"
                 key={"U_tl_amtbank" + cell.getValue() + cell?.row?.id}
                 disabled={data?.edit}
@@ -180,6 +179,8 @@ export default function CashBankTable(props: any) {
                     U_tl_amtbank: parseFloat(e.target.value.replace(/,/g, "")),
                   });
                 }}
+                thousandSeparator
+                customInput={MUIRightTextField}
                 name={"U_tl_amtbank"}
                 value={cell.row.original?.U_tl_amtbank || ""}
                 startAdornment={cell.row.original?.U_tl_paycur}

@@ -200,25 +200,20 @@ export default function Contents({
                     </td>
                     <td className="pr-4">
                       <Controller
-                        name={`StockTransferLines.${index}`}
+                        name={`StockTransferLines.${index}.U_tl_toBinId`}
                         rules={{
                           required: "To bin code is required",
                         }}
                         control={control}
-                        render={({ field }) => (
-                          <BinAllocationAutoComplete
-                            warehouse={watch("ToWarehouse")}
-                            // disabled={true}
-                            {...field}
-                            value={field.value}
-                            onChange={(value) => {
-                              setValue(
-                                `StockTransferLines.${index}`,
-                                value?.AbsEntry
-                              );
-                            }}
-                          />
-                        )}
+                        render={({ field }) => {
+                          return (
+                            <BinAllocationAutoComplete
+                              warehouse={watch("ToWarehouse")}
+                              // disabled={true}
+                              value={field.value ?? watch('U_tl_toBinId')}
+                              onChange={(value) => setValue(`StockTransferLines.${index}.U_tl_toBinId`, value?.AbsEntry)} />
+                          );
+                        }}
                       />
                     </td>
                   </tr>

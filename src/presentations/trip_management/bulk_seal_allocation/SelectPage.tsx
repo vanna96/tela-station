@@ -15,9 +15,9 @@ const BootstrapInput: any = styled(InputBase)(({ theme }: any) => ({
   "& .MuiInputBase-input": {
     borderRadius: 4,
     position: "relative",
-    border: "1px solid #ced4da",
+    // border: "1px solid #ced4da",
     fontSize: 15,
-    padding: "5px 0px 5px 12px",
+    // padding: "5px 0px 5px 12px",
     fontFamily: [
       "-apple-system",
       "BlinkMacSystemFont",

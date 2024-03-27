@@ -29,10 +29,10 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
             DocDate: new Date().toISOString()?.split('T')[0],
             TaxDate: new Date().toISOString()?.split('T')[0],
             BPLID: undefined,
-            StockTransferLines: []
+            StockTransferLines: [],
+            ToWarehouse: undefined,
         }
     });
-
 
     const onSubmit = async (payload: any) => {
         try {
@@ -42,6 +42,16 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
             }
 
             setLoading(true);
+
+            for (let index = 0; index < payload.StockTransferLines.length; index++) {
+                if (payload.StockTransferLines[index]['U_tl_toBinId']) continue;
+                // 
+                payload.StockTransferLines[index]['U_tl_toBinId'] = payload.U_tl_toBinId;
+
+                if (!payload.StockTransferLines[index]['U_tl_toBinId'])
+                    throw new Error('To Bin Code is required');
+            }
+
             const url = edit ? `InventoryTransferRequests(${id})` : 'InventoryTransferRequests';
             const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
             setLoading(false)
@@ -69,20 +79,32 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
 
     useEffect(() => {
         setLoading(false)
-        if (!id) return;
-        setLoading(true)
-        request('GET', `InventoryTransferRequests(${id})`)
-            .then((res: any) => {
-                setLoading(false)
-                reset({ ...res.data }, { keepValues: false })
-            })
-            .catch((e: any) => {
-                setLoading(false)
-                dialog.current?.error(e?.message)
-            });
-    }, [id, edit])
+        if (id) {
+            setLoading(true)
+            request('GET', `InventoryTransferRequests(${id})`)
+                .then((res: any) => {
+                    setLoading(false)
+                    reset({ ...res.data }, {
+                        keepDirtyValues: false,
+                        keepErrors: false,
+                        keepDirty: false,
+                        keepDefaultValues: false,
+                        keepIsSubmitted: false,
+                        keepIsValid: false,
+                        keepSubmitCount: false,
+                        keepTouched: false,
+                        keepValues: false,
+                        keepIsSubmitSuccessful: false
+                    })
+                })
+                .catch((e: any) => {
+                    setLoading(false)
+                    dialog.current?.error(e?.message)
+                });
+        }
 
-    // const getGITWarehouese = useQuery({ queryKey: ['git_warehouest_bplid' + (watch('BPLID') ?? '')], queryFn: () => getGITWarehouestByBranch(watch('BPLID')) });
+    }, [id])
+
 
     return {
         handleSubmit,
@@ -98,6 +120,6 @@ export const useTransferRequestFormHook = (edit: boolean, dialog: React.RefObjec
         loading,
         setLoading,
         id,
-    
+
     }
 }

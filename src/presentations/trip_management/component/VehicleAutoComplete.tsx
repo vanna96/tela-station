@@ -28,8 +28,6 @@ const VehicleAutoComplete = forwardRef<
         });
       return response;
     },
-    staleTime: 0,
-    cacheTime:0
   });
 
   useEffect(() => {
@@ -84,9 +82,8 @@ const VehicleAutoComplete = forwardRef<
           <TextField
             {...params}
             id={props.name}
-            className={`w-full text-field text-xs ${
-              disabled ? "bg-gray-100" : ""
-            }`}
+            className={`w-full text-field text-xs ${disabled ? "bg-gray-100" : ""
+              }`}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

@@ -12,12 +12,10 @@ import { useCookies } from "react-cookie";
 import { AiOutlineSetting } from "react-icons/ai";
 import { GridAddIcon, GridDeleteIcon } from "@mui/x-data-grid";
 import MUISelect from "@/components/selectbox/MUISelect";
-import shortid from "shortid";
-import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { commaFormatNum } from "@/utilies/formatNumber";
+import BinLocationsAutoComplete from "@/components/input/BinLocationsAutoComplete";
 interface StockAllocationTableProps {
   data: any;
   onChange: (key: any, value: any) => void;
@@ -87,6 +85,7 @@ export default function StockAllocationTable({
     ];
     onChange("stockAllocationData", firstData);
   };
+
   const onCheckRow = (event: any, index: number) => {
     setRowSelection((prevSelection: any) => {
       const updatedSelection = { ...prevSelection };
@@ -206,7 +205,7 @@ export default function StockAllocationTable({
         Cell: ({ cell }: any) => {
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
-            <BinLocationToAsEntry
+            <BinLocationsAutoComplete
               Warehouse={cell.row.original.U_tl_whs}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
@@ -232,7 +231,7 @@ export default function StockAllocationTable({
 
           return (
             <MUISelect
-              items={data.allocationData?.map((e: any) => ({
+              items={data.allocationData?.filter((e: any) => e.U_tl_stockallow > 0)?.map((e: any) => ({
                 value: e.U_tl_itemcode,
                 label: e.U_tl_itemcode,
               }))}
@@ -425,8 +424,37 @@ export default function StockAllocationTable({
     [data.stockAllocationData]
   );
 
+  const itemStockMap = new Map();
+  data.allocationData.forEach((item: any) => {
+    const { U_tl_itemcode, U_tl_stockallow } = item;
+    if (U_tl_stockallow > 0) {
+      itemStockMap.set(U_tl_itemcode, U_tl_stockallow);
+    }
+  });
   return (
     <>
+      {itemStockMap.size > 0 && (
+        <div>
+          <fieldset className="border border-solid border-gray-200 p-2 mb-4">
+            <legend className="text-md px-2 font-bold text-red-500">
+              Note *
+            </legend>
+            <div className="grid grid-cols-1 gap-4 my-2 pl-6">
+              {Array.from(itemStockMap.entries()).map(
+                ([itemCode, quantity]) => (
+                  <div key={itemCode} className="flex items-center">
+                    <div className="text-gray-700">Item Code:</div>
+                    <div className="ml-2 text-gray-800">{itemCode}</div>
+                    <div className="ml-4 text-gray-700">Quantity:</div>
+                    <div className="ml-6 text-gray-800"> {quantity} </div>
+                  </div>
+                )
+              )}
+            </div>
+          </fieldset>
+        </div>
+      )}
+
       <FormCard title="Stock Allocation ">
         <>
           <div className="col-span-2 data-table">

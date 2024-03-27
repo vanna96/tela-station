@@ -45,6 +45,10 @@ class SalesOrderForm extends CoreFormDocument {
       U_tl_bplid: 1,
       BPCurrenciesCollection: [],
       CurrencyType: "L",
+      CardName: "General Customer",
+      CardCode: 20000001,
+      U_tl_cardname: "General Customer",
+      U_tl_cardcode: 20000001,
       Currency: "USD",
       DocType: "dDocument_Items",
       ExchangeRate: 1,
@@ -73,7 +77,7 @@ class SalesOrderForm extends CoreFormDocument {
       checkNumberData: [],
       couponData: [
         {
-          U_tl_acccoupon: "110101",
+          U_tl_acccoupon: "111102",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -166,7 +170,7 @@ class SalesOrderForm extends CoreFormDocument {
             try {
               const res = await request(
                 "GET",
-                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry`
+                `/Items('${itemCode}')?$select=ItemName,ItemPrices,UoMGroupEntry,InventoryUoMEntry,U_tl_dim1,U_tl_dim2`
               );
               return res.data;
             } catch (error) {
@@ -197,6 +201,8 @@ class SalesOrderForm extends CoreFormDocument {
                   (e: any) => e.U_tl_itemnum === item.U_tl_itemcode
                 )?.U_tl_bincode,
                 U_tl_whs: dispenser.U_tl_whs,
+                LineOfBussiness: itemDetails.U_tl_dim1,
+                ProductLine: itemDetails.U_tl_dim2,
               };
             })
           );
@@ -690,7 +696,6 @@ class SalesOrderForm extends CoreFormDocument {
     const data: any = { ...this.state };
 
     const payload = this.createPayload();
-    console.log(data);
     edit = this.props.edit;
 
     try {
@@ -883,9 +888,9 @@ class SalesOrderForm extends CoreFormDocument {
             DiscountPercent: 0,
             TaxCode: "VO10",
             UoMEntry: item.InventoryUoMEntry,
-            LineOfBussiness: "201001",
-            RevenueLine: "202004",
-            ProductLine: "203004",
+            LineOfBussiness: item.LineOfBussiness,
+            RevenueLine: "202001",
+            ProductLine: item.ProductLine,
             BinAbsEntry: item.U_tl_bincode,
             // BranchCode: data.U_tl_bplid,
             WarehouseCode: item.U_tl_whs,
@@ -921,9 +926,9 @@ class SalesOrderForm extends CoreFormDocument {
           DiscountPercent: item.DiscountPercent ?? 0,
           TaxCode: "VO10",
           UoMEntry: item.InventoryUoMEntry,
-          LineOfBussiness: "201001", // item.LineOfBussiness
-          RevenueLine: "202004", // item.RevenueLine
-          ProductLine: "203004", // item.ProductLine
+          LineOfBussiness: item.LineOfBussiness,
+          RevenueLine: "202001",
+          ProductLine: item.ProductLine,
           BinAbsEntry:
             item.Bin ??
             data.nozzleData?.find((e: any) => e.U_tl_itemcode === item.ItemCode)
@@ -957,9 +962,9 @@ class SalesOrderForm extends CoreFormDocument {
         DiscountPercent: 0,
         TaxCode: "VO10",
         UoMEntry: item.U_tl_uom,
-        LineOfBussiness: "201001", // item.LineOfBussiness
-        RevenueLine: "202004", // item.RevenueLine
-        ProductLine: "203004", // item.ProductLine
+        LineOfBussiness: item.LineOfBussiness,
+        RevenueLine: "202001",
+        ProductLine: item.ProductLine,
         BinAbsEntry: item.U_tl_bincode,
         // BranchCode: data.U_tl_bplid,
         WarehouseCode: item.U_tl_whs,
@@ -1068,15 +1073,27 @@ class SalesOrderForm extends CoreFormDocument {
                   Quantity: quantity.toString(),
                   DiscountPercent: 0,
                   TaxCode: "VO10",
-                  LineOfBussiness: "201001",
-                  RevenueLine: "202004",
-                  ProductLine: "203004",
-                  BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
-                  BranchCode: data.stockAllocationData[0].U_tl_bplid,
-                  WarehouseCode: data.stockAllocationData[0].U_tl_whscode,
+                  LineOfBussiness: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.LineOfBussiness,
+                  RevenueLine: "202001",
+                  ProductLine: data.allocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.ProductLine,
+                  BinAbsEntry: data.stockAllocationData?.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_bincode,
+                  BranchCode: data.stockAllocationData.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_bplid,
+                  WarehouseCode: data.stockAllocationData.find(
+                    (e: any) => e.U_tl_itemcode === itemCode
+                  )?.U_tl_whscode,
                   DocumentLinesBinAllocations: [
                     {
-                      BinAbsEntry: data.stockAllocationData[0].U_tl_bincode,
+                      BinAbsEntry: data.stockAllocationData?.find(
+                        (e: any) => e.U_tl_itemcode === itemCode
+                      )?.U_tl_bincode,
                       Quantity: quantity.toString(),
                       AllowNegativeQuantity: "tNO",
                     },
@@ -1084,7 +1101,7 @@ class SalesOrderForm extends CoreFormDocument {
                 };
               }
             })
-            .filter(Boolean); // Filter out undefined items
+            .filter(Boolean);
 
           return stockAllocation;
         })(),
@@ -1111,9 +1128,13 @@ class SalesOrderForm extends CoreFormDocument {
                     UoMEntry: data.nozzleData?.find(
                       (e: any) => e.U_tl_itemcode === item.U_tl_itemcode
                     )?.U_tl_uom,
-                    LineOfBussiness: "201001", // item.LineOfBussiness
-                    RevenueLine: "202004", // item.RevenueLine
-                    ProductLine: "203004", // item.ProductLine
+                    LineOfBussiness: data.allocationData?.find(
+                      (e: any) => e.U_tl_itemcode === itemCode
+                    )?.LineOfBussiness,
+                    RevenueLine: "202001",
+                    ProductLine: data.allocationData?.find(
+                      (e: any) => e.U_tl_itemcode === itemCode
+                    )?.ProductLine,
                     // BinAbsEntry: data.U_tl_bincode,
                     U_tl_bincode: edit
                       ? data.dispenser.TL_DISPENSER_LINESCollection?.find(
@@ -1440,40 +1461,44 @@ class SalesOrderForm extends CoreFormDocument {
                             </span>
                           </LoadingButton>
                         </div>
-                        <div>
-                          <LoadingButton
-                            variant="outlined"
-                            size="small"
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            disableElevation
-                            // disabled={this.props.edit}
-                          >
-                            <span className="px-3 text-[13px] py-1 text-green-500">
-                              {this.props.edit ? "Update" : "Add"}
-                            </span>
-                          </LoadingButton>
-                        </div>
-                        {
-                          <div className="flex items-center space-x-4">
+
+                        {this.state.U_tl_status !== "Close" && (
+                          <div>
                             <LoadingButton
-                              onClick={(event) =>
-                                this.handlerSubmitPost(event, this.props.edit)
-                              }
-                              sx={{ height: "30px", textTransform: "none" }}
-                              className="bg-white"
-                              loading={false}
-                              // disabled={this.state.tapIndex < 4}
+                              variant="outlined"
                               size="small"
-                              variant="contained"
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
                               disableElevation
+                              // disabled={this.props.edit}
                             >
-                              <span className="px-6 text-[13px] py-4 text-white">
-                                Post
+                              <span className="px-3 text-[13px] py-1 text-green-500">
+                                {this.props.edit ? "Update" : "Add"}
                               </span>
                             </LoadingButton>
                           </div>
-                        }
+                        )}
+                        {this.state.U_tl_status !== "Close" && (
+                          <>
+                            <div className="flex items-center space-x-4">
+                              <LoadingButton
+                                onClick={(event) =>
+                                  this.handlerSubmitPost(event, this.props.edit)
+                                }
+                                sx={{ height: "30px", textTransform: "none" }}
+                                className="bg-white"
+                                loading={false}
+                                size="small"
+                                variant="contained"
+                                disableElevation
+                              >
+                                <span className="px-6 text-[13px] py-4 text-white">
+                                  Post
+                                </span>
+                              </LoadingButton>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>
@@ -1587,7 +1612,6 @@ function validateData(
 
       if (rowsWithSameItemCode.length === 0) {
         const message = `No entries found in stock Allocation Data for Item Code: ${itemcode}`;
-        console.log(message);
         throw new FormValidateException(message, 4);
       }
 
@@ -1603,7 +1627,6 @@ function validateData(
 
       if (!isValid) {
         const message = `Stock Allocation does not match the totals in Allocation Data for Item Code: ${itemcode}`;
-        console.log(message);
         throw new FormValidateException(message, 4);
       }
 
@@ -1684,8 +1707,6 @@ function validateCardCountData(
 
     return true;
   });
-
-  console.log(isValid);
 
   const message = isValid
     ? "Card Count Data is valid."

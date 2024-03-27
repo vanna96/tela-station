@@ -13,29 +13,28 @@ export type WarehouseAutoCompleteProp = {
   onChange?: (value: any) => void;
   name?: any;
   disabled?: any;
-  branchId: number | undefined
-}
+  branchId: number | undefined;
+};
 
 const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
   const { data, isLoading } = useGetWhsTerminalAssignHook(false)
 
-
   const warehoueses = useMemo(() => {
-    return data?.filter((e: any) => e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N')
+    if (props.disabled) return data ?? [];
+
+    return data?.filter((e: any) => e?.BusinessPlaceID === props.branchId && e.U_tl_whsclear === 'N' && e.U_tl_git_whs === 'N') ?? []
   }, [props.branchId, data])
 
 
   useEffect(() => {
-    if (props.value && warehoueses) {
-      const selected = warehoueses.find((e: WarehouseProps) => e.WarehouseCode === props.value);
-      if (selected) {
-        setSelectedValue(selected);
-      }
-    }
+    const selected = warehoueses?.find((e: WarehouseProps) => e.WarehouseCode === props.value);
+    setSelectedValue(selected);
   }, [props.value, warehoueses]);
 
   // Use local state to store the selected value
-  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(null);
+  const [selectedValue, setSelectedValue] = useState<WarehouseProps | null>(
+    null
+  );
 
   const handleAutocompleteChange = (event: any, newValue: any) => {
     // Update the local state
@@ -47,7 +46,6 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
     }
   };
   const disabled = props.disabled;
-
   return (
     <div className="block text-[14px] xl:text-[13px]">
       <label
@@ -93,6 +91,6 @@ const WarehouseAutoComplete = (props: WarehouseAutoCompleteProp) => {
       />
     </div>
   );
-}
+};
 
 export default WarehouseAutoComplete;

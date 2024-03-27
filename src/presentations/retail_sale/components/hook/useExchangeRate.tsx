@@ -1,10 +1,12 @@
-import { formatDate } from "@/helper/helper";
+import { formatDate, sysInfo } from "@/helper/helper";
 import request from "@/utilies/request";
+import React from "react";
 import { useMemo } from "react";
 import { useQuery } from "react-query";
 
 export const useExchangeRate = (Currency: any, handleChange: any) => {
   const date = useMemo(() => formatDate(new Date(), ""), [new Date()]);
+
   const { data } = useQuery({
     queryKey: [`date_${date}`, Currency],
     queryFn: async () => {
@@ -17,14 +19,12 @@ export const useExchangeRate = (Currency: any, handleChange: any) => {
           return res?.data;
         })
         .catch((err: any) => {
-          if (Currency === "AUD") return handleChange("ExchangeRate", 1);
           return handleChange("ExchangeRate", 0);
         });
 
       return res || 0;
     },
     retry: 1,
-    // staleTime: 720 * (60 * 1000), // 720 mins
   });
   return data;
 };

@@ -72,7 +72,7 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                     DocNum: undefined,
                     Comments: `Based On Inventory Transfer Request ${res?.data?.DocNum}.`,
                     U_tl_fromBinId: undefined,
-                    U_tl_toBinId: undefined,
+                    U_tl_toBinId: res.data.U_tl_toBinId,
                     U_tl_sobincode: res?.data?.U_tl_sobincode,
                     StockTransferLines: [],
                     DocumentReferences: [
@@ -115,6 +115,11 @@ export const getMappingStockTransferRequestToStockTransfer = (id: any): Promise<
                         UoMCode: item?.UoMCode,
                         UoMEntry: item?.UoMEntry,
                         UseBaseUnits: "tNO",
+                        U_tl_fromBinId: defaultBin,
+                        BaseType: "InventoryTransferRequest",
+                        BaseLine: item.LineNum,
+                        BaseEntry: res?.data?.DocEntry ?? id,
+                        U_tl_toBinId: item.U_tl_toBinId ?? res.data.U_tl_toBinId,
                         StockTransferLinesBinAllocations: [
                             {
                                 BinAbsEntry: defaultBin,
@@ -182,17 +187,21 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
                 return;
             }
 
-
             for (let index = 0; index < payload?.StockTransferLines?.length; index++) {
-                if (!fromBinId) {
+                if (!fromBinId || payload?.StockTransferLines[index].U_tl_fromBinId) {
                     const response: any = await request('GET', `Items('${payload?.StockTransferLines[index]?.ItemCode}')?$select=ItemWarehouseInfoCollection,UoMGroupEntry`);
                     const defaultBin = response?.data?.ItemWarehouseInfoCollection?.find((e: any) => e?.WarehouseCode === payload?.FromWarehouse);
                     fromBinId = defaultBin?.DefaultBin;
                 }
 
+                if (fromBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'] = payload?.StockTransferLines[index].U_tl_fromBinId ?? fromBinId
+                if (toBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'] = payload?.StockTransferLines[index].U_tl_toBinId ?? toBinId
 
-                if (fromBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'] = fromBinId
-                if (toBinId) payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'] = toBinId
+                if (!payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][0]['BinAbsEntry'])
+                    throw new Error('From Bin Code is required')
+
+                if (!payload['StockTransferLines'][index]['StockTransferLinesBinAllocations'][1]['BinAbsEntry'])
+                    throw new Error('To Bin Code is required')
             }
 
             const url = edit ? `StockTransfers(${id})` : 'StockTransfers';
@@ -223,7 +232,6 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
     }
 
     const onChangeBranch = (series: any, value: any) => {
-
         const period = new Date().getFullYear();
         const serie = series?.data?.find((e: any) => e?.PeriodIndicator === period.toString() && e?.BPLID === value?.BPLID);
 
@@ -231,6 +239,7 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         setValue("FromWarehouse", queryParams.get('type') === 'external' ? git_wsh?.at(0)?.WarehouseCode : undefined);
         setValue("ToWarehouse", undefined);
         setValue("U_tl_attn_ter", undefined);
+        setValue("Series", serie?.Series);
         setValue("DocNum", serie?.NextNumber);
         setValue('BPLID', value?.BPLID)
     }
@@ -259,7 +268,6 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
         request('GET', `StockTransfers(${id})`)
             .then((res: any) => {
                 setLoading(false)
-                console.log(res.data)
                 reset({ ...res.data }, { keepValues: false })
             })
             .catch((e: any) => {
@@ -275,7 +283,6 @@ export const useStockTransferFormHook = (edit: boolean, dialog: React.RefObject<
                 .then((res) => {
                     reset({ ...res });
                     onChangeBranch(series, { BPLID: res?.BPLID })
-
                 })
                 .catch((err) => {
                     dialog.current?.error(err?.message)

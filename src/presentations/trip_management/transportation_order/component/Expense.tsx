@@ -1,163 +1,175 @@
 import ExpenseCodeAutoComplete from "@/components/input/ExpenseCode";
 import MUITextField from "@/components/input/MUITextField";
-import { useState } from "react";
-import { Controller, useFieldArray } from "react-hook-form";
-import { useParams } from "react-router-dom";
-export default function Expense({
-  register,
-  defaultValue,
-  setValue,
-  control,
-  detail,
-  watch,
-  fuel,
-  handleChangeFuel,
-}: any) {
-  const {
-    fields: expense,
-    remove: removeExpense,
-    append: addExpense,
-  } = useFieldArray({
-    control,
-    name: "TL_TO_EXPENSECollection", // name of the array field
-  });
-  const USD = () => {
-    return (
-      <div className="text-[14.5px] mt-1 text-gray-500 w-[47px] pr-1 text-center">
-        USD
-      </div>
-    );
+import { Button, Checkbox } from "@mui/material";
+import { useMemo, useState } from "react";
+import { Controller } from "react-hook-form";
+import shortid from "shortid";
+
+const USD = () => {
+  return (
+    <div className="text-[14.5px] mt-1 text-gray-500 w-[47px] pr-1 text-center">
+      USD
+    </div>
+  );
+};
+
+export default function Expense(props: any) {
+  const expense: any[] = useMemo(() => {
+    if (!props?.watch('TL_TO_EXPENSECollection')) return [];
+
+    return props?.watch('TL_TO_EXPENSECollection');
+  }, [props?.watch('TL_TO_EXPENSECollection')])
+
+  const removeExpense = (index: number) => {
+    console.log(index)
+  }
+
+  const onChangeExpense = (event: any, index: number) => {
+    const state = [...expense];
+    state[index]['U_Code'] = event?.Code;
+    state[index]['U_Description'] = event?.Name;
+    props?.setValue('TL_TO_EXPENSECollection', state)
+  }
+
+  const [selected, setSelected] = useState<number[]>([]);
+
+  const onSelectChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    let state = [...selected];
+    if (selected.includes(index)) {
+      state = state.filter((e) => e !== index);
+    } else {
+      state.push(index);
+    }
+    setSelected(state);
   };
-  const { id } = useParams();
+
+  const handlerDelete = () => {
+    if (selected.length === 0) return; // [1,2,3,5]
+    let state = [...expense];
+    state = state.filter((item, index) => !selected.includes(index));
+    props?.setValue("TL_TO_EXPENSECollection", state);
+    setSelected([]);
+  };
+
+
+  const onAddNewRow = () => {
+    const state = [...expense, { U_Code: undefined, U_Description: undefined, U_Amount: undefined }];
+    props?.setValue('TL_TO_EXPENSECollection', state)
+  }
+
+  const excludes = useMemo(() => {
+    return expense?.map((e) => e?.U_Code) ?? []
+  }, [expense]);
+
+
   return (
     <>
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
-        <div className="font-medium text-lg flex gap-x-3 items-center mb-3 pb-1">
-          <h2 className="mr-3">Expense</h2>
-        </div>{" "}
+        <div className="font-medium text-lg flex gap-x-3 items-center mb-3 pb-1 justify-between">
+          <h2 className="mr-3 text-base">Expense</h2>
+
+          <Button
+            variant="outlined"
+            className="px-4 border-gray-400"
+            onClick={handlerDelete}
+          >
+            <span className="px-2 text-xs">Remove</span>
+          </Button>
+        </div>
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">
             <tr className="border-[1px] border-[#dadde0]">
-              <th className="w-[150px] "></th>
+              <th className="w-[50px] "></th>
+              <th className="w-[50px] "></th>
 
               <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Expense Code{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Expense Code
+                <span className="text-red-500 ml-1">*</span>
               </th>
               <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
-                Amount{" "}
-                <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+                Amount
+                <span className="text-red-500 ml-1">*</span>
               </th>
               <th className=" text-left font-normal  py-2 text-[14px] text-gray-500">
-                Desciption{" "}
+                Desciption
               </th>
             </tr>
-            {expense?.map((e: any, index: number) => {
-              return (
-                <tr key={index}>
-                  <td
-                    className={` py-4 flex justify-center gap-8 items-center`}
-                  >
-                    <span className="text-black">{index + 1}</span>
-
-                    <div
-                      onClick={() => removeExpense(index)}
-                      className={`w-[17px] transition-all duration-300 shadow-md shadow-[#878484] h-[17px] ${
-                        detail || id
-                          ? "hidden"
-                          : "bg-red-500 hover:shadow-lg hover:shadow-[#4d4a4a] cursor-pointer text-white"
-                      }  rounded-sm flex justify-center items-center `}
-                    >
-                      -
-                    </div>
-                  </td>
-
-                  <td className="pr-4">
-                    <Controller
-                      name="U_Code"
-                      control={control}
-                      render={({ field }) => {
-                        return (
-                          <ExpenseCodeAutoComplete
-                            disabled={detail || id}
-                            {...field}
-                            onChange={(e) => {
-                              setValue(
-                                `TL_TO_EXPENSECollection.${index}.U_Code`,
-                                e
-                              );
-                            }}
-                            value={watch("U_Code") || e?.U_Code}
-                          />
-                        );
-                      }}
-                    />
-                  </td>
-                  <td className="pr-4">
-                    <MUITextField
-                      startAdornment={USD()}
-                      disabled={detail || id}
-                      placeholder="Amount"
-                      inputProps={{
-                        ...register(
-                          `TL_TO_EXPENSECollection.${index}.U_Amount`
-                        ),
-                        defaultValue: e?.U_Amount,
-                      }}
-                    />
-                  </td>
-                  <td colSpan={2} className="pr-4">
-                    <MUITextField
-                      disabled={detail || id}
-                      placeholder="Description"
-                      inputProps={{
-                        ...register(
-                          `TL_TO_EXPENSECollection.${index}.U_Description`
-                        ),
-                        defaultValue: e?.U_Description,
-                      }}
-                    />
-                  </td>
+            <tbody>
+              {expense.length === 0 ?
+                <tr>
+                  <td colSpan={5} className="text-center text-gray-400 text-[14px] p-6">No records.</td>
                 </tr>
-              );
-            })}
-            <tr className={`${detail ? "hidden" : ""}`}>
-              <td className="py-6 flex justify-center gap-5 items-center"></td>
-              <td className="pr-4 ">
-                <Controller
-                  name="U_Code"
-                  control={control}
-                  render={({ field }) => {
-                    return (
-                      <ExpenseCodeAutoComplete
-                        disabled={detail || id}
-                        {...field}
-                        onChange={(e: any) => {
-                          if (e === null) return;
-                          addExpense({ U_Code: e });
-                        }}
-                        value={watch("U_Code")}
-                      />
-                    );
-                  }}
-                />
-              </td>
-              <td className="pr-4">
-                <MUITextField
-                  disabled={detail || id}
-                  placeholder="Amount"
-                  inputProps={{}}
-                  startAdornment={USD()}
-                />
-              </td>
-              <td className="pr-4">
-                <MUITextField
-                  disabled={detail || id}
-                  placeholder="Description"
-                  inputProps={{}}
-                />
-              </td>
-            </tr>
+                : expense?.map((e: any, index: number) => {
+                  return (
+                    <tr key={shortid.generate()}>
+                      <td><Checkbox onChange={(event) => onSelectChange(event, index)} checked={selected.includes(index)} /></td>
+                      <td className={` py-4 flex justify-center gap-8 items-center`}> <span className="text-black">{index + 1}</span> </td>
+                      <td className="pr-4">
+                        <Controller
+                          name={`TL_TO_EXPENSECollection.${index}.U_Code`}
+                          control={props?.control}
+                          render={({ field }) => {
+                            return (
+                              <ExpenseCodeAutoComplete
+                                excludes={excludes}
+                                disabled={props?.id}
+                                onChange={(event) => onChangeExpense(event, index)}
+                                // onChange={(e) => props?.setValue(`TL_TO_EXPENSECollection.${index}.U_Code`, e)}
+                                value={field?.value}
+                              />
+                            );
+                          }}
+                        />
+                      </td>
+                      <td className="pr-4">
+                        <Controller
+                          name={`TL_TO_EXPENSECollection.${index}.U_Amount`}
+                          control={props?.control}
+                          render={({ field }) => <MUITextField
+                            startAdornment={USD()}
+                            disabled={props?.id}
+                            defaultValue={field.value}
+                            onBlur={(event) => props?.setValue(`TL_TO_EXPENSECollection.${index}.U_Amount`, event.target.value)}
+                            placeholder="Amount"
+                            type="number"
+                            inputProps={{
+                              defaultValue: e?.U_Amount,
+                              step: '0.1'
+                            }}
+                          />}
+                        />
+                      </td>
+                      <td colSpan={2} className="pr-4">
+                        <Controller
+                          name={`TL_TO_EXPENSECollection.${index}.U_Description`}
+                          control={props?.control}
+                          render={({ field }) => <MUITextField
+                            disabled={props?.id}
+                            placeholder="Description"
+                            defaultValue={field.value}
+                            onBlur={(event) => props?.setValue(`TL_TO_EXPENSECollection.${index}.U_Description`, event.target.value)}
+                          />}
+                        />
+
+                      </td>
+                    </tr>
+                  );
+                })}
+              <tr className={""}>
+                <td colSpan={4} className="p-4">
+                  <div
+                    role="button"
+                    onClick={onAddNewRow}
+                    className="p-1 text-sm hover:shadow-md transition-all duration-300 rounded-md bg-white w-[90px] mt-5 text-center inline-block cursor-pointer border-[1px] shadow-sm"
+                  >
+                    Add
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
         <div className="font-medium text-lg mt-[50px] flex gap-x-3 items-center mb-3 pb-1">
@@ -165,73 +177,55 @@ export default function Expense({
         </div>
         <table className="border w-full shadow-sm bg-white border-[#dadde0]">
           <tr className="border-[1px] border-[#dadde0]">
-            <th className="w-[150px] "></th>
+            <th className="w-[50px] "></th>
             <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
               Fuel
-              <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+              <span className="text-red-500 ml-1">{"*"}</span>
             </th>
             <th className="w-[250px] text-left font-normal  py-2 text-[14px] text-gray-500">
-              Amount{" "}
-              <span className="text-red-500 ml-1">{detail ? "" : "*"}</span>
+              Amount
+              <span className="text-red-500 ml-1">{"*"}</span>
             </th>
             <th className="text-left font-normal  py-2 text-[14px] text-gray-500">
               Description
             </th>
           </tr>
-          {fuel?.length === 0 && (
-            <tr>
-              <td
-                colSpan={6}
-                className="text-center p-10 text-[16px] text-gray-400"
-              >
-                No Record For Document
+          <tbody>
+            <tr >
+              <td className="py-5 flex justify-center gap-5 items-center">
+                <span className="text-gray-500">1</span>
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={true}
+                  placeholder="Fuel"
+
+                  inputProps={{ ...props?.register("U_Fuel") }}
+                />
+              </td>
+
+              <td className="pr-4">
+                <MUITextField
+                  disabled={props?.id}
+                  placeholder="Amount"
+                  type="number"
+                  inputProps={{
+                    ...props?.register("U_FuelAmount"),
+                    step: '0.1',
+                  }}
+                />
+              </td>
+              <td className="pr-4">
+                <MUITextField
+                  disabled={props?.id}
+                  placeholder="Description"
+                  inputProps={{ ...props?.register("U_FuelRemark") }}
+                />
               </td>
             </tr>
-          )}
-          {fuel?.map((e: any, index: number) => {
-            return (
-              <tr key={index}>
-                <td className="py-5 flex justify-center gap-5 items-center">
-                  <span className="text-gray-500">{index + 1}</span>
-                </td>
-                <td className="pr-4">
-                  <MUITextField
-                    disabled={detail || id}
-                    placeholder="Fuel"
-                    inputProps={{
-                      onChange: (e) => handleChangeFuel(index, e, "U_Fuel"),
-                      defaultValue: e?.U_Fuel,
-                    }}
-                  />
-                </td>
-
-                <td className="pr-4">
-                  <MUITextField
-                    disabled={detail || id}
-                    placeholder="Amount"
-                    inputProps={{
-                      onChange: (e) =>
-                        handleChangeFuel(index, e, "U_FuelAmount"),
-                      defaultValue: e?.U_FuelAmount,
-                    }}
-                  />
-                </td>
-                <td className="pr-4">
-                  <MUITextField
-                    disabled={detail || id}
-                    placeholder="Description"
-                    inputProps={{
-                      onChange: (e) =>
-                        handleChangeFuel(index, e, "U_FuelRemark"),
-                      defaultValue: e?.U_FuelRemark,
-                    }}
-                  />
-                </td>
-              </tr>
-            );
-          })}
+          </tbody>
         </table>
-      </div>
+      </div >
     </>
   );
 }
