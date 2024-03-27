@@ -1,14 +1,10 @@
 import FormCard from "@/components/card/FormCard";
 import WarehouseAutoComplete from "@/components/input/WarehouseAutoComplete";
-import BPAddress from "@/components/selectbox/BPAddress";
 import MUISelect from "@/components/selectbox/MUISelect";
-import WarehouseSelect from "@/components/selectbox/Warehouse";
 import WarehouseAttendTo from "@/components/selectbox/WarehouseAttention";
-import WarehouseByBranch from "@/components/selectbox/WarehouseByBranch";
 import { getShippingAddress } from "@/models/BusinessParter";
+import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { TextField } from "@mui/material";
-import Checkbox from "@mui/material/Checkbox";
-import { useEffect, useState } from "react";
 
 export interface ILogisticFormProps {
   data: any;
@@ -39,34 +35,32 @@ export default function LogisticForm({
                 </label>
               </div>
               <div className="col-span-3">
-                {!edit ? (
-                  <WarehouseAutoComplete
-                    Branch={data?.BPL_IDAssignedToInvoice ?? 1}
-                    value={data?.U_tl_dnsuppo}
-                    onChange={(e) => {
-                      handlerChange("U_tl_dnsuppo", e);
-                    }}
-                  />
-                ) : (
-                  <WarehouseAttendTo
-                    value={data.U_tl_dnsuppo}
-                    onChange={(e) => handlerChange("U_tl_dnsuppo", e)}
-                  />
-                )}
+                <TextField
+                className="bg-gray-100"
+                  size="small"
+                  fullWidth
+                  multiline
+                  value={
+                    new BranchBPLRepository().find(
+                      data?.BPL_IDAssignedToInvoice || 1
+                    )?.Address ?? "N/A"
+                  }
+                  InputProps={{ readOnly: true }}
+                />
               </div>
             </div>
 
             <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Code" className="text-gray-500 ">
-                  Attention Terminal
+                  Attention Terminal <span className="text-red-500">*</span>
                 </label>
               </div>
               <div className="col-span-3">
                 <WarehouseAttendTo
                   U_tl_attn_ter={true}
-                  value={data.U_tl_grsuppo}
-                  onChange={(e) => handlerChange("U_tl_grsuppo", e)}
+                  value={data.U_tl_attn_ter}
+                  onChange={(e) => handlerChange("U_tl_attn_ter", e)}
                 />
               </div>
             </div>
@@ -83,13 +77,19 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <MUISelect
-                  value={data?.PayToCode}
+                  value={data?.ShipToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"
-                  items={data?.BPAddresses?.filter(
-                    ({ addressType }: any) => addressType === "bo_BillTo"
-                  )}
-                  onChange={(e) => handlerChange("PayToCode", e.target.value)}
+                  items={
+                    edit
+                      ? data.vendor?.bpAddress?.filter(
+                          ({ addressType }: any) => addressType === "bo_ShipTo"
+                        )
+                      : data?.BPAddresses?.filter(
+                          ({ addressType }: any) => addressType === "bo_ShipTo"
+                        )
+                  }
+                  onChange={(e) => handlerChange("ShipToCode", e.target.value)}
                 />
               </div>
             </div>
@@ -101,28 +101,29 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <TextField
+                className="bg-gray-100"
                   size="small"
                   fullWidth
                   multiline
-                  rows={2}
                   value={
                     !edit
                       ? getShippingAddress(
-                          data?.PayToCode,
+                          data?.ShipToCode,
 
                           data?.BPAddresses?.filter(
                             ({ addressType }: any) =>
-                              addressType === "bo_BillTo"
+                              addressType === "bo_ShipTo"
                           )
                         )
                       : getShippingAddress(
-                          data?.PayToCode,
+                          data?.ShipToCode,
                           data?.vendor?.bpAddress?.filter(
                             ({ addressType }: any) =>
-                              addressType === "bo_BillTo"
+                              addressType === "bo_ShipTo"
                           )
                         )
                   }
+                  InputProps={{ readOnly: true }}
                 />
               </div>
             </div>
