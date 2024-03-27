@@ -47,39 +47,24 @@ export default function GeneralForm({
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
   const year = currentDate.getFullYear();
+  const lastTwoDigitsOfYear = year.toString().slice(-2);
+  const month = currentDate.getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateB = `${lastTwoDigitsOfYear}B${formattedMonth}`;
   const filteredSeries = data?.SerieLists?.filter(
     (series: any) =>
-      series?.BPLID === BPL && parseInt(series.PeriodIndicator) === year
+      series?.BPLID === BPL &&
+      parseInt(series.PeriodIndicator) === year &&
+      series.Name.startsWith(formattedDateB)
   );
 
-  const seriesSO =
-    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+  const seriesSO = data?.SerieLists?.find(
+    (entry: any) => entry.BPLID === BPL && entry.Name.startsWith(formattedDateB)
+  )?.Series;
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
-  // const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
-  // const formattedMonth = month.toString().padStart(2, "0");
-  // const formattedDateA = `23A${formattedMonth}`;
-  // const formattedDateB = `23B${formattedMonth}`;
-
-  // const seriesDN = (
-  //   data?.dnSeries?.find(
-  //     (entry: any) =>
-  //       entry.BPLID === BPL &&
-  //       (entry.Name.startsWith(formattedDateA) ||
-  //         entry.Name.startsWith(formattedDateB))
-  //   ) || {}
-  // ).Series;
-
-  // const seriesIN = (
-  //   data?.invoiceSeries?.find(
-  //     (entry: any) =>
-  //       entry.BPLID === BPL &&
-  //       (entry.Name.startsWith(formattedDateA) ||
-  //         entry.Name.startsWith(formattedDateB))
-  //   ) || {}
-  // ).Series;
 
   const route = useParams();
   const salesType = route["*"];
