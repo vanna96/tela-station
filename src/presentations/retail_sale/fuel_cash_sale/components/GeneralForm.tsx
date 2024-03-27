@@ -154,6 +154,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <DispenserAutoComplete
+                old_pump={data?.old_pump}
                 value={data?.U_tl_pump}
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}

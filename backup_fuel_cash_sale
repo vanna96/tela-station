@@ -27,7 +27,8 @@ function POST(req) {
         "StockTransfer",
         "OwnUsage",
         "TelaCard",
-        "PumpTest"
+        "PumpTest",
+        "GIType"
     ].forEach((value) => {
         if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
     })
@@ -37,7 +38,10 @@ function POST(req) {
     
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    const distributionRules = slContext.query("DistributionRules", "DistributionRules?$select=FactorCode,FactorDescription,InWhichDimension&$filter=Active eq 'tYES'", true).toArray();
+
     jsonObj['SANumber'] = fuelSale.body.DocNum;
+    jsonObj['distributionRules'] = distributionRules;
     
     try {
         // CASH SALE
@@ -81,10 +85,10 @@ function POST(req) {
         };
     
         // PUMP TEST​
-        if(
-            fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
-            jsonObj["PumpTest"].length > 0
-        ) PumpTestTransaction(slContext, jsonObj);
+        // if(
+        //     fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
+        //     jsonObj["PumpTest"].length > 0
+        // ) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
@@ -147,7 +151,7 @@ function DELETE() {
 function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount, adjustAmount=0) {
     const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
     if (FilterPayment.length <= 0) return null;
-
+    
     let CashSum = 0;
     let TransferSum = 0;
     let CheckSum = 0;
@@ -197,9 +201,9 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
-        U_tl_dim1: inv['DocumentLines'][0]['COGSCostingCode'], // Line of bussiness
-        U_tl_dim2: inv['DocumentLines'][0]['COGSCostingCode2'], // Revenue Line
-        U_tl_dim3: inv['DocumentLines'][0]['COGSCostingCode3'], // Product Line
+        U_tl_dim1: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode']).FactorDescription || "", // Line of bussiness
+        U_tl_dim2: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode2']).FactorDescription || "", // Revenue Line
+        U_tl_dim3: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode3']).FactorDescription || "", // Product Line
         CounterReference: obj['SANumber'],
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
@@ -231,7 +235,7 @@ function CashSaleTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         NumAtCard: "Oil",
-        U_tl_arbusi: "201001",
+        U_tl_arbusi: "Oil",
         U_tl_invtype:"Retail",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         U_ti_revenue:'202001',
@@ -670,7 +674,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                 DocDueDate: jsonObj['DocDate'],
                 BPL_IDAssignedToInvoice: groupedItems[key][0]['BranchCode'],
                 U_tl_whsdesc: key,
-                U_tl_grtype: "003",
+                U_tl_grtype: "002",
                 U_tl_sarn: jsonObj['SANumber'], //SA Number
                 U_tl_grsuppo: jsonObj['U_tl_whsdesc'],
                 Reference2: goodIssueContext.body.DocNum, // Doc number
@@ -732,6 +736,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
 function OwnUsageTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Goods Issue
+    const AccountCode = jsonObj["GIType"].find((e) => e.Code === '002').U_ActCode || "";
     var goodIssue = {
         Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
@@ -760,6 +765,7 @@ function OwnUsageTransaction(slContext, jsonObj){
                 CostingCode2: '202001',//RevenueLine
                 CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
+                AccountCode,
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
@@ -838,7 +844,7 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
         DocDueDate: jsonObj['DocDate'],
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
-        U_tl_grtype: "003",
+        U_tl_grtype: "002",
         U_tl_stype: "T02",
         U_tl_sarn: jsonObj['SANumber'], //SA Number
         Reference2: goodIssueContext.body.DocNum, // Doc number

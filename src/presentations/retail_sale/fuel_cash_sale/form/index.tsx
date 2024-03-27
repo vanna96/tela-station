@@ -177,6 +177,7 @@ class Form extends NonCoreDcument {
 
           state = {
             ...data,
+            old_pump: data?.U_tl_pump,
             vendor,
             dispenser,
             U_tl_whs: dispenser.U_tl_whs,
