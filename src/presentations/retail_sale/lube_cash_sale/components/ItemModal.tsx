@@ -21,6 +21,7 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import SaleVatSelect from "@/components/input/VatGroupSelect";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import BinAutoComplete from "./BinAutoComplete";
 
 interface ItemModalProps {
   ref?: React.RefObject<ItemModal | undefined>;
@@ -29,8 +30,8 @@ interface ItemModalProps {
   wh: any;
   lineofbusiness: any;
   priceList: any;
+  branch: number;
   bin: any;
-  branch: any;
 }
 
 export class ItemModal extends React.Component<ItemModalProps, any> {
@@ -41,10 +42,9 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       open: false,
       priceList: props.priceList,
       lineofbusiness: props.lineofbusiness,
-      WarehouseCode: this.props.wh,
-      wh: this.props.wh,
-      BinAbsEntry: this.props.bin,
+      wh: props.wh,
       branch: props.branch,
+      BinLocation: this.props.bin,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -277,8 +277,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Warehouse</div>
                 <div className="mb-1"></div>
                 <WarehouseAutoComplete
-                  // disabled
-                  Branch={parseInt(this.props.branch)}
+                  disabled
+                  Branch={this.props.branch}
                   value={this.state.WarehouseCode}
                   onChange={(event) =>
                     this.handlerChange(event, "WarehouseCode")
@@ -288,9 +288,10 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
               <div className="flex flex-col">
                 <div className="text-sm">Bin Location</div>
                 <div className="mb-1"></div>
-                <BinLocationToAsEntry
-                  value={this.state.BinAbsEntry}
-                  onChange={(event) => this.handlerChange(event, "BinAbsEntry")}
+                <BinAutoComplete
+                  ItemCode={this.state.ItemCode}
+                  value={this.state.BinLocation}
+                  onChange={(event) => this.handlerChange(event, "BinLocation")}
                   Warehouse={this.state?.WarehouseCode ?? "WH01"}
                 />
               </div>

@@ -99,7 +99,7 @@ export default function ContentForm({
             item.ItemPrices = itemDetails.ItemPrices;
             item.COGSCostingCode = itemDetails.U_tl_dim1;
             item.COGSCostingCode3 = itemDetails.U_tl_dim2;
-            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry
+            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry;
           }
           return item;
         }
@@ -282,9 +282,7 @@ export default function ContentForm({
               (e: any) => e.PriceList === 13
             )?.UoMPrices;
 
-            const uomPrice = itemPrices?.find(
-              (e: any) => e.PriceList === 13
-            );
+            const uomPrice = itemPrices?.find((e: any) => e.PriceList === 13);
 
             const grossPrice =
               uomPrice && selectedUomValue === uomPrice.UoMEntry
@@ -480,13 +478,13 @@ export default function ContentForm({
         }}
       />
       <ItemModal
-        branch={branch}
         wh={wh}
         priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        branch={data.U_tl_bplid}
         bin={data.U_tl_bincode}
       />
     </>
