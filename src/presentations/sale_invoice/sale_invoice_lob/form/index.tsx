@@ -18,7 +18,7 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
 import { ReactNode } from "react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { motion } from "framer-motion";
 
@@ -36,8 +36,10 @@ class SalesOrderForm extends CoreFormDocument {
   }
   constructor(props: any) {
     super(props);
+
     this.state = {
       ...this.state,
+
       loading: true,
       DocDate: new Date(),
       TaxDate: new Date(),
@@ -95,8 +97,16 @@ class SalesOrderForm extends CoreFormDocument {
     this.onInit();
   }
 
+  componentDidUpdate(prevProps: any) {
+    if (prevProps.location !== this.props.location) {
+      this.setState({ loading: true });
+      this.onInit();
+    }
+  }
   async onInit() {
-    let state: any = { ...this.state };
+    const { location } = this.props;
+    const orderState = location.state;
+    let state: any = { ...orderState };
     let seriesList: any = this.props?.query?.find("invoice-series");
 
     if (!seriesList) {

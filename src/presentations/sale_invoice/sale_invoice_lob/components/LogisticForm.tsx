@@ -36,7 +36,7 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <TextField
-                className="bg-gray-100"
+                  className="bg-gray-100"
                   size="small"
                   fullWidth
                   multiline
@@ -80,15 +80,16 @@ export default function LogisticForm({
                   value={data?.ShipToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"
-                  items={
-                    edit
-                      ? data.vendor?.bpAddress?.filter(
-                          ({ addressType }: any) => addressType === "bo_ShipTo"
-                        )
-                      : data?.BPAddresses?.filter(
-                          ({ addressType }: any) => addressType === "bo_ShipTo"
-                        )
-                  }
+                  items={// edit
+                  //   ? data.vendor?.bpAddress?.filter(
+                  //       ({ addressType }: any) => addressType === "bo_ShipTo"
+                  //     )
+                  //   : data?.BPAddresses?.filter(
+                  //       ({ addressType }: any) => addressType === "bo_ShipTo"
+                  //     )
+                  data.vendor?.bpAddress?.filter(
+                    ({ addressType }: any) => addressType === "bo_ShipTo"
+                  )}
                   onChange={(e) => handlerChange("ShipToCode", e.target.value)}
                 />
               </div>
@@ -101,7 +102,7 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <TextField
-                className="bg-gray-100"
+                  className="bg-gray-100"
                   size="small"
                   fullWidth
                   multiline

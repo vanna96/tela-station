@@ -103,7 +103,6 @@ class SalesOrderForm extends CoreFormDocument {
       });
       this.props?.query?.set("orders-series", seriesList);
     }
-    
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
@@ -529,6 +528,25 @@ class SalesOrderForm extends CoreFormDocument {
 
     const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();
+    const handleCopyToInvoice = () => {
+      const state = { ...this.state };
+      let saletype = window.location.pathname;
+
+      let regex = /\/(fuel|lube|lpg)-sales\//; // Regular expression to match "fuel-sales", "lube-sales", or "lpg-sales" between slashes
+
+      saletype = saletype.replace("sale-order", "sale-invoice");
+      saletype = saletype.replace(/\/\d+\/edit/, "/create");
+      saletype = saletype.replace(regex, "/$1-invoice/");
+
+      delete state.error;
+      delete state.DocEntry;
+      delete state.DocNum;
+      delete state.Series;
+      delete state.headerText;
+
+      navigate(`${saletype}`, { state });
+    };
+
     return (
       <>
         <ItemModalComponent
@@ -622,6 +640,7 @@ class SalesOrderForm extends CoreFormDocument {
                               variant="outlined"
                               size="small"
                               sx={{ height: "30px", textTransform: "none" }}
+                              onClick={handleCopyToInvoice}
                               disableElevation
                             >
                               <span className="px-3 text-[13px] py-1 text-green-500">
