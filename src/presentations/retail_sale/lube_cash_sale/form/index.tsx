@@ -71,7 +71,6 @@ class LubeForm extends CoreFormDocument {
       type: "sale",
       lineofBusiness: "",
       U_ti_revenue: "202001",
-      warehouseCode: "",
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -248,7 +247,7 @@ class LubeForm extends CoreFormDocument {
                     DiscountPercent: item.U_tl_dispercent || 0,
                     VatGroup: item.VatGroup,
                     UoMEntry: item.U_tl_uom || null,
-                    WarehouseCode: item?.WarehouseCode || data?.U_tl_whs,
+                    WarehouseCode: data?.U_tl_whs,
                     UomAbsEntry: item?.U_tl_uom,
                     VatRate: item.TaxPercentagePerRow,
                     UomLists: uomLists,
@@ -262,7 +261,6 @@ class LubeForm extends CoreFormDocument {
                     DocumentLinesBinAllocations:
                       item.DocumentLinesBinAllocations,
                     vendor,
-                    warehouseCode: data?.U_tl_whs,
                     DocDiscount: data?.DiscountPercent,
                     BPAddresses: vendor?.bpAddress?.map(
                       ({ addressName, addressType }: any) => {
@@ -902,27 +900,27 @@ class LubeForm extends CoreFormDocument {
                             </LoadingButton>
                           </div>
                         )}
-                        {this.state.U_tl_status !== "Close" && (
-                          <>
-                            <div className="flex items-center space-x-4">
-                              <LoadingButton
-                                onClick={(event) =>
-                                  this.handlerSubmitPost(event, this.props.edit)
-                                }
-                                sx={{ height: "30px", textTransform: "none" }}
-                                className="bg-white"
-                                loading={false}
-                                size="small"
-                                variant="contained"
-                                disableElevation
-                              >
-                                <span className="px-6 text-[13px] py-4 text-white">
-                                  Post
-                                </span>
-                              </LoadingButton>
-                            </div>
-                          </>
-                        )}
+                        {/* {this.state.U_tl_status !== "Close" && ( */}
+                        <>
+                          <div className="flex items-center space-x-4">
+                            <LoadingButton
+                              onClick={(event) =>
+                                this.handlerSubmitPost(event, this.props.edit)
+                              }
+                              sx={{ height: "30px", textTransform: "none" }}
+                              className="bg-white"
+                              loading={false}
+                              size="small"
+                              variant="contained"
+                              disableElevation
+                            >
+                              <span className="px-6 text-[13px] py-4 text-white">
+                                Post
+                              </span>
+                            </LoadingButton>
+                          </div>
+                        </>
+                        {/* )} */}
                       </div>
                     </div>
                   </motion.div>

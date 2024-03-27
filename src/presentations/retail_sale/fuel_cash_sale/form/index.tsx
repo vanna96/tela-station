@@ -1215,7 +1215,7 @@ class Form extends NonCoreDcument {
                             </LoadingButton>
                           </div>
                         )}
-                        {this.state.U_tl_status !== "Close" && (
+                        {/* {this.state.U_tl_status !== "Close" && ( */}
                           <>
                             <div className="flex items-center space-x-4">
                               <LoadingButton
@@ -1235,7 +1235,7 @@ class Form extends NonCoreDcument {
                               </LoadingButton>
                             </div>
                           </>
-                        )}
+                        {/* )} */}
                       </div>
                     </div>
                   </motion.div>

@@ -52,6 +52,7 @@ export default function ContentForm({
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
+  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -82,19 +83,6 @@ export default function ContentForm({
             item.GrossPrice = item.UnitPrice;
             item.Quantity = itemDetails.Quantity ?? 1;
             item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-            item.FromWarehouseCode = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.WhsCode;
-            item.WarehouseCode = data.ToWarehouse;
-            item.FromBin = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.BinAbsEntry;
-            item.BinQty = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.OnHandQty;
-            item.ToBin = data.ToBinItems?.find(
-              (e: any) => e.WhsCode === item.WarehouseCode
-            )?.BinAbsEntry;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
             item.COGSCostingCode = itemDetails.U_tl_dim1;
