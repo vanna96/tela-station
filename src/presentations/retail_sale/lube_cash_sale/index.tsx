@@ -32,14 +32,7 @@ export default function SaleOrderLists() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "U_tl_pump",
-        header: "Pump Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-      },
+
       {
         accessorKey: "U_tl_cardcode",
         header: "Customer Code",
