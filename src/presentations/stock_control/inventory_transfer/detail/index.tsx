@@ -33,7 +33,7 @@ export const InventoryTransferDetails = () => {
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Stock Transfer</h1>
+      <h1>Inventory Transfer</h1>
 
       <Button
         variant="outlined"

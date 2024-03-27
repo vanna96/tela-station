@@ -141,7 +141,6 @@ const BasicInformationDetail = (props: any) => {
                 <Controller
                   rules={{ required: "Attention Terminal is required" }}
                   name="U_tl_attn_ter"
-                  disabled={true}
                   control={props.control}
                   render={({ field }) => {
                     return (

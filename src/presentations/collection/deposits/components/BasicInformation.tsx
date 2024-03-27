@@ -3,13 +3,9 @@ import { UseFormProps } from "../form";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import { Controller } from "react-hook-form";
-import BranchAssignmentAuto from "@/components/input/BranchAssignment";
-import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
-import GLAccountRepository from "@/services/actions/GLAccountRepository";
 import CurrencyAutoComplete from "@/components/input/CurencyAutoComplete";
 import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
-import React from "react";
 import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
 import { useGetDepositSeriesHook } from "../hook/useGetDepositSeriesHook";
 import GetBranchAutoComplete from "@/presentations/stock_control/components/GetBranchAutoComplete";
@@ -49,24 +45,19 @@ const BasicInformation = ({
     const currentDate = new Date();
 
     const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so we add 1
-    const day = String(currentDate.getDate()).padStart(2, '0');
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0"); // Months are zero-based, so we add 1
+    const day = String(currentDate.getDate()).padStart(2, "0");
     const formattedDate = `${year}-${month}-${day}`;
     setValue("DepositDate", formattedDate);
   }, [setValue]);
 
-
   const { series, defaultSerie } = useGetDepositSeriesHook();
 
-
   const getSerieLists: any[] = useMemo(() => {
-    if (!watch('BPLID')) return series?.data ?? [];
+    if (!watch("BPLID")) return series?.data ?? [];
 
-    return series?.data?.filter((e: any) => e?.BPLID === watch('BPLID')) ?? []
-  }, [series, watch('BPLID')])
-
-  console.log(watch('BPLID'));
-  
+    return series?.data?.filter((e: any) => e?.BPLID === watch("BPLID")) ?? [];
+  }, [series, watch("BPLID")]);
 
   useEffect(() => {
     if (edit) return;
@@ -76,9 +67,7 @@ const BasicInformation = ({
 
     setValue("Series", defaultSerie?.data?.Series);
     // setValue("DocNum", defaultSerie?.data?.NextNumber);
-
   }, [defaultSerie.data]);
-
 
   const onChangeSerie = useCallback(
     (event: any) => {
@@ -90,13 +79,9 @@ const BasicInformation = ({
 
       setValue("Series", event?.target?.value);
       // setValue("DocNum", serie?.NextNumber);
-
     },
     [series?.data]
-
   );
-
-
 
   const onChangeBranch = (value: any) => {
     const period = new Date().getFullYear();
@@ -110,7 +95,6 @@ const BasicInformation = ({
     setValue("BPLID", value?.BPLID);
     // setValue("BPLID", e?.BPLID);
     setValue("CheckLines", []);
-
   };
 
   return (
@@ -121,7 +105,7 @@ const BasicInformation = ({
         </div>
         <div className="grid grid-cols-2 md:grid-cols-1 gap-[6rem] md:gap-0 ">
           <div className="">
-          <div className="grid grid-cols-5 py-2">
+            <div className="grid grid-cols-5 py-2">
               <div className="col-span-2">
                 <label htmlFor="Branch" className="text-gray-500 ">
                   Branch
@@ -137,7 +121,7 @@ const BasicInformation = ({
                     return (
                       <GetBranchAutoComplete
                         {...field.value}
-                        value={watch('BPLID')}
+                        value={watch("BPLID")}
                         onChange={onChangeBranch}
                       />
                     );
@@ -172,13 +156,13 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <MUISelect
-                      value={field.value}
-                      disabled={edit}
-                      items={getSerieLists ?? []}
-                      aliaslabel="Name"
-                      aliasvalue="Series"
-                      onChange={onChangeSerie}
-                    />
+                        value={field.value}
+                        disabled={edit}
+                        items={getSerieLists ?? []}
+                        aliaslabel="Name"
+                        aliasvalue="Series"
+                        onChange={onChangeSerie}
+                      />
                     );
                   }}
                 />
@@ -200,7 +184,8 @@ const BasicInformation = ({
                       <CurrencyAutoComplete
                         {...field}
                         value={field?.value}
-                        onChange={(e: any) => {
+                        onChange={(e: any) => {                          
+                          setValue("curr", e?.Code === "KHR" ? 110498 : 110497);
                           setValue("DepositCurrency", e?.Code);
                           setValue("CheckLines", []);
                         }}
@@ -225,22 +210,15 @@ const BasicInformation = ({
                   render={({ field }) => {
                     return (
                       <DepositCashAccountAutoComplete
+                        curr={watch("curr")}
                         disabled={detail}
                         value={field.value}
                         onChange={(e: any) => {
-                          setValue(
-                            "U_tl_cash_acc",
-                            e?.Code,
-                          );
-                          setValue(
-                            "U_tl_cash_des",
-                            e?.Name,
-                          );
+                          setValue("U_tl_cash_acc", e?.Code);
+                          setValue("U_tl_cash_name", e?.Name);
+                          setValue("U_tl_cash_des", e?.Name);
 
-                          setValue(
-                            "DepositAccount",
-                            e?.U_tl_cashacct,
-                          );
+                          setValue("DepositAccount", e?.U_tl_cashacct);
                         }}
                       />
                     );
@@ -257,7 +235,7 @@ const BasicInformation = ({
               <div className="col-span-3">
                 <MUITextField
                   // disabled={detail || true}
-                  value={watch('U_tl_cash_acc')}
+                  value={watch("U_tl_cash_name")}
                 />
               </div>
             </div>
@@ -282,7 +260,7 @@ const BasicInformation = ({
                         onChange={(e) => {
                           const val =
                             e?.toLowerCase() ===
-                              "invalid date".toLocaleLowerCase()
+                            "invalid date".toLocaleLowerCase()
                               ? ""
                               : e;
                           console.log(val);

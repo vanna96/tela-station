@@ -34,7 +34,7 @@ export const InventoryTransferForm = ({ edit = false, detail = false }: { edit?:
 
   return <div className="w-full h-full p-6 flex flex-col gap-2">
     <div className="w-full flex gap-4">
-      <h1>Stock Transfer</h1>
+      <h1>Inventory Transfer</h1>
 
       {edit && <Button
         variant="outlined"
@@ -157,7 +157,7 @@ export const InventoryTransferForm = ({ edit = false, detail = false }: { edit?:
                 }}
                 disableElevation
                 onClick={() =>
-                  (window.location.href = "/stock-control/stock-transfer")
+                  (window.location.href = "/stock-control/inventory-transfer")
                 }
               >
                 <span className="px-3 text-[11px] py-1 text-red-500">

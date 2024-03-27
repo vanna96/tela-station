@@ -1,11 +1,26 @@
 import MUITextField from "@/components/input/MUITextField";
 import { UseFormProps } from "../form";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import DepositCashAccountAutoComplete from "./DepositCashAccountAutoComplete";
 import MUISelect from "@/components/selectbox/MUISelect";
 
 const Cash = ({ register, control, setValue, detail, watch }: UseFormProps) => {
+  const fuelType = useMemo(()=>{
+    return [
+      {
+        label: "111102 - Cash balance - station(USD)",
+        value: "111102",
+        curr:"USD"
+      },
+      {
+        label: "111103 - Cash balance - station(KHR)",
+        value: "111103",
+        curr:"KHR"
+      }
+    ].filter((e:any)=>e?.curr === watch("DepositCurrency"))
+  },[watch("DepositCurrency")])
+  
   return (
     <>
       <div className="rounded-lg shadow-sm border p-6 m-3 px-8">
@@ -28,16 +43,7 @@ const Cash = ({ register, control, setValue, detail, watch }: UseFormProps) => {
                     return (
                       <MUISelect
                         disabled={detail}
-                        items={[
-                          {
-                            label: "111102 - Cash balance - station(USD)",
-                            value: "111102",
-                          },
-                          {
-                            label: "111103 - Cash balance - station(KHR)",
-                            value: "111103",
-                          },
-                        ]}
+                        items={fuelType}
                         onChange={(e: any) => {
                           setValue("AllocationAccount", e.target.value);
                         }}
