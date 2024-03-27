@@ -52,15 +52,15 @@ class DeliveryDetail extends Component<any, any> {
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
 
-      let seriesList: any = this.props?.query?.find("orders-series");
+      let seriesList: any = this.props?.query?.find("invoice-series");
 
       if (!seriesList) {
         seriesList = await DocumentSerieRepository.getDocumentSeries({
-          Document: "17",
+          Document: "13",
         });
-        this.props?.query?.set("orders-series", seriesList);
+        this.props?.query?.set("invoice-series", seriesList);
       }
-      await request("GET", `Orders(${id})`)
+      await request("GET", `Invoices(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -131,7 +131,7 @@ class DeliveryDetail extends Component<any, any> {
 
   navigateToSalesOrder = () => {
     const { history } = this.props;
-    history.push("/wholesale/sales-order");
+    history.push("/wholesale/sale-invoice");
   };
 
   onTap(index: number) {
@@ -342,7 +342,6 @@ function Content(props: any) {
     props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
-  console.log(props.data.Items);
   const discountAmount = useMemo(() => {
     if (totalBefore == null) {
       return 0;

@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -15,6 +15,7 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function SaleOrderLists() {
   const [open, setOpen] = React.useState<boolean>(false);
@@ -26,7 +27,7 @@ export default function SaleOrderLists() {
     () => [
       {
         accessorKey: "DocNum",
-        header: "Doc. No.", //uses the default width from defaultColumn prop
+        header: "Document No",
         enableClickToCopy: true,
         enableFilterMatchHighlighting: true,
         size: 40,
@@ -58,7 +59,9 @@ export default function SaleOrderLists() {
         align: "center",
         size: 60,
         Cell: (cell: any) => {
-          const formattedDate = moment(cell.value).format("YYYY-MM-DD");
+          const formattedDate = moment(cell.row.original.TaxDate).format(
+            "DD.MMMM.YYYY"
+          );
           return <span>{formattedDate}</span>;
         },
       },
@@ -84,17 +87,15 @@ export default function SaleOrderLists() {
           </>
         ),
       },
-      // {
-      //   accessorKey: "BPL_IDAssignedToInvoice",
-      //   header: "Branch",
-      //   enableClickToCopy: true,
-      //   visible: false,
-      //   Cell: ({ cell }: any) =>
-      //     new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
-      //   size: 60,
-      // },
+      {
+        accessorKey: "BPL_IDAssignedToInvoice",
+        header: "Branch",
+        enableClickToCopy: true,
+        Cell: ({ cell }: any) =>
+          new BranchBPLRepository()?.find(cell.getValue())?.BPLName,
+        size: 60,
+      },
 
-      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -115,12 +116,8 @@ export default function SaleOrderLists() {
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
                 route(
-                  `/whoelsae/sale-invoice/${salesType}/` +
-                    cell.row.original.DocEntry,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
+                  `/wholesale/sale-invoice/${salesType}/` +
+                    cell.row.original.DocEntry
                 );
               }}
             >
@@ -140,7 +137,7 @@ export default function SaleOrderLists() {
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/whoelsae/sale-invoice/${salesType}/` +
+                  `/wholesale/sale-invoice/${salesType}/` +
                     cell.row.original.DocEntry +
                     "/edit",
                   {
@@ -178,7 +175,6 @@ export default function SaleOrderLists() {
   }
 
   const [filter, setFilter] = React.useState("");
-  const defaultFilter = `$filter=U_tl_salestype eq null and U_tl_arbusi eq '${numAtCardFilter}'`;
   const [sortBy, setSortBy] = React.useState("");
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
@@ -187,6 +183,7 @@ export default function SaleOrderLists() {
   const Count: any = useQuery({
     queryKey: [
       "sale-invoice-lob",
+      ,
       filter !== "" ? "-f" : "",
       salesType,
       filter,
@@ -208,7 +205,7 @@ export default function SaleOrderLists() {
         // Handle the default case or log an error if needed
       }
 
-      const apiUrl = `${url}/Orders/$count?$filter=U_tl_salestype eq null${
+      const apiUrl = `${url}/Invoices/$count?$filter=U_tl_salestype eq null${
         numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : ""}`;
       const response: any = await request("GET", apiUrl)
@@ -223,10 +220,14 @@ export default function SaleOrderLists() {
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
+    refetchOnWindowFocus: false,
     queryKey: [
-      "sales-order-lob",
+      "sales-invoice-lob",
       salesType,
-      `${pagination.pageIndex * 10}_${filter !== "" ? "f" : ""}`,
+      `${pagination.pageIndex * pagination.pageSize}_${
+        filter !== "" ? "f" : ""
+      }`,
+      pagination.pageSize,
     ],
     queryFn: async () => {
       let numAtCardFilter = "";
@@ -245,18 +246,18 @@ export default function SaleOrderLists() {
         // Handle the default case or log an error if needed
       }
 
-      const Url = `${url}/Orders?$top=${pagination.pageSize}&$skip=${
+      const Url = `${url}/Invoices?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
       }&$filter=U_tl_salestype eq null${
         numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : ""
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
 
-      const dataUrl = `${url}/Orders?$filter=U_tl_salestype eq null${
+      const dataUrl = `${url}/Invoices?$filter=U_tl_salestype eq null${
         numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
       }${filter ? ` and ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : ""
+        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
 
       setDataUrl(dataUrl);
@@ -308,8 +309,8 @@ export default function SaleOrderLists() {
 
     if (searchValues.postingDate) {
       queryFilters += queryFilters
-        ? ` and TaxDate ge '${searchValues.postingDate}'`
-        : `TaxDate ge '${searchValues.postingDate}'`;
+        ? ` and TaxDate eq '${searchValues.postingDate}'`
+        : `TaxDate eq '${searchValues.postingDate}'`;
     }
     if (searchValues.status) {
       queryFilters += queryFilters
@@ -322,15 +323,12 @@ export default function SaleOrderLists() {
         : `BPL_IDAssignedToInvoice eq ${searchValues.bplid}`;
     }
 
-    // console.log(qurey);
-    console.log(queryFilters);
-    console.log(searchValues);
+    let query = queryFilters;
 
-    let qurey = queryFilters + value;
-    // console.log(qurey + value);
-    // qurey === {}? setFilter(qurey) : setFilter(value);
-    Object.keys(qurey).length === 0 ? setFilter(value) : setFilter(qurey);
-
+    if (value) {
+      query = queryFilters + ` and ${value}`;
+    }
+    setFilter(query);
     setPagination({
       pageIndex: 0,
       pageSize: 10,
@@ -351,8 +349,8 @@ export default function SaleOrderLists() {
     docnum: "",
     cardcode: "",
     postingDate: null,
-    status: "",
     bplid: "",
+    status: "",
   });
 
   const { id }: any = useParams();
@@ -371,7 +369,10 @@ export default function SaleOrderLists() {
 
   const childBreadcrum = (
     <>
-      <span className="" onClick={() => route(`/sale-invoice/${salesType}`)}>
+      <span
+        className=""
+        onClick={() => route(`/wholesale/sale-invoice/${salesType}`)}
+      >
         <span className=""></span> {capitalizeHyphenatedWords(salesType)}
       </span>
     </>
@@ -387,10 +388,17 @@ export default function SaleOrderLists() {
         return "Lube Invoice Lists";
       // Add other cases as needed
       default:
-        return "Unknown Sale Lists";
+        return "Unknown Invoice Lists";
     }
   };
-
+  const indexedData = useMemo(
+    () =>
+      data?.map((item: any, index: any) => ({
+        ...item,
+        index: pagination.pageIndex * pagination.pageSize + index + 1,
+      })),
+    [data, pagination.pageIndex, pagination.pageSize]
+  );
   return (
     <>
       <div className="w-full h-full px-4 py-2 flex flex-col gap-1 relative bg-white ">
@@ -415,17 +423,6 @@ export default function SaleOrderLists() {
                 />
               </div>
               <div className="col-span-2 2xl:col-span-3">
-                {/* <BPAutoComplete
-                  type="Customer"
-                  label="Customer"
-                  value={searchValues.cardcode}
-                  onChange={(selectedValue) =>
-                    setSearchValues({
-                      ...searchValues,
-                      cardcode: selectedValue,
-                    })
-                  }
-                /> */}
                 <MUITextField
                   label="Customer"
                   placeholder="Customer Code/Name"
@@ -445,7 +442,6 @@ export default function SaleOrderLists() {
                 <MUIDatePicker
                   label="Posting Date"
                   value={searchValues.postingDate}
-                  // onChange={(e: any) => handlerChange("PostingDate", e)}
                   onChange={(e) => {
                     setSearchValues({
                       ...searchValues,
@@ -473,6 +469,34 @@ export default function SaleOrderLists() {
                   </div>
                 </div>
               </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "bost_Open", name: "Open" },
+                        { id: "bost_Close", name: "Close" },
+                        { id: "bost_Paid", name: "Paid" },
+                        { id: "bost_Delivered", name: "Delivered" },
+                        { id: "", name: "All" },
+                      ]}
+                      value={searchValues.status}
+                      onChange={(e) => {
+                        setSearchValues({
+                          ...searchValues,
+                          status: e.target.value,
+                        });
+                      }}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="Status"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
           <div className="col-span-2">
@@ -487,38 +511,21 @@ export default function SaleOrderLists() {
                   Go
                 </Button>
               </div>
-              <div className="">
-                <DataTableColumnFilter
-                  handlerClearFilter={handlerRefresh}
-                  title={
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        // onClick={handleGoClick}
-                      >
-                        Filter
-                      </Button>
-                    </div>
-                  }
-                  items={columns?.filter(
-                    (e) =>
-                      e?.accessorKey !== "DocEntry" &&
-                      e?.accessorKey !== "DocNum" &&
-                      e?.accessorKey !== "CardCode" &&
-                      e?.accessorKey !== "CardName" &&
-                      e?.accessorKey !== "TaxDate" &&
-                      e?.accessorKey !== "BPL_IDAssignedToInvoice"
-                  )}
-                  onClick={handlerSearch}
-                />
-              </div>
             </div>
           </div>
         </div>
         <DataTable
-          columns={columns}
-          data={data}
+          columns={[
+            {
+              accessorKey: "index",
+              header: "No.",
+              size: 20,
+              visible: true,
+              type: "number",
+            },
+            ...columns,
+          ]}
+          data={indexedData}
           dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
