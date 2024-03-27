@@ -42,6 +42,10 @@ const SystemInitializeMasterPage = () => {
         fuelOrders,
         lubeOrders,
         lpgOrders,
+        deliveryNote,
+        fuelInvoice,
+        lubeInvoice,
+        lpgInvoice,
 
         // banking
         settleReceipt,
@@ -80,6 +84,16 @@ const SystemInitializeMasterPage = () => {
         fetchModuleCount(
           "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'"
         ),
+        fetchModuleCount("DeliveryNotes/$count"),
+        fetchModuleCount(
+          "Invoices/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Oil'"
+        ),
+        fetchModuleCount(
+          "Invoices/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Lube'"
+        ),
+        fetchModuleCount(
+          "Invoices/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'"
+        ),
 
         // banking
         fetchModuleCount(
@@ -117,6 +131,10 @@ const SystemInitializeMasterPage = () => {
         fuelOrders,
         lubeOrders,
         lpgOrders,
+        deliveryNote,
+        fuelInvoice,
+        lubeInvoice,
+        lpgInvoice,
 
         // banking
         settleReceipt,
@@ -235,7 +253,14 @@ const SystemInitializeMasterPage = () => {
       roles: ["UG001", "UG004"],
     },
   ]);
-
+  const saleDeliveryCards = renderCards([
+    {
+      title: "Delivery Note",
+      amountKey: "deliveryNote",
+      route: "/wholesale/delivery/delivery-note",
+      roles: ["UG001", "UG004"],
+    },
+  ]);
   const saleInvoiceCards = renderCards([
     {
       title: "Fuel Invoice",
@@ -350,6 +375,11 @@ const SystemInitializeMasterPage = () => {
     },
     { title: "Sale Order", cards: saleOrderCards, roles: ["UG001", "UG004"] },
     {
+      title: "Delivery",
+      cards: saleDeliveryCards,
+      roles: ["UG001", "UG004"],
+    },
+    {
       title: "Sale Invoice",
       cards: saleInvoiceCards,
       roles: ["UG001", "UG004"],
@@ -362,13 +392,17 @@ const SystemInitializeMasterPage = () => {
       cards: stockControlCards,
       roles: ["UG001", "UG003"],
     },
-    { title: "Master Data", cards: masterDataCards, roles: ['UG001', 'UG004'] },
-    { title: "Sale Order", cards: saleOrderCards, roles: ['UG001', 'UG004'] },
-    { title: "Sale Invoice", cards: saleInvoiceCards, roles: ['UG001', 'UG004'] },
-    { title: "Retail Sale", cards: retailSaleCards, roles: ['UG001', 'UG004'] },
-    { title: "Banking", cards: bankingCards, roles: ['UG001', 'UG004'] },
-    { title: "Expense Log", cards: expenseLogCards, roles: ['UG001', 'UG004'] },
-    { title: "Stock Control", cards: stockControlCards, roles: ['UG001'] },
+    { title: "Master Data", cards: masterDataCards, roles: ["UG001", "UG004"] },
+    { title: "Sale Order", cards: saleOrderCards, roles: ["UG001", "UG004"] },
+    {
+      title: "Sale Invoice",
+      cards: saleInvoiceCards,
+      roles: ["UG001", "UG004"],
+    },
+    { title: "Retail Sale", cards: retailSaleCards, roles: ["UG001", "UG004"] },
+    { title: "Banking", cards: bankingCards, roles: ["UG001", "UG004"] },
+    { title: "Expense Log", cards: expenseLogCards, roles: ["UG001", "UG004"] },
+    { title: "Stock Control", cards: stockControlCards, roles: ["UG001"] },
   ];
 
   return (

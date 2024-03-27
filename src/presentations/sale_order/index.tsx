@@ -43,6 +43,10 @@ const Page = () => {
         fuelOrders,
         lubeOrders,
         lpgOrders,
+        deliveryNote,
+        fuelInvoice,
+        lubeInvoice,
+        lpgInvoice,
       ] = await Promise.all([
         // sale orders
         fetchModuleCount(
@@ -54,6 +58,16 @@ const Page = () => {
         fetchModuleCount(
           "Orders/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'"
         ),
+        fetchModuleCount("DeliveryNotes/$count"),
+        fetchModuleCount(
+          "Invoices/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Oil'"
+        ),
+        fetchModuleCount(
+          "Invoices/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'Lube'"
+        ),
+        fetchModuleCount(
+          "Invoices/$count?$filter=U_tl_salestype eq null and U_tl_arbusi eq 'LPG'"
+        ),
       ]);
 
       return {
@@ -61,6 +75,10 @@ const Page = () => {
         fuelOrders,
         lubeOrders,
         lpgOrders,
+        deliveryNote,
+        fuelInvoice,
+        lubeInvoice,
+        lpgInvoice,
       };
     },
     {
@@ -74,58 +92,6 @@ const Page = () => {
     console.error("Error fetching data:", error);
   }
 
-  const saleOrderItems: SaleOrderItem[] = [
-    {
-      roles: ["UG001", "UG004"],
-      title: "Fuel Sales",
-      icon: <AiOutlineFileAdd />,
-      queryKey: "fuelOrder",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
-      route: "fuel-sales",
-    },
-    {
-      roles: ["UG001", "UG004"],
-      title: "Lube Sales",
-      icon: <AiOutlineFileExcel />,
-      queryKey: "lubeOrder",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Lube'",
-      route: "lube-sales",
-    },
-    {
-      roles: ["UG001", "UG004"],
-      title: "LPG Sales",
-      icon: <AiOutlineFileProtect />,
-      queryKey: "lpgOrder",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'LPG'",
-      route: "lpg-sales",
-    },
-  ];
-  const saleInvoiceItems: SaleOrderItem[] = [
-    {
-      roles: ["UG001", "UG004"],
-      title: "Fuel Invoice",
-      icon: <AiOutlineFileAdd />,
-      queryKey: "fuelOrder",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Oil'",
-      route: "fuel-invoice",
-    },
-    {
-      roles: ["UG001", "UG004"],
-      title: "Lube Invoice",
-      icon: <AiOutlineFileExcel />,
-      queryKey: "lubeOrder",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'Lube'",
-      route: "lube-invoice",
-    },
-    {
-      roles: ["UG001", "UG004"],
-      title: "LPG Invoice",
-      icon: <AiOutlineFileProtect />,
-      queryKey: "lpgOrder",
-      filter: "U_tl_salestype eq null and U_tl_arbusi eq 'LPG'",
-      route: "lpg-invoice",
-    },
-  ];
   const renderCards = (cards: any[]) => {
     return cards.map((card) => {
       if (!card?.roles?.includes(getRoleCode as Role)) return null;
@@ -163,6 +129,14 @@ const Page = () => {
     },
   ]);
 
+  const saleDeliveryCards = renderCards([
+    {
+      title: "Delivery Note",
+      amountKey: "deliveryNote",
+      route: "/wholesale/delivery/delivery-note",
+      roles: ["UG001", "UG004"],
+    },
+  ]);
   const saleInvoiceCards = renderCards([
     {
       title: "Fuel Invoice",
@@ -185,6 +159,11 @@ const Page = () => {
   ]);
   const sections = [
     { title: "Sale Order", cards: saleOrderCards, roles: ["UG001", "UG004"] },
+    {
+      title: "Delivery",
+      cards: saleDeliveryCards,
+      roles: ["UG001", "UG004"],
+    },
     {
       title: "Sale Invoice",
       cards: saleInvoiceCards,
