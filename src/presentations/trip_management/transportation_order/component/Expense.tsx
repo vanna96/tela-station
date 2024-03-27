@@ -206,7 +206,7 @@ export default function Expense(props: any) {
 
               <td className="pr-4">
                 <MUITextField
-                  disabled={props?.id}
+                  disabled={props?.id || props?.getAuthorizationField('U_FuelAmount')}
                   placeholder="Amount"
                   type="number"
                   inputProps={{
@@ -217,7 +217,7 @@ export default function Expense(props: any) {
               </td>
               <td className="pr-4">
                 <MUITextField
-                  disabled={props?.id}
+                  disabled={props?.id || props?.getAuthorizationField('U_FuelRemark')}
                   placeholder="Description"
                   inputProps={{ ...props?.register("U_FuelRemark") }}
                 />

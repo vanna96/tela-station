@@ -80,8 +80,8 @@ export default function Document(props: any) {
       <div className="rounded-lg shadow-sm  border p-6 m-3 px-8 h-full">
         <div className="font-medium text-lg flex justify-between gap-x-3 items-center mb-5 pb-1">
           <div className="flex gap-2">
-            <h2 className="mr-3">Source Document</h2>
-            <Button
+            <h2 className="mr-3">Source Document </h2>
+            {!(props?.getAuthorizationField('GET_DOCUMENT')) && <Button
               sx={{ height: "25px" }}
               className="bg-white"
               size="small"
@@ -92,7 +92,7 @@ export default function Document(props: any) {
               <span className="px-4 text-[11px] py-4 text-white">
                 Load Document
               </span>
-            </Button>
+            </Button>}
           </div>
           {/* 
           <Button
@@ -103,7 +103,7 @@ export default function Document(props: any) {
             <span className="px-2 text-xs">Remove</span>
           </Button> */}
 
-          <Button
+          {!(props?.getAuthorizationField('GET_DOCUMENT')) && <Button
             sx={{ height: "25px" }}
             className="bg-white"
             size="small"
@@ -112,7 +112,8 @@ export default function Document(props: any) {
             onClick={onRemoveLine}
           >
             <span className="px-2 text-xs">Remove</span>
-          </Button>
+          </Button>}
+
         </div>
         <div>
           <table className="border w-full shadow-sm bg-white border-[#dadde0]">

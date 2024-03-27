@@ -1,4 +1,4 @@
-export type TOStatus = "I" | "P" | "S" | "D" | "R" | "CP" | "C";
+export type TOStatus = "I" | "P" | "S" | "D" | "R" | "CM" | "C";
 
 export type POSTTransporationOrder = {
   U_DocDate: string;

@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useContext } from "react";
 import { LoadingButton } from "@mui/lab";
 import MenuButton from "@/components/button/MenuButton";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
@@ -13,29 +12,38 @@ import General from "../component/General";
 import ReviewingOrderingTransportationOrder from "../component/ReviewingOrderingTransportationOrder";
 import Expense from "../component/Expense";
 import Compartment from "../component/Compartment";
+import { useTOAuthorizationField } from "../hook/useTOAuthorizationField";
+import TODocumenHeaderComponent from "../../component/TODocumenHeaderComponent";
+import { displayTextDate } from "@/lib/utils";
 
 let dialog = React.createRef<FormMessageModal>();
 let loadDocumentRef = React.createRef<TransportationOrderModal>();
+
+
 
 const TransportationOrderForm = (props: any) => {
   const hook = useTransportationOrderFormHook(props?.edit, dialog)
   const [tapIndex, setTapIndex] = useState<any>(0)
 
+  const autorizationField = useTOAuthorizationField();
+
   const HeaderTaps = () => {
     return (
       <>
-        <MenuButton
+        {<MenuButton
           active={tapIndex === 0}
           onClick={() => setTapIndex(0)}
         >
           General
-        </MenuButton>
-        <MenuButton
-          active={tapIndex === 1}
-          onClick={() => setTapIndex(1)}
-        >
-          Documents
-        </MenuButton>
+        </MenuButton>}
+        {
+          <MenuButton
+            active={tapIndex === 1}
+            onClick={() => setTapIndex(1)}
+          >
+            Documents
+          </MenuButton>
+        }
         <MenuButton
           active={tapIndex === 2}
           onClick={() => setTapIndex(2)}
@@ -117,10 +125,10 @@ const TransportationOrderForm = (props: any) => {
             <span>{hook.watch('U_BaseStation') ?? '-'}</span>
           </div>
           <div>
-            <span>{hook.watch('U_DispatchDate') ?? '-'}</span>
+            <span>{displayTextDate(hook.watch('U_DispatchDate')) ?? '-'}</span>
           </div>
           <div>
-            <span>{hook.watch('U_CompletedDate') ?? '-'}</span>
+            <span>{displayTextDate(hook.watch('U_CompletedDate')) ?? '-'}</span>
           </div>
           <div>
             <span>{getTextStatus(hook.watch('U_Status') as TOStatus) ?? '-'}</span>
@@ -130,17 +138,19 @@ const TransportationOrderForm = (props: any) => {
   }
 
 
-
-
   return (
     <>
+      <FormMessageModal ref={dialog} />
+
       {hook.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
         </div>
       ) : (
         <div className="w-full h-[93vh] flex flex-col p-3">
-          <DocumentHeaderComponent
+          <TODocumenHeaderComponent
+            status={hook.watch('U_Status')}
+            edit={props?.edit}
             data={{
               showCollapse: true
             }}
@@ -164,7 +174,6 @@ const TransportationOrderForm = (props: any) => {
           >
             <CircularProgress />
           </Backdrop>{" "}
-          <FormMessageModal ref={dialog} />
 
           <TransportationOrderModal ref={loadDocumentRef} onSelectItems={hook.onSelectChangeDocuments} />
 
@@ -174,11 +183,11 @@ const TransportationOrderForm = (props: any) => {
             onSubmit={hook.handleSubmit(hook.onSubmit, hook.onInvalidForm)}
           >
             <div className="grow">
-              {tapIndex === 0 && <General {...hook} />}
-              {tapIndex === 1 && <Document {...hook} dialog={loadDocumentRef} />}
-              {tapIndex === 2 && <Expense {...hook} />}
-              {tapIndex === 3 && <Compartment {...hook} />}
-              {tapIndex === 4 && <ReviewingOrderingTransportationOrder {...hook} />}
+              {tapIndex === 0 && <General {...hook} {...autorizationField} />}
+              {tapIndex === 1 && <Document {...hook} dialog={loadDocumentRef} {...autorizationField} />}
+              {tapIndex === 2 && <Expense {...hook} {...autorizationField} />}
+              {tapIndex === 3 && <Compartment {...hook} {...autorizationField} />}
+              {tapIndex === 4 && <ReviewingOrderingTransportationOrder {...hook} {...autorizationField} />}
             </div>
 
             {/*  */}

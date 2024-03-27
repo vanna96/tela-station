@@ -1,158 +1,5 @@
 import request from "@/utilies/request";
 
-const data = [
-  {
-    DetailLine: 13,
-    LineId: 1,
-    Data: [
-      {
-        DocDate: "2024-03-18T09:38:39.386Z",
-        DocDueDate: "2024-03-18T09:38:39.386Z",
-        BPL_IDAssignedToInvoice: 1,
-        JournalMemo: "2 - Goods Issue ITR",
-        DocumentLines: [
-          {
-            ItemCode: "GSP0022",
-            ItemDescription: "វ៉ែនតាសុវត្តិភាព​(3M , V34)",
-            WarehouseCode: "WH03",
-            Quantity: 1500,
-            UoMEntry: 22,
-            UoMCode: "Set",
-            UseBaseUnits: "tNO",
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: 101,
-                Quantity: "1500.0000",
-                AllowNegativeQuantity: "tNO",
-                SerialAndBatchNumbersBaseLine: -1,
-                BaseLineNumber: 0,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        DocDate: "2024-03-18T09:38:39.393Z",
-        DocDueDate: "2024-03-18T09:38:39.393Z",
-        BPL_IDAssignedToInvoice: 1,
-        JournalMemo: "2 - Goods Receipt ITR",
-        DocumentLines: [
-          {
-            ItemCode: "GSP0022",
-            ItemDescription: "វ៉ែនតាសុវត្តិភាព​(3M , V34)",
-            WarehouseCode: "WH03",
-            Quantity: 1500,
-            UoMEntry: 22,
-            UoMCode: "Set",
-            UseBaseUnits: "tNO",
-            DocumentLinesBinAllocations: [],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    DetailLine: 13,
-    LineId: 2,
-    Data: [
-      {
-        DocDate: "2024-03-18T09:38:41.855Z",
-        DocDueDate: "2024-03-18T09:38:41.855Z",
-        BPL_IDAssignedToInvoice: 1,
-        JournalMemo: "2 - Goods Issue SO",
-        DocumentLines: [
-          {
-            ItemCode: "FUE0001",
-            ItemDescription: "Diesel Euro 5",
-            WarehouseCode: "WH03",
-            Quantity: 23,
-            UoMEntry: 19,
-            UoMCode: "L",
-            UseBaseUnits: "tNO",
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: 101,
-                Quantity: "23.0000",
-                AllowNegativeQuantity: "tNO",
-                SerialAndBatchNumbersBaseLine: -1,
-                BaseLineNumber: 0,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        DocDate: "2024-03-18T09:38:41.856Z",
-        DocDueDate: "2024-03-18T09:38:41.856Z",
-        BPL_IDAssignedToInvoice: 1,
-        JournalMemo: "2 - Goods Receipt SO",
-        DocumentLines: [
-          {
-            ItemCode: "FUE0001",
-            ItemDescription: "Diesel Euro 5",
-            WarehouseCode: "WH03",
-            Quantity: 23,
-            UoMEntry: 19,
-            UoMCode: "L",
-            UseBaseUnits: "tNO",
-            DocumentLinesBinAllocations: [],
-          },
-        ],
-      },
-    ],
-  },
-  {
-    DetailLine: 13,
-    LineId: 3,
-    Data: [
-      {
-        DocDate: "2024-03-18T09:38:45.704Z",
-        DocDueDate: "2024-03-18T09:38:45.704Z",
-        BPL_IDAssignedToInvoice: 1,
-        JournalMemo: "2 - Goods Issue SO",
-        DocumentLines: [
-          {
-            ItemCode: "FUE0002",
-            ItemDescription: "Regular 92",
-            WarehouseCode: "WH03",
-            Quantity: 23,
-            UoMEntry: 19,
-            UoMCode: "L",
-            UseBaseUnits: "tNO",
-            DocumentLinesBinAllocations: [
-              {
-                BinAbsEntry: 103,
-                Quantity: "23.0000",
-                AllowNegativeQuantity: "tNO",
-                SerialAndBatchNumbersBaseLine: -1,
-                BaseLineNumber: 0,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        DocDate: "2024-03-18T09:38:45.704Z",
-        DocDueDate: "2024-03-18T09:38:45.704Z",
-        BPL_IDAssignedToInvoice: 1,
-        JournalMemo: "2 - Goods Receipt SO",
-        DocumentLines: [
-          {
-            ItemCode: "FUE0002",
-            ItemDescription: "Regular 92",
-            WarehouseCode: "WH03",
-            Quantity: 23,
-            UoMEntry: 19,
-            UoMCode: "L",
-            UseBaseUnits: "tNO",
-            DocumentLinesBinAllocations: [],
-          },
-        ],
-      },
-    ],
-  },
-];
-
 export type TOLineSyncPayloadType = "gi" | "gr";
 
 export type TOLineSyncPayload = {
@@ -161,7 +8,7 @@ export type TOLineSyncPayload = {
   Synce: number;
 };
 
-export const createGIGRTransaction = async () => {
+export const createGIGRTransaction = async (data: any[]) => {
   let transactions: any[] = data;
   return new Promise(async (resolve, reject) => {
     for (let rows of transactions) {
@@ -220,6 +67,10 @@ export const createGIGRTransaction = async () => {
         reject(error);
       }
     }
+    resolve({
+      status: 204,
+      message: "Good Issue and Good Receipt Release successfully",
+    });
   });
 };
 

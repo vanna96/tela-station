@@ -2,6 +2,13 @@ import React from 'react';
 import { createContext, useState } from 'react';
 export type Role = "UG001" | "UG002" | "UG003" | "UG004";
 
+export const GetUserRole = {
+    ADMIN: 'UG001',
+    LOGISTIC: 'UG002',
+    WAREHOUSE: 'UG003',
+    SALES: 'UG004',
+} as const;
+
 export type UserServiceType = {
     InternalKey?: number;
     UserCode?: string;

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import { POSTTransporationOrder, TOStatus } from "../../type";
 import { useGetTOSeriesHook } from "./useGetTOSeriesHook";
+import { createGIGRTransaction } from "../services";
 
 const allStatus = [
     { label: "Initiated", value: "I" },
@@ -12,7 +13,7 @@ const allStatus = [
     { label: "Seal Number", value: "S" },
     { label: "Dispatched", value: "D" },
     { label: "Released", value: "R" },
-    { label: "Completed", value: "CP" },
+    { label: "Completed", value: "CM" },
     { label: "Cancelled", value: "C" },
 ];
 
@@ -23,7 +24,7 @@ export const getTextStatus = (key: TOStatus | undefined): string | undefined => 
         case 'S': return allStatus[2]?.label;
         case 'D': return allStatus[3]?.label;
         case 'R': return allStatus[4]?.label;
-        case 'CP': return allStatus[5]?.label;
+        case 'CM': return allStatus[5]?.label;
         case 'C': return allStatus[6]?.label;
         default:
             return '';
@@ -71,6 +72,7 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
         return data;
     }, [watch('TL_TO_ORDERCollection')])
 
+
     const onSubmit = async (payload: any) => {
         try {
             if (!payload.TL_TO_ORDERCollection || payload.TL_TO_ORDERCollection.length === 0) {
@@ -81,31 +83,39 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
             setLoading(true);
             const url = edit ? `/script/test/transportation_order(${id})` : 'script/test/transportation_order';
             const response: any = await request(edit ? 'PATCH' : 'POST', url, payload);
-            setLoading(false)
 
             if (!response.data && typeof response !== 'string') {
                 dialog.current?.error("Error")
+                setLoading(false)
                 return;
             }
 
+            if (response.data && edit) {
+                console.log(response?.data)
+                const transferReponse: any = await createGIGRTransaction(response?.data ?? []);
+                setLoading(false)
+                dialog.current?.success(`${transferReponse?.message ?? ''}`, response?.data?.DocEntry)
+                return;
+            }
+            setLoading(false)
+
             dialog.current?.success(`${edit ? 'Update' : 'Create'} Successfully.`, response?.data?.DocEntry)
         } catch (error: any) {
+            console.log(error?.message)
+            setLoading(false)
+            console.log(dialog)
             dialog.current?.error(error?.message ?? '')
         }
     };
 
     const onInvalidForm = (e: any) => {
-        if (e.TL_FUEL_LEVEL_LINESCollection) {
-            if (e.TL_FUEL_LEVEL_LINESCollection?.length === 0) return;
-            const key = Object.keys(e.TL_FUEL_LEVEL_LINESCollection[0])[0]
-            dialog.current?.error(e.TL_FUEL_LEVEL_LINESCollection[0][key].message)
+        const values = Object.values(e);
+        for (const { message } of values as any) {
+            if (message) {
+                dialog.current?.error(message)
+                return;
+            }
         }
-
-        // dialog.current?.error(
-        //     invalids[Object.keys(invalids)[0]]?.message?.toString() ??
-        //     "Oop something wrong!",
-        //     "Invalid Value"
-        // );
     }
 
     const onSelectChangeDocuments = (value: any[]) => {

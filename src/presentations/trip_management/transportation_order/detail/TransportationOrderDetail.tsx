@@ -1,7 +1,5 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { LoadingButton } from "@mui/lab";
+import React, { useState } from "react";
 import MenuButton from "@/components/button/MenuButton";
-import DocumentHeaderComponent from "@/components/DocumenHeaderComponent";
 import { Backdrop, CircularProgress } from "@mui/material";
 import FormMessageModal from "@/components/modal/FormMessageModal";
 import LoadingProgress from "@/components/LoadingProgress";
@@ -12,6 +10,8 @@ import General from "../component/detail/GeneralDetail";
 import ReviewingOrderingTransportationOrder from "../component/detail/ReviewingOrderingTransportationOrderDetail";
 import Expense from "../component/detail/ExpenseDetail";
 import Compartment from "../component/detail/CompartmentDetail";
+import { displayTextDate } from "@/lib/utils";
+import TODocumenHeaderComponent from "../../component/TODocumenHeaderComponent";
 
 let dialog = React.createRef<FormMessageModal>();
 
@@ -115,10 +115,10 @@ const TransportationOrderFormDetail = (props: any) => {
             <span>{hook.watch('U_BaseStation') ?? '-'}</span>
           </div>
           <div>
-            <span>{hook.watch('U_DispatchDate') ?? '-'}</span>
+            <span>{displayTextDate(hook.watch('U_DispatchDate')) ?? '-'}</span>
           </div>
           <div>
-            <span>{hook.watch('U_CompletedDate') ?? '-'}</span>
+            <span>{displayTextDate(hook.watch('U_CompletedDate')) ?? '-'}</span>
           </div>
           <div>
             <span>{getTextStatus(hook.watch('U_Status') as TOStatus) ?? '-'}</span>
@@ -135,7 +135,9 @@ const TransportationOrderFormDetail = (props: any) => {
         </div>
       ) : (
         <div className="w-full h-[93vh] flex flex-col p-3">
-          <DocumentHeaderComponent
+          <TODocumenHeaderComponent
+            status={hook.watch('U_Status')}
+            edit={props?.edit}
             data={{
               showCollapse: true
             }}
