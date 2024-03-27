@@ -325,7 +325,8 @@ class SalesOrderForm extends CoreFormDocument {
         warehouseCodeGet,
         data.BinLocation,
         data.LineOfBusiness,
-        data.U_ti_revenue
+        data.U_ti_revenue,
+        data.U_tl_sobincode
       );
 
       const payloads = {
@@ -668,7 +669,8 @@ const getItem = (
   warehouseCode: any,
   BinLocation: any,
   LineOfBussiness: any,
-  U_ti_revenue: any
+  U_ti_revenue: any,
+  U_tl_bincode: any
 ) =>
   items?.map((item: any, index: number) => {
     return {
@@ -687,11 +689,11 @@ const getItem = (
       COGSCostingCode: item.COGSCostingCode ?? "201001",
       COGSCostingCode2: U_ti_revenue,
       COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
-      // BinAbsEntry: item.BinAbsEntry ?? 65,
+      BinAbsEntry: item.BinLocation ?? U_tl_bincode,
       WarehouseCode: item?.WarehouseCode || warehouseCode,
       DocumentLinesBinAllocations: [
         {
-          BinAbsEntry: item.BinAbsEntry,
+          BinAbsEntry: item.BinLocation ?? U_tl_bincode,
           Quantity: item.Quantity,
           AllowNegativeQuantity: "tNO",
           SerialAndBatchNumbersBaseLine: -1,

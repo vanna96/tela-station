@@ -81,19 +81,7 @@ export default function ContentForm({
             item.GrossPrice = item.UnitPrice;
             item.Quantity = itemDetails.Quantity ?? 1;
             item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-            item.FromWarehouseCode = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.WhsCode;
-            item.WarehouseCode = data.ToWarehouse;
-            item.FromBin = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.BinAbsEntry;
-            item.BinQty = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.OnHandQty;
-            item.ToBin = data.ToBinItems?.find(
-              (e: any) => e.WhsCode === item.WarehouseCode
-            )?.BinAbsEntry;
+            item.BinLocation = data.U_tl_sobincode;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
           }
@@ -113,7 +101,6 @@ export default function ContentForm({
       onChange("Items", items);
     }
   };
-console.log(data.Items)
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
@@ -539,7 +526,7 @@ console.log(data.Items)
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={ 3 }
+                decimalScale={3}
                 // fixedDecimalScale
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
@@ -601,6 +588,7 @@ console.log(data.Items)
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        branch={data.BPL_IDAssignedToInvoice}
         bin={data.U_tl_sobincode}
       />
     </>

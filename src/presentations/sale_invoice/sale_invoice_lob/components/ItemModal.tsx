@@ -29,6 +29,7 @@ interface ItemModalProps {
   wh: any;
   lineofbusiness: any;
   priceList: any;
+  branch: number;
   bin: any;
 }
 
@@ -41,8 +42,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
       priceList: props.priceList,
       lineofbusiness: props.lineofbusiness,
       wh: props.wh,
-      WarehouseCode: props.wh,
-      BinAbsEntry: this.props.bin,
+      branch: props.branch,
+      BinLocation: this.props.bin,
     } as any;
 
     this.onOpen = this.onOpen.bind(this);
@@ -276,7 +277,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="mb-1"></div>
                 <WarehouseAutoComplete
                   disabled
-                  Branch={this.state?.BPL_IDAssignedToInvoice ?? 1}
+                  Branch={this.props.branch}
                   value={this.state.WarehouseCode}
                   onChange={(event) =>
                     this.handlerChange(event, "WarehouseCode")
@@ -287,7 +288,8 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="text-sm">Bin Location</div>
                 <div className="mb-1"></div>
                 <BinLocationToAsEntry
-                  value={this.props.bin}
+                  value={this.state.BinLocation}
+                  onChange={(event) => this.handlerChange(event, "BinLocation")}
                   Warehouse={this.state?.WarehouseCode ?? "WH01"}
                 />
               </div>
