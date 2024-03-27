@@ -27,7 +27,8 @@ function POST(req) {
         "StockTransfer",
         "OwnUsage",
         "TelaCard",
-        "PumpTest"
+        "PumpTest",
+        "GIType"
     ].forEach((value) => {
         if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
     })
@@ -84,10 +85,10 @@ function POST(req) {
         };
     
         // PUMP TEST​
-        if(
-            fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
-            jsonObj["PumpTest"].length > 0
-        ) PumpTestTransaction(slContext, jsonObj);
+        // if(
+        //     fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
+        //     jsonObj["PumpTest"].length > 0
+        // ) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
@@ -673,7 +674,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                 DocDueDate: jsonObj['DocDate'],
                 BPL_IDAssignedToInvoice: groupedItems[key][0]['BranchCode'],
                 U_tl_whsdesc: key,
-                U_tl_grtype: "003",
+                U_tl_grtype: "002",
                 U_tl_sarn: jsonObj['SANumber'], //SA Number
                 U_tl_grsuppo: jsonObj['U_tl_whsdesc'],
                 Reference2: goodIssueContext.body.DocNum, // Doc number
@@ -735,6 +736,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
 function OwnUsageTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Goods Issue
+    const AccountCode = jsonObj["GIType"].find((e) => e.Code === '002').U_ActCode || "";
     var goodIssue = {
         Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
@@ -763,6 +765,7 @@ function OwnUsageTransaction(slContext, jsonObj){
                 CostingCode2: '202001',//RevenueLine
                 CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
+                AccountCode,
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
@@ -841,7 +844,7 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
         DocDueDate: jsonObj['DocDate'],
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
-        U_tl_grtype: "003",
+        U_tl_grtype: "002",
         U_tl_stype: "T02",
         U_tl_sarn: jsonObj['SANumber'], //SA Number
         Reference2: goodIssueContext.body.DocNum, // Doc number
