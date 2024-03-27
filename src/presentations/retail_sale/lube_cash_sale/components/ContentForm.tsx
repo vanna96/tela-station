@@ -52,6 +52,7 @@ export default function ContentForm({
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
+  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -82,24 +83,11 @@ export default function ContentForm({
             item.GrossPrice = item.UnitPrice;
             item.Quantity = itemDetails.Quantity ?? 1;
             item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-            item.FromWarehouseCode = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.WhsCode;
-            item.WarehouseCode = data.ToWarehouse;
-            item.FromBin = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.BinAbsEntry;
-            item.BinQty = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.OnHandQty;
-            item.ToBin = data.ToBinItems?.find(
-              (e: any) => e.WhsCode === item.WarehouseCode
-            )?.BinAbsEntry;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
             item.COGSCostingCode = itemDetails.U_tl_dim1;
             item.COGSCostingCode3 = itemDetails.U_tl_dim2;
-            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry
+            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry;
           }
           return item;
         }
@@ -282,9 +270,7 @@ export default function ContentForm({
               (e: any) => e.PriceList === 13
             )?.UoMPrices;
 
-            const uomPrice = itemPrices?.find(
-              (e: any) => e.PriceList === 13
-            );
+            const uomPrice = itemPrices?.find((e: any) => e.PriceList === 13);
 
             const grossPrice =
               uomPrice && selectedUomValue === uomPrice.UoMEntry
@@ -480,13 +466,13 @@ export default function ContentForm({
         }}
       />
       <ItemModal
-        branch={branch}
         wh={wh}
         priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        branch={data.U_tl_bplid}
         bin={data.U_tl_bincode}
       />
     </>

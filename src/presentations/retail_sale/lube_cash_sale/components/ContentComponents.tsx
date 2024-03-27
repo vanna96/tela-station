@@ -148,6 +148,7 @@ export default function ContentComponent(props: ContentComponentProps) {
     props.data.U_tl_disperamt = discountAmount;
     props.data.U_tl_tax = discountedDocTaxTotal;
     props.data.U_tl_doctotal = discountedDocTotal;
+    props.data.U_tl_dispercent = props.data.U_tl_dispercent;
   }
   return (
     <FormCard

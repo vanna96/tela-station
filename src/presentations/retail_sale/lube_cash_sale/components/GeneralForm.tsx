@@ -67,14 +67,9 @@ export default function GeneralForm({
     )
     ?.find((series: any) => series.BPLID === BPL)?.Series;
 
-  const seriesINV = (
-    data?.invoiceSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
+  const seriesINV = data?.invoiceSeries?.find(
+    (entry: any) => entry.BPLID === BPL && entry.Name.startsWith(formattedDateB)
+  )?.Series;
   if (data) {
     data.DNSeries = seriesIncoming;
     data.INSeries = seriesINV;

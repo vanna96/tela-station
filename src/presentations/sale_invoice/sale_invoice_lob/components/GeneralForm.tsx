@@ -16,6 +16,10 @@ import { useExchangeRate } from "../hook/useExchangeRate";
 import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
+import PriceListRepository from "@/services/actions/pricelistRepository";
+import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
+import SaleWarehouse from "@/components/input/SaleWarehouse";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -25,6 +29,7 @@ export interface IGeneralFormProps {
   warehouseCode: string;
   onLineofBusinessChange: (value: any) => void;
   onWarehouseChange: (value: any) => void;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function GeneralForm({
@@ -32,6 +37,7 @@ export default function GeneralForm({
   onLineofBusinessChange,
   onWarehouseChange,
   handlerChange,
+  handlerChangeObject,
   edit,
 }: IGeneralFormProps) {
   const [cookies] = useCookies(["user"]);
@@ -39,54 +45,36 @@ export default function GeneralForm({
   const userData = cookies.user;
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
-
-  //Filtering SO series
+  const currentDate = new Date();
+  const year = currentDate.getFullYear();
+  const lastTwoDigitsOfYear = year.toString().slice(-2);
+  const month = currentDate.getMonth() + 1;
+  const formattedMonth = month.toString().padStart(2, "0");
+  const formattedDateB = `${lastTwoDigitsOfYear}B${formattedMonth}`;
   const filteredSeries = data?.SerieLists?.filter(
-    (series: any) => series?.BPLID === BPL
+    (series: any) =>
+      series?.BPLID === BPL &&
+      parseInt(series.PeriodIndicator) === year &&
+      series.Name.startsWith(formattedDateB)
   );
 
-  const seriesSO =
-    data.SerieLists.find((series: any) => series.BPLID === BPL)?.Series || "";
+  const seriesSO = data?.SerieLists?.find(
+    (entry: any) => entry.BPLID === BPL && entry.Name.startsWith(formattedDateB)
+  )?.Series;
 
   if (filteredSeries[0]?.NextNumber && data) {
     data.DocNum = filteredSeries[0].NextNumber;
   }
 
-  // Finding date and to filter DN and INVOICE series Name
-  const currentDate = new Date();
-  const year = currentDate.getFullYear() % 100; // Get the last two digits of the year
-  const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
-  const formattedMonth = month.toString().padStart(2, "0");
-  const formattedDateA = `23A${formattedMonth}`;
-  const formattedDateB = `23B${formattedMonth}`;
-
-  const seriesDN = (
-    data?.dnSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
-  const seriesIN = (
-    data?.invoiceSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
   const route = useParams();
   const salesType = route["*"];
   const getValueBasedOnFactor = () => {
     switch (salesType) {
-      case "fuel-sales/create":
+      case "fuel-invoice/create":
         return "Oil";
-      case "lube-sales/create":
+      case "lube-invoice/create":
         return "Lube";
-      case "lpg-sales/create":
+      case "lpg-invoice/create":
         return "LPG";
       default:
         return ""; // Set a default value if needed
@@ -94,26 +82,18 @@ export default function GeneralForm({
   };
 
   if (data) {
-    data.DNSeries = seriesDN;
-    data.INSeries = seriesIN;
     data.Series = seriesSO;
     data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
   }
-
+  if (!edit && data.vendor) {
+    data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
+  }
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),
     staleTime: Infinity,
   });
-
-  const a = CurrencyAPI?.map((c: any) => {
-    return {
-      value: c.Code,
-      name: c.Name,
-    };
-  });
-  //test
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -130,6 +110,9 @@ export default function GeneralForm({
     });
 
   useExchangeRate(data?.Currency, handlerChange);
+  if (data.vendor) {
+    data.ShipToCode = data.vendor?.ShipToDefault;
+  }
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -146,6 +129,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <BranchAutoComplete
+                disabled={edit}
                 BPdata={userData?.UserBranchAssignment}
                 onChange={(e) => handlerChange("BPL_IDAssignedToInvoice", e)}
                 value={BPL}
@@ -159,8 +143,9 @@ export default function GeneralForm({
               </label>
             </div>
             <div className="col-span-3">
-              <WarehouseAutoComplete
-                Branch={data?.BPL_IDAssignedToInvoice ?? 1}
+              <SaleWarehouse
+                disabled={edit}
+                Branch={parseInt(BPL)}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
                   handlerChange("U_tl_whsdesc", e);
@@ -172,33 +157,21 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
-                Bin Location <span className="text-red-500">*</span>
+                Bin Location
               </label>
             </div>
             <div className="col-span-3">
               <BinLocationToAsEntry
-                value={data?.BinLocation}
+                value={data?.U_tl_sobincode}
                 Warehouse={data?.U_tl_whsdesc ?? "WH01"}
                 onChange={(e) => {
-                  handlerChange("BinLocation", e);
+                  handlerChange("U_tl_sobincode", e);
                   // onWarehouseChange(e);
                 }}
               />
             </div>
           </div>
           <div>
-            <input
-              hidden
-              name="DNSeries"
-              value={data.DNSeries}
-              onChange={(e) => handlerChange("DNSeries", e.target.value)}
-            />
-            <input
-              hidden
-              name="INSeries"
-              value={data.INSeries}
-              onChange={(e) => handlerChange("INSeries", e.target.value)}
-            />
             <input
               hidden
               name="U_tl_arbusi"
@@ -226,6 +199,7 @@ export default function GeneralForm({
                 defaultValue={data?.CardCode}
                 name="BPCode"
                 endAdornment={!edit}
+                disabled={edit}
               />
             </div>
           </div>
@@ -272,8 +246,15 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
-                onChange={(e) => handlerChange("PriceLists", e)}
-                value={data?.PriceLists}
+                onChange={(e) => {
+                  handlerChangeObject({
+                    U_tl_sopricelist: e,
+                    Currency: new PriceListRepository().find(e)
+                      ?.DefaultPrimeCurrency,
+                  });
+                }}
+                value={data?.U_tl_sopricelist}
+                isActiveAndGross={true}
               />
             </div>
           </div>
@@ -288,16 +269,17 @@ export default function GeneralForm({
                 <div className="col-span-6">
                   {
                     <MUISelect
-                      value={data?.Currency || sysInfo?.SystemCurrency}
+                      disabled
+                      value={data?.Currency}
                       items={
                         dataCurrency?.length > 0
-                          ? CurrencyAPI?.map((c: any) => {
+                          ? dataCurrency
+                          : CurrencyAPI?.map((c: any) => {
                               return {
                                 value: c.Code,
                                 name: c.Name,
                               };
                             })
-                          : dataCurrency
                       }
                       aliaslabel="name"
                       aliasvalue="value"
@@ -308,10 +290,9 @@ export default function GeneralForm({
                   }
                 </div>
                 <div className="col-span-6 ">
-                  {(data?.Currency || sysInfo?.SystemCurrency) !==
-                    sysInfo?.SystemCurrency && (
+                  {data?.Currency !== sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 0}
+                      value={data?.ExchangeRate}
                       name=""
                       disabled={true}
                       className="-mt-1"
@@ -338,13 +319,13 @@ export default function GeneralForm({
                   aliaslabel="Name"
                   name="Series"
                   loading={data?.isLoadingSerie}
-                  value={edit ? data?.Series : filteredSeries[0]?.Series}
+                  value={filteredSeries[0]?.Series}
                   disabled={edit}
                   // onChange={(e: any) => handlerChange("Series", e.target.value)}
                   // onChange={handleSeriesChange}
                 />
                 <div className="-mt-1">
-                  <MUITextField
+                  <MUIRightTextField
                     size="small"
                     name="DocNum"
                     value={
@@ -374,19 +355,12 @@ export default function GeneralForm({
           </div>
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
-              <label
-                htmlFor="Code"
-                className={`${
-                  !("DueDate" in data?.error) ? "text-gray-600" : "text-red-500"
-                } `}
-              >
+              <label htmlFor="Code" className="text-gray-600 ">
                 Delivery Date <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                error={"DocDueDate" in data?.error}
-                helpertext={data?.error["DocDueDate"]}
                 disabled={data?.isStatusClose || false}
                 value={edit ? data.DocDueDate : data.DocDueDate ?? null}
                 onChange={(e: any) => handlerChange("DocDueDate", e)}
@@ -424,6 +398,22 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
+                Revenue Line
+              </label>
+            </div>
+            <div className="col-span-3">
+              <DistributionRuleText
+                inWhichNum={2}
+                aliasvalue="FactorCode"
+                value={data?.U_ti_revenue}
+                onChange={(e) => handlerChange("U_ti_revenue", e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Remark
               </label>
             </div>
@@ -433,11 +423,9 @@ export default function GeneralForm({
                 fullWidth
                 multiline
                 rows={2}
-                name="User_Text"
-                value={data?.User_Text}
-                onChange={(e: any) =>
-                  handlerChange("User_Text", e.target.value)
-                }
+                name="Comments"
+                value={data?.Comments}
+                onChange={(e: any) => handlerChange("Comments", e.target.value)}
               />
             </div>
           </div>

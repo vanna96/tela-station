@@ -342,7 +342,6 @@ function Content(props: any) {
     props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
-  console.log(props.data.Items);
   const discountAmount = useMemo(() => {
     if (totalBefore == null) {
       return 0;
