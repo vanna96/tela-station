@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import ErrorLogForm from "../../components/ErrorLogForm";
 import requestHeader from "@/utilies/requestheader";
 import { formatDate } from "@/helper/helper";
+import TIOgeDataRepository from "@/services/actions/TIOgeDataRepository";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -736,12 +737,14 @@ class Form extends NonCoreDcument {
           },
         ],
       }));
+      const TIOigeData = await new TIOgeDataRepository().get();
+
       const PostPayload = {
         app_url: import.meta.env.VITE_APP_URL,
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
-        // U_tl_whsdesc: "WHC",
+        GIType: TIOigeData,
         U_tl_whsdesc: data?.U_tl_whs,
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
