@@ -278,6 +278,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 <div className="mb-1"></div>
                 <WarehouseAutoComplete
                   Branch={parseInt(this.props.branch)}
+                  disabled
                   value={this.state.WarehouseCode}
                   onChange={(event) =>
                     this.handlerChange(event, "WarehouseCode")

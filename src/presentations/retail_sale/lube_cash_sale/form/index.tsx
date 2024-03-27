@@ -900,27 +900,27 @@ class LubeForm extends CoreFormDocument {
                             </LoadingButton>
                           </div>
                         )}
-                        {/* {this.state.U_tl_status !== "Close" && ( */}
-                        <>
-                          <div className="flex items-center space-x-4">
-                            <LoadingButton
-                              onClick={(event) =>
-                                this.handlerSubmitPost(event, this.props.edit)
-                              }
-                              sx={{ height: "30px", textTransform: "none" }}
-                              className="bg-white"
-                              loading={false}
-                              size="small"
-                              variant="contained"
-                              disableElevation
-                            >
-                              <span className="px-6 text-[13px] py-4 text-white">
-                                Post
-                              </span>
-                            </LoadingButton>
-                          </div>
-                        </>
-                        {/* )} */}
+                        {this.state.U_tl_status !== "Close" && (
+                          <>
+                            <div className="flex items-center space-x-4">
+                              <LoadingButton
+                                onClick={(event) =>
+                                  this.handlerSubmitPost(event, this.props.edit)
+                                }
+                                sx={{ height: "30px", textTransform: "none" }}
+                                className="bg-white"
+                                loading={false}
+                                size="small"
+                                variant="contained"
+                                disableElevation
+                              >
+                                <span className="px-6 text-[13px] py-4 text-white">
+                                  Post
+                                </span>
+                              </LoadingButton>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </motion.div>
