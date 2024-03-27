@@ -140,7 +140,13 @@ export default function InventoryTransferList() {
         size: 60,
         visible: true,
         type: "string",
-        Cell: ({ cell }: any) => (cell.getValue() === "O" ? "Open" : "Close"),
+        Cell: ({ cell }: any) => (
+          <span
+            className={`${cell.getValue() === "O" ? "text-green-500" : "text-red-500"}`}
+          >
+            {cell.getValue() === "O" ? "Open" : "Close"}
+          </span>
+        ),
       },
       {
         accessorKey: "DocEntry",

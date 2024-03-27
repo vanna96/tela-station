@@ -272,7 +272,7 @@ const Form = (props: any) => {
               <span className="">Status</span>
             </div>
           </div>
-          <div className="w-[70%] gap-[10px] text-[15px] flex flex-col justify-between h-full">
+          <div className="w-[70%] gap-[10px] text-[14px] flex flex-col justify-between h-full">
             <div>
               <span className="">{watch("RequesterName") || "_"}</span>
             </div>
@@ -283,7 +283,11 @@ const Form = (props: any) => {
               <span>{watch("U_Terminal") || "_"}</span>
             </div>
             <div className="">
-              <span>{watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}</span>
+              <span
+                className={`${watch("U_Status") === "O" ? "text-green-500" : "text-red-500"}`}
+              >
+                {watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}
+              </span>
             </div>
           </div>
         </div>
