@@ -39,9 +39,13 @@ function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
 const keyData = "transportation-request";
 const keyCount = "transportation-request-count";
 
-export const UseTransportationRequestListHook = (pagination: any) => {
+export const UseTransportationRequestListHook = () => {
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const [waiting, setwaiting] = React.useState(false);
+    const [pagination, setPagination] = React.useState({
+      pageIndex: 0,
+      pageSize: 10,
+    });
   const branchAss: any = useQuery({
     queryKey: ["branchAss"],
     queryFn: async () => {
@@ -182,5 +186,7 @@ export const UseTransportationRequestListHook = (pagination: any) => {
     refetchData,
     waiting,
     countQuery,
+    pagination,
+    setPagination
   };
 };

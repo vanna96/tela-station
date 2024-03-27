@@ -174,8 +174,7 @@ const TransportationRequestDetail = (props: any) => {
             <div>
               <span>{watch("U_Terminal") || "_"}</span>
             </div>
-            <div
-              className={`${watch("U_Status") === "O" ? "text-green-500" : "text-red-500"}`}
+            <div            
             >
               <span>{watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}</span>
             </div>

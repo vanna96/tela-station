@@ -17,10 +17,6 @@ import GetBranchAutoComplete from "../components/GetBranchAutoComplete";
 
 export default function InventoryTransferList() {
   const route = useNavigate();
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
 
   const {
     data,
@@ -31,8 +27,10 @@ export default function InventoryTransferList() {
     totalRecords,
     exportExcelTemplate,
     state,
-    waiting
-  } = UseGoodReceiptListHook(pagination);
+    waiting,
+    pagination,
+    setPagination,
+  } = UseGoodReceiptListHook();
 
   const columns = React.useMemo(
     () => [

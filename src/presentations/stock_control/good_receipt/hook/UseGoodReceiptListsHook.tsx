@@ -39,9 +39,14 @@ function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
 const keyData = "good-receipt-lists";
 const keyCount = "good-receipt-count";
 
-export const UseGoodReceiptListHook = (pagination: any) => {
+export const UseGoodReceiptListHook = () => {
   const [state, dispatch] = React.useReducer(reducer, initialState);
-  const [waiting,setwaiting] = React.useState(false)
+  const [waiting, setwaiting] = React.useState(false)
+    const [pagination, setPagination] = React.useState({
+      pageIndex: 0,
+      pageSize: 10,
+    });
+
   const filters = useMemo(() => {
     return {
       ...state,
@@ -152,6 +157,8 @@ export const UseGoodReceiptListHook = (pagination: any) => {
     setSort,
     exportExcelTemplate,
     refetchData,
-    waiting
+    waiting,
+    pagination,
+    setPagination
   };
 };

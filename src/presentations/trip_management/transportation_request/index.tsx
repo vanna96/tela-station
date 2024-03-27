@@ -14,10 +14,7 @@ import request, { url } from "@/utilies/request";
 import { useQuery } from "react-query";
 export default function InventoryTransferList() {
   const route = useNavigate();
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  });
+
 
   const {
     data,
@@ -29,7 +26,9 @@ export default function InventoryTransferList() {
     exportExcelTemplate,
     state,
     waiting,
-  } = UseTransportationRequestListHook(pagination);
+    pagination,
+    setPagination,
+  } = UseTransportationRequestListHook();
 
   const branchAss: any = useQuery({
     queryKey: ["branchAss"],
@@ -141,8 +140,7 @@ export default function InventoryTransferList() {
         visible: true,
         type: "string",
         Cell: ({ cell }: any) => (
-          <span
-            className={`${cell.getValue() === "O" ? "text-green-500" : "text-red-500"}`}
+          <span          
           >
             {cell.getValue() === "O" ? "Open" : "Close"}
           </span>

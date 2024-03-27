@@ -21,6 +21,7 @@ import CircularProgress, {
 } from "@mui/material/CircularProgress";
 import OnlyDiaLog from "../transportation_order/OnlyDiaLog";
 import BackDrop from "../component/BackDrop";
+import { green } from "@mui/material/colors";
 
 let dialog = React.createRef<OnlyDiaLog>();
 export default function BulkSealAllocationList(props: CircularProgressProps) {
@@ -39,7 +40,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
   const [keys, setKeys] = useState<any>({});
   const [loadData, setLoadData] = useState({});
 
-  const { data, isLoading }: any = useQuery({
+  const { data, isLoading,refetch } = useQuery({
     queryKey: ["tl_bulk_seal"],
     queryFn: async () => {
       const response: any = await request(
@@ -52,9 +53,10 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
         });
       return response;
     },
-    staleTime: Infinity,
     retry: 1,
   });
+  console.log(data);
+  
   const totalPages = isNaN(data?.length)
     ? 0
     : Math.ceil(data.length / itemsPerPage);
@@ -103,7 +105,10 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     await request("POST", `/script/test/bulk_seal_allocation`, loadData)
       .then((res: any) => dialog.current?.success("Created Successfully.", 0))
       .catch((err: any) => dialog.current?.error(err.message))
-      .finally(() => setSubmiting(false));
+      .finally(() => {
+        setSubmiting(false)
+        refetch();
+      });
   };
   useEffect(() => {
     submitData();
@@ -240,13 +245,12 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
                                     color: (theme) =>
                                       theme.palette.grey[
                                         theme.palette.mode === "light"
-                                          ? 200
+                                          ? 300
                                           : 800
                                       ],
                                   }}
                                   size={40}
                                   thickness={5}
-                                  {...props}
                                   value={100}
                                 />
                                 <CircularProgress
@@ -254,25 +258,21 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
                                   variant="indeterminate"
                                   disableShrink
                                   sx={{
-                                    // color: (theme) =>
-                                    //   theme.palette.mode === "light"
-                                    //     ? "#1a90ff"
-                                    //     : "#308fe8",
-                                    animationDuration: "650ms",
+                                    animationDuration: "800ms",
                                     position: "absolute",
                                     left: 0,
                                     [`& .${circularProgressClasses.circle}`]: {
                                       strokeLinecap: "round",
+                                      color: green[300],
                                     },
                                   }}
                                   size={40}
                                   thickness={5}
-                                  {...props}
                                 />
                               </Box>
-                              <span className="text-[15px] ml-3 text-gray-500 font-bold">
+                              {/* <span className="text-[15px] ml-3 text-gray-500">
                                 Loading...
-                              </span>
+                              </span> */}
                             </div>
                           </td>
                         </tr>
@@ -438,7 +438,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
         setOpen={setOpenItem}
         open={openItem}
       />
-    <BackDrop open={submiting} />
+      <BackDrop open={submiting} />
     </>
   );
 }

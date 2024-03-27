@@ -284,7 +284,7 @@ const Form = (props: any) => {
             </div>
             <div className="">
               <span
-                className={`${watch("U_Status") === "O" ? "text-green-500" : "text-red-500"}`}
+               
               >
                 {watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}
               </span>
