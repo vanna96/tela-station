@@ -70,6 +70,7 @@ class LubeForm extends CoreFormDocument {
       VatGroup: "S1",
       type: "sale",
       lineofBusiness: "",
+      U_ti_revenue: "202001",
       warehouseCode: "",
       cashBankData: [
         {
@@ -255,7 +256,7 @@ class LubeForm extends CoreFormDocument {
                     ExchangeRate: data?.DocRate || 1,
                     JournalMemo: data?.JournalMemo,
                     COGSCostingCode: apiResponse?.U_tl_dim1,
-                    COGSCostingCode2: item?.COGSCostingCode2,
+                    COGSCostingCode2: item?.COGSCostingCode2 ?? "202001",
                     COGSCostingCode3: apiResponse?.U_tl_dim2,
                     CurrencyType: "B",
                     DocumentLinesBinAllocations:
@@ -638,7 +639,7 @@ class LubeForm extends CoreFormDocument {
         DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        DiscountPercent: 0.0,
+        DiscountPercent: data?.U_tl_dispercent ?? 0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
         CashAccount: "110102",
         CashAccountFC: "110103",

@@ -309,7 +309,7 @@ export class ItemModal extends React.Component<ItemModalProps, any> {
                 inWhichNum={2}
                 disabled
                 aliasvalue="FactorCode"
-                value={this.state?.COGSCostingCode2}
+                value={this.state?.COGSCostingCode2 ?? "202001"}
                 onChange={(event) => this.handChange(event, "COGSCostingCode2")}
               />
               <DistributionRuleText
