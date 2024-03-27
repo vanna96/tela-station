@@ -383,6 +383,29 @@ export default function GeneralForm({
               />
             </div>
           </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
+                Status
+              </label>
+            </div>
+            <div className="col-span-3">
+              <MUISelect
+                items={[
+                  { label: "Open", value: "Open" },
+                  { label: "Closed", value: "Close" },
+                ]}
+                name="U_tl_status"
+                disabled
+                loading={data?.isLoadingSerie}
+                value={data?.U_tl_status !== "Close" ? "Open" : "Close"}
+                onChange={(e: any) =>
+                  handlerChange("U_tl_status", e.target.value)
+                }
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

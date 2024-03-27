@@ -378,6 +378,7 @@ class SalesOrderForm extends CoreFormDocument {
       U_tl_cardname: data?.CardName,
       U_tl_shiftcode: data?.U_tl_shiftcode,
       U_tl_docdate: data?.U_tl_docdate || new Date(),
+      U_tl_status: data?.U_tl_status ?? "Open",
       U_tl_attend: data?.U_tl_attend,
       U_tl_totalbefdis: data?.U_tl_totalbefdis,
       U_tl_dispercent: data?.U_tl_dispercent,

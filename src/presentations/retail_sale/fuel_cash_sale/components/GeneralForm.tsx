@@ -397,13 +397,13 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUISelect
                 items={[
-                  { label: "Open", value: "O" },
+                  { label: "Open", value: "Open" },
                   { label: "Closed", value: "Close" },
                 ]}
                 name="U_tl_status"
                 disabled
                 loading={data?.isLoadingSerie}
-                value={data?.U_tl_status !== "Close" ? "O" : "Close"}
+                value={data?.U_tl_status !== "Close" ? "Open" : "Close"}
                 onChange={(e: any) =>
                   handlerChange("U_tl_status", e.target.value)
                 }

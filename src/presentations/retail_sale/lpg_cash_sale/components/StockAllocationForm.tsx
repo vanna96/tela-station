@@ -183,7 +183,7 @@ export default function StockAllocationTable({
           if (!cell.row.original?.U_tl_bplid) return null;
           return (
             <WarehouseAutoComplete
-              Branch={parseInt(cell.row.original.U_tl_bplid || 1)}
+              Branch={parseInt(cell.row.original?.U_tl_bplid)}
               onChange={(e: any) => {
                 onChangeItem(cell?.row?.id || 0, {
                   U_tl_whscode: e,

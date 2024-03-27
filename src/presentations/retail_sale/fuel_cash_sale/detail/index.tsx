@@ -318,10 +318,21 @@ function General({ data }: any) {
           {/* data?.U_tl_attend */}
           <div className="col-span-2"></div>
           <div className="col-span-5">
-            {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("Document Numbering", data.DocNum)}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Series </div>
+              <div className="col-span-1 text-gray-900">
+                <div className="grid grid-cols-12 gap-1">
+                  <div className="col-span-5 text-gray-900">
+                    <MUITextField disabled value={seriesName ?? "N/A"} />
+                  </div>
+                  <div className="col-span-7 text-gray-900">
+                    <MUITextField disabled value={data.DocNum ?? "N/A"} />
+                  </div>
+                </div>
+              </div>
+            </div>
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
-
+            {renderKeyValue("Status", data.U_tl_status)}
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700"> Own Usage Remark </div>
               <div className="col-span-1 text-gray-900">

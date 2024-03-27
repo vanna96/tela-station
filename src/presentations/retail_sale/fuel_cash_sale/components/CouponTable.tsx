@@ -3,6 +3,7 @@ import CurrencySelect from "@/components/selectbox/Currency";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import { NumericFormat } from "react-number-format";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import PaymentMethodCashAcc from "../../components/PaymentMethodCashAcc";
 export default function CouponTable(props: any) {
   const { data, onChange }: any = props;
 
@@ -37,7 +38,7 @@ export default function CouponTable(props: any) {
                   Coupon Account{" "}
                 </div>
                 <div className="col-span-4 ">
-                  <CashACAutoComplete
+                  <PaymentMethodCashAcc
                     value={item.U_tl_acccoupon}
                     disabled={data.edit}
                     onChange={(value: any) =>

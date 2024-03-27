@@ -289,8 +289,19 @@ function General(props: any) {
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">
-            {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("Document Numbering", props.data.DocNum)}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Series </div>
+              <div className="col-span-1 text-gray-900">
+                <div className="grid grid-cols-12 gap-1">
+                  <div className="col-span-5 text-gray-900">
+                    <MUITextField disabled value={seriesName ?? "N/A"} />
+                  </div>
+                  <div className="col-span-7 text-gray-900">
+                    <MUITextField disabled value={props.data.DocNum ?? "N/A"} />
+                  </div>
+                </div>
+              </div>
+            </div>
             {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
             {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
             {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
