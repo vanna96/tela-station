@@ -176,7 +176,7 @@ export default function IncomingPaymentForm({
                 placeholder="0.000"
                 decimalScale={3}
                 customInput={MUIRightTextField}
-                value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+                value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale)}
                 // value={(totalUSD + TotalKHRtoUSD - totalCashSale)}
               />
             </div>
