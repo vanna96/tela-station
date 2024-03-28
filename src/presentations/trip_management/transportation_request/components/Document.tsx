@@ -181,8 +181,9 @@ export default function Document({
           <table className="w-full border border-[#dadde0]">
             <thead>
               <tr className="border-[1px] border-[#dadde0]">
-                <th className="w-[40px] "></th>
-                <th className="w-[40px] "></th>
+                {!detail && <th className="w-[40px] "></th>}
+
+                <th className={`${detail ? "w-[70px]":"w-[40px]"}`}></th>
                 <th className="w-[180px] text-left font-normal py-2 text-[14px] text-gray-500">
                   Source Document{" "}
                   <span className={`${detail && "hidden"} text-red-500`}>
@@ -231,20 +232,23 @@ export default function Document({
                   </td>
                 </tr>
               )}
-              {document?.map((e:any, index: number) => {
+              {document?.map((e: any, index: number) => {
                 return (
                   <>
                     <tr key={index}>
-                      <td className="pl-3">
-                        <span className="text-gray-500">
-                          <Checkbox
-                            onChange={(c) => selectParent(c, index)}
-                            checked={e?.checked ?? false}
-                            className=""
-                            size="small"
-                          />
-                        </span>
-                      </td>
+                      {!detail && (
+                        <td className="pl-3">
+                          <span className="text-gray-500">
+                            <Checkbox
+                              onChange={(c) => selectParent(c, index)}
+                              checked={e?.checked ?? false}
+                              className=""
+                              size="small"
+                            />
+                          </span>
+                        </td>
+                      )}
+
                       <td className="py-3 flex justify-center gap-5 items-center">
                         <div className={`text-gray-700`}>
                           {!e?.U_Children || e?.U_Children?.length === 0 ? (
@@ -421,6 +425,7 @@ export default function Document({
                             <td className="pr-4"></td>
                             <td className="pr-4"></td>
                             <td className="pr-4"></td>
+                            <td className="pr-4"></td>
                             <td className="pr-4">
                               <div className="pb-2">
                                 {e?.U_Type === "ITR" ||
@@ -541,6 +546,7 @@ export default function Document({
                       );
                     })}
                     <tr className="">
+                      <td></td>
                       <td></td>
                       <td></td>
                       <td></td>
