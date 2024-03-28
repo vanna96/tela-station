@@ -158,6 +158,25 @@ export const appRoutes: RouteType[] = [
       },
 
       {
+        path: "/wholesale/delivery",
+        state: "delivery",
+        roles: ["UG001", "UG004"],
+        sidebarProps: {
+          displayText: "Delivery",
+        },
+        child: [
+          {
+            path: "/wholesale/delivery/delivery-note",
+            state: "delivery-note",
+            roles: ["UG001", "UG004"],
+            sidebarProps: {
+              displayText: "Delivery Note",
+            },
+          },
+        ],
+      },
+
+      {
         path: "/wholesale/sale-invoice",
         state: "sale-invoice",
         roles: ["UG001", "UG004"],

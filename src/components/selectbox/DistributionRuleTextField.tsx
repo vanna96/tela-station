@@ -34,7 +34,6 @@ function DistributionRuleText(props: Props) {
       {...props}
       items={items}
       aliaslabel="FactorDescription"
-      aliasvalue={props?.aliasvalue ?? "FactorDescription" }
       loading={isLoading}
       label={props?.label}
     />

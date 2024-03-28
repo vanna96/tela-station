@@ -27,6 +27,7 @@ import SaleInvoiceRoute from "./SaleInvoiceRoute";
 import TripmanagementRoute from "./TripManagementRoute";
 import { AuthorizationContext } from "@/contexts/useAuthorizationContext";
 import request from "@/utilies/request";
+import DeliveryRoute from "./DeliveryRoute";
 
 const Router = () => {
   const [cookies, setCookie, removeCookie] = useCookies(["sessionId"]);
@@ -100,7 +101,11 @@ const Router = () => {
               element={<SaleOrderRoute />}
               errorElement={<span>Error</span>}
             />
-
+            <Route
+              path="wholesale/delivery/*"
+              element={<DeliveryRoute />}
+              errorElement={<span>Error</span>}
+            />
             <Route
               path="wholesale/sale-invoice/*"
               element={<SaleInvoiceRoute />}

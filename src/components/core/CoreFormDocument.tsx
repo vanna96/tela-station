@@ -100,6 +100,8 @@ export interface CoreFormDocumentState {
   docEntry?: any;
   disableBranch?: boolean;
   U_tl_errormsg?: string;
+  U_tl_arbusi?: string | null;
+  BPL_IDAssignedToInvoice?:number | null
 }
 
 export default abstract class CoreFormDocument extends React.Component<
@@ -114,7 +116,7 @@ export default abstract class CoreFormDocument extends React.Component<
     this.state = {
       showCollapse: true,
       collapse: false,
-      CardCode: "",
+      CardCode: null,
       CardName: "",
       ContactPersonCode: undefined,
       ContactPersonList: [],
@@ -188,6 +190,8 @@ export default abstract class CoreFormDocument extends React.Component<
       U_Destination: null,
       U_Distance: null,
       U_Duration: null,
+      U_tl_arbusi:null,
+      BPL_IDAssignedToInvoice:null
     };
 
     this.handlerConfirmItem = this.handlerConfirmItem.bind(this);
