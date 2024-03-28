@@ -84,14 +84,6 @@ export default function GeneralForm({
     staleTime: Infinity,
   });
 
-  const a = CurrencyAPI?.map((c: any) => {
-    return {
-      value: c.Code,
-      name: c.Name,
-    };
-  });
-  //test
-
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
     queryFn: () =>
@@ -100,13 +92,12 @@ export default function GeneralForm({
         .catch((err: any) => console.log(err)),
     staleTime: Infinity,
   });
-  const dataCurrency = data?.vendor?.currenciesCollection
-    ?.filter(({ Include }: any) => Include === "tYES")
-    ?.map(({ CurrencyCode }: any) => {
-      return { value: CurrencyCode, name: CurrencyCode };
-    });
+  useExchangeRate(data.DocCurrency, handlerChange);
 
-  useExchangeRate(data?.Currency, handlerChange);
+  console.log(CurrencyAPI);
+  console.log(data.Currency);
+  console.log(data.DocCurrency);
+  console.log(data.ExchangeRate)
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -219,33 +210,28 @@ export default function GeneralForm({
             <div className="col-span-3  ">
               <div className="grid grid-cols-12 gap-2">
                 <div className="col-span-6">
-                  {
-                    <MUISelect
-                      value={data?.Currency || sysInfo?.SystemCurrency}
-                      items={
-                        dataCurrency?.length > 0
-                          ? CurrencyAPI?.map((c: any) => {
-                              return {
-                                value: c.Code,
-                                name: c.Name,
-                              };
-                            })
-                          : dataCurrency
-                      }
-                      aliaslabel="name"
-                      aliasvalue="value"
-                      onChange={(e: any) =>
-                        handlerChange("Currency", e.target.value)
-                      }
-                    />
-                  }
+                  <MUISelect
+                    value={data?.DocCurrency}
+                    items={CurrencyAPI?.map((c: any) => {
+                      return {
+                        value: c.Code,
+                        name: c.Name,
+                      };
+                    })}
+                    aliaslabel="name"
+                    aliasvalue="value"
+                    onChange={(e: any) =>
+                      handlerChange("DocCurrency", e.target.value)
+                      
+                    }
+                  />
                 </div>
+                
                 <div className="col-span-6 ">
-                  {(data?.Currency || sysInfo?.SystemCurrency) !==
-                    sysInfo?.SystemCurrency && (
+                  {data?.DocCurrency !== sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 0}
-                      name=""
+                      value={data?.ExchangeRate}
+                      name="Currency"
                       disabled={true}
                       className="-mt-1"
                     />

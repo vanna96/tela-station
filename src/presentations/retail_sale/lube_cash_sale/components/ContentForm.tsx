@@ -218,7 +218,7 @@ export default function ContentForm({
                 disabled={cell.row.original.ItemCode === " "}
                 thousandSeparator
                 decimalScale={4}
-                placeholder={data.Currency === "USD" ? "0.0000" : "0"}
+                placeholder={"0.0000"}
                 customInput={MUIRightTextField}
                 defaultValue={cell.getValue()}
                 onBlur={(event) => {
@@ -333,7 +333,7 @@ export default function ContentForm({
               disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
-              decimalScale={data.Currency === "USD" ? 4 : 0}
+              decimalScale={4}
               // fixedDecimalScale
               customInput={MUIRightTextField}
               value={cell.getValue()}
@@ -380,8 +380,8 @@ export default function ContentForm({
                   shortid.generate()
                 }
                 startAdornment={"%"}
-                decimalScale={data.Currency === "USD" ? 3 : 0}
-                placeholder={data.Currency === "USD" ? "0.000" : "0"}
+                decimalScale={3}
+                placeholder={"0.000"}
                 onBlur={(event) => {
                   let newValue = parseFloat(
                     event.target.value.replace(/,/g, "")
@@ -423,7 +423,7 @@ export default function ContentForm({
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
                 decimalScale={3}
-                placeholder={data.Currency === "USD" ? "0.000" : "0"}
+                placeholder={ "0.000" }
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
                 onChange={(event) => {

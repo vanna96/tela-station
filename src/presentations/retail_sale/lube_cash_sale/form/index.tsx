@@ -52,7 +52,7 @@ class LubeForm extends CoreFormDocument {
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
-      Currency: "USD",
+      DocCurrency: "USD",
       DocType: "dDocument_Items",
       showCollapse: false,
       ExchangeRate: 1,
