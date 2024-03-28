@@ -738,6 +738,31 @@ class Form extends NonCoreDcument {
           },
         ],
       }));
+      const date = formatDate(new Date(), "");
+      const fetchExchangeRate = async () => {
+        try {
+          const res: any = await request(
+            "POST",
+            "/SBOBobService_GetCurrencyRate",
+            {
+              Currency: "KHR",
+              Date: `${date}`,
+            }
+          );
+
+          if (res?.data) {
+            return res.data;
+          } else {
+            return 0;
+          }
+        } catch (err) {
+          this.dialog.current?.error(
+            "Please update exchange rate for currency KHR "
+          );
+          return 0;
+        }
+      };
+      const DocRateKHR = data.ExchangeRate ?? (await fetchExchangeRate());
       const TIOigeData = await new TIOgeDataRepository().get();
 
       const PostPayload = {
@@ -753,7 +778,7 @@ class Form extends NonCoreDcument {
         GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: data.ExchangeRate,
+        DocRate: DocRateKHR,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,

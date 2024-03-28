@@ -19,12 +19,16 @@ export default function DispenserAutoComplete(props: {
   isStatusActive?: boolean;
   branch?: number;
   pumpType?: string;
-  loading?: boolean,
-  old_pump?:any;
+  loading?: boolean;
+  old_pump?: any;
+  allData?: any;
 }) {
-  let { data:OpenPump }: any = useQuery({
+  let { data: OpenPump }: any = useQuery({
     queryKey: ["open_pump"],
-    queryFn: () => request('GET', 'sml.svc/BIZ_OPEN_PUMP_QUERY').then((res:any) => res.data.value),
+    queryFn: () =>
+      request("GET", "sml.svc/BIZ_OPEN_PUMP_QUERY").then(
+        (res: any) => res.data.value
+      ),
   });
 
   let { data, isLoading }: any = useQuery({
@@ -39,9 +43,16 @@ export default function DispenserAutoComplete(props: {
     )
     ?.filter((e: any) => !props.pumpType || e.U_tl_type === props.pumpType);
 
-  if(
-    OpenPump?.length > 0
-  ) filteredData = filteredData.filter((e:any) =>  props.old_pump === e.Code  || !OpenPump.some((p:any) => p.U_tl_pump === e.Code));
+  let onlyPumpFilterData = data?.filter(
+    (e: any) => !props.pumpType || e.U_tl_type === props.pumpType
+  );
+
+  if (OpenPump?.length > 0)
+    filteredData = filteredData.filter(
+      (e: any) =>
+        props.old_pump === e.Code ||
+        !OpenPump.some((p: any) => p.U_tl_pump === e.Code)
+    );
 
   useEffect(() => {
     if (props.value) {
@@ -76,7 +87,7 @@ export default function DispenserAutoComplete(props: {
       </label>
 
       <Autocomplete
-        options={filteredData ?? []}
+        options={props.allData ? onlyPumpFilterData : filteredData}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}

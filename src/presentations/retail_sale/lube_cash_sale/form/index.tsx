@@ -6,9 +6,7 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
-import AccountingForm from "../components/AccountingForm";
 import React, { ReactNode } from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
@@ -52,7 +50,6 @@ class LubeForm extends CoreFormDocument {
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
-      Currency: "USD",
       DocType: "dDocument_Items",
       showCollapse: false,
       ExchangeRate: 1,
@@ -617,7 +614,7 @@ class LubeForm extends CoreFormDocument {
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
         DocDate: new Date(),
-        DocCurrency: "USD",
+        DocCurrency: data?.Currency,
         DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
@@ -798,8 +795,7 @@ class LubeForm extends CoreFormDocument {
   FormRender = () => {
     const itemGroupCode = 101;
 
-    // const priceList = parseInt(this.state.U_tl_sopricelist);
-    const priceList = 13;
+    const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();
     return (
       <>
@@ -840,6 +836,9 @@ class LubeForm extends CoreFormDocument {
                         lineofBusiness={this.state.lineofBusiness}
                         warehouseCode={this.state.warehouseCode}
                         onWarehouseChange={this.handleWarehouseChange}
+                        handlerChangeObject={(value: any) =>
+                          this.handlerChangeObject(value)
+                        }
                         onLineofBusinessChange={this.handleLineofBusinessChange}
                       />
                     )}
