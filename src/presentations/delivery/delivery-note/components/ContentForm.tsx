@@ -125,59 +125,30 @@ export default function ContentForm({
   const itemColumns = React.useMemo(
     () => [
       {
-        accessorKey: "ItemCode",
         Header: (header: any) => (
           <label>
             Item Code <span className="text-red-500">*</span>
           </label>
         ),
-        size: 200,
+        size: 220,
+        accessorKey: "ItemCode",
+        header: "Item Code ",
         visible: true,
         Cell: ({ cell }: any) => {
-          const cellValue = cell.getValue() === "" ? "Add" : cell.getValue();
-
-          return (
-            <OutlinedInput
-              className={`text-field w-full cursor-pointer ${data?.isStatusClose || cellValue === " " ? "bg-gray-100" : ""} ${cellValue === "Add" ? "center-text cursor-pointer" : "cursor-pointer"}`}
-              value={cellValue == " " ? "" : cellValue}
-              onBlur={(event) =>
-                handlerChangeInput(event, cell?.row?.original, "ItemCode")
-              }
-              readOnly
-              placeholder="Item Code"
-              disabled={cellValue === " "}
-              onClick={() => {
-                if (cellValue === "Add") {
-                  handlerAddItem();
+          if (cell.row.original?.ItemCode)
+            return (
+              <MUITextField
+                placeholder="Item Code"
+                // value={cell.row.original.ItemCode ? cell.getValue() : ""}
+                value={
+                  cell.row.original.ItemCode &&
+                  cell.row.original.ItemCode.trim() !== ""
+                    ? cell.getValue()
+                    : ""
                 }
-              }}
-              sx={{
-                padding: "1px 1px",
-              }}
-              inputProps={{
-                readOnly: true,
-                style: {
-                  textAlign: cellValue === "Add" ? "center" : "left",
-                  cursor: cellValue === "Add" ? "pointer" : "",
-                },
-              }}
-              // endAdornment={
-              //   cellValue !== "Add" &&
-              //   cellValue !== " " &&
-              //   !data?.isStatusClose ? (
-              //     <InputAdornment position="end">
-              //       <IconButton
-              //         onClick={() => {
-              //           updateRef.current?.onOpen(cell.row.original);
-              //         }}
-              //       >
-              //         <FiCopy className="text-lg" />
-              //       </IconButton>
-              //     </InputAdornment>
-              //   ) : null
-              // }
-            />
-          );
+                disabled
+              />
+            );
         },
       },
       {
