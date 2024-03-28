@@ -8,11 +8,8 @@ import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
 import ContentForm from "../components/ContentForm";
 import React, { ReactNode } from "react";
-import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
 import BusinessPartner from "@/models/BusinessParter";
-import { arrayBufferToBlob } from "@/utilies";
-import shortid from "shortid";
 import { CircularProgress, Button, Snackbar, Alert } from "@mui/material";
 import { ItemModalComponent } from "@/components/modal/ItemComponentModal";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
@@ -20,7 +17,6 @@ import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasureme
 import IncomingPaymentForm from "../components/IncomingPayment";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import requestHeader from "@/utilies/requestheader";
 class LubeForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
@@ -79,7 +75,7 @@ class LubeForm extends CoreFormDocument {
       checkNumberData: [],
       couponData: [
         {
-          U_tl_acccoupon: "111102",
+          U_tl_acccoupon: "",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -398,9 +394,27 @@ class LubeForm extends CoreFormDocument {
         },
         {
           field: "Items",
-          message: "Items is missing and must have at least one record!",
+          message:
+            "Items is missing and must have at least one record! Or Bin Location of Item is missing or invalid",
           isArray: true,
           getTabIndex: () => 1,
+          validate: (data: any) => {
+            if (!data.Items || data.Items.length === 0) {
+              return false;
+            }
+
+            for (const item of data.Items) {
+              const uniqueBinIDs = new Set(
+                item.BinList.map((bin: any) => bin.BinID)
+              );
+
+              if (!item.BinLocation || !uniqueBinIDs.has(item.BinLocation)) {
+                return false;
+              }
+            }
+
+            return true;
+          },
         },
         {
           field: "cashBankData",
@@ -513,9 +527,27 @@ class LubeForm extends CoreFormDocument {
         },
         {
           field: "Items",
-          message: "Items is missing and must have at least one record!",
+          message:
+            "Items is missing and must have at least one record! Or Bin Location of Item is missing or invalid",
           isArray: true,
           getTabIndex: () => 1,
+          validate: (data: any) => {
+            if (!data.Items || data.Items.length === 0) {
+              return false;
+            }
+
+            for (const item of data.Items) {
+              const uniqueBinIDs = new Set(
+                item.BinList.map((bin: any) => bin.BinID)
+              );
+
+              if (!item.BinLocation || !uniqueBinIDs.has(item.BinLocation)) {
+                return false;
+              }
+            }
+
+            return true;
+          },
         },
         {
           field: "cashBankData",
@@ -625,7 +657,7 @@ class LubeForm extends CoreFormDocument {
         TransferAccount: "110102",
         TransferAccountFC: "110103",
         CheckAccount: "110102",
-        CouponAccount: "110102",
+        CouponAccount: data?.couponData[0]?.U_tl_acccoupon ?? "",
         Remarks: data.Remark,
 
         IncomingPayment: [
@@ -806,6 +838,7 @@ class LubeForm extends CoreFormDocument {
           ref={this.itemModalRef}
           priceList={priceList}
           U_ti_revenue={this.state.U_ti_revenue}
+          bincode={this.state.U_tl_bincode}
         />
         <form
           id="formData"

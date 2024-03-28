@@ -77,7 +77,7 @@ class SalesOrderForm extends CoreFormDocument {
       checkNumberData: [],
       couponData: [
         {
-          U_tl_acccoupon: "111102",
+          U_tl_acccoupon: "",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -1002,7 +1002,7 @@ class SalesOrderForm extends CoreFormDocument {
         TransferAccount: "110102",
         TransferAccountFC: "110103",
         CheckAccount: "110102",
-        CouponAccount: "110102",
+        CouponAccount: data?.couponData[0]?.U_tl_acccoupon ?? "",
         Remarks: data.Remark,
 
         IncomingPayment: [
