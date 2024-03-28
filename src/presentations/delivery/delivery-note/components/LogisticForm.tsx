@@ -58,6 +58,7 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <WarehouseAttendTo
+                  disabled
                   U_tl_attn_ter={true}
                   value={data.U_tl_attn_ter}
                   onChange={(e) => handlerChange("U_tl_attn_ter", e)}
@@ -77,6 +78,7 @@ export default function LogisticForm({
               </div>
               <div className="col-span-3">
                 <MUISelect
+                  disabled
                   value={data?.ShipToCode}
                   aliaslabel="addressName"
                   aliasvalue="addressName"

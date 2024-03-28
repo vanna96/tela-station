@@ -26,7 +26,7 @@ export default function LineofBusinessAutoComplete(props: {
   useEffect(() => {
     // Ensure that the selected value is set when the component is mounted
     if (props.value) {
-      const selected = data?.find((e: Type) => e.FactorCode === props.value);
+      const selected = data?.find((e: Type) => e.FactorDescription === props.value);
       if (selected) {
         setSelectedValue(selected);
       }

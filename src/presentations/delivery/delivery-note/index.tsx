@@ -1,5 +1,5 @@
 import request, { url } from "@/utilies/request";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { useQuery } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -15,14 +15,13 @@ import MUIDatePicker from "@/components/input/MUIDatePicker";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
+import DispenserRepository from "@/services/actions/dispenserRepository";
 import MUISelect from "@/components/selectbox/MUISelect";
 
-export default function DeliveryLists() {
-  const [open, setOpen] = React.useState<boolean>(false);
+export default function SaleOrderLists() {
   const route = useNavigate();
-  const salesTypes = useParams();
-  const salesType = salesTypes["*"];
-  const [dataUrl, setDataUrl] = useState("");
+  const [dataUrl, setDataUrl] = React.useState("");
+
   const columns = React.useMemo(
     () => [
       {
@@ -83,7 +82,7 @@ export default function DeliveryLists() {
         size: 70,
         Cell: ({ cell }: any) => (
           <>
-            {"$"} {cell.getValue().toFixed(2)}
+            {"$"} {cell.getValue()?.toFixed(2)}
           </>
         ),
       },
@@ -96,6 +95,7 @@ export default function DeliveryLists() {
         size: 60,
       },
 
+      //
       {
         accessorKey: "DocEntry",
         enableFilterMatchHighlighting: false,
@@ -115,14 +115,10 @@ export default function DeliveryLists() {
               size="small"
               className="bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded"
               onClick={() => {
-                route(
-                  `/wholesale/sale-order/${salesType}/` +
-                    cell.row.original.DocEntry,
-                  {
-                    state: cell.row.original,
-                    replace: true,
-                  }
-                );
+                route(`/wholesale/delivery/delivery-note/` + cell.row.original.DocEntry, {
+                  state: cell.row.original,
+                  replace: true,
+                });
               }}
             >
               <VisibilityIcon fontSize="small" className="text-gray-600 " />{" "}
@@ -131,19 +127,13 @@ export default function DeliveryLists() {
             <Button
               variant="outlined"
               size="small"
-              disabled={
-                cell.row.original.DocumentStatus === "bost_Close" ?? false
-              }
+              disabled={cell.row.original.U_tl_status === "Close" ?? false}
               className={`${
-                cell.row.original.DocumentStatus === "bost_Close"
-                  ? "bg-gray-400"
-                  : ""
+                cell.row.original.U_tl_status === "Close" ? "bg-gray-400" : ""
               } bg-transparent text-gray-700 px-[4px] py-0 border border-gray-200 rounded`}
               onClick={() => {
                 route(
-                  `/wholesale/sale-order/${salesType}/` +
-                    cell.row.original.DocEntry +
-                    "/edit",
+                  `/wholesale/delivery/delivery-note/` + cell.row.original.DocEntry + "/edit",
                   {
                     state: cell.row.original,
                     replace: true,
@@ -154,7 +144,7 @@ export default function DeliveryLists() {
               <DriveFileRenameOutlineIcon
                 fontSize="small"
                 className="text-gray-600 "
-              />{" "}
+              />
               <span style={{ textTransform: "none" }}> Edit</span>
             </Button>
           </div>
@@ -162,7 +152,7 @@ export default function DeliveryLists() {
       },
     ],
     []
-  )
+  );
 
   const [filter, setFilter] = React.useState("");
   const [sortBy, setSortBy] = React.useState("");
@@ -171,27 +161,11 @@ export default function DeliveryLists() {
     pageSize: 10,
   });
   const Count: any = useQuery({
-    queryKey: ["sale-order-lob", filter !== "" ? "-f" : "", salesType, filter],
+    queryKey: ["delivery", filter !== "" ? "-f" : "", filter],
     queryFn: async () => {
-      let numAtCardFilter = "";
-
-      switch (salesType) {
-        case "fuel-sales":
-          numAtCardFilter = "Oil";
-          break;
-        case "lube-sales":
-          numAtCardFilter = "Lube";
-          break;
-        case "lpg-sales":
-          numAtCardFilter = "LPG";
-          break;
-        default:
-        // Handle the default case or log an error if needed
-      }
-
-      const apiUrl = `${url}/DeliveryNotes/$count?$filter=U_tl_salestype eq null${
-        numAtCardFilter !== "" ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-      }${filter ? ` and ${filter}` : ""}`;
+      const apiUrl = `${url}/DeliveryNotes/$count?${
+        filter ? `$filter=${filter}` : ""
+      }`;
       const response: any = await request("GET", apiUrl)
         .then(async (res: any) => res?.data)
         .catch((e: Error) => {
@@ -204,46 +178,28 @@ export default function DeliveryLists() {
   });
 
   const { data, isLoading, refetch, isFetching }: any = useQuery({
-    refetchOnWindowFocus: false,
     queryKey: [
-      "sales-order-lob",
-      salesType,
+      "delivery",
       `${pagination.pageIndex * pagination.pageSize}_${
         filter !== "" ? "f" : ""
       }`,
       pagination.pageSize,
     ],
+
     queryFn: async () => {
-      let numAtCardFilter = "";
-
-      switch (salesType) {
-        case "fuel-sales":
-          numAtCardFilter = "Oil";
-          break;
-        case "lube-sales":
-          numAtCardFilter = "Lube";
-          break;
-        case "lpg-sales":
-          numAtCardFilter = "LPG";
-          break;
-        default:
-        // Handle the default case or log an error if needed
-      }
-
       const Url = `${url}/DeliveryNotes?$top=${pagination.pageSize}&$skip=${
         pagination.pageIndex * pagination.pageSize
-      }&$filter=U_tl_salestype eq null${
-        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-      }${filter ? ` and ${filter}` : filter}${
+      }${filter ? ` &$filter= ${filter}` : filter}${
         sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
       }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
 
-      const dataUrl = `${url}/DeliveryNotes?$filter=U_tl_salestype eq null${
-        numAtCardFilter ? ` and U_tl_arbusi eq '${numAtCardFilter}'` : ""
-      }${filter ? ` and ${filter}` : filter}${
-        sortBy !== "" ? "&$orderby=" + sortBy : "&$orderby= DocNum desc"
-      }${"&$select =DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice"}`;
-
+      const dataUrl = `${url}/DeliveryNotes${
+        filter
+          ? `?$filter=${filter}${sortBy !== "" ? `&$orderby=${sortBy}` : ""}`
+          : sortBy !== ""
+          ? `?$orderby=${sortBy}`
+          : "?$orderby=DocNum%20desc"
+      }&$select=DocNum,DocEntry,CardCode,CardName, TaxDate,DocumentStatus, DocTotal, BPL_IDAssignedToInvoice`;
       setDataUrl(dataUrl);
       const response: any = await request("GET", Url)
         .then((res: any) => res?.data?.value)
@@ -252,10 +208,10 @@ export default function DeliveryLists() {
         });
       return response;
     },
+    refetchOnWindowFocus: false,
     // staleTime: Infinity,
     retry: 1,
   });
-
   const handlerRefresh = React.useCallback(() => {
     setFilter("");
     setSortBy("");
@@ -287,10 +243,15 @@ export default function DeliveryLists() {
     }
     if (searchValues.cardcode) {
       queryFilters += queryFilters
-        ? ` and (contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`
-        : `(contains(CardCode, '${searchValues.cardcode}') or contains(CardName, '${searchValues.cardcode}'))`;
+        ? // : `eq(CardCode, '${searchValues.cardcode}')`;
+          ` and U_tl_cardcode eq '${searchValues.cardcode}'`
+        : `U_tl_cardcode eq '${searchValues.cardcode}'`;
     }
-
+    if (searchValues.cardname) {
+      queryFilters += queryFilters
+        ? ` and startswith(U_tl_cardname, '${searchValues.cardname}')`
+        : `startswith(U_tl_cardname, '${searchValues.cardname}')`;
+    }
     if (searchValues.postingDate) {
       queryFilters += queryFilters
         ? ` and TaxDate eq '${searchValues.postingDate}'`
@@ -324,33 +285,24 @@ export default function DeliveryLists() {
     }, 500);
   };
 
-  const handleAdaptFilter = () => {
-    setOpen(true);
-  };
   const [cookies] = useCookies(["user"]);
 
   const [searchValues, setSearchValues] = React.useState({
     docnum: "",
     cardcode: "",
+    cardname: "",
     postingDate: null,
-    bplid: "",
     status: "",
+    bplid: "",
   });
 
-  const { id }: any = useParams();
-  function capitalizeHyphenatedWords(str: any) {
-    return str
-      .split("-")
-      .map((word: any) => {
-        if (word.toLowerCase() === "lpg") {
-          return word.toUpperCase();
-        } else {
-          return word.charAt(0).toUpperCase() + word.slice(1);
-        }
-      })
-      .join(" ");
-  }
-
+  const childBreadcrum = (
+    <>
+      <span className="" onClick={() => route(`/wholesale/delivery`)}>
+        <span className=""></span> Lube Cash Sale
+      </span>
+    </>
+  );
   const indexedData = useMemo(
     () =>
       data?.map((item: any, index: any) => ({
@@ -365,12 +317,12 @@ export default function DeliveryLists() {
         <div className="flex pr-2  rounded-lg justify-between items-center z-10 top-0 w-full  py-2 bg-white">
           <h3 className="text-base 2xl:text-base xl:text-base ">
             Delivery Note
-          </h3>
+          </h3>{" "}
         </div>
 
         <div className="grid grid-cols-12 gap-3 mb-5 mt-2 mx-1 rounded-md bg-white ">
           <div className="col-span-10">
-            <div className="grid grid-cols-12  space-x-4">
+          <div className="grid grid-cols-12  space-x-4">
               <div className="col-span-2 2xl:col-span-3">
                 <MUITextField
                   label="Document No."
@@ -467,7 +419,6 @@ export default function DeliveryLists() {
                 <Button
                   variant="contained"
                   size="small"
-                  // onClick={handleGoClick}
                   onClick={() => handlerSearch("")}
                 >
                   Go
@@ -477,6 +428,7 @@ export default function DeliveryLists() {
           </div>
         </div>
         <DataTable
+          dataUrl={dataUrl}
           columns={[
             {
               accessorKey: "index",
@@ -488,7 +440,6 @@ export default function DeliveryLists() {
             ...columns,
           ]}
           data={indexedData}
-          dataUrl={dataUrl}
           handlerRefresh={handlerRefresh}
           handlerSearch={handlerSearch}
           handlerSortby={handlerSortby}
@@ -496,8 +447,8 @@ export default function DeliveryLists() {
           loading={isLoading || isFetching}
           pagination={pagination}
           paginationChange={setPagination}
-          title={'Delivery List'}
-          createRoute={`/wholesale/sale-order/${salesType}/create`}
+          title={"Delivery Note Lists"}
+          createRoute={`/wholesale/delivery/delivery-note/create`}
         />
       </div>
     </>

@@ -16,13 +16,19 @@ import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRep
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { motion } from "framer-motion";
+import { GetDeliveryModal } from "../components/GetIDeliveryOpenModal";
+import { getDeliveryToSaleOrder } from "../service/get-sale-order";
+import OnlyDiaLog from "@/presentations/trip_management/transportation_order/OnlyDiaLog";
 
-class SalesOrderForm extends CoreFormDocument {
+let saleordersModalRef = React.createRef<GetDeliveryModal>();
+let dialog = React.createRef<OnlyDiaLog>();
+
+class DeliveryForm extends CoreFormDocument {
   LeftSideField?(): JSX.Element | ReactNode {
     return null;
   }
@@ -34,6 +40,7 @@ class SalesOrderForm extends CoreFormDocument {
   HeaderCollapeMenu?(): JSX.Element | ReactNode {
     return null;
   }
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -95,19 +102,18 @@ class SalesOrderForm extends CoreFormDocument {
 
   async onInit() {
     let state: any = { ...this.state };
-    let seriesList: any = this.props?.query?.find("orders-series");
+    let seriesList: any = this.props?.query?.find("delivery-series");
 
     if (!seriesList) {
       seriesList = await DocumentSerieRepository.getDocumentSeries({
-        Document: "17",
+        Document: "15",
       });
-      this.props?.query?.set("orders-series", seriesList);
+      this.props?.query?.set("delivery-series", seriesList);
     }
-    
 
     if (this.props.edit) {
       const { id }: any = this.props?.match?.params || 0;
-      await request("GET", `Orders(${id})`)
+      await request("GET", `DeliveryNotes(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -261,11 +267,11 @@ class SalesOrderForm extends CoreFormDocument {
       const { id } = this.props?.match?.params || 0;
 
       const validations = [
-        {
-          field: "U_tl_whsdesc",
-          message: "Warehouse is Required!",
-          getTabIndex: () => 0,
-        },
+        // {
+        //   field: "U_tl_whsdesc",
+        //   message: "Warehouse is Required!",
+        //   getTabIndex: () => 0,
+        // },
         // {
         //   field: "U_tl_sobincode",
         //   message: "Bin Location is Required!",
@@ -393,14 +399,14 @@ class SalesOrderForm extends CoreFormDocument {
       };
 
       if (id) {
-        return await request("PATCH", `/Orders(${id})`, edit_payloads)
+        return await request("PATCH", `/DeliveryNotes(${id})`, edit_payloads)
           .then((res: any) =>
             this.dialog.current?.success("Update Successfully.", id)
           )
           .catch((err: any) => this.dialog.current?.error(err.message))
           .finally(() => this.setState({ ...this.state, isSubmitting: false }));
       }
-      await request("POST", "/Orders", payloads)
+      await request("POST", "/DeliveryNotes", payloads)
         .then(async (res: any) => {
           if ((res && res.status === 200) || 201) {
             const docEntry = res.data.DocEntry;
@@ -434,8 +440,8 @@ class SalesOrderForm extends CoreFormDocument {
 
   getRequiredFieldsByTab(tabIndex: number): string[] {
     const requiredFieldsMap: { [key: number]: string[] } = {
-      0: ["CardCode", "DocDueDate", "U_tl_whsdesc"],
-      1: ["Items"],
+      0: ["CardCode", "DocDueDate"],
+      // 1: ["Items"],
       2: ["ShipToCode", "U_tl_attn_ter"],
       3: [],
     };
@@ -460,6 +466,7 @@ class SalesOrderForm extends CoreFormDocument {
       this.setState({ tapIndex: index });
     }
   };
+
   HeaderTaps = () => {
     return (
       <>
@@ -600,51 +607,70 @@ class SalesOrderForm extends CoreFormDocument {
                         }}
                       />
                     )}
+                  
+                    <GetDeliveryModal
+                      ref={saleordersModalRef}
+                      onSelect={(e) => this.setState({...this.state, ...e})}
+                    />
 
                     <div className="sticky w-full bottom-4 mt-2">
-                      <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-end gap-3 border drop-shadow-sm">
-                        <div className="flex gap-2">
+                      <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
+                        <div className="flex ">
                           <LoadingButton
-                            onClick={() => navigate(-1)}
-                            variant="outlined"
                             size="small"
-                            sx={{ height: "30px", textTransform: "none" }}
+                            sx={{ height: "25px" }}
+                            variant="outlined"
+                            // style={{
+                            //   background: hook.watch("FromWarehouse")
+                            //     ? "#2D31AB"
+                            //     : "#DADADA",l
+                            //   border: "none",
+                            // }}
                             disableElevation
+                            onClick={async () => {
+                             try {
+                              // console.log(this.state.CardCode, this.state.BPL_IDAssignedToInvoice, this.state.U_tl_arbusi)
+                              saleordersModalRef.current?.onOpen(this.state.CardCode, this.state.BPL_IDAssignedToInvoice ?? 1, this.state.U_tl_arbusi);
+                             } catch (error:any) {
+                              dialog.current?.error(error.message)
+                             }
+                            }}
                           >
-                            <span className="px-3 text-[13px] py-1 text-red-500 font-no">
-                              Cancel
+                            <span className="px-3 text-[11px] py-1 ">
+                              Copy From
                             </span>
                           </LoadingButton>
                         </div>
-                        {this.props.edit && (
-                          <div>
+                        <div className="flex">
+                          <div className="flex gap-2 mr-3">
                             <LoadingButton
+                              onClick={() => navigate(-1)}
                               variant="outlined"
                               size="small"
                               sx={{ height: "30px", textTransform: "none" }}
                               disableElevation
                             >
-                              <span className="px-3 text-[13px] py-1 text-green-500">
-                                Copy to Invoice
+                              <span className="px-3 text-[13px] py-1 text-red-500 font-no">
+                                Cancel
                               </span>
                             </LoadingButton>
                           </div>
-                        )}
 
-                        <div className="flex items-center space-x-4">
-                          <LoadingButton
-                            type="submit"
-                            sx={{ height: "30px", textTransform: "none" }}
-                            className="bg-white"
-                            loading={false}
-                            size="small"
-                            variant="contained"
-                            disableElevation
-                          >
-                            <span className="px-6 text-[13px] py-4 text-white">
-                              {this.props.edit ? "Update" : "Post"}
-                            </span>
-                          </LoadingButton>
+                          <div className="flex items-center space-x-4">
+                            <LoadingButton
+                              type="submit"
+                              sx={{ height: "30px", textTransform: "none" }}
+                              className="bg-white"
+                              loading={false}
+                              size="small"
+                              variant="contained"
+                              disableElevation
+                            >
+                              <span className="px-6 text-[13px] py-4 text-white">
+                                {this.props.edit ? "Update" : "Post"}
+                              </span>
+                            </LoadingButton>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -654,12 +680,13 @@ class SalesOrderForm extends CoreFormDocument {
             )}
           </div>
         </form>
+        <OnlyDiaLog ref={dialog}/>
       </>
     );
   };
 }
 
-export default withRouter(SalesOrderForm);
+export default withRouter(DeliveryForm);
 
 const getItem = (
   items: any,
@@ -688,14 +715,14 @@ const getItem = (
       COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
       // BinAbsEntry: item.BinAbsEntry ?? 65,
       WarehouseCode: item?.WarehouseCode || warehouseCode,
-      DocumentLinesBinAllocations: [
-        {
-          BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.Quantity,
-          AllowNegativeQuantity: "tNO",
-          SerialAndBatchNumbersBaseLine: -1,
-          BaseLineNumber: index,
-        },
-      ],
+      // DocumentLinesBinAllocations: [
+      //   {
+      //     BinAbsEntry: item.BinAbsEntry,
+      //     Quantity: item.Quantity,
+      //     AllowNegativeQuantity: "tNO",
+      //     SerialAndBatchNumbersBaseLine: -1,
+      //     BaseLineNumber: index,
+      //   },
+      // ],
     };
   });

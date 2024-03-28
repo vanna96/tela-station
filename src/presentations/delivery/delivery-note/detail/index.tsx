@@ -24,6 +24,7 @@ import { motion } from "framer-motion";
 import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
 import React from "react";
 import BinlocationRepository from "@/services/actions/BinlocationRepository";
+import LineofBusinessRepository from "@/services/actions/lineofBusinessRepository";
 
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
@@ -52,15 +53,15 @@ class DeliveryDetail extends Component<any, any> {
     if (!data) {
       const { id }: any = this.props?.match?.params || 0;
 
-      let seriesList: any = this.props?.query?.find("orders-series");
+      let seriesList: any = this.props?.query?.find("delivery-series");
 
       if (!seriesList) {
         seriesList = await DocumentSerieRepository.getDocumentSeries({
-          Document: "17",
+          Document: "15",
         });
-        this.props?.query?.set("orders-series", seriesList);
+        this.props?.query?.set("delivery-series", seriesList);
       }
-      await request("GET", `Orders(${id})`)
+      await request("GET", `DeliveryNotes(${id})`)
         .then(async (res: any) => {
           const data: any = res?.data;
           // vendor
@@ -131,7 +132,7 @@ class DeliveryDetail extends Component<any, any> {
 
   navigateToSalesOrder = () => {
     const { history } = this.props;
-    history.push("/wholesale/sales-order");
+    history.push("/wholesale/delivery");
   };
 
   onTap(index: number) {
@@ -250,6 +251,8 @@ function General(props: any) {
         console.error("Error fetching bin location:", error);
       });
   }, [props.data?.U_tl_sobincode]);
+  console.log(props.data?.U_tl_arbusi);
+  
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-full">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -297,6 +300,10 @@ function General(props: any) {
             {renderKeyValue(
               "Sale Employee",
               new SalePersonRepository().find(props.data?.SalesPersonCode)?.name
+            )}
+            {renderKeyValue(
+              "Line of Business",
+              (props.data?.U_tl_arbusi)
             )}
             {renderKeyValue(
               "Revenue Line",

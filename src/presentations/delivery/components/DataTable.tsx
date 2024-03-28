@@ -10,6 +10,7 @@ import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutl
 import Papa from "papaparse";
 import { useQuery } from "react-query";
 import request from "@/utilies/request";
+import moment from "moment";
 
 interface DataTableProps {
   columns: any[];
@@ -96,7 +97,9 @@ export default function DataTable(props: DataTableProps) {
       "Card Code": row.CardCode,
       "Card Name": row.CardName,
       "Document Total": row.DocTotal,
-      "Posting Date": row.TaxDate.slice(0, 10), // Extract the date part
+      "Posting Date": moment(row.TaxDate).format(
+        "DD.MMMM.YYYY"
+      ), // Extract the date part
       "Document Status": row.DocumentStatus.replace("bost_", ""),
     }));
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MUIDatePicker from "@/components/input/MUIDatePicker";
 import MUITextField from "@/components/input/MUITextField";
 import MUISelect from "@/components/selectbox/MUISelect";
@@ -20,6 +20,9 @@ import PriceListRepository from "@/services/actions/pricelistRepository";
 import DistributionRuleText from "@/components/selectbox/DistributionRuleTextField";
 import SaleWarehouse from "@/components/input/SaleWarehouse";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { useContext } from "react";
+import { APIContext } from "@/presentations/collection/settle_receipt/context/APIContext";
+import LineofBusinessAutoComplete from "@/components/input/LineofBusineesAutoComplete";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -43,6 +46,8 @@ export default function GeneralForm({
   const [cookies] = useCookies(["user"]);
   const [selectedSeries, setSelectedSeries] = useState("");
   const userData = cookies.user;
+
+  let { LineOfBussiness, loadingLineOfBussiness }: any = useContext(APIContext);
 
   const BPL = data?.BPL_IDAssignedToInvoice || (cookies.user?.Branch <= 0 && 1);
   const currentDate = new Date();
@@ -75,9 +80,15 @@ export default function GeneralForm({
     }
   };
 
+  useEffect(() => {
+    if (data?.BPL_IDAssignedToInvoice) {
+      handlerChange("BPL_IDAssignedToInvoice", cookies.user?.Branch <= 0 && 1);
+    }
+  }, [data?.BPL_IDAssignedToInvoice, cookies.user?.Branch]);
+
   if (data) {
     data.Series = seriesSO;
-    data.U_tl_arbusi = getValueBasedOnFactor();
+    // data.U_tl_arbusi = getValueBasedOnFactor();
     data.lineofBusiness = getValueBasedOnFactor();
   }
   if (!edit && data.vendor) {
@@ -107,6 +118,7 @@ export default function GeneralForm({
   if (data.vendor) {
     data.ShipToCode = data.vendor?.ShipToDefault;
   }
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -138,7 +150,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <SaleWarehouse
-                disabled={edit}
+                disabled
                 Branch={parseInt(BPL)}
                 value={data?.U_tl_whsdesc}
                 onChange={(e) => {
@@ -166,7 +178,7 @@ export default function GeneralForm({
               />
             </div>
           </div>
-          <div>
+          {/* <div>
             <input
               hidden
               name="U_tl_arbusi"
@@ -177,7 +189,7 @@ export default function GeneralForm({
                 onLineofBusinessChange(e.target.value);
               }}
             />
-          </div>
+          </div> */}
           <div className="grid grid-cols-5 py-1">
             <div className="col-span-2 text-gray-600 ">
               Customer <span className="text-red-500">*</span>
@@ -216,6 +228,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUISelect
+                disabled
                 items={data?.vendor?.contactEmployee?.map(
                   (e: ContactEmployee) => ({
                     id: e.id,
@@ -241,6 +254,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <PriceListAutoComplete
+                disabled
                 onChange={(e) => {
                   handlerChangeObject({
                     U_tl_sopricelist: e,
@@ -315,7 +329,7 @@ export default function GeneralForm({
                   name="Series"
                   loading={data?.isLoadingSerie}
                   value={filteredSeries[0]?.Series}
-                  disabled={edit}
+                  disabled
                   // onChange={(e: any) => handlerChange("Series", e.target.value)}
                   // onChange={handleSeriesChange}
                 />
@@ -342,7 +356,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={data?.isStatusClose || false}
+                disabled={edit}
                 value={edit ? data.TaxDate : data.TaxDate}
                 onChange={(e: any) => handlerChange("TaxDate", e)}
               />
@@ -356,7 +370,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={data?.isStatusClose || false}
+                disabled={edit}
                 value={edit ? data.DocDueDate : data.DocDueDate ?? null}
                 onChange={(e: any) => handlerChange("DocDueDate", e)}
               />
@@ -370,7 +384,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <MUIDatePicker
-                disabled={edit && data?.Status?.includes("A")}
+                disabled={edit}
                 value={data.DocDate}
                 onChange={(e: any) => handlerChange("DocDate", e)}
               />
@@ -384,6 +398,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <SalePersonAutoComplete
+                disabled={edit}
                 value={data.SalesPersonCode}
                 onChange={(e) => handlerChange("SalesPersonCode", e)}
               />
@@ -393,11 +408,32 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
+                Line of Business
+                <span className="text-red-500">*</span>
+              </label>
+            </div>
+            <div className="col-span-3">
+              <LineofBusinessAutoComplete
+                disabled={edit}
+                value={data?.U_tl_arbusi}
+                onChange={(e) => {
+                  handlerChange("U_tl_arbusi", e?.FactorDescription);
+                  
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Revenue Line
+                <span className="text-red-500">*</span>
               </label>
             </div>
             <div className="col-span-3">
               <DistributionRuleText
+                disabled={edit}
                 inWhichNum={2}
                 aliasvalue="FactorCode"
                 value={data?.U_ti_revenue}

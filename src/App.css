@@ -251,3 +251,6 @@ MuiButton-contained {
     opacity: 1;
   }
 }
+.rgba-bg{
+  background-color: rgba(232, 234, 239, 0.5);
+}
