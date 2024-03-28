@@ -48,7 +48,7 @@ export default function DispenserAutoComplete(props: {
   );
 
   if (OpenPump?.length > 0)
-    filteredData = filteredData.filter(
+    filteredData = filteredData?.filter(
       (e: any) =>
         props.old_pump === e.Code ||
         !OpenPump.some((p: any) => p.U_tl_pump === e.Code)
