@@ -48,10 +48,11 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
-  const vendorPriceList = 13;
+  const vendorPriceList = data.U_tl_sopricelist;
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
+  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -82,24 +83,11 @@ export default function ContentForm({
             item.GrossPrice = item.UnitPrice;
             item.Quantity = itemDetails.Quantity ?? 1;
             item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-            item.FromWarehouseCode = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.WhsCode;
-            item.WarehouseCode = data.ToWarehouse;
-            item.FromBin = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.BinAbsEntry;
-            item.BinQty = data.FromBinItems?.find(
-              (e: any) => e.ItemCode === item.ItemCode
-            )?.OnHandQty;
-            item.ToBin = data.ToBinItems?.find(
-              (e: any) => e.WhsCode === item.WarehouseCode
-            )?.BinAbsEntry;
             item.UoMList = uomLists;
             item.ItemPrices = itemDetails.ItemPrices;
             item.COGSCostingCode = itemDetails.U_tl_dim1;
             item.COGSCostingCode3 = itemDetails.U_tl_dim2;
-            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry
+            item.InventoryUoMEntry = itemDetails.InventoryUoMEntry;
           }
           return item;
         }
@@ -230,7 +218,7 @@ export default function ContentForm({
                 disabled={cell.row.original.ItemCode === " "}
                 thousandSeparator
                 decimalScale={4}
-                placeholder={data.Currency === "USD" ? "0.0000" : "0"}
+                placeholder={"0.0000"}
                 customInput={MUIRightTextField}
                 defaultValue={cell.getValue()}
                 onBlur={(event) => {
@@ -243,8 +231,13 @@ export default function ContentForm({
                     "Quantity"
                   );
 
-                  const gross = cell.row.original.GrossPrice;
-                  const totalGross = newValue * gross;
+                  const grossPrice = cell.row.original.GrossPrice;
+                  const totalGross =
+                    grossPrice * newValue -
+                    grossPrice *
+                      newValue *
+                      (cell.row.original.DiscountPercent / 100);
+
                   handlerUpdateRow(
                     cell.row.id,
                     ["LineTotal", totalGross],
@@ -276,14 +269,14 @@ export default function ContentForm({
             );
 
             const defaultPrice = cell.row.original.ItemPrices?.find(
-              (e: any) => e.PriceList === 13
+              (e: any) => e.PriceList === data.U_tl_sopricelist
             )?.Price;
             const itemPrices = cell.row.original.ItemPrices?.find(
-              (e: any) => e.PriceList === 13
+              (e: any) => e.PriceList === data.U_tl_sopricelist
             )?.UoMPrices;
 
             const uomPrice = itemPrices?.find(
-              (e: any) => e.PriceList === 13
+              (e: any) => e.PriceList === data.U_tl_sopricelist
             );
 
             const grossPrice =
@@ -342,7 +335,7 @@ export default function ContentForm({
               disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
-              decimalScale={data.Currency === "USD" ? 4 : 0}
+              decimalScale={4}
               // fixedDecimalScale
               customInput={MUIRightTextField}
               value={cell.getValue()}
@@ -379,27 +372,34 @@ export default function ContentForm({
             return (
               <NumericFormat
                 disabled={cell.row.original.ItemCode === " "}
-                value={cell.getValue()}
+                value={
+                  cell.row.original.DiscountPercent === 0 ? "" : cell.getValue()
+                }
                 thousandSeparator
+                key={
+                  "DiscountPercent" +
+                  cell.row.original.DiscountPercent +
+                  shortid.generate()
+                }
                 startAdornment={"%"}
-                decimalScale={data.Currency === "USD" ? 3 : 0}
-                // fixedDecimalScale
-                placeholder={data.Currency === "USD" ? "0.000" : "0"}
-                onChange={(event: any) => {
-                  if (!(event.target.value <= 100 && event.target.value >= 0)) {
-                    event.target.value = 0;
+                decimalScale={3}
+                placeholder={"0.000"}
+                onBlur={(event) => {
+                  let newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  if (!(newValue <= 100 && newValue >= 0)) {
+                    newValue = 0;
                   }
                   handlerUpdateRow(
                     cell.row.id,
-                    ["DiscountPercent", event.target.value],
+                    ["DiscountPercent", newValue],
                     "DiscountPercent"
                   );
                   const quantity = cell.row.original.Quantity;
                   const totalGross =
                     cell.row.original.GrossPrice * quantity -
-                    cell.row.original.GrossPrice *
-                      quantity *
-                      (cell.row.original.DiscountPercent / 100);
+                    cell.row.original.GrossPrice * quantity * (newValue / 100);
                   handlerUpdateRow(
                     cell.row.id,
                     ["LineTotal", totalGross],
@@ -424,8 +424,8 @@ export default function ContentForm({
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={3}
-                placeholder={data.Currency === "USD" ? "0.000" : "0"}
+                decimalScale={data.Currency === "USD" ? 3 : 0}
+                placeholder={"0.000"}
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
                 onChange={(event) => {
@@ -480,13 +480,13 @@ export default function ContentForm({
         }}
       />
       <ItemModal
-        branch={branch}
         wh={wh}
         priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
         lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        branch={data.U_tl_bplid}
         bin={data.U_tl_bincode}
       />
     </>

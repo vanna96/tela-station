@@ -6,6 +6,7 @@ import { NumericFormat } from "react-number-format";
 import { useDocumentTotalHook } from "@/hook";
 import MUIRightTextField from "@/components/input/MUIRightTextField";
 import { formatNumberWithoutRounding } from "@/utilies/formatNumber";
+import shortid from "shortid";
 
 interface ContentComponentProps {
   items: any[];
@@ -148,6 +149,7 @@ export default function ContentComponent(props: ContentComponentProps) {
     props.data.U_tl_disperamt = discountAmount;
     props.data.U_tl_tax = discountedDocTaxTotal;
     props.data.U_tl_doctotal = discountedDocTotal;
+    props.data.U_tl_dispercent = props.data.U_tl_dispercent;
   }
   return (
     <FormCard
@@ -262,7 +264,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={totalBefore === 0 ? "" : totalBefore}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={3}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
                     placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
                     customInput={MUIRightTextField}
@@ -276,15 +278,20 @@ export default function ContentComponent(props: ContentComponentProps) {
                     <div className="col-span-6 text-gray-700">Discount</div>
                     <div className="col-span-6  text-gray-900 mr-2">
                       <NumericFormat
+                        key={props.data.U_tl_dispercent + shortid.generate()}
                         className=" w-full"
-                        value={props?.data?.U_tl_dispercent}
+                        value={
+                          props.data.U_tl_dispercent == 0
+                            ? ""
+                            : props.data.U_tl_dispercent
+                        }
                         thousandSeparator
                         startAdornment={"%"}
-                        decimalScale={3}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         placeholder={
                           props.data.Currency === "USD" ? "0.000" : "0"
                         }
-                        onChange={(event: any) => {
+                        onBlur={(event: any) => {
                           if (
                             !(
                               event.target.value <= 100 &&
@@ -309,7 +316,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                         value={discountAmount === 0 || "" ? "" : discountAmount}
                         thousandSeparator
                         startAdornment={props?.data?.Currency}
-                        decimalScale={3}
+                        decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         placeholder={
                           props.data.Currency === "USD" ? "0.000" : "0"
                         }
@@ -332,7 +339,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={3}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
                     placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
                     customInput={MUIRightTextField}
@@ -348,7 +355,7 @@ export default function ContentComponent(props: ContentComponentProps) {
                     value={discountedDocTotal === 0 ? "" : discountedDocTotal}
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
-                    decimalScale={3}
+                    decimalScale={props.data.Currency === "USD" ? 3 : 0}
                     placeholder={props.data.Currency === "USD" ? "0.000" : "0"}
                     readonly
                     customInput={MUIRightTextField}

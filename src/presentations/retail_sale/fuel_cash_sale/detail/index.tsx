@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import BankRepository from "@/services/actions/bankRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import CurrencySelect from "@/components/selectbox/Currency";
+import { formatDate } from "@/helper/helper";
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -122,11 +123,33 @@ class DeliveryDetail extends Component<any, any> {
               };
             })
           );
+          const date = formatDate(new Date());
+          const fetchExchangeRate = async () => {
+            try {
+              const res: any = await request(
+                "POST",
+                "/SBOBobService_GetCurrencyRate",
+                {
+                  Currency: "KHR",
+                  Date: `${date}`,
+                }
+              );
+
+              if (res?.data) {
+                return res.data;
+              } else {
+                return 0;
+              }
+            } catch (err) {
+              return 0;
+            }
+          };
           this.setState({
             seriesList,
             bin,
             pumpAttend,
             allocationData: updatedAllocationData,
+            ExchangeRate: await fetchExchangeRate(),
             ...data,
             loading: false,
           });
@@ -318,10 +341,21 @@ function General({ data }: any) {
           {/* data?.U_tl_attend */}
           <div className="col-span-2"></div>
           <div className="col-span-5">
-            {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("Document Numbering", data.DocNum)}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Series </div>
+              <div className="col-span-1 text-gray-900">
+                <div className="grid grid-cols-12 gap-1">
+                  <div className="col-span-5 text-gray-900">
+                    <MUITextField disabled value={seriesName ?? "N/A"} />
+                  </div>
+                  <div className="col-span-7 text-gray-900">
+                    <MUITextField disabled value={data.DocNum ?? "N/A"} />
+                  </div>
+                </div>
+              </div>
+            </div>
             {renderKeyValue("Document Date", dateFormat(data.DocDate))}
-
+            {renderKeyValue("Status", data.U_tl_status)}
             <div className="grid grid-cols-2 py-2">
               <div className="col-span-1 text-gray-700"> Own Usage Remark </div>
               <div className="col-span-1 text-gray-900">
@@ -684,7 +718,8 @@ function IncomingPayment({ data }: any) {
 
     return total;
   };
-  let exchangeRate = data?.ExchangeRate || 4100;
+
+  let exchangeRate = data?.ExchangeRate;
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -935,7 +970,8 @@ function IncomingPayment({ data }: any) {
               placeholder="0.000"
               decimalScale={3}
               customInput={MUIRightTextField}
-              value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+              // value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+              value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale)}
             />
           </div>
         </div>

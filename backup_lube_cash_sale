@@ -4,7 +4,6 @@
  */
 var ServiceLayerContext = require('ServiceLayerContext.js');
 var http = require('HttpModule.js');
-http.response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
 http.response.setHeader("Access-Control-Allow-Credentials", true);
 /**
  * Entry function for the http POST request.
@@ -16,8 +15,8 @@ http.response.setHeader("Access-Control-Allow-Credentials", true);
 // var retCaseInsensitive = slContext.query("SeriesService_GetDocumentSeries", queryOption, true);
 // return http.response.send(200, retCaseInsensitive.toArray())
 function POST() {
-
     var jsonObj = http.request.getJsonObj();
+    http.response.setHeader("Access-Control-Allow-Origin", jsonObj['app_url']);
 
     // validation
     if (!jsonObj) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, "Fail to get the content of JSON format from the request payload");
@@ -33,12 +32,21 @@ function POST() {
     ].forEach((value) => {
         if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
     })
+
+    if(
+        (jsonObj['IncomingPayment'].find((i) => i.DocCurrency !== 'USD') && (jsonObj['DocRate'] || 0) <= 1) || 
+        (jsonObj['DocCurrency'] !== 'USD' && (jsonObj['DocRate'] || 0) <= 1)
+    ) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `DocRate is required!`);
     
     // Initialize ServiceLayerContext instance
     var slContext = new ServiceLayerContext();
     
     const fuelSale = slContext.get("TL_RETAILSALE_LU", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    const distributionRules = slContext.query("DistributionRules", "DistributionRules?$select=FactorCode,FactorDescription,InWhichDimension&$filter=Active eq 'tYES'", true).toArray();
+
+    jsonObj['SANumber'] = fuelSale.body.DocNum;
+    jsonObj['distributionRules'] = distributionRules;
     
     try {
         // CASH SALE
@@ -46,8 +54,8 @@ function POST() {
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE_LU", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
-
-        return http.response.send(200, fuelSale.body);
+        
+        return http.response.send(200, {SANumber:jsonObj['SANumber'], ...fuelSale.body});
     } catch (error) {
         slContext.update("TL_RETAILSALE_LU", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
         return http.response.send(400, error);
@@ -83,10 +91,10 @@ function DELETE() {
     http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
 }
 
-function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount) {
+function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount, adjustAmount=0) {
     const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
     if (FilterPayment.length <= 0) return null;
-
+    
     let CashSum = 0;
     let TransferSum = 0;
     let CheckSum = 0;
@@ -94,7 +102,7 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
 
     FilterPayment.forEach(item => {
         const isCash = item.Type === 'Cash' || item.Type === 'Coupon';
-        const isTransfer = item.Type === 'Transfer';
+        const isTransfer = item.Type === 'Bank';
         const isCheck = item.Type === 'Check';
 
         CashSum += isCash ? parseFloat(item.Amount) : 0;
@@ -103,17 +111,23 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
     });
 
     const isUSD = inv.DocCurrency == 'USD';
-    const total = parseFloat(CashSum + TransferSum + CheckSum);
+    let total = parseFloat(CashSum + TransferSum + CheckSum);
+
+    if(obj.DocCurrency != "USD") total = total/parseFloat(obj.DocRate);
+    total += adjustAmount;
     
     var PaymentInvoices = {
         DocEntry: inv.DocEntry,
         DocNum: inv.DocNum,
         InvoiceType: "it_Invoice",
-        SumApplied: isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
-        AppliedFC: !isUSD ? (obj.DocCurrency != "USD" ? (total/parseFloat(http.request.getJsonObj().DocRate)) : total) : 0,
-        DiscountPercent: 0
+        SumApplied: isUSD ? total : 0,
+        AppliedFC: !isUSD ? total * (obj.DocRate) : 0,
+        DiscountPercent: 0,
+        DistributionRule: inv['DocumentLines'][0]['COGSCostingCode'],
+        DistributionRule2: inv['DocumentLines'][0]['COGSCostingCode2'],
+        DistributionRule3: inv['DocumentLines'][0]['COGSCostingCode3']
     }; 
-
+   
     return {
         Series: obj['IncomingSeries'],
         DocType: "rCustomer",
@@ -130,6 +144,10 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
+        U_tl_dim1: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode']).FactorDescription || "", // Line of bussiness
+        U_tl_dim2: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode2']).FactorDescription || "", // Revenue Line
+        U_tl_dim3: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode3']).FactorDescription || "", // Product Line
+        CounterReference: obj['SANumber'],
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
                                         return {
@@ -143,11 +161,11 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
     }
 }
 
-
 function SaleTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Create A/R Invoice
     var invoice = {
+        DocCurrency: jsonObj['DocCurrency'],
         Series: jsonObj['InvoiceSeries'],
         DocDate: jsonObj['DocDate'],
         DocDueDate: jsonObj['DocDate'],
@@ -157,8 +175,11 @@ function SaleTransaction(slContext, jsonObj){
         DiscountPercent: jsonObj['DiscountPercent'],
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
-        NumAtCard: "Oil",
+        NumAtCard: "Lube",
+        U_tl_arbusi: "Lube",
         U_tl_invtype:"Retail",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        U_ti_revenue:'202001',
         DocumentLines: jsonObj.DocumentLines.map((item, index) => {
             return  {
                 ItemCode: item['ItemCode'],
@@ -169,7 +190,9 @@ function SaleTransaction(slContext, jsonObj){
                 UoMCode: item['UoMCode'],
                 UoMEntry: item['UoMEntry'],
                 COGSCostingCode: item['LineOfBussiness'],
-                COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode2: '202001',
+                Currency: jsonObj['DocCurrency'],
+                // COGSCostingCode2: item['RevenueLine'],
                 COGSCostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] 
@@ -177,7 +200,7 @@ function SaleTransaction(slContext, jsonObj){
             }
         })
     };
-
+    
     var invoiceContext = slContext.add("Invoices", invoice);
     if (invoiceContext.status !== 201) {
         slContext.rollbackTransaction();
@@ -186,61 +209,68 @@ function SaleTransaction(slContext, jsonObj){
             ...invoiceContext.body
         });
     }
-    
+
     // Create Incoming Payment
     var inv = invoiceContext.body;
-    
-    // KHR Payment
-    var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPayment'], jsonObj['CashAccountFC'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
-    if( paymentKh != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentKh)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's KHR Payment",
-                ...incomingContext.body
-            });
-        }
+    var invoiceTotal = inv.DocTotal || 0;
+    var totalC = jsonObj['IncomingPaymentCoupon'].reduce((total, payment) => total + parseFloat(payment.Amount), 0);
+    var totalP = jsonObj['IncomingPayment'].reduce((totals, payment) => {
+        const currency = payment.DocCurrency;
+        totals[currency] = (totals[currency] || 0) + parseFloat(payment.Amount);
+        return totals;
+    }, {});
+
+    var totalPayment = 0;
+    var paymentSteps = [];
+
+    if (totalC) {
+        totalPayment += totalC;
+        paymentSteps.push({
+            DocCurrency: "USD",
+            paymentKey: "IncomingPaymentCoupon",
+            amount: totalC
+        });
+    }
+    if (totalP['KHR'] && jsonObj['DocRate']) {
+        totalPayment += totalP['KHR'] / (jsonObj['DocRate']);
+        paymentSteps.push({
+            DocCurrency: "KHR",
+            paymentKey: "IncomingPayment",
+            amount: totalP['KHR'] / (jsonObj['DocRate'])
+        });
+    }
+    if (totalP['USD']) {
+        totalPayment += totalP['USD'];
+        paymentSteps.push({
+            DocCurrency: "USD",
+            paymentKey: "IncomingPayment",
+            amount: totalP['USD']
+        });
     }
 
-    // Coupon KHR Payment
-    var paymentKh =  IncomingPayment(inv, {...jsonObj, DocCurrency:"KHR"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccountFC'], jsonObj["CheckAccount"]);
-    if( paymentKh != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentKh)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's Coupon KHR Payment",
-                ...incomingContext.body
-            });
+    const isDownShortage = totalPayment < invoiceTotal;
+    paymentSteps.forEach((element, index) => {
+        const isLastIndex = index === paymentSteps.length - 1;
+        let adjustAmount = isDownShortage ? invoiceTotal - element.amount : 0;
+        if (isLastIndex && element.DocCurrency !== 'USD') {
+            adjustAmount *= jsonObj['DocRate'];
         }
-    }
-    
-    // USD Payment
-    var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPayment'], jsonObj['CashAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
-    if( paymentUS != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentUS)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's USD Payment",
-                ...incomingContext.body
-            });
-        }
-    }
-    
-    // Coupon USD Payment
-    var paymentUS =  IncomingPayment(inv, {...jsonObj, DocCurrency:"USD"}, jsonObj['IncomingPaymentCoupon'], jsonObj['CouponAccount'], jsonObj['TransferAccount'], jsonObj["CheckAccount"]);
-    if( paymentUS != null) {
-        var incomingContext = slContext.add("IncomingPayments", paymentUS)
-        if (incomingContext.status !== 201) {
-            slContext.rollbackTransaction();
-            throw ({
-                "tab": "Incoming Payment's Coupon USD Payment",
-                ...incomingContext.body
-            });
-        }
-    }
 
+        const cashAcc = element.paymentKey === 'IncomingPaymentCoupon' ? jsonObj[`CouponAccount${element.DocCurrency === 'KHR' ? 'FC' : ''}`] : jsonObj[`CashAccount${element.DocCurrency === 'KHR' ? 'FC' : ''}`];
+        const bankAcc = jsonObj[`TransferAccount${element.DocCurrency === 'KHR' ? 'FC' : ''}`];
+        const checkAcc = jsonObj["CheckAccount"];
+
+        var payment = IncomingPayment(inv, { ...jsonObj, DocCurrency: element.DocCurrency }, jsonObj[element.paymentKey], cashAcc, bankAcc, checkAcc, isLastIndex ? adjustAmount : 0);
+        if (payment != null) {
+            var incomingContext = slContext.add("IncomingPayments", payment)
+            if (incomingContext.status !== 201) {
+                slContext.rollbackTransaction();
+                throw {
+                    tab: `${element.paymentKey} ${element.DocCurrency} Payment`,
+                    ...incomingContext.body
+                };
+            }
+        }
+    });
     slContext.commitTransaction();
 }

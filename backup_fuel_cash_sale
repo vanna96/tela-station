@@ -27,7 +27,8 @@ function POST(req) {
         "StockTransfer",
         "OwnUsage",
         "TelaCard",
-        "PumpTest"
+        "PumpTest",
+        "GIType"
     ].forEach((value) => {
         if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
     })
@@ -37,7 +38,10 @@ function POST(req) {
     
     const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
     if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    const distributionRules = slContext.query("DistributionRules", "DistributionRules?$select=FactorCode,FactorDescription,InWhichDimension&$filter=Active eq 'tYES'", true).toArray();
+
     jsonObj['SANumber'] = fuelSale.body.DocNum;
+    jsonObj['distributionRules'] = distributionRules;
     
     try {
         // CASH SALE
@@ -81,10 +85,10 @@ function POST(req) {
         };
     
         // PUMP TEST​
-        if(
-            fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
-            jsonObj["PumpTest"].length > 0
-        ) PumpTestTransaction(slContext, jsonObj);
+        // if(
+        //     fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
+        //     jsonObj["PumpTest"].length > 0
+        // ) PumpTestTransaction(slContext, jsonObj);
 
         // update status Fuel Cash Sale
         slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
@@ -147,7 +151,7 @@ function DELETE() {
 function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount, adjustAmount=0) {
     const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
     if (FilterPayment.length <= 0) return null;
-
+    
     let CashSum = 0;
     let TransferSum = 0;
     let CheckSum = 0;
@@ -197,9 +201,9 @@ function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAcco
         TransferAccount: transferAccount || "",
         TransferSum: TransferSum,
         CheckAccount: checkAccount || "",
-        U_tl_dim1: inv['DocumentLines'][0]['COGSCostingCode'], // Line of bussiness
-        U_tl_dim2: inv['DocumentLines'][0]['COGSCostingCode2'], // Revenue Line
-        U_tl_dim3: inv['DocumentLines'][0]['COGSCostingCode3'], // Product Line
+        U_tl_dim1: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode']).FactorDescription || "", // Line of bussiness
+        U_tl_dim2: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode2']).FactorDescription || "", // Revenue Line
+        U_tl_dim3: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode3']).FactorDescription || "", // Product Line
         CounterReference: obj['SANumber'],
         PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
                                     .map((check) => {
@@ -231,7 +235,7 @@ function CashSaleTransaction(slContext, jsonObj){
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
         NumAtCard: "Oil",
-        U_tl_arbusi: "201001",
+        U_tl_arbusi: "Oil",
         U_tl_invtype:"Retail",
         U_tl_sarn: jsonObj['SANumber'], //SA Number,
         U_ti_revenue:'202001',
@@ -670,7 +674,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
                 DocDueDate: jsonObj['DocDate'],
                 BPL_IDAssignedToInvoice: groupedItems[key][0]['BranchCode'],
                 U_tl_whsdesc: key,
-                U_tl_grtype: "003",
+                U_tl_grtype: "002",
                 U_tl_sarn: jsonObj['SANumber'], //SA Number
                 U_tl_grsuppo: jsonObj['U_tl_whsdesc'],
                 Reference2: goodIssueContext.body.DocNum, // Doc number
@@ -732,6 +736,7 @@ function StockTransferTransaction(slContext, jsonObj, testing=false){
 function OwnUsageTransaction(slContext, jsonObj){
     slContext.startTransaction();
     // Goods Issue
+    const AccountCode = jsonObj["GIType"].find((e) => e.Code === '002').U_ActCode || "";
     var goodIssue = {
         Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
         DocType: "dDocument_Items",
@@ -760,6 +765,7 @@ function OwnUsageTransaction(slContext, jsonObj){
                 CostingCode2: '202001',//RevenueLine
                 CostingCode3: item['ProductLine'],
                 WarehouseCode: item["WarehouseCode"],
+                AccountCode,
                 DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
             }
         })
@@ -838,7 +844,864 @@ function TelaCardTransaction(slContext, jsonObj, testing=false){
         DocDueDate: jsonObj['DocDate'],
         BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
         U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
-        U_tl_grtype: "003",
+        U_tl_grtype: "002",
+        U_tl_stype: "T02",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number
+        Reference2: goodIssueContext.body.DocNum, // Doc number
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj['CardCount'].map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                WarehouseCode: item['WarehouseCode'],
+                ItemCode: item['ItemCode'],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',
+                CostingCode3: item['ProductLine']
+            }
+        }),
+        DocumentReferences: [
+            {
+                "RefDocEntr": goodIssueContext.body.DocEntry,
+                "RefDocNum": goodIssueContext.body.DocNum,
+                "RefObjType": "rot_GoodsIssue",
+                "AccessKey": null,
+                "IssueDate": jsonObj['DocDate']
+            }
+        ]
+    }
+    
+    var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
+    if (goodReceiptContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Tela Card's Good Receipt",
+            ...goodReceiptContext.body
+        });
+    }
+
+    // update documentReferance to goods Issues and Ref.2
+    var goodIssueContext = slContext.update("InventoryGenExits", {
+        Reference2: goodReceiptContext.body.DocNum,
+        DocumentReferences: [
+            {
+                "RefDocEntr": goodReceiptContext.body.DocEntry,
+                "RefDocNum": goodReceiptContext.body.DocNum,
+                "RefObjType": "rot_GoodsReceipt",
+                "AccessKey": null,
+                "IssueDate": jsonObj['DocDate']
+            }
+        ]
+    }, goodIssueContext.body.DocEntry)
+    if (goodIssueContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Tela Card's Good Issue",
+            ...goodIssueContext.body
+        });
+    }
+
+    // update status Fuel Cash Sale
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_cardallow: 'Y' }, jsonObj['SaleDocEntry'])
+    if (TlRetailSaleContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({ ...TlRetailSaleContext.body });
+    }
+    if(testing) slContext.rollbackTransaction();
+    // slContext.commitTransaction();
+}
+
+function PumpTestTransaction(slContext, jsonObj){
+    slContext.startTransaction();
+    // Goods Issue
+    var goodIssue = {
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        U_tl_gitype: "002",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        Reference2: null,
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj.PumpTest.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                Price: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+            }
+        })
+    } 
+
+    goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
+    if (goodIssueContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Pump Test's Good Issue",
+            ...goodIssueContext.body
+        });
+    } 
+
+    // update status Fuel Cash Sale
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_pumpallow: 'Y' }, jsonObj['SaleDocEntry'])
+    if (TlRetailSaleContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({ ...TlRetailSaleContext.body });
+    }
+
+    slContext.commitTransaction();
+}
+
+function findSerie(series, bplid){
+    const foundItem = series.find((s) => s.BPLID == bplid);
+    return foundItem ? foundItem.Series : null;
+}
+
+//  other version
+
+/**
+ * Perform the CRUD operations on an Order from the request payload
+ *  
+ */
+var ServiceLayerContext = require('ServiceLayerContext.js');
+var http = require('HttpModule.js');
+// http.response.setHeader("Access-Control-Allow-Origin", "https://localhost:8080");
+http.response.setHeader("Access-Control-Allow-Credentials", true);
+
+function POST(req) {
+    var jsonObj = http.request.getJsonObj();
+    http.response.setHeader("Access-Control-Allow-Origin", jsonObj['app_url']);
+    // validation
+    if (!jsonObj) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, "Fail to get the content of JSON format from the request payload");
+    [
+        "DocDate",
+        "DocRate",
+        "InvoiceSeries",
+        "IncomingSeries",
+        "GISeries",
+        "GRSeries",
+        "CardCode",
+        "CardName",
+        "BPL_IDAssignedToInvoice",
+        "U_tl_whsdesc",
+        "CashSale",
+        "Partnership",
+        "StockTransfer",
+        "OwnUsage",
+        "TelaCard",
+        "PumpTest",
+        "GIType"
+    ].forEach((value) => {
+        if(!jsonObj[value]) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `${value} is required!`);
+    })
+
+    if(
+        (jsonObj['IncomingPayment'].find((i) => i.DocCurrency !== 'USD') && (jsonObj['DocRate'] || 0) <= 1) || 
+        (jsonObj['DocCurrency'] !== 'USD' && (jsonObj['DocRate'] || 0) <= 1)
+    ) throw http.ScriptException(http.HttpStatus.HTTP_BAD_REQUEST, `DocRate is required!`);
+    
+    // Initialize ServiceLayerContext instance
+    var slContext = new ServiceLayerContext();
+    
+    const fuelSale = slContext.get("TL_RETAILSALE", jsonObj['SaleDocEntry']);
+    if (fuelSale.status !== 200) return http.response.send(fuelSale.status, fuelSale.body);
+    const distributionRules = slContext.query("DistributionRules", "DistributionRules?$select=FactorCode,FactorDescription,InWhichDimension&$filter=Active eq 'tYES'", true).toArray();
+
+    jsonObj['SANumber'] = fuelSale.body.DocNum;
+    jsonObj['distributionRules'] = distributionRules;
+    
+    try {
+        // CASH SALE
+        if(
+            fuelSale.body['U_tl_s_cashallow'] !== 'Y' && 
+            jsonObj["CashSale"].length > 0
+        ) CashSaleTransaction(slContext, jsonObj)
+    
+        // PARTNERSHIP
+        if(
+            fuelSale.body['U_tl_s_partallow'] !== 'Y' && 
+            jsonObj["Partnership"].length > 0
+        ) {
+            PartnerShipTransaction(slContext, jsonObj, true);
+            PartnerShipTransaction(slContext, jsonObj);
+        }
+    
+        // STOCK TRANSFER
+        if(
+            fuelSale.body['U_tl_s_stockallow'] !== 'Y' && 
+            jsonObj["StockTransfer"].length > 0
+        ) {
+            StockTransferTransaction(slContext, jsonObj, true);
+            StockTransferTransaction(slContext, jsonObj);
+        }
+        
+    
+        // OWN USAGE
+        if(
+            fuelSale.body['U_tl_s_ownallow'] !== 'Y' && 
+            jsonObj["OwnUsage"].length > 0
+        ) OwnUsageTransaction(slContext, jsonObj);
+    
+        // TELA CARD
+        if(
+            fuelSale.body['U_tl_s_cardallow'] !== 'Y' && 
+            jsonObj["TelaCard"].length > 0
+        ) {
+            TelaCardTransaction(slContext, jsonObj, true);
+            TelaCardTransaction(slContext, jsonObj);
+        };
+    
+        // PUMP TEST​
+        // if(
+        //     fuelSale.body['U_tl_s_pumpallow'] !== 'Y' && 
+        //     jsonObj["PumpTest"].length > 0
+        // ) PumpTestTransaction(slContext, jsonObj);
+
+        // update status Fuel Cash Sale
+        slContext.update("TL_RETAILSALE", { U_tl_errormsg: "", U_tl_status: "Close" }, jsonObj['SaleDocEntry']);
+        
+        // update metter in pump
+        const nozzles = fuelSale.body['TL_RETAILSALE_FU_COCollection']
+        const pumpData = slContext.get("TL_Dispenser", fuelSale.body['U_tl_pump']).body;
+        let TL_DISPENSER_LINESCollection = pumpData['TL_DISPENSER_LINESCollection'].map((pump) => {
+            const find = nozzles.find((nozzle) => nozzle.U_tl_itemcode === pump.U_tl_itemnum);
+            if(!find) return pump;
+            return {
+                ...pump,
+                U_tl_reg_meter: parseFloat(find.U_tl_ometer || 0),
+                U_tl_upd_meter: parseFloat(find.U_tl_nmeter || 0),
+                U_tl_status: pump['U_tl_status'] === "Inactive" ? "Inactive":"Active"
+            }
+        })
+
+        slContext.update("TL_Dispenser", {
+            U_tl_status : pumpData['U_tl_status'] === "Inactive" ? "Inactive":"Active",
+            TL_DISPENSER_LINESCollection
+        }, fuelSale.body['U_tl_pump']);
+        
+        return http.response.send(200, fuelSale.body);
+    } catch (error) {
+        slContext.update("TL_RETAILSALE", { U_tl_errormsg: JSON.stringify(error) }, jsonObj['SaleDocEntry'])
+        return http.response.send(400, error);
+    }
+}
+
+/** 
+ * Entry function for the http GET request.
+ * 
+ * GET /b1s/v1/script/{{partner name}}/{{script name}}(139)
+ * 
+ */
+function GET() {
+    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
+}
+
+/** 
+ * Entry function for the http PATCH request.
+ * PATCH /b1s/v1/script/{{partner name}}/{{script name}}(139)
+ * 
+ * {"Comments: "updated from script"}
+ */
+function PATCH() {
+    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
+}
+
+/** 
+ * Entry function for the http DELETE request.
+ * DELETE /b1s/v1/script/{{partner name}}/{{script name}}(139)
+ * 
+ */
+function DELETE() {
+    http.response.send(http.HttpStatus.HTTP_NO_CONTENT, dataSrvRes.body);
+}
+
+function IncomingPayment(inv, obj, data, cashAccount, transferAccount, checkAccount, adjustAmount=0) {
+    const FilterPayment = data.filter(cur => cur.DocCurrency === obj.DocCurrency);
+    if (FilterPayment.length <= 0) return null;
+    
+    let CashSum = 0;
+    let TransferSum = 0;
+    let CheckSum = 0;
+    
+
+    FilterPayment.forEach(item => {
+        const isCash = item.Type === 'Cash' || item.Type === 'Coupon';
+        const isTransfer = item.Type === 'Bank';
+        const isCheck = item.Type === 'Check';
+
+        CashSum += isCash ? parseFloat(item.Amount) : 0;
+        TransferSum += isTransfer ? parseFloat(item.Amount) : 0;
+        CheckSum += isCheck ? parseFloat(item.Amount) : 0;
+    });
+
+    const isUSD = inv.DocCurrency == 'USD';
+    let total = parseFloat(CashSum + TransferSum + CheckSum);
+
+    if(obj.DocCurrency != "USD") total = total/parseFloat(obj.DocRate);
+    total += adjustAmount;
+    
+    var PaymentInvoices = {
+        DocEntry: inv.DocEntry,
+        DocNum: inv.DocNum,
+        InvoiceType: "it_Invoice",
+        SumApplied: isUSD ? total : 0,
+        AppliedFC: !isUSD ? total * (obj.DocRate) : 0,
+        DiscountPercent: 0,
+        DistributionRule: inv['DocumentLines'][0]['COGSCostingCode'],
+        DistributionRule2: inv['DocumentLines'][0]['COGSCostingCode2'],
+        DistributionRule3: inv['DocumentLines'][0]['COGSCostingCode3']
+    }; 
+   
+    return {
+        Series: obj['IncomingSeries'],
+        DocType: "rCustomer",
+        BPLID: obj['BPL_IDAssignedToInvoice'],
+        DocDate: obj['DocDate'],
+        CardCode: obj['CardCode'],
+        DocCurrency: obj['DocCurrency'],
+        Remarks: obj['Remarks'],
+        BankChargeAmount: 0,
+        BankChargeAmountInFC: 0,
+        BankChargeAmountInSC: 0,
+        CashAccount: cashAccount || "",
+        CashSum: CashSum,
+        TransferAccount: transferAccount || "",
+        TransferSum: TransferSum,
+        CheckAccount: checkAccount || "",
+        U_tl_dim1: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode']).FactorDescription || "", // Line of bussiness
+        U_tl_dim2: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode2']).FactorDescription || "", // Revenue Line
+        U_tl_dim3: obj['distributionRules'].find((e) => e.FactorCode  == inv['DocumentLines'][0]['COGSCostingCode3']).FactorDescription || "", // Product Line
+        CounterReference: obj['SANumber'],
+        PaymentChecks: FilterPayment.filter((check) => check.Type == 'Check')
+                                    .map((check) => {
+                                        return {
+                                            DueDate: check.DueDate || new Date(),
+                                            CheckSum: check.Amount || 0,
+                                            BankCode: check.Bank || "",
+                                            CheckNumber: check.CheckNum,
+                                        };
+                                    }) || [],
+        PaymentInvoices: [PaymentInvoices]
+    }
+}
+
+
+function CashSaleTransaction(slContext, jsonObj){
+    
+    slContext.startTransaction();
+    // Create A/R Invoice
+    var invoice = {
+        DocCurrency: 'USD',
+        Series: jsonObj['InvoiceSeries'],
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        TaxDate: jsonObj['DocDate'],
+        CardCode: jsonObj['CardCode'],
+        CardName: jsonObj['CardName'],
+        DiscountPercent: jsonObj['DiscountPercent'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        NumAtCard: "Oil",
+        U_tl_arbusi: "Oil",
+        U_tl_invtype:"Retail",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj.CashSale.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                GrossPrice: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                COGSCostingCode: item['LineOfBussiness'],
+                COGSCostingCode2: '202001',
+                // COGSCostingCode2: item['RevenueLine'],
+                COGSCostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'] 
+                
+            }
+        })
+    };
+    
+    var invoiceContext = slContext.add("Invoices", invoice);
+    if (invoiceContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "A/R Invoice",
+            ...invoiceContext.body
+        });
+    }
+
+    // Create Incoming Payment
+    var inv = invoiceContext.body;
+    var invoiceTotal = inv.DocTotal || 0;
+    var totalPayment = 0;
+    var paymentSteps = [];
+    
+    var totalC = jsonObj['IncomingPaymentCoupon'].reduce((total, payment) => total + parseFloat(payment.Amount), 0);
+    var totalP = jsonObj['IncomingPayment'].reduce((totals, payment) => {
+        const currency = payment.DocCurrency;
+        totals[currency] = (totals[currency] || 0) + parseFloat(payment.Amount);
+        return totals;
+    }, {});
+
+    if (totalC) {
+        totalPayment += totalC;
+        paymentSteps.push({
+            DocCurrency: "USD",
+            paymentKey: "IncomingPaymentCoupon",
+            amount: totalC
+        });
+    }
+    if (totalP['KHR'] && jsonObj['DocRate']) {
+        totalPayment += totalP['KHR'] / (parseFloat(jsonObj['DocRate']));
+        paymentSteps.push({
+            DocCurrency: "KHR",
+            paymentKey: "IncomingPayment",
+            amount: totalP['KHR'] / (parseFloat(jsonObj['DocRate']))
+        });
+    }
+    if (totalP['USD']) {
+        totalPayment += totalP['USD'];
+        paymentSteps.push({
+            DocCurrency: "USD",
+            paymentKey: "IncomingPayment",
+            amount: totalP['USD']
+        });
+    }
+
+    const isDownShortage = totalPayment < invoiceTotal;
+    paymentSteps.forEach((element, index) => {
+        const isLastIndex = index === paymentSteps.length - 1;
+        let adjustAmount = isDownShortage ? invoiceTotal - parseFloat(element.amount) : 0;
+        if (isLastIndex && element.DocCurrency !== 'USD') {
+            adjustAmount *= parseFloat(jsonObj['DocRate']);
+        }
+
+        const cashAcc = element.paymentKey === 'IncomingPaymentCoupon' ? jsonObj[`CouponAccount${element.DocCurrency === 'KHR' ? 'FC' : ''}`] : jsonObj[`CashAccount${element.DocCurrency === 'KHR' ? 'FC' : ''}`];
+        const bankAcc = jsonObj[`TransferAccount${element.DocCurrency === 'KHR' ? 'FC' : ''}`];
+        const checkAcc = jsonObj["CheckAccount"];
+
+        var payment = IncomingPayment(inv, { ...jsonObj, DocCurrency: element.DocCurrency }, jsonObj[element.paymentKey], cashAcc, bankAcc, checkAcc, isLastIndex ? adjustAmount : 0);
+        if (payment != null) {
+            var incomingContext = slContext.add("IncomingPayments", payment)
+            if (incomingContext.status !== 201) {
+                slContext.rollbackTransaction();
+                throw {
+                    tab: `${element.paymentKey} ${element.DocCurrency} Payment`,
+                    ...incomingContext.body
+                };
+            }
+        }
+    });
+
+    // update status Fuel Cash Sale
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_cashallow: 'Y' }, jsonObj['SaleDocEntry'])
+    if (TlRetailSaleContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({ ...TlRetailSaleContext.body });
+    }
+    
+    slContext.commitTransaction();
+}
+
+function PartnerShipTransaction(slContext, jsonObj, testing=false){
+    if(testing) slContext.startTransaction();
+    // Good Issue
+    var goodIssue = {
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        U_tl_gitype: "003",
+        U_tl_stype: "T01",
+        U_tl_branc: "WHC", // issue to warehouse
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        Reference2: null,
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj.Partnership.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                Price: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode2: '202001',
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: "202001",//RevenueLine
+                CostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+            }
+        })
+    }
+
+    var goodIssueContext = slContext.add("InventoryGenExits", goodIssue)
+    if (goodIssueContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "PartnerShip's Good Issue",
+            ...goodIssueContext.body
+        });
+    }
+    
+    // Good Receipt
+    var goodReceipt = {
+        Series: findSerie(jsonObj["GRSeries"], 1),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: 1, // head office
+        U_tl_whsdesc: "WHC",
+        U_tl_grtype: "002",
+        U_tl_stype: "T01",
+        U_tl_grsuppo: jsonObj['U_tl_whsdesc'],// receipt from warehouse
+        U_tl_sarn: jsonObj['SANumber'], //SA Number
+        Reference2: goodIssueContext.body.DocNum, // Doc number
+        U_ti_revenue:'202001',
+        DocumentLines: goodIssueContext.body.DocumentLines.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Price: undefined,
+                Quantity: item['Quantity'],
+                U_tl_itmcost: item["U_tl_itmcost"],
+                U_tl_ltotal: item["U_tl_ltotal"],
+                LineTotal: item["U_tl_itmcost"] * item["Quantity"],
+                CostingCode: item['CostingCode'],
+                CostingCode2: item['CostingCode2'],
+                CostingCode3: item['CostingCode3'],
+            }
+        }),
+        DocumentReferences: [
+            {
+                "RefDocEntr": goodIssueContext.body.DocEntry,
+                "RefDocNum": goodIssueContext.body.DocNum,
+                "RefObjType": "rot_GoodsIssue",
+                "AccessKey": null,
+                "IssueDate": jsonObj['DocDate']
+            }
+        ]
+    }
+    var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
+    if (goodReceiptContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "PartnerShip's Good Receipt",
+            ...goodReceiptContext.body
+        });
+    }
+
+    // update documentReferance to goods Issues and Ref.2
+    var goodIssueContext = slContext.update("InventoryGenExits", {
+        Reference2: goodReceiptContext.body.DocNum,
+        DocumentReferences: [
+            {
+                "RefDocEntr": goodReceiptContext.body.DocEntry,
+                "RefDocNum": goodReceiptContext.body.DocNum,
+                "RefObjType": "rot_GoodsReceipt",
+                "AccessKey": null,
+                "IssueDate": jsonObj['DocDate']
+            }
+        ]
+    }, goodIssueContext.body.DocEntry)
+    if (goodIssueContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "PartnerShip's Good Issue update documentReferance",
+            ...goodIssueContext.body
+        });
+    }
+
+    // update status Fuel Cash Sale
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_partallow: 'Y' }, jsonObj['SaleDocEntry'])
+    if (TlRetailSaleContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({ ...TlRetailSaleContext.body });
+    }
+    if(testing) slContext.rollbackTransaction();
+    // slContext.commitTransaction();
+}
+
+function StockTransferTransaction(slContext, jsonObj, testing=false){
+    
+    if(testing) slContext.startTransaction();
+    // Goods Issue
+    var goodIssue = {
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'], 
+        U_tl_gitype: "003",
+        U_tl_branc: jsonObj['StockAllocation'][0].WarehouseCode || 0,// to warehouse take from pump warehouse
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        Reference2: null,
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj.StockTransfer.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                Price: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: '202001',
+                // COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+            }
+        })
+    }
+
+    var goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
+    if (goodIssueContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Stock Transfer's Good Issue",
+            ...goodIssueContext.body
+        });
+    }
+
+    // Goods Receipt
+    let goodsReceiptRef = [];
+    const groupedItems = jsonObj.StockAllocation.reduce((acc, item) => {
+        const { WarehouseCode, ...rest } = item;
+        if (!acc[WarehouseCode]) {
+            acc[WarehouseCode] = [];
+        }
+        acc[WarehouseCode].push(rest);
+        return acc;
+    }, {});
+    
+    for (const key in groupedItems) {
+        if (groupedItems.hasOwnProperty(key)) {
+
+            const items = groupedItems[key].map((item) => {
+                const price = goodIssueContext.body.DocumentLines.find((line) => line['ItemCode'] == item['ItemCode'])
+                return {
+                    WarehouseCode: key,
+                    ItemCode: item['ItemCode'],
+                    Price: undefined,
+                    Quantity: item["Quantity"],
+                    U_tl_itmcost: price["U_tl_itmcost"],
+                    U_tl_ltotal: price["U_tl_ltotal"],
+                    LineTotal: price["U_tl_itmcost"] * item["Quantity"],
+                    DocumentLinesBinAllocations: item['DocumentLinesBinAllocations'],
+                    CostingCode: item['LineOfBussiness'],
+                    CostingCode2: '202001',
+                    CostingCode3: item['ProductLine']
+                }
+            });
+            
+            var goodReceipt = {
+                Series: findSerie(jsonObj["GRSeries"], groupedItems[key][0]['BranchCode']),
+                DocType: "dDocument_Items",
+                DocDate: jsonObj['DocDate'],
+                DocDueDate: jsonObj['DocDate'],
+                BPL_IDAssignedToInvoice: groupedItems[key][0]['BranchCode'],
+                U_tl_whsdesc: key,
+                U_tl_grtype: "002",
+                U_tl_sarn: jsonObj['SANumber'], //SA Number
+                U_tl_grsuppo: jsonObj['U_tl_whsdesc'],
+                Reference2: goodIssueContext.body.DocNum, // Doc number
+                DocumentLines: items,
+                U_ti_revenue:'202001',
+                DocumentReferences: [
+                    {
+                        "RefDocEntr": goodIssueContext.body.DocEntry,
+                        "RefDocNum": goodIssueContext.body.DocNum,
+                        "RefObjType": "rot_GoodsIssue",
+                        "AccessKey": null,
+                        "IssueDate": jsonObj['DocDate']
+                    }
+                ]
+            }
+            
+            var goodReceiptContext = slContext.add("InventoryGenEntries", goodReceipt)
+            if (goodReceiptContext.status !== 201) {
+                slContext.rollbackTransaction();
+                throw ({
+                    "tab": "Stock Transfer's Good Receipt",
+                    ...goodReceiptContext.body
+                });
+            }
+
+            goodsReceiptRef.push({
+                "RefDocEntr": goodReceiptContext.body.DocEntry,
+                "RefDocNum": goodReceiptContext.body.DocNum,
+                "RefObjType": "rot_GoodsReceipt",
+                "AccessKey": null,
+                "IssueDate": jsonObj['DocDate']
+            })
+        }
+    }
+
+    // update documentReferance to goods Issues and Ref.2
+    goodIssueContext = slContext.update("InventoryGenExits", {
+        Reference2: goodsReceiptRef.map(item => item.RefDocNum).join(','),
+        DocumentReferences: goodsReceiptRef
+    }, goodIssueContext.body.DocEntry)
+    if (goodIssueContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Stock Transfer's Good Issue",
+            ...goodIssueContext.body
+        });
+    }
+
+    // update status Fuel Cash Sale
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_stockallow: 'Y' }, jsonObj['SaleDocEntry'])
+    if (TlRetailSaleContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({ ...TlRetailSaleContext.body });
+    }
+    if(testing) slContext.rollbackTransaction();
+    // slContext.commitTransaction();
+}
+
+function OwnUsageTransaction(slContext, jsonObj){
+    slContext.startTransaction();
+    // Goods Issue
+    const AccountCode = jsonObj["GIType"].find((e) => e.Code === '002').U_ActCode || "";
+    var goodIssue = {
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        U_tl_gitype: "002",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        Reference2: null,
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj.OwnUsage.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                Price: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode2: '202001',
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                AccountCode,
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+            }
+        })
+    } 
+
+    goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
+    if (goodIssueContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Own Usage's Good Issue",
+            ...goodIssueContext.body
+        });
+    }
+
+    // update status Fuel Cash Sale
+    var TlRetailSaleContext = slContext.update("TL_RETAILSALE", { U_tl_s_ownallow: 'Y' }, jsonObj['SaleDocEntry'])
+    if (TlRetailSaleContext.status !== 204) {
+        slContext.rollbackTransaction();
+        throw ({ ...TlRetailSaleContext.body });
+    }
+
+    slContext.commitTransaction();
+}
+
+function TelaCardTransaction(slContext, jsonObj, testing=false){
+    if(testing) slContext.startTransaction();
+    //  Goods Issue
+    var goodIssue = {
+        Series: findSerie(jsonObj["GISeries"], jsonObj['BPL_IDAssignedToInvoice']),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        U_tl_stype: "T02",
+        U_tl_gitype: "003",
+        U_tl_sarn: jsonObj['SANumber'], //SA Number,
+        Reference2: null,
+        U_ti_revenue:'202001',
+        DocumentLines: jsonObj.TelaCard.map((item, index) => {
+            return  {
+                ItemCode: item['ItemCode'],
+                Quantity: item['Quantity'],
+                Price: item['GrossPrice'],
+                DiscountPercent: item['DiscountPercent'],
+                TaxCode: item['TaxCode'],
+                UoMCode: item['UoMCode'],
+                UoMEntry: item['UoMEntry'],
+                // COGSCostingCode: item['LineOfBussiness'],
+                // COGSCostingCode2: '202001',
+                // COGSCostingCode2: item['RevenueLine'],
+                // COGSCostingCode3: item['ProductLine'],
+                CostingCode: item['LineOfBussiness'],
+                CostingCode2: '202001',//RevenueLine
+                CostingCode3: item['ProductLine'],
+                WarehouseCode: item["WarehouseCode"],
+                DocumentLinesBinAllocations: item['DocumentLinesBinAllocations']
+            }
+        })
+    } 
+    
+    goodIssueContext = slContext.add("InventoryGenExits", goodIssue);
+    if (goodIssueContext.status !== 201) {
+        slContext.rollbackTransaction();
+        throw ({
+            "tab": "Tela Card's Good Issue",
+            ...goodIssueContext.body
+        });
+    }
+
+    //  Goods Receipt
+    var goodReceipt = {
+        Series: findSerie(jsonObj["GRSeries"], jsonObj['BPL_IDAssignedToInvoice']),
+        DocType: "dDocument_Items",
+        DocDate: jsonObj['DocDate'],
+        DocDueDate: jsonObj['DocDate'],
+        BPL_IDAssignedToInvoice: jsonObj['BPL_IDAssignedToInvoice'],
+        U_tl_whsdesc: jsonObj['U_tl_whsdesc'],
+        U_tl_grtype: "002",
         U_tl_stype: "T02",
         U_tl_sarn: jsonObj['SANumber'], //SA Number
         Reference2: goodIssueContext.body.DocNum, // Doc number

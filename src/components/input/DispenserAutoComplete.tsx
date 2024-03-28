@@ -3,6 +3,7 @@ import { Autocomplete, Box, CircularProgress, TextField } from "@mui/material";
 import { BsDot } from "react-icons/bs";
 import { useQuery } from "react-query";
 import DispenserRepository from "@/services/actions/dispenserRepository";
+import request from "@/utilies/request";
 
 interface Type {
   Code: string;
@@ -18,19 +19,40 @@ export default function DispenserAutoComplete(props: {
   isStatusActive?: boolean;
   branch?: number;
   pumpType?: string;
-  loading?: boolean
+  loading?: boolean;
+  old_pump?: any;
+  allData?: any;
 }) {
-  const { loading = false } = props;
+  let { data: OpenPump }: any = useQuery({
+    queryKey: ["open_pump"],
+    queryFn: () =>
+      request("GET", "sml.svc/BIZ_OPEN_PUMP_QUERY").then(
+        (res: any) => res.data.value
+      ),
+  });
+
   let { data, isLoading }: any = useQuery({
     queryKey: ["dispenser"],
     queryFn: () => new DispenserRepository().get(),
   });
-  const filteredData = data
+
+  let filteredData = data
     ?.filter((e: any) => !props.isStatusActive || e.U_tl_status === "Active")
     ?.filter(
       (e: any) => !props.branch || parseInt(e.U_tl_bplid) === props.branch
     )
     ?.filter((e: any) => !props.pumpType || e.U_tl_type === props.pumpType);
+
+  let onlyPumpFilterData = data?.filter(
+    (e: any) => !props.pumpType || e.U_tl_type === props.pumpType
+  );
+
+  if (OpenPump?.length > 0)
+    filteredData = filteredData?.filter(
+      (e: any) =>
+        props.old_pump === e.Code ||
+        !OpenPump.some((p: any) => p.U_tl_pump === e.Code)
+    );
 
   useEffect(() => {
     if (props.value) {
@@ -65,7 +87,7 @@ export default function DispenserAutoComplete(props: {
       </label>
 
       <Autocomplete
-        options={filteredData ?? []}
+        options={props.allData ? onlyPumpFilterData : filteredData}
         autoHighlight
         value={selectedValue}
         onChange={handleAutocompleteChange}

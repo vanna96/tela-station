@@ -6,9 +6,7 @@ import MenuButton from "@/components/button/MenuButton";
 import { FormValidateException } from "@/utilies/error";
 import LoadingProgress from "@/components/LoadingProgress";
 import GeneralForm from "../components/GeneralForm";
-import LogisticForm from "../components/LogisticForm";
 import ContentForm from "../components/ContentForm";
-import AccountingForm from "../components/AccountingForm";
 import React, { ReactNode } from "react";
 import { fetchSAPFile, formatDate, getAttachment } from "@/helper/helper";
 import request from "@/utilies/request";
@@ -52,7 +50,6 @@ class LubeForm extends CoreFormDocument {
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
-      Currency: "USD",
       DocType: "dDocument_Items",
       showCollapse: false,
       ExchangeRate: 1,
@@ -70,7 +67,7 @@ class LubeForm extends CoreFormDocument {
       VatGroup: "S1",
       type: "sale",
       lineofBusiness: "",
-      warehouseCode: "",
+      U_ti_revenue: "202001",
       cashBankData: [
         {
           U_tl_paytype: "Cash",
@@ -247,7 +244,7 @@ class LubeForm extends CoreFormDocument {
                     DiscountPercent: item.U_tl_dispercent || 0,
                     VatGroup: item.VatGroup,
                     UoMEntry: item.U_tl_uom || null,
-                    WarehouseCode: item?.WarehouseCode || data?.U_tl_whs,
+                    WarehouseCode: data?.U_tl_whs,
                     UomAbsEntry: item?.U_tl_uom,
                     VatRate: item.TaxPercentagePerRow,
                     UomLists: uomLists,
@@ -255,13 +252,12 @@ class LubeForm extends CoreFormDocument {
                     ExchangeRate: data?.DocRate || 1,
                     JournalMemo: data?.JournalMemo,
                     COGSCostingCode: apiResponse?.U_tl_dim1,
-                    COGSCostingCode2: item?.COGSCostingCode2,
+                    COGSCostingCode2: item?.COGSCostingCode2 ?? "202001",
                     COGSCostingCode3: apiResponse?.U_tl_dim2,
                     CurrencyType: "B",
                     DocumentLinesBinAllocations:
                       item.DocumentLinesBinAllocations,
                     vendor,
-                    warehouseCode: data?.U_tl_whs,
                     DocDiscount: data?.DiscountPercent,
                     BPAddresses: vendor?.bpAddress?.map(
                       ({ addressName, addressType }: any) => {
@@ -317,6 +313,7 @@ class LubeForm extends CoreFormDocument {
       U_tl_doccur: data?.Currency,
       U_tl_rate: data?.ExchangeRate,
       U_tl_taxdate: data?.U_tl_taxdate,
+      U_tl_status: data?.U_tl_status ?? "Open",
 
       U_tl_docdate: data?.U_tl_docdate,
       U_tl_devdate: data?.U_tl_devdate,
@@ -433,16 +430,6 @@ class LubeForm extends CoreFormDocument {
             throw new FormValidateException(message, getTabIndex());
           }
         }
-      );
-
-      const warehouseCodeGet = data.U_tl_whsdesc;
-      const DocumentLines = getItem(
-        data?.Items || [],
-        data?.DocType,
-        warehouseCodeGet,
-        data.BinLocation,
-        data.LineOfBusiness,
-        data.U_ti_revenue
       );
 
       const payload = this.createPayload();
@@ -604,20 +591,14 @@ class LubeForm extends CoreFormDocument {
           LineOfBussiness: item.COGSCostingCode, // item.LineOfBussiness
           RevenueLine: "202001", // item.RevenueLine Station
           ProductLine: item.COGSCostingCode3, // item.ProductLine
-          BinAbsEntry:
-            item.BinAbsEntry === undefined || item.BinAbsEntry === null
-              ? data.U_tl_bincode
-              : item.BinAbsEntry,
-          // BranchCode: data.U_tl_bplid,
-          WarehouseCode: item.WarehouseCode,
+          BinAbsEntry: item.BinLocation ?? data.U_tl_bincode,
+          WarehouseCode: item?.WarehouseCode ?? data.U_tl_whs,
           DocumentLinesBinAllocations: [
             {
-              BinAbsEntry:
-                item.BinAbsEntry === undefined || item.BinAbsEntry === null
-                  ? data.U_tl_bincode
-                  : item.BinAbsEntry,
+              BinAbsEntry: item.BinLocation ?? data.U_tl_bincode,
               Quantity: quantity,
               AllowNegativeQuantity: "tNO",
+              SerialAndBatchNumbersBaseLine: -1,
             },
           ],
         };
@@ -633,11 +614,11 @@ class LubeForm extends CoreFormDocument {
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
         DocDate: new Date(),
-        DocCurrency: "USD",
+        DocCurrency: data?.Currency,
         DocRate: data?.ExchangeRate === 0 ? "4100" : data?.ExchangeRate,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
-        DiscountPercent: 0.0,
+        DiscountPercent: data?.U_tl_dispercent ?? 0,
         BPL_IDAssignedToInvoice: data?.U_tl_bplid,
         CashAccount: "110102",
         CashAccountFC: "110103",
@@ -814,8 +795,7 @@ class LubeForm extends CoreFormDocument {
   FormRender = () => {
     const itemGroupCode = 101;
 
-    // const priceList = parseInt(this.state.U_tl_sopricelist);
-    const priceList = 13;
+    const priceList = parseInt(this.state.U_tl_sopricelist);
     const navigate = useNavigate();
     return (
       <>
@@ -856,6 +836,9 @@ class LubeForm extends CoreFormDocument {
                         lineofBusiness={this.state.lineofBusiness}
                         warehouseCode={this.state.warehouseCode}
                         onWarehouseChange={this.handleWarehouseChange}
+                        handlerChangeObject={(value: any) =>
+                          this.handlerChangeObject(value)
+                        }
                         onLineofBusinessChange={this.handleLineofBusinessChange}
                       />
                     )}
@@ -951,42 +934,3 @@ class LubeForm extends CoreFormDocument {
 }
 
 export default withRouter(LubeForm);
-
-const getItem = (
-  items: any,
-  type: any,
-  warehouseCode: any,
-  BinLocation: any,
-  LineOfBussiness: any,
-  U_ti_revenue: any
-) =>
-  items?.map((item: any, index: number) => {
-    return {
-      ItemCode: item.ItemCode || null,
-      Quantity: item.Quantity || null,
-      GrossPrice: item.GrossPrice || item.total,
-      DiscountPercent: item.DiscountPercent || 0,
-      // TaxCode: item.VatGroup || item.taxCode || null,
-      VatGroup: item.VatGrup,
-      // UoMCode: item.UomGroupCode || null,
-      UoMEntry: item.UomAbsEntry || null,
-      UomAbsEntry: item.UomAbsEntry,
-      LineOfBussiness: LineOfBussiness,
-      // RevenueLine: item.revenueLine ?? "202001",
-      // ProductLine: item.REV ?? "203004",
-      COGSCostingCode: item.COGSCostingCode ?? "201001",
-      COGSCostingCode2: U_ti_revenue,
-      COGSCostingCode3: item.COGSCostingCode3 ?? "203004",
-      // BinAbsEntry: item.BinAbsEntry ?? 65,
-      WarehouseCode: item?.WarehouseCode || warehouseCode,
-      DocumentLinesBinAllocations: [
-        {
-          BinAbsEntry: item.BinAbsEntry,
-          Quantity: item.Quantity,
-          AllowNegativeQuantity: "tNO",
-          SerialAndBatchNumbersBaseLine: -1,
-          BaseLineNumber: index,
-        },
-      ],
-    };
-  });

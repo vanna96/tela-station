@@ -2,22 +2,25 @@ import React from "react";
 import MUITextField from "../../../../components/input/MUITextField";
 import ContentComponent from "./ContentComponents";
 import { ItemModal } from "./ItemModal";
-import { Alert, Collapse, IconButton, TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Collapse,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  TextField,
+} from "@mui/material";
 import { MdOutlineClose } from "react-icons/md";
-import { numberWithCommas } from "@/helper/helper";
-import { useDocumentTotalHook } from "../hook/useDocumentTotalHook";
 import shortid from "shortid";
 import MUISelect from "@/components/selectbox/MUISelect";
-// import { APIContext } from "../../context/APIContext";
-import { ClockNumberClassKey } from "@mui/x-date-pickers";
 import { NumericFormat } from "react-number-format";
 import request from "@/utilies/request";
 import UnitOfMeasurementRepository from "@/services/actions/unitOfMeasurementRepository";
 import UnitOfMeasurementGroupRepository from "@/services/actions/unitOfMeasurementGroupRepository";
-import BinLocationTo from "@/components/input/BinLocationTo";
-import BinLocationAutoComplete from "@/components/input/BinLocationAutoComplete";
-import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import { TbEdit } from "react-icons/tb";
+import MUIRightTextField from "@/components/input/MUIRightTextField";
+import { FiCopy } from "react-icons/fi";
 interface ContentFormProps {
   handlerAddItem: () => void;
   handlerChangeItem: (record: any) => void;
@@ -40,13 +43,14 @@ export default function ContentForm({
   ContentLoading,
 }: ContentFormProps) {
   const [key, setKey] = React.useState(shortid.generate());
-  // const { tlExpDic }: any = React.useContext(APIContext);
   const [collapseError, setCollapseError] = React.useState(false);
 
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
-
+  const vendorPriceList = data.U_tl_sopricelist;
+  const wh = data.U_tl_whsdesc;
+  const lineofbusiness = data.U_tl_arbusi;
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -68,31 +72,22 @@ export default function ContentForm({
 
       const response = await request("GET", `/Items('${selectedCode}')`);
       const itemDetails = response.data;
-
-      const items: any = data?.Items?.map((item: any, indexItem: number) => {
-        if (i.toString() === indexItem.toString()) {
-          item.ItemCode = itemDetails.ItemCode;
-          item.ItemName = itemDetails.ItemName;
-          item.UnitPrice = itemDetails.MovingAveragePrice;
-          item.Quantity = itemDetails.Quantity ?? 1;
-          item.UomAbsEntry = itemDetails.InventoryUoMEntry;
-          item.FromWarehouseCode = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.WhsCode;
-          item.WarehouseCode = data.ToWarehouse;
-          item.FromBin = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.BinAbsEntry;
-          item.BinQty = data.FromBinItems?.find(
-            (e: any) => e.ItemCode === item.ItemCode
-          )?.OnHandQty;
-          item.ToBin = data.ToBinItems?.find(
-            (e: any) => e.WhsCode === item.WarehouseCode
-          )?.BinAbsEntry;
-          item.UoMList = uomLists;
+      const items: any = data?.Items?.map(
+        (item: any, indexItem: number, vendorPriceList: any) => {
+          if (i.toString() === indexItem.toString()) {
+            item.ItemCode = itemDetails.ItemCode;
+            item.ItemName = itemDetails.ItemName;
+            // item.UnitPrice = itemDetails.MovingAveragePrice;
+            item.GrossPrice = item.UnitPrice;
+            item.Quantity = itemDetails.Quantity ?? 1;
+            item.UomAbsEntry = itemDetails.InventoryUoMEntry;
+            item.BinLocation = data.U_tl_sobincode;
+            item.UoMList = uomLists;
+            item.ItemPrices = itemDetails.ItemPrices;
+          }
+          return item;
         }
-        return item;
-      });
+      );
 
       onChange("Items", items);
     } else {
@@ -106,8 +101,6 @@ export default function ContentForm({
       onChange("Items", items);
     }
   };
-
-  // console.log(data);
   const onUpdateByItem = (item: any) => onChangeItemByCode(item);
   const handlerChangeInput = (event: any, row: any, field: any) => {
     if (data?.isApproved) return;
@@ -115,89 +108,61 @@ export default function ContentForm({
     let value = event?.target?.value ?? event;
     handlerChangeItem({ value: value, record: row, field });
   };
-
   const updateRef = React.createRef<ItemModal>();
-
   const itemColumns = React.useMemo(
     () => [
-      // {
-      //   accessorKey: "ItemCode",
-      //   header: "Item Code",
-      //   visible: true,
-      //   Cell: ({ cell }: any) => {
-      //     return edit ? (
-      //       <MUITextField value={cell.getValue()} disabled />
-      //     ) : (
-      //       <MUISelect
-      //         value={cell.getValue()}
-      //         items={data.FromBinItems?.map((e: any) => ({
-      //           label: e.ItemCode,
-      //           value: e.ItemCode,
-      //         }))}
-      //         aliaslabel="label"
-      //         aliasvalue="Code"
-      //         onChange={(e: any) =>
-      //           handlerUpdateRow(
-      //             cell.row.id,
-      //             ["ItemCode", e.target.value],
-      //             "ItemCode"
-      //           )
-      //         }
-      //       />
-      //     );
-      //   },
-      // },
-
       {
         accessorKey: "ItemCode",
         Header: (header: any) => (
           <label>
-            Item No <span className="text-red-500">*</span>
+            Item Code <span className="text-red-500">*</span>
           </label>
         ),
-        header: "Item No", //uses the default width from defaultColumn prop
-        visible: true,
-        size: 120,
-        Cell: ({ cell }: any) => (
-          /* if (!cell.row.original?.ItemCode)*/ /*     return <div role="button" className="px-4 py-2 text-inherit rounded hover:bg-gray-200 border shadow-inner" onClick={handlerAddItem}>Add Row</div>*/ <MUITextField
-            value={cell.getValue()}
-            disabled={data?.isStatusClose || false}
-            onBlur={(event) =>
-              handlerChangeInput(event, cell?.row?.original, "ItemCode")
-            }
-            endAdornment={!(data?.isStatusClose || false)}
-            onClick={() => {
-              if (cell.getValue() === "") {
-                handlerAddItem();
-              } else {
-                updateRef.current?.onOpen(cell.row.original);
-              }
-            }}
-            endIcon={
-              cell.getValue() === "" ? null : <TbEdit className="text-lg" />
-            }
-            readOnly={true}
-          />
-        ),
-      },
-
-      {
-        Header: (header: any) => (
-          <label>
-            Item Name <span className="text-red-500">*</span>
-          </label>
-        ),
-        accessorKey: "ItemName",
-        header: "Item Name ",
+        size: 200,
         visible: true,
         Cell: ({ cell }: any) => {
+          const cellValue = cell.getValue() === "" ? "Add" : cell.getValue();
+
           return (
-            <MUITextField
-              value={cell.getValue()}
-              disabled
-              // onBlur={(e: any) =>
-              //   handlerUpdateRow(cell.row.id, ["ItemName", e.target.value])
-              // }
+            <OutlinedInput
+              className={`text-field w-full cursor-pointer ${data?.isStatusClose || cellValue === " " ? "bg-gray-100" : ""} ${cellValue === "Add" ? "center-text cursor-pointer" : "cursor-pointer"}`}
+              value={cellValue == " " ? "" : cellValue}
+              onBlur={(event) =>
+                handlerChangeInput(event, cell?.row?.original, "ItemCode")
+              }
+              readOnly
+              placeholder="Item Code"
+              disabled={cellValue === " "}
+              onClick={() => {
+                if (cellValue === "Add") {
+                  handlerAddItem();
+                }
+              }}
+              sx={{
+                padding: "1px 1px",
+              }}
+              inputProps={{
+                readOnly: true,
+                style: {
+                  textAlign: cellValue === "Add" ? "center" : "left",
+                  cursor: cellValue === "Add" ? "pointer" : "",
+                },
+              }}
+              endAdornment={
+                cellValue !== "Add" &&
+                cellValue !== " " &&
+                !data?.isStatusClose ? (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => {
+                        updateRef.current?.onOpen(cell.row.original);
+                      }}
+                    >
+                      <FiCopy className="text-lg" />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null
+              }
             />
           );
         },
@@ -205,51 +170,76 @@ export default function ContentForm({
       {
         Header: (header: any) => (
           <label>
-            Quantity <span className="text-red-500">*</span>
+            Item Name <span className="text-red-500">*</span>
+          </label>
+        ),
+        size: 220,
+        accessorKey: "ItemName",
+        header: "Item Name ",
+        visible: true,
+        Cell: ({ cell }: any) => {
+          if (cell.row.original?.ItemCode)
+            return (
+              <MUITextField
+                placeholder="Item Name"
+                // value={cell.row.original.ItemCode ? cell.getValue() : ""}
+                value={
+                  cell.row.original.ItemCode &&
+                  cell.row.original.ItemCode.trim() !== ""
+                    ? cell.getValue()
+                    : ""
+                }
+                disabled
+              />
+            );
+        },
+      },
+      {
+        Header: (header: any) => (
+          <label>
+            Qty <span className="text-red-500">*</span>
           </label>
         ),
         accessorKey: "Quantity",
         header: "Quantity",
         visible: true,
-        Cell: ({ cell }: any) => {
-          return (
-            <NumericFormat
-              key={"Quantity_" + cell.getValue()}
-              thousandSeparator
-              decimalScale={1}
-              fixedDecimalScale
-              customInput={MUITextField}
-              defaultValue={cell.getValue()}
-              // onBlur={(event) => {
-              //   const newValue = parseFloat(
-              //     event.target.value.replace(/,/g, "")
-              //   );
-              //   handlerUpdateRow(
-              //     cell.row.id,
-              //     ["Quantity", newValue],
-              //     "Quantity"
-              //   );
-              // }}
-              onBlur={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["Quantity", newValue],
-                  "Quantity"
-                );
 
-                const gross = cell.row.original.GrossPrice;
-                const totalGross = newValue * gross;
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
+        Cell: ({ cell }: any) => {
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                key={"Quantity_" + cell.getValue()}
+                disabled={cell.row.original.ItemCode === " "}
+                thousandSeparator
+                decimalScale={4}
+                placeholder={data.Currency === "USD" ? "0.0000" : "0"}
+                customInput={MUIRightTextField}
+                defaultValue={cell.getValue()}
+                onBlur={(event) => {
+                  const newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["Quantity", newValue],
+                    "Quantity"
+                  );
+
+                  const grossPrice = cell.row.original.GrossPrice;
+                  const totalGross =
+                    grossPrice * newValue -
+                    grossPrice *
+                      newValue *
+                      (cell.row.original.DiscountPercent / 100);
+
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }}
+              />
+            );
         },
       },
       {
@@ -262,25 +252,63 @@ export default function ContentForm({
         header: "UoM",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return null;
+
+          const handleUomChange = (event: any) => {
+            const selectedUomValue = event.target.value;
+            handlerUpdateRow(
+              cell.row.id,
+              ["UomAbsEntry", selectedUomValue],
+              "UomAbsEntry"
+            );
+
+            const defaultPrice = cell.row.original.ItemPrices?.find(
+              (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+            )?.Price;
+            const itemPrices = cell.row.original.ItemPrices?.find(
+              (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+            )?.UoMPrices;
+
+            const uomPrice = itemPrices?.find(
+              (e: any) => e.PriceList === parseInt(data.U_tl_sopricelist)
+            );
+
+            const grossPrice =
+              uomPrice && selectedUomValue === uomPrice.UoMEntry
+                ? uomPrice.Price
+                : defaultPrice &&
+                    selectedUomValue === cell.row.original.InventoryUoMEntry
+                  ? defaultPrice
+                  : 0;
+
+            const quantity = cell.row.original.Quantity;
+            const totalGross =
+              grossPrice * quantity -
+              grossPrice * quantity * (cell.row.original.DiscountPercent / 100);
+
+            handlerUpdateRow(
+              cell.row.id,
+              ["GrossPrice", grossPrice],
+              "GrossPrice"
+            );
+            handlerUpdateRow(
+              cell.row.id,
+              ["LineTotal", totalGross],
+              "LineTotal"
+            );
+          };
+
           return (
             <MUISelect
+              disabled={cell.row.original.ItemCode === " "}
               value={cell.getValue()}
-              items={// edit
-              //   ? []
-              //   :
-              cell.row.original.UomLists?.map((e: any) => ({
+              items={cell.row.original.UomLists?.map((e: any) => ({
                 label: e.Name,
                 value: e.AbsEntry,
               }))}
               aliaslabel="label"
               aliasvalue="value"
-              onChange={(e: any) =>
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["UomAbsEntry", e.target.value],
-                  "UomAbsEntry"
-                )
-              }
+              onChange={handleUomChange}
             />
           );
         },
@@ -295,13 +323,15 @@ export default function ContentForm({
         header: "Unit Price",
         visible: true,
         Cell: ({ cell }: any) => {
+          if (!cell.row.original?.ItemCode) return null;
           return (
             <NumericFormat
+              disabled
               key={"Price_" + cell.getValue()}
               thousandSeparator
-              decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
+              decimalScale={data.Currency === "USD" ? 4 : 0}
+              // fixedDecimalScale
+              customInput={MUIRightTextField}
               value={cell.getValue()}
               onBlur={(event) => {
                 const newValue = parseFloat(
@@ -329,70 +359,84 @@ export default function ContentForm({
 
       {
         accessorKey: "DiscountPercent",
-        header: "Unit Discount",
+        header: " Discount %",
         visible: true,
         Cell: ({ cell }: any) => {
-          return (
-            <MUITextField
-              // placeholder="0.00"
-              type="number"
-              startAdornment={"%"}
-              defaultValue={cell.getValue() ?? 0}
-              onChange={(event: any) => {
-                if (!(event.target.value <= 100 && event.target.value >= 0)) {
-                  event.target.value = 0;
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                disabled={cell.row.original.ItemCode === " "}
+                value={
+                  cell.row.original.DiscountPercent === 0 ? "" : cell.getValue()
                 }
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["DiscountPercent", event.target.value],
-                  "DiscountPercent"
-                );
-                const quantity = cell.row.original.Quantity;
-                const totalGross =
-                  cell.row.original.GrossPrice * quantity -
-                  cell.row.original.GrossPrice *
-                    quantity *
-                    (cell.row.original.DiscountPercent / 100);
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", totalGross],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
+                thousandSeparator
+                key={
+                  "DiscountPercent" +
+                  cell.row.original.DiscountPercent +
+                  shortid.generate()
+                }
+                startAdornment={"%"}
+                decimalScale={data.Currency === "USD" ? 3 : 0}
+                placeholder={data.Currency === "USD" ? "0.000" : "0"}
+                onBlur={(event) => {
+                  let newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  if (!(newValue <= 100 && newValue >= 0)) {
+                    newValue = 0;
+                  }
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["DiscountPercent", newValue],
+                    "DiscountPercent"
+                  );
+                  const quantity = cell.row.original.Quantity;
+                  const totalGross =
+                    cell.row.original.GrossPrice * quantity -
+                    cell.row.original.GrossPrice * quantity * (newValue / 100);
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", totalGross],
+                    "LineTotal"
+                  );
+                }}
+                customInput={MUIRightTextField}
+              />
+            );
         },
       },
-
       {
         accessorKey: "LineTotal",
         header: "Amount",
         visible: true,
+
         Cell: ({ cell }: any) => {
-          return (
-            <NumericFormat
-              key={"Amount_" + cell.getValue()}
-              thousandSeparator
-              decimalScale={2}
-              fixedDecimalScale
-              customInput={MUITextField}
-              value={cell.getValue()}
-              onChange={(event) => {
-                const newValue = parseFloat(
-                  event.target.value.replace(/,/g, "")
-                );
-                handlerUpdateRow(
-                  cell.row.id,
-                  ["LineTotal", newValue],
-                  "LineTotal"
-                );
-              }}
-            />
-          );
+          if (cell.row.original?.ItemCode)
+            return (
+              <NumericFormat
+                disabled
+                key={"Amount_" + cell.getValue()}
+                thousandSeparator
+                decimalScale={3}
+                // fixedDecimalScale
+                customInput={MUIRightTextField}
+                value={cell.getValue()}
+                onChange={(event) => {
+                  const newValue = parseFloat(
+                    event.target.value.replace(/,/g, "")
+                  );
+                  handlerUpdateRow(
+                    cell.row.id,
+                    ["LineTotal", newValue],
+                    "LineTotal"
+                  );
+                }}
+              />
+            );
         },
       },
     ],
-    [updateRef]
+    [updateRef, data.Items.length]
   );
 
   const onClose = React.useCallback(() => setCollapseError(false), []);
@@ -407,11 +451,8 @@ export default function ContentForm({
             <IconButton
               aria-label="close"
               color="inherit"
-              size="small"
               onClick={onClose}
-            >
-              <MdOutlineClose fontSize="inherit" />
-            </IconButton>
+            ></IconButton>
           }
         >
           {data?.error["Items"]}
@@ -419,7 +460,7 @@ export default function ContentForm({
       </Collapse>
       <ContentComponent
         key={key}
-        columns={itemColumns}
+        columns={[...itemColumns]}
         items={[...data?.Items]}
         isNotAccount={isNotAccount}
         data={data}
@@ -432,9 +473,14 @@ export default function ContentForm({
         }}
       />
       <ItemModal
+        wh={wh}
+        priceList={vendorPriceList}
         ref={updateRef}
         onSave={onUpdateByItem}
+        lineofbusiness={lineofbusiness}
         columns={itemColumns}
+        branch={data.BPL_IDAssignedToInvoice}
+        bin={data.U_tl_sobincode}
       />
     </>
   );

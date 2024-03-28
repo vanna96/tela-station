@@ -95,7 +95,10 @@ class DeliveryDetail extends Component<any, any> {
                 UomGroupCode: item.UoMCode || null,
                 UomEntry: item.UoMEntry || null,
                 Currency: item.Currency,
-                LineTotal: item.GrossTotal,
+                LineTotal:
+                  data?.DocCurrency === "USD"
+                    ? data?.GrossTotal
+                    : item.GrossTotalFC,
                 VatRate: item.TaxPercentagePerRow,
                 WarehouseCode: item.WarehouseCode,
                 DiscountPercent: item.DiscountPercent,
@@ -289,8 +292,19 @@ function General(props: any) {
           </div>
           <div className="col-span-2"></div>
           <div className="col-span-5">
-            {renderKeyValue("Series", seriesName)}
-            {renderKeyValue("Document Numbering", props.data.DocNum)}
+            <div className="grid grid-cols-2 py-2">
+              <div className="col-span-1 text-gray-700">Series </div>
+              <div className="col-span-1 text-gray-900">
+                <div className="grid grid-cols-12 gap-1">
+                  <div className="col-span-5 text-gray-900">
+                    <MUITextField disabled value={seriesName ?? "N/A"} />
+                  </div>
+                  <div className="col-span-7 text-gray-900">
+                    <MUITextField disabled value={props.data.DocNum ?? "N/A"} />
+                  </div>
+                </div>
+              </div>
+            </div>
             {renderKeyValue("Posting Date", dateFormat(props.data.TaxDate))}
             {renderKeyValue("Delivery Date", dateFormat(props.data.DocDueDate))}
             {renderKeyValue("Document Date", dateFormat(props.data.DocDate))}
@@ -326,12 +340,12 @@ function General(props: any) {
 
 function Content(props: any) {
   const { data } = props;
+  console.log(data);
   const [docTotal, docTaxTotal, totalBefore] = useDocumentTotalHook(
     props.data.Items ?? [],
     props?.data?.DiscountPercent === "" ? 0 : props.data?.DiscountPercent,
     props.data.ExchangeRate === 0 ? 1 : props.data.ExchangeRate
   );
-  console.log(props.data.Items);
   const discountAmount = useMemo(() => {
     if (totalBefore == null) {
       return 0;
@@ -524,9 +538,13 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     value={
-                      props?.data?.DocTotal +
-                      props.data?.TotalDiscount -
-                      props.data.VatSum
+                      props.data.Currency === "USD"
+                        ? props?.data?.DocTotal +
+                          props.data?.TotalDiscount -
+                          props.data.VatSum
+                        : props?.data?.DocTotalFc +
+                          props.data?.TotalDiscountFC -
+                          props.data.VatSumFc
                     }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
@@ -573,7 +591,11 @@ function Content(props: any) {
                         // value={
                         //   discountAmount === 0 || "" ? "0.000" : discountAmount
                         // }
-                        value={props.data?.TotalDiscount}
+                        value={
+                          props.data.Currency === "USD"
+                            ? props.data?.TotalDiscount
+                            : props.data?.TotalDiscountFC
+                        }
                         startAdornment={props?.data?.Currency}
                         decimalScale={props.data.Currency === "USD" ? 3 : 0}
                         // fixedDecimalScale
@@ -591,10 +613,11 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-700">Tax</div>
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
-                    // value={
-                    //   discountedDocTaxTotal === 0 ? "" : discountedDocTaxTotal
-                    // }
-                    value={props.data.VatSum}
+                    value={
+                      props.data.Currency === "USD"
+                        ? props.data?.VatSum
+                        : props.data?.VatSumFc
+                    }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}
@@ -611,8 +634,11 @@ function Content(props: any) {
                 <div className="col-span-6 text-gray-900">
                   <NumericFormat
                     readOnly
-                    // value={discountedDocTotal === 0 ? "" : discountedDocTotal}
-                    value={props.data?.DocTotal}
+                    value={
+                      props.data.Currency === "USD"
+                        ? props.data?.DocTotal
+                        : props.data?.DocTotalFc
+                    }
                     thousandSeparator
                     startAdornment={props?.data?.Currency}
                     decimalScale={props.data.Currency === "USD" ? 3 : 0}

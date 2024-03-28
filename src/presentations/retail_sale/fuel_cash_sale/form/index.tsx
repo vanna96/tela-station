@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import ErrorLogForm from "../../components/ErrorLogForm";
 import requestHeader from "@/utilies/requestheader";
 import { formatDate } from "@/helper/helper";
+import TIOgeDataRepository from "@/services/actions/TIOgeDataRepository";
 class Form extends NonCoreDcument {
   constructor(props: any) {
     super(props);
@@ -176,6 +177,7 @@ class Form extends NonCoreDcument {
 
           state = {
             ...data,
+            old_pump: data?.U_tl_pump,
             vendor,
             dispenser,
             U_tl_whs: dispenser.U_tl_whs,
@@ -278,7 +280,7 @@ class Form extends NonCoreDcument {
       U_tl_docdate: data?.U_tl_docdate || new Date(),
       U_tl_attend: data?.U_tl_attend,
       U_tl_ownremark: data?.U_tl_ownremark,
-      // U_tl_status: data?.U_tl_status || "",
+      U_tl_status: data?.U_tl_status ?? "Open",
       //Consumption
       TL_RETAILSALE_FU_COCollection: data?.allocationData
         ?.filter((e: any) => parseInt(e.U_tl_nmeter) > 0)
@@ -736,12 +738,39 @@ class Form extends NonCoreDcument {
           },
         ],
       }));
+      const date = formatDate(new Date(), "");
+      const fetchExchangeRate = async () => {
+        try {
+          const res: any = await request(
+            "POST",
+            "/SBOBobService_GetCurrencyRate",
+            {
+              Currency: "KHR",
+              Date: `${date}`,
+            }
+          );
+
+          if (res?.data) {
+            return res.data;
+          } else {
+            return 0;
+          }
+        } catch (err) {
+          this.dialog.current?.error(
+            "Please update exchange rate for currency KHR "
+          );
+          return 0;
+        }
+      };
+      const DocRateKHR = data.ExchangeRate ?? (await fetchExchangeRate());
+      const TIOigeData = await new TIOgeDataRepository().get();
+
       const PostPayload = {
         app_url: import.meta.env.VITE_APP_URL,
         SaleDocEntry: docEntry,
         // data.docEntry,
         ToWarehouse: data?.U_tl_whs,
-        // U_tl_whsdesc: "WHC",
+        GIType: TIOigeData,
         U_tl_whsdesc: data?.U_tl_whs,
         InvoiceSeries: data?.INSeries,
         IncomingSeries: data?.DNSeries,
@@ -749,7 +778,7 @@ class Form extends NonCoreDcument {
         GRSeries: data?.GoodReceiptSeries,
         DocDate: new Date(),
         DocCurrency: "USD",
-        DocRate: data.ExchangeRate,
+        DocRate: DocRateKHR,
         CardCode: data?.CardCode,
         CardName: data?.CardName,
         DiscountPercent: 0.0,
@@ -774,7 +803,7 @@ class Form extends NonCoreDcument {
             .map((item: any) => ({
               Type: item.U_tl_paytype,
               DocCurrency: item.U_tl_paycur,
-              DueDate: item.U_tl_checkdate || new Date(),
+              DueDate: item.U_tl_checkdate,
               Amount: item.U_tl_amtcheck === "" ? 0 : item.U_tl_amtcheck,
               Bank: item.U_tl_checkbank,
               CheckNum: item.U_tl_acccheck,
@@ -786,7 +815,7 @@ class Form extends NonCoreDcument {
             .map((item: any) => ({
               Type: item.U_tl_paytype,
               DocCurrency: item.U_tl_paycur,
-              DueDate: new Date(),
+              DueDate: new Date().toISOString(),
               Amount: item.U_tl_amtcoupon === "" ? 0 : item.U_tl_amtcoupon,
               // CounNum: item.U_tl_acccoupon,
             }))

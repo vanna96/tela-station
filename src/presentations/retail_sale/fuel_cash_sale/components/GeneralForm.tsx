@@ -82,15 +82,9 @@ export default function GeneralForm({
     )
     ?.find((series: any) => series.BPLID === BPL)?.Series;
 
-  const seriesINV = (
-    data?.invoiceSeries?.find(
-      (entry: any) =>
-        entry.BPLID === BPL &&
-        (entry.Name.startsWith(formattedDateA) ||
-          entry.Name.startsWith(formattedDateB))
-    ) || {}
-  ).Series;
-
+  const seriesINV = data?.invoiceSeries?.find(
+    (entry: any) => entry.BPLID === BPL && entry.Name.startsWith(formattedDateB)
+  )?.Series;
   const seriesGI = data?.GISeries?.reduce((acc: any, series: any) => {
     if (series?.Locked === "tNO" && parseInt(series.PeriodIndicator) === year) {
       acc.push({ BPLID: series.BPLID, Series: series.Series });
@@ -154,6 +148,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <DispenserAutoComplete
+                old_pump={data?.old_pump}
                 value={data?.U_tl_pump}
                 isStatusActive
                 branch={parseInt(data?.U_tl_bplid) ?? BPL}
@@ -397,13 +392,13 @@ export default function GeneralForm({
             <div className="col-span-3">
               <MUISelect
                 items={[
-                  { label: "Open", value: "O" },
+                  { label: "Open", value: "Open" },
                   { label: "Closed", value: "Close" },
                 ]}
                 name="U_tl_status"
                 disabled
                 loading={data?.isLoadingSerie}
-                value={data?.U_tl_status !== "Close" ? "O" : "Close"}
+                value={data?.U_tl_status !== "Close" ? "Open" : "Close"}
                 onChange={(e: any) =>
                   handlerChange("U_tl_status", e.target.value)
                 }
