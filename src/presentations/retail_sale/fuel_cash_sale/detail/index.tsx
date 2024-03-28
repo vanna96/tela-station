@@ -149,7 +149,7 @@ class DeliveryDetail extends Component<any, any> {
             bin,
             pumpAttend,
             allocationData: updatedAllocationData,
-            ExchangeRate: data.ExchangeRate ?? (await fetchExchangeRate()),
+            ExchangeRate: await fetchExchangeRate(),
             ...data,
             loading: false,
           });
@@ -720,7 +720,6 @@ function IncomingPayment({ data }: any) {
   };
 
   let exchangeRate = data?.ExchangeRate;
-  console.log(exchangeRate);
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
