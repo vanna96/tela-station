@@ -431,8 +431,7 @@ export default function ContentForm({
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={3}
-                // fixedDecimalScale
+                decimalScale={data.Currency === "USD" ? 3 : 0}
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
                 onChange={(event) => {

@@ -48,7 +48,7 @@ export default function ContentForm({
   React.useEffect(() => {
     setCollapseError("Items" in data?.error);
   }, [data?.error]);
-  const vendorPriceList = 13;
+  const vendorPriceList = data.U_tl_sopricelist;
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
@@ -269,13 +269,15 @@ export default function ContentForm({
             );
 
             const defaultPrice = cell.row.original.ItemPrices?.find(
-              (e: any) => e.PriceList === 13
+              (e: any) => e.PriceList === data.U_tl_sopricelist
             )?.Price;
             const itemPrices = cell.row.original.ItemPrices?.find(
-              (e: any) => e.PriceList === 13
+              (e: any) => e.PriceList === data.U_tl_sopricelist
             )?.UoMPrices;
 
-            const uomPrice = itemPrices?.find((e: any) => e.PriceList === 13);
+            const uomPrice = itemPrices?.find(
+              (e: any) => e.PriceList === data.U_tl_sopricelist
+            );
 
             const grossPrice =
               uomPrice && selectedUomValue === uomPrice.UoMEntry
@@ -422,8 +424,8 @@ export default function ContentForm({
                 disabled
                 key={"Amount_" + cell.getValue()}
                 thousandSeparator
-                decimalScale={3}
-                placeholder={ "0.000" }
+                decimalScale={data.Currency === "USD" ? 3 : 0}
+                placeholder={"0.000"}
                 customInput={MUIRightTextField}
                 value={cell.getValue()}
                 onChange={(event) => {
