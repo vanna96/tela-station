@@ -410,18 +410,21 @@ export default function Document({
                             className=""
                             key={`${childIndex}_child_${childIndex}`}
                           >
-                            <td className="">
-                              <span className="text-gray-500 ml-[11px]">
-                                <Checkbox
-                                  onChange={(e) =>
-                                    selectChangeChild(e, index, childIndex)
-                                  }
-                                  checked={child?.checked ?? false}
-                                  className=""
-                                  size="small"
-                                />
-                              </span>
-                            </td>
+                            {!detail && (
+                              <td className="">
+                                <span className="text-gray-500 ml-[11px]">
+                                  <Checkbox
+                                    onChange={(e) =>
+                                      selectChangeChild(e, index, childIndex)
+                                    }
+                                    checked={child?.checked ?? false}
+                                    className=""
+                                    size="small"
+                                  />
+                                </span>
+                              </td>
+                            )}
+
                             <td className="pr-4"></td>
                             <td className="pr-4"></td>
                             <td className="pr-4"></td>
