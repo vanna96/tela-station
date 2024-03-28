@@ -9,12 +9,9 @@ import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 import LastPageIcon from "@mui/icons-material/LastPage";
 import { IoSearchSharp } from "react-icons/io5";
-
-import FormMessageModal from "@/components/modal/FormMessageModal";
 import SelectPage from "./SelectPage";
 import SealModal from "./SealModal";
 import Box from "@mui/material/Box";
-import Stack from "@mui/material/Stack";
 import CircularProgress, {
   circularProgressClasses,
   CircularProgressProps,
@@ -36,11 +33,11 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
   const [currentPage, setCurrentPage] = useState<any>(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentData, setCurrenData] = useState<any[]>([]);
-  const [newDataA, setNewdataA] = useState([]);
+  const [newData, setNewData] = useState([]);
   const [keys, setKeys] = useState<any>({});
   const [loadData, setLoadData] = useState({});
 
-  const { data, isLoading,refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["tl_bulk_seal"],
     queryFn: async () => {
       const response: any = await request(
@@ -55,8 +52,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     },
     retry: 1,
   });
-  console.log(data);
-  
+
   const totalPages = isNaN(data?.length)
     ? 0
     : Math.ceil(data.length / itemsPerPage);
@@ -76,6 +72,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     setCurrenData(data?.slice(startIndex, endIndex) ?? []);
   }, [startIndex, endIndex, data]);
 
+  //On Select Record
   const selectChangeRow = (event: any, index: number) => {
     const isChecked = event.target.checked;
     const updatedList = [...currentData];
@@ -85,35 +82,50 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
     setKeys(selectedKeys);
     setCurrenData(updatedList);
   };
-  
+
+  //Get Seal
   const getData = () => {
-    if (data?.length === 0) return;
-    setOpenItem(true);
-    let ids: any[] = [];
-    for (const [key, value] of Object.entries(keys)) {
-      if (value) ids.push(parseInt(key));
+    try {
+      if (data?.length === 0) return;
+
+      if (JSON.stringify(keys) === "{}")
+        throw new Error(
+          "Please select at least one record to complete the seal."
+        );
+      if (Object.values(keys).every((value) => value === false)) {
+        throw new Error(
+          "Please select at least one record to complete the seal."
+        );
+      }
+      setOpenItem(true);
+      let ids: any[] = [];
+      for (const [key, value] of Object.entries(keys)) {
+        if (value) ids.push(parseInt(key));
+      }
+      const result = data.filter((item: any) => ids.includes(item.DocNum));
+      setNewData(result);
+    } catch (error: any) {
+      dialog.current?.error(error?.message);
     }
-    const filteredObjects = data.filter((item: any) =>
-      ids.includes(item.DocNum)
-    );
-    setNewdataA(filteredObjects);
   };
 
-  const submitData = async () => {
+  // Submit Seal
+  const submitSeal = async () => {
     if (Object.keys(loadData).length === 0) return;
     setSubmiting(true);
     await request("POST", `/script/test/bulk_seal_allocation`, loadData)
       .then((res: any) => dialog.current?.success("Created Successfully.", 0))
       .catch((err: any) => dialog.current?.error(err.message))
       .finally(() => {
-        setSubmiting(false)
         refetch();
+        setSubmiting(false);
       });
   };
+
   useEffect(() => {
-    submitData();
+    submitSeal();
   }, [loadData]);
-  
+
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-red-40">
@@ -434,7 +446,7 @@ export default function BulkSealAllocationList(props: CircularProgressProps) {
       </div>
       <SealModal
         setLoadData={setLoadData}
-        data={newDataA}
+        data={newData}
         setOpen={setOpenItem}
         open={openItem}
       />

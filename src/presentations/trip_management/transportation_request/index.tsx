@@ -43,7 +43,6 @@ export default function InventoryTransferList() {
         });
       return response;
     },
-    staleTime: Infinity,
   });
   const emp: any = useQuery({
     queryKey: ["S_P"],
@@ -55,7 +54,6 @@ export default function InventoryTransferList() {
         });
       return response;
     },
-    staleTime: Infinity,
   });
 
   const columns = React.useMemo(
