@@ -62,8 +62,14 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
         if (!watch('TL_TO_ORDERCollection')) return []
 
         const data: any[] = [];
-        for (let index = 0; index < (watch('TL_TO_ORDERCollection') ?? []).length; index++) {
-            const value: any = watch('TL_TO_ORDERCollection')[index];
+        const arrs: any[] = watch('TL_TO_ORDERCollection') ?? [];
+        console.log(arrs)
+
+        for (let index = 0; index < arrs.length; index++) {
+            const value: any = arrs[index];
+
+            if (!value?.TL_TO_DETAIL_ROWCollection) continue;
+
             const mapped = value?.TL_TO_DETAIL_ROWCollection?.map((e: any, rowIndex: number) => ({ ...e, ParentIndex: index, Index: rowIndex, Type: value?.U_DocType }))
             data.push(...mapped);
         }

@@ -142,14 +142,17 @@ const TransportationOrderForm = (props: any) => {
   const queryParam = useQueryParams();
 
   const isResyncStock = useMemo(() => {
-    if (!hook.id) return false;
+    if (!hook.id || !hook.watch('TL_TO_ORDERCollection')) return false;
+
+    if (!(['R', 'C'].includes(queryParam.get('status')?.toUpperCase() ?? ''))) return false
+
     // if (hook.watch('U_Status') === queryParam.get('status'))
     return hook.watch('TL_TO_ORDERCollection')?.filter((child: any) => child?.U_Type !== 'S')
       ?.some((e: any) => e?.TL_TO_DETAIL_ROWCollection
         ?.some((row: any) => row?.U_gi_synced === 0 || row?.U_gr_synced === 0));
 
     // 
-  }, [hook.watch('TL_TO_ORDERCollection'), hook.watch('U_Status')])
+  }, [hook.watch('TL_TO_ORDERCollection'), hook.watch('U_Status'), queryParam.get('status')])
 
 
   const onResynceData = useCallback(async () => {

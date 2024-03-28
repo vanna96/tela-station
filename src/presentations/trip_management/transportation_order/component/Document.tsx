@@ -20,6 +20,8 @@ export default function Document(props: any) {
 
   const onRemoveLine = () => {
     let sources: any[] = [];
+
+
     for (let index = 0; index < documents.length; index++) {
       let indexes: any[] = rowChildSelect.filter((e) => `${index}_`);
       if (!indexes || indexes.length === 0) continue;
@@ -213,7 +215,7 @@ export default function Document(props: any) {
                       e?.TL_TO_DETAIL_ROWCollection?.map(
                         (c: any, indexc: number) => {
                           return (
-                            <Fragment key={shortid.generate()}>
+                            <Fragment key={indexc + "_" + shortid.generate()}>
                               <tr
                                 className="border-t-[1px] border-[#dadde0] "
                                 key={indexc}
