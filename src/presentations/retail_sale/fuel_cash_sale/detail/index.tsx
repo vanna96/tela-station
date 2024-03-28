@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import BankRepository from "@/services/actions/bankRepository";
 import CashACAutoComplete from "@/components/input/CashAccountAutoComplete";
 import CurrencySelect from "@/components/selectbox/Currency";
+import { formatDate } from "@/helper/helper";
 class DeliveryDetail extends Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -122,11 +123,33 @@ class DeliveryDetail extends Component<any, any> {
               };
             })
           );
+          const date = formatDate(new Date());
+          const fetchExchangeRate = async () => {
+            try {
+              const res: any = await request(
+                "POST",
+                "/SBOBobService_GetCurrencyRate",
+                {
+                  Currency: "KHR",
+                  Date: `${date}`,
+                }
+              );
+
+              if (res?.data) {
+                return res.data;
+              } else {
+                return 0;
+              }
+            } catch (err) {
+              return 0;
+            }
+          };
           this.setState({
             seriesList,
             bin,
             pumpAttend,
             allocationData: updatedAllocationData,
+            ExchangeRate: data.ExchangeRate ?? (await fetchExchangeRate()),
             ...data,
             loading: false,
           });
@@ -695,7 +718,9 @@ function IncomingPayment({ data }: any) {
 
     return total;
   };
-  let exchangeRate = data?.ExchangeRate || 4100;
+
+  let exchangeRate = data?.ExchangeRate;
+  console.log(exchangeRate);
   const totalKHR = React.useMemo(
     () => calculateTotalByCurrency(data, "KHR"),
     [data]
@@ -946,7 +971,8 @@ function IncomingPayment({ data }: any) {
               placeholder="0.000"
               decimalScale={3}
               customInput={MUIRightTextField}
-              value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+              // value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale, 0)}
+              value={Math.max(totalUSD + TotalKHRtoUSD - totalCashSale)}
             />
           </div>
         </div>
