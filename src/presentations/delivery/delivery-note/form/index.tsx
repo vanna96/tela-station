@@ -617,6 +617,7 @@ class DeliveryForm extends CoreFormDocument {
                       <div className="backdrop-blur-sm bg-white p-4 rounded-lg shadow-lg z-[1000] flex justify-between gap-3 border drop-shadow-sm">
                         <div className="flex ">
                           <LoadingButton
+                            disabled={this.props.edit}
                             size="small"
                             sx={{ height: "25px" }}
                             variant="outlined"
