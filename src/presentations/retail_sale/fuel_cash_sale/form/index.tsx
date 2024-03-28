@@ -60,7 +60,7 @@ class Form extends NonCoreDcument {
       ],
       couponData: [
         {
-          U_tl_acccoupon: "111102",
+          U_tl_acccoupon: "",
           U_tl_amtcoupon: "",
           U_tl_paycur: "USD",
           U_tl_paytype: "Coupon",
@@ -788,7 +788,7 @@ class Form extends NonCoreDcument {
         TransferAccount: "111102",
         TransferAccountFC: "111103",
         CheckAccount: "110499",
-        CouponAccount: "111102",
+        CouponAccount: data?.couponData[0]?.U_tl_acccoupon ?? "",
         Remarks: data.Remark,
 
         IncomingPayment: [

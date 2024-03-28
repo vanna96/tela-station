@@ -52,7 +52,6 @@ export default function ContentForm({
   const wh = data.U_tl_whs;
   const branch = data.U_tl_bplid;
   const lineofbusiness = data.U_tl_arbusi;
-  console.log(data);
   const handlerUpdateRow = async (i: number, e: any, selectedField: string) => {
     if (selectedField === "ItemCode") {
       const selectedCode = e[1];
@@ -78,6 +77,7 @@ export default function ContentForm({
         (item: any, indexItem: number, vendorPriceList: any) => {
           if (i.toString() === indexItem.toString()) {
             item.ItemCode = itemDetails.ItemCode;
+            item.BinLocation = data.U_tl_sobincode;
             item.ItemName = itemDetails.ItemName;
             // item.UnitPrice = itemDetails.MovingAveragePrice;
             item.GrossPrice = item.UnitPrice;

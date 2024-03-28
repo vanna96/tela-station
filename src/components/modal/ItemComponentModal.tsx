@@ -32,6 +32,7 @@ interface ItemModalProps {
   multipleSelect?: any;
   priceList?: number;
   U_ti_revenue?: any;
+  bincode?: any;
 }
 
 const ItemModal: FC<ItemModalProps> = ({
@@ -46,6 +47,7 @@ const ItemModal: FC<ItemModalProps> = ({
   multipleSelect,
   priceList,
   U_ti_revenue,
+  bincode,
 }) => {
   const [globalFilter, setGlobalFilter] = React.useState("");
   const [filterKey, setFilterKey] = React.useState("key-id");
@@ -187,9 +189,10 @@ const ItemModal: FC<ItemModalProps> = ({
         Total: total,
         TotalGross: 0,
         WarehouseCode: e?.WarehouseCode || WarehouseCode,
-        BinAbsEntry:
-          warebinList?.length > 0 ? warebinList[0]?.BinAbsEntry : null,
-        BinCode: warebinList?.length > 0 ? warebinList[0]?.BinCode : null,
+        BinAbsEntry: warebinList?.length > 0 ? warebinList[0]?.BinID : null,
+        BinCode: warebinList?.length > 0 ? warebinList[0]?.BinID : null,
+        BinLocation: parseInt(bincode),
+        BinList: warebinList,
         LineOfBussiness: e?.U_tl_dim1,
         UnitPrice: formatNumberWithoutRounding(unitPriceValue, 4),
         COGSCostingCode: e?.U_tl_dim1,
@@ -405,6 +408,7 @@ export class ItemModalComponent extends React.Component<
         multipleSelect={this.props.multipleSelect}
         priceList={this.props.priceList}
         U_ti_revenue={this.props.U_ti_revenue}
+        bincode={this.props.bincode}
       />
     );
   }
