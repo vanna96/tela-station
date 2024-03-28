@@ -46,7 +46,6 @@ class SalesOrderForm extends CoreFormDocument {
       error: {},
       BPCurrenciesCollection: [],
       CurrencyType: "L",
-      Currency: "USD",
       DocType: "dDocument_Items",
       ExchangeRate: 1,
       JournalRemark: "",
@@ -121,14 +120,14 @@ class SalesOrderForm extends CoreFormDocument {
           let disabledFields: any = {
             CurrencyType: true,
           };
+
           state = {
             ...data,
-
             vendor,
             warehouseCode: data.U_tl_whsdesc,
             lob: data.U_tl_arbusi,
             Currency: data.DocCurrency,
-
+            ExchangeRate: data.DocRate,
             Items: await Promise.all(
               (data?.DocumentLines || []).map(async (item: any) => {
                 let apiResponse: any;
@@ -176,7 +175,10 @@ class SalesOrderForm extends CoreFormDocument {
                   GrossPrice: item.GrossPrice,
                   TotalGross: item.GrossTotal,
                   TotalUnit: item.LineTotal,
-                  LineTotal: item.GrossTotal,
+                  LineTotal:
+                    data?.DocCurrency === "USD"
+                      ? data?.GrossTotal
+                      : item.GrossTotalFC,
                   DiscountPercent: item.DiscountPercent || 0,
                   VatGroup: item.VatGroup,
                   UoMEntry: item.UomAbsEntry || null,
