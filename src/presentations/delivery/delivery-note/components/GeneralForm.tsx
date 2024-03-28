@@ -398,7 +398,7 @@ export default function GeneralForm({
             </div>
             <div className="col-span-3">
               <SalePersonAutoComplete
-                disabled={edit}
+                disabled
                 value={data.SalesPersonCode}
                 onChange={(e) => handlerChange("SalesPersonCode", e)}
               />
