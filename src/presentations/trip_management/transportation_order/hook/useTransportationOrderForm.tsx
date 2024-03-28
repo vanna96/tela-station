@@ -43,7 +43,6 @@ const defaultValues: POSTTransporationOrder = {
 
 export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefObject<FormMessageModal>) => {
     const [loading, setLoading] = useState(false);
-
     const { id } = useParams()
 
     const {
@@ -91,7 +90,6 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
             }
 
             if (response.data && edit) {
-                console.log(response?.data)
                 const transferReponse: any = await createGIGRTransaction(response?.data ?? []);
                 setLoading(false)
                 dialog.current?.success(`${transferReponse?.message ?? ''}`, response?.data?.DocEntry)
@@ -168,5 +166,7 @@ export const useTransportationOrderFormHook = (edit: boolean, dialog: React.RefO
         series: series?.series,
         defaultSerie: series?.defaultSerie,
         edit,
+        id,
+        setLoading
     }
 }

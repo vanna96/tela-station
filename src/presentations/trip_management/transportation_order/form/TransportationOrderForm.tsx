@@ -14,12 +14,14 @@ import Expense from "../component/Expense";
 import Compartment from "../component/Compartment";
 import { useTOAuthorizationField } from "../hook/useTOAuthorizationField";
 import TODocumenHeaderComponent from "../../component/TODocumenHeaderComponent";
-import { displayTextDate } from "@/lib/utils";
+import { displayTextDate, useQueryParams } from "@/lib/utils";
+import { createGIGRTransaction } from "../services";
+import request from "@/utilies/request";
+import CustomToast from "@/components/modal/CustomToast";
 
 let dialog = React.createRef<FormMessageModal>();
 let loadDocumentRef = React.createRef<TransportationOrderModal>();
-
-
+let toastRef = React.createRef<CustomToast>();
 
 const TransportationOrderForm = (props: any) => {
   const hook = useTransportationOrderFormHook(props?.edit, dialog)
@@ -137,11 +139,37 @@ const TransportationOrderForm = (props: any) => {
       </div></>
   }
 
+  const queryParam = useQueryParams();
+
+  const isResyncStock = useMemo(() => {
+    if (!hook.id) return false;
+    // if (hook.watch('U_Status') === queryParam.get('status'))
+    return hook.watch('TL_TO_ORDERCollection')?.filter((child: any) => child?.U_Type !== 'S')
+      ?.some((e: any) => e?.TL_TO_DETAIL_ROWCollection
+        ?.some((row: any) => row?.U_gi_synced === 0 || row?.U_gr_synced === 0));
+
+    // 
+  }, [hook.watch('TL_TO_ORDERCollection'), hook.watch('U_Status')])
+
+
+  const onResynceData = useCallback(async () => {
+    try {
+      hook.setLoading(true)
+      const getStock = await request('GET', `/script/test/generate_trans_order_gigr(${hook.id})`);
+      hook.setLoading(false)
+      console.log(getStock);
+      // const transferReponse: any = await createGIGRTransaction(response?.data ?? []);
+      // dialog.current?.success(`${transferReponse?.message ?? ''}`, response?.data?.DocEntry)
+    } catch (error: any) {
+      hook.setLoading(false)
+      dialog.current?.error(error?.message ?? '')
+    }
+  }, [isResyncStock])
 
   return (
     <>
       <FormMessageModal ref={dialog} />
-
+      <CustomToast ref={toastRef} />
       {hook.loading ? (
         <div className="w-full h-full flex item-center justify-center">
           <LoadingProgress />
@@ -228,6 +256,22 @@ const TransportationOrderForm = (props: any) => {
                     </span>
                   </LoadingButton>
                 </div>
+
+                {isResyncStock && <div className="flex items-center space-x-4">
+                  <LoadingButton
+                    sx={{ height: "25px" }}
+                    className="bg-white"
+                    loading={hook.loading}
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                    onClick={onResynceData}
+                  >
+                    <span className="px-6 text-[11px] py-4 text-white">
+                      Re-generate Stock
+                    </span>
+                  </LoadingButton>
+                </div>}
               </div>
             </div>
           </form>
