@@ -179,7 +179,6 @@ export default function Lists() {
     ],
     []
   );
-
   return (
     <>
       <div className="w-full h-full px-6 py-2 flex flex-col gap-1 relative bg-white">

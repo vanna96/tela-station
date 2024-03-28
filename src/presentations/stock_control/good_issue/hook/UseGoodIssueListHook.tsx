@@ -39,9 +39,13 @@ function reducer(state: QueryOptionAPI, action: ActionQueryParam) {
 const keyData = "good-issue-lists";
 const keyCount = "good-issue-count";
 
-export const UseGoodIssueListHook = (pagination: any) => {
+export const UseGoodIssueListHook = () => {
   const [state, dispatch] = React.useReducer(reducer, initialState);
   const [waiting, setwaiting] = React.useState(false);
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const filters = useMemo(() => {
     return {
@@ -152,6 +156,8 @@ export const UseGoodIssueListHook = (pagination: any) => {
     setSort,
     exportExcelTemplate,
     refetchData,
-    waiting
+    waiting,
+    setPagination,
+    pagination
   };
 };

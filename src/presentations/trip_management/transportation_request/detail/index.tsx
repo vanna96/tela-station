@@ -164,7 +164,7 @@ const TransportationRequestDetail = (props: any) => {
               <span className="">Status</span>
             </div>
           </div>
-          <div className="w-[70%] gap-[10px] text-[15px] flex flex-col justify-between h-full">
+          <div className="w-[70%] gap-[10px] text-[14px] flex flex-col justify-between h-full">
             <div>
               <span className="">{watch("RequesterName") || "_"}</span>
             </div>
@@ -174,7 +174,8 @@ const TransportationRequestDetail = (props: any) => {
             <div>
               <span>{watch("U_Terminal") || "_"}</span>
             </div>
-            <div className="">
+            <div            
+            >
               <span>{watch("U_Status") === "O" ? "OPEN" : "CLOSE" || "_"}</span>
             </div>
           </div>

@@ -174,7 +174,7 @@ export default function TRModal(props: any) {
         const selected: TRSourceDocument[] = res?.data?.value?.map(
           (e: TRSourceDocument) => {
             return {
-              U_SourceLineId: e.U_SourceLineId,
+              U_SourceLineId: e?.U_SourceLineId,
               U_SourceDocEntry: e.U_SourceDocEntry,
               U_DocNum: e.U_DocNum,
               U_Type: e.U_Type,
