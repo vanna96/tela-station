@@ -27,7 +27,8 @@ export type TRSourceDocument = {
   U_UomAbsEntry: number;
   U_Status?: string | undefined;
   U_Reference?: string | any;
-  U_Children?:any[] | any
+  U_Children?: any[] | any,
+  U_SourceLineId: number,
 };
 
 export default function Document({
@@ -268,8 +269,8 @@ export default function Document({
 
                       <td className="pr-4 pb-1">
                         {detail ||
-                        e?.U_Children?.length > 0 ||
-                        watch("U_Status") === "C" ? (
+                          e?.U_Children?.length > 0 ||
+                          watch("U_Status") === "C" ? (
                           <MUITextField
                             placeholder="Delivery Date"
                             value={dateFormat(e?.U_DeliveryDate)}
@@ -295,7 +296,7 @@ export default function Document({
                                     if (d !== null) {
                                       const val =
                                         d.toLowerCase() ===
-                                        "Invalid Date".toLocaleLowerCase()
+                                          "Invalid Date".toLocaleLowerCase()
                                           ? ""
                                           : d;
                                       setValue(
@@ -350,9 +351,9 @@ export default function Document({
                             <td className="pr-4">
                               <div className="pb-2">
                                 {e?.U_Type === "ITR" ||
-                                child?.U_Status === "C" ||
-                                watch("U_Status") === "C" ||
-                                detail ? (
+                                  child?.U_Status === "C" ||
+                                  watch("U_Status") === "C" ||
+                                  detail ? (
                                   <MUITextField
                                     placeholder="Delivery Date"
                                     value={e?.U_ShipToCode}
@@ -370,7 +371,7 @@ export default function Document({
                                     }}
                                     name={`TL_TR_ROWCollection.${index}.U_Children.${childIndex}.U_ShipToCode`}
                                     control={control}
-                                      render={({ field }) => {                                      
+                                    render={({ field }) => {
                                       return (
                                         <ShipToAutoComplete
                                           cardCode={e?.U_CardCode}
@@ -391,8 +392,8 @@ export default function Document({
                             </td>
                             <td className="pr-4 pb-2">
                               {detail ||
-                              child?.U_Status === "C" ||
-                              watch("U_Status") === "C" ? (
+                                child?.U_Status === "C" ||
+                                watch("U_Status") === "C" ? (
                                 <MUITextField
                                   placeholder="Delivery Date"
                                   defaultValue={dateFormat(
@@ -415,7 +416,7 @@ export default function Document({
                                           if (e !== null) {
                                             const val =
                                               e.toLowerCase() ===
-                                              "Invalid Date".toLocaleLowerCase()
+                                                "Invalid Date".toLocaleLowerCase()
                                                 ? ""
                                                 : e;
                                             setValue(

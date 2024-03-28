@@ -174,6 +174,7 @@ export default function TRModal(props: any) {
         const selected: TRSourceDocument[] = res?.data?.value?.map(
           (e: TRSourceDocument) => {
             return {
+              U_SourceLineId: e.U_SourceLineId,
               U_SourceDocEntry: e.U_SourceDocEntry,
               U_DocNum: e.U_DocNum,
               U_Type: e.U_Type,
@@ -221,9 +222,8 @@ export default function TRModal(props: any) {
       >
         <Box sx={style} borderRadius={3}>
           <div
-            className={`w-full h-full ${
-              openLoading ? "block" : "hidden"
-            } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
+            className={`w-full h-full ${openLoading ? "block" : "hidden"
+              } bg-slate-200 flex items-center justify-center bg-opacity-50 absolute left-0 top-0 rounded-md z-50`}
           >
             <CircularProgress color="success" />{" "}
           </div>
@@ -237,7 +237,7 @@ export default function TRModal(props: any) {
             columns={columns}
             data={data}
             handlerRefresh={refetchData}
-            handlerSearch={() => {}}
+            handlerSearch={() => { }}
             handlerSortby={setSort}
             count={totalRecords}
             loading={loading}
@@ -296,8 +296,8 @@ export const InventoryTransferFilter = ({
   onFilter,
   watch,
 }: {
-    onFilter?: (values: (string | undefined)[], query: string) => any;
-  watch:any
+  onFilter?: (values: (string | undefined)[], query: string) => any;
+  watch: any
 }) => {
   const { handleSubmit, setValue, control } = useForm({
     defaultValues: defaultValueFilter,
@@ -317,7 +317,7 @@ export const InventoryTransferFilter = ({
   useEffect(() => {
     setValue("BPLId_$eq_number", watch("U_Branch"));
   }, [watch("U_Branch")]);
-  
+
   return (
     <form
       onSubmit={handleSubmit(onSubmitModal)}

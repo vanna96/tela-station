@@ -19,30 +19,34 @@ export default function Document(props: any) {
   const [rowChildSelect, setRowChildSelect] = useState<string[]>([])
 
   const onRemoveLine = () => {
-    let sources: any[] = [];
+    if (rowChildSelect.length === 0) return;
 
+    // grouping index by it parent selected
+    const mappedSelected = rowChildSelect.reduce((acc: any, val: any) => {
+      const [key, value] = val.split('_').map(Number);
+      if (!acc[key]) acc[key] = [];
 
-    for (let index = 0; index < documents.length; index++) {
-      let indexes: any[] = rowChildSelect.filter((e) => `${index}_`);
-      if (!indexes || indexes.length === 0) continue;
+      acc[key].push(value);
+      return acc;
+    }, {});
 
-      indexes = indexes.map((e) => Number(e?.split('_').at(1)));
-      const ele = documents[index];
-      let rows: any[] = []
-      for (let j = 0; j < ele?.TL_TO_DETAIL_ROWCollection?.length; j++) {
-        if (indexes.includes(j)) continue;
+    // mapping new value
+    let linesdocuments: TOCollections[] = [];
+    for (const key of Object.keys(mappedSelected)) {
+      const values = mappedSelected[key] as number[];
 
-        rows.push(ele?.TL_TO_DETAIL_ROWCollection[j])
+      if (values.length === documents[Number(key)].TL_TO_DETAIL_ROWCollection.length) {
+        continue;
       }
 
-      if (rows.length > 0)
-        sources.push({ ...ele, TL_TO_DETAIL_ROWCollection: rows })
+      const lines = documents[Number(key)].TL_TO_DETAIL_ROWCollection.filter((e: any, index) => !values.includes(index));
+      if (lines.length === 0) continue
+      linesdocuments.push({ ...documents[Number(key)], TL_TO_DETAIL_ROWCollection: lines })
     }
 
     setRowChildSelect([])
     setRowSelect([])
-    if (sources.length > 0)
-      props?.setValue('TL_TO_ORDERCollection', sources)
+    props?.setValue('TL_TO_ORDERCollection', linesdocuments) // set new state
   }
 
   const onSelectParent = (event: any, index: number) => {
@@ -54,7 +58,7 @@ export default function Document(props: any) {
     } else {
       state.push(index);
       const childs = documents[index].TL_TO_DETAIL_ROWCollection.map((e, childIndex) => `${index}_${childIndex}`)
-      setRowChildSelect(childs)
+      setRowChildSelect([...rowChildSelect, ...childs])
     }
     setRowSelect(state)
   }

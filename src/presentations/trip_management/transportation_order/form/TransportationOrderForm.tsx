@@ -141,27 +141,31 @@ const TransportationOrderForm = (props: any) => {
 
   const queryParam = useQueryParams();
 
-  const isResyncStock = useMemo(() => {
-    if (!hook.id || !hook.watch('TL_TO_ORDERCollection')) return false;
+  // const isResyncStock = useMemo(() => {
+  //   return false
+  //   if (!hook.id || !hook.watch('TL_TO_ORDERCollection')) return false;
 
-    if (!(['R', 'C'].includes(queryParam.get('status')?.toUpperCase() ?? ''))) return false
+  //   if (!(['R', 'C'].includes(queryParam.get('status')?.toUpperCase() ?? ''))) return false
 
-    // if (hook.watch('U_Status') === queryParam.get('status'))
-    return hook.watch('TL_TO_ORDERCollection')?.filter((child: any) => child?.U_Type !== 'S')
-      ?.some((e: any) => e?.TL_TO_DETAIL_ROWCollection
-        ?.some((row: any) => row?.U_gi_synced === 0 || row?.U_gr_synced === 0));
+  //   // if (hook.watch('U_Status') === queryParam.get('status'))
+  //   return hook.watch('TL_TO_ORDERCollection')?.filter((child: any) => child?.U_Type !== 'S')
+  //     ?.some((e: any) => e?.TL_TO_DETAIL_ROWCollection
+  //       ?.some((row: any) => row?.U_gi_synced === 0 || row?.U_gr_synced === 0));
 
-    // 
-  }, [hook.watch('TL_TO_ORDERCollection'), hook.watch('U_Status'), queryParam.get('status')])
+  //   // 
+  // }, [])
+  // hook.watch('TL_TO_ORDERCollection'), hook.watch('U_Status'), queryParam.get('status')
 
+  const isResyncStock = true;
 
   const onResynceData = useCallback(async () => {
     try {
+      if (!isResyncStock) return;
+
       hook.setLoading(true)
-      const getStock = await request('GET', `/script/test/generate_trans_order_gigr(${hook.id})`);
+      const getStock: any = await request('GET', `/script/test/generate_trans_order_gigr(${hook.id})`);
+      await createGIGRTransaction(getStock?.data ?? []);
       hook.setLoading(false)
-      console.log(getStock);
-      // const transferReponse: any = await createGIGRTransaction(response?.data ?? []);
       // dialog.current?.success(`${transferReponse?.message ?? ''}`, response?.data?.DocEntry)
     } catch (error: any) {
       hook.setLoading(false)

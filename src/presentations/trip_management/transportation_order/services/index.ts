@@ -6,6 +6,7 @@ export type TOLineSyncPayload = {
   LineId: number;
   Type: TOLineSyncPayloadType;
   Synce: number;
+  DocNum: number;
 };
 
 export const createGIGRTransaction = async (data: any[]) => {
@@ -25,6 +26,7 @@ export const createGIGRTransaction = async (data: any[]) => {
           Synce: goodIssueResponse.status !== 201 ? -1 : 1,
           LineId: lineId,
           Type: "gi",
+          DocNum: goodIssueResponse?.data?.DocNum,
         });
 
         if (goodIssueResponse.status !== 201) break;
@@ -40,6 +42,7 @@ export const createGIGRTransaction = async (data: any[]) => {
           Synce: goodReceiptResponse.status !== 201 ? -1 : 1,
           LineId: lineId,
           Type: "gr",
+          DocNum: goodReceiptResponse?.data?.DocNum,
         });
 
         if (goodReceiptResponse.status !== 201) break;
@@ -61,10 +64,10 @@ export const createGIGRTransaction = async (data: any[]) => {
         );
 
         if (update.status !== 201) break;
-
-        console.log(lineId);
       } catch (error) {
+        console.log(error);
         reject(error);
+        break;
       }
     }
     resolve({
