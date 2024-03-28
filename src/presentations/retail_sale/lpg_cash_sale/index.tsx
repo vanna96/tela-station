@@ -16,6 +16,8 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import DispenserRepository from "@/services/actions/dispenserRepository";
+import DispenserAutoComplete from "@/components/input/DispenserAutoComplete";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function SaleOrderLists() {
   const route = useNavigate();
@@ -254,6 +256,11 @@ export default function SaleOrderLists() {
         ? ` and U_tl_bplid eq '${searchValues.bplid}'`
         : `U_tl_bplid eq '${searchValues.bplid}'`;
     }
+    if (searchValues.pump) {
+      queryFilters += queryFilters
+        ? ` and U_tl_pump eq '${searchValues.pump}'`
+        : `U_tl_pump eq '${searchValues.pump}'`;
+    }
 
     let query = queryFilters;
 
@@ -281,6 +288,7 @@ export default function SaleOrderLists() {
     postingDate: null,
     status: "",
     bplid: "",
+    pump: "",
   });
 
   const childBreadcrum = (
@@ -350,6 +358,54 @@ export default function SaleOrderLists() {
                         })
                       }
                       value={searchValues.bplid}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "Open", name: "Open" },
+                        { id: "Close", name: "Close" },
+                        { id: "", name: "All" },
+                      ]}
+                      value={searchValues.status}
+                      onChange={(e: any) => {
+                        setSearchValues({
+                          ...searchValues,
+                          status: e.target.value,
+                        });
+                      }}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="Status"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Pump
+                  </label>
+                  <div className="">
+                    <DispenserAutoComplete
+                      allData
+                      isStatusActive
+                      pumpType="LPG"
+                      name={"Pump"}
+                      onChange={(selectedValue: any) =>
+                        setSearchValues({
+                          ...searchValues,
+                          pump: selectedValue,
+                        })
+                      }
+                      value={searchValues.pump}
                     />
                   </div>
                 </div>

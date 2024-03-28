@@ -16,6 +16,7 @@ import { useParams } from "react-router-dom";
 import BinLocationToAsEntry from "@/components/input/BinLocationToAsEntry";
 import PriceListAutoComplete from "@/components/input/PriceListAutoComplete";
 import { useExchangeRate } from "../../components/hook/useExchangeRate";
+import PriceListRepository from "@/services/actions/pricelistRepository";
 
 export interface IGeneralFormProps {
   handlerChange: (key: string, value: any) => void;
@@ -25,6 +26,7 @@ export interface IGeneralFormProps {
   warehouseCode: string;
   onLineofBusinessChange: (value: any) => void;
   onWarehouseChange: (value: any) => void;
+  handlerChangeObject: (obj: any) => void;
 }
 
 export default function GeneralForm({
@@ -32,6 +34,7 @@ export default function GeneralForm({
   onLineofBusinessChange,
   onWarehouseChange,
   handlerChange,
+  handlerChangeObject,
   edit,
 }: IGeneralFormProps) {
   const [cookies] = useCookies(["user"]);
@@ -78,19 +81,14 @@ export default function GeneralForm({
     data.lineofBusiness = "Lube";
   }
 
+  if (!edit && data.vendor) {
+    data.U_tl_sopricelist = data.U_tl_sopricelist || data.vendor.priceLists;
+  }
   const { data: CurrencyAPI }: any = useQuery({
     queryKey: ["Currency"],
     queryFn: () => new CurrencyRepository().get(),
     staleTime: Infinity,
   });
-
-  const a = CurrencyAPI?.map((c: any) => {
-    return {
-      value: c.Code,
-      name: c.Name,
-    };
-  });
-  //test
 
   const { data: sysInfo }: any = useQuery({
     queryKey: ["sysInfo"],
@@ -107,6 +105,7 @@ export default function GeneralForm({
     });
 
   useExchangeRate(data?.Currency, handlerChange);
+
   return (
     <div className="rounded-lg shadow-sm bg-white border p-8 px-14 h-screen">
       <div className="font-medium text-xl flex justify-between items-center border-b mb-6">
@@ -190,7 +189,7 @@ export default function GeneralForm({
                 autoComplete="off"
                 defaultValue={edit ? data.U_tl_cardcode : data?.CardCode}
                 name="BPCode"
-                passedcardcode={data.CardCode}
+                // passedcardcode={data.CardCode}
                 endAdornment={!edit}
               />
             </div>
@@ -213,6 +212,26 @@ export default function GeneralForm({
           <div className="grid grid-cols-5 py-2">
             <div className="col-span-2">
               <label htmlFor="Code" className="text-gray-600 ">
+                Price List
+              </label>
+            </div>
+            <div className="col-span-3">
+              <PriceListAutoComplete
+                onChange={(e) => {
+                  handlerChangeObject({
+                    U_tl_sopricelist: e,
+                    Currency: new PriceListRepository().find(e)
+                      ?.DefaultPrimeCurrency,
+                  });
+                }}
+                value={data?.U_tl_sopricelist}
+                isActiveAndGross={true}
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-5 py-2">
+            <div className="col-span-2">
+              <label htmlFor="Code" className="text-gray-600 ">
                 Currency
               </label>
             </div>
@@ -221,16 +240,17 @@ export default function GeneralForm({
                 <div className="col-span-6">
                   {
                     <MUISelect
-                      value={data?.Currency || sysInfo?.SystemCurrency}
+                      disabled
+                      value={data?.Currency}
                       items={
                         dataCurrency?.length > 0
-                          ? CurrencyAPI?.map((c: any) => {
+                          ? dataCurrency
+                          : CurrencyAPI?.map((c: any) => {
                               return {
                                 value: c.Code,
                                 name: c.Name,
                               };
                             })
-                          : dataCurrency
                       }
                       aliaslabel="name"
                       aliasvalue="value"
@@ -241,10 +261,9 @@ export default function GeneralForm({
                   }
                 </div>
                 <div className="col-span-6 ">
-                  {(data?.Currency || sysInfo?.SystemCurrency) !==
-                    sysInfo?.SystemCurrency && (
+                  {data?.Currency !== sysInfo?.SystemCurrency && (
                     <MUITextField
-                      value={data?.ExchangeRate || 0}
+                      value={data?.ExchangeRate}
                       name=""
                       disabled={true}
                       className="-mt-1"

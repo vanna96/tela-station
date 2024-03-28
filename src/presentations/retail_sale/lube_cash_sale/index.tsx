@@ -16,6 +16,7 @@ import BranchBPLRepository from "@/services/actions/branchBPLRepository";
 import { useCookies } from "react-cookie";
 import BranchAutoComplete from "@/components/input/BranchAutoComplete";
 import DispenserRepository from "@/services/actions/dispenserRepository";
+import MUISelect from "@/components/selectbox/MUISelect";
 
 export default function SaleOrderLists() {
   const route = useNavigate();
@@ -32,14 +33,7 @@ export default function SaleOrderLists() {
         visible: true,
         type: "number",
       },
-      {
-        accessorKey: "U_tl_pump",
-        header: "Pump Code",
-        enableClickToCopy: true,
-        visible: true,
-        type: "string",
-        align: "center",
-      },
+
       {
         accessorKey: "U_tl_cardcode",
         header: "Customer Code",
@@ -321,7 +315,6 @@ export default function SaleOrderLists() {
                   }
                 />
               </div>
-
               <div className="col-span-2 2xl:col-span-3">
                 <MUIDatePicker
                   label="Posting Date"
@@ -350,6 +343,32 @@ export default function SaleOrderLists() {
                         })
                       }
                       value={searchValues.bplid}
+                    />
+                  </div>
+                </div>
+              </div>{" "}
+              <div className="col-span-2 2xl:col-span-3">
+                <div className="flex flex-col gap-1 text-sm">
+                  <label htmlFor="Code" className="text-gray-500 text-[14px]">
+                    Status
+                  </label>
+                  <div className="">
+                    <MUISelect
+                      items={[
+                        { id: "Open", name: "Open" },
+                        { id: "Close", name: "Close" },
+                        { id: "", name: "All" },
+                      ]}
+                      value={searchValues.status}
+                      onChange={(e: any) => {
+                        setSearchValues({
+                          ...searchValues,
+                          status: e.target.value,
+                        });
+                      }}
+                      aliasvalue="id"
+                      aliaslabel="name"
+                      name="Status"
                     />
                   </div>
                 </div>
